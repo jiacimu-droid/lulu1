@@ -15,7 +15,7 @@ function loadArt(kind,src){const img=new Image();img.onload=()=>{art[kind]=img;a
 for(const [kind,src] of Object.entries(paths))loadArt(kind,src);
 function loadWorld(kind){let raw=null;try{raw=JSON.parse(localStorage.getItem(cachePrefix+kind)||'null')}catch{}return Core.valid(raw)&&raw.kind===kind?raw:Core.createWorld(kind,813)}
 function save(){try{localStorage.setItem(cachePrefix+chosen,JSON.stringify(s))}catch{}}
-function start(kind){if(!names[kind])return;chosen=kind;s=loadWorld(kind);path=[];moving=false;clearInterval(held);held=null;if($('art-gallery'))$('art-gallery').hidden=true;if($('asset-toggle'))$('asset-toggle').setAttribute('aria-expanded','false');const immersive=kind==='island'||kind==='relic';if(!immersive){if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});try{screen.orientation?.unlock?.()}catch{}}document.body.classList.toggle('world-immersive',immersive);$('exit-world').hidden=!immersive;$('fullscreen-world').hidden=!immersive;$('world-switch').hidden=!immersive;document.querySelectorAll('[data-world]').forEach(b=>{b.classList.toggle('active',b.dataset.world===kind);b.setAttribute('aria-pressed',b.dataset.world===kind?'true':'false')});$('chapter').textContent=names[kind].chapter;$('world-title').textContent=names[kind].title;announce('左侧摇杆拖动移动 · 地图点击可寻路');$('chat-toggle').hidden=kind!=='meet';$('chat-panel').hidden=true;updateUI();draw()}
+function start(kind){if(!names[kind])return;chosen=kind;s=loadWorld(kind);path=[];moving=false;clearInterval(held);held=null;document.body.dataset.world=kind;if($('art-gallery'))$('art-gallery').hidden=true;if($('asset-toggle'))$('asset-toggle').setAttribute('aria-expanded','false');const immersive=kind==='island'||kind==='relic';if(!immersive){if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});try{screen.orientation?.unlock?.()}catch{}}document.body.classList.toggle('world-immersive',immersive);$('exit-world').hidden=!immersive;$('fullscreen-world').hidden=!immersive;$('world-switch').hidden=!immersive;document.querySelectorAll('[data-world]').forEach(b=>{b.classList.toggle('active',b.dataset.world===kind);b.setAttribute('aria-pressed',b.dataset.world===kind?'true':'false')});$('chapter').textContent=names[kind].chapter;$('world-title').textContent=names[kind].title;announce('左侧摇杆拖动移动 · 地图点击可寻路');$('chat-toggle').hidden=kind!=='meet';$('chat-panel').hidden=true;updateUI();draw()}
 function near(){return Core.nearest(s,1)}
 function describe(p){if(!p)return '附近没有互动对象';return ({friend:'演示同伴',house:'咖啡店',shop:'书店',tree:'森林树木',ore:'矿石',workbench:'工作台',camp:'篝火',monster:'遗迹守卫',chest:'宝箱',exit:'撤离口',bench:'长椅',well:'水井'})[p.kind]||'互动目标'}
 function updateUI(){const target=near();$('stat-turn').textContent=s.kind==='meet'?'探索 '+s.turns:'行动 '+s.turns;$('stat-resource').textContent=s.kind==='meet'?(s.holding?'牵手 · 是':'牵手 · 否'):s.kind==='island'?`木材 ${s.inventory.wood} · 石 ${s.inventory.stone}`:`宝物 ${s.inventory.relic} · HP ${s.hp}`;$('focus-label').textContent=target?describe(target):'自由探索';$('focus-hint').textContent=target?'可点击右边互动按钮':s.kind==='relic'?'寻找宝箱 · 走近守卫':'点击地图移动 · 靠近物品互动';$('act').textContent=target?({'friend':s.holding?'松手':'牵手','tree':'采集','ore':'采矿','workbench':'建造','chest':'开箱','monster':'攻击','exit':'撤离'}[target.kind]||'互动'):'互动';$('act').disabled=!target||s.finished}
@@ -106,43 +106,61 @@ function clickMap(e){
   // A new tap supersedes any pending route, even when the target is unreachable.
   path=[];
   if(s.finished){announce('本局已撤离结算，点击重开场景再探索');return}
-  const box=canvas.getBoundingClientRect(),rotated=document.body.classList.contains('world-immersive')&&matchMedia('(orientation: portrait)').matches;const localX=rotated?e.clientY-box.top:e.clientX-box.left,localY=rotated?box.right-e.clientX:e.clientY-box.top;const x=Math.floor((localX-view.ox)/view.tile),y=Math.floor((localY-view.oy)/view.tile);const p=s.props.find(p=>!p.used&&p.x===x&&p.y===y);
-  if(p&&Math.abs(p.x-s.player.x)+Math.abs(p.y-s.player.y)<=1){transact(Core.use(s,p.id));return}
-  const goals=p?[[p.x-1,p.y],[p.x+1,p.y],[p.x,p.y-1],[p.x,p.y+1]]:[[x,y]];
+  const box=canvas.getBoundingClientRect(),rotated=document.body.classList.contains('world-immersive')&&matchMedia('(orientation: portrait)').matches;const localX=rotated?e.clientY-box.top:e.clientX-box.left,localY=rotated?box.right-e.clientX:e.clientY-box.top;const x=Math.floor((localX-view.ox)/view.tile),y=Math.floor((localY-view.oy)/view.tile);const p=Core.at(s,x,y);
+  if(p&&Core.distance(p,s.player.x,s.player.y)<=1){transact(Core.use(s,p.id));return}
+  const goals=p?Core.approaches(s,p).map(a=>[a.x,a.y]):[[x,y]];
   const routes=goals.map(([gx,gy])=>Core.route(s,gx,gy)).filter(r=>r.length>0).sort((a,b)=>a.length-b.length);
   if(routes.length){path=routes[0];announce(p?`正在走近${describe(p)} · 到达后再互动`:'正在前往你点选的位置')}else announce('无法走到这里，请选择可行走的地面')
 }
 canvas.addEventListener('pointerup',clickMap);
 window.addEventListener('keydown',e=>{if(e.target instanceof HTMLInputElement||e.target instanceof HTMLTextAreaElement)return;const moves={ArrowUp:[0,-1],w:[0,-1],ArrowDown:[0,1],s:[0,1],ArrowLeft:[-1,0],a:[-1,0],ArrowRight:[1,0],d:[1,0]};if(moves[e.key]&&!e.repeat){e.preventDefault();path=[];move(...moves[e.key])}else if(e.key===' '){e.preventDefault();interact()}});
-// Native-style circular joystick: press anywhere, drag continuously, move in the dominant axis.
-// Center tap triggers interact. Pointer capture keeps a drag alive even outside the ring.
-const joystick=$('world-joystick'),knob=$('joystick-knob');let pointerId=null,activeDir=null,centerTap=false;
+// Match Android GameDirectionalPad's four direction targets and center interact.
+ // No free-floating thumb: touching the appropriate area starts walking, dragging
+ // across the disk changes direction immediately, releasing always stops walking.
+const joystick=$('world-joystick');let pointerId=null,activeDir=null,centerTap=false;
 function repeatDelay(){return chosen==='relic'?520:195}
-function applyJoystick(x,y,initial=false){
+function setJoystickDirection(dir){
+  activeDir=dir;
+  if(dir)joystick.dataset.active=dir.join(',');
+  else delete joystick.dataset.active;
+}
+function applyJoystick(clientX,clientY){
   const bounds=joystick.getBoundingClientRect();
-  const ox=x-bounds.left,oy=y-bounds.top,dir=Joystick.direction(ox,oy,bounds.width,bounds.height);
-  const [kx,ky]=Joystick.knobOffset(ox,oy,bounds.width,bounds.height);
-  knob.style.transform=`translate(${kx.toFixed(1)}px,${ky.toFixed(1)}px)`;
+  const rotated=document.body.classList.contains('world-immersive')&&
+    matchMedia('(orientation: portrait)').matches;
+  const [x,y]=Joystick.pointerLocal(clientX,clientY,bounds,rotated);
+  const dir=Joystick.direction(x,y,joystick.clientWidth,joystick.clientHeight);
   if(dir)centerTap=false;
-  if(!dir){activeDir=null;joystick.classList.remove('is-moving');return}
+  if(!dir){setJoystickDirection(null);return}
   if(!activeDir||dir[0]!==activeDir[0]||dir[1]!==activeDir[1]){
-    activeDir=dir;joystick.classList.add('is-moving');path=[];move(dir[0],dir[1]);
+    setJoystickDirection(dir);path=[];move(dir[0],dir[1]);
   }
 }
-function releaseJoystick(e){if(pointerId===null||(e&&e.pointerId!==pointerId))return;
-  const tap=centerTap&&!activeDir;clearInterval(held);held=null;pointerId=null;activeDir=null;centerTap=false;
-  knob.style.transform='translate(0px,0px)';joystick.classList.remove('is-moving');
-  try{joystick.releasePointerCapture(e.pointerId)}catch{}
+function releaseJoystick(e){
+  if(pointerId===null||(e&&e.pointerId!==pointerId))return;
+  const tap=e?.type==='pointerup'&&centerTap&&!activeDir;
+  clearInterval(held);held=null;pointerId=null;setJoystickDirection(null);centerTap=false;
+  try{if(e)joystick.releasePointerCapture(e.pointerId)}catch{}
   if(tap)interact();
 }
 joystick.addEventListener('pointerdown',e=>{
-  if(pointerId!==null)return;e.preventDefault();pointerId=e.pointerId;centerTap=true;
-  joystick.setPointerCapture(e.pointerId);path=[];applyJoystick(e.clientX,e.clientY,true);
-  clearInterval(held);held=setInterval(()=>{if(pointerId!==null&&activeDir)move(activeDir[0],activeDir[1])},repeatDelay());
+  if(pointerId!==null)return;
+  e.preventDefault();pointerId=e.pointerId;centerTap=true;
+  joystick.setPointerCapture(e.pointerId);path=[];applyJoystick(e.clientX,e.clientY);
+  clearInterval(held);
+  held=setInterval(()=>{if(pointerId!==null&&activeDir)move(activeDir[0],activeDir[1])},repeatDelay());
 });
-joystick.addEventListener('pointermove',e=>{if(pointerId===e.pointerId){e.preventDefault();applyJoystick(e.clientX,e.clientY)}});
+joystick.addEventListener('pointermove',e=>{
+  if(pointerId===e.pointerId){e.preventDefault();applyJoystick(e.clientX,e.clientY)}
+});
 for(const evt of ['pointerup','pointercancel','lostpointercapture'])joystick.addEventListener(evt,releaseJoystick);
-joystick.addEventListener('keydown',e=>{const keys={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};if(keys[e.key]){e.preventDefault();e.stopPropagation();move(...keys[e.key])}else if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();interact()}});
+window.addEventListener('blur',()=>{if(pointerId!==null){clearInterval(held);held=null;pointerId=null;centerTap=false;setJoystickDirection(null)}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&pointerId!==null){clearInterval(held);held=null;pointerId=null;centerTap=false;setJoystickDirection(null)}});
+joystick.addEventListener('keydown',e=>{
+  const keys={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]};
+  if(keys[e.key]){e.preventDefault();e.stopPropagation();path=[];move(...keys[e.key])}
+  else if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();interact()}
+});
 function closeGallery(){const p=$('art-gallery');p.hidden=true;$('asset-toggle').setAttribute('aria-expanded','false');$('asset-toggle').textContent='素材图鉴'}
 $('asset-toggle').addEventListener('click',()=>{const p=$('art-gallery');p.hidden=!p.hidden;$('asset-toggle').setAttribute('aria-expanded',String(!p.hidden));$('asset-toggle').textContent=p.hidden?'素材图鉴':'关闭图鉴';if(!p.hidden)renderArtGallery()});
 $('close-art').addEventListener('click',closeGallery);
