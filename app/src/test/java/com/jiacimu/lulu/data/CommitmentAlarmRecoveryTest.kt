@@ -233,6 +233,27 @@ class CommitmentAlarmRecoveryTest {
         assertTrue(current(expired).needsUnverifiedCommitmentRecoveryCandidate(now))
     }
 
+    @Test fun legacyTwoMinuteExpiryIsReopenedForExactlyOneRoleOwnedReview() {
+        val now = Instant.now()
+        val task = saveTask(now.minusSeconds(60 * 60))
+        CommitmentTaskStore.update(task.id) { it.copy(
+            status = CommitmentTaskStatus.Expired,
+            linkedAlarmId = null,
+            lastActionResult = "系统回调迟于约定超过两分钟；未补拨，目标完成情况仍未知，需另行安排",
+        ) }
+        CommitmentTaskStore.reconcileAfterRestart(now)
+        val reopened = current(task)
+        assertEquals(CommitmentTaskStatus.Blocked, reopened.status)
+        assertEquals(task.dueAt, reopened.dueAt)
+        assertNull(reopened.linkedAlarmId)
+        assertTrue(reopened.lastActionResult.contains("旧版两分钟丢弃记录已恢复"))
+        assertTrue(reopened.needsUnverifiedCommitmentRecoveryCandidate(now))
+        assertNull(ProactiveIncomingCallStore.pending.value)
+        // Re-opening the app is not another migration or another phone call.
+        CommitmentTaskStore.reconcileAfterRestart(now.plusSeconds(3))
+        assertEquals(reopened.revision, current(task).revision)
+    }
+
     @Test fun coldStartKeepsMissedOneOffVerificationUnfinishedAndEligibleForRecovery() {
         val now = Instant.now()
         val task = saveTask(now.minusSeconds(3600))
