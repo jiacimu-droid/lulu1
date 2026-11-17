@@ -1,3 +1,11 @@
+## 2026-11-17 · S-02/P-08b 数字世界主人来去通知 → 双角色相遇 → 生活小剧场因果修复（待 CI/真机）
+
+- 用户实际反馈：主人到地点后两位角色接到通知、前去寻找，彼此相遇后谈话和小剧场却忘记找主人的原目的，主人离开也没有合理衔接。源码实查 `DigitalWorldVisitorAwareness` 原本写了到访/离场 Observation，但缺对应的地点 ID 与进入/离开结构标记；`AutonomousSocialRuntime` 无条件告诉相遇人物「主人不在现场」；`AutonomousEncounterChapters` 合场文学使用 Isolated 请求，未输入两位角色本人的来源关联心声与各自收到的通知。原世界模型能读取 Full 自己的心境，但不能凭这一点说文学作者已收到。
+- 生产 [2033250](https://github.com/jiacimu-droid/lulu1/commit/203325002bb961aca9ff4cb12bfed4cd795c926b)、[653f2c9](https://github.com/jiacimu-droid/lulu1/commit/653f2c9e788c683903604d552779f7b1675d915b)：用原始 `SharedExperienceTimeline` 投影 `WorldVisitorSceneContext`，本角色到访与离场 Observation 有方向和场所 `sessionId`，按真实时间、角色归属、地点筛选，收到了通知≠已目击/当前仍在，不新增影子位置库。旧无场所 ID 的历史记录不伪造新归属。
+- [7cd927b](https://github.com/jiacimu-droid/lulu1/commit/7cd927be66f6bd395bd1fd46853e95649178a2f9)、[1d8e824](https://github.com/jiacimu-droid/lulu1/commit/1d8e824d8c63df43bd93b8a7028d6812c075e6a5)：移除会面开始、人物台词和独立世界事件里的无条件「主人不在」定论，导演与每位人物分别读其当前可知的到访/离场，导演优先承接本人已有找主人等动机但不强制具体动作；漫长多轮模型相遇以实际完成时刻标记结束，避免主人中途离开被当作尚未发生。
+- [b239286](https://github.com/jiacimu-droid/lulu1/commit/b2392865af0010f5a922657fc4319c642807ac31)、[8efc982](https://github.com/jiacimu-droid/lulu1/commit/8efc982a37a7cad6688b660b88aa761af480f193)：合场文学保留一次 Isolated 写作请求和各自角色章节；给每个角色带入本人的通知、原始会面及被该事件/前因锚定的已保存心声/选择，提示正文不能把另一个人的未说出的心声写成自己的或已公开的事实。写作仅产生非权威文学，不回填原世界事件、主人行为、关系或心理。证据 ID 按本人单独链接。
+- 回归源码 [e4710e4](https://github.com/jiacimu-droid/lulu1/commit/e4710e43623827ac59aa38b2b7ff7a2fc90d07f3)、[f991a19](https://github.com/jiacimu-droid/lulu1/commit/f991a194a2ad48d052454e4884ea7e970d646900)：覆盖到访→离场顺序、其他地点/未来/伪源隔离、没有通知不伪造在场、本人的证据心声能进入正文而他人的/未来的不能。**当前仅提交测试，未取得目标 SHA 的 JVM/APK 成功证明，且未在 Redmi 真机用两角色 + 真实模型重放。** 后续核 `WorldVisitorSceneContextTest`、`AutonomousEncounterCausalChapterTest`、`AutonomousEncounterPrivacyTest` 在当前 main push 的首错；真机还要验证从地点退出/强杀后离场通知是否真实到达、模型是否自主延续找人的目标、历史章节不应被静默重写。
+
 ## 2026-11-17 · P-03.1 通话取消与下一句纠正
 
 - [e89d250](https://github.com/jiacimu-droid/lulu1/commit/e89d250ccc5e03bf6426e954e46e8da75f0ff262) 增加 `PhoneModelTransportPolicyTest.interruptedPhoneRequestDoesNotCommitAndNextUtteranceCanRespond`。正式 `LuluDeviceToolBridge.respond` 发出第一条真实 HTTP 后暂停响应，取消电话决策协程，再交给同一角色一条明确修正的原话。检查旧轮未交付、无挂断、心声快照及本人发言/工具回执不变、没有额外 POST，下一轮能读取更正并正常返回。此工作包只改测试，真机从麦克风插话到取消协程的链路待验。
