@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T05:22:58.686146+00:00",
-  "commit": "9843c37e790e13d67bce800943697c4ef8c09a40",
+  "generatedAt": "2026-11-17T05:23:46.501969+00:00",
+  "commit": "bb31fa245f00f54e66fc84e37340232277e38f28",
   "branch": "main",
-  "sourceFingerprint": "551a8bf519ecfda360511aee255c3eadea489553ac1bfa8e029e1e197498e09d",
+  "sourceFingerprint": "6c53be798fd65bb745cfa7a812c29dce8f97cbc5b429f112dd7404c5be983cd7",
   "summary": {
     "files": 1390,
-    "lines": 297319,
+    "lines": 297382,
     "symbols": 4198
   },
   "symbolIndex": {
@@ -1581,7 +1581,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 539
+        "line": 557
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
@@ -3179,13 +3179,13 @@
     "LuluMemorySettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 526
+        "line": 544
       }
     ],
     "LuluImageSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 619
+        "line": 637
       }
     ],
     "LuluAppearanceScreen": [
@@ -19051,7 +19051,7 @@
     "ElevenLabsMusicTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsMusicTest.kt",
-        "line": 14
+        "line": 17
       }
     ],
     "ElevenLabsRoleSongPipelineTest": [
@@ -25733,8 +25733,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-      "lines": 811,
-      "sha256": "f9e589d232d9e07f300f6f56e2ad79bf78ba57c54c79f0a5c647f5ce35037043",
+      "lines": 829,
+      "sha256": "5d2d2bbfc4e6f328d2c0589d6098c980edd987f055cd000edb80551b1964fe89",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
@@ -25746,15 +25746,15 @@
         },
         {
           "name": "LuluMemorySettingsScreen",
-          "line": 526
+          "line": 544
         },
         {
           "name": "save",
-          "line": 539
+          "line": 557
         },
         {
           "name": "LuluImageSettingsScreen",
-          "line": 619
+          "line": 637
         }
       ]
     },
@@ -43097,12 +43097,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsMusicTest.kt",
-      "lines": 106,
-      "sha256": "3d5996aafef50480da8b288f90bcb4fff2179b45def0f278a1ed46234dbeb721",
+      "lines": 151,
+      "sha256": "12773a03029c5e5570b83c30770a1faf6837972f1bc89d19f326aed7c25d9dd3",
       "symbols": [
         {
           "name": "ElevenLabsMusicTest",
-          "line": 14
+          "line": 17
         }
       ]
     },
