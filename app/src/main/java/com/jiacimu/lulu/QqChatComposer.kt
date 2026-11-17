@@ -215,6 +215,25 @@ internal fun QqChatComposer(
                 ),
             )
 
+            // Frequently used emoji stay one tap away, like a familiar messenger.
+            // Other actions remain behind the plus button below the conversation.
+            IconButton(
+                onClick = {
+                    val opening = !showStickerShelf
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                    showTools = false
+                    showStickerShelf = opening
+                },
+                modifier = Modifier.size(44.dp),
+            ) {
+                Icon(
+                    Icons.Outlined.EmojiEmotions,
+                    if (showStickerShelf) "收起表情" else "打开表情",
+                    modifier = Modifier.size(26.dp), tint = QqInk,
+                )
+            }
+
             if (hasDraft) {
                 Button(
                     onClick = {
