@@ -65,9 +65,9 @@ internal object LuluStrictMode {
 
     internal fun shouldReturn(
         mode: String, foreground: String, lulu: String,
-        exceptions: Set<String>, protected: Boolean,
+        exceptions: Set<String>, isProtected: Boolean,
     ): Boolean = mode == "return" && foreground.isNotBlank() &&
-        foreground != lulu && foreground !in exceptions && !protected
+        foreground != lulu && foreground !in exceptions && !isProtected
 
     private fun notificationsReady(context: Context): Boolean {
         if (Build.VERSION.SDK_INT >= 33 &&
