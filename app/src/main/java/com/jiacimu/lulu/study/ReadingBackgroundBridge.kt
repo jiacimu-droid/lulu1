@@ -26,7 +26,11 @@ internal data class BackgroundReadingSlice(
 internal object ReadingBackgroundBridge {
     private const val PROGRESS_PREFS = "lulu_background_reading_progress_v1"
 
-    fun books(context: Context): List<BackgroundReadingBook> {
+    fun books(context: Context): List<BackgroundReadingBook> =
+        userBooks(context).ifEmpty { ReadingStarterLibrary.books() }
+
+    /** User-visible bookshelf never fills itself with program-only sample text. */
+    fun userBooks(context: Context): List<BackgroundReadingBook> {
         // ToolRouter, scheduled world actions and reading workers can start
         // without MigrationActivity. This bridge owns the only dependency on
         // the theater library, so prepare it here instead of relying on UI
@@ -62,11 +66,7 @@ internal object ReadingBackgroundBridge {
             }
         val personalLibrary = (interleave(theaterChapters, uploaded) + savedStories)
             .distinctBy(BackgroundReadingBook::id)
-        // An empty reading library used to make autonomous reading literally
-        // impossible. Keep user-provided content authoritative whenever any
-        // is available; otherwise offer real, finite original text instead of
-        // letting a model pretend it has read a nonexistent book.
-        return if (personalLibrary.isNotEmpty()) personalLibrary else ReadingStarterLibrary.books()
+        return personalLibrary
     }
 
     fun availableBooks(context: Context, characterId: String): List<BackgroundReadingBook> =
