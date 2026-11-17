@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7b64d4dda6bb5934e10ffca0748f9d7621046a3e`
+- 基准提交：`98aa9b3b4f23b308ee6f3c85b4e6564ff4b2f006`
 - 分支：`main`
-- 已索引文件：1376
-- 已索引代码/文本行：293989
-- 已发现符号：4141
+- 已索引文件：1377
+- 已索引代码/文本行：294087
+- 已发现符号：4142
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -257,7 +257,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageViewer.kt` | 121 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 1044 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt` | 87 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 952 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 953 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 659 | 0 |
@@ -454,7 +454,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 1169 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 692 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt` | 26 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt` | 93 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt` | 95 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt` | 282 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 347 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationTurnEconomy.kt` | 63 | 5 |
@@ -551,7 +551,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/PerceptionWakePlanStore.kt` | 85 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContext.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt` | 40 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt` | 91 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt` | 92 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicy.kt` | 15 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 170 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 194 | 5 |
@@ -568,7 +568,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt` | 200 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt` | 217 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt` | 103 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt` | 94 | 5 |
@@ -972,6 +972,7 @@
 | `app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt` | 148 | 13 |
 | `app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt` | 293 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/SelfWishFoldersTest.kt` | 67 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/SemanticDialogueWindowRegressionTest.kt` | 76 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SettingsHomeSearchTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SleepCallContinuationPolicyTest.kt` | 117 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt` | 55 | 1 |
@@ -1204,7 +1205,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ReanswerMemoryBoundaryTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticPromptTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineIntegrationTest.kt` | 52 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt` | 143 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt` | 144 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 502 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 133 | 1 |

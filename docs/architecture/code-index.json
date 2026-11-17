@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T01:43:07.291743+00:00",
-  "commit": "7b64d4dda6bb5934e10ffca0748f9d7621046a3e",
+  "generatedAt": "2026-11-17T01:55:26.357044+00:00",
+  "commit": "98aa9b3b4f23b308ee6f3c85b4e6564ff4b2f006",
   "branch": "main",
-  "sourceFingerprint": "ef3859056b0d013c0c0b1d17e0e71a1cd837179ea72f42bcdad719e29b30257c",
+  "sourceFingerprint": "77132677c051e2b7ee4731f9e8f1b4f8e0c72ee32e2f157877825efcb5332537",
   "summary": {
-    "files": 1376,
-    "lines": 293989,
-    "symbols": 4141
+    "files": 1377,
+    "lines": 294087,
+    "symbols": 4142
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4155,7 +4155,7 @@
     "render": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-        "line": 926
+        "line": 927
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt",
@@ -9235,7 +9235,7 @@
     "quoteNote": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
-        "line": 72
+        "line": 74
       }
     ],
     "repairInstruction": [
@@ -12141,7 +12141,7 @@
     "rendered": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt",
-        "line": 58
+        "line": 59
       }
     ],
     "awaitNewUserInput": [
@@ -19318,6 +19318,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfWishFoldersTest.kt",
         "line": 5
+      }
+    ],
+    "SemanticDialogueWindowRegressionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/SemanticDialogueWindowRegressionTest.kt",
+        "line": 16
       }
     ],
     "SettingsHomeSearchTest": [
@@ -26603,8 +26609,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-      "lines": 952,
-      "sha256": "100eb9b92f9e0f4a4a814e32dc0f8ab1dbe0e9b685fe3db1082b3f1cba508af2",
+      "lines": 953,
+      "sha256": "f47c4f964fdb687af529b4ffecceea6c163d9eb24779cdb402d569adac91aafe",
       "symbols": [
         {
           "name": "isAvailable",
@@ -26612,7 +26618,7 @@
         },
         {
           "name": "render",
-          "line": 926
+          "line": 927
         }
       ]
     },
@@ -31265,8 +31271,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
-      "lines": 93,
-      "sha256": "1d6cc60b3a581c01ccc62514084a1e4d40d26eccb254d7995495c96bd7b03522",
+      "lines": 95,
+      "sha256": "74aa60bcf774efb2c3d3057d3b763241c70f196ed8d5c45b22aa533c28b14f51",
       "symbols": [
         {
           "name": "turns",
@@ -31278,7 +31284,7 @@
         },
         {
           "name": "quoteNote",
-          "line": 72
+          "line": 74
         }
       ]
     },
@@ -34263,8 +34269,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt",
-      "lines": 91,
-      "sha256": "ae779a48e71fe909fa881cd45e71dc85338279bbad196aef2ed6effac7c0e995",
+      "lines": 92,
+      "sha256": "c909dbfbbc1edbbdb96dbe7813ba2128ea9fb26ed750b19c2dfa5073194ae26e",
       "symbols": [
         {
           "name": "unreadIdIndex",
@@ -34280,7 +34286,7 @@
         },
         {
           "name": "rendered",
-          "line": 58
+          "line": 59
         }
       ]
     },
@@ -34793,8 +34799,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-      "lines": 200,
-      "sha256": "bcdd9a23b84e426e1e43ebfa1b4671cc7ead1f8fe210153d05b0810af9c4f4a8",
+      "lines": 217,
+      "sha256": "05af88697d4ecae6e27b54934fc1d86bfc5dfed8a18f623002bfb85e491ef78a",
       "symbols": [
         {
           "name": "RecentSemanticTimeline",
@@ -43327,6 +43333,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/SemanticDialogueWindowRegressionTest.kt",
+      "lines": 76,
+      "sha256": "aabaf0b607b27ea19fc3984602e2e4e9c27fe72a379139caaaf2f15b4c671a22",
+      "symbols": [
+        {
+          "name": "SemanticDialogueWindowRegressionTest",
+          "line": 16
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/SettingsHomeSearchTest.kt",
       "lines": 45,
       "sha256": "67bf9d73e18b97f19f59243c48e07647c6fbc9a4e6d77f7e8fc110ce566b619b",
@@ -46788,8 +46805,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt",
-      "lines": 143,
-      "sha256": "1ba0cf50ddf4a589e25507578d9847a06e59ea0358d48b9c9622d06cf4798527",
+      "lines": 144,
+      "sha256": "7deb0fc6c7bbc6a3320e315c93ba9c38687764624393e27c3b288944dc236fdc",
       "symbols": [
         {
           "name": "RecentSemanticTimelineTest",
