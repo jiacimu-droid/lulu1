@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T19:26:03.871286+00:00",
-  "commit": "66e0f01931194847060a31ef45f0cc826c745c13",
+  "generatedAt": "2026-11-17T19:28:11.839291+00:00",
+  "commit": "61ec8da0ee530909773787b6cf36e2abee310699",
   "branch": "main",
-  "sourceFingerprint": "406c328f9f3d4fa2a33fbbadf86b3d520a7209f2738ae9df1e288913d878b30b",
+  "sourceFingerprint": "46f4817cc4bff05ff909dcc53396df19abf4bf15bd1836677963ea9019bb6654",
   "summary": {
     "files": 1443,
-    "lines": 303836,
+    "lines": 303846,
     "symbols": 4344
   },
   "symbolIndex": {
@@ -32170,8 +32170,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 326,
-      "sha256": "ee2466ad226bfa7017a21276a0dd98e360680349506e6ac426e0e65e09a63834",
+      "lines": 332,
+      "sha256": "f3a0e6f17dfd9501a4ef87ea39b4a246352fc73ac0a2b5fe6d1dd46831c79928",
       "symbols": [
         {
           "name": "DailyCommitmentAttempt",
@@ -44907,8 +44907,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt",
-      "lines": 48,
-      "sha256": "156f38b55fb1e164e24fa157d66ac0cdf21ce3e12dbdb5bd6ef7027040c9512b",
+      "lines": 51,
+      "sha256": "a154a8b512f06cb6685d5ea2ee33bf9e6c0afeb064274851b9db85a48dd1aaa3",
       "symbols": [
         {
           "name": "LuluOnboardingGuideContentTest",
@@ -48710,8 +48710,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt",
-      "lines": 379,
-      "sha256": "7a7368ee15c542022b57412eaa69fac651530ac9d0d277e6c8905fc039a30145",
+      "lines": 380,
+      "sha256": "85c4a036f89adb42e77d700b582584d2ebb8998713b7971b9ab0f36453e85827",
       "symbols": [
         {
           "name": "ProactiveQuietDecisionTest",
