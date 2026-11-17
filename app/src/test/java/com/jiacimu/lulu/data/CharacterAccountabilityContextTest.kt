@@ -4,15 +4,11 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class CharacterAccountabilityContextTest {
-    @Test fun jiangDuRewriteKeepsWorldIdentityAndUsesEveryExistingProfileField() {
-        assertEquals(LegacyJiangDuProfileSchema.jiangDuIdentity, CharacterProfileSchema.jiangDuIdentity)
-        // Hypothetical dialogue examples are optional expression references,
-        // not stable biographical/personality fields in the bundled persona map.
-        assertEquals(CharacterProfileSchema.fields.map { it.key }.filterNot { it == "dialogueExamples" }.toSet(),
-            CharacterProfileSchema.jiangDu.keys)
-        assertFalse(CharacterProfileSchema.jiangDu.containsKey("dialogueExamples"))
-        assertTrue(CharacterProfileSchema.jiangDu.filterKeys { it != "typing" }.values.all(String::isNotBlank))
-        assertEquals("", CharacterProfileSchema.jiangDu["typing"])
+    @Test fun publicProfileSchemaDefinesFieldsWithoutBundledPersonalValues() {
+        assertTrue(CharacterProfileSchema.fields.any { it.key == "values" })
+        assertTrue(CharacterProfileSchema.fields.any { it.key == "dialogueExamples" })
+        assertEquals(CharacterProfileSchema.fields.map { it.key }.toSet().size,
+            CharacterProfileSchema.fields.size)
     }
 
     @Test fun disputedMissedWakeUpIsNotRecastAsUserFault() {
