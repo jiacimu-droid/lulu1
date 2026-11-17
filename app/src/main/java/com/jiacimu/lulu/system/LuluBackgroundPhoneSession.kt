@@ -100,7 +100,16 @@ internal object LuluBackgroundPhoneSession {
             .put("uiTreeFingerprint", fingerprint)
             .put("interactiveElements", elements)
             .put("chatHeaderTexts", inventory.optJSONArray("chatHeaderTexts") ?: org.json.JSONArray())
-            .put("uiEvidenceSource", "virtual_accessibility_tree")
+            .apply {
+                // The screenshot can be valid while HyperOS exposes zero
+                // accessible controls. Preserve that diagnosis in the actual
+                // role-visible observe receipt instead of dropping it here.
+                inventory.optJSONObject("chatInputDiagnostics")?.let {
+                    put("chatInputDiagnostics", it)
+                }
+            }
+            .put("uiEvidenceSource", if (elements.length() == 0)
+                "virtual_accessibility_tree_empty" else "virtual_accessibility_tree")
     }
 
     fun connected(): Boolean = stream != null && displayId > 0 && adb?.isClosed == false
