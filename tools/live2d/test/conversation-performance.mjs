@@ -44,7 +44,8 @@ const bridge = {
   hasParameter: (_core, id) => parameters.has(id),
   notify: () => {}, clearTouchCompanion: () => {}, setPaused: () => {},
   // Renderer-only lease: the test still exercises the REAL stage cancellation.
-  kissCameraLease: null, KISS_CAMERA_DURATION_MS,
+  kissCameraLease: null, pendingPostSpeechKiss: null,
+  KISS_CAMERA_DURATION_MS,
   cancelKissCamera: (soft = false) => {
     if (soft && bridge.kissCameraLease) {
       bridge.kissCameraLease.handoff ||= { at: clock, zoom: 2.1 }
@@ -1055,6 +1056,63 @@ assert.equal(bridge.playing, false,
   bridge.clearSpeechMoment({ cancelKiss: true })
   assert.equal(bridge.kissCameraLease, null,
     'a genuine interruption or hidden call releases the kiss immediately')
+}
+
+// A chosen kiss belongs AFTER speech; it must never animate pursed lips
+// through audible words or fire after an interrupted phrase.
+{
+  bridge.playing = false
+  bridge.finalizedAudio = null
+  bridge.audioVisualSequence = 0
+  bridge.scoreVisualSequence = 0
+  bridge.pendingPostSpeechKiss = null
+  bridge.kissCameraLease = null
+  bridge.authoredMotion = null
+  bridge.wolfRigActive = true
+  bridge.cameraBasePose = { x: 350, y: 600, width: 700, height: 700, scale: 2 }
+  bridge.touchCalibration = {}
+  bridge.kissMouthLocalOffsetX = () => 0
+  bridge.kissFaceLocalOffsetY = () => -100
+  bridge.model.getBounds = () => ({ x: 100, y: 0, width: 500, height: 500 })
+  const countBeforeVoice = motions.length
+  bridge.perform({ visualSequence: 95001,
+    motion: { group: 'LuluWolf', index: 48 },
+    beats: [{ segmentIndex: 1, segmentId: 'last', atMs: 0, face: { smile: .2 } }] })
+  bridge.onPlaybackEvent('playing', 0, 95001, 'first')
+  await Promise.resolve()
+  assert.equal(motions.length, countBeforeVoice,
+    'kiss must NOT begin during the first audible sentence')
+  assert.equal(bridge.pendingPostSpeechKiss?.index, 48)
+  bridge.onPlaybackEvent('finished', 0, 95001, 'first')
+  assert.equal(motions.length, countBeforeVoice,
+    'kiss waits for the final TTS phrase in the same score')
+  bridge.onPlaybackEvent('playing', 1, 95001, 'last')
+  bridge.onPlaybackEvent('finished', 1, 95001, 'last')
+  await Promise.resolve()
+  assert.equal(motions.length, countBeforeVoice + 1,
+    'completed audio starts exactly one silent kiss motion')
+  assert.deepEqual(motions.at(-1), ['LuluWolf', 48])
+  assert.equal(bridge.playing, false, 'no spoken mouth during the kiss')
+  assert.ok(bridge.kissCameraLease, 'face camera starts only when Motion3 succeeds')
+
+  bridge.perform({ visualSequence: 95002, expression: 'star' })
+  assert.ok(bridge.kissCameraLease,
+    'a merely queued new sentence is not yet audible')
+  bridge.onPlaybackEvent('playing', 0, 95002, 'next')
+  assert.equal(bridge.kissCameraLease, null,
+    'new audible words interrupt prior mouth contact instead of talking while kissing')
+  bridge.onPlaybackEvent('finished', 0, 95002, 'next')
+
+  const countBeforeCancel = motions.length
+  bridge.perform({ visualSequence: 95003,
+    motion: { group: 'LuluWolf', index: 48 } })
+  bridge.onPlaybackEvent('playing', 0, 95003, 'cancel')
+  assert.equal(motions.length, countBeforeCancel)
+  bridge.onPlaybackEvent('interrupted', 0, 95003, 'cancel')
+  assert.equal(bridge.pendingPostSpeechKiss, null)
+  assert.equal(motions.length, countBeforeCancel,
+    'a failed or interrupted TTS must not kiss in silence afterward')
+  bridge.wolfRigActive = false
 }
 
 console.log('Live2D ordinary conversation performance, audio timing, cancellation, authored motion and low-FPS clock passed')
