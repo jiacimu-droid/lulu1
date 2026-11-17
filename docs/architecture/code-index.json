@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T13:04:31.320738+00:00",
-  "commit": "99d2cccd1dbe005c44e8e3f33dff21b234e70cf9",
+  "generatedAt": "2026-11-17T13:18:39.801289+00:00",
+  "commit": "1890e1b9367efc47cb435e853b646c472f0d3a38",
   "branch": "main",
-  "sourceFingerprint": "ae223bbd325ddc7272f2e6e6c95fa2fdd372aee1ab916f24f4c8a7649d843787",
+  "sourceFingerprint": "8c28b40ab6c3443c89a4a6d76674ea2150a90634ad5fddc1e5e50a0d0dfb8f6d",
   "summary": {
     "files": 1408,
-    "lines": 297771,
+    "lines": 297776,
     "symbols": 4237
   },
   "symbolIndex": {
@@ -7517,7 +7517,7 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt",
-        "line": 78
+        "line": 83
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
@@ -9579,7 +9579,7 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt",
-        "line": 50
+        "line": 55
       }
     ],
     "DevelopmentMaturity": [
@@ -18675,13 +18675,13 @@
     "mayPaste": [
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt",
-        "line": 27
+        "line": 33
       }
     ],
     "paste": [
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt",
-        "line": 74
+        "line": 79
       }
     ],
     "AndroidAdb": [
@@ -42579,24 +42579,24 @@
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt",
-      "lines": 126,
-      "sha256": "2d3d07923e7c6c44155906ebbc18eb2f6779e08bad7c33b64a42758771bb382a",
+      "lines": 131,
+      "sha256": "af6a1a835358486268bade07f605ecc7739a1fc69d91f39d21c9036074e017ff",
       "symbols": [
         {
           "name": "mayPaste",
-          "line": 27
+          "line": 33
         },
         {
           "name": "key",
-          "line": 50
+          "line": 55
         },
         {
           "name": "paste",
-          "line": 74
+          "line": 79
         },
         {
           "name": "result",
-          "line": 78
+          "line": 83
         }
       ]
     },

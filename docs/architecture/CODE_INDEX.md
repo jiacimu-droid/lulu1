@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`99d2cccd1dbe005c44e8e3f33dff21b234e70cf9`
+- 基准提交：`1890e1b9367efc47cb435e853b646c472f0d3a38`
 - 分支：`main`
 - 已索引文件：1408
-- 已索引代码/文本行：297771
+- 已索引代码/文本行：297776
 - 已发现符号：4237
 
 | 文件 | 行数 | 符号数 |
@@ -863,7 +863,7 @@
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshness.kt` | 22 | 3 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt` | 120 | 3 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 408 | 2 |
-| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt` | 126 | 4 |
+| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt` | 131 | 4 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/ShellContext.kt` | 82 | 1 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt` | 76 | 6 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/NsdAdbServiceFinder.kt` | 79 | 1 |
