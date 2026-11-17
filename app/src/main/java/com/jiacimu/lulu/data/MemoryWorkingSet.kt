@@ -20,6 +20,16 @@ internal object MemoryWorkingSet {
         val owner = context.effectiveOwner.ifBlank {
             lexiconOwners.singleOrNull().orEmpty()
         }
+        // The owner-selected recent N semantic turns are a complete transcript,
+        // not ranked memory candidates. They must not compete with the 28k
+        // recall/inner-state working set or inherit its per-section character cap.
+        val completeRecent = context.ownedRecentTurns.mapNotNull { turn ->
+            val rendered = RecentSemanticTimeline.renderComplete(turn)
+            rendered.takeIf(String::isNotBlank)?.let {
+                (if (turn.events.size == 1) "recent:${turn.events.single().id}"
+                else "recent-turn:${turn.key}") to it
+            }
+        }
         val candidates = buildList {
             // Full-mode gateways render this working set rather than the
             // standalone memorySection. Deliver the SAME recall guidance here,
@@ -57,36 +67,10 @@ internal object MemoryWorkingSet {
             // Reverse only the working view: recent corrections must win budget pressure.
             // A recalled event may also be inside the recent window. Keep the
             // newest original once, rather than charging for the same event twice.
-            val deliveredEventIds = mutableSetOf<String>()
-            // A co-op game is one experience, but user/companion speech inside
-            // the game remains separate turns. Work only from original event
-            // revisions; do not write a second narrative or summarize per tick.
-            context.ownedRecentTurns.asReversed().forEachIndexed { index, turn ->
-                val unique = turn.events.filterNot { it.id in deliveredEventIds }
-                if (unique.isEmpty()) return@forEachIndexed
-                val scoped = turn.copy(events = unique)
-                val previewBudget = when {
-                    index < 6 -> 700
-                    index < 18 -> 330
-                    else -> 180
-                }
-                val preview = RecentSemanticTimeline.render(scoped, previewBudget, context.retrievalFocus)
-                if (preview.isNotBlank()) {
-                    // Only exact original rows visibly present in this compact
-                    // excerpt can suppress a later relevance-selected source
-                    // citation. All other game/tool steps remain recallable.
-                    unique.filter { event ->
-                        preview.contains("eventId=${event.id}@${event.revision}")
-                    }.forEach { deliveredEventIds.add(it.id) }
-                    add(MemoryPromptCandidate(
-                        if (unique.size == 1) "recent:${unique.single().id}"
-                        else "recent-turn:${scoped.key}",
-                        RECENT, preview, 965 - index.coerceAtMost(35),
-                        payload = preview, sources = unique.mapTo(linkedSetOf()) { it.id },
-                        originalEvidence = false,
-                    ))
-                }
-            }
+            // Every source event inside a complete recent turn is already on
+            // the wire. Do not pay twice for the same original as recalled evidence.
+            val deliveredEventIds = context.ownedRecentTurns
+                .flatMapTo(mutableSetOf()) { turn -> turn.events.map { it.id } }
             context.ownedSourceEvents.forEach { event ->
                 if (deliveredEventIds.add(event.id)) evidence(event, false)
             }
@@ -130,11 +114,21 @@ internal object MemoryWorkingSet {
         val protected = listOf(coreSection, context.activeTaskContext).filter(String::isNotBlank)
             .joinToString("\n\n").length.let { if (it == 0) 0 else it + 2 }
         val result = MemoryWorkingSetPolicy.select(candidates, budget.workingSetCharacters, protected,
-            mapOf(RECENT to budget.recentCharacters, EVIDENCE to budget.evidenceCharacters,
+            mapOf(EVIDENCE to budget.evidenceCharacters,
                 SUMMARY to budget.memoryCharacters, LEXICON to budget.lexiconCharacters))
-        // Selection is still a draft: the model request may fail or the relay
-        // may compact older evidence before transmission. Only the gateway
-        // records the final injected IDs AFTER a successful provider response.
-        return result
+        // This separate protected transcript is on top of the bounded memory
+        // family. Do not mark any excerpt as delivered unless the final HTTP
+        // system sections actually contained the complete turn.
+        if (completeRecent.isEmpty()) return result
+        val recentSection = RECENT + "\n" +
+            "【主人设置的最近语义轮次｜完整原始记录，未按每轮字数缩写】\n" +
+            completeRecent.joinToString("\n\n") { it.second }
+        return result.copy(
+            sections = linkedMapOf(RECENT to recentSection).apply { putAll(result.sections) },
+            selected = completeRecent.map { it.first } + result.selected,
+            selectedFragments = completeRecent.associate { (id, rendered) ->
+                id to (RECENT to rendered)
+            } + result.selectedFragments,
+        )
     }
 }
