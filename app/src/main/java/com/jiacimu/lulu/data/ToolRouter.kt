@@ -468,6 +468,40 @@ object ToolRouter {
                             parsed.optString("errorCode").takeIf { it.isNotBlank() }?.let { "；代码=$it" }.orEmpty(),
                     )
                 }
+                // DigitalWorldStore already wrote the authoritative native
+                // evidence before ToolRouter recorded this wrapper. Enrich only
+                // its empty task association so both immutable witnesses
+                // belong to ONE complete memory experience. Do not rewrite its
+                // original words/time or create a second world fact.
+                if (name == "digital_world_action" && parsed.optBoolean("success")) {
+                    val nativeId = parsed.optString("evidenceId").takeIf { id ->
+                        id.startsWith("world-fact-") || id.startsWith("world-observe-")
+                    }
+                    nativeId?.let { id ->
+                        val native = SharedExperienceTimeline.eventsByIds(characterId, listOf(id))
+                            .firstOrNull()?.takeIf { original ->
+                                original.channel == "数字世界" &&
+                                    original.source in setOf("legacy", "digital-world") &&
+                                    original.taskId.isBlank()
+                            }
+                        if (native != null) {
+                            SharedExperienceTimeline.record(
+                                eventId = native.id,
+                                characterId = characterId,
+                                channel = native.channel,
+                                speaker = native.speaker,
+                                content = native.content,
+                                occurredAt = native.occurredAt,
+                                triggerExtraction = false,
+                                sessionId = native.sessionId,
+                                source = native.source,
+                                evidenceKind = native.evidenceKind,
+                                taskId = requestId,
+                                expectedRevision = native.revision,
+                            )
+                        }
+                    }
+                }
                 SharedExperienceTimeline.record("tool-$characterId-$requestId", characterId, "实际工具执行", "执行器",
                     execution.toString(), source = "tool-router", taskId = requestId,
                     sessionId = if (name == "send_group_message") parsed.optString("conversationId") else "",
