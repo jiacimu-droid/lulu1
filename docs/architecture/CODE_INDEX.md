@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`af9f6246cd98e883df9165258edda3dec7d44d3e`
+- 基准提交：`13108eda314c00fcf989c47d00212aa8da2fdd2e`
 - 分支：`main`
 - 已索引文件：1377
-- 已索引代码/文本行：294298
+- 已索引代码/文本行：294313
 - 已发现符号：4143
 
 | 文件 | 行数 | 符号数 |
@@ -441,7 +441,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt` | 104 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentReviewSchedule.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt` | 291 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 423 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt` | 436 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt` | 87 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt` | 56 | 0 |
@@ -560,7 +560,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 174 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 3803 | 8 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1229 | 31 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1231 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 142 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt` | 40 | 2 |
