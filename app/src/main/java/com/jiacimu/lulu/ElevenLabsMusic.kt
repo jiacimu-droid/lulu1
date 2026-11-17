@@ -191,6 +191,25 @@ internal object ElevenLabsMusic {
             Song(result, DEFAULT_MODEL, false, "", usedRoleVoice = true)
         }
 
+    /**
+     * Keep the Music-generated original available for a free A/B test.
+     * The paired role version uses the SAME music source, not a new generation.
+     */
+    fun latestOriginalSong(context: Context, characterId: String): Song? =
+        roleFolder(context, characterId).listFiles()
+            ?.asSequence()
+            ?.filter { it.isFile && it.name.endsWith(".mp3") }
+            ?.maxByOrNull(File::lastModified)
+            ?.let { Song(it, DEFAULT_MODEL, false, "", usedRoleVoice = false) }
+
+    fun latestRoleVoiceSong(context: Context, characterId: String): Song? {
+        val source = latestOriginalSong(context, characterId) ?: return null
+        val voice = ElevenLabsRoleSongPipeline.roleVoiceId(context, characterId) ?: return null
+        val converted = ElevenLabsRoleSongPipeline.convertedFile(source.file, voice)
+        return converted.takeIf { it.isFile && it.length() > 44L }
+            ?.let { Song(it, DEFAULT_MODEL, false, "", usedRoleVoice = true) }
+    }
+
     /** Local replay does not make another billable music request. */
     fun latestSong(context: Context, characterId: String): Song? =
         roleFolder(context, characterId).listFiles()
