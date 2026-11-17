@@ -271,6 +271,22 @@ object CompanionPresenceStore {
         persist()
     }
 
+    /**
+     * Bind a frozen state from the SAME executed decision to an actually persisted
+     * message ID. The caller has verified both delivery and author identity.
+     * Do not enforce a wall-clock gap: a tool can take minutes to finish before
+     * the post-action mind snapshot is saved. Never infer a different turn.
+     */
+    @Synchronized internal fun bindVerifiedDeliveredMessageMoment(
+        characterId: String, messageId: String, moment: CompanionPresenceState,
+    ) {
+        if (characterId.isBlank() || messageId.isBlank() ||
+            moment.characterId != characterId) return
+        messageMoments[messageId] = moment.copy()
+        while (messageMoments.size > 500) messageMoments.remove(messageMoments.keys.first())
+        persist()
+    }
+
     @Synchronized fun forgetDeliveredMessage(messageId: String) {
         val removed = messageMoments.remove(messageId) ?: return
         // Multiple semantic bubbles may belong to the same psychological turn.
