@@ -1,5 +1,6 @@
 ## 2026-11-18 · PH-01 通用评论事务与原人物任务延期续接（待完整 CI / 真机）
 
+- 实际主线提交：[202e3c0](https://github.com/jiacimu-droid/lulu1/commit/202e3c0a4fa94e6b865b53e61bb253f42347db18)。对应 [Lulu APK/JVM #44131240250](https://github.com/jiacimu-droid/lulu1/actions/runs/44131240250) 当前 pending，[索引 #44131240099](https://github.com/jiacimu-droid/lulu1/actions/runs/44131240099) 已启动；不标完整工程通过。40个前置回复控件之后的无标签编辑框与相邻发表按钮，已对实际续接摘要方法本地实跑，两个真实ref均保留；该补充不是真机操作证明。
 - 当前根因：通用点击把评论/回复浏览入口与实际发表混为一类，普通聚焦输入还残留500字符限制；人物手机循环12步后直接结束，无法在该续接内保存下一次日程。
 - `LuluVirtualCommentPolicy` / `LuluAccessibilityService` 分开无评论编辑器时的真实浏览入口与 `publish_comment`。发表要求同一角色/独立屏/目标App的最新快照、真实评论编辑框与相邻提交按钮ref、完整草稿逐字一致及目标帖子的可见原文；当前页面/窗口/授权变化均拒绝。只派发一次，不用第二通道补点；区分attempted/clicked/客户端新增评论/服务器送达未知。原 `ToolRouter` 非retrySafe持久执行账本保护中断重放，已有统一屏幕授权复用，不增加开关。
 - 续接内由同一角色明确选择 `defer` + title/intent/dueAt，经原 `plan_personal_activity` → `RoleDayScheduleStore` / 原Worker保存。12步额度耗尽时仅增加一次收尾决定，可结束、询问或保存延期；不续租无限付费循环。保存只带重新launch已核实App，禁止把旧坐标/ref/发表动作留入日程。原目标、实际进度及未完成项由本人写在intent；未保存成功不得承诺稍后已排程。新消息、STOP、撤权及发表后只读状态不自动安排续接。
