@@ -24,7 +24,13 @@ internal object ElevenLabsMusic {
     const val MAX_PROMPT = 4100
     private const val MAX_BYTES = 25 * 1024 * 1024
 
-    data class Song(val file: File, val model: String, val usedFinetune: Boolean, val songId: String)
+    data class Song(
+        val file: File,
+        val model: String,
+        val usedFinetune: Boolean,
+        val songId: String,
+        val usedRoleVoice: Boolean = false,
+    )
 
     fun isEnabledAndConfigured(context: Context, characterId: String): Boolean {
         if (characterId.isBlank() || characterId.startsWith("resident:")) return false
@@ -60,6 +66,10 @@ internal object ElevenLabsMusic {
             val key = prefs.getString("eleven_api_key", "").orEmpty().trim()
             val model = prefs.getString("eleven_music_model", DEFAULT_MODEL).orEmpty().ifBlank { DEFAULT_MODEL }
             val finetune = finetuneId(application, characterId)
+            val roleVoice = if (ElevenLabsRoleSongPipeline.enabled(application)) {
+                ElevenLabsRoleSongPipeline.roleVoiceId(application, characterId)
+                    ?: error("该角色还没有 ElevenLabs Voice ID；请先选择已有角色音色，或关闭「角色原声唱歌」")
+            } else null
             val request = body(prompt, durationSeconds, model, finetune)
             val connection = (URL(API).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
@@ -102,7 +112,22 @@ internal object ElevenLabsMusic {
                 }
                 check(length > 1024) { "Eleven Music 没有返回有效歌曲音频" }
                 check(staging!!.renameTo(finalFile)) { "歌曲已生成但无法保存到本机" }
-                Song(finalFile, model, finetune.isNotEmpty(), connection.getHeaderField("song-id").orEmpty())
+                val songId = connection.getHeaderField("song-id").orEmpty()
+                if (roleVoice == null) {
+                    Song(finalFile, model, finetune.isNotEmpty(), songId)
+                } else {
+                    // The billed original remains available for manual retry. Never
+                    // play a stranger's generated voice as if it were the role's.
+                    val converted = try {
+                        ElevenLabsRoleSongPipeline.convert(application, finalFile, roleVoice)
+                    } catch (failure: Throwable) {
+                        throw IllegalStateException(
+                            "原曲已保存，但角色音色转换失败：${failure.message}。可点「只重试换声」，不必重新生成歌曲。",
+                            failure,
+                        )
+                    }
+                    Song(converted, model, finetune.isNotEmpty(), songId, usedRoleVoice = true)
+                }
             } finally {
                 staging?.delete()
                 connection.disconnect()
@@ -116,12 +141,27 @@ internal object ElevenLabsMusic {
         return File(context.applicationContext.filesDir, "eleven_music/" + roleFolder)
     }
 
+    /** Reuse the locally saved source if the voice step failed after Music was billed. */
+    suspend fun retryLatestRoleVoice(context: Context, characterId: String): Song =
+        withContext(Dispatchers.IO) {
+            require(isEnabledAndConfigured(context, characterId)) { "请先启用 Eleven Music" }
+            val voice = ElevenLabsRoleSongPipeline.roleVoiceId(context, characterId)
+                ?: error("没有找到该角色的 ElevenLabs Voice ID")
+            val original = roleFolder(context, characterId).listFiles()
+                ?.filter { it.isFile && it.name.endsWith(".mp3") }
+                ?.maxByOrNull(File::lastModified)
+                ?: error("请先生成一首原创歌曲")
+            val result = ElevenLabsRoleSongPipeline.convert(context, original, voice)
+            Song(result, DEFAULT_MODEL, false, "", usedRoleVoice = true)
+        }
+
     /** Local replay does not make another billable music request. */
     fun latestSong(context: Context, characterId: String): Song? =
         roleFolder(context, characterId).listFiles()
-            ?.asSequence()?.filter { it.isFile && it.name.endsWith(".mp3") }
+            ?.asSequence()
+            ?.filter { it.isFile && (it.name.endsWith(".mp3") || it.name.endsWith(".wav")) }
             ?.maxByOrNull(File::lastModified)
-            ?.let { Song(it, DEFAULT_MODEL, false, "") }
+            ?.let { Song(it, DEFAULT_MODEL, false, "", usedRoleVoice = it.name.endsWith(".wav")) }
 
     @Synchronized
     fun stop() {
