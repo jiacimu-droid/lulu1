@@ -60,6 +60,35 @@ class LuluVirtualChatSendPolicyTest {
         assertFalse(LuluVirtualChatSendPolicy.validMessage("a".repeat(501)))
     }
 
+    @Test fun customWeChatTextEditorWithSetTextActionIsNotMistakenForVoiceMode() {
+        // An actual WeChat message composer need not expose EditText/isEditable.
+        // The service only passes true after seeing ACTION_SET_TEXT on a
+        // visible, enabled, non-password node in the verified chat window.
+        assertTrue(LuluVirtualChatSendPolicy.chatEditorCandidate(
+            "android.view.View", "输入消息", "com.tencent.mm:id/chatting_content_et",
+            hasEditableAction = true))
+        assertTrue(LuluVirtualChatSendPolicy.chatEditorCandidate(
+            "android.view.View", null, null, hasEditableAction = true))
+        assertFalse(LuluVirtualChatSendPolicy.chatEditorCandidate(
+            "android.view.View", "搜索", "com.tencent.mm:id/search", hasEditableAction = true))
+        assertFalse(LuluVirtualChatSendPolicy.chatEditorCandidate(
+            "android.view.View", "输入消息", null, hasEditableAction = false))
+        assertFalse(LuluVirtualChatSendPolicy.chatEditorCandidate(
+            "android.view.View", "输入消息", "com.ss.android.ugc.aweme:id/chat_input",
+            LuluVirtualChatSendPolicy.DOUYIN, hasEditableAction = true))
+    }
+
+    @Test fun missingVoiceBarCanRecoverOnlyByReobservingRealTextEditor() {
+        val recheck = LuluVirtualChatSendPolicy::mayRecheckTextEditorAfterVoiceProbe
+        assertTrue(recheck(true, ""))
+        assertTrue(recheck(false, "chat_voice_composer_unverified"))
+        assertTrue(recheck(false, "chat_keyboard_toggle_unverified"))
+        assertFalse(recheck(false, "chat_recipient_unverified"))
+        assertFalse(recheck(false, "chat_window_unverified"))
+        assertFalse(recheck(false, "chat_snapshot_expired"))
+        assertFalse(recheck(false, "chat_keyboard_toggle_rejected"))
+    }
+
     @Test fun nestedVoiceBarLabelsAreOnePhysicalComposerButSeparateBarsAreAmbiguous() {
         fun b(l: Int, t: Int, r: Int, bt: Int) =
             LuluVirtualChatSendPolicy.ComposerBounds(l, t, r, bt)
