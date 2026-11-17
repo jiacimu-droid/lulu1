@@ -163,10 +163,17 @@ internal object CommitmentAlarmDelivery {
             val remainingRingMs = LuluAudibleWakeRinger.remainingMs(task.id)
             if (remainingRingMs > 0L) kotlinx.coroutines.delay(remainingRingMs)
         } catch (error: Exception) {
-            if (isCurrent(task)) CommitmentTaskStore.update(task.id) { old -> old.copy(
+            val interruptedBeforeReceipt = isCurrent(task)
+            if (interruptedBeforeReceipt) CommitmentTaskStore.update(task.id) { old -> old.copy(
                 status = CommitmentTaskStatus.Blocked,
                 lastActionResult = "$source 执行中断：${error.message.orEmpty().take(140)}；未确认目标完成",
             ) }
+            // A cold-start/API failure after an alarm was claimed is not
+            // equivalent to completing the call. Offer one role-owned recovery
+            // decision; never blindly replay an external call or ring again.
+            if (interruptedBeforeReceipt && error !is CancellationException)
+                CommitmentTaskStore.handoffMissedCommitment(
+                    task.characterId, task.dueAt ?: alarm.triggerAt)
             if (error is CancellationException) throw error
         } finally {
             LuluAudibleWakeRinger.stop(task.id)
