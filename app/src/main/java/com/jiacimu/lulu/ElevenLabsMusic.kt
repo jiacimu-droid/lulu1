@@ -107,6 +107,9 @@ internal object ElevenLabsMusic {
             require(roleVoice == null || durationSeconds <= 180) {
                 "角色原声转换目前只支持最长180秒；未发起收费的音乐生成请求"
             }
+            // No hidden downgrade to speech conversion and no Music billing
+            // before the separately hosted GPU singing service is configured.
+            if (roleVoice != null) ElevenLabsSingingSvc.requireReady(application)
             val request = body(prompt, durationSeconds, model, finetune)
             val connection = (URL(API).openConnection() as HttpURLConnection).apply {
                 requestMethod = "POST"
@@ -208,7 +211,8 @@ internal object ElevenLabsMusic {
         val source = latestOriginalSong(context, characterId) ?: return null
         val voice = ElevenLabsRoleSongPipeline.roleVoiceId(context, characterId) ?: return null
         val converted = ElevenLabsRoleSongPipeline.convertedFile(source.file, voice,
-            ElevenLabsRoleSongPipeline.voiceStyle(context, characterId))
+            ElevenLabsRoleSongPipeline.voiceStyle(context, characterId),
+            ElevenLabsSingingSvc.engine(context))
         return converted.takeIf { it.isFile && it.length() > 44L }
             ?.let { Song(it, DEFAULT_MODEL, false, "", usedRoleVoice = true) }
     }
