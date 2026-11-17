@@ -79,13 +79,18 @@ data class MemoryEntry(
 )
 
 data class MemoryPolicy(
-    val excludedRecentMessages: Int = 25,
-    val readableThreshold: Int = 20,
+    // Persisted field names remain for backward compatibility; values are
+    // now COMPLETE semantic turns, not individual raw bubbles or game ticks.
+    val excludedRecentMessages: Int = 5,
+    val readableThreshold: Int = 15,
     val autoSummarize: Boolean = true,
 ) {
     /**
-     * The raw context must cover both the not-yet-eligible tail and one complete extraction batch.
-     * Failed extraction backlogs stay queued separately and never expand ordinary model context.
+     * Recent character recall covers the protected five complete turns and the
+     * next fifteen turns queued for extraction. One long game or phone task
+     * still counts as ONE experience, while actual game speech counts separately.
+     * Extraction retries retain their own durable queue and do not inflate this
+     * model-facing window.
      */
     val rawContextMessageCount: Int
         get() = (excludedRecentMessages.toLong() + readableThreshold.toLong())
