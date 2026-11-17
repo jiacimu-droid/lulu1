@@ -1249,7 +1249,13 @@ class ConversationExpressionGatewayTest {
         assertNull(queue.pendingEvidence(context, id, receiptId))
 
         MockWebServer().use { server ->
-            server.enqueue(MockResponse().setResponseCode(400).setBody("unexpected request"))
+            // This path MUST make zero paid calls. If a regression does send
+            // multiple requests, reject every one immediately rather than
+            // exhausting a one-item enqueue and hanging for the HTTP timeout.
+            server.dispatcher = object : Dispatcher() {
+                override fun dispatch(request: RecordedRequest): MockResponse =
+                    MockResponse().setResponseCode(400).setBody("unexpected request")
+            }
             server.start()
             val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
                 server.url("/").toString(), "test-only")
