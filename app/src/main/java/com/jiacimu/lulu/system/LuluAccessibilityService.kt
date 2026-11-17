@@ -1113,6 +1113,22 @@ class LuluAccessibilityService : AccessibilityService() {
             }
         }
 
+        /** Upper boundary of the ACTUAL virtual-display IME, in permille.
+         * The visual Send button must belong to WeChat ABOVE this boundary,
+         * never a keyboard action key such as Next / Search / Send. */
+        fun virtualChatImeTopPermille(displayId: Int, packageName: String): Int? {
+            val service = instance ?: return null
+            if (virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+                return null
+            val height = virtualDimensions(service, displayId)?.second ?: return null
+            val ime = service.windowsOnAllDisplays.get(displayId).orEmpty()
+                .filter { it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD }
+                .singleOrNull() ?: return null
+            val rect = Rect().also(ime::getBoundsInScreen)
+            if (rect.top <= 0 || rect.top >= height) return null
+            return (rect.top * 1000L / height).toInt()
+        }
+
         /** Evidence for OEMs where a virtual display has real pixels but
          * Android exposes no useful accessibility children. Counts and flags
          * only: never serialize message text, private editor content, or nodes
