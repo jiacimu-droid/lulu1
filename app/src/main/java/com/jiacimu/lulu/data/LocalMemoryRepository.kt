@@ -773,8 +773,15 @@ class LocalMemoryRepository : MemoryRepository {
             shouldFlushPendingMemoryTail(readable.flatMap { it.events }, processed, now)
     }
 
-    fun hasUnprocessedEvents(characterId: String): Boolean = memoryEligibleTimelineEvents(characterId)
-        .any { it.id !in state.value.processedMessageIds[characterId].orEmpty() }
+    fun hasUnprocessedEvents(characterId: String): Boolean {
+        // Use the SAME semantic projection as the 20-turn reader and
+        // 15+5 extraction queue. Diagnostics like online-awareness remain in
+        // the raw ledger, but cannot keep memory "dirty" forever by themselves.
+        val processed = state.value.processedMessageIds[characterId].orEmpty()
+        return semanticTimelineTurns(characterId).any { turn ->
+            turn.events.any { it.id !in processed }
+        }
+    }
 
     /** Pending is measured in complete semantic turns; the API still returns
      * genuine source rows so old debug, source and deletion callers stay safe. */
