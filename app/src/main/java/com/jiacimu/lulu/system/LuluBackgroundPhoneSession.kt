@@ -1353,7 +1353,12 @@ internal object LuluBackgroundPhoneSession {
                     val alreadyText = withContext(Dispatchers.Main) {
                         LuluAccessibilityService.virtualChatTextInputVisible(id, activeApp)
                     }
-                    if (!alreadyText && activeApp == LuluVirtualChatSendPolicy.WECHAT &&
+                    // A chat editor may be readable while the custom WeChat
+                    // title/Send controls remain invisible to accessibility.
+                    // Honor the role's screenshot-chosen composer whenever
+                    // explicitly provided; the visual route independently
+                    // verifies exact recipient, draft and ONE Send control.
+                    if (activeApp == LuluVirtualChatSendPolicy.WECHAT &&
                         args.has("composerX") && args.has("composerY")) {
                         visualWeChatSend(
                             id, activeApp, recipient, message,
