@@ -594,7 +594,7 @@ private fun CharacterV2TimeRow(label: String, minutesOfDay: Int, onChange: (Int)
 }
 
 @Composable
-private fun CharacterV2Switch(
+internal fun CharacterV2Switch(
     title: String,
     checked: Boolean,
     enabled: Boolean = true,
