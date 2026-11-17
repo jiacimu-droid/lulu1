@@ -105,6 +105,10 @@ internal fun CommitmentTask.needsUnverifiedDailyRecovery(now: Instant): Boolean 
 internal fun CommitmentTask.visibleOnScheduleDate(
     date: LocalDate, zone: ZoneId, today: LocalDate,
 ): Boolean {
+    // The redundant persisted task remains auditable, but is not a second
+    // appointment in the owner's calendar after its alarm was retired.
+    if (status == CommitmentTaskStatus.Cancelled &&
+        lastActionResult.startsWith("重复定时约定已整理")) return false
     val scheduledDate = (dueAt ?: createdAt).atZone(zone).toLocalDate()
     if (repeat == "daily" && dailyNextDueAt?.atZone(zone)?.toLocalDate() == date) return true
     if (repeat == "daily" && dueAt != null && status.isActive()) {
