@@ -65,3 +65,5 @@ body.world-immersive .joystick{pointer-events:auto;width:128px;height:128px;min-
 body.world-immersive .toolbar .joystick{pointer-events:auto}
 @media(max-height:430px) and (orientation:landscape){body.world-immersive .joystick{width:114px;height:114px;min-width:114px;flex-basis:114px}.joystick-knob{width:53px;height:53px}}
 @media(max-width:700px) and (orientation:portrait){body.world-immersive .joystick{width:114px;height:114px;min-width:114px;flex-basis:114px}}
+
+.art-sheet{border:1px solid #60786a60;background:#1d3631;border-radius:9px;margin:5px 0;overflow:hidden}.art-sheet summary{cursor:pointer;list-style:none;padding:11px 12px;font-size:11px;font-weight:650;color:#e2efdc}.art-sheet summary::before{content:"＋ ";color:#b0d0b0}.art-sheet[open] summary::before{content:"－ "}.art-sheet-frame{overflow:auto;max-width:100%;padding:10px;background:#0f1d19;touch-action:pan-x pan-y}.art-sheet-frame img{image-rendering:pixelated;max-width:none;width:auto;height:auto;display:block}
