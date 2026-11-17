@@ -101,7 +101,12 @@ function draw(time=0){if(!s)return;const {w,h}=resize(),t=Math.max(25,Math.min(5
   if(!art.town||!art.dungeon){ctx.fillStyle='#0d241caa';ctx.fillRect(6,6,w-12,31);ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.fillText('正在读取 Kenney 贴图；若持续显示请检查 assets',13,27)}
 }
 function tick(time){if(s&&!s.finished&&path.length&&time-lastMoveAt>120){const next=path.shift(),dx=Math.sign(next.x-s.player.x),dy=Math.sign(next.y-s.player.y);const r=Core.walk(s,dx,dy);if(!r.ok){path=[];announce('路线被挡住了')}else {save();updateUI()}lastMoveAt=time}draw(time);requestAnimationFrame(tick)}
-function clickMap(e){if(!s)return;const box=canvas.getBoundingClientRect(),rotated=document.body.classList.contains('world-immersive')&&matchMedia('(orientation: portrait)').matches;const localX=rotated?e.clientY-box.top:e.clientX-box.left,localY=rotated?box.right-e.clientX:e.clientY-box.top;const x=Math.floor((localX-view.ox)/view.tile),y=Math.floor((localY-view.oy)/view.tile);const p=s.props.find(p=>!p.used&&p.x===x&&p.y===y);
+function clickMap(e){
+  if(!s)return;
+  // A new tap supersedes any pending route, even when the target is unreachable.
+  path=[];
+  if(s.finished){announce('本局已撤离结算，点击重开场景再探索');return}
+  const box=canvas.getBoundingClientRect(),rotated=document.body.classList.contains('world-immersive')&&matchMedia('(orientation: portrait)').matches;const localX=rotated?e.clientY-box.top:e.clientX-box.left,localY=rotated?box.right-e.clientX:e.clientY-box.top;const x=Math.floor((localX-view.ox)/view.tile),y=Math.floor((localY-view.oy)/view.tile);const p=s.props.find(p=>!p.used&&p.x===x&&p.y===y);
   if(p&&Math.abs(p.x-s.player.x)+Math.abs(p.y-s.player.y)<=1){transact(Core.use(s,p.id));return}
   const goals=p?[[p.x-1,p.y],[p.x+1,p.y],[p.x,p.y-1],[p.x,p.y+1]]:[[x,y]];
   const routes=goals.map(([gx,gy])=>Core.route(s,gx,gy)).filter(r=>r.length>0).sort((a,b)=>a.length-b.length);
