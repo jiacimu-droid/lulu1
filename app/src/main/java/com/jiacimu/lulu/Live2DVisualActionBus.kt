@@ -199,6 +199,7 @@ internal object Live2DVisualActionBus {
             先感受当下真实的情绪、身体状态、关系和说话意图，再选择身体表达，而不是先挑一个左右摇头的动作来套台词。
             下面是按用途整理的真实 Motion3。日常优先考虑情绪、倾听回应和身体状态里辨识度高的动作；“补充”组仍可由你自主选用，但左右镜像、幅度变体和小幅晃动不是为了凑不同动作而反复切换。
             两个姿态看起来相近时，选最贴合当前感受的一个；同一感受可以自然延续，不必每句话换一种头部动作。脸部情绪与动作一起考虑，不能用单纯左右转头代替伤心、害羞、紧张或惊喜。
+            「靠近屏幕」LuluWolf#49 只是身体主动拉近与镜头的距离，不预设温柔、亲昵、微笑、脸红或闭眼；可以好奇、逗趣、严肃、冷淡甚至生气地靠近。角色本人决定当下的神态，程序不凭动作编号替角色猜心情。「贴屏亲亲」LuluWolf#48 才是闭眼嘟嘴的独立亲吻，且须避免在开口说话时接吻。
             真实动作目录（group#index=动作描述，保留原编号）：
             $motions
             真实表情资源：$expressions
@@ -215,9 +216,10 @@ internal object Live2DVisualActionBus {
             {"id":"s1","text":"我想了想，其实也不是不行，不过先说好，我有个小条件。","motion":{"group":"LuluWolf","index":26},"followUps":[{"motion":{"group":"LuluWolf","index":0}},{"motion":{"group":"LuluWolf","index":29}}]}
             followUps 中每个 motion 都须来自本次真实目录；可选 transition=blend|continue。前一个真实 Motion3 演完、这段 TTS 还在发声时，再执行下一个；实际语音结束就取消未播动作。要符合当下本人想表达的神态，既不按逗号机械计数，也不强制全程不停挥手，不另调用模型。
             新动作 transition=blend，从当前真实姿态衔接；若下一段仍继续同一个动作，填相同 motion 并用 transition=continue，播放器不从头重播尚在进行的动作。
-            不要为普通 Motion 使用 head/body/face 数值或 performance.movement；原生 Motion 包含自己完整的身体协调、节奏与回弹，唇形随真实声音独立变化。
+            原生 Motion3 负责身体和头部主动作，不要再叠加 head/body 数值或 performance.movement 与它争抢关节；表情则是独立层，允许角色在同一句的 motion 之外自己选择模型真实拥有的 expression，或可选 face（眼神、眼皮、眉毛、嘴角等），例如 {"face":{"smile":-0.4,"browY":-0.3,"eyeOpen":0.9}}。可不指定，不能把「靠近」自动当成「温柔」。face 只作用于导入模型实际提供并确认的参数，其余不会伪造。
+            耳朵等部件目前由模型原有 Motion3/Physics3 驱动；未确认有可写入的独立控制通道时，不要自行发明 ear 字段或直接覆盖物理模拟输出。未来更多部件的独立搭配也应遵循同一原则：本人选择、真实 rig 参数可执行、各层互不争抢。
             如果你想用这个模型真实提供的表情资源，可单独选择 expression，也可配合一个 motion；没有的资源不能虚构。
-            speech 每段可选 expression=真实表情名。表情可以沿用；身体动作、面部与口型独立协调。
+            speech 每段可选 expression=真实表情名或 face=已确认脸部通道值；也可以两者都不选。表情可以沿用；身体动作、脸部与真实 TTS 口型独立协调。
             选择 silent 安静陪伴时可以省略 live2d；选择 reply 开口时每个片段须有可执行 Motion3。模型不存在的动作不能编造，程序不会按台词替你猜动作。
             老的 head/body/face/performance 只保留历史兼容，不推荐用于日常视频说话。
             当前画面未准备好时动作不能假称已经成功展示；电话/视频仍是同一角色的表达，不产生第二套人格。
