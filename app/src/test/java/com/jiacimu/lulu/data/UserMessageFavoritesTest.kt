@@ -471,6 +471,50 @@ class UserMessageFavoritesTest {
         CompanionPresenceStore.clearCharacter(role)
     }
 
+    @Test fun failedPrimaryToolStillPersistsAndBindsRealSideMessageVoice() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "side-message-voice-while-phone-failed"
+        CompanionPresenceStore.clearCharacter(role)
+        val deliveredAt = Instant.parse("2026-11-17T05:59:00Z")
+        // The independent phone action failed, but its side message really arrived.
+        assertTrue(shouldPersistProactivePresence(
+            readingUpdatedPresence = false, appearanceHasCause = false,
+            novelPrivateIdeas = false, verifiedDeliveredMessageCount = 1,
+        ))
+        assertFalse(shouldPersistProactivePresence(
+            readingUpdatedPresence = false, appearanceHasCause = false,
+            novelPrivateIdeas = false, verifiedDeliveredMessageCount = 0,
+        ))
+        assertFalse(shouldPersistProactivePresence(
+            readingUpdatedPresence = true, appearanceHasCause = false,
+            novelPrivateIdeas = false, verifiedDeliveredMessageCount = 1,
+        ))
+        // A delayed tool may finish over 30 seconds after the actual bubble.
+        CompanionPresenceStore.update(
+            role, null, null, "微信连不上，我还是想先跟她说一声",
+            "牵挂", "后台主动感知", deliveredAt.plusSeconds(93),
+            momentReflection = "想法：先告诉她真实失败，再问要不要重试",
+        )
+        val committed = CompanionPresenceStore.current(role)!!
+        CompanionPresenceStore.bindVerifiedDeliveredMessageMoment(role, "side-message-1", committed)
+        CompanionPresenceStore.selectMessageAnchor(role, deliveredAt, "side-message-1")
+        val anchored = CompanionPresenceStore.selectedMessageAnchor(role)!!.state!!
+        assertEquals("微信连不上，我还是想先跟她说一声", anchored.innerThought)
+        assertEquals("想法：先告诉她真实失败，再问要不要重试",
+            anchored.momentReflection)
+        // An unrelated future turn must not rewrite the delivered message.
+        CompanionPresenceStore.update(
+            role, null, null, "后来又想到别的事", "平静", "后台主动感知",
+            deliveredAt.plusSeconds(200),
+        )
+        CompanionPresenceStore.selectMessageAnchor(role, deliveredAt, "side-message-1")
+        assertEquals(anchored.innerThought,
+            CompanionPresenceStore.selectedMessageAnchor(role)!!.state!!.innerThought)
+        CompanionPresenceStore.clearMessageAnchor()
+        CompanionPresenceStore.clearCharacter(role)
+    }
+
     @Test fun repeatedSameHeartVoiceRemainsVisibleOnItsOwnMessageSnapshot() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
