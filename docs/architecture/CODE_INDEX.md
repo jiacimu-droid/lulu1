@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a881db1e6ee4be62f90b3abac23911cc6a7286a5`
+- 基准提交：`17bb31a140ec6a52f0ffe42806afb69a2cc6c196`
 - 分支：`main`
 - 已索引文件：1382
-- 已索引代码/文本行：295671
+- 已索引代码/文本行：295704
 - 已发现符号：4174
 
 | 文件 | 行数 | 符号数 |
@@ -374,7 +374,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 437 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 331 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt` | 180 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 384 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 400 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt` | 155 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt` | 129 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt` | 92 | 6 |
@@ -1222,7 +1222,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt` | 333 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentManualRecoveryTest.kt` | 51 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt` | 438 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt` | 455 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPlanRevisionTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxWakeTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RetiredHealthMcpRouteTest.kt` | 43 | 1 |

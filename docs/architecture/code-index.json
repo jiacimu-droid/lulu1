@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T03:22:40.327327+00:00",
-  "commit": "a881db1e6ee4be62f90b3abac23911cc6a7286a5",
+  "generatedAt": "2026-11-17T03:24:27.993495+00:00",
+  "commit": "17bb31a140ec6a52f0ffe42806afb69a2cc6c196",
   "branch": "main",
-  "sourceFingerprint": "4310630d2cb8e13e27c05ea1ad2d654880125f45e25114d176b01752c868f85a",
+  "sourceFingerprint": "8254400da9db212dcc602e59f6bf701778bf5292e8cb75dd092ae43658f7b99b",
   "summary": {
     "files": 1382,
-    "lines": 295671,
+    "lines": 295704,
     "symbols": 4174
   },
   "symbolIndex": {
@@ -4179,7 +4179,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-        "line": 116
+        "line": 132
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
@@ -7171,7 +7171,7 @@
     "labels": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-        "line": 65
+        "line": 75
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -29250,8 +29250,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 384,
-      "sha256": "fab1e14b433fe6b5a51b05e95800be6ba5c63c5c89f9ea144e80589fe892c6c7",
+      "lines": 400,
+      "sha256": "cfc888774ce81a6b1b0358d7f7890c7ea5ddda43f2150979859ad10e969f4703",
       "symbols": [
         {
           "name": "currentSocialAuthority",
@@ -29259,11 +29259,11 @@
         },
         {
           "name": "labels",
-          "line": 65
+          "line": 75
         },
         {
           "name": "render",
-          "line": 116
+          "line": 132
         }
       ]
     },
@@ -34178,7 +34178,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
       "lines": 127,
-      "sha256": "df493e3efd8ed5fc5de069a07e927389ebcba29e50d3a32e2ca33650c96ec1bb",
+      "sha256": "65251975c5ee66753ccf2491d8f8127c0161698b29d515061be97fadc2747933",
       "symbols": [
         {
           "name": "MomentFriendAccess",
@@ -47401,8 +47401,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt",
-      "lines": 438,
-      "sha256": "90f7ec858c14ebd3fa455a31aa03cf0abe3322d5afdc69e0990249b5ff94d36c",
+      "lines": 455,
+      "sha256": "263a08aea9f6ae8e9c12803c813e1c1d802accfe7aea034556375df260bb350d",
       "symbols": [
         {
           "name": "ResidentPhoneWakeIntegrationTest",
