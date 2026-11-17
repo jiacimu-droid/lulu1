@@ -233,6 +233,30 @@ class CommitmentAlarmRecoveryTest {
         assertTrue(current(expired).needsUnverifiedCommitmentRecoveryCandidate(now))
     }
 
+    @Test fun missedSecondWakeRetryRemainsOwnedByOriginalTask() {
+        val now = Instant.now()
+        val task = saveTask(now.minusSeconds(60 * 60))
+        val secondAttemptAt = now.minusSeconds(30 * 60)
+        CommitmentTaskStore.update(task.id) { original -> original.copy(
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            linkedAlarmId = "second-wake-retry",
+            nextCheckAt = secondAttemptAt,
+            followUpKind = "retry",
+            attemptCount = 1,
+            lastActionResult = "首次叫醒确实尝试，但是否醒来未知",
+        ) }
+        CommitmentTaskStore.reconcileAfterRestart(now)
+        val missed = current(task)
+        assertEquals(CommitmentTaskStatus.Blocked, missed.status)
+        assertEquals(task.dueAt, missed.dueAt)
+        assertNull(missed.nextCheckAt)
+        assertNull(missed.linkedAlarmId)
+        assertEquals("", missed.followUpKind)
+        assertTrue(missed.needsUnverifiedCommitmentRecoveryCandidate(now))
+        assertTrue(missed.lastActionResult.contains("目标结果仍未确认"))
+        assertNull(ProactiveIncomingCallStore.pending.value)
+    }
+
     @Test fun legacyTwoMinuteExpiryIsReopenedForExactlyOneRoleOwnedReview() {
         val now = Instant.now()
         val task = saveTask(now.minusSeconds(60 * 60))
