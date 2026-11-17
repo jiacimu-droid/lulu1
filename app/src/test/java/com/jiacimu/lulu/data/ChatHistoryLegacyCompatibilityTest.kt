@@ -138,15 +138,18 @@ class ChatHistoryLegacyCompatibilityTest {
             assertTrue(prefs.edit().putString("state_v1", damaged).commit())
             val store = InMemoryLuluChatStore()
             store.initialize(app)
-            val writableConversationId = store.conversations.value.first { !it.pinned }.id
-            val outcome = runCatching { store.setConversationPinned(writableConversationId, true) }
-            assertTrue("Missing content must reject a real metadata write", outcome.isFailure)
+            assertTrue("Invalid history must not invent a default chat", store.conversations.value.isEmpty())
+            val outcome = runCatching { store.ensureConversation("ui02-new-contact", "新联系人") }
+            assertTrue("Missing content must reject a real conversation write", outcome.isFailure)
+            assertTrue(store.conversations.value.isEmpty())
             assertEquals("Original snapshot must survive the attempted mutation",
                 damaged, prefs.getString("state_v1", null))
             val reopened = InMemoryLuluChatStore()
             reopened.initialize(app)
-            val reopenedConversationId = reopened.conversations.value.first { !it.pinned }.id
-            assertTrue(runCatching { reopened.setConversationPinned(reopenedConversationId, true) }.isFailure)
+            assertTrue(reopened.conversations.value.isEmpty())
+            assertTrue(runCatching {
+                reopened.ensureConversation("ui02-new-contact", "新联系人")
+            }.isFailure)
             assertEquals(damaged, prefs.getString("state_v1", null))
         } finally {
             val edit = prefs.edit()
@@ -175,9 +178,12 @@ class ChatHistoryLegacyCompatibilityTest {
                 repeat(2) {
                     val store = InMemoryLuluChatStore()
                     store.initialize(app)
-                    val writableId = store.conversations.value.first { !it.pinned }.id
-                    assertTrue("Invalid content type must reject actual metadata persistence: $invalidContent",
-                        runCatching { store.setConversationPinned(writableId, true) }.isFailure)
+                    assertTrue("Invalid snapshot must not create a fake default chat",
+                        store.conversations.value.isEmpty())
+                    assertTrue("Invalid content type must reject actual conversation persistence: $invalidContent",
+                        runCatching {
+                            store.ensureConversation("ui02-new-contact", "新联系人")
+                        }.isFailure)
                     assertEquals("Original invalid snapshot must remain untouched", damaged,
                         prefs.getString("state_v1", null))
                 }
