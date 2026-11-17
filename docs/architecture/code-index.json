@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T02:07:53.274488+00:00",
-  "commit": "d4fff438a523079832a61419372e5a4060e55db8",
+  "generatedAt": "2026-11-17T02:08:20.136464+00:00",
+  "commit": "8423438f61dc99e54584843440c9e3517d386fc2",
   "branch": "main",
-  "sourceFingerprint": "fae7bd9d82111a8ce50c6222ad14a6c9629de032937140065d78b0a28f167c28",
+  "sourceFingerprint": "9f994b68ec3746b5a4cd6eca5fc86731a7e59a6a75d13d0e3cce9513a2db2b89",
   "summary": {
     "files": 1377,
-    "lines": 294338,
+    "lines": 294378,
     "symbols": 4143
   },
   "symbolIndex": {
@@ -45211,8 +45211,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt",
-      "lines": 526,
-      "sha256": "7f4d6ff8e88299ef4d5892b2248a33f7010ecd15e08ed344ed402f7b78b32f56",
+      "lines": 566,
+      "sha256": "890d64cdd510683071bd5b5fa01b63db4e0637a8a98c40e4436b2473a74b1f67",
       "symbols": [
         {
           "name": "CommitmentAlarmRecoveryTest",
