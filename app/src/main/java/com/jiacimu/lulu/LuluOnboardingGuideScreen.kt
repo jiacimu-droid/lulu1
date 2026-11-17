@@ -271,11 +271,22 @@ internal fun LuluOnboardingGuideScreen(
                     }
                 }
                 item {
-                    Spacer(Modifier.height(5.dp))
-                    Text("第一次使用", color = ink, fontSize = 20.sp,
-                        fontWeight = FontWeight.SemiBold)
-                    Text("先把模型、声音、记忆和授权准备好，再开始体验；语音和手机操控可按需开启。", color = muted, fontSize = 12.sp)
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("第一次使用", color = ink, fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold)
+                            Text("API → 角色 → 模型 → 声音 → 记忆 → 权限 → 聊天",
+                                color = muted, fontSize = 11.sp, lineHeight = 18.sp)
+                        }
+                        TextButton(onClick = { showSetupSteps = !showSetupSteps }) {
+                            Text(if (showSetupSteps) "收起" else "查看 7 步")
+                            Icon(if (showSetupSteps) Icons.Outlined.ExpandLess
+                                 else Icons.Outlined.ExpandMore, null,
+                                Modifier.size(17.dp))
+                        }
+                    }
                 }
+                if (showSetupSteps) {
                 items(luluGuideSteps.size) { index ->
                     val step = luluGuideSteps[index]
                     Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min), verticalAlignment = Alignment.Top) {
@@ -307,6 +318,7 @@ internal fun LuluOnboardingGuideScreen(
                         }
                     }
                 }
+                }
                 item {
                     Spacer(Modifier.height(5.dp))
                     Text("探索全部功能", color = ink, fontSize = 20.sp,
@@ -318,14 +330,14 @@ internal fun LuluOnboardingGuideScreen(
                         pair.forEach { feature ->
                             Surface(
                                 onClick = { selectedKey = feature.key },
-                                modifier = Modifier.weight(1f).heightIn(min = 94.dp),
+                                modifier = Modifier.weight(1f).heightIn(min = 120.dp),
                                 shape = RoundedCornerShape(20.dp),
                                 color = MaterialTheme.colorScheme.surface,
                                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                             ) {
                                 Column(Modifier.padding(14.dp),
                                     verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                                    Icon(feature.icon, null, Modifier.size(24.dp))
+                                    Icon(feature.icon, null, Modifier.size(22.dp))
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(feature.name, Modifier.weight(1f),
                                             color = ink, fontWeight = FontWeight.Medium, fontSize = 13.sp,
@@ -333,6 +345,9 @@ internal fun LuluOnboardingGuideScreen(
                                         Icon(Icons.Outlined.ChevronRight, null,
                                             Modifier.size(17.dp), tint = muted)
                                     }
+                                    Text(feature.highlights.first(), color = muted,
+                                        fontSize = 11.sp, lineHeight = 16.sp,
+                                        maxLines = 2, overflow = TextOverflow.Ellipsis)
                                 }
                             }
                         }
