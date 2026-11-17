@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T05:16:14.392695+00:00",
-  "commit": "7cd927be66f6bd395bd1fd46853e95649178a2f9",
+  "generatedAt": "2026-11-17T05:16:55.356099+00:00",
+  "commit": "f991a194a2ad48d052454e4884ea7e970d646900",
   "branch": "main",
-  "sourceFingerprint": "912f4fd13cdb35ea07e02e72ece0bd3c4aec0c193ee9c2b9f336290ac80c7614",
+  "sourceFingerprint": "72ff375811d91646fedd0b7a794101aa6cb398038a23e76431bee14bcb2908ed",
   "summary": {
-    "files": 1389,
-    "lines": 297181,
-    "symbols": 4195
+    "files": 1390,
+    "lines": 297298,
+    "symbols": 4196
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1189,7 +1189,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-        "line": 32
+        "line": 34
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -6219,13 +6219,13 @@
     "parseChapters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-        "line": 102
+        "line": 104
       }
     ],
     "AutonomousEncounterChaptersWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-        "line": 256
+        "line": 326
       }
     ],
     "Outcome": [
@@ -19862,6 +19862,12 @@
         "line": 12
       }
     ],
+    "AutonomousEncounterCausalChapterTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterCausalChapterTest.kt",
+        "line": 8
+      }
+    ],
     "AutonomousEncounterChaptersTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterChaptersTest.kt",
@@ -28672,20 +28678,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-      "lines": 300,
-      "sha256": "96e6750b74a9809f3d51e2f12772ab911d1c05ec41fd7ba88073405cb7a2be12",
+      "lines": 370,
+      "sha256": "4c15cef7217c2a9d770d93e8eb1078123705e881e21d530ca3da1187f473a87c",
       "symbols": [
         {
           "name": "enqueue",
-          "line": 32
+          "line": 34
         },
         {
           "name": "parseChapters",
-          "line": 102
+          "line": 104
         },
         {
           "name": "AutonomousEncounterChaptersWorker",
-          "line": 256
+          "line": 326
         }
       ]
     },
@@ -44352,6 +44358,17 @@
         {
           "name": "AutonomousDecisionRecoveryTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterCausalChapterTest.kt",
+      "lines": 47,
+      "sha256": "f0f1fbdf2ecc5a63a35fc26e17420a7b198a7174e0d1c9dcef31d3e515d0499d",
+      "symbols": [
+        {
+          "name": "AutonomousEncounterCausalChapterTest",
+          "line": 8
         }
       ]
     },

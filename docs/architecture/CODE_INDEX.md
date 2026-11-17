@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7cd927be66f6bd395bd1fd46853e95649178a2f9`
+- 基准提交：`f991a194a2ad48d052454e4884ea7e970d646900`
 - 分支：`main`
-- 已索引文件：1389
-- 已索引代码/文本行：297181
-- 已发现符号：4195
+- 已索引文件：1390
+- 已索引代码/文本行：297298
+- 已发现符号：4196
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -344,7 +344,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt` | 469 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt` | 164 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousDecisionRecovery.kt` | 114 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt` | 300 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt` | 370 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDecision.kt` | 74 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDirector.kt` | 88 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterScript.kt` | 52 | 3 |
@@ -1020,6 +1020,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 484 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 255 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 109 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterCausalChapterTest.kt` | 47 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterChaptersTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt` | 89 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDirectorTest.kt` | 65 | 1 |
