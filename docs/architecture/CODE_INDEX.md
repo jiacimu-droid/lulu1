@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f99a7453de39256eae59765b395e2c6d19aef632`
+- 基准提交：`d29cba7b9d1c772447555e3ebd0d088f3883febe`
 - 分支：`main`
 - 已索引文件：1381
-- 已索引代码/文本行：295226
+- 已索引代码/文本行：295230
 - 已发现符号：4169
 
 | 文件 | 行数 | 符号数 |
@@ -218,7 +218,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 219 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 198 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoiceSettingsUi.kt` | 60 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt` | 396 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt` | 400 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 709 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
