@@ -274,6 +274,9 @@ class LocalMemoryRepository : MemoryRepository {
             // The input and commit guard MUST use one identical snapshot:
             // a source may be revised between selecting turns and fetching IDs.
             val canonical = batchEvents.associateBy { it.id }
+            check(batchTurns.all { turn -> turn.events.all { event ->
+                canonical[event.id] == event
+            } }) { "原始来源或版本在轮次选择后改变；保留整批并重试" }
             val canonicalTurns = batchTurns.map { turn ->
                 turn.copy(events = turn.events.map { event ->
                     canonical.getValue(event.id)
