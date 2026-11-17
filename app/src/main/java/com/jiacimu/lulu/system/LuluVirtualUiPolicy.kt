@@ -43,6 +43,18 @@ internal object LuluVirtualUiPolicy {
         requestedId == currentId && expectedFingerprint.isNotBlank() &&
         expectedFingerprint == currentFingerprint
 
+    /**
+     * A real, role-delivered virtual-display picture is an independent UI
+     * observation even if the app exposes no accessibility descendants.
+     * This authorizes only picture-bound actions; element references still
+     * require sameSnapshot() and a real semantic fingerprint.
+     */
+    fun sameObservedPicture(
+        requestedId: String, currentId: String,
+        pictureDelivered: Boolean, ownedWindowIdentity: String,
+    ): Boolean = pictureDelivered && ownedWindowIdentity.isNotBlank() &&
+        requestedId.isNotBlank() && requestedId == currentId
+
     /** Only a bounded, actual toolbar control may implement the role's
      * already selected BACK action. This is a physical action resolver, not
      * a new model deciding whether to navigate. Indexes refer to the live
