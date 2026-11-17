@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T19:42:34.294260+00:00",
-  "commit": "d12aca79c6150052a9226476b2cbc36777d95028",
+  "generatedAt": "2026-11-17T19:43:10.081384+00:00",
+  "commit": "d50fb21d5c7bb6661605f936338654ec0f0a24de",
   "branch": "main",
-  "sourceFingerprint": "3b0875a56e5fdee2185f221f804d294c15e8be8d50ac75792a22537337326c4c",
+  "sourceFingerprint": "f42d608639fb3ed72938792da651eadb4326128459591abb5ff834d91c5a7453",
   "summary": {
     "files": 1443,
-    "lines": 303995,
+    "lines": 304000,
     "symbols": 4344
   },
   "symbolIndex": {
@@ -51315,8 +51315,8 @@
     },
     {
       "path": "preview/world-joystick.js",
-      "lines": 20,
-      "sha256": "c44f6fd4a924ecb54617f5a8a8ca4ccc61eab2615f1dcf19020fb942be520165",
+      "lines": 25,
+      "sha256": "682197b9622f9ae40303f0677ed8c9dfc3689b8749d5b8cfed8c799d633b5c4f",
       "symbols": []
     },
     {
