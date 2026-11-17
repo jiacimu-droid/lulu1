@@ -147,7 +147,11 @@ object RecentSemanticTimeline {
             val parent = idToTurn[sourceId]
             if (parent != null) {
                 groups[parent]?.add(event)
-            } else {
+            } else if (sourceId.isBlank()) {
+                // An explicitly source-bound snapshot whose owner message
+                // has been deleted/revoked/filtered must NOT return as an
+                // apparently independent feeling. Only genuinely self-owned
+                // snapshots with no parent reference form a new episode.
                 val day = event.occurredAt.atZone(java.time.ZoneOffset.UTC).toLocalDate()
                 val session = event.sessionId.ifBlank { "unlinked" }
                 accept("presence-experience:${event.characterId}:$session:$day",
