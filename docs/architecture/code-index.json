@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T03:24:46.156315+00:00",
-  "commit": "19491ccc7b76b059c86b68d026beb35c01026031",
+  "generatedAt": "2026-11-17T03:29:44.870990+00:00",
+  "commit": "224e4c0fbeacc8e6341943e4556d0687ca56f6d9",
   "branch": "main",
-  "sourceFingerprint": "8254400da9db212dcc602e59f6bf701778bf5292e8cb75dd092ae43658f7b99b",
+  "sourceFingerprint": "580d6d90c1db5dcf5c8de40c5ea958c3d006b6b24c6d960697f786cb90c9541f",
   "summary": {
     "files": 1382,
-    "lines": 295704,
+    "lines": 295756,
     "symbols": 4174
   },
   "symbolIndex": {
@@ -4231,7 +4231,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 162
+        "line": 170
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
@@ -35011,8 +35011,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-      "lines": 235,
-      "sha256": "d7a374838e0eb3ceb1773e8aa2aa89ef560de2ff93dc53678d2bca1d2756f12d",
+      "lines": 250,
+      "sha256": "84901f39a23ea25e803ca3347c90be34d6e0f5dc1dc688ec865268fbf0ccb092",
       "symbols": [
         {
           "name": "RecentSemanticTimeline",
@@ -35036,7 +35036,7 @@
         },
         {
           "name": "render",
-          "line": 162
+          "line": 170
         }
       ]
     },
@@ -47112,8 +47112,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt",
-      "lines": 172,
-      "sha256": "4d4a2c2dd26bff86afbbd4583bc7ed7bd76fc543621c8420420f53ae16b92028",
+      "lines": 209,
+      "sha256": "fa0936d7b23c25cc4e508aec3e1d7c6e8288b70b3ed6dbdf2b8af2d4593775ca",
       "symbols": [
         {
           "name": "RecentSemanticTimelineTest",

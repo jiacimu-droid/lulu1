@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`19491ccc7b76b059c86b68d026beb35c01026031`
+- 基准提交：`224e4c0fbeacc8e6341943e4556d0687ca56f6d9`
 - 分支：`main`
 - 已索引文件：1382
-- 已索引代码/文本行：295704
+- 已索引代码/文本行：295756
 - 已发现符号：4174
 
 | 文件 | 行数 | 符号数 |
@@ -569,7 +569,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt` | 235 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt` | 250 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt` | 103 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt` | 94 | 5 |
@@ -1207,7 +1207,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ReanswerMemoryBoundaryTest.kt` | 32 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticPromptTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineIntegrationTest.kt` | 52 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt` | 172 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt` | 209 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 502 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 133 | 1 |
