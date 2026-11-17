@@ -163,7 +163,7 @@ class PromptContextPolicyTest {
             assertEquals(realScenes[index], first.lexiconCharacters, actual.lexiconCharacters)
             assertEquals(realScenes[index], first.workingSetCharacters, actual.workingSetCharacters)
             assertTrue(realScenes[index], actual.richInnerLife)
-            assertEquals(28_000, actual.workingSetCharacters)
+            assertEquals(33_000, actual.workingSetCharacters)
         }
         // Distinct actual scenes can require different authoritative world
         // inventories; this is not a second personality or a different memory tier.
@@ -183,10 +183,29 @@ class PromptContextPolicyTest {
                 scene, request, fullCharacterDecision = true)
             assertTrue(budget.precise)
             assertTrue(budget.richInnerLife)
-            assertEquals(5_500, budget.evidenceCharacters)
-            assertEquals(10_000, budget.memoryCharacters)
-            assertEquals(5_900, budget.recentCharacters)
-            assertEquals(28_000, budget.workingSetCharacters)
+            assertEquals(7_000, budget.evidenceCharacters)
+            assertEquals(12_000, budget.memoryCharacters)
+            assertEquals(4_000, budget.lexiconCharacters)
+            // Owner-configured recent turns are complete and outside the work set.
+            assertEquals(0, budget.recentCharacters)
+            assertEquals(33_000, budget.workingSetCharacters)
+        }
+    }
+
+    @Test fun sharedLifeUsesOneBalancedBudgetAndNeverChargesForRecentTurns() {
+        val request = UnifiedMemoryRequest(currentInput = "今天一起做了什么")
+        val channels = listOf("私聊", "后台主动感知", "电话回复",
+            "数字世界见面", "游戏 · 迷雾摸金自主同行")
+        val configured = channels.map {
+            PromptContextPolicy.forRequest(it, request, fullCharacterDecision = true)
+        }
+        configured.forEach { budget ->
+            assertEquals(33_000, budget.workingSetCharacters)
+            assertEquals(12_000, budget.memoryCharacters)
+            assertEquals(7_000, budget.evidenceCharacters)
+            assertEquals(4_000, budget.lexiconCharacters)
+            assertEquals(0, budget.recentCharacters)
+            assertEquals(40, budget.recallLimit)
         }
     }
 
