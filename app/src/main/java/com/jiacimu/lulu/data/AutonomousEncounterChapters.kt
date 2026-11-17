@@ -22,7 +22,9 @@ import java.util.concurrent.TimeUnit
 /**
  * One grounded literary request for the entire witnessed encounter (N roles,
  * N readable viewpoints). Public scene facts are shared, but NO role's
- * private memory, innerThought, motive, diary or appraisal crosses this call.
+ * private chats, diaries or unrelated memories cross this call. Exact role-owned
+ * thoughts/choices linked to this encounter may be supplied to the narrator,
+ * partitioned by owner; never make them another role's knowledge or scene facts.
  *
  * Literary text is a non-authoritative artifact, never an event or receipt.
  */
@@ -120,6 +122,50 @@ internal object AutonomousEncounterChapters {
         return result
     }
 
+
+    /** Source-matched personal thought/decision excerpts for ONE person's literary POV.
+     * Never treat these as visible actions or facts known to other participants. */
+    internal fun roleEvidence(
+        mind: JSONObject,
+        ownedEvidenceIds: Set<String>,
+        startedAt: Instant,
+        endedAt: Instant,
+    ): String {
+        val thoughts = mind.optJSONArray("innerVoices")
+        val voices = (0 until (thoughts?.length() ?: 0))
+            .mapNotNull { thoughts?.optJSONObject(it) }
+            .filter { entry ->
+                entry.optString("evidenceId") in ownedEvidenceIds &&
+                    runCatching { Instant.parse(entry.optString("occurredAt")) }
+                        .getOrNull()?.let { !it.isAfter(endedAt) } == true
+            }.takeLast(4)
+        val decisions = mind.optJSONArray("decisions")
+        val choices = (0 until (decisions?.length() ?: 0))
+            .mapNotNull { decisions?.optJSONObject(it) }
+            .filter { entry ->
+                val time = runCatching { Instant.parse(entry.optString("at")) }.getOrNull()
+                    ?: return@filter false
+                if (time.isAfter(endedAt)) return@filter false
+                val linked = entry.optString("causalEvidenceId") in ownedEvidenceIds
+                val preceding = !time.isAfter(startedAt) &&
+                    !time.isBefore(startedAt.minusSeconds(900)) &&
+                    entry.optString("selected") != "silent"
+                linked || preceding
+            }.takeLast(4)
+        return buildString {
+            if (voices.isEmpty() && choices.isEmpty()) {
+                append("没有与本场证据相关的已保存私人心理；不要补造当时心声。")
+                return@buildString
+            }
+            voices.forEach { entry ->
+                appendLine("本人当时真正记录的心声：${entry.optString("thought").take(240)}")
+            }
+            choices.forEach { entry ->
+                appendLine("本人做过的选择（不等于执行成功）：${entry.optString("selected")}；原因=${entry.optString("reason").take(220)}；回执=${entry.optString("outcome").take(180)}；成功=${entry.optBoolean("succeeded")}")
+            }
+        }.trim()
+    }
+
     suspend fun composeAndRecord(
         context: Context,
         meeting: MeetingSession,
@@ -131,8 +177,9 @@ internal object AutonomousEncounterChapters {
         if (meeting.endedAt == null || (meeting.turns.isEmpty() && worldTick == null)) return
         val ids = meeting.participantIds.distinct().take(AutonomousEncounterScript.MAX_PARTICIPANTS)
         if (ids.isEmpty()) return
-        // The final model sees ONLY the common, witnessed conversation and
-        // objects. There is deliberately no CharacterAndScenario context.
+        // Public actions remain shared. Arrival notifications and source-linked
+        // private thoughts are tagged by their actual owner for the matching POV
+        // only; the literary writer does not update any character's knowledge.
         val publicFacts = buildString {
             appendLine("真实地点：${meeting.location}（$locationCode）；时间=$at")
             appendLine("共同在场：${ids.joinToString("；") { id ->
@@ -144,6 +191,25 @@ internal object AutonomousEncounterChapters {
             appendLine(WorldSceneParticipantProfile.instruction)
             appendLine("【当事人共同可见的现有关系事实】")
             appendLine(CharacterSocialRelationship.contextForGroup(ids).ifBlank { "尚无全部见证者共同确认的既往互动" })
+            appendLine("【本场主人到访与离场｜按各角色实际收到的原始通知隔离；不能从只有到访的通知推断主人仍在】")
+            ids.forEach { id ->
+                val received = WorldVisitorSceneContext.eventsFor(id, locationCode, at)
+                appendLine("${characters.getValue(id).displayName}（$id）获知：")
+                appendLine(WorldVisitorSceneContext.describe(received))
+            }
+            appendLine("【按角色隔离的、与本场及其前因相关的私人心声和已作选择】")
+            ids.forEach { id ->
+                val witnessed = AutonomousSocialRuntime.witnessedEpisodeSources(
+                    meeting, id, worldTick, meeting.startedAt)
+                val ownedSources = SharedExperienceTimeline.eventsByIds(id, witnessed)
+                    .mapTo(hashSetOf()) { it.id }
+                ownedSources += WorldVisitorSceneContext.eventsFor(id, locationCode, at)
+                    .map(SharedTimelineEvent::id)
+                appendLine("${characters.getValue(id).displayName}（$id）的私有心境，只准用于 $id 的章节：")
+                appendLine(roleEvidence(
+                    CharacterInnerLifeStore.historySnapshot(id, 160),
+                    ownedSources, meeting.startedAt, at))
+            }
             appendLine("以下为同一场会面已保存的原始时间线，不能添加未记载的事或台词：")
             meeting.turns.forEachIndexed { i, turn ->
                 appendLine("${i + 1}. ${turn.speakerName}（${turn.speakerId}）")
@@ -176,6 +242,9 @@ internal object AutonomousEncounterChapters {
                     只依据真实角色外在设定和已证实的行为写出趣味、节奏、态度、细微波折，
                     而不是把事实压缩成一段风景或一句寒暄。人物可以不同意、冷淡、尴尬、说笑，
                     不强制亲密或煽情。每篇自然围绕自己可见的行为选择组织，不要求同一开头。
+                    请按角色自己的到访通知与当时已保存的心声，承接其为何来到这里、是否要找主人及随后如何改变想法。
+                    不能凭角色收到到访通知就假设主人现在仍在场，也不能把主人写成已参与本场角色对话；若确有离场通知，要让其作为可知的事实进入对应视角。
+                    私人心境只用于所属 characterId 的章节，绝不能写成其他角色知道的内容，或引用成已说出口的台词；没有证据时留白，不为剧情补造动机。
                     绝不能加入未记载的台词、动作、意外、物品、活动完成、关系变化或未来事件；
                     不能猜成事实，不能写出别人没有表达的私人念头，也不能冒充当事人。
                     文学化结果只供阅读，不用于更新地图、关系、记忆、计划或行动事实。
@@ -230,7 +299,8 @@ internal object AutonomousEncounterChapters {
                 .firstOrNull() ?: return@forEach
             // Keep only verified, current, viewer-scoped evidence IDs.
             val candidateIds = AutonomousSocialRuntime.witnessedEpisodeSources(
-                meeting, id, worldTick, meeting.startedAt)
+                meeting, id, worldTick, meeting.startedAt) +
+                WorldVisitorSceneContext.eventsFor(id, locationCode, at).map { it.id }
             val verified = SharedExperienceTimeline.eventsByIds(id, candidateIds)
             val present = verified.mapTo(hashSetOf()) { it.id }
             val links = (listOf(sourceId) + candidateIds.filter { it in present })
