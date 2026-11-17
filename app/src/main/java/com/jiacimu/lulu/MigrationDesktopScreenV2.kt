@@ -124,15 +124,14 @@ internal fun MigrationHomeV2(
         ?: ownerChats.maxByOrNull(LuluConversation::updatedAt)
     val currentCharacter = shortcutConversation?.characterId
         ?.let { characters[it] ?: MigratedDomainStores.characters.get(it) }
-        ?: characters["lulu"]
-        ?: MigratedDomainStores.characters.get("lulu")
+        ?: characters.values.firstOrNull()
     val recentGroup = shortcutConversation?.groupChat
-    val recentDisplayName = recentGroup?.name?.ifBlank { "群聊" } ?: currentCharacter.displayName
-    val recentAvatarUri = recentGroup?.avatarUri ?: currentCharacter.avatarUri
+    val recentDisplayName = recentGroup?.name?.ifBlank { "群聊" } ?: currentCharacter?.displayName ?: "创建你的第一位角色"
+    val recentAvatarUri = recentGroup?.avatarUri ?: currentCharacter?.avatarUri
     val recentFallback = if (recentGroup != null) {
         recentDisplayName.take(1).ifBlank { "群" }
     } else {
-        currentCharacter.displayName.take(1).ifBlank { "露" }
+        currentCharacter?.displayName?.take(1).orEmpty().ifBlank { "+" }
     }
     val today = remember { LocalDate.now() }
     val dateText = remember(today) {
@@ -310,9 +309,9 @@ internal fun MigrationHomeV2(
                 isGroup = recentGroup != null,
                 recentMessage = shortcutConversation?.lastMessage
                     ?.ifBlank {
-                        if (recentGroup != null) "点这里回到群聊。" else "点这里去找${currentCharacter.displayName}。"
+                        if (recentGroup != null) "点这里回到群聊。" else "点这里去找${currentCharacter?.displayName.orEmpty()}。"
                     }
-                    ?: "今天也来找我说说话吧。",
+                    ?: "从这里开始，创建属于你的角色。",
                 onClick = { shortcutConversation?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat) },
             )
 
