@@ -4,8 +4,13 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.time.Instant
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [28])
 class AutonomousEncounterCausalChapterTest {
     private val start = Instant.parse("2026-11-17T05:10:00Z")
     private val end = start.plusSeconds(70)
