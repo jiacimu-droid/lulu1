@@ -403,7 +403,25 @@ object ProactivePerceptionRuntime {
                     val explicitUserWake = trigger.contains("用户手动唤醒") ||
                         (onlineRevision != null && (requiresUnread ||
                             trigger.contains("私聊新消息") || trigger.contains("群聊出现新消息")))
-                    if (!policy.enabled && !explicitUserWake) continue
+                    // A previously accepted scheduled promise is an explicit
+                    // user-authorized duty, not an unsolicited perception tick.
+                    // The scheduler's force flag alone never grants this bypass:
+                    // validate the durable overdue obligation before waking
+                    // the SAME character to reconsider a late delivery.
+                    val missedAuthorizedCommitment =
+                        trigger.startsWith("重要事件：系统恢复时发现本人正式约定") &&
+                            CommitmentTaskStore.snapshot(characterId).any { task ->
+                                task.status != CommitmentTaskStatus.Cancelled && (
+                                    (task.dueAt?.isBefore(now) == true &&
+                                        task.status in setOf(CommitmentTaskStatus.Blocked,
+                                            CommitmentTaskStatus.Expired,
+                                            CommitmentTaskStatus.WaitingForFeedback)) ||
+                                    task.dailyAttempts.any { attempt ->
+                                        attempt.status == "Expired" && attempt.dueAt.isBefore(now)
+                                    }
+                                )
+                            }
+                    if (!policy.enabled && !explicitUserWake && !missedAuthorizedCommitment) continue
                     // A known provider 400/403/422 input rejection will not
                     // change merely because another passive worker woke up.
                     // A genuine unread chat, direct wake or newly identified
