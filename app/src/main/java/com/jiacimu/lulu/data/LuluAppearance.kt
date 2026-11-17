@@ -32,34 +32,12 @@ data class LuluAppearance(
 )
 
 object LuluAppearanceCatalog {
+    // The CSS studio starts with a neutral fallback only. Old built-in style
+    // packages are retired; old private custom theme data is not erased.
     val builtIns: List<LuluAppearance> = listOf(
-        LuluAppearance("paper", "原生留白", "清爽的基础画布 · 不强制全局使用", LuluAppearancePalette(
+        LuluAppearance("paper", "原生外观", "空白画布", LuluAppearancePalette(
             0xFFFFFFFF, 0xFFFCFCFC, 0xFFF4F4F4, 0xFF1D1D1F, 0xFF737378, 0xFFE7E7E7,
             0xFF292929, 0xFFFFFFFF, 0xFFF1F1F1), LuluAppearanceMotif.CLEAN),
-        LuluAppearance("journal", "奶油布艺手账", "布纹 · 缝线 · 纸片与暖色拼贴", LuluAppearancePalette(
-            0xFFF7EDE1, 0xFFFFF9EE, 0xFFEAD7C9, 0xFF4E3934, 0xFF7C5C54, 0xFFCDAFA6,
-            0xFF9F5E52, 0xFFFFFFFF, 0xFFF4DDD4), LuluAppearanceMotif.STITCH, LuluAppearanceFont.SERIF, 12),
-        LuluAppearance("phantom", "怪盗漫画", "P5 灵感 · 不规则黑红视觉冲击", LuluAppearancePalette(
-            0xFF16151A, 0xFF29262C, 0xFF413238, 0xFFFFFFFF, 0xFFCFC8CA, 0xFF73646B,
-            0xFFF32D42, 0xFFFFFFFF, 0xFF3E1E28), LuluAppearanceMotif.SLASH, LuluAppearanceFont.SANS, 4, true),
-        LuluAppearance("han", "云笺宋韵", "宣纸 · 淡墨 · 古典书卷的素雅", LuluAppearancePalette(
-            0xFFF5F1E5, 0xFFFFFCF3, 0xFFE9E2CE, 0xFF383C33, 0xFF787969, 0xFFCECCB8,
-            0xFF596B5B, 0xFFFFFFFF, 0xFFE6E8D8), LuluAppearanceMotif.INK, LuluAppearanceFont.SERIF, 6),
-        LuluAppearance("gothic", "午夜蔷薇", "黑银 · 酒红 · 哥特蕾丝", LuluAppearancePalette(
-            0xFF17131A, 0xFF241D28, 0xFF382932, 0xFFF4E6E8, 0xFFBBA7B4, 0xFF6D5263,
-            0xFFB54E74, 0xFFFFFFFF, 0xFF38202D), LuluAppearanceMotif.GOTHIC, LuluAppearanceFont.SERIF, 10, true),
-        LuluAppearance("manga", "漫画留声", "干净的二次元分镜 · 网点与描边", LuluAppearancePalette(
-            0xFFFFFEF9, 0xFFFFFFFF, 0xFFF0EFE9, 0xFF191919, 0xFF666666, 0xFF272727,
-            0xFF5077CD, 0xFFFFFFFF, 0xFFE8EDFF), LuluAppearanceMotif.COMIC, LuluAppearanceFont.SANS, 3),
-        LuluAppearance("moss", "雨后青苔", "植物压花 · 森林与柔和纸感", LuluAppearancePalette(
-            0xFFEAF0E6, 0xFFF9FBF4, 0xFFDCE5D6, 0xFF35463B, 0xFF6F8471, 0xFFB9C9B7,
-            0xFF54795C, 0xFFFFFFFF, 0xFFD6E5D5), LuluAppearanceMotif.BOTANICAL, LuluAppearanceFont.SERIF, 22),
-        LuluAppearance("silver", "银雾未来", "冷银 · 科技感 · 轻盈玻璃层", LuluAppearancePalette(
-            0xFFE9EEF4, 0xFFFFFFFF, 0xFFD9E3EF, 0xFF263448, 0xFF6D7889, 0xFFB6C7D9,
-            0xFF506C94, 0xFFFFFFFF, 0xFFD7E9F6), LuluAppearanceMotif.GLASS, LuluAppearanceFont.SANS, 24),
-        LuluAppearance("dream", "星眠日记", "浅紫 · 星点 · 轻盈梦幻感", LuluAppearancePalette(
-            0xFFF6F0FB, 0xFFFEFBFF, 0xFFEAE0F4, 0xFF49365F, 0xFF89759C, 0xFFD4C2E1,
-            0xFF9874C7, 0xFFFFFFFF, 0xFFF0E1FC), LuluAppearanceMotif.STARS, LuluAppearanceFont.SANS, 26),
     )
 
     // Individual app bindings. No implicit global override or one-size-fits-all skin.
