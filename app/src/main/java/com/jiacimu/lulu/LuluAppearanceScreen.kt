@@ -1,431 +1,289 @@
 package com.jiacimu.lulu
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.AutoAwesome
-import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.jiacimu.lulu.data.LuluAppearance
 import com.jiacimu.lulu.data.LuluAppearanceCatalog
-import com.jiacimu.lulu.data.LuluAppearanceStore
-import com.jiacimu.lulu.design.LuluAppearancePattern
+import com.jiacimu.lulu.data.LuluCssSheet
+import com.jiacimu.lulu.data.LuluCssStore
 import com.jiacimu.lulu.design.LuluAppearanceTheme
-import com.jiacimu.lulu.design.LuluEditorialHeader
-import com.jiacimu.lulu.design.LuluEditorialPanel
-import com.jiacimu.lulu.design.LuluEditorialSectionHeading
-import com.jiacimu.lulu.design.JournalStudioHero
-import com.jiacimu.lulu.design.isJournal
+import com.jiacimu.lulu.design.LuluCssBackground
 
 /**
- * Theme studio: every app has its own choice and every recipe remains reusable.
- * User-created variants are copies, so editing cannot destroy a built-in recipe.
+ * A blank, owner-authored native CSS workshop. Old recipe cards are intentionally absent.
+ * Imported CSS remains a draft until Apply succeeds; the old saved CSS is always recoverable.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LuluAppearanceScreen(onBack: () -> Unit) {
-    val library by LuluAppearanceStore.state.collectAsState()
+    val context = LocalContext.current
+    val saved by LuluCssStore.css.collectAsState()
+    var source by rememberSaveable { mutableStateOf(saved) }
     var scope by rememberSaveable { mutableStateOf("Home") }
-    var showScopePicker by rememberSaveable { mutableStateOf(false) }
-    var scopeSearch by rememberSaveable { mutableStateOf("") }
-    var showBasicThemes by remember { mutableStateOf(false) }
-    var copySource by remember { mutableStateOf<LuluAppearance?>(null) }
-    var copyName by remember { mutableStateOf("") }
-    var copyRadius by remember { mutableFloatStateOf(18f) }
-    var accentOption by remember { mutableStateOf<Long?>(null) }
-    val active = library.active(scope)
-
-    if (copySource != null) {
-        val source = copySource!!
-        AlertDialog(
-            onDismissRequest = { copySource = null },
-            title = { Text("另存为我的方案") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    Text("原方案保留不变。调整后的副本可以分配给任意 App，也可以随时切回旧版。",
-                        style = MaterialTheme.typography.bodySmall)
-                    OutlinedTextField(
-                        value = copyName, onValueChange = { copyName = it },
-                        label = { Text("方案名称") }, singleLine = true,
-                    )
-                    Text("圆角 " + copyRadius.toInt() + " dp")
-                    Slider(value = copyRadius, onValueChange = { copyRadius = it }, valueRange = 0f..36f)
-                    Text("点缀色", style = MaterialTheme.typography.labelMedium)
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        val colors = listOf(
-                            source.palette.accent, 0xFFAA6571L, 0xFF5D7F65L,
-                            0xFF526EACL, 0xFFD08E42L,
-                        ).distinct()
-                        colors.forEach { candidate ->
-                            val selected = (accentOption ?: source.palette.accent) == candidate
-                            val colorName = when (candidate) {
-                                source.palette.accent -> "原方案颜色"
-                                0xFFAA6571L -> "玫瑰色"
-                                0xFF5D7F65L -> "灰绿色"
-                                0xFF526EACL -> "蓝色"
-                                0xFFD08E42L -> "暖金色"
-                                else -> "自定义颜色"
-                            }
-                            Surface(
-                                modifier = Modifier.size(48.dp)
-                                    .clickable { accentOption = candidate }
-                                    .semantics {
-                                        contentDescription = colorName
-                                        stateDescription = if (selected) "已选中" else "未选中"
-                                    },
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.surface,
-                                border = BorderStroke(
-                                    if (selected) 2.dp else 1.dp,
-                                    if (selected) MaterialTheme.colorScheme.onSurface
-                                        else MaterialTheme.colorScheme.outline,
-                                ),
-                            ) {
-                                Box(Modifier.fillMaxSize().padding(7.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(candidate.toInt())))
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    LuluAppearanceStore.saveCopy(
-                        scope, source.id, copyName, accentOption, copyRadius.toInt(),
-                    )
-                    copySource = null
-                }) { Text("保存并应用") }
-            },
-            dismissButton = { TextButton(onClick = { copySource = null }) { Text("取消") } },
-        )
+    var selectScope by remember { mutableStateOf(false) }
+    var scopeSearch by remember { mutableStateOf("") }
+    var status by remember { mutableStateOf<String?>(null) }
+    val sheet = remember(source) { LuluCssSheet.parse(source) }
+    val preview = remember(source, scope) {
+        sheet.profile(scope, LuluAppearanceCatalog.builtIns.first())
     }
 
-
-    if (showScopePicker) {
-        val visibleScopes = LuluAppearanceCatalog.scopes.filter { (key, title) ->
-            scopeSearch.isBlank() ||
-                title.contains(scopeSearch.trim(), ignoreCase = true) ||
-                key.contains(scopeSearch.trim(), ignoreCase = true)
+    val importCss = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            runCatching {
+                val stream = context.contentResolver.openInputStream(uri) ?: error("读取失败")
+                val text = stream.bufferedReader(Charsets.UTF_8).use { reader ->
+                    val result = StringBuilder()
+                    val buffer = CharArray(4096)
+                    while (true) {
+                        val n = reader.read(buffer)
+                        if (n < 0) break
+                        result.append(buffer, 0, n)
+                        require(result.length <= LuluCssSheet.MAX_LENGTH) { "CSS 不能超过 64 KB" }
+                    }
+                    result.toString()
+                }
+                source = text
+            }.onSuccess { status = "已导入草稿，确认预览后点「应用到页面」" }
+                .onFailure { status = it.message ?: "导入失败" }
         }
-        ModalBottomSheet(
-            onDismissRequest = { showScopePicker = false },
-            containerColor = MaterialTheme.colorScheme.surface,
-        ) {
+    }
+    val exportCss = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("text/css"),
+    ) { uri ->
+        if (uri != null) {
+            runCatching {
+                context.contentResolver.openOutputStream(uri)?.bufferedWriter(Charsets.UTF_8)?.use {
+                    it.write(source)
+                } ?: error("无法写入文件")
+            }.onSuccess { status = "CSS 文件已导出；图片素材需在其他手机重新导入" }
+                .onFailure { status = it.message ?: "导出失败" }
+        }
+    }
+    val importImage = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            runCatching { LuluCssStore.importImage(context, uri) }
+                .onSuccess { asset ->
+                    source += "\n#" + scope + " {\n  background-image: url(\"" +
+                        asset + "\");\n}\n"
+                    status = "图片已保存在本机，并加入当前页面的草稿"
+                }
+                .onFailure { status = it.message ?: "图片导入失败" }
+        }
+    }
+
+    if (selectScope) {
+        ModalBottomSheet(onDismissRequest = { selectScope = false }) {
             Column(
-                Modifier.fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+                Modifier.fillMaxWidth().padding(horizontal = 20.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text("选择装扮位置", style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold)
+                Text("选择要装修的页面", style = MaterialTheme.typography.titleLarge)
                 OutlinedTextField(
-                    value = scopeSearch,
-                    onValueChange = { scopeSearch = it },
+                    value = scopeSearch, onValueChange = { scopeSearch = it },
+                    label = { Text("搜索页面") }, singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text("搜索页面") },
-                    leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-                    singleLine = true,
-                    shape = RoundedCornerShape(16.dp),
                 )
-                LazyColumn(
-                    Modifier.fillMaxWidth().heightIn(max = 420.dp),
-                    contentPadding = PaddingValues(bottom = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                ) {
-                    items(visibleScopes, key = { it.first }) { (key, title) ->
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = {
-                                scope = key
-                                scopeSearch = ""
-                                showScopePicker = false
+                LazyColumn(Modifier.fillMaxWidth().heightIn(max = 420.dp)) {
+                    items(LuluAppearanceCatalog.scopes.filter {
+                        scopeSearch.isBlank() || it.second.contains(scopeSearch, true) ||
+                            it.first.contains(scopeSearch, true)
+                    }) { (id, name) ->
+                        ListItem(
+                            headlineContent = { Text(name + "  #" + id) },
+                            trailingContent = {
+                                if (id == scope) Icon(Icons.Outlined.Check, contentDescription = null)
                             },
-                            shape = RoundedCornerShape(14.dp),
-                            color = if (key == scope) MaterialTheme.colorScheme.primaryContainer
-                                else MaterialTheme.colorScheme.surface,
-                        ) {
-                            Row(
-                                Modifier.fillMaxWidth().heightIn(min = 52.dp)
-                                    .padding(horizontal = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text(title, modifier = Modifier.weight(1f),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = if (key == scope) FontWeight.SemiBold
-                                        else FontWeight.Normal)
-                                if (key == scope) Icon(Icons.Outlined.Check, "当前选中",
-                                    tint = MaterialTheme.colorScheme.primary)
-                            }
-                        }
-                    }
-                    if (visibleScopes.isEmpty()) {
-                        item {
-                            Text("没有找到这个页面", color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(vertical = 24.dp))
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        HorizontalDivider()
+                        Spacer(Modifier.height(2.dp))
+                        if (id != scope) {
+                            // Full-width explicit target, independent of swiping the sheet.
+                            TextButton(
+                                onClick = { scope = id; selectScope = false; scopeSearch = "" },
+                                modifier = Modifier.fillMaxWidth(),
+                            ) { Text("编辑" + name) }
                         }
                     }
                 }
+                Spacer(Modifier.height(16.dp))
             }
         }
     }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("美化工坊", fontWeight = FontWeight.Bold) },
-                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                ),
+                title = { Text("CSS 装修工坊", fontWeight = FontWeight.SemiBold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
+                    }
+                },
             )
         },
     ) { inset ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(inset),
-            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 40.dp),
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
-                LuluEditorialHeader(
-                    overline = "LULU  /  APPEARANCE",
-                    title = "你的每个世界，都有自己的样子",
-                    subtitle = "每个 App 可以单独搭配，随时切回喜欢的方案。",
-                )
+                Text("每个页面，由你定义。", style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(5.dp))
+                Text("不再提供固定风格套装。写 CSS、导入图片，然后把它应用到真正的原生界面。",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium)
             }
             item {
-                LuluEditorialSectionHeading(title = "装扮位置")
-                Spacer(Modifier.height(8.dp))
                 OutlinedButton(
-                    onClick = { scopeSearch = ""; showScopePicker = true },
+                    onClick = { selectScope = true },
                     modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                 ) {
                     Text(
-                        LuluAppearanceCatalog.scopes.firstOrNull { it.first == scope }?.second ?: "选择页面",
-                        style = MaterialTheme.typography.bodyLarge,
+                        LuluAppearanceCatalog.scopes.firstOrNull { it.first == scope }?.second
+                            ?: scope,
                         modifier = Modifier.weight(1f),
                     )
-                    Text("切换", style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(Modifier.width(8.dp))
-                    Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null)
+                    Text("#" + scope + "  ", style = MaterialTheme.typography.labelMedium)
+                    Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "更换页面")
                 }
             }
             item {
-                LuluEditorialPanel(emphasized = true) {
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
+                Text("页面色彩预览", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
+                LuluAppearanceTheme(preview, scope = scope, sheetOverride = sheet) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().height(165.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                        color = MaterialTheme.colorScheme.background,
                     ) {
-                        Icon(Icons.Outlined.AutoAwesome, null,
-                            tint = MaterialTheme.colorScheme.primary)
-                        Spacer(Modifier.width(10.dp))
-                        Column(Modifier.weight(1f)) {
-                            Text("当前搭配 · " + (LuluAppearanceCatalog.scopes.firstOrNull { it.first == scope }?.second ?: scope),
-                                style = MaterialTheme.typography.labelMedium)
-                            Text(active.name, style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold)
-                        }
-                        Box(Modifier.size(30.dp).clip(CircleShape)
-                            .background(Color(active.palette.accent.toInt())))
-                    }
-                }
-            }
-            if (library.recent.isNotEmpty()) {
-                item {
-                    LuluEditorialSectionHeading(title = "最近使用")
-                    Row(
-                        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        library.recent.forEach { id ->
-                            library.find(id)?.let { scheme ->
-                                AssistChip(
-                                    onClick = { LuluAppearanceStore.apply(scope, scheme.id) },
-                                    label = { Text(scheme.name) },
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            item {
-                LuluEditorialSectionHeading(title = "精选风格")
-            }
-            // A curated studio, not a wall of nine unpolished 'finished' themes.
-            // All existing choices remain reachable; only hand-finished themes are showcased.
-            items(library.all.filter { it.isJournal() }, key = { it.id }) { profile ->
-                AppearanceRecipeCard(
-                    profile = profile,
-                    selected = active.id == profile.id,
-                    onApply = { LuluAppearanceStore.apply(scope, profile.id) },
-                    onSaveCopy = {
-                        copySource = profile
-                        copyName = profile.name + " · 我的版本"
-                        copyRadius = profile.corner.toFloat()
-                        accentOption = null
-                    },
-                    onDelete = { LuluAppearanceStore.deleteUnused(profile.id) },
-                    canDelete = !profile.builtIn && library.selections.values.none { it == profile.id },
-                )
-            }
-            item {
-                OutlinedButton(
-                    onClick = { showBasicThemes = !showBasicThemes },
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text(if (showBasicThemes) "收起基础方案"
-                         else "查看其他基础方案 · ${library.all.count { !it.isJournal() }} 套（保留旧搭配）")
-                }
-            }
-            if (showBasicThemes) {
-                items(library.all.filterNot { it.isJournal() }, key = { it.id }) { profile ->
-                    AppearanceRecipeCard(
-                        profile = profile,
-                        selected = active.id == profile.id,
-                        onApply = { LuluAppearanceStore.apply(scope, profile.id) },
-                        onSaveCopy = {
-                            copySource = profile
-                            copyName = profile.name + " · 我的版本"
-                            copyRadius = profile.corner.toFloat()
-                            accentOption = null
-                        },
-                        onDelete = { LuluAppearanceStore.deleteUnused(profile.id) },
-                        canDelete = !profile.builtIn && library.selections.values.none { it == profile.id },
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun AppearanceRecipeCard(
-    profile: LuluAppearance,
-    selected: Boolean,
-    onApply: () -> Unit,
-    onSaveCopy: () -> Unit,
-    onDelete: () -> Unit,
-    canDelete: Boolean,
-) {
-    val radius = RoundedCornerShape(profile.corner.coerceIn(2, 30).dp)
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        LuluAppearanceTheme(profile) {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = radius,
-                color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            ) {
-                Box(Modifier.fillMaxWidth().height(if (profile.isJournal()) 210.dp else 134.dp)) {
-                    if (profile.isJournal()) {
-                        JournalStudioHero(Modifier.fillMaxSize())
-                    } else {
-                    LuluAppearancePattern(Modifier.fillMaxSize())
-                    Row(
-                        Modifier.fillMaxSize().padding(17.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Surface(
-                            modifier = Modifier.width(92.dp).fillMaxHeight(),
-                            color = MaterialTheme.colorScheme.background,
-                            shape = RoundedCornerShape((profile.corner / 2).coerceAtLeast(2).dp),
-                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                        ) {
+                        Box(Modifier.fillMaxSize()) {
+                            LuluCssBackground()
                             Column(
-                                Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(8.dp),
+                                Modifier.fillMaxSize().padding(20.dp),
+                                verticalArrangement = Arrangement.spacedBy(9.dp),
                             ) {
-                                Box(Modifier.fillMaxWidth().height(7.dp).background(MaterialTheme.colorScheme.primary))
-                                Box(Modifier.fillMaxWidth(0.7f).height(4.dp)
-                                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = .45f)))
-                                Spacer(Modifier.weight(1f))
-                                Box(Modifier.size(28.dp).background(
-                                    MaterialTheme.colorScheme.primaryContainer,
-                                    RoundedCornerShape(5.dp)))
-                            }
-                        }
-                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                            Text("LULU / THEME", color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.labelSmall)
-                            Text(profile.name, color = MaterialTheme.colorScheme.onSurface,
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text(profile.description, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                style = MaterialTheme.typography.bodySmall, maxLines = 2)
-                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                listOf(
-                                    profile.palette.paper, profile.palette.cardStrong,
-                                    profile.palette.accent, profile.palette.ink,
-                                ).forEach { argb ->
-                                    Box(Modifier.size(15.dp).clip(CircleShape)
-                                        .background(Color(argb.toInt())))
+                                Text("#" + scope, style = MaterialTheme.typography.labelMedium)
+                                Text("这是你的空间", style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.SemiBold)
+                                Surface(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    shape = MaterialTheme.shapes.medium,
+                                ) {
+                                    Text("主题按钮", Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                                        color = MaterialTheme.colorScheme.onPrimary)
                                 }
                             }
                         }
                     }
-                    }
+                }
+                Text("这是配色与素材预览。元素位置请应用后到真实页面检查。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            item {
+                Text("主题代码", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = source,
+                    onValueChange = { source = it },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 260.dp),
+                    label = { Text("style.css") },
+                    textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                    placeholder = { Text(":root { --accent: #9f5e52; }\n#Home { --paper: #fff8ef; }\n#Chat .bubble { offset-x: 4dp; }") },
+                    minLines = 12,
+                    isError = sheet.errors.isNotEmpty(),
+                )
+                if (sheet.errors.isNotEmpty()) {
+                    Text(sheet.errors.joinToString("\n"), color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall)
+                }
+                if (sheet.warnings.isNotEmpty()) {
+                    Text(sheet.warnings.take(4).joinToString("\n"),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodySmall)
                 }
             }
-        }
-        if (profile.isJournal()) {
-            Text("✿  精装修样板 · 手账布艺", color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-        } else {
-            Text("基础主题 · 后续逐套精修",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelSmall)
-        }
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (selected) {
-                FilledTonalButton(onClick = onApply, modifier = Modifier.weight(1f)) { Text("✓ 正在使用") }
-            } else {
-                Button(onClick = onApply, modifier = Modifier.weight(1f)) { Text("应用此方案") }
+            item {
+                Row(
+                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    OutlinedButton(onClick = {
+                        importCss.launch(arrayOf("text/css", "text/plain", "application/octet-stream"))
+                    }) { Text("导入 CSS") }
+                    OutlinedButton(onClick = { importImage.launch("image/*") }) { Text("导入背景图片") }
+                    OutlinedButton(onClick = { exportCss.launch("lulu-theme.css") }) { Text("导出 CSS") }
+                }
             }
-            OutlinedButton(onClick = onSaveCopy) {
-                Icon(Icons.Outlined.Save, null, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(4.dp))
-                Text("另存")
+            item {
+                Button(
+                    onClick = {
+                        status = if (LuluCssStore.save(source)) "已应用。返回目标页面即可查看效果。"
+                            else "保存失败；请检查语法或本机存储"
+                    },
+                    enabled = source != saved && sheet.errors.isEmpty(),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
+                ) { Text("应用到页面") }
+                Spacer(Modifier.height(8.dp))
+                OutlinedButton(
+                    onClick = { source = saved; status = "已撤销未保存的更改" },
+                    enabled = source != saved,
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text("撤销草稿") }
+                TextButton(
+                    onClick = { source = ""; status = "已清空草稿；点应用后才恢复默认外观" },
+                    modifier = Modifier.fillMaxWidth(),
+                ) { Text("清空 CSS / 恢复原生外观") }
+                status?.let {
+                    Text(it, style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
-            if (canDelete) {
-                IconButton(onClick = onDelete) { Icon(Icons.Outlined.DeleteOutline, "删除未使用的自定义方案") }
+            item {
+                HorizontalDivider()
+                Text("选择器和已支持的属性", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    ":root  全局基础配色\n#Home / #Chat / #Settings 等  单页覆盖\n" +
+                        "#Home .launcher  桌面图标\n#Home .companion  桌面角色卡\n" +
+                        "#Chat .bubble  聊天气泡\n\n" +
+                        "--paper、--card、--ink、--accent、--on-accent、--border 等颜色\n" +
+                        "font-family: serif / sans-serif / monospace\n" +
+                        "border-radius: 18dp; offset-x: 8dp; offset-y: -4dp;\n" +
+                        "background-image: url(\"asset://已导入的图片\")",
+                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.height(10.dp))
+                Text("这里是受控的原生 CSS 子集，不支持网页选择器、脚本、外链或任意 HTML。" +
+                    "目前仅已开放样式接口的组件能改位置；更多控件需要逐页接入，游戏画面不会被 CSS 重排。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = .5f))
     }
 }
