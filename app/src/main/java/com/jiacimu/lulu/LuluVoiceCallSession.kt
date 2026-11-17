@@ -940,6 +940,9 @@ internal object LuluVoiceCallSession {
         // Invalidate the visual time line before the late TTS callback
         // gets a chance to paint a previous expression onto a new session.
         Live2DSpeechTimeline.interrupted(current.characterId, current.callExperienceId)
+        // A minimized video may have retained its score for re-entry. The
+        // actual call end MUST retire it even without any mounted WebView.
+        Live2DVisualActionBus.stageClosed(current.characterId, current.callExperienceId)
         // Mark ended before stopping audio: callbacks cannot reopen the microphone or revive state.
         mutableState.update { it.copy(phase = CallPhase.Ended, opening = false, listening = false,
             userSpeaking = false, thinking = false, speaking = false, sleepMode = false,
