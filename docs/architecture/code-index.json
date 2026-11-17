@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T03:19:36.502743+00:00",
-  "commit": "23956251fdbc71bd0f1525f48903e7429167dd6c",
+  "generatedAt": "2026-11-17T03:19:59.437198+00:00",
+  "commit": "4cf6bf2f27da25ad8f778c1346f8d1ce4a8574e2",
   "branch": "main",
-  "sourceFingerprint": "86c0f7c5a6ab10ce65a96d942a39bd659d0f61ad7a512b83bdca45fc9c7b27da",
+  "sourceFingerprint": "162943f19a9e20428ea09ee93e2dce7f0fcac4dde3d044eadedeed0c5ef8fa34",
   "summary": {
     "files": 1381,
-    "lines": 295303,
+    "lines": 295314,
     "symbols": 4170
   },
   "symbolIndex": {
@@ -6731,7 +6731,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 515
+        "line": 526
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
@@ -6993,7 +6993,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1254
+        "line": 1265
       }
     ],
     "DevelopmentKind": [
@@ -10655,67 +10655,67 @@
     "invalidateDerivedFromEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 686
+        "line": 697
       }
     ],
     "allowsRawRecall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 725
+        "line": 736
       }
     ],
     "shouldFlushPendingTail": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 738
+        "line": 749
       }
     ],
     "hasUnprocessedEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 749
+        "line": 760
       }
     ],
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 755
+        "line": 766
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 761
+        "line": 772
       }
     ],
     "contextTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 805
+        "line": 816
       }
     ],
     "refreshInspection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 891
+        "line": 902
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1148
+        "line": 1159
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1223
+        "line": 1234
       }
     ],
     "valid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1283
+        "line": 1294
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
@@ -32880,8 +32880,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 1331,
-      "sha256": "f8ebf0691126a6f730d012f29f61973031416ebbae7d54a456d9d0bb1077410e",
+      "lines": 1342,
+      "sha256": "4448be129b0dc1dae4899bcda794bb943b3c929e52c3684a48549feaf32063ba",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -32897,55 +32897,55 @@
         },
         {
           "name": "snapshot",
-          "line": 515
+          "line": 526
         },
         {
           "name": "invalidateDerivedFromEvent",
-          "line": 686
+          "line": 697
         },
         {
           "name": "allowsRawRecall",
-          "line": 725
+          "line": 736
         },
         {
           "name": "shouldFlushPendingTail",
-          "line": 738
-        },
-        {
-          "name": "hasUnprocessedEvents",
           "line": 749
         },
         {
+          "name": "hasUnprocessedEvents",
+          "line": 760
+        },
+        {
           "name": "pendingMessageCount",
-          "line": 755
+          "line": 766
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 761
+          "line": 772
         },
         {
           "name": "contextTimelineEvents",
-          "line": 805
+          "line": 816
         },
         {
           "name": "refreshInspection",
-          "line": 891
+          "line": 902
         },
         {
           "name": "MemoryDebugState",
-          "line": 1148
+          "line": 1159
         },
         {
           "name": "grams",
-          "line": 1223
+          "line": 1234
         },
         {
           "name": "ids",
-          "line": 1254
+          "line": 1265
         },
         {
           "name": "valid",
-          "line": 1283
+          "line": 1294
         }
       ]
     },
