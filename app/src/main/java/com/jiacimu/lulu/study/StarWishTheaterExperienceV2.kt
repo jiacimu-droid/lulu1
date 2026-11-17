@@ -90,7 +90,7 @@ internal fun resolveTheaterReadingDestination(
     return TheaterReadingDestination(title, chapterId, record?.id)
 }
 
-/** Recover user-worked legacy stories from local data; never publish old private presets. */
+/** Recover user-authored stories from local data without restoring old built-in presets. */
 internal fun savedTheaterSeeds(state: StarWishState): List<StarWishTheaterSeed> {
     val titles = (state.theaterChapters.keys + state.theaterGuides.keys +
         state.theaterPlans.keys + state.theaterBibles.keys).filter(String::isNotBlank)
