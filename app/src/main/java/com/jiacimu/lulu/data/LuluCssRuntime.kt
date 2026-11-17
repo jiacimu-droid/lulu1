@@ -91,8 +91,17 @@ class LuluCssSheet private constructor(
             BLOCK.findAll(clean).take(300).forEach { block ->
                 val selectors = block.groupValues[1].trim()
                     .split(',').map(String::trim).filter(String::isNotEmpty)
-                if (selectors.any { !SELECTOR.matches(it) }) {
-                    warnings += "尚未映射的选择器：" + selectors.joinToString()
+                val knownPages = LuluAppearanceCatalog.scopes.map { "#" + it.first }.toSet()
+                val knownElements = setOf(
+                    ".launcher", ".companion", ".bubble",
+                    "#Home .launcher", "#Home .companion", "#Chat .bubble",
+                )
+                if (selectors.any { selector ->
+                        !SELECTOR.matches(selector) ||
+                            (selector != ":root" && selector !in knownPages &&
+                                selector !in knownElements)
+                    }) {
+                    warnings += "尚未映射到原生控件的选择器：" + selectors.joinToString()
                 }
                 val values = linkedMapOf<String, String>()
                 block.groupValues[2].split(';').forEach { declaration ->
