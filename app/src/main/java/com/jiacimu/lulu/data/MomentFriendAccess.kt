@@ -46,15 +46,29 @@ object MomentFriendAccess {
         MigratedDomainStores.characters.settings.value.keys
             .filterNot { it.startsWith("resident:") }.toSet()
 
+    /** Historical links remain stored, but a removed resident is never a live
+     * friend/contact or a valid audience again. The resident registry, not
+     * template names or old chat text, owns active identity. */
+    internal fun activeEndpoint(id: String, characters: Set<String>,
+        registeredResidents: Set<String>): Boolean =
+        id == OWNER || (id in characters &&
+            (!id.startsWith("resident:") || id in registeredResidents))
+
+    internal fun isActiveCharacter(id: String): Boolean =
+        activeEndpoint(id, MigratedDomainStores.characters.settings.value.keys,
+            DigitalWorldExpansionStore.residents().mapTo(hashSetOf()) {
+                ResidentCharacterBridge.characterId(it.id)
+            })
+
     @Synchronized fun areFriends(a: String, b: String): Boolean =
-        allowed(a, b, prefs?.getStringSet(LINKS, emptySet()).orEmpty(),
-            prefs?.getStringSet(OWNER_REMOVED, emptySet()).orEmpty(), ownerCompanions())
+        isActiveCharacter(a) && isActiveCharacter(b) &&
+            allowed(a, b, prefs?.getStringSet(LINKS, emptySet()).orEmpty(),
+                prefs?.getStringSet(OWNER_REMOVED, emptySet()).orEmpty(), ownerCompanions())
 
     fun setFriends(a: String, b: String, friend: Boolean): Boolean {
         val committed = synchronized(this) {
             if (prefs == null || a.isBlank() || b.isBlank() || a == b ||
-                (a != OWNER && a !in MigratedDomainStores.characters.settings.value) ||
-                (b != OWNER && b !in MigratedDomainStores.characters.settings.value)) {
+                !isActiveCharacter(a) || !isActiveCharacter(b)) {
                 return@synchronized false
             }
             val links = prefs?.getStringSet(LINKS, emptySet()).orEmpty().toMutableSet()
