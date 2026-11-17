@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T06:04:54.060005+00:00",
-  "commit": "840c4b0e1b24231b196438a0e9b561d42a143a3f",
+  "generatedAt": "2026-11-17T06:07:13.587379+00:00",
+  "commit": "91910a62dfea89132fde58ab8488fd6511450da0",
   "branch": "main",
-  "sourceFingerprint": "35ae7604a8861f1c6b3b4480d6f2601c8d307103541e9528a0df2a1ef188f4f2",
+  "sourceFingerprint": "3996bfd51f043051d3c278da32c32fcbea9e14397d2d1f56bf2d2dc2f4e15f59",
   "summary": {
     "files": 1391,
-    "lines": 298089,
+    "lines": 298130,
     "symbols": 4204
   },
   "symbolIndex": {
@@ -11709,7 +11709,7 @@
     "actuallyInjectedIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
-        "line": 113
+        "line": 117
       }
     ],
     "LuluChatMessage": [
@@ -34153,8 +34153,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
-      "lines": 123,
-      "sha256": "59c23e8e680a1f9d2dd8c12f781378233f8bf7c4d25b2610da3403b676bda59b",
+      "lines": 127,
+      "sha256": "bed6c5a75bcdecb5e1e1598fe1fe50a3a63cf483fd8f40d4ac7bfca3304fd813",
       "symbols": [
         {
           "name": "auxiliaryCandidates",
@@ -34174,7 +34174,7 @@
         },
         {
           "name": "actuallyInjectedIds",
-          "line": 113
+          "line": 117
         }
       ]
     },
@@ -46677,8 +46677,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceCommitIntegrationTest.kt",
-      "lines": 175,
-      "sha256": "aa7629615a713d5b971770d21b1dec9f73e192f048d283dc661756510ee7ff1e",
+      "lines": 187,
+      "sha256": "aca89c0194092bb15a0ea1df128dd6a66a703077e1ef4d652c09b42bd967bdbe",
       "symbols": [
         {
           "name": "MemoryEvidenceCommitIntegrationTest",
@@ -46863,8 +46863,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicyTest.kt",
-      "lines": 218,
-      "sha256": "87c09ab70c4011aa4e0823db338238851c59f84d5d242e681f260e60f70b8033",
+      "lines": 243,
+      "sha256": "d8689e53d5e96e738f603b97db6a7e86eef5f31b96c90169aac3d51f821501f7",
       "symbols": [
         {
           "name": "MemoryWorkingSetPolicyTest",
