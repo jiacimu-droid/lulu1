@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import android.app.Activity
 import android.content.Intent
 import android.speech.RecognizerIntent
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -65,6 +66,12 @@ internal fun QqChatComposer(
     val scope = rememberCoroutineScope()
     var showStickerShelf by remember { mutableStateOf(false) }
     var stickerNotice by remember { mutableStateOf("") }
+
+    // Back should dismiss the accessory panel, not navigate away from chat.
+    BackHandler(enabled = showTools || showStickerShelf) {
+        showTools = false
+        showStickerShelf = false
+    }
 
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
