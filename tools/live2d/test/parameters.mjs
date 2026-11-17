@@ -3,7 +3,8 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { CubismParameterAccess } from '../src/cubism-parameters.mjs'
 import {
   kissCameraFrame, kissFaceFrame, kissNuzzleFrame, kissHandoffFrame,
-  KISS_HANDOFF_MS, kissCameraHorizontalPosition,
+  KISS_HANDOFF_MS, kissCameraHorizontalPosition, kissCameraVerticalPosition,
+  kissFaceLocalOffsetY,
   kissMouthLocalOffsetX, KISS_CAMERA_DURATION_MS,
   KISS_CAMERA_PEAK_ZOOM, WOLF_KISS_MOTION_INDEX,
 } from '../src/kiss-camera.mjs'
@@ -216,6 +217,31 @@ assert.ok(Math.abs(projectedLipX(resizedBase, KISS_CAMERA_PEAK_ZOOM,
 assert.equal(kissCameraHorizontalPosition(cameraBase, 1, calibratedOffset), 350)
 assert.ok(Number.isFinite(kissMouthLocalOffsetX(cameraBase, null, { u: 2 })),
   'invalid calibration safely falls back')
+// The physical face must stay near the screen's middle while approaching the
+// glass, irrespective of whether its normal torso pivot sits near the bottom.
+const faceBounds = { y: -30, height: 880 }
+const calibratedFace = kissFaceLocalOffsetY(cameraBase, faceBounds,
+  { 'eye-left': { v: .28 }, 'eye-right': { v: .32 }, mouth: { v: .42 } })
+const projectedFaceY = (base, zoom, localY) =>
+  kissCameraVerticalPosition(base, zoom, localY) + zoom * base.scale * localY
+assert.equal(kissCameraVerticalPosition(cameraBase, 1, calibratedFace), cameraBase.y)
+assert.ok(Math.abs(projectedFaceY(cameraBase, KISS_CAMERA_PEAK_ZOOM,
+  calibratedFace) - cameraBase.height * .45) < .001,
+  'face stays at 45% screen height at close contact, not pushed to the top')
+for (const fraction of [.2, .5, .8]) {
+  const zoom = 1 + fraction * (KISS_CAMERA_PEAK_ZOOM - 1)
+  const before = cameraBase.y + cameraBase.scale * calibratedFace
+  assert.ok(Math.abs(projectedFaceY(cameraBase, zoom, calibratedFace) -
+    (before + fraction * (cameraBase.height * .45 - before))) < .001,
+    'approach moves smoothly toward the camera with no vertical camera snap')
+}
+const fallbackFace = kissFaceLocalOffsetY(cameraBase, null, {})
+assert.ok(Number.isFinite(fallbackFace),
+  'un-calibrated models have a safe face-focused portrait fallback')
+const rescaledFaceBase = { ...cameraBase, height: 1000, y: 890, scale: 2.7 }
+assert.ok(Math.abs(projectedFaceY(rescaledFaceBase, KISS_CAMERA_PEAK_ZOOM,
+  calibratedFace) - rescaledFaceBase.height * .45) < .001,
+  're-entry or resize uses the current viewport center')
 
 // A finished body motion keeps its last real rendered pose through the next
 // idle frame, then returns smoothly. Entrance and exit operate on opposite
