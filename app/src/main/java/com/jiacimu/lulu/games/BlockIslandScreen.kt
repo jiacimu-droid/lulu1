@@ -1198,12 +1198,14 @@ private fun IslandStat(label: String, value: String, tint: Color, modifier: Modi
 
 @Composable
 private fun IslandAction(label: String, enabled: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Button(onClick = onClick, modifier = modifier.height(38.dp), enabled = enabled,
-        shape = RoundedCornerShape(10.dp),
-        contentPadding = PaddingValues(horizontal = 3.dp, vertical = 1.dp),
+    // Craft/build lists are scrollable, so give each genuine action a comfortable
+    // thumb target instead of compressing dozens of 38dp buttons into a modal.
+    Button(onClick = onClick, modifier = modifier.heightIn(min = 48.dp), enabled = enabled,
+        shape = RoundedCornerShape(12.dp),
+        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 7.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFFA9D8B9), contentColor = Color(0xFF17342F),
-        )) { Text(label, fontSize = 10.sp, maxLines = 1) }
+        )) { Text(label, fontSize = 12.sp, maxLines = 2, lineHeight = 16.sp) }
 }
 
 @Composable
@@ -1217,7 +1219,7 @@ private fun IslandBuildChip(
         shape=RoundedCornerShape(13.dp)) {
         Column(Modifier.fillMaxWidth().padding(4.dp),horizontalAlignment=Alignment.CenterHorizontally) {
             TextButton(onClick=onClick,enabled=enabled,contentPadding=PaddingValues(0.dp),
-                modifier=Modifier.height(33.dp)) {
+                modifier=Modifier.heightIn(min=44.dp)) {
                 Text(if(selected) "✓ "+label else label,
                     color=if(enabled) Color.White else Color.Gray,fontSize=12.sp)
             }
