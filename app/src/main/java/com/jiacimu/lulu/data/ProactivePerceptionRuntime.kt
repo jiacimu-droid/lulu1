@@ -1070,6 +1070,8 @@ object ProactivePerceptionRuntime {
                 // Read current owner todo facts cheaply in this existing decision.
                 // Only the role chooses if further checking/contact is warranted.
                 appendLine(com.jiacimu.lulu.SelfTodoRoleRead.opportunity(appContext, now))
+                com.jiacimu.lulu.LuluWidgetRoleActions.characterContext(appContext, characterId)
+                    .takeIf(String::isNotBlank)?.let(::appendLine)
                 appendLine("如想查看所行的准确任务与完成记录，可在本轮选择 action=tool,tool=read_self_todo,args={scope:today}；需要连未来安排也看时 scope=all，可用返回的 nextOffset 翻页。只读不改，不因未打勾就判定没学习；需要核实学习行为时沿已有短时授权 start_study_watch 与真实记录，绝不默认永久监控。")
                 appendLine(com.jiacimu.lulu.ai.JevDirections.context())
                 val openCommitments = CommitmentTaskStore.active(characterId)
