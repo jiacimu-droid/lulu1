@@ -101,6 +101,22 @@ class LuluWidgetLiveIntegrationTest {
 
     }
 
+    @Test fun sameRoleSameSignHasOneDateScopedCachedReadingForMultipleCards() {
+        val date = LocalDate.now()
+        val first = LuluDesktopWidget("copy-A", LuluWidgetKind.HOROSCOPE, 1, 0, 0,
+            characterId = "role-A", sign = 6)
+        val second = first.copy(id = "copy-B", page = 2)
+        val fingerprint = date.toString() + "|6|role-A"
+        val raw = JSONObject().put("fingerprint", fingerprint)
+            .put("message", "本人真实写过的解读").put("notify", false).put("skin", -1)
+        app.getSharedPreferences("lulu_desktop_widget_daily_role_v1", Context.MODE_PRIVATE)
+            .edit().putString("reading_" + fingerprint, raw.toString()).commit()
+        assertEquals("本人真实写过的解读", LuluWidgetDailyRole.read(app, first, date)?.message)
+        assertEquals("本人真实写过的解读", LuluWidgetDailyRole.read(app, second, date)?.message)
+        assertNull(LuluWidgetDailyRole.read(app, second, date.plusDays(1)))
+        assertNull(LuluWidgetDailyRole.read(app, second.copy(sign = 7), date))
+    }
+
     @Test fun interpretationParsingKeepsActualModelWordsAndRejectsFakeFields() {
         val card = LuluDesktopWidget("daily", LuluWidgetKind.HOROSCOPE, 1, 0, 0,
             characterId = "role-A")
