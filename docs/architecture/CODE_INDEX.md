@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`12062b6b356680fc02422a83ddbf5d6636444589`
+- 基准提交：`ebdf89a110cee2209de43979d77371c57d4c1864`
 - 分支：`main`
 - 已索引文件：1413
-- 已索引代码/文本行：298764
+- 已索引代码/文本行：298762
 - 已发现符号：4258
 
 | 文件 | 行数 | 符号数 |
@@ -774,7 +774,7 @@
 | `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 187 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 197 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 413 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 411 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 231 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt` | 277 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 690 | 9 |
