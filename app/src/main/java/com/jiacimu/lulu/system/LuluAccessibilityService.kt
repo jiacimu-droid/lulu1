@@ -634,6 +634,29 @@ class LuluAccessibilityService : AccessibilityService() {
             return node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
         }
 
+        /**
+         * Window-only identity for OCR verification on real independent displays.
+         * Unlike virtualNavigationFingerprint, this must NEVER traverse the
+         * target app's accessibility tree. When HyperOS provides a valid window
+         * and real pixels but zero children, tying the screenshot verifier to a
+         * tree fingerprint would disable the only remaining evidence channel.
+         * App changes still invalidate the identity, and OCR checks a fresh
+         * EXACT chat title on the same capture before any external send.
+         */
+        fun virtualChatWindowIdentity(displayId: Int, packageName: String): String {
+            val service = instance ?: return ""
+            if (displayId <= 0 ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target") return ""
+            val window = topVirtualAppWindow(service, displayId, packageName) ?: return ""
+            val root = window.root ?: return ""
+            if (root.packageName?.toString() != packageName) return ""
+            return LuluVirtualUiPolicy.fingerprint(listOf(
+                "display:$displayId", "window:${window.id}",
+                "package:$packageName", "type:${window.type}",
+                "root:${root.className}",
+            ))
+        }
+
         /** Read structural evidence without conversation previews, tickers or
          * other changing page prose that could look like successful navigation. */
         fun virtualNavigationFingerprint(displayId: Int, packageName: String): String {
