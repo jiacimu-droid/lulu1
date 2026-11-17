@@ -155,7 +155,7 @@ internal object LuluBackgroundPhoneContinuation {
             return listOf(args.optString("packageName"), args.optString("appName"))
                 .plus(navigation).joinToString("|")
         return LuluPhoneRepeatGuard.target(action,
-            listOf("x", "y", "composerX", "composerY", "screenSnapshotId", "elementRef", "text", "recipient", "packageName", "appName",
+            listOf("x", "y", "inputX", "inputY", "composerX", "composerY", "screenSnapshotId", "elementRef", "text", "recipient", "packageName", "appName",
                 "startX", "startY", "endX", "endY").associateWith { args.optString(it) },
             stableElement,
         )
@@ -277,7 +277,7 @@ internal object LuluBackgroundPhoneContinuation {
                         ?.takeIf(String::isNotBlank)?.let { appendLine("当前可操作画面：$it") }
                     appendLine("可选择的本机工具：background_phone")
                     appendLine(if (LuluVirtualChatSendPolicy.isEnabled(context, characterId))
-                        "主人已授权本角色操作虚拟屏，可在微信和抖音的真实会话里选择收件人与正文。先进入要联系的人对应的聊天页，使用最新screenSnapshotId与精确recipient调用send_chat_message。chatHeaderTexts是候选，缺少无障碍标题时仍可依据当前原图识别目标名称，由本机独立复核。抖音个人主页的发消息入口可用tap_element打开；进会话后用send_chat_message。微信语音栏先根据真实画面点左下键盘图标后重新observe；若已有文字输入区但Android无障碍控件树为空，可在send_chat_message提供本次截图里可见输入区中心composerX/composerY(0..1000)，系统会用独立屏定向输入与截图OCR核验。不要盲猜坐标。messageSendClicked只代表已派发一次点击。"
+                        "主人已授权本角色操作虚拟屏，可在微信和抖音的真实会话里选择收件人与正文。先进入要联系的人对应的聊天页，使用最新screenSnapshotId与精确recipient调用send_chat_message。chatHeaderTexts是候选，缺少无障碍标题时仍可依据当前原图识别目标名称，由本机独立复核。抖音个人主页的发消息入口可用tap_element打开；进会话后用send_chat_message。所有已授权App共用文字输入：普通已聚焦输入框用type(text)，不限定搜索框或微信；如果当前后台截图真的显示输入区但无障碍树为空，可用type(text,inputX,inputY,screenSnapshotId)，其中坐标为本次截图识别的输入区中心0..1000，由本机独立屏键盘/定向Unicode输入并在新画面核对。type只填写，不自动发送、搜索或提交；没确认完整输入就如实报告。微信语音栏先根据真实画面点左下键盘图标后重新observe；微信专用send_chat_message仍必须核对收件人和发送效果，可附真实截图里的composerX/composerY。不得盲猜坐标。messageSendClicked只代表已派发一次点击。"
                         else "请主人开启本角色虚拟屏幕总授权后操作。")
                     appendLine("微信可经发现→朋友圈浏览，也可通过联系人资料里的朋友圈查看对方动态。发文字朋友圈时，在动态页用当前相机elementRef及screenSnapshotId执行open_wechat_moments_composer，确认momentComposerVerified=true后用新screenSnapshotId和全文text调用publish_wechat_moment。若已尝试发表，只读核对动态结果，不重复点。")
                     appendLine(if (LuluShoppingAssistPolicy.isEnabled(context, characterId))
@@ -296,7 +296,7 @@ internal object LuluBackgroundPhoneContinuation {
                     上述只是字段格式说明，不是推荐点击或滑动位置。只保留本动作需要的参数；swipe必须同时给startX/startY/endX/endY四个整数（0至1000），不能只给方向；坐标应由本轮真实后台画面决定，别照抄示例的0。
                     或 {"decision":"finish","reason":"任务为什么可以结束，未完成时要明确说明"}
                     或 {"decision":"ask","reason":"需要主人确认的事项或设备障碍"}
-                    如果上一步真实失败而仍有安全的新方法，可以自行选择一次重新建屏或打开已授权应用；同一错误反复发生时停止，向主人说明真实阻碍。微信聊天显示「按住说话」时先按当前真实截图点击左下键盘切换图标，然后重新observe；若出现文字输入栏但interactiveElements为空，可在send_chat_message附composerX/composerY，坐标只能来自刚收到的真实后台截图，不允许照抄JSON字段示例。执行器将验证收件人、独立屏键盘焦点、正文OCR和发送键再尝试单次发送；任一证据缺失就停止，不得声称成功。无截图时不可凭坐标盲点或滑动；可observe只读重新观察。若回执有当前后台App的screenSnapshotId和interactiveElements，可用tap_element+对应ref精准选择安全可点控件，执行器会重新核实并拒绝过期控件。搜索框另可focus_search/type/submit，提交前须文字读回；无证据则ask/finish。
+                    如果上一步真实失败而仍有安全的新方法，可以自行选择一次重新建屏或打开已授权应用；同一错误反复发生时停止，向主人说明真实阻碍。微信聊天显示「按住说话」时先按当前真实截图点击左下键盘切换图标，然后重新observe；若出现文字输入栏但interactiveElements为空，可在send_chat_message附composerX/composerY，坐标只能来自刚收到的真实后台截图，不允许照抄JSON字段示例。执行器将验证收件人、独立屏键盘焦点、正文OCR和发送键再尝试单次发送；任一证据缺失就停止，不得声称成功。无截图时不可凭坐标盲点或滑动；可observe只读重新观察。若回执有当前后台App的screenSnapshotId和interactiveElements，可用tap_element+对应ref精准选择安全可点控件，执行器会重新核实并拒绝过期控件。所有App的普通聚焦文本框都可type(text)写草稿；若只有画面没有控件，可从当前真实截图确定输入区中心，type附inputX/inputY与screenSnapshotId走独立Unicode输入，再核实新帧。只有在真实搜索框已确认时才可submit搜索；输入和发送/发布/下单分别决策，无证据则ask/finish。
                     launch可同时附navigationLabels，或在已打开的App里选择navigate。比如已知微信「发现」和「朋友圈」两个入口时，可以给出["发现","朋友圈"]；已看到联系人则直接给一个完整昵称。每步独立核实目标和界面变化，停在首个未核实的步骤。根据navigationSteps判断真实进度，找不到名字可以打开搜索结果后再选；打开应用或点击被接收不能当作已进入会话、已发送或已发表。
                     chatRecipientVerified=true 表示已核实在目标会话；键盘切换、输入正文、发送是三项不同的操作。若输入或发送没核实，向主人说明真正停止的阶段。chat_recipient_unverified 只表示标题无法核实，不能据此声称页面没跳进去。
                     若某次点击/滑动/搜索提交已被设备接受但效果未知，先核对当前页面或换安全目标；读到相同页面不能解除重复动作保护。
