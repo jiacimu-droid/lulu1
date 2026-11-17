@@ -389,7 +389,7 @@ object CompanionPresenceStore {
                 else previous?.gestureVerified == true &&
                     inheritedGesture(previous, now) == previous.gesture,
             innerThought = if (innerThought == null) previous?.innerThought.orEmpty() else innerThought.cleanPresence(1_200).orEmpty(),
-            mood = mood?.trim()?.replace(Regex("\\s+"), " ")?.take(80)
+            mood = mood?.let(CompanionPresenceMood::text)
                 ?: previous?.mood.orEmpty().takeUnless { freshChatMoment }.orEmpty(),
             updatedAt = now,
             source = source.take(40),
@@ -688,7 +688,7 @@ private fun JSONObject.toPresenceState(fallbackCharacterId: String): CompanionPr
         gesture = optString("gesture"),
         gestureVerified = optBoolean("gestureVerified", false),
         innerThought = optString("innerThought"),
-        mood = optString("mood"),
+        mood = CompanionPresenceMood.text(optString("mood")),
         updatedAt = runCatching { Instant.parse(optString("updatedAt")) }.getOrDefault(Instant.EPOCH),
         source = optString("source"),
         lastPerceptionAt = optString("lastPerceptionAt").takeIf(String::isNotBlank)?.let { runCatching { Instant.parse(it) }.getOrNull() },
