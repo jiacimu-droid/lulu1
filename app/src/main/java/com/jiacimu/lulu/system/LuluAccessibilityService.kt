@@ -756,10 +756,12 @@ class LuluAccessibilityService : AccessibilityService() {
             val hints = mutableListOf<LuluVirtualUiPolicy.AppBarControl>()
             var visited = 0
             fun scan(node: AccessibilityNodeInfo, depth: Int) {
-                if (depth > 26 || visited++ >= 620 ||
-                    !node.isVisibleToUser || !node.isEnabled || node.isPassword) return
+                // Match the bounded virtual UI traversal: invisible layout wrappers
+                // may contain a visible toolbar, but protected subtrees stay closed.
+                if (depth > 80 || visited++ >= 1600 || node.isPassword) return
                 val rect = Rect().also(node::getBoundsInScreen)
-                if (rect.width() > 0 && rect.height() > 0 && node.isClickable) {
+                if (node.isVisibleToUser && node.isEnabled &&
+                    rect.width() > 0 && rect.height() > 0 && node.isClickable) {
                     val label = node.contentDescription?.toString().orEmpty()
                         .ifBlank { node.text?.toString().orEmpty() }
                         .ifBlank { clickableDescendantLabel(node) }.trim().take(90)
