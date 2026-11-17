@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T14:27:35.262874+00:00",
-  "commit": "ff917df7d87c67cd2bd23c1c324ea7b10dbc4df3",
+  "generatedAt": "2026-11-17T14:28:58.033872+00:00",
+  "commit": "0e7febeae43ca920899b9bc80735d2ea16a59230",
   "branch": "main",
-  "sourceFingerprint": "d443b1b583a019bc18ae2598729e3340a489a523667e517b706fd75d0266aaca",
+  "sourceFingerprint": "40f45e80b110e91850fd764a68ed3376c630fff1e31e5d99ca9fa28756a9e99f",
   "summary": {
     "files": 1414,
-    "lines": 298784,
+    "lines": 298822,
     "symbols": 4255
   },
   "symbolIndex": {
@@ -45907,8 +45907,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt",
-      "lines": 174,
-      "sha256": "dc0339db70b0d7e2332d2fed1cf47c7298dcfaa0b71b6033f9bd7cdde55a4dd6",
+      "lines": 212,
+      "sha256": "3593d2526f49cde368eab7973b0a4311f0ffed8a395325b14296ef638b8c7179",
       "symbols": [
         {
           "name": "CharacterOriginResetTest",
