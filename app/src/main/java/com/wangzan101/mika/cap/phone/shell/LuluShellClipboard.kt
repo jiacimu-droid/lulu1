@@ -10,6 +10,8 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.os.Build
+import android.os.PersistableBundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -73,11 +75,38 @@ internal class LuluShellClipboard(context: Context) {
         return saved
     }
 
-    fun write(text: String) {
-        manager.setPrimaryClip(ClipData.newPlainText("", text))
+    private fun isOurClip(clip: ClipData?, text: String): Boolean =
+        clip?.description?.label?.toString() == "Lulu-virtual-input" &&
+            clip.itemCount == 1 && clip.getItemAt(0).text?.toString() == text
+
+    /** Verify what was actually written before pressing Ctrl+V. Some ROMs
+     * silently decline shell clipboard writes: pasting the OWNER's old clip
+     * into someone else's chat would be an unacceptable failure. */
+    fun write(text: String): Boolean {
+        val clip = ClipData.newPlainText("Lulu-virtual-input", text)
+        val extras = PersistableBundle().apply {
+            putBoolean("com.android.systemui.SUPPRESS_CLIPBOARD_OVERLAY", true)
+            if (Build.VERSION.SDK_INT >= 33)
+                putBoolean("android.content.extra.IS_SENSITIVE", true)
+        }
+        clip.description.extras = extras
+        manager.setPrimaryClip(clip)
+        return isOurClip(snapshot(), text)
     }
 
-    fun restore(saved: ClipData?) {
+    /** If the owner copied something new while a paste was being processed,
+     * do not overwrite that new clipboard with the old saved value. */
+    fun restore(saved: ClipData?, ourText: String): Boolean {
+        val current = snapshot()
+        if (!isOurClip(current, ourText)) return true
         if (saved == null) manager.clearPrimaryClip() else manager.setPrimaryClip(saved)
+        val after = snapshot()
+        return if (saved == null) after == null else
+            after?.description?.label == saved.description.label &&
+                after.itemCount == saved.itemCount &&
+                (0 until saved.itemCount).all { index ->
+                    after.getItemAt(index).text?.toString() ==
+                        saved.getItemAt(index).text?.toString()
+                }
     }
 }
