@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:30:25.837181+00:00",
-  "commit": "e80d1183c1faf23f9948fd0bf08e4114a02271a8",
+  "generatedAt": "2026-11-17T16:32:12.304374+00:00",
+  "commit": "4786e6c51d622f9c86264363af681c8a43f18d81",
   "branch": "main",
-  "sourceFingerprint": "5b2612ac15552064d9bfcdf66afaab21c830e2f69b872d0dd7dde461f1f2fca5",
+  "sourceFingerprint": "a79b4ce7581d955fa95ffac29b0da77189dd4651b568b23a98fa32a33a69faa8",
   "summary": {
     "files": 1418,
-    "lines": 299573,
+    "lines": 299586,
     "symbols": 4275
   },
   "symbolIndex": {
@@ -36380,8 +36380,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SpontaneousInnerVoiceGuide.kt",
-      "lines": 26,
-      "sha256": "078cb0521fc02eda11f22ede52e53a092ef080e596df42b34958fbe3914ef937",
+      "lines": 27,
+      "sha256": "bd88a0f3eca1ebffbfef3301979ac78dd2c4d96ddf679fd010891620e7a79d75",
       "symbols": []
     },
     {
@@ -45699,8 +45699,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt",
-      "lines": 338,
-      "sha256": "15d9648308b08c3b5b34637cff2375db7b68d5b61ef34f373bd1d63ce2b18d96",
+      "lines": 350,
+      "sha256": "142427d3d8f18a718053c06eab5aa320b3eef906904b393a9bbea2f56e635bd8",
       "symbols": [
         {
           "name": "CharacterDecisionProtocolTest",
