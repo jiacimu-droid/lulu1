@@ -280,6 +280,7 @@ internal fun LuluDesktopWidgetCard(
     today: LocalDate,
     characterName: String?,
     lastConversationText: String?,
+    roleReading: LuluWidgetDailyReading? = null,
     plannerTasks: List<TodoOccurrence> = emptyList(),
     onCompleteTask: (TodoOccurrence) -> Unit = {},
     modifier: Modifier = Modifier,
@@ -355,11 +356,15 @@ internal fun LuluDesktopWidgetCard(
                         if (!compact) Text("宜 · " + good + "      忌 · " + caution,
                             color = foreground, fontSize = 12.sp, maxLines = 2,
                             overflow = TextOverflow.Ellipsis)
-                        Text(if (compact) "宜 · " + good
+                        Text(if (roleReading != null) roleReading.message
+                            else if (compact) "宜 · " + good
                             else if (characterName == null) "每日灵感 · 娱乐参考"
-                            else characterName + " · 点开聊聊今日灵感",
-                            color = foreground.copy(alpha = .84f), fontSize = 10.sp,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            else characterName + " · 今日解读尚未生成",
+                            color = foreground.copy(alpha = .92f),
+                            fontSize = if (compact) 9.sp else 11.sp,
+                            lineHeight = if (compact) 12.sp else 15.sp,
+                            maxLines = if (compact) 1 else 2,
+                            overflow = TextOverflow.Ellipsis)
                     }
                     LuluWidgetKind.NOTE -> {
                         Text(characterName ?: "一封等待署名的信",
@@ -423,6 +428,7 @@ internal fun LuluDesktopWidgetCanvas(
     today: LocalDate,
     characterNames: Map<String, String>,
     conversationTexts: Map<String, String>,
+    roleReadings: Map<String, LuluWidgetDailyReading> = emptyMap(),
     plannerTasks: List<TodoOccurrence> = emptyList(),
     onCompleteTask: (TodoOccurrence) -> Unit = {},
     modifier: Modifier = Modifier,
@@ -450,6 +456,7 @@ internal fun LuluDesktopWidgetCanvas(
                     widget = widget, today = today,
                     characterName = characterNames[widget.characterId],
                     lastConversationText = conversationTexts[widget.characterId],
+                    roleReading = roleReadings[widget.id],
                     plannerTasks = plannerTasks, onCompleteTask = onCompleteTask,
                     modifier = Modifier.width(cellWidth * widget.columns)
                         .height(cellHeight * widget.rows)
