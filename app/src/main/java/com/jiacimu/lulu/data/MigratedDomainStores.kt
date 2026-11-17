@@ -126,7 +126,7 @@ internal fun shouldApplyOwnerRelationshipRepair(
 
 /** Retains the old class name while using persistent local storage. */
 class InMemoryLuluChatStore : LuluChatStore {
-    private val conversationState = MutableStateFlow(defaultConversations())
+    private val conversationState = MutableStateFlow<List<LuluConversation>>(emptyList())
     private val messageStates = java.util.concurrent.ConcurrentHashMap<String, MutableStateFlow<List<LuluChatMessage>>>()
     private var prefs: android.content.SharedPreferences? = null
     // A present but unreadable legacy snapshot must never be overwritten by defaults.
@@ -149,7 +149,7 @@ class InMemoryLuluChatStore : LuluChatStore {
             prefs = application.getSharedPreferences(CHAT_PREFS, Context.MODE_PRIVATE)
             unreadableChatSnapshot = false
             val loaded = decode(prefs?.getString(CHAT_STATE, null))
-            conversationState.value = loaded.first.ifEmpty { defaultConversations() }
+            conversationState.value = loaded.first
                 .map { conversation ->
                     val lastMessage = loaded.second[conversation.id]
                         .orEmpty()
@@ -195,7 +195,7 @@ class InMemoryLuluChatStore : LuluChatStore {
 
     override fun messages(conversationId: String): StateFlow<List<LuluChatMessage>> = synchronized(lock) {
         messageStates.getOrPut(conversationId) {
-            MutableStateFlow(defaultMessages(conversationId))
+            MutableStateFlow(emptyList())
         }.asStateFlow()
     }
 
@@ -1176,24 +1176,7 @@ class InMemoryLuluChatStore : LuluChatStore {
         const val CHAT_PREFS = "lulu_chat_store"
         const val CHAT_STATE = "state_v1"
 
-        fun defaultConversations(): List<LuluConversation> = listOf(
-            LuluConversation(
-                id = "lulu-main",
-                characterId = "lulu",
-                title = "露露",
-                lastMessage = "今天也会继续陪着你。",
-            ),
-        )
 
-        fun defaultMessages(conversationId: String): List<LuluChatMessage> = if (conversationId == "lulu-main") {
-            listOf(
-                LuluChatMessage(
-                    conversationId = conversationId,
-                    sender = LuluChatMessage.Sender.Character,
-                    content = "今天学习辛苦啦。",
-                ),
-            )
-        } else emptyList()
     }
 }
 
@@ -1225,7 +1208,7 @@ data class CharacterSettings(
 )
 
 class CharacterSettingsStore {
-    private val state = MutableStateFlow(defaultSettings())
+    private val state = MutableStateFlow<Map<String, CharacterSettings>>(emptyMap())
     private var prefs: android.content.SharedPreferences? = null
     private val lock = Any()
     val settings: StateFlow<Map<String, CharacterSettings>> = state.asStateFlow()
@@ -1234,7 +1217,7 @@ class CharacterSettingsStore {
         synchronized(lock) {
             if (prefs != null) return
             prefs = context.applicationContext.getSharedPreferences(CHARACTER_PREFS, Context.MODE_PRIVATE)
-            state.value = decodeSettings(prefs?.getString(CHARACTER_STATE, null)).ifEmpty { defaultSettings() }
+            state.value = decodeSettings(prefs?.getString(CHARACTER_STATE, null))
         }
     }
 
@@ -1257,7 +1240,6 @@ class CharacterSettingsStore {
     }
 
     fun delete(characterId: String): Boolean {
-        if (characterId == "lulu") return false
         synchronized(lock) {
             if (characterId !in state.value) return false
             state.value = state.value - characterId
@@ -1337,13 +1319,7 @@ class CharacterSettingsStore {
         const val CHARACTER_PREFS = "lulu_character_store"
         const val CHARACTER_STATE = "state_v1"
 
-        fun defaultSettings(): Map<String, CharacterSettings> = mapOf(
-            "lulu" to CharacterSettings(
-                characterId = "lulu",
-                displayName = "露露",
-                persona = "长期陪伴用户，保持连续感与角色一致性；具体关系和称呼以用户填写的人设为准。",
-            ),
-        )
+
     }
 }
 
