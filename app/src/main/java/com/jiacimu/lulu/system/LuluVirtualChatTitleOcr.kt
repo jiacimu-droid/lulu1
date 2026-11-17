@@ -157,7 +157,7 @@ internal object LuluVirtualChatTitleOcr {
                 val before = withContext(Dispatchers.Main) {
                     if (LuluAccessibilityService.virtualWindowStatus(displayId, packageName)
                             .optString("kind") != "target") return@withContext ""
-                    LuluAccessibilityService.virtualNavigationFingerprint(displayId, packageName)
+                    LuluAccessibilityService.virtualChatWindowIdentity(displayId, packageName)
                 }
                 if (before.isBlank()) return@withLock false
                 if (!forceFresh && proofUsable(latestProof, displayId, packageName,
@@ -174,7 +174,7 @@ internal object LuluVirtualChatTitleOcr {
                 val stillSame = withContext(Dispatchers.Main) {
                     LuluAccessibilityService.virtualWindowStatus(displayId, packageName)
                         .optString("kind") == "target" &&
-                        LuluAccessibilityService.virtualNavigationFingerprint(displayId, packageName) == before
+                        LuluAccessibilityService.virtualChatWindowIdentity(displayId, packageName) == before
                 }
                 if (stillSame) latestProof = Proof(
                     displayId, packageName, recipient, before, SystemClock.uptimeMillis())
