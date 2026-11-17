@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T13:24:00.021036+00:00",
-  "commit": "77ab0c260e8dfa98148906e645d11b9d77c9b4d5",
+  "generatedAt": "2026-11-17T13:24:35.756638+00:00",
+  "commit": "3f805651ea669ff3e824c7b6c75739aee9a59801",
   "branch": "main",
-  "sourceFingerprint": "8b062d466801964eedac24660d9768b7548948f3b0e417562b409f49a22cc74f",
+  "sourceFingerprint": "2a67c99b5e7deb3b45a7540d81cad0c1f1fc599e81e327d4f2fe9d4d05b44406",
   "summary": {
-    "files": 1410,
-    "lines": 298034,
-    "symbols": 4247
+    "files": 1411,
+    "lines": 298117,
+    "symbols": 4248
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -23556,6 +23556,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSocialActionsTest.kt",
         "line": 13
+      }
+    ],
+    "LuluVirtualTextInputPolicyTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt",
+        "line": 14
       }
     ],
     "LuluVirtualUiPolicyTest": [
@@ -50025,6 +50031,17 @@
         {
           "name": "choose",
           "line": 87
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt",
+      "lines": 83,
+      "sha256": "c79700e3779bdef5054a2603da8d21767170f56fc21a17f0e81857937b69dbcb",
+      "symbols": [
+        {
+          "name": "LuluVirtualTextInputPolicyTest",
+          "line": 14
         }
       ]
     },
