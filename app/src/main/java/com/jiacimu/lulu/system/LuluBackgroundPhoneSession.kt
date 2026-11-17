@@ -70,6 +70,9 @@ internal object LuluBackgroundPhoneSession {
         val characterId: String,
         val displayId: Int,
         val packageName: String,
+        // A semantic-node snapshot is not automatically a picture. Visual
+        // coordinates require a real image forwarded to the SAME role.
+        val visualFrameObserved: Boolean,
     )
     private var lastObservedUi: ObservedUi? = null
     // Scoped to the one authorized virtual session and cleared when navigating away.
@@ -91,7 +94,8 @@ internal object LuluBackgroundPhoneSession {
             return output
         }
         val token = java.util.UUID.randomUUID().toString().substring(0, 12)
-        lastObservedUi = ObservedUi(token, fingerprint, characterId, id, packageName)
+        lastObservedUi = ObservedUi(token, fingerprint, characterId, id, packageName,
+            output.optBoolean("imageForwardedToRole") && output.optBoolean("frameValidated"))
         if (openedMomentsComposer && packageName == LuluVirtualChatSendPolicy.WECHAT)
             output.put("momentComposerVerified", withContext(Dispatchers.Main) {
                 LuluAccessibilityService.virtualWeChatMomentsComposerVisible(id)
@@ -935,6 +939,17 @@ internal object LuluBackgroundPhoneSession {
                         .put("errorCode", if (action == "send_chat_message") "chat_snapshot_expired"
                             else "virtual_snapshot_expired")
                         .put("verification", "控件编号已经过期或不属于此角色的后台App；请先observe重新读取，拒绝按旧位置点击")
+                        .toString()
+                }
+                if (((action == "type" && args.has("inputX")) ||
+                        (action == "send_chat_message" && args.has("composerX"))) &&
+                    snapshot?.visualFrameObserved != true) {
+                    return JSONObject().put("success", false).put("accepted", false)
+                        .put("status", "unverified").put("taskCompleted", false)
+                        .put("mode", "independent_virtual_display").put("displayId", id)
+                        .put("errorCode", "visual_input_picture_not_observed")
+                        .put("verification",
+                            "这个快照只包含控件状态，没有真正交给本角色的新后台画面；不能凭它猜文字输入位置，请先重新观察")
                         .toString()
                 }
                 if (wantsProductLink) {
