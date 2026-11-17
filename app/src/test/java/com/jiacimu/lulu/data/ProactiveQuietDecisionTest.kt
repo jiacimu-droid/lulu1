@@ -75,6 +75,7 @@ class ProactiveQuietDecisionTest {
         val cue = ActiveCommitmentAttention.render(listOf(reminder), now)
         assertTrue(cue, cue.contains("taskId=last-night-reminder"))
         assertTrue(cue, cue.contains("23点的提醒实际送达"))
+        assertTrue(cue, cue.contains("下一次每日时刻已登记"))
         assertTrue(cue, cue.contains("不是用户已入睡"))
         assertTrue(cue, cue.contains("最近一次每日轮次=$lastNight"))
         // The next 23:00 is not moved to 03:00 just because the owner woke up.
