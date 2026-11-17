@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T11:15:09.835985+00:00",
-  "commit": "1fd25030f912b4377ec3ef37d8f1519c55c0d59c",
+  "generatedAt": "2026-11-17T11:15:52.466122+00:00",
+  "commit": "393cbd4b83b090828d91bb9380e13eef60905463",
   "branch": "main",
-  "sourceFingerprint": "8c684769e0bb3e0b2317a0bd0df8f7124f1c8813ba888597974b550e7b857e95",
+  "sourceFingerprint": "a7ff4974a589730e0a3f77909d9b1683e444b512c87fe676531735430919d8c1",
   "summary": {
-    "files": 1401,
-    "lines": 296554,
-    "symbols": 4214
+    "files": 1402,
+    "lines": 296608,
+    "symbols": 4215
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21300,6 +21300,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/EmbodiedBodyPhysicsTest.kt",
         "line": 13
+      }
+    ],
+    "FreshInstallNeutralDefaultsTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/FreshInstallNeutralDefaultsTest.kt",
+        "line": 14
       }
     ],
     "GoalDeadlinePerceptionPolicyTest": [
@@ -46446,6 +46452,17 @@
         {
           "name": "EmbodiedBodyPhysicsTest",
           "line": 13
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/FreshInstallNeutralDefaultsTest.kt",
+      "lines": 54,
+      "sha256": "1654c5c64d8240f15a057cb5fa6c4e6f44a4d6780261c20a17966c8b9a108fd3",
+      "symbols": [
+        {
+          "name": "FreshInstallNeutralDefaultsTest",
+          "line": 14
         }
       ]
     },
