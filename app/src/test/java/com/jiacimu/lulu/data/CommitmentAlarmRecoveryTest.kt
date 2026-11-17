@@ -170,16 +170,55 @@ class CommitmentAlarmRecoveryTest {
         assertNull(CommitmentTaskStore.claimAlarmExecution("alarm", task.dueAt, now))
     }
 
+    @Test fun coldStartSixMinutesLateStillDispatchesOriginalAuthorizedCall() {
+        val now = Instant.now()
+        val agreed = now.minusSeconds(6 * 60)
+        val task = saveTask(agreed)
+        writeAlarm(task)
+        // Android opened the app minutes after the exact alarm; this is still
+        // delivery of the ORIGINAL commitment, not a model-invented new call.
+        LuluAlarmSystem.restoreFutureAlarms(context)
+        CommitmentTaskStore.reconcileAfterRestart(now)
+        assertEquals(CommitmentTaskStatus.Scheduled, current(task).status)
+        assertTrue(CommitmentAlarmTiming.due(agreed, now))
+        val claimed = CommitmentTaskStore.claimAlarmExecution("alarm", agreed, now)
+        assertNotNull(claimed)
+        assertEquals(CommitmentTaskStatus.Running, claimed!!.status)
+        assertEquals(agreed, claimed.dueAt)
+        assertEquals(agreed, claimed.lastAlarmScheduledAt)
+        assertEquals(now, claimed.lastAlarmReceivedAt)
+        assertNull("System receiver and backup cannot trigger two calls",
+            CommitmentTaskStore.claimAlarmExecution("alarm", agreed, now))
+    }
+
+    @Test fun veryLateOneTimeCallbackKeepsOriginalTaskForRoleRecovery() {
+        val now = Instant.now()
+        val agreed = now.minusSeconds(75 * 60)
+        val task = saveTask(agreed)
+        writeAlarm(task)
+        assertTrue(CommitmentAlarmTiming.expired(agreed, now))
+        assertNull(CommitmentTaskStore.claimAlarmExecution("alarm", agreed, now))
+        val blocked = current(task)
+        assertEquals(CommitmentTaskStatus.Blocked, blocked.status)
+        assertEquals(agreed, blocked.dueAt)
+        assertNull(blocked.linkedAlarmId)
+        assertEquals(now, blocked.lastAlarmReceivedAt)
+        assertTrue(blocked.needsUnverifiedCommitmentRecoveryCandidate(now))
+        assertTrue(blocked.lastActionResult.contains("交由本人"))
+        assertNull(ProactiveIncomingCallStore.pending.value)
+    }
+
     @Test fun lateHourOldCallbacksNeverBecomeANewWakeCall() = runBlocking {
         val task = saveTask(Instant.now().minusSeconds(86 * 60L))
         writeAlarm(task)
         CommitmentAlarmDelivery.execute(context, "alarm", "系统任务补偿")
-        assertEquals(CommitmentTaskStatus.Expired, current(task).status)
+        assertEquals(CommitmentTaskStatus.Blocked, current(task).status)
+        assertTrue(current(task).needsUnverifiedCommitmentRecoveryCandidate(Instant.now()))
         assertNotNull(current(task).lastAlarmReceivedAt)
         assertNull(ProactiveIncomingCallStore.pending.value)
     }
 
-    @Test fun recoveryLeavesBrieflyDueRetryButExpiresOldMissedDeadline() {
+    @Test fun recoveryLeavesBrieflyDueRetryAndKeepsMissedOneOffActionable() {
         val now = Instant.now()
         val task = saveTask(now.minusSeconds(3600))
         CommitmentTaskStore.update(task.id) { it.copy(status = CommitmentTaskStatus.WaitingForFeedback,
@@ -190,7 +229,8 @@ class CommitmentAlarmRecoveryTest {
         val expired = CommitmentTaskStore.save(CommitmentTask(characterId = "other", goal = "09:30 叫醒",
             status = CommitmentTaskStatus.Scheduled, dueAt = now.minusSeconds(3600)))
         CommitmentTaskStore.reconcileAfterRestart(now)
-        assertEquals(CommitmentTaskStatus.Expired, current(expired).status)
+        assertEquals(CommitmentTaskStatus.Blocked, current(expired).status)
+        assertTrue(current(expired).needsUnverifiedCommitmentRecoveryCandidate(now))
     }
 
     @Test fun coldStartKeepsMissedOneOffVerificationUnfinishedAndEligibleForRecovery() {
