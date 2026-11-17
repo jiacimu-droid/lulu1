@@ -5,7 +5,7 @@ import {
   kissCameraFrame, kissFaceFrame, kissNuzzleFrame, kissHandoffFrame,
   KISS_HANDOFF_MS, kissCameraHorizontalPosition, kissCameraVerticalPosition,
   kissFaceLocalOffsetY,
-  kissMouthLocalOffsetX, KISS_CAMERA_DURATION_MS,
+  kissMouthLocalOffsetX, screenFaceLocalOffsetX, KISS_CAMERA_DURATION_MS,
   KISS_CAMERA_PEAK_ZOOM, WOLF_KISS_MOTION_INDEX,
   WOLF_APPROACH_MOTION_INDEX, APPROACH_CAMERA_DURATION_MS,
   APPROACH_CAMERA_PEAK_ZOOM, approachCameraFrame, screenProximityFrame,
@@ -142,6 +142,18 @@ assert.equal(WOLF_APPROACH_MOTION_INDEX, 49)
 assert.equal(isScreenProximityMotion(48), true)
 assert.equal(isScreenProximityMotion(49), true)
 assert.equal(isScreenProximityMotion(28), false)
+const neutralFaceCamera = { x: 350, y: 600, width: 700, height: 700, scale: 2 }
+const neutralBounds = { x: 100, y: 70, width: 500, height: 500 }
+const eyesCentered = screenFaceLocalOffsetX(neutralFaceCamera, neutralBounds, {
+  'eye-left': { u: .36 }, 'eye-right': { u: .64 }, mouth: { u: .8 },
+})
+assert.equal(eyesCentered, 0, 'a closer look centers eyes, not pursed lips')
+const neutralZoom = approachCameraFrame(1800).zoom
+const centerXAtPeak = kissCameraHorizontalPosition(neutralFaceCamera,
+  neutralZoom, eyesCentered, APPROACH_CAMERA_PEAK_ZOOM) +
+  neutralZoom * neutralFaceCamera.scale * eyesCentered
+assert.ok(Math.abs(centerXAtPeak - neutralFaceCamera.width * .5) < 1,
+  'neutral proximity keeps the calibrated face center in-frame')
 assert.equal(screenProximityDuration(49), APPROACH_CAMERA_DURATION_MS)
 assert.equal(screenProximityPeak(49), APPROACH_CAMERA_PEAK_ZOOM)
 const approachMotion = readWolf('49_look_close.motion3.json')
