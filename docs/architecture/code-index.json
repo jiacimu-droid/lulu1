@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T14:25:00.757812+00:00",
-  "commit": "942195bc9cfef932c41a7d5880a9d9d6996e21d4",
+  "generatedAt": "2026-11-17T14:25:57.900174+00:00",
+  "commit": "71173d1fd7ec8a4001a92302ad17cce2c594622b",
   "branch": "main",
-  "sourceFingerprint": "6b83a2c84d1f593ef44bb0578e4843777967b458aef605d76ab1bdc0677bf7f1",
+  "sourceFingerprint": "e51dfcb88805ee70b79e6c3821856bd55d91a89e6c35f405d76f67fc7294e1c4",
   "summary": {
     "files": 1414,
     "lines": 298792,
@@ -25014,7 +25014,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt",
       "lines": 505,
-      "sha256": "4ca7137fe68327993a59995120244698c77cef0b2ea3a060b1017539d8c8aafd",
+      "sha256": "419ae0b08b6e07dd9b8787116a566ac80a79e8b9ae05ae296e92e40bde35fefe",
       "symbols": [
         {
           "name": "ledgerText",
@@ -26376,7 +26376,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt",
       "lines": 390,
-      "sha256": "fffedc1adc17dfd42403442ed0645e17785cc1191de1577bcec6a053a13182e1",
+      "sha256": "ee87d98a4ee324b4e02255382f3562456079a999292299853c8b0a76e39034af",
       "symbols": []
     },
     {
