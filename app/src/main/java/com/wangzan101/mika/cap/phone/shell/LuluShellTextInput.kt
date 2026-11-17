@@ -16,7 +16,7 @@ import android.view.KeyEvent
 import org.json.JSONObject
 
 /**
- * The ordinary app process cannot write to a WeChat editor omitted from the
+ * The ordinary app process cannot write to a third-party editor omitted from the
  * virtual-display accessibility tree. The ADB-shell process that OWNS that
  * display can send keyboard events with both displayId and target app UID.
  * This is a transport, NOT proof that any message was typed or sent.
@@ -25,10 +25,15 @@ internal object LuluShellTextInput {
     private const val WAIT_FOR_FINISH = 2
     private const val VIRTUAL_KEYBOARD = -1
 
+    /** One device-wide text transport, not a WeChat feature. Authorization,
+     * target-window ownership, privacy exclusions and live IME focus are
+     * rechecked in the app session before the shell can ever receive this
+     * private command. Shell additionally binds events to this display and
+     * the launched package's UID; it never injects to display 0. */
     fun mayPaste(displayId: Int, packageName: String, text: String, launchedPackage: String): Boolean =
         displayId > 0 && packageName == launchedPackage &&
-        packageName == "com.tencent.mm" && text.isNotBlank() &&
-        text.length <= 500 && Build.VERSION.SDK_INT >= 34
+        packageName.matches(Regex("[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)+")) &&
+        text.isNotBlank() && text.length <= 500 && Build.VERSION.SDK_INT >= 34
 
     @SuppressLint("PrivateApi")
     private fun injectTargeted(event: KeyEvent, displayId: Int, targetUid: Int): Boolean = try {
