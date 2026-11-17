@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T06:03:49.344556+00:00",
-  "commit": "3b59e2e226b73a5031c2863014228e621d394702",
+  "generatedAt": "2026-11-17T06:04:35.059875+00:00",
+  "commit": "c642482e8a69b66125e7ca7a1cbb91b7d07411f2",
   "branch": "main",
-  "sourceFingerprint": "ab0c4de4250d8422ec099f8d4b6c132415569dcf1312082335ebe91d24c530ee",
+  "sourceFingerprint": "3622ce4702e10832763f3eee0c79b67c0be20f7c3c18de07d57fc564e8eb7a5f",
   "summary": {
     "files": 1391,
-    "lines": 298086,
+    "lines": 298089,
     "symbols": 4204
   },
   "symbolIndex": {
@@ -8321,31 +8321,31 @@
     "personaConstraintSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 110
+        "line": 113
       }
     ],
     "personalityRuntimeContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 120
+        "line": 123
       }
     ],
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 213
+        "line": 216
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 224
+        "line": 227
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 243
+        "line": 246
       }
     ],
     "offer": [
@@ -30544,8 +30544,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 250,
-      "sha256": "2f05deb2171684f04fbf19dc6a839c3b0e23cba9163a372475e2171ee65d4706",
+      "lines": 253,
+      "sha256": "c8a86edd75173781521c8646e28072423fd5e85840321e67d4f1276050964549",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -30585,23 +30585,23 @@
         },
         {
           "name": "personaConstraintSnapshot",
-          "line": 110
+          "line": 113
         },
         {
           "name": "personalityRuntimeContext",
-          "line": 120
+          "line": 123
         },
         {
           "name": "learningContext",
-          "line": 213
+          "line": 216
         },
         {
           "name": "leanExpressionContext",
-          "line": 224
+          "line": 227
         },
         {
           "name": "developmentContext",
-          "line": 243
+          "line": 246
         }
       ]
     },
