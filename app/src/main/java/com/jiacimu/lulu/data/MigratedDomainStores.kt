@@ -438,17 +438,16 @@ class InMemoryLuluChatStore : LuluChatStore {
             val conversation = conversationState.value.firstOrNull { it.id == conversationId } ?: return false
             val messages = messageStates[conversationId]?.value.orEmpty()
             if (conversationState.value.none { it.id == conversationId }) return false
-            // Preserve the previous in-memory projections if the durable delete is rejected.
-            val previousConversations = conversationState.value
-            conversationState.value = previousConversations.filterNot { it.id == conversationId }
+            // Commit the candidate snapshot before publishing the deletion.
+            // A failed disk write must never briefly expose an empty chat to UI collectors.
+            val updatedConversations = conversationState.value.filterNot { it.id == conversationId }
+            persistLocked(
+                durable = true,
+                conversations = updatedConversations,
+                messages = messageStates.mapValues { it.value.value }.filterKeys { it != conversationId },
+            )
             messageStates.remove(conversationId)
-            try {
-                persistLocked(durable = true)
-            } catch (failure: Throwable) {
-                conversationState.value = previousConversations
-                messageStates[conversationId] = MutableStateFlow(messages)
-                throw failure
-            }
+            conversationState.value = updatedConversations
             conversation to messages
         }
         SharedExperienceTimeline.deleteConversationData(deleted.first, deleted.second)
