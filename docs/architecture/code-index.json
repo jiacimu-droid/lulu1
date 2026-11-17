@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T06:46:44.865095+00:00",
-  "commit": "d3d1718fe71e78ce4a14d0382bc1c35cc11ffea6",
+  "generatedAt": "2026-11-17T06:50:12.954386+00:00",
+  "commit": "97d362ebf721d464f886cefb1605b91cbcc996d9",
   "branch": "main",
-  "sourceFingerprint": "5ae13a2ed31bc9efd935190d7d03a4c80d6606aa5a797705cb49d698ab330301",
+  "sourceFingerprint": "51fcc6c9fe722e309236f6582d394d039bb15488bab2216e696cf86246fd7a43",
   "summary": {
-    "files": 1393,
-    "lines": 298657,
-    "symbols": 4217
+    "files": 1394,
+    "lines": 298859,
+    "symbols": 4224
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -650,6 +650,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt",
         "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
+        "line": 140
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt",
@@ -2040,6 +2044,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
         "line": 84
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
+        "line": 119
       }
     ],
     "part": [
@@ -2050,6 +2058,40 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
         "line": 174
+      }
+    ],
+    "engine": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
+        "line": 39
+      }
+    ],
+    "isReady": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
+        "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
+        "line": 25
+      }
+    ],
+    "requireReady": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
+        "line": 65
+      }
+    ],
+    "ensureReference": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
+        "line": 81
+      }
+    ],
+    "filePart": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
+        "line": 141
       }
     ],
     "render": [
@@ -15252,12 +15294,6 @@
         "line": 23
       }
     ],
-    "isReady": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
-        "line": 25
-      }
-    ],
     "action": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
@@ -25100,6 +25136,41 @@
         {
           "name": "part",
           "line": 221
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
+      "lines": 202,
+      "sha256": "767146615a01307bd66ccda9212b6d429dde938eff1ec2351f816ae28a4d3656",
+      "symbols": [
+        {
+          "name": "engine",
+          "line": 39
+        },
+        {
+          "name": "isReady",
+          "line": 58
+        },
+        {
+          "name": "requireReady",
+          "line": 65
+        },
+        {
+          "name": "ensureReference",
+          "line": 81
+        },
+        {
+          "name": "convert",
+          "line": 119
+        },
+        {
+          "name": "write",
+          "line": 140
+        },
+        {
+          "name": "filePart",
+          "line": 141
         }
       ]
     },

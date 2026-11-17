@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d3d1718fe71e78ce4a14d0382bc1c35cc11ffea6`
+- 基准提交：`97d362ebf721d464f886cefb1605b91cbcc996d9`
 - 分支：`main`
-- 已索引文件：1393
-- 已索引代码/文本行：298657
-- 已发现符号：4217
+- 已索引文件：1394
+- 已索引代码/文本行：298859
+- 已发现符号：4224
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -155,6 +155,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt` | 261 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 368 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt` | 262 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt` | 202 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSongAudioMix.kt` | 203 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 305 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
