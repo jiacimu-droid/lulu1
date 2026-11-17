@@ -130,15 +130,12 @@ internal fun VoiceCallSettings(provider: String) {
             )
             Text("官方 API 标价：普通 v2 / v3 均 $0.20/小时；实时 v2 / v3 Live 均 $0.22/小时。额外功能与账户优惠另计。",
                 style = MaterialTheme.typography.bodySmall)
-            Text("使用已配置的 ElevenLabs API Key，无需 Voice ID；正在识别的语音不会被中途改到另一个模型。",
-                style = MaterialTheme.typography.bodySmall)
-            var elevenKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
-            OutlinedTextField(value = elevenKey, onValueChange = {
-                elevenKey = it
-                prefs.edit().putString("eleven_api_key", it.trim()).apply()
-            }, label = { Text("ElevenLabs API Key（与配音共用）") },
-                visualTransformation = PasswordVisualTransformation(),
-                singleLine = true, modifier = Modifier.fillMaxWidth())
+            Text(
+                if (prefs.getString("eleven_api_key", "").orEmpty().isNotBlank())
+                    "ElevenLabs 账号已配置 · Scribe 自动共用上方的 API Key，不需要 Voice ID。"
+                else "ElevenLabs 账号未配置 · 请在语音设置顶部的「ElevenLabs 账号」填写一次 API Key。",
+                style = MaterialTheme.typography.bodySmall,
+            )
         }
         if (sttMode == "local") {
             Text("完全离线识别，不上传你的录音，不扣除 ElevenLabs 识别额度。模型只需下载一次。",
