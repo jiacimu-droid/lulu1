@@ -43,7 +43,7 @@
   function valid(state){
     const point=p=>p&&Number.isInteger(p.x)&&Number.isInteger(p.y)&&p.x>=0&&p.y>=0&&p.x<WIDTH&&p.y<HEIGHT;
     const count=n=>Number.isSafeInteger(n)&&n>=0;
-    return !!state&&state.version===1&&Object.prototype.hasOwnProperty.call(labels,state.kind)&&
+    return !!(state&&state.version===1&&Object.prototype.hasOwnProperty.call(labels,state.kind)&&
       state.width===WIDTH&&state.height===HEIGHT&&
       Array.isArray(state.terrain)&&state.terrain.length===WIDTH*HEIGHT&&
       state.terrain.every(t=>typeof t==='string'&&['border','water','wall','stone','floor','grass','path'].includes(t))&&
@@ -57,7 +57,7 @@
       typeof state.companion.following==='boolean'&&
       state.inventory&&count(state.inventory.wood)&&count(state.inventory.stone)&&count(state.inventory.relic)&&
       count(state.turns)&&count(state.hp)&&typeof state.finished==='boolean'&&typeof state.holding==='boolean'&&
-      Array.isArray(state.notes);
+      Array.isArray(state.notes));
   }
   // Visual props with a wide sprite must block their WHOLE physical footprint.
   // Anchor-only collision made players and auto-paths walk through buildings.
