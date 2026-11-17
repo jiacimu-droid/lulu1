@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T02:38:31.196235+00:00",
-  "commit": "f8244102741ac3dadbcfc5a7f8067ac42bd274b4",
+  "generatedAt": "2026-11-17T03:19:36.502743+00:00",
+  "commit": "23956251fdbc71bd0f1525f48903e7429167dd6c",
   "branch": "main",
-  "sourceFingerprint": "bee02fe0f4422e71e45e3a36e66fccd6a5e480c972bd0aed861c6391a71b6fd8",
+  "sourceFingerprint": "86c0f7c5a6ab10ce65a96d942a39bd659d0f61ad7a512b83bdca45fc9c7b27da",
   "summary": {
     "files": 1381,
-    "lines": 295233,
-    "symbols": 4169
+    "lines": 295303,
+    "symbols": 4170
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2645,7 +2645,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt",
-        "line": 18
+        "line": 67
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt",
@@ -6731,7 +6731,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 509
+        "line": 515
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
@@ -6993,7 +6993,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1248
+        "line": 1254
       }
     ],
     "DevelopmentKind": [
@@ -10655,67 +10655,67 @@
     "invalidateDerivedFromEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 680
+        "line": 686
       }
     ],
     "allowsRawRecall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 719
+        "line": 725
       }
     ],
     "shouldFlushPendingTail": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 732
+        "line": 738
       }
     ],
     "hasUnprocessedEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 743
+        "line": 749
       }
     ],
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 749
+        "line": 755
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 755
+        "line": 761
       }
     ],
     "contextTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 799
+        "line": 805
       }
     ],
     "refreshInspection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 885
+        "line": 891
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1142
+        "line": 1148
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1217
+        "line": 1223
       }
     ],
     "valid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1277
+        "line": 1283
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
@@ -11409,11 +11409,17 @@
     "Batch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt",
-        "line": 12
+        "line": 14
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt",
         "line": 20
+      }
+    ],
+    "fit": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt",
+        "line": 51
       }
     ],
     "MemoryRecallInspection": [
@@ -11883,25 +11889,25 @@
     "setFriends": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-        "line": 52
+        "line": 67
       }
     ],
     "audienceContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-        "line": 90
+        "line": 104
       }
     ],
     "canView": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-        "line": 102
+        "line": 116
       }
     ],
     "visiblePosts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-        "line": 110
+        "line": 124
       }
     ],
     "reconcile": [
@@ -29370,8 +29376,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterFriendRequests.kt",
-      "lines": 150,
-      "sha256": "5af9e41941f9a57d68cbf645dcf3e758db42f0d9f12e37955cb6a246ee4b0f1a",
+      "lines": 158,
+      "sha256": "d451b627f85842223abf1f682ece547e148c5c788ebf056bdad307af62b97d8c",
       "symbols": []
     },
     {
@@ -32874,8 +32880,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 1325,
-      "sha256": "98e520fb873d3fec5133e47a54935af59171e6d72c1285f01f697ca7a8d48bf5",
+      "lines": 1331,
+      "sha256": "f8ebf0691126a6f730d012f29f61973031416ebbae7d54a456d9d0bb1077410e",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -32891,55 +32897,55 @@
         },
         {
           "name": "snapshot",
-          "line": 509
+          "line": 515
         },
         {
           "name": "invalidateDerivedFromEvent",
-          "line": 680
+          "line": 686
         },
         {
           "name": "allowsRawRecall",
-          "line": 719
+          "line": 725
         },
         {
           "name": "shouldFlushPendingTail",
-          "line": 732
+          "line": 738
         },
         {
           "name": "hasUnprocessedEvents",
-          "line": 743
-        },
-        {
-          "name": "pendingMessageCount",
           "line": 749
         },
         {
-          "name": "pendingTimelineEvents",
+          "name": "pendingMessageCount",
           "line": 755
         },
         {
+          "name": "pendingTimelineEvents",
+          "line": 761
+        },
+        {
           "name": "contextTimelineEvents",
-          "line": 799
+          "line": 805
         },
         {
           "name": "refreshInspection",
-          "line": 885
+          "line": 891
         },
         {
           "name": "MemoryDebugState",
-          "line": 1142
+          "line": 1148
         },
         {
           "name": "grams",
-          "line": 1217
+          "line": 1223
         },
         {
           "name": "ids",
-          "line": 1248
+          "line": 1254
         },
         {
           "name": "valid",
-          "line": 1277
+          "line": 1283
         }
       ]
     },
@@ -33621,16 +33627,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt",
-      "lines": 44,
-      "sha256": "f2c3d1d69a71cd523fe0d453e24066344971065fd6ab7ca7475fae8caf79a5b1",
+      "lines": 86,
+      "sha256": "aaab7e45ab8fc6e91583954b614062ac3ddfdceba9c23640fc126e82bc6b07ba",
       "symbols": [
         {
           "name": "Batch",
-          "line": 12
+          "line": 14
+        },
+        {
+          "name": "fit",
+          "line": 51
         },
         {
           "name": "build",
-          "line": 18
+          "line": 67
         }
       ]
     },
@@ -34139,8 +34149,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt",
-      "lines": 113,
-      "sha256": "1feab950ed7f7aff799d0ebefa8a4244894603c8987798ba6229895cd6a1dfda",
+      "lines": 127,
+      "sha256": "df493e3efd8ed5fc5de069a07e927389ebcba29e50d3a32e2ca33650c96ec1bb",
       "symbols": [
         {
           "name": "MomentFriendAccess",
@@ -34148,19 +34158,19 @@
         },
         {
           "name": "setFriends",
-          "line": 52
+          "line": 67
         },
         {
           "name": "audienceContext",
-          "line": 90
+          "line": 104
         },
         {
           "name": "canView",
-          "line": 102
+          "line": 116
         },
         {
           "name": "visiblePosts",
-          "line": 110
+          "line": 124
         }
       ]
     },

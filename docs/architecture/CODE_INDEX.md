@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f8244102741ac3dadbcfc5a7f8067ac42bd274b4`
+- 基准提交：`23956251fdbc71bd0f1525f48903e7429167dd6c`
 - 分支：`main`
 - 已索引文件：1381
-- 已索引代码/文本行：295233
-- 已发现符号：4169
+- 已索引代码/文本行：295303
+- 已发现符号：4170
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -380,7 +380,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt` | 92 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt` | 24 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterFriendRequests.kt` | 150 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterFriendRequests.kt` | 158 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGoalConvergence.kt` | 80 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterGrowthTrajectory.kt` | 237 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 109 | 5 |
@@ -505,7 +505,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyJiangDuProfileSchema.kt` | 21 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt` | 51 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1325 | 16 |
+| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1331 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 610 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocationAddressCache.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
@@ -524,7 +524,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingLifecycle.kt` | 129 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt` | 177 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt` | 44 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt` | 86 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt` | 112 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 33 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt` | 212 | 2 |
@@ -538,7 +538,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 106 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1392 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 355 | 12 |
-| `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 113 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 127 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentOwnerUnread.kt` | 67 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 1130 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt` | 141 | 3 |
