@@ -317,14 +317,14 @@ internal object LuluVoiceCallSession {
 
     private var externalResultJob: Job? = null
     private val externalResults = linkedSetOf<String>()
-    private val externalResultSeen = mutableSetOf<String>()
+    private val externalResultSeen = mutableMapOf<String, Long>()
 
     internal fun onExternalToolResult(role: String, callId: String, evidenceId: String): Boolean {
         val context = appContext ?: return false
         val current = mutableState.value
         if (!current.connected || current.characterId != role || current.callExperienceId != callId ||
-            evidenceId.isBlank() || !externalResultSeen.add(evidenceId)) return false
-        externalResults.add(evidenceId)
+            !CallExternalResultPolicy.enqueue(context, role, evidenceId,
+                externalResults, externalResultSeen)) return false
         if (externalResultJob?.isActive == true) return true
         externalResultJob = scope.launch {
             while (externalResults.isNotEmpty()) {

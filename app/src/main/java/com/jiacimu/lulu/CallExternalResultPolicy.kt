@@ -20,6 +20,18 @@ internal object CallExternalResultPolicy {
         }
     }
 
+    /** Coalesce queued IDs, but allow a corrected canonical revision to be offered again. */
+    fun enqueue(
+        context: Context, characterId: String, evidenceId: String,
+        pending: MutableSet<String>, offeredRevisions: MutableMap<String, Long>,
+    ): Boolean {
+        val event = pendingEvidence(context, characterId, evidenceId) ?: return false
+        if (offeredRevisions[event.id] == event.revision) return false
+        offeredRevisions[event.id] = event.revision
+        pending.add(event.id)
+        return true
+    }
+
     fun hasLiveReceiptEvidence(event: SharedTimelineEvent): Boolean =
         event.id in CharacterPerceptionContext.liveEvidenceIds(event.characterId, listOf(event.id))
 
