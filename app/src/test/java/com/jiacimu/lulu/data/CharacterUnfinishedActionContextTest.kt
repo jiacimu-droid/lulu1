@@ -399,6 +399,18 @@ class CharacterUnfinishedActionContextTest {
         }
     }
 
+    /** Returned recovery has provenance; the persisted result remains untouched. */
+    private fun assertRecoveredResult(original: String, delivered: String, requestId: String) {
+        val expected = JSONObject(original)
+        val actual = JSONObject(delivered)
+        assertEquals(expected.optBoolean("success"), actual.optBoolean("success"))
+        assertEquals(expected.optString("status"), actual.optString("status"))
+        assertEquals(expected.optString("summary"), actual.optString("summary"))
+        assertTrue(actual.optBoolean("replayedHistoricalReceipt"))
+        assertFalse(actual.optBoolean("executedThisInvocation", true))
+        assertEquals(requestId, actual.optString("originalRequestId"))
+    }
+
     @Test fun completedDeviceRequestRestoresOriginalReceiptAfterPermissionRevoked() = runBlocking {
         val request = "replay-revoked-device-$role"
         val result = JSONObject().put("success", true).put("status", "succeeded")
@@ -416,8 +428,8 @@ class CharacterUnfinishedActionContextTest {
         assertFalse(CapabilityRegistry.allows(context, role,
             requireNotNull(CapabilityRegistry.find("get_battery")), false))
         repeat(2) {
-            assertEquals(result, ToolRouter.execute(context, role, "get_battery",
-                JSONObject(), requestId = request, causeEvidenceId = origin))
+            assertRecoveredResult(result, ToolRouter.execute(context, role, "get_battery",
+                JSONObject(), requestId = request, causeEvidenceId = origin), request)
         }
         val receiptId = "tool-$role-$request"
         assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf(receiptId)).size)
@@ -445,8 +457,8 @@ class CharacterUnfinishedActionContextTest {
         context.getSharedPreferences("lulu_tool_executions", Context.MODE_PRIVATE).edit()
             .putString("$role:$request", execution.toString()).commit()
         assertTrue(requireNotNull(CapabilityRegistry.find("write_journal")).retired)
-        assertEquals(result, ToolRouter.execute(context, role, "write_journal",
-            JSONObject(), requestId = request))
+        assertRecoveredResult(result, ToolRouter.execute(context, role, "write_journal",
+            JSONObject(), requestId = request), request)
         assertTrue(SharedExperienceTimeline.eventsByIds(role,
             listOf("tool-$role-$request")).isNotEmpty())
         val fresh = "retired-fresh-$role"
@@ -534,8 +546,8 @@ class CharacterUnfinishedActionContextTest {
         assertFalse(missing.optBoolean("success"))
         assertTrue(SharedExperienceTimeline.eventsByIds(role,
             listOf("tool-$role-$request")).isEmpty())
-        assertEquals(result, ToolRouter.execute(context, role, "get_battery",
-            JSONObject(), requestId = request, causeEvidenceId = origin))
+        assertRecoveredResult(result, ToolRouter.execute(context, role, "get_battery",
+            JSONObject(), requestId = request, causeEvidenceId = origin), request)
         assertEquals(1, SharedExperienceTimeline.eventsByIds(role,
             listOf("tool-$role-$request")).size)
     }
@@ -557,8 +569,8 @@ class CharacterUnfinishedActionContextTest {
         assertFalse(second.optBoolean("success"))
         assertEquals("waiting_user", second.optString("status"))
         assertEquals(before + 1, MomentsStore.posts.value.count { it.authorCharacterId == role })
-        assertEquals(first.toString(), ToolRouter.execute(context, role, "publish_moment",
-            args, requestId = request, causeEvidenceId = origin))
+        assertRecoveredResult(first.toString(), ToolRouter.execute(context, role, "publish_moment",
+            args, requestId = request, causeEvidenceId = origin), request)
         assertEquals(before + 1, MomentsStore.posts.value.count { it.authorCharacterId == role })
         val receipt = SharedExperienceTimeline.eventsByIds(role,
             listOf("tool-$role-$request")).single()
@@ -615,9 +627,9 @@ class CharacterUnfinishedActionContextTest {
         assertTrue(SharedExperienceTimeline.eventsByIds(role,
             listOf("tool-$role-$request")).isEmpty())
         // Retirement of the tool does not erase the correctly scoped past.
-        assertEquals(result, ToolRouter.execute(context, role, "write_journal",
+        assertRecoveredResult(result, ToolRouter.execute(context, role, "write_journal",
             JSONObject(), requestId = request, causeEvidenceId = origin,
-            expectedPlanDueAt = originalDue))
+            expectedPlanDueAt = originalDue), request)
         assertEquals(1, SharedExperienceTimeline.eventsByIds(role,
             listOf("tool-$role-$request")).size)
     }
