@@ -661,3 +661,11 @@
 ### 2026-11-18 G-02.6 · 网页试玩真实采木→建屋→存档重进回归（待执行）
 - 新增 `preview/tests/world-core.test.cjs` 的 `island harvests physical trees into a shelter that survives reload without duplicating wood`：按地图路径真实走到两棵树、逐棵采集且实体消失，走到工作台真实建屋扣除 2 木，序列化后检查小屋保留、已采树无法重复产木。与此前直接注入 2 木的工作台测试不同，验证资源来源到持久建筑的整段闭环；仅针对浏览器试玩，正式 Android 不共用该权威状态。
 - 测试提交 `283ffe76a274cb8a9f021e4ae2772c4ef5c98e74`，blob `b13a9ee26dace7011074341668bc4f9497f6498b`。生产源码未修改，尚无 Node 执行通过证据；下一入口 `node --test preview/tests/world-core.test.cjs`，若路径不可达先核 `Core.approaches/route` 与建屋碰撞，随后回正式 `BlockIslandScreen.kt` 触控/横屏。main push JVM/APK/index、Redmi FPS/真实模型待独立核实。
+
+## 2026-11-18 G-02/G-03 正式 App 原生体验修正（网页方案不迁移）
+
+- 用户明确否定此前 `preview/worlds.html` 的独立像素画面和简化玩法，要求直接在现有 Android App 的原生源码改操作、难度和布局；本轮未引入旧 Kenney 图片、不替换已确认的 Compose/Canvas 地图和权威 Kotlin 玩法。
+- **G-03 难度梯度**：生产 `de601750` 调整 `RelicThreatProgression.monsterCount` 的 HARD 首两层，险境守卫数第1/2/3层为 3/4/6（高层维持既有规则）；精英第2层解锁，NORMAL/EASY 不变、已有 RelicRun 仍存原生成的怪物不重刷。营地难度说明 `0021f461`，`RelicEscapeRulesTest` 增补层次、精英、旧档断言 `a00de264`。**未通过 CI 时不得声称实机已平衡。**
+- **G-03 手机战斗 HUD**：`RelicEscapeScreen.kt` 的技能/职业/转向三键由 34dp 单行挤字改为 46dp 双行状态，与既有拇指区隔离，冷却与不可用条件直接可见；原普通攻击/格挡/治疗、方向盘动作与真实技能回执不变。生产 `c543c0fc`、`0ac89c07`。针对无目标攻击提示会错误统一写成“短剑”的问题，`RelicQuickAction.kt` 按实际短剑/长矛/弩弓射程及无箭状态提示（`62ac9c61`），`RelicQuickActionTest.kt` 回归 `a28b485c`。
+- **G-02 岛屿 HUD/按钮**：保留原生小岛地图和生存权威，移除横屏长期占位的饱食进度条，只在 hunger<=3 提醒食物与危机；地图仍展示生命/资源，行囊与实际饥饿规则不伪造删除（`de34ad9e`）。工作台与建造列表原 38dp 行动按钮增为至少48dp、调整字阶与留白，建造芯片增至至少44dp（`c7d8ca51`），弹层仍可滚动，不增加地图上常驻浮层。
+- **验收分级**：以上均为真实正式源码提交，不是网页原型；本轮读取 MotionSites 主文档/INDEX/craft/review 和三个参考案例，采用保留原有游戏气质、少遮地图、加强触控可见性的克制式界面调整。最新 `main` 包含 `0ac89c07`，对应 APK/JVM [#44164720505](https://github.com/jiacimu-droid/lulu1/actions/runs/44164720505) 查询时 pending；并行 push 的旧 CI 有 cancelled 不算成功。**Android Gradle/真机 FPS、截图、实际触摸/模型协作与完整游戏结果尚未验通**；下一轮先检查最新 CI 的首错，再看 Redmi 横屏 360/412dp 技能行是否遮挡、饱食低值提示、G-03 三难度新局安全出生/敌人实际分布、真开箱撤离和 G-02 工作台制作/建造完整回执。
