@@ -142,4 +142,42 @@ class SemanticMemoryTurnPipelineTest {
         assertEquals(MemoryPolicy(4, 16, true), reopened.observePolicy(role).first())
         assertEquals(MemoryPolicy(5, 15, false), reopened.observePolicy("another-role").first())
     }
+    @Test(timeout = 60000) fun urgentMemoryUsesActualDialogueNeighboursInsteadOfHundredGameTicks() = runBlocking {
+        val server = MockWebServer()
+        val entry = JSONObject().put("kind", "Fact")
+            .put("content", "主人希望以后保持主动沟通")
+            .put("sourceEventIds", JSONArray().put("urgent-user"))
+        server.enqueue(MockResponse().setHeader("Content-Type", "application/json").setBody(
+            JSONObject().put("choices", JSONArray().put(JSONObject().put(
+                "message", JSONObject().put("content", JSONArray().put(entry).toString()))
+                .put("finish_reason", "stop"))).toString()))
+        server.start()
+        try {
+            initialize(server)
+            val at = Instant.parse("2026-11-17T00:00:00Z")
+            SharedExperienceTimeline.record("prior-reply", role, "私聊", "江渡",
+                "昨天我们谈了主动沟通和游戏合作", at, false, sessionId = "dm-1",
+                source = "message", evidenceKind = EventEvidenceKind.CharacterStatement)
+            repeat(100) { i ->
+                SharedExperienceTimeline.record("relic:urgent-run:$role:$i", role,
+                    "共同游戏《迷雾摸金》", "引擎", "普通走位 $i",
+                    at.plusSeconds(i + 1L), false, source = "game-relic",
+                    evidenceKind = EventEvidenceKind.ToolResult)
+            }
+            SharedExperienceTimeline.record("urgent-user", role, "私聊", "主人",
+                "记住：以后要主动沟通，别只顾着玩游戏", at.plusSeconds(150), false,
+                sessionId = "dm-1", source = "message",
+                evidenceKind = EventEvidenceKind.UserStatement)
+            LuluRepositories.memory.summarizeNow(role)
+            assertEquals(1, server.requestCount)
+            val actual = server.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS)!!.body.readUtf8()
+            assertTrue(actual.contains("昨天我们谈了主动沟通和游戏合作"))
+            assertTrue(actual.contains("记住：以后要主动沟通"))
+            assertTrue(actual.contains("同一经历"))
+            assertTrue(actual.contains("eventId=urgent-user@"))
+            assertEquals(1, LuluRepositories.memory.snapshot(role).size)
+            assertEquals(listOf("urgent-user"), LuluRepositories.memory.snapshot(role).single().sourceIds())
+        } finally { server.shutdown() }
+    }
+
 }
