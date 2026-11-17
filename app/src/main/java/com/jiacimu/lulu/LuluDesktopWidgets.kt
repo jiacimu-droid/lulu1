@@ -281,6 +281,7 @@ internal fun LuluDesktopWidgetCard(
     characterName: String?,
     lastConversationText: String?,
     roleReading: LuluWidgetDailyReading? = null,
+    roleNote: String? = null,
     plannerTasks: List<TodoOccurrence> = emptyList(),
     onCompleteTask: (TodoOccurrence) -> Unit = {},
     modifier: Modifier = Modifier,
@@ -371,11 +372,13 @@ internal fun LuluDesktopWidgetCard(
                             color = foreground, fontSize = if (compact) 13.sp else 17.sp,
                             fontWeight = FontWeight.SemiBold, maxLines = 1,
                             overflow = TextOverflow.Ellipsis)
-                        Text(lastConversationText?.takeIf(String::isNotBlank)
-                            ?: "绑定一个角色，把真实的最近对话留在桌面。",
+                        Text(roleNote?.takeIf(String::isNotBlank)
+                            ?: lastConversationText?.takeIf(String::isNotBlank)
+                            ?: "绑定一个角色，等他留下亲自写的便签。",
                             color = foreground, fontSize = 12.sp, lineHeight = 17.sp,
                             maxLines = if (compact) 1 else 3, overflow = TextOverflow.Ellipsis)
-                        if (!compact) Text(if (characterName != null) "最近对话 · 点击继续"
+                        if (!compact) Text(if (roleNote != null) "本人新留言 · 点击继续"
+                            else if (lastConversationText != null) "最近真实对话 · 点击继续"
                             else "点击设置角色",
                             color = foreground.copy(alpha = .8f), fontSize = 10.sp)
                     }
@@ -429,6 +432,7 @@ internal fun LuluDesktopWidgetCanvas(
     characterNames: Map<String, String>,
     conversationTexts: Map<String, String>,
     roleReadings: Map<String, LuluWidgetDailyReading> = emptyMap(),
+    roleNotes: Map<String, String> = emptyMap(),
     plannerTasks: List<TodoOccurrence> = emptyList(),
     onCompleteTask: (TodoOccurrence) -> Unit = {},
     modifier: Modifier = Modifier,
@@ -457,6 +461,7 @@ internal fun LuluDesktopWidgetCanvas(
                     characterName = characterNames[widget.characterId],
                     lastConversationText = conversationTexts[widget.characterId],
                     roleReading = roleReadings[widget.id],
+                    roleNote = roleNotes[widget.id],
                     plannerTasks = plannerTasks, onCompleteTask = onCompleteTask,
                     modifier = Modifier.width(cellWidth * widget.columns)
                         .height(cellHeight * widget.rows)
