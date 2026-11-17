@@ -2,6 +2,7 @@ import { installPhysicsFrameControl } from './physics-frame-control.mjs'
 import {
   kissCameraFrame, kissFaceFrame, kissNuzzleFrame, kissHandoffFrame,
   kissCameraHorizontalPosition, kissMouthLocalOffsetX,
+  screenFaceLocalOffsetX,
   kissCameraVerticalPosition, kissFaceLocalOffsetY,
   WOLF_KISS_MOTION_INDEX, WOLF_APPROACH_MOTION_INDEX,
   KISS_CAMERA_DURATION_MS, screenProximityFrame, isScreenProximityMotion,
@@ -2133,7 +2134,9 @@ function motion(group, index, immediatePreview = false, source = 'character', op
         proximityCameraLease = { model: target, revision, index,
           startedAt: performance.now(), faceIssuedAt: Date.now(),
           peakZoom: screenProximityPeak(index),
-          mouthLocalX: kissMouthLocalOffsetX(base, bounds, mouthCalibration),
+          mouthLocalX: index === WOLF_KISS_MOTION_INDEX
+            ? kissMouthLocalOffsetX(base, bounds, mouthCalibration)
+            : screenFaceLocalOffsetX(base, bounds, touchCalibration),
           faceLocalY: kissFaceLocalOffsetY(base, bounds, touchCalibration) }
       }
       motionTransition.begin(options.motionParameterIds, options.motionFadeInMs)
