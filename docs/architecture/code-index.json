@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T03:40:05.922573+00:00",
-  "commit": "25e8bc7609455bd3198bed8be7113b4515044795",
+  "generatedAt": "2026-11-17T03:51:38.281216+00:00",
+  "commit": "29f5402d7286412dbfa2850ee9325ed6672e4e96",
   "branch": "main",
-  "sourceFingerprint": "f954e42826147b13ae97fc03819baa78aa1928d469cf4ea829ac8e2253ad304c",
+  "sourceFingerprint": "c70e6a5a4061ec9328f109c0a1bb760b1de5a29ae59e4ebaa784417e5aed7f65",
   "summary": {
     "files": 1384,
-    "lines": 296286,
+    "lines": 296289,
     "symbols": 4183
   },
   "symbolIndex": {
@@ -21681,13 +21681,13 @@
     "PhoneModelTransportPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt",
-        "line": 33
+        "line": 32
       }
     ],
     "authoredEffects": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt",
-        "line": 171
+        "line": 174
       }
     ],
     "PhoneReadRequestEvidenceTest": [
@@ -46839,16 +46839,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt",
-      "lines": 227,
-      "sha256": "71f37dbf9d5c27294ef5292237b3a0eba892e071c689edfbc3bafd0227a780e9",
+      "lines": 230,
+      "sha256": "ff1832c0010d5d93f379f82ec5edb0da9d10bd732688b7df60b461fc2e845cd8",
       "symbols": [
         {
           "name": "PhoneModelTransportPolicyTest",
-          "line": 33
+          "line": 32
         },
         {
           "name": "authoredEffects",
-          "line": 171
+          "line": 174
         }
       ]
     },
