@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`8efc982a37a7cad6688b660b88aa761af480f193`
+- 基准提交：`1d8e824d8c63df43bd93b8a7028d6812c075e6a5`
 - 分支：`main`
 - 已索引文件：1390
-- 已索引代码/文本行：297298
+- 已索引代码/文本行：297300
 - 已发现符号：4196
 
 | 文件 | 行数 | 符号数 |
@@ -350,7 +350,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterScript.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousLearningRuntime.kt` | 252 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousPerceptionAttempts.kt` | 103 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 1027 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/AutonomousSocialRuntime.kt` | 1029 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 209 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt` | 71 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
