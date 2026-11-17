@@ -1936,6 +1936,7 @@ internal object LuluVoiceCallSession {
                 title = activeLabel,
                 archiveId = archiveId,
                 silenceObservationId = observationId,
+                externalObservationRevision = externalToolResult?.revision,
                 userEvidenceIds = turnUserEvidenceIds,
                 phoneCallId = latest.callExperienceId,
                 phoneSleepMode = latest.sleepMode,

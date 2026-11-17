@@ -192,6 +192,7 @@ object LuluDeviceToolBridge {
         onLive2DStatus: ((String) -> Unit)? = null,
         diagnosticTurnTraceId: String = "",
         recalledGroupEventIds: Set<String> = emptySet(),
+        externalObservationRevision: Long? = null,
     ): Result<ModelReply> {
         val turnTraceId = diagnosticTurnTraceId.ifBlank { java.util.UUID.randomUUID().toString() }
         val preparationStartedNanos = System.nanoTime()
@@ -200,11 +201,18 @@ object LuluDeviceToolBridge {
         val bedtimePromptActive = PhoneSleepPromptMode.active(phoneCallId, phoneSleepMode)
         val rewriting = reconsiderationEvidenceId.isNotBlank()
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
-        val externalCallResult = if (callSilence)
+        val externalCallEvent = if (callSilence)
             com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(characterId, listOf(silenceObservationId))
-                .firstOrNull { it.source == "tool-router" &&
-                    it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.ToolResult }
+                .firstOrNull()
         else null
+        // The call session may have queued an event before its revision
+        // changed or disappeared. Never send the queued text as a quiet turn.
+        if (externalObservationRevision != null && externalCallEvent?.revision != externalObservationRevision) {
+            return Result.failure(IllegalStateException("外部通话观察已失效或修订，未发起通话观察"))
+        }
+        val externalCallResult = externalCallEvent?.takeIf {
+            it.source == "tool-router" && it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.ToolResult
+        }
         if (externalCallResult != null && !com.jiacimu.lulu.CallExternalResultPolicy.hasLiveReceiptEvidence(externalCallResult)) {
             return Result.failure(IllegalStateException("原工具回执的关联证据已失效，未发起通话观察"))
         }

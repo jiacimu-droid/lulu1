@@ -1260,10 +1260,17 @@ class ConversationExpressionGatewayTest {
                 archiveId = archive.id, sceneContext = "一对一电话仍然接通",
                 silenceObservationId = receiptId)
             assertTrue(stale.exceptionOrNull()?.message.orEmpty().contains("关联证据已失效"))
+            assertEquals(receipt, SharedExperienceTimeline.eventsByIds(id, listOf(receiptId)).single())
+            assertFalse(PerceptionStimulusLedger.hasSeen(context, id, receipt.id, receipt.revision))
+
+            SharedExperienceTimeline.deleteEvent(receiptId)
+            val deleted = LuluDeviceToolBridge.respond(id, "", "", "电话回执",
+                archiveId = archive.id, sceneContext = "一对一电话仍然接通",
+                silenceObservationId = receiptId, externalObservationRevision = receipt.revision,
+                turnContext = receipt.content)
+            assertTrue(deleted.exceptionOrNull()?.message.orEmpty().contains("外部通话观察已失效"))
             assertEquals(0, server.requestCount)
         }
-        assertEquals(receipt, SharedExperienceTimeline.eventsByIds(id, listOf(receiptId)).single())
-        assertFalse(PerceptionStimulusLedger.hasSeen(context, id, receipt.id, receipt.revision))
     }
 
     @Test(timeout = 60_000) fun phoneObservationDiscardsDecisionWhenItsReceiptIsRevisedOrWithdrawn() = runBlocking {
