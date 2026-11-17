@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T05:41:18.107292+00:00",
-  "commit": "f8a72e970957270ff3aa53ee7f290edb4f045202",
+  "generatedAt": "2026-11-17T05:42:12.086393+00:00",
+  "commit": "6418c6a0a163533b0f14433fe623cbe84aa65766",
   "branch": "main",
-  "sourceFingerprint": "46065747be0650a26daa5bb4ed8dfbaa4a39eefe4f7de804a9647a0a4b2decde",
+  "sourceFingerprint": "00131f6471924b82819efb70615b6d5480de21062a91e8d446966fdf71a4ff2d",
   "summary": {
-    "files": 1390,
-    "lines": 297623,
-    "symbols": 4200
+    "files": 1391,
+    "lines": 297789,
+    "symbols": 4202
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -22378,6 +22378,18 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryTurnPipelineTest.kt",
         "line": 25
+      }
+    ],
+    "SemanticWorldActionTurnRegressionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticWorldActionTurnRegressionTest.kt",
+        "line": 23
+      }
+    ],
+    "speech": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticWorldActionTurnRegressionTest.kt",
+        "line": 116
       }
     ],
     "ShortVideoMobileReadingTest": [
@@ -47837,6 +47849,21 @@
         {
           "name": "SemanticMemoryTurnPipelineTest",
           "line": 25
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticWorldActionTurnRegressionTest.kt",
+      "lines": 166,
+      "sha256": "8935a55a99def69fe2f1d5ad65fc742c17e70ff42b99af5065b27413a48298d0",
+      "symbols": [
+        {
+          "name": "SemanticWorldActionTurnRegressionTest",
+          "line": 23
+        },
+        {
+          "name": "speech",
+          "line": 116
         }
       ]
     },

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f8a72e970957270ff3aa53ee7f290edb4f045202`
+- 基准提交：`6418c6a0a163533b0f14433fe623cbe84aa65766`
 - 分支：`main`
-- 已索引文件：1390
-- 已索引代码/文本行：297623
-- 已发现符号：4200
+- 已索引文件：1391
+- 已索引代码/文本行：297789
+- 已发现符号：4202
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1241,6 +1241,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 239 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt` | 215 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryTurnPipelineTest.kt` | 184 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/SemanticWorldActionTurnRegressionTest.kt` | 166 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt` | 262 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SoloGameSystemNoticeTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimedContactCommitmentParserTest.kt` | 39 | 1 |
