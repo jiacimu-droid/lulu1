@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T05:43:05.642502+00:00",
-  "commit": "76652cbf30929db2e9144fed40c08ac402e508bd",
+  "generatedAt": "2026-11-17T05:44:58.379077+00:00",
+  "commit": "b08ecc373cd13e362c9a587e14955c473378990e",
   "branch": "main",
-  "sourceFingerprint": "0d41cea905f3a5b587cde78b4b1460991030a99d47f2dda14a3e7ffd643a7188",
+  "sourceFingerprint": "04a2e02b0b3896e6a381af88c2e995c3470461f7304292346059e3bc130ba3a0",
   "summary": {
     "files": 1391,
-    "lines": 297800,
+    "lines": 297804,
     "symbols": 4202
   },
   "symbolIndex": {
@@ -12665,23 +12665,23 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1281
+        "line": 1285
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1384
+        "line": 1388
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1512
+        "line": 1516
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1612
+        "line": 1616
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 2226
+        "line": 2230
       }
     ],
     "repliedByDecisionId": [
@@ -20959,43 +20959,43 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1293
+        "line": 1297
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1397
+        "line": 1401
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1515
+        "line": 1519
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1615
+        "line": 1619
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1702
+        "line": 1706
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1784
+        "line": 1788
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1869
+        "line": 1873
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1956
+        "line": 1960
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 2040
+        "line": 2044
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 2204
+        "line": 2208
       }
     ],
     "bubbles": [
@@ -21039,15 +21039,15 @@
     "posts": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1386
+        "line": 1390
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1514
+        "line": 1518
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1614
+        "line": 1618
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -21057,13 +21057,13 @@
     "concern": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1771
+        "line": 1775
       }
     ],
     "decision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1775
+        "line": 1779
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -21073,7 +21073,7 @@
     "reply": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1873
+        "line": 1877
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt",
@@ -45909,8 +45909,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 2441,
-      "sha256": "1af5a71862baa6c49957caf76d71d3bed9317aa3cc51b3d672217b64851bf7b0",
+      "lines": 2445,
+      "sha256": "072174bb423c826654dff2aef2ed59b751e9c9f300d8a7787fb6fe7987c12d25",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -45990,87 +45990,87 @@
         },
         {
           "name": "receipts",
-          "line": 1281
+          "line": 1285
         },
         {
           "name": "response",
-          "line": 1293
+          "line": 1297
         },
         {
           "name": "receipts",
-          "line": 1384
+          "line": 1388
         },
         {
           "name": "posts",
-          "line": 1386
+          "line": 1390
         },
         {
           "name": "response",
-          "line": 1397
+          "line": 1401
         },
         {
           "name": "receipts",
-          "line": 1512
+          "line": 1516
         },
         {
           "name": "posts",
-          "line": 1514
+          "line": 1518
         },
         {
           "name": "response",
-          "line": 1515
+          "line": 1519
         },
         {
           "name": "receipts",
-          "line": 1612
+          "line": 1616
         },
         {
           "name": "posts",
-          "line": 1614
+          "line": 1618
         },
         {
           "name": "response",
-          "line": 1615
+          "line": 1619
         },
         {
           "name": "response",
-          "line": 1702
+          "line": 1706
         },
         {
           "name": "concern",
-          "line": 1771
-        },
-        {
-          "name": "decision",
           "line": 1775
         },
         {
-          "name": "response",
-          "line": 1784
+          "name": "decision",
+          "line": 1779
         },
         {
           "name": "response",
-          "line": 1869
+          "line": 1788
         },
         {
-          "name": "reply",
+          "name": "response",
           "line": 1873
         },
         {
-          "name": "response",
-          "line": 1956
+          "name": "reply",
+          "line": 1877
         },
         {
           "name": "response",
-          "line": 2040
+          "line": 1960
         },
         {
           "name": "response",
-          "line": 2204
+          "line": 2044
+        },
+        {
+          "name": "response",
+          "line": 2208
         },
         {
           "name": "receipts",
-          "line": 2226
+          "line": 2230
         }
       ]
     },
