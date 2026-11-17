@@ -285,7 +285,7 @@ internal fun QqGroupChatSettingsScreen(
             onDismissRequest = { confirmClear = false },
             title = { Text("清空群聊聊天信息？") },
             text = {
-                Text(if (clearFailure) "清空未完成，原聊天记录仍保留。请检查设备存储状态后重试。" else "聊天消息、每位成员的原始时间线副本以及由这些消息提取的记忆都会实质删除。群名称和成员设置会保留。")
+                Text(if (clearFailure) "清空未能全部完成：聊天消息可能已删除，但关联时间线或附件仍可能残留。请先检查记录，避免重复操作。" else "聊天消息、每位成员的原始时间线副本以及由这些消息提取的记忆都会实质删除。群名称和成员设置会保留。")
             },
             confirmButton = {
                 TextButton(onClick = {
