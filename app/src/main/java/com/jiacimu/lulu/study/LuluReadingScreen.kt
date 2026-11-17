@@ -88,7 +88,7 @@ fun LuluReadingScreen(
     val miniStories by miniLibrary.items.collectAsState()
     var libraryVersion by remember { mutableIntStateOf(0) }
     val books = remember(star.theaterChapters, miniStories, libraryVersion) {
-        ReadingBackgroundBridge.books(context)
+        ReadingBackgroundBridge.userBooks(context)
     }
     var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
     var characterId by rememberSaveable {
