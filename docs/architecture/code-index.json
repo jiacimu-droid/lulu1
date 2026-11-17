@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:56:21.125559+00:00",
-  "commit": "b9c976bb8e4611fa8168f8727a51840acacf5894",
+  "generatedAt": "2026-11-17T17:00:42.160033+00:00",
+  "commit": "6760bcda157a0a6c7c79519eff6c91dcda168a2c",
   "branch": "main",
-  "sourceFingerprint": "de1c22fb473b4d1a2e52a0fc208967dabe48298222db8c00b0a4d594d190da67",
+  "sourceFingerprint": "9544b5287b5aedf0a620bf5506665ca5019b1c1e2b1ad2a20008f1c34f8b94bb",
   "summary": {
-    "files": 1427,
-    "lines": 300638,
-    "symbols": 4309
+    "files": 1428,
+    "lines": 301200,
+    "symbols": 4313
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1614,6 +1614,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
         "line": 713
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
+        "line": 184
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
@@ -3502,6 +3506,68 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt",
         "line": 12
+      }
+    ],
+    "profileSign": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
+        "line": 151
+      }
+    ],
+    "load": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
+        "line": 154
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
+        "line": 38
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
+        "line": 738
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
+        "line": 79
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt",
+        "line": 78
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
+        "line": 35
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
+        "line": 57
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 141
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
+        "line": 102
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
+        "line": 924
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
+        "line": 179
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
+        "line": 9
+      }
+    ],
+    "setProfileSign": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
+        "line": 207
       }
     ],
     "saveGroupCall": [
@@ -14500,52 +14566,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
         "line": 270
-      }
-    ],
-    "load": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
-        "line": 38
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
-        "line": 738
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
-        "line": 79
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseLivingWorldV5.kt",
-        "line": 78
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 35
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 57
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 141
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
-        "line": 102
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 924
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
-        "line": 179
-      },
-      {
-        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
-        "line": 9
       }
     ],
     "has": [
@@ -26584,6 +26604,29 @@
         {
           "name": "LuluCrashApplication",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
+      "lines": 562,
+      "sha256": "24c4beae0c63829af940a7e9680cec2bdb5c0f2b6f33b7848a63723f25acb488",
+      "symbols": [
+        {
+          "name": "profileSign",
+          "line": 151
+        },
+        {
+          "name": "load",
+          "line": 154
+        },
+        {
+          "name": "save",
+          "line": 184
+        },
+        {
+          "name": "setProfileSign",
+          "line": 207
         }
       ]
     },
