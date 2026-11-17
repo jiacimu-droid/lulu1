@@ -280,7 +280,7 @@ fun LuluReadingScreen(
             Column(Modifier.fillMaxSize().padding(inset)) {
                 Row(Modifier.fillMaxWidth().padding(start = 24.dp, end = 13.dp, top = 4.dp, bottom = 7.dp),
                     verticalAlignment = Alignment.CenterVertically) {
-                    Text("${(percent * 100).toInt()}%  ·  ${passages.size} 段",
+                    Text("阅读进度 ${(percent * 100).toInt()}%",
                         fontSize = 11.sp, color = ReadingInk.subtle,
                         modifier = Modifier.weight(1f))
                     TextButton(onClick = { showCompanion = true }) { Text("角色共读", fontSize = 12.sp) }
