@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4afa0ad1880469f9735c7950a6680b2b29f740eb`
+- 基准提交：`a5d14e162c709814f33f34a1a6f52e1f59c5bb2b`
 - 分支：`main`
 - 已索引文件：1406
-- 已索引代码/文本行：297428
+- 已索引代码/文本行：297467
 - 已发现符号：4234
 
 | 文件 | 行数 | 符号数 |
@@ -813,7 +813,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1940 | 57 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 100 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 566 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
@@ -1256,7 +1256,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/TimelinePrefixDeletionTest.kt` | 93 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TimelineStatementOwnershipTest.kt` | 313 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt` | 99 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt` | 104 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ToolExecutionStatusTest.kt` | 139 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/TransientConversationStyleTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicyTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserAvatarVisionPolicyTest.kt` | 24 | 1 |
