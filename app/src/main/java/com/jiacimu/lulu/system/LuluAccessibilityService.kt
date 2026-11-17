@@ -934,8 +934,11 @@ class LuluAccessibilityService : AccessibilityService() {
             ownedVirtualRoots(service, displayId, packageName).forEach { scan(it, 0) }
             val selected = LuluVirtualUiPolicy.appBackControlIndex(
                 dimensions.first, dimensions.second, hints, scanComplete = scanComplete)
-                ?: return receipt(false, false, "virtual_app_back_control_missing",
-                    "当前页面没有唯一可核实的左上角返回按钮；可尝试一次独立屏边缘返回")
+                ?: return if (!scanComplete) receipt(true, false,
+                    "virtual_app_back_scan_incomplete",
+                    "后台控件树超过深度或节点预算，不能确认唯一返回按钮；未点击且禁止自动补发边缘手势")
+                else receipt(false, false, "virtual_app_back_control_missing",
+                    "当前完整页面没有唯一可核实的左上角返回按钮；可尝试一次独立屏边缘返回")
             val node = buttons[selected]
             if (!node.refresh() || !node.isVisibleToUser || !node.isEnabled ||
                 !node.isClickable || node.isPassword)
