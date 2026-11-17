@@ -163,6 +163,15 @@ internal object LuluVirtualChatSendPolicy {
             douyinChatEditorId.containsMatchIn(id)
     }
 
+    /** Only a missing voice/toggle control can race with a newly rendered
+     * text editor. Authorization/recipient/window failures must stay terminal.
+     * The caller rechecks live accessibility, never retries the click. */
+    fun mayRecheckTextEditorAfterVoiceProbe(accepted: Boolean, errorCode: String): Boolean =
+        accepted || errorCode in setOf(
+            "chat_voice_composer_unverified",
+            "chat_keyboard_toggle_unverified",
+        )
+
     fun composerInLowerHalf(bounds: ComposerBounds, screenHeight: Int): Boolean =
         bounds.width > 0 && bounds.height > 0 && bounds.centerY in screenHeight / 2 until screenHeight
 
