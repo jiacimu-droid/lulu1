@@ -49,6 +49,7 @@ import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.design.LocalLuluAppearance
+import com.jiacimu.lulu.design.luluCssElement
 import com.jiacimu.lulu.design.JournalChatBubble
 import com.jiacimu.lulu.design.isJournal
 import com.jiacimu.lulu.data.LuluGroupChat
@@ -260,13 +261,13 @@ internal fun QqMessageRow(
                                 }
                             }
                         }
-                        val interactiveModifier = bubbleModifier.combinedClickable(
+                        val interactiveModifier = bubbleModifier.luluCssElement("bubble").combinedClickable(
                             onClick = {}, onLongClick = onLongClick,
                         )
                         if (message.voiceNote && !mine) {
                             // Keep the voice control compact even when the automatic transcript is long.
                             // Both surfaces belong to this one message, retaining its reply/long-press/time.
-                            Column(bubbleModifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Column(bubbleModifier.luluCssElement("bubble"), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                                 QqVoicePlaybackBar(message.id, onLongClick)
                                 if (journal) {
                                     JournalChatBubble(mine = mine, modifier = Modifier.combinedClickable(
