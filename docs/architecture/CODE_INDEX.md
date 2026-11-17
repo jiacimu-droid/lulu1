@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`953ac331ee823424161f4aac79e80835f3ea3e0d`
+- 基准提交：`2c2ade1f9bea4f15f46a8b149ffaf5b10d37c561`
 - 分支：`main`
 - 已索引文件：1387
-- 已索引代码/文本行：297018
+- 已索引代码/文本行：297065
 - 已发现符号：4190
 
 | 文件 | 行数 | 符号数 |
@@ -152,7 +152,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt` | 513 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt` | 206 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt` | 239 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 368 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt` | 233 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSongAudioMix.kt` | 203 | 1 |
@@ -913,7 +913,7 @@
 | `app/src/test/java/com/jiacimu/lulu/DigitalStreetJourneyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsBatchLatencyPolicyTest.kt` | 19 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ElevenLabsMusicTest.kt` | 92 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ElevenLabsMusicTest.kt` | 106 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsRoleSongPipelineTest.kt` | 91 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 308 | 1 |

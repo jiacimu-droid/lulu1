@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T04:45:34.146656+00:00",
-  "commit": "953ac331ee823424161f4aac79e80835f3ea3e0d",
+  "generatedAt": "2026-11-17T05:10:06.103890+00:00",
+  "commit": "2c2ade1f9bea4f15f46a8b149ffaf5b10d37c561",
   "branch": "main",
-  "sourceFingerprint": "81fb692f218361cf8cc66ade3443da8b4e37d21e0558ee27b7c446e5d1053400",
+  "sourceFingerprint": "0d7dab4b65d201c4110bd46ffcef6f8bb33a6838e0fb74da40458fc00dbd59cd",
   "summary": {
     "files": 1387,
-    "lines": 297018,
+    "lines": 297065,
     "symbols": 4190
   },
   "symbolIndex": {
@@ -97,7 +97,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 170
+        "line": 203
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
@@ -1853,13 +1853,13 @@
     "latestSong": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 162
+        "line": 195
       }
     ],
     "play": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 179
+        "line": 212
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
@@ -24820,8 +24820,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-      "lines": 206,
-      "sha256": "db526b7e8eae369f3e7d4e29957560e4914ca86c155d2771a8ed6d1507edb7ce",
+      "lines": 239,
+      "sha256": "954defc00243f6b57518b855efa455151cdfc5b4a8089527c3524b20bc618628",
       "symbols": [
         {
           "name": "Song",
@@ -24841,15 +24841,15 @@
         },
         {
           "name": "latestSong",
-          "line": 162
+          "line": 195
         },
         {
           "name": "stop",
-          "line": 170
+          "line": 203
         },
         {
           "name": "play",
-          "line": 179
+          "line": 212
         }
       ]
     },
@@ -43022,8 +43022,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsMusicTest.kt",
-      "lines": 92,
-      "sha256": "cc0220aac91315f7ef49bbed3e6171ac6a5a783c84a9db310e84a18b6a40b338",
+      "lines": 106,
+      "sha256": "3d5996aafef50480da8b288f90bcb4fff2179b45def0f278a1ed46234dbeb721",
       "symbols": [
         {
           "name": "ElevenLabsMusicTest",
