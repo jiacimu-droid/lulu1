@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`697d96f5698ab3a30c5ed87c539e7c0e16383e02`
+- 基准提交：`79d304dcb04cff0ce1bb8ea216d3e8944198eb09`
 - 分支：`main`
 - 已索引文件：1391
-- 已索引代码/文本行：297841
+- 已索引代码/文本行：297897
 - 已发现符号：4203
 
 | 文件 | 行数 | 符号数 |
@@ -1011,7 +1011,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/MusicSignalSketchTest.kt` | 64 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/ai/PromptCacheSectionOrderTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt` | 180 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt` | 270 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt` | 285 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt` | 143 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AppointmentClockTest.kt` | 28 | 1 |
@@ -1020,7 +1020,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 484 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 255 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousDecisionRecoveryTest.kt` | 109 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterCausalChapterTest.kt` | 47 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterCausalChapterTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterChaptersTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDecisionTest.kt` | 89 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterDirectorTest.kt` | 65 | 1 |
@@ -1212,7 +1212,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingReactionIntegrationTest.kt` | 108 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReanswerMemoryBoundaryTest.kt` | 32 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticPromptTest.kt` | 58 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticPromptTest.kt` | 94 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineIntegrationTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt` | 225 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 502 | 5 |

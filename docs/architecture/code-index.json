@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T05:46:22.321014+00:00",
-  "commit": "697d96f5698ab3a30c5ed87c539e7c0e16383e02",
+  "generatedAt": "2026-11-17T05:47:13.131820+00:00",
+  "commit": "79d304dcb04cff0ce1bb8ea216d3e8944198eb09",
   "branch": "main",
-  "sourceFingerprint": "b36bd223585e7f1e28784065efa3fb45692fac5ad8e7995530a63d8514371dd8",
+  "sourceFingerprint": "29439ca3ddc44c38e28f8d1b4e06e03b4bc15e3940dd360576d4edadbb4af3a6",
   "summary": {
     "files": 1391,
-    "lines": 297841,
+    "lines": 297897,
     "symbols": 4203
   },
   "symbolIndex": {
@@ -19895,7 +19895,7 @@
     "AutonomousEncounterCausalChapterTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterCausalChapterTest.kt",
-        "line": 8
+        "line": 14
       }
     ],
     "AutonomousEncounterChaptersTest": [
@@ -44306,8 +44306,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt",
-      "lines": 270,
-      "sha256": "41b7c0d722eb6eb940a4241ba8c2cdd4a7728a021a394aefa2f7be24758d14df",
+      "lines": 285,
+      "sha256": "9af24335d1d950d30ea19d98a8e1db07e111aa3f180f97796124d0280f73dfdb",
       "symbols": [
         {
           "name": "RelayRequestPressurePolicyTest",
@@ -44425,12 +44425,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousEncounterCausalChapterTest.kt",
-      "lines": 47,
-      "sha256": "f0f1fbdf2ecc5a63a35fc26e17420a7b198a7174e0d1c9dcef31d3e515d0499d",
+      "lines": 52,
+      "sha256": "9983963ac87ba2c9b985903ef2b5fb18f147370a548b3d05031361d07d57e38b",
       "symbols": [
         {
           "name": "AutonomousEncounterCausalChapterTest",
-          "line": 8
+          "line": 14
         }
       ]
     },
@@ -47401,8 +47401,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RecentSemanticPromptTest.kt",
-      "lines": 58,
-      "sha256": "7f134c3c67bd1c104fc4204e612a342512a379d68e5423a4e17985cbe6a2caa8",
+      "lines": 94,
+      "sha256": "a3ce07e22132eefcb5957dfdcc0a3ee17e78d8b19178714a540f1038ffd7de41",
       "symbols": [
         {
           "name": "RecentSemanticPromptTest",
