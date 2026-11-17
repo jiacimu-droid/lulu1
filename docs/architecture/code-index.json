@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T03:58:40.542235+00:00",
-  "commit": "4b8ea368d3bce48e8a08a7f403af67c0c8e1c3d4",
+  "generatedAt": "2026-11-17T03:59:06.247954+00:00",
+  "commit": "9198f708f3c65e1c49cacb6599ebf06f2a1c0217",
   "branch": "main",
-  "sourceFingerprint": "7208258a36f2435bf23947bb6b094559af100ad9c6ad1071cad438139108ad4b",
+  "sourceFingerprint": "12c38be69a78503f420a37351a04c8d1295ac9901c9b688028947c3cc1b2cc06",
   "summary": {
     "files": 1384,
-    "lines": 296311,
+    "lines": 296342,
     "symbols": 4183
   },
   "symbolIndex": {
@@ -42948,8 +42948,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsMusicTest.kt",
-      "lines": 61,
-      "sha256": "40b7e2c6ab0d0bc10d55dbd7cf3d5ead5840faa12ff21f5ec56e355b4645f14e",
+      "lines": 92,
+      "sha256": "cc0220aac91315f7ef49bbed3e6171ac6a5a783c84a9db310e84a18b6a40b338",
       "symbols": [
         {
           "name": "ElevenLabsMusicTest",
