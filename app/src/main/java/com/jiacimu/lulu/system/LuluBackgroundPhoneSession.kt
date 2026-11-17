@@ -1588,10 +1588,11 @@ internal object LuluBackgroundPhoneSession {
                     LuluAccessibilityService.virtualSearchFieldStatus(id, activeApp)
                 } else JSONObject()
                 val typed = owned && action == "type" && applied?.optBoolean("accepted") == true &&
-                    withContext(Dispatchers.Main) {
-                        LuluAccessibilityService.typedTextReadbackOnDisplay(
-                            id, activeApp, args.getString("text"))
-                    }
+                    (applied.optBoolean("inputTextReadbackVerified") ||
+                        withContext(Dispatchers.Main) {
+                            LuluAccessibilityService.typedTextReadbackOnDisplay(
+                                id, activeApp, args.getString("text"))
+                        })
                 val unverified = JSONObject().put("success", false).put("status", "unverified")
                     .put("accepted", applied?.optBoolean("accepted") ?: true)
                     .put("mode", "independent_virtual_display").put("displayId", id)
@@ -1600,11 +1601,11 @@ internal object LuluBackgroundPhoneSession {
                     .put("visibleText", if (owned) observed.visibleText.take(5_000) else "")
                     .put("searchEditorStatus", search)
                     .put("inputTextReadbackVerified", typed)
-                    .put("inputVerification", if (action == "type" && textReadbackVerified)
+                    .put("inputVerification", if (action == "type" && typed)
                     "match" else applied?.optString("inputVerification").orEmpty())
                 .put("inputStage", if (action == "type")
                     LuluVirtualTextInputPolicy.stage(
-                        applied?.optBoolean("accepted") == true, textReadbackVerified)
+                        applied?.optBoolean("accepted") == true, typed)
                     else "")
                 .put("inputMethod", applied?.optString("inputMethod").orEmpty())
                 .put("inputDispatched", applied?.optBoolean("inputDispatched") == true)
