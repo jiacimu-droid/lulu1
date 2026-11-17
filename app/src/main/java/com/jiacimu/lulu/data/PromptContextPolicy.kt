@@ -86,14 +86,17 @@ internal object PromptContextPolicy {
             // stay in their stores and the existing exact-source search remains.
             sharedLifeTurn -> PromptContextBudget(
                 recallLimit = 40,
-                memoryCharacters = 10_000,
-                evidenceCharacters = 5_500,
-                recentCharacters = 5_900,
+                // Owner-configured recent turns are independent and complete.
+                // These per-category figures are soft first-pass targets;
+                // unused space may be borrowed within the 33k overall cap.
+                memoryCharacters = 12_000,
+                evidenceCharacters = 7_000,
+                recentCharacters = 0,
                 worldDetails = world,
                 richInnerLife = true,
-                lexiconCharacters = 3_300,
+                lexiconCharacters = 4_000,
                 precise = precise,
-                workingSetCharacters = 28_000,
+                workingSetCharacters = 33_000,
             )
             precise -> PromptContextBudget(42, 10_000, 7_000, 6_400, world, true, 3_200, true)
             autonomous || immersive -> PromptContextBudget(38, 8_800, 4_600, 5_800, autonomous || world, true, 3_400, false)
