@@ -51,6 +51,7 @@ class LuluAccessibilityService : AccessibilityService() {
         passiveEventBudget.reset()
         instance = this
         mutableState.value = mutableState.value.copy(connected = true)
+        LuluStrictMode.restore(applicationContext)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -69,6 +70,8 @@ class LuluAccessibilityService : AccessibilityService() {
             AccessibilityEvent.TYPE_VIEW_CLICKED -> Unit
             else -> return
         }
+        // This narrow window handler runs before passive screenshot/text throttling.
+        LuluStrictMode.onWindowChanged(applicationContext, source)
         val packageName = source.packageName?.toString().orEmpty()
         if (!passiveEventBudget.shouldRead(packageName, SystemClock.uptimeMillis())) return
         val root = rootInActiveWindow ?: return
