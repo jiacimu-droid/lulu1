@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T05:48:30.106852+00:00",
-  "commit": "16bc1b9e620b0572ed40ec653fc620ae9a4b26dc",
+  "generatedAt": "2026-11-17T05:49:12.409577+00:00",
+  "commit": "e76b456e4d1331072ed40216c73b84ccb2c12a49",
   "branch": "main",
-  "sourceFingerprint": "7faab438e8bd29e405f14f33a7811a5ea5b1b662a709150e41cbccdc4f602d86",
+  "sourceFingerprint": "b74dd246b0f270fddfdd0198f00dce18157de505ce338f88c1013753b528b4cd",
   "summary": {
     "files": 1391,
     "lines": 297922,
@@ -47865,7 +47865,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticWorldActionTurnRegressionTest.kt",
       "lines": 166,
-      "sha256": "8935a55a99def69fe2f1d5ad65fc742c17e70ff42b99af5065b27413a48298d0",
+      "sha256": "5f01b79c4be610a0ad846f66f655691fc46b6b73dc0cb43a2c9a790a7e723cef",
       "symbols": [
         {
           "name": "SemanticWorldActionTurnRegressionTest",
