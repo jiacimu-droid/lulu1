@@ -21,7 +21,7 @@ test('interaction requires actual adjacent target and does not fabricate model r
  assert.equal(Core.use(s,'tree-a').ok,false);assert.equal(s.inventory.wood,1);
 });
 test('meeting handholding only toggles upon actual interaction',()=>{
- const s=Core.createWorld('meet');s.player={x:5,y:7};assert.equal(s.holding,false);assert.equal(Core.use(s,'friend').ok,true);assert.equal(s.holding,true);
+ const s=Core.createWorld('meet');s.player={x:5,y:7};assert.equal(s.holding,false);assert.equal(s.companion.following,false);assert.equal(Core.use(s,'friend').ok,true);assert.equal(s.holding,true);
  const before={...s.player};const oldFollow={...s.companion};Core.walk(s,0,1);assert.deepEqual(s.companion,{...before,following:true});assert.notDeepEqual(s.companion,oldFollow)
 });
 test('relic cannot extract loot before opening a physical chest',()=>{

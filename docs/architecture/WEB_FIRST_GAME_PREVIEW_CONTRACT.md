@@ -13,6 +13,12 @@
 | 见面 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt`、`DigitalWorldGameScene.kt` | `MeetingExperienceStore`、真实角色位置、接触同意和统一对话链 |
 | 其他小游戏 | `app/src/main/java/com/jiacimu/lulu/games/` 下各正式 Screen | 各自 Kotlin 规则／正式存档 |
 
+## 2026-11-17 · 素材共用网页原型进展（非 Android 同源已完成）
+
+- 首批提交 `e0ef4b6`：新增 `preview/world-core.js` 单一浏览器内核（场景、格网、移动、碰撞、路径与简单试验规则），`worlds.js` 的同一摄像机和 Kenney CC0 PNG 图集渲染，`worlds.html` 可切换见面／小岛／摸金，测试 8 项在本地 Node 通过；PNG 二进制已纳入仓库。
+- 后续增量保留见面边移动边离线留言，保持试玩同伴不声称真实 AI；`preview/index.html` 与旧 `play.html` 的三张场景卡转向本素材页，其他小游戏保留旧玩法。
+- **不得宣称已经一模一样**：当前 Android 游戏规则、存档、真实角色模型与画面都还没有通过共享 WebView/协议接入；这是第一版统一风格和共享底座的**网页视觉可玩样稿**，主人同意之前不替换原生画面。后续先把同一场景数据映射到 Android 权威状态，再接 Kotlin↔WebView动作／回执桥及相同图集，实测视觉差异与 FPS，才算达到“一份界面两端使用”。
+
 ## 当前可执行的视觉对照基线
 
 `preview/compare.html`：在手机浏览器打开，选择游戏，导入**正式 App 当前截图**，以相同尺寸显示 `preview/play.html` 作为比较对象；可裁掉状态栏，并用透明叠加找出差异。文件仅在浏览器本地读取，不上传服务器。

@@ -14,7 +14,7 @@ function loadArt(kind,src){const img=new Image();img.onload=()=>{art[kind]=img;a
 for(const [kind,src] of Object.entries(paths))loadArt(kind,src);
 function loadWorld(kind){let raw=null;try{raw=JSON.parse(localStorage.getItem(cachePrefix+kind)||'null')}catch{}return Core.valid(raw)&&raw.kind===kind?raw:Core.createWorld(kind,813)}
 function save(){try{localStorage.setItem(cachePrefix+chosen,JSON.stringify(s))}catch{}}
-function start(kind){if(!names[kind])return;chosen=kind;s=loadWorld(kind);path=[];moving=false;document.querySelectorAll('[data-world]').forEach(b=>{b.classList.toggle('active',b.dataset.world===kind);b.setAttribute('aria-pressed',b.dataset.world===kind?'true':'false')});$('chapter').textContent=names[kind].chapter;$('world-title').textContent=names[kind].title;announce('点击地面自动走近目标 · 方向键自由走路');updateUI();draw()}
+function start(kind){if(!names[kind])return;chosen=kind;s=loadWorld(kind);path=[];moving=false;document.querySelectorAll('[data-world]').forEach(b=>{b.classList.toggle('active',b.dataset.world===kind);b.setAttribute('aria-pressed',b.dataset.world===kind?'true':'false')});$('chapter').textContent=names[kind].chapter;$('world-title').textContent=names[kind].title;announce('点击地面自动走近目标 · 方向键自由走路');$('chat-toggle').hidden=kind!=='meet';$('chat-panel').hidden=true;updateUI();draw()}
 function near(){return Core.nearest(s,1)}
 function describe(p){if(!p)return '附近没有互动对象';return ({friend:'演示同伴',house:'咖啡店',shop:'书店',tree:'森林树木',ore:'矿石',workbench:'工作台',camp:'篝火',monster:'遗迹守卫',chest:'宝箱',exit:'撤离口',bench:'长椅',well:'水井'})[p.kind]||'互动目标'}
 function updateUI(){const target=near();$('stat-turn').textContent=s.kind==='meet'?'探索 '+s.turns:'行动 '+s.turns;$('stat-resource').textContent=s.kind==='meet'?(s.holding?'牵手 · 是':'牵手 · 否'):s.kind==='island'?`木材 ${s.inventory.wood} · 石 ${s.inventory.stone}`:`宝物 ${s.inventory.relic} · HP ${s.hp}`;$('focus-label').textContent=target?describe(target):'自由探索';$('focus-hint').textContent=target?'可点击右边互动按钮':s.kind==='relic'?'寻找宝箱 · 走近守卫':'点击地图移动 · 靠近物品互动';$('act').textContent=target?({'friend':s.holding?'松手':'牵手','tree':'采集','ore':'采矿','workbench':'建造','chest':'开箱','monster':'攻击','exit':'撤离'}[target.kind]||'互动'):'互动';$('act').disabled=!target||s.finished}
@@ -31,7 +31,7 @@ if(k==='house'){at(0,32,64,64,x-t*1.3,y-t*3.1,t*3.5,t*3.5);return}
 if(k==='shop'){at(64,32,64,64,x-t*1.25,y-t*3.1,t*3.5,t*3.5);return}
 if(k==='chest'){at(32,0,16,16,x,y,t,t,'dungeon');return}
 if(k==='monster'){at(16,80,16,16,x,y,t,t,'dungeon');return}
-if(k==='friend'){if(!s.holding){at(16,96,16,16,x,y,t,t,'dungeon')}return}
+if(k==='friend'){if(!s.companion.following){at(16,96,16,16,x,y,t,t,'dungeon')}return}
 if(k==='exit'){at(32,16,16,16,x,y,t,t,'dungeon');return}
 if(k==='workbench'||k==='bench'){at(48,64,16,16);return}
 if(k==='camp'){at(80,64,16,16);return}
@@ -58,9 +58,11 @@ function clickMap(e){if(!s)return;const box=canvas.getBoundingClientRect(),x=Mat
   if(routes.length){path=routes[0];announce(p?`正在走近${describe(p)} · 到达后再互动`:'正在前往你点选的位置')}else announce('无法走到这里，请选择可行走的地面')
 }
 canvas.addEventListener('pointerup',clickMap);
-window.addEventListener('keydown',e=>{const moves={ArrowUp:[0,-1],w:[0,-1],ArrowDown:[0,1],s:[0,1],ArrowLeft:[-1,0],a:[-1,0],ArrowRight:[1,0],d:[1,0]};if(moves[e.key]&&!e.repeat){e.preventDefault();path=[];move(...moves[e.key])}else if(e.key===' '){e.preventDefault();interact()}});
+window.addEventListener('keydown',e=>{if(e.target instanceof HTMLInputElement||e.target instanceof HTMLTextAreaElement)return;const moves={ArrowUp:[0,-1],w:[0,-1],ArrowDown:[0,1],s:[0,1],ArrowLeft:[-1,0],a:[-1,0],ArrowRight:[1,0],d:[1,0]};if(moves[e.key]&&!e.repeat){e.preventDefault();path=[];move(...moves[e.key])}else if(e.key===' '){e.preventDefault();interact()}});
 document.querySelectorAll('[data-step]').forEach(b=>{const step=b.dataset.step.split(',').map(Number);b.addEventListener('pointerdown',e=>{e.preventDefault();path=[];move(...step);clearInterval(held);held=setInterval(()=>move(...step),180)});for(const event of ['pointerup','pointercancel','pointerleave'])b.addEventListener(event,()=>{clearInterval(held);held=null})});
 document.querySelectorAll('[data-world]').forEach(b=>b.addEventListener('click',()=>start(b.dataset.world)));
+$('chat-toggle').addEventListener('click',()=>{$('chat-panel').hidden=!$('chat-panel').hidden;$('chat-toggle').textContent=$('chat-panel').hidden?'聊天':'收起聊天';if(!$('chat-panel').hidden)$('chat-text').focus()});
+$('chat-form').addEventListener('submit',e=>{e.preventDefault();const input=$('chat-text'),msg=input.value.trim();if(!msg)return;const line=document.createElement('div');line.textContent='你：'+msg;$('chat-lines').append(line);$('chat-lines').scrollTop=$('chat-lines').scrollHeight;input.value=''});
 $('act').addEventListener('click',interact);$('reset').addEventListener('click',()=>{if(!confirm('清空这个场景的独立试玩进度并重开？正式 App 不受影响。'))return;try{localStorage.removeItem(cachePrefix+chosen)}catch{}start(chosen)});
 window.addEventListener('resize',()=>draw());
 start(new URLSearchParams(location.search).get('world')||'meet');requestAnimationFrame(tick);

@@ -1,3 +1,8 @@
+## 2026-11-17：Kenney Tiny 统一风格游戏素材（CC0 / THIRD_PARTY）
+
+- 官方：[Tiny Town](https://kenney.nl/assets/tiny-town)、[Tiny Dungeon](https://kenney.nl/assets/tiny-dungeon)，作者 Kenney；CC0 1.0 Universal。原始图集来自仓库 `Two-Weeks-Team/openClawWorld`、`giobi/sgravoquest-assets` 的 Kenney CC0 分发版；具体路径与映射见 `preview/ASSET_ORIGINS.md`。
+- **当前仅是浏览器原型**：`preview/worlds.html`、`world-core.js`、`worlds.js` 复用移动、碰撞、素材图集和镜头；Android 仍使用正式 Compose/Canvas Kotlin。不能以本次网页素材提交冒充真正 App 同源、角色 AI、原游戏玩法或真机验通；不得覆盖原存档。来源标签：PNG 为 THIRD_PARTY（CC0），Lulu 场景配置/渲染控制为 ORIGINAL。
+
 ## 2026-11-12：Mika AppSwitch 窗口归属适配与正文误报修复
 
 - 上游 `wangzan101/Mika/app/src/main/java/com/wangzan101/mika/cap/phone/a11y/AppSwitch.kt`（Apache-2.0, Copyright 2026 wangzan101）直接移植、改名为 `LuluMikaAppSwitch.kt`，来源标签 **THIRD_PARTY_MODIFIED**；原项目 LICENSE/NOTICE 已随 APK 附带。

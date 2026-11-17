@@ -38,7 +38,7 @@
       props.push(prop('chest-a','chest',11,7),prop('chest-b','chest',19,10),prop('guardian','monster',15,8),prop('exit','exit',4,13,false),prop('friend','friend',7,6,false));
     }
     for(const p of props)terrain[p.y*WIDTH+p.x]=kind==='relic'?'floor':(kind==='meet'?'path':'grass');
-    return {version:1,kind,seed,width:WIDTH,height:HEIGHT,terrain,props,player:{x:5,y:6},companion:{x:6,y:6,following:true},inventory:{wood:0,stone:0,relic:0},hp:12,turns:0,holding:false,finished:false,notes:[]};
+    return {version:1,kind,seed,width:WIDTH,height:HEIGHT,terrain,props,player:{x:5,y:6},companion:{x:6,y:6,following:kind!=='meet'},inventory:{wood:0,stone:0,relic:0},hp:12,turns:0,holding:false,finished:false,notes:[]};
   }
   function valid(state){return !!state&&state.version===1&&Object.prototype.hasOwnProperty.call(labels,state.kind)&&state.width===WIDTH&&state.height===HEIGHT&&Array.isArray(state.terrain)&&state.terrain.length===WIDTH*HEIGHT&&Array.isArray(state.props)&&Number.isInteger(state.player?.x)&&Number.isInteger(state.player?.y)}
   function inBounds(s,x,y){return x>0&&y>0&&x<s.width-1&&y<s.height-1}
@@ -47,7 +47,7 @@
   function walk(s,dx,dy){if(!Number.isInteger(dx)||!Number.isInteger(dy)||Math.abs(dx)+Math.abs(dy)!==1)return {ok:false,message:'无效方向'};const x=s.player.x+dx,y=s.player.y+dy;if(blocked(s,x,y))return {ok:false,message:'前面有障碍，试试绕开'};const old={...s.player};s.player={x,y};s.turns++;if(s.companion.following)s.companion={...old,following:true};return {ok:true,message:''}}
   function record(s,message){s.notes=[message,...s.notes].slice(0,8);return {ok:true,message}}
   function use(s,id){const p=s.props.find(o=>o.id===id&&!o.used);if(!p)return {ok:false,message:'这里没有可互动目标'};if(Math.abs(p.x-s.player.x)+Math.abs(p.y-s.player.y)>1)return {ok:false,message:'先走近目标，再互动'};
-    if(p.kind==='friend'){s.holding=!s.holding;s.companion.following=s.holding;return record(s,s.holding?'牵手成功 · 演示同伴会跟着走':'已松开手 · 你可以独自探索')}
+    if(p.kind==='friend'){s.holding=!s.holding;s.companion={x:p.x,y:p.y,following:s.holding};return record(s,s.holding?'牵手成功 · 演示同伴会跟着走':'已松开手 · 你可以独自探索')}
     if(s.kind==='meet'){if(p.kind==='house'||p.kind==='shop')return record(s,`来到了${p.kind==='house'?'咖啡店':'书店'}门口；内部地图仍在制作`);return record(s,'看见了街边的小景物')}
     if(s.kind==='island'){
       if(p.kind==='tree'){p.used=true;s.inventory.wood++;return record(s,'采到 1 份木材，树木已真实消失（试玩存档）')}
