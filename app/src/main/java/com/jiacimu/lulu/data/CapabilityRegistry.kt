@@ -34,7 +34,7 @@ object CapabilityRegistry {
         Capability("cloud_task", "cloud", "cloud", "persistent task id; file success comes later", false),
     )
     val application = listOf("send_private_message", "send_group_message", "create_group_chat", "send_private_sticker", "send_group_sticker", "send_game_invite", "play_solo_game", "invite_duel_game", "respond_duel_invite",
-        "publish_moment", "set_phone_moments_cover", "like_moment", "comment_moment", "send_friend_request", "respond_friend_request", "send_character_message", "write_journal", "read_self_todo", "start_study_watch", "stop_study_watch", "strict_supervision", "verify_commitment", "schedule_commitment_review", "retire_development_record", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity", "go_offline", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "learn_topic", "web_search", "image_search", "save_photo", "write_phone_memo", "share_xiaohongshu")
+        "publish_moment", "set_phone_moments_cover", "like_moment", "comment_moment", "send_friend_request", "respond_friend_request", "send_character_message", "write_journal", "read_self_todo", "write_desktop_widget_note", "decorate_desktop_widget", "start_study_watch", "stop_study_watch", "strict_supervision", "verify_commitment", "schedule_commitment_review", "retire_development_record", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity", "go_offline", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "learn_topic", "web_search", "image_search", "save_photo", "write_phone_memo", "share_xiaohongshu")
         .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", it == "read_self_todo", retired = it == "write_journal") }
     val external = listOf(
         Capability(com.jiacimu.lulu.ai.JevDirections.TOOL, "analysis", "jev", "native TypeSafe response, named probabilities and actual usage; no action chosen", false),
@@ -66,7 +66,7 @@ object CapabilityRegistry {
         if (characterId.startsWith("resident:")) {
             return capability.name in setOf("digital_world_action", "publish_moment", "set_phone_moments_cover", "like_moment", "comment_moment", "send_friend_request", "respond_friend_request",
                 "send_private_message", "send_group_message", "create_group_chat", "send_character_message",
-                "write_phone_memo", "play_solo_game", "invite_duel_game", "respond_duel_invite", "go_offline", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity")
+                "write_phone_memo", "write_desktop_widget_note", "decorate_desktop_widget", "play_solo_game", "invite_duel_game", "respond_duel_invite", "go_offline", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity")
         }
         if (capability.name in setOf("sing_song", "play_saved_song", "stop_song"))
             return com.jiacimu.lulu.ElevenLabsMusic.isEnabledAndConfigured(context, characterId)
