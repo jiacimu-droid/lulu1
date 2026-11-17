@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T12:49:09.035392+00:00",
-  "commit": "57ce0cbbed536df82c33d190bbe20b39c4ca644d",
+  "generatedAt": "2026-11-17T12:49:41.670712+00:00",
+  "commit": "1c159cb2c135f3e7ffbaa0111dfc9a4d5cd20707",
   "branch": "main",
-  "sourceFingerprint": "6010f4b1e2a3c852129c06f2ef0d91dae1fff7ca9862ff77d57e7d2b663d00b9",
+  "sourceFingerprint": "b61979cf1da219953d566efcc857237a1a5299dee4e73253bfa73354f919f4a2",
   "summary": {
     "files": 1406,
     "lines": 297472,
@@ -41309,7 +41309,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
       "lines": 566,
-      "sha256": "aef7d65fe20ee86fe93c98f14ecc65d8de38abbcb21ff146b505bfe9fff6ba01",
+      "sha256": "03f928170876d9198a5f4d5bf0005d2e90317feebc8c66bbc1905ea720271ef7",
       "symbols": [
         {
           "name": "Outcome",
