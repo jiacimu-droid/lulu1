@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`79d304dcb04cff0ce1bb8ea216d3e8944198eb09`
+- 基准提交：`16bc1b9e620b0572ed40ec653fc620ae9a4b26dc`
 - 分支：`main`
 - 已索引文件：1391
-- 已索引代码/文本行：297897
+- 已索引代码/文本行：297922
 - 已发现符号：4203
 
 | 文件 | 行数 | 符号数 |
@@ -596,7 +596,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 176 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 699 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 380 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 377 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
@@ -1122,7 +1122,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceFreshnessTest.kt` | 157 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt` | 165 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 2452 | 40 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 2458 | 40 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 365 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
@@ -1240,7 +1240,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 239 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt` | 215 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryTurnPipelineTest.kt` | 184 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryTurnPipelineTest.kt` | 206 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SemanticWorldActionTurnRegressionTest.kt` | 166 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt` | 262 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SoloGameSystemNoticeTest.kt` | 56 | 1 |
