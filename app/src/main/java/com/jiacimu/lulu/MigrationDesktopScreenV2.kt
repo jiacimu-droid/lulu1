@@ -486,26 +486,26 @@ internal fun MigrationHomeV2(
                             onClick = {},
                         )
                     }
-                }
-                draggingWidgetId?.let { id ->
-                    widgets.firstOrNull { it.id == id }?.let { w ->
-                        val cellWidth = maxWidth / DESKTOP_COLUMNS
-                        val cellHeight = if (pagerState.currentPage == 0) {
-                            with(LocalDensity.current) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
-                        } else maxHeight / DESKTOP_ROWS
-                        LuluDesktopWidgetCard(
-                            widget = w, today = today,
-                            characterName = widgetCharacterNames[w.characterId],
-                            lastConversationText = widgetConversationTexts[w.characterId],
-                            modifier = Modifier.width(cellWidth * w.columns).height(cellHeight * w.rows)
-                                .offset {
-                                    IntOffset(
-                                        (dragPosition.x - dragGrabOffset.x).roundToInt(),
-                                        (dragPosition.y - dragGrabOffset.y).roundToInt(),
-                                    )
-                                }.graphicsLayer { alpha = .93f; shadowElevation = 8f },
-                            onOpen = {},
-                        )
+                    draggingWidgetId?.let { id ->
+                        widgets.firstOrNull { it.id == id }?.let { w ->
+                            val cellWidth = maxWidth / DESKTOP_COLUMNS
+                            val cellHeight = if (pagerState.currentPage == 0) {
+                                with(LocalDensity.current) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
+                            } else maxHeight / DESKTOP_ROWS
+                            LuluDesktopWidgetCard(
+                                widget = w, today = today,
+                                characterName = widgetCharacterNames[w.characterId],
+                                lastConversationText = widgetConversationTexts[w.characterId],
+                                modifier = Modifier.width(cellWidth * w.columns).height(cellHeight * w.rows)
+                                    .offset {
+                                        IntOffset(
+                                            (dragPosition.x - dragGrabOffset.x).roundToInt(),
+                                            (dragPosition.y - dragGrabOffset.y).roundToInt(),
+                                        )
+                                    }.graphicsLayer { alpha = .93f; shadowElevation = 8f },
+                                onOpen = {},
+                            )
+                        }
                     }
                 }
                 // PagerState.currentPage changes during a swipe. The indicator must
