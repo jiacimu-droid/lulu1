@@ -81,10 +81,7 @@ internal object ElevenLabsMusic {
                     error("Eleven Music HTTP " + status + "；" +
                         if (status == 403) "请检查 Music API 或 Finetune 权限" else explanation.take(250))
                 }
-                val roleFolder = MessageDigest.getInstance("SHA-256")
-                    .digest(characterId.toByteArray(Charsets.UTF_8))
-                    .take(10).joinToString("") { "%02x".format(it) }
-                val folder = File(application.filesDir, "eleven_music/" + roleFolder)
+                val folder = roleFolder(application, characterId)
                 check(folder.isDirectory || folder.mkdirs()) { "无法创建角色歌曲目录" }
                 val songName = UUID.randomUUID().toString() + ".mp3"
                 val finalFile = File(folder, songName)
@@ -111,6 +108,26 @@ internal object ElevenLabsMusic {
                 connection.disconnect()
             }
         }
+
+    private fun roleFolder(context: Context, characterId: String): File {
+        val roleFolder = MessageDigest.getInstance("SHA-256")
+            .digest(characterId.toByteArray(Charsets.UTF_8))
+            .take(10).joinToString("") { "%02x".format(it) }
+        return File(context.applicationContext.filesDir, "eleven_music/" + roleFolder)
+    }
+
+    /** Local replay does not make another billable music request. */
+    fun latestSong(context: Context, characterId: String): Song? =
+        roleFolder(context, characterId).listFiles()
+            ?.asSequence()?.filter { it.isFile && it.name.endsWith(".mp3") }
+            ?.maxByOrNull(File::lastModified)
+            ?.let { Song(it, DEFAULT_MODEL, false, "") }
+
+    @Synchronized
+    fun stop() {
+        currentPlayer?.let { runCatching { it.stop() }; runCatching { it.release() } }
+        currentPlayer = null
+    }
 
     private var currentPlayer: MediaPlayer? = null
 
