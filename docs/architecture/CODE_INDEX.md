@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`25887179ad496454e7900979a6e23e862aa7f343`
+- 基准提交：`76652cbf30929db2e9144fed40c08ac402e508bd`
 - 分支：`main`
 - 已索引文件：1391
-- 已索引代码/文本行：297796
+- 已索引代码/文本行：297800
 - 已发现符号：4202
 
 | 文件 | 行数 | 符号数 |
@@ -572,7 +572,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt` | 303 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt` | 307 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt` | 103 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt` | 94 | 5 |

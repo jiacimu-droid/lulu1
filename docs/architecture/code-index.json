@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T05:42:40.306055+00:00",
-  "commit": "25887179ad496454e7900979a6e23e862aa7f343",
+  "generatedAt": "2026-11-17T05:43:05.642502+00:00",
+  "commit": "76652cbf30929db2e9144fed40c08ac402e508bd",
   "branch": "main",
-  "sourceFingerprint": "681a5256d59221bb2d2ac61057be3022b084ecd75fb4d66faf2c8ffa54406f05",
+  "sourceFingerprint": "0d41cea905f3a5b587cde78b4b1460991030a99d47f2dda14a3e7ffd643a7188",
   "summary": {
     "files": 1391,
-    "lines": 297796,
+    "lines": 297800,
     "symbols": 4202
   },
   "symbolIndex": {
@@ -2127,7 +2127,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 223
+        "line": 227
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
@@ -3929,7 +3929,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 144
+        "line": 148
       }
     ],
     "Loading": [
@@ -4581,7 +4581,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 115
+        "line": 119
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldVisitorSceneContext.kt",
@@ -35252,8 +35252,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-      "lines": 303,
-      "sha256": "aa1651b25352329ed420c1259b0395ad89dace1f63252e1be28f158c91bb8893",
+      "lines": 307,
+      "sha256": "41063cf10e2e567e6737b0d924fbe53ffa45ec679fa1f377ec2a1f334e345d58",
       "symbols": [
         {
           "name": "RecentSemanticTimeline",
@@ -35269,15 +35269,15 @@
         },
         {
           "name": "select",
-          "line": 115
+          "line": 119
         },
         {
           "name": "accept",
-          "line": 144
+          "line": 148
         },
         {
           "name": "render",
-          "line": 223
+          "line": 227
         }
       ]
     },
