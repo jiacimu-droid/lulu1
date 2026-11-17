@@ -72,6 +72,16 @@ class LuluVirtualUiPolicyTest {
             720, 1280, listOf(c(0, 48, 720, 1200, "返回"))))
     }
 
+    @Test fun incompleteToolbarScanCannotAuthorizeAnOtherwiseUniqueBackButton() {
+        val arrow = LuluVirtualUiPolicy.AppBarControl(
+            65, 136, 121, 192, "返回", "com.example:id/btn_back")
+        assertEquals(0, LuluVirtualUiPolicy.appBackControlIndex(
+            720, 1280, listOf(arrow), scanComplete = true))
+        // A second candidate may exist beyond the 1600-node/80-level limit.
+        assertEquals(null, LuluVirtualUiPolicy.appBackControlIndex(
+            720, 1280, listOf(arrow), scanComplete = false))
+    }
+
     @Test fun onlySafeNamedNavigationMayBeClicked() {
         assertTrue(LuluVirtualUiPolicy.mayClick("搜索", "search_icon", ""))
         assertTrue(LuluVirtualUiPolicy.mayClick("打开笔记", "note_card", ""))
