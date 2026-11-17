@@ -124,4 +124,23 @@ class SemanticMemoryLongTurnRegressionTest {
             assertTrue(LuluRepositories.memory.hasUnprocessedEvents(role))
         } finally { server.shutdown() }
     }
+    @Test fun oversizeActualSpeechLeavesAllFifteenTurnCheckpointsUnprocessed() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(app)
+        SharedExperienceTimeline.initialize(app)
+        repeat(20) { i ->
+            val raw = event(i, if (i == 0) "过长语音正文".repeat(9_000)
+                else "一条普通发言-$i")
+            SharedExperienceTimeline.record(raw.id, role, raw.channel, raw.speaker,
+                raw.content, raw.occurredAt, triggerExtraction = false,
+                sessionId = raw.sessionId, source = raw.source,
+                evidenceKind = raw.evidenceKind)
+        }
+        assertEquals(15, LuluRepositories.memory.pendingMessageCount(role))
+        val result = runCatching { LuluRepositories.memory.summarizeNow(role) }
+        assertTrue(result.isFailure)
+        assertEquals(15, LuluRepositories.memory.pendingMessageCount(role))
+        assertTrue(LuluRepositories.memory.snapshot(role).isEmpty())
+    }
+
 }
