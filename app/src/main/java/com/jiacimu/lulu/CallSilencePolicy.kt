@@ -21,6 +21,14 @@ internal object CallSilencePolicy {
         else -> "hour-${silenceMillis / (60 * 60_000L)}"
     }
 
+    /** Queued observations can share a call turn without owning the periodic backoff. */
+    fun failureCountAfterTurn(failures: Int, hasExternalObservation: Boolean, succeeded: Boolean): Int =
+        when {
+            hasExternalObservation -> failures
+            succeeded -> 0
+            else -> failures + 1
+        }
+
     fun shouldReflect(
         connected: Boolean, sleepMode: Boolean, busy: Boolean,
         userSpeaking: Boolean, sinceUserActivityMillis: Long,

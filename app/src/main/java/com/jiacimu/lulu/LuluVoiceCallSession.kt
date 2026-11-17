@@ -1703,7 +1703,8 @@ internal object LuluVoiceCallSession {
             val activeArchive = library.archives.firstOrNull { it.id == archiveId }
             if (activeArchive == null && !(opening && latest.incomingReason.isNotBlank())) {
                 replyIsSilence = false
-                if (autonomousSilence) silenceFailures++
+                if (autonomousSilence) silenceFailures = CallSilencePolicy.failureCountAfterTurn(
+                    silenceFailures, hasExternalObservation = externalToolResult != null, succeeded = false)
                 mutableState.update { it.copy(thinking = false, opening = false, statusMessage = "电话模型已断开") }
                 scheduleListening(300)
                 return@launch
@@ -2043,7 +2044,8 @@ internal object LuluVoiceCallSession {
             ).onSuccess { reply ->
                 if (generation != replyGeneration || !mutableState.value.connected || mutableState.value.callExperienceId != latest.callExperienceId) return@onSuccess
                 replyIsSilence = false
-                if (autonomousSilence) silenceFailures = 0
+                if (autonomousSilence) silenceFailures = CallSilencePolicy.failureCountAfterTurn(
+                    silenceFailures, hasExternalObservation = externalToolResult != null, succeeded = true)
                 if (reply.disposition == com.jiacimu.lulu.data.CharacterDecisionProtocol.SILENT) {
                     stream.cancel()
                     if (wakeOpening) {
@@ -2209,9 +2211,11 @@ internal object LuluVoiceCallSession {
                 if (generation != replyGeneration || !mutableState.value.connected) return@onFailure
                 replyIsSilence = false
                 if (autonomousSilence) {
-                    silenceFailures++
+                    silenceFailures = CallSilencePolicy.failureCountAfterTurn(
+                        silenceFailures, hasExternalObservation = externalToolResult != null, succeeded = false)
+                    val outcome = if (externalToolResult == null) "通话沉默感知失败" else "通话外部观察未交付"
                     com.jiacimu.lulu.data.CompanionPresenceStore.recordPerceptionAttempt(
-                        latest.characterId, "通话沉默感知失败 · ${error.message.orEmpty().take(100)}")
+                        latest.characterId, "$outcome · ${error.message.orEmpty().take(100)}")
                     // Silent reflection can fail without the actual call failing.
                     // Keep diagnostics in presence history, not a red error banner.
                     mutableState.update { it.copy(thinking = false,

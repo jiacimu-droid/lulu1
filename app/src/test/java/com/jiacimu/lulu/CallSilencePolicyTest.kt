@@ -36,6 +36,25 @@ class CallSilencePolicyTest {
         assertTrue(due(reflection = 10 * 60_000L, failures = 3))
     }
 
+    @Test fun externalObservationDoesNotDelayQuietReflectionOrClearItsBackoff() {
+        var failures = 2
+        failures = CallSilencePolicy.failureCountAfterTurn(failures, hasExternalObservation = true, succeeded = false)
+        assertEquals(2, failures)
+        assertTrue(due(failures = failures))
+
+        failures = CallSilencePolicy.failureCountAfterTurn(failures, hasExternalObservation = false, succeeded = false)
+        assertEquals(3, failures)
+        assertFalse(due(failures = failures))
+        failures = CallSilencePolicy.failureCountAfterTurn(failures, hasExternalObservation = true, succeeded = true)
+        assertEquals(3, failures)
+        assertFalse(due(failures = failures))
+        assertTrue(due(reflection = 10 * 60_000L, failures = failures))
+
+        failures = CallSilencePolicy.failureCountAfterTurn(failures, hasExternalObservation = false, succeeded = true)
+        assertEquals(0, failures)
+        assertTrue(due(failures = failures))
+    }
+
     @Test fun continuousSilenceUsesStableMilestonesUntilSomethingChanges() {
         assertEquals("one-minute", CallSilencePolicy.observationMilestone(60_000))
         assertEquals("one-minute", CallSilencePolicy.observationMilestone(4 * 60_000))
