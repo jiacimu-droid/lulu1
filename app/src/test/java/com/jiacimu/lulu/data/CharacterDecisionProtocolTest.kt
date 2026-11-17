@@ -62,6 +62,18 @@ class CharacterDecisionProtocolTest {
         assertTrue(soloLife.contains("plan_personal_activity"))
     }
 
+    @Test fun privateFutureContactNeedsPersistedScheduleInBothLifeEntrances() {
+        val privateChat = proactiveDecisionInstruction("future-private", directPrivateChat = true)
+        val autonomous = proactiveDecisionInstruction("future-autonomous", directPrivateChat = false)
+        for (guidance in listOf(privateChat, autonomous)) {
+            assertTrue(guidance.contains("过几分钟再联系"))
+            assertTrue(guidance.contains("plan_personal_activity"))
+            assertTrue(guidance.contains("dueAt"))
+            assertTrue(guidance.contains("实际保存回执确认排期"))
+            assertTrue(guidance.contains("普通心声、nextStep 文字"))
+        }
+    }
+
     @Test fun privateChatContractCanChooseVoiceReplyThenARealIncomingCall() {
         val instruction = proactiveDecisionInstruction("multi-action-private-chat",
             directPrivateChat = true)
