@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a273414b0fec28ededec9478947b7caa05159ec8`
+- 基准提交：`aa2fd26f0d97a51df3b21a8a8379efa14a5793ff`
 - 分支：`main`
-- 已索引文件：1405
-- 已索引代码/文本行：297124
-- 已发现符号：4226
+- 已索引文件：1406
+- 已索引代码/文本行：297206
+- 已发现符号：4231
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -854,6 +854,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 36 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 144 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 45 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt` | 82 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWeChatMomentsPolicy.kt` | 49 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt` | 135 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt` | 21 | 1 |

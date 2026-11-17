@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T12:44:33.268901+00:00",
-  "commit": "a273414b0fec28ededec9478947b7caa05159ec8",
+  "generatedAt": "2026-11-17T12:45:04.660229+00:00",
+  "commit": "aa2fd26f0d97a51df3b21a8a8379efa14a5793ff",
   "branch": "main",
-  "sourceFingerprint": "3a5782b50bb2447e3c833c0b8bf77b2a611e9fcad4c5da2f192eb039816ecf3f",
+  "sourceFingerprint": "eba01eaa370cee0d86b61a905d1ae955e36ad121b3399c42da03da9a53b6de4b",
   "summary": {
-    "files": 1405,
-    "lines": 297124,
-    "symbols": 4226
+    "files": 1406,
+    "lines": 297206,
+    "symbols": 4231
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18502,6 +18502,36 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt",
         "line": 42
+      }
+    ],
+    "Proof": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt",
+        "line": 11
+      }
+    ],
+    "composerPointSafe": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt",
+        "line": 19
+      }
+    ],
+    "sendLabel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt",
+        "line": 24
+      }
+    ],
+    "outgoingCount": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt",
+        "line": 38
+      }
+    ],
+    "verifiedDraft": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt",
+        "line": 54
       }
     ],
     "isNavigation": [
@@ -42320,6 +42350,33 @@
         {
           "name": "pausesAutomation",
           "line": 42
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt",
+      "lines": 82,
+      "sha256": "b8184464b1d3534437a29ce2c2ce9bf6531e286c8b4080586c1489ab5b91302c",
+      "symbols": [
+        {
+          "name": "Proof",
+          "line": 11
+        },
+        {
+          "name": "composerPointSafe",
+          "line": 19
+        },
+        {
+          "name": "sendLabel",
+          "line": 24
+        },
+        {
+          "name": "outgoingCount",
+          "line": 38
+        },
+        {
+          "name": "verifiedDraft",
+          "line": 54
         }
       ]
     },
