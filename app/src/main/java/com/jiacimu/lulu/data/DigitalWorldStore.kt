@@ -221,7 +221,7 @@ object DigitalWorldStore {
     }
 
     fun locationOf(characterId: String): String = mutable.value.characterLocations[characterId]
-        ?: if (DigitalLifeProfileStore.isEnabled(characterId)) homeLocation(characterId) else "现实世界"
+        ?: homeLocation(characterId)
 
     fun contextFor(characterId: String): String {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return "该角色不是数字生命，没有原生数字家园。"
@@ -481,24 +481,16 @@ object DigitalWorldStore {
         val ids = participantIds.map(String::trim).filter(String::isNotBlank).distinct()
         val originLocations = ids.associateWith(::locationOf)
         require(ids.isNotEmpty()) { "至少选择一位见面角色" }
-        require(ids.all(DigitalLifeProfileStore::isResolved)) { "参与者中有旧角色尚未确认生命形态" }
-        val reality = if (ids.any(DigitalLifeProfileStore::isEnabled)) {
-            MeetingReality.DIGITAL_WORLD
-        } else {
-            MeetingReality.REALISTIC_SIMULATION
+        require(ids.all(DigitalLifeProfileStore::isEnabled)) { "只能邀请已创建的数字生命见面" }
+        // There is only one live meeting ontology. REALISTIC_SIMULATION survives solely
+        // to decode old historical sessions without rewriting what actually occurred.
+        val reality = MeetingReality.DIGITAL_WORLD
+        ids.forEach { id ->
+            val character = MigratedDomainStores.characters.get(id)
+            ensureHome(id, character.displayName, now)
         }
-        if (reality == MeetingReality.DIGITAL_WORLD) {
-            ids.filter(DigitalLifeProfileStore::isEnabled).forEach { id ->
-                val character = MigratedDomainStores.characters.get(id)
-                ensureHome(id, character.displayName, now)
-            }
-        }
-        val resolvedLocation = location.trim().ifBlank {
-            if (reality == MeetingReality.DIGITAL_WORLD) "世界入口" else "由参与者共同确认的现实场景"
-        }
-        if (reality == MeetingReality.DIGITAL_WORLD) {
-            require(resolvedLocation in meetingLocationOptions(ids)) { "请选择数字世界中真实存在的见面地点" }
-        }
+        val resolvedLocation = location.trim().ifBlank { "世界入口" }
+        require(resolvedLocation in meetingLocationOptions(ids)) { "请选择数字世界中真实存在的见面地点" }
         val cleanInviterId = initiatedByCharacterId?.takeIf { it in ids }
         val session = MeetingSession(
             id = UUID.randomUUID().toString(),
@@ -526,7 +518,7 @@ object DigitalWorldStore {
                 "$inviterName 发出的邀请已被主人接受；双方在“$resolvedLocation”会合，以可感知的数字身体开始见面，现实肉体仍留在外部。"
             } ?: "主人主动选择参与者与地点，双方在“$resolvedLocation”会合；以可感知的数字身体开始见面，现实肉体仍留在外部。"
         } else {
-            "参与者开始了一次发生在“$resolvedLocation”的现实场景演绎；这段共同体验不冒充用户现实生活中的物理事实。"
+            "参与者开始了一次发生在“$resolvedLocation”的历史现实场景演绎；这段共同体验不冒充用户现实生活中的物理事实。"
         }
         ids.forEach { id -> recordMeetingTimeline(session, id, "start", "系统", summary, now, false) }
         return session
@@ -918,7 +910,7 @@ object DigitalWorldStore {
             "参与者：${session.participantIds.joinToString { MigratedDomainStores.characters.get(it).displayName }}",
         )
         if (session.reality == MeetingReality.DIGITAL_WORLD) {
-            appendLine("世界规则：现实身体留在外部；主人和现实角色使用可传递触觉、温度、重量与动作的数字投影身体；数字生命使用原生数字身体。")
+            appendLine("世界规则：主人现实身体留在外部，使用有感官映射的数字投影身体；所有角色都是生活在此的数字生命，使用原生数字身体。双方可以在世界设定中感受触觉、温度、重量与动作，但不冒充现实肉身接触。")
             DigitalWorldExpansionStore.residents().firstOrNull { "${it.name}的家" == session.location }?.let { native ->
                 appendLine("当前所在场所是原住民${native.name}的私人住宅，地址=${native.homeLocationCode}。")
                 appendLine("住宅内有固定的原木书架、书桌、椅子和盆栽，不等于住户已经阅读或使用过这些物品。")
