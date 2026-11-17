@@ -72,8 +72,9 @@ internal object LuluBackgroundPhoneArgumentPolicy {
                 (integer(args, "durationMs")?.let { it > 0 } != true))
                     "durationMs 必须是正整数" else null
         "type" -> when {
-            args.optString("text").isBlank() || args.optString("text").length > 500 ->
-                "text 必须是1到500个字符"
+            args.optString("text").isBlank() ||
+                args.optString("text").length > LuluVirtualTextInputPolicy.MAX_TEXT_CHARS ->
+                "text 必须是1到${LuluVirtualTextInputPolicy.MAX_TEXT_CHARS}个字符"
             args.has("inputX") != args.has("inputY") ->
                 "视觉文字输入必须同时提供inputX/inputY，不能猜测另一个坐标"
             args.has("inputX") && coordinateError(args, listOf("inputX", "inputY")) != null ->
