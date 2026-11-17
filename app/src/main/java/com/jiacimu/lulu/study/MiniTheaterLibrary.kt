@@ -75,7 +75,10 @@ internal class MiniTheaterLibrary(context: Context, @Suppress("UNUSED_PARAMETER"
             if (legacy.isNotEmpty()) {
                 save(changes.value.filterNot { it.builtIn && it.characterId.isBlank() })
                 legacy.forEach { item ->
-                    WorkManager.getInstance(app).cancelUniqueWork("single-theater-${item.id}")
+                    // A missing WorkManager initializer must not block data cleanup.
+                    runCatching {
+                        WorkManager.getInstance(app).cancelUniqueWork("single-theater-${item.id}")
+                    }
                 }
             }
         }
