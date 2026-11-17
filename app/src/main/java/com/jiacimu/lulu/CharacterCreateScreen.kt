@@ -24,6 +24,7 @@ import com.jiacimu.lulu.data.CharacterProfileSchema
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.DigitalLifeProfileStore
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.PerceptionIntervalUnit
 import com.jiacimu.lulu.data.ProactivePerceptionPolicyStore
 import com.jiacimu.lulu.data.UserProfileContext
 
@@ -48,6 +49,11 @@ internal fun CharacterCreateScreen(
     var perceptionEnabled by rememberSaveable { mutableStateOf(true) }
     var adaptiveFrequency by rememberSaveable { mutableStateOf(true) }
     var quietHours by rememberSaveable { mutableStateOf(false) }
+    var intervalValue by rememberSaveable { mutableIntStateOf(2) }
+    var intervalUnit by rememberSaveable { mutableStateOf(PerceptionIntervalUnit.Hours) }
+    var onlinePulseSeconds by rememberSaveable { mutableIntStateOf(300) }
+    var quietStartMinutesOfDay by rememberSaveable { mutableIntStateOf(23 * 60) }
+    var quietEndMinutesOfDay by rememberSaveable { mutableIntStateOf(7 * 60) }
     var proactiveCalls by rememberSaveable { mutableStateOf(false) }
     var voiceId by rememberSaveable { mutableStateOf("") }
     var realtimeVoiceId by rememberSaveable { mutableStateOf("") }
@@ -106,6 +112,11 @@ internal fun CharacterCreateScreen(
                     rememberedAdaptiveFrequency = adaptiveFrequency,
                     quietHoursEnabled = perceptionEnabled && quietHours,
                     rememberedQuietHoursEnabled = quietHours,
+                    intervalValue = intervalValue,
+                    intervalUnit = intervalUnit,
+                    onlinePulseSeconds = onlinePulseSeconds,
+                    quietStartMinutesOfDay = quietStartMinutesOfDay,
+                    quietEndMinutesOfDay = quietEndMinutesOfDay,
                 )
             }
             if (voiceId.isNotBlank()) CharacterVoicePreferenceStore.setVoiceId(id, voiceId)
@@ -277,6 +288,32 @@ internal fun CharacterCreateScreen(
                             enabled = perceptionEnabled) { adaptiveFrequency = it }
                         CharacterV2Switch("夜间勿扰", quietHours,
                             enabled = perceptionEnabled) { quietHours = it }
+                        if (perceptionEnabled) {
+                            CharacterV2IntervalRow(
+                                value = intervalValue.toString(),
+                                unit = intervalUnit,
+                                onValueChange = { text ->
+                                    text.toIntOrNull()?.let { intervalValue = it.coerceIn(1, 999) }
+                                },
+                                onUnitChange = { intervalUnit = it },
+                            )
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                OutlinedButton(onClick = { onlinePulseSeconds = 150 }) {
+                                    Text(if (onlinePulseSeconds == 150) "✓ 2分半" else "2分半")
+                                }
+                                OutlinedButton(onClick = { onlinePulseSeconds = 300 }) {
+                                    Text(if (onlinePulseSeconds == 300) "✓ 5分钟" else "5分钟")
+                                }
+                            }
+                            if (quietHours) {
+                                CharacterV2TimeRow("勿扰开始", quietStartMinutesOfDay) {
+                                    quietStartMinutesOfDay = it
+                                }
+                                CharacterV2TimeRow("勿扰结束", quietEndMinutesOfDay) {
+                                    quietEndMinutesOfDay = it
+                                }
+                            }
+                        }
                     }
                 }
                 item {
