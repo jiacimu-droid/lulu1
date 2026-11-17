@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.system
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.graphics.Bitmap
 import android.graphics.Path
 import android.graphics.Rect
@@ -34,6 +35,19 @@ class LuluAccessibilityService : AccessibilityService() {
     private val passiveEventBudget = LuluAccessibilityEventBudget()
 
     override fun onServiceConnected() {
+        super.onServiceConnected()
+        // Mika also reasserts this at connection time. On some ROMs a
+        // previously enabled service retains stale runtime flags even after
+        // its XML requested complete interactive-window content.
+        serviceInfo?.let { info ->
+            val expected = AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS or
+                AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS or
+                AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS
+            if (info.flags and expected != expected) {
+                info.flags = info.flags or expected
+                serviceInfo = info
+            }
+        }
         passiveEventBudget.reset()
         instance = this
         mutableState.value = mutableState.value.copy(connected = true)
@@ -292,6 +306,38 @@ class LuluAccessibilityService : AccessibilityService() {
             }
             visit(root, 0)
             return editors
+        }
+
+        /** A chat is not a generic search page. Traverse the composer before
+         * the huge scrollable message transcript, whose off-screen children can
+         * otherwise exhaust the ordinary 1600-node scan. Never infer an editor
+         * from its position alone: every returned node still needs SET_TEXT,
+         * visible/enabled state and explicit candidate validation. */
+        private fun chatComposerEditors(
+            root: AccessibilityNodeInfo, packageName: String, height: Int,
+        ): List<AccessibilityNodeInfo> {
+            val candidates = mutableListOf<AccessibilityNodeInfo>()
+            val complete = LuluVirtualA11yTraversal.forEachVisible(
+                roots = listOf(root),
+                childCount = { it.childCount },
+                childAt = { node, index -> node.getChild(index) },
+                isProtected = { node ->
+                    node.isPassword || (packageName == LuluVirtualChatSendPolicy.WECHAT &&
+                        LuluVirtualChatSendPolicy.isConversationTranscript(
+                            node.isScrollable, node.isVisibleToUser,
+                            composerBounds(node), height))
+                },
+                isVisible = { it.isVisibleToUser },
+                priority = { node ->
+                    LuluVirtualChatSendPolicy.bottomComposerScanPriority(
+                        composerBounds(node), height)
+                },
+            ) { node ->
+                if (safeEditable(node)) candidates.add(node)
+            }
+            // A partial tree is insufficient for deciding which editor
+            // receives a potentially external message.
+            return if (complete) candidates else emptyList()
         }
 
         private fun uniqueSearchEditor(root: AccessibilityNodeInfo): AccessibilityNodeInfo? {
@@ -934,19 +980,31 @@ class LuluAccessibilityService : AccessibilityService() {
                         virtualChatHeaderTexts(service, displayId, packageName))
             val root = topVirtualAppWindow(service, displayId, packageName)?.root
                 ?: return result(false, "chat_window_unverified", "微信会话窗口已变化")
-            if (visibleEditors(root).any { virtualChatEditor(it, packageName, dimensions.second) }) {
+            if (chatComposerEditors(root, packageName, dimensions.second)
+                    .any { virtualChatEditor(it, packageName, dimensions.second) }) {
                 return result(true, "", "当前会话已经有可输入文字的编辑框，未重复切换",
                     ready = true)
             }
             val buttons = mutableListOf<AccessibilityNodeInfo>()
             val controls = mutableListOf<LuluVirtualChatSendPolicy.ComposerControl>()
             val voiceRegions = mutableListOf<LuluVirtualChatSendPolicy.ComposerBounds>()
-            var visited = 0
-            fun scan(node: AccessibilityNodeInfo, depth: Int) {
-                if (depth > 80 || visited++ >= 1600 || node.isPassword) return
+            val scanComplete = LuluVirtualA11yTraversal.forEachVisible(
+                roots = listOf(root),
+                childCount = { it.childCount },
+                childAt = { node, index -> node.getChild(index) },
+                isProtected = { node ->
+                    node.isPassword || LuluVirtualChatSendPolicy.isConversationTranscript(
+                        node.isScrollable, node.isVisibleToUser,
+                        composerBounds(node), dimensions.second)
+                },
+                isVisible = { it.isVisibleToUser },
+                priority = { node ->
+                    LuluVirtualChatSendPolicy.bottomComposerScanPriority(
+                        composerBounds(node), dimensions.second)
+                },
+            ) { node ->
                 val rect = Rect().also(node::getBoundsInScreen)
-                if (node.isVisibleToUser && node.isEnabled &&
-                    rect.width() > 0 && rect.height() > 0) {
+                if (node.isEnabled && rect.width() > 0 && rect.height() > 0) {
                     val text = node.text?.toString().orEmpty()
                     val description = node.contentDescription?.toString().orEmpty()
                     val label = description.ifBlank { text }
@@ -965,11 +1023,9 @@ class LuluAccessibilityService : AccessibilityService() {
                             label, node.viewIdResourceName.orEmpty(), node.isClickable))
                     }
                 }
-                for (i in 0 until node.childCount) node.getChild(i)?.let { scan(it, depth + 1) }
             }
-            scan(root, 0)
-            if (visited >= 1600) return result(false, "chat_voice_composer_unverified",
-                "后台输入控件读取不完整，无法安全切换键盘")
+            if (!scanComplete) return result(false, "chat_voice_composer_unverified",
+                "后台聊天栏遍历仍不完整，无法安全切换键盘")
             val voice = LuluVirtualChatSendPolicy.uniqueVoiceComposer(
                 voiceRegions, dimensions.first, dimensions.second)
                 ?: return result(false, "chat_voice_composer_unverified",
@@ -1024,7 +1080,8 @@ class LuluAccessibilityService : AccessibilityService() {
                 return false
             val height = virtualDimensions(service, displayId)?.second ?: return false
             val root = topVirtualAppWindow(service, displayId, packageName)?.root ?: return false
-            return visibleEditors(root).any { virtualChatEditor(it, packageName, height) }
+            return chatComposerEditors(root, packageName, height)
+                .any { virtualChatEditor(it, packageName, height) }
         }
 
         /** Resolve the role's explicit BACK request on the OWNED virtual
@@ -1124,7 +1181,7 @@ class LuluAccessibilityService : AccessibilityService() {
             if (!verifiedChatHeader(
                     service, displayId, packageName, recipient, dimensions.second, frameSource = frameSource)) return -1
             val root = topVirtualAppWindow(service, displayId, packageName)?.root ?: return -1
-            val editor = visibleEditors(root)
+            val editor = chatComposerEditors(root, packageName, dimensions.second)
                 .filter { virtualChatEditor(it, packageName, dimensions.second) }
                 .distinctBy(::composerBounds).singleOrNull() ?: return -1
             if (!editor.isShowingHintText && !editor.text.isNullOrEmpty()) return -1
@@ -1218,7 +1275,7 @@ class LuluAccessibilityService : AccessibilityService() {
             val root = liveRoot() ?: return denied("chat_window_unverified")
             // Search and other non-chat fields can coexist in the same
             // app window. They cannot make the one real composer ambiguous.
-            val editors = visibleEditors(root)
+            val editors = chatComposerEditors(root, packageName, dimensions.second)
                 .filter { virtualChatEditor(it, packageName, dimensions.second) }
                 .distinctBy(::composerBounds)
             if (editors.size != 1) return denied(
@@ -1246,7 +1303,8 @@ class LuluAccessibilityService : AccessibilityService() {
             // A failed readback leaves only an unsent draft; never click Send.
             val editorId = editor.viewIdResourceName
             fun liveDraftEditor(): AccessibilityNodeInfo? = liveRoot()
-                ?.takeIf { it.windowId == root.windowId }?.let(::visibleEditors)
+                ?.takeIf { it.windowId == root.windowId }
+                ?.let { chatComposerEditors(it, packageName, dimensions.second) }
                 ?.filter {
                     it == editor || (!editorId.isNullOrBlank() && it.viewIdResourceName == editorId) ||
                         (packageName == LuluVirtualChatSendPolicy.WECHAT &&
