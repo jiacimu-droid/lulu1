@@ -366,7 +366,12 @@ internal object LuluBackgroundPhoneSession {
                     // The in-flight tool will time out and release the helper.
                 }
             }
-            val started = command(JSONObject().put("action", "start"))
+            val primaryDensity = context.getSystemService(android.hardware.display.DisplayManager::class.java)
+                ?.getDisplay(android.view.Display.DEFAULT_DISPLAY)?.let { primary ->
+                    context.createDisplayContext(primary).resources.configuration.densityDpi
+                }
+            val started = command(JSONObject().put("action", "start")
+                .put("ownerDensityDpi", primaryDensity ?: 0))
             check(started.optBoolean("success") && started.optBoolean("ownFocus")) {
                 started.optString("error").ifBlank { "后台独立焦点屏创建失败" }
             }
@@ -814,6 +819,28 @@ internal object LuluBackgroundPhoneSession {
                     LuluRolePhoneAuthorization.isGranted(context, characterId) &&
                     context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked != true &&
                     !LuluScreenAwareness.isExcluded(context, activeApp)
+            suspend fun captureChatTitleFrame(): android.graphics.Bitmap? {
+                if (!stillAuthorized() || windowGate(id, activeApp).optString("kind") != "target")
+                    return null
+                val shot = try {
+                    command(JSONObject().put("action", "observe"))
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    return null
+                }
+                val pixels = shot.optString("imageDataUrl")
+                if (!shot.optBoolean("success") || shot.optInt("displayId") != id ||
+                    shot.optString("targetPackage") != activeApp || !stillAuthorized() ||
+                    !LuluVirtualFrameSafety.canSendToRole(shot.optBoolean("frameValidated"),
+                        shot.optLong("frameTimestampNanos"), pixels, shot.optBoolean("frameBlack")) ||
+                    windowGate(id, activeApp).optString("kind") != "target") return null
+                return withContext(Dispatchers.IO) {
+                    val bytes = java.util.Base64.getDecoder().decode(
+                        pixels.removePrefix("data:image/jpeg;base64,"))
+                    android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                }
+            }
             val request = JSONObject().put("action", action)
             if (action == "launch") {
                 // Pass Android's actual exported launcher component, not just a
@@ -1014,29 +1041,31 @@ internal object LuluBackgroundPhoneSession {
                     val editorReady = if (alreadyText || activeApp != LuluVirtualChatSendPolicy.WECHAT) true else {
                         val switched = withContext(Dispatchers.Main) {
                             LuluAccessibilityService.switchVirtualChatToText(
-                                id, activeApp, recipient, fingerprint, ::stillAuthorized)
+                                id, activeApp, recipient, fingerprint,
+                                frameSource = ::captureChatTitleFrame, stillAuthorized = ::stillAuthorized)
                         }
                         toggleClicked = switched.optBoolean("inputModeSwitchClicked")
-                        if (!switched.optBoolean("accepted")) {
-                            switchFailure = switched
+                        switchFailure = switched
+                        if (!switched.optBoolean("accepted") && !toggleClicked) {
                             false
                         } else if (switched.optBoolean("inputModeTextVerified")) true else {
                             var ready = false
-                            for (attempt in 0 until 6) {
+                            for (attempt in 0 until 8) {
                                 ready = withContext(Dispatchers.Main) {
                                     LuluAccessibilityService.virtualChatTextInputVisible(id, activeApp)
                                 }
                                 if (ready) break
-                                if (attempt < 5) kotlinx.coroutines.delay(160)
+                                if (!stillAuthorized()) break
+                                if (attempt < 7) kotlinx.coroutines.delay(180)
                             }
                             ready
                         }
                     }
                     if (!editorReady) {
-                        (switchFailure?.let { JSONObject(it.toString()) } ?: JSONObject()
-                            .put("errorCode", "chat_text_mode_unverified")
-                            .put("verification", "已尝试一次文字模式切换，但当前微信输入框未核实；未发送消息"))
-                            .put("accepted", false).put("messageSendClicked", false)
+                        val failure = switchFailure ?: JSONObject()
+                        if (toggleClicked) failure.put("errorCode", "chat_text_mode_unverified")
+                            .put("verification", "已尝试切换键盘，但还没有出现可写的微信文字框")
+                        failure.put("accepted", false).put("messageSendClicked", false)
                             .put("inputModeSwitchClicked", toggleClicked)
                     } else {
                         if (toggleClicked) fingerprint = withContext(Dispatchers.Main) {
@@ -1051,7 +1080,14 @@ internal object LuluBackgroundPhoneSession {
                         } else {
                             withContext(Dispatchers.Main) {
                                 LuluAccessibilityService.sendVirtualChatMessage(
-                                    id, activeApp, recipient, message, fingerprint, ::stillAuthorized)
+                                    id, activeApp, recipient, message, fingerprint,
+                                    frameSource = ::captureChatTitleFrame,
+                                    beforeTextInput = {
+                                        command(JSONObject().put("action", "prepare_type"))
+                                            .optBoolean("accepted")
+                                    },
+                                    stillAuthorized = ::stillAuthorized,
+                                )
                             }.put("inputModeSwitchClicked", toggleClicked)
                         }
                     }
@@ -1109,6 +1145,7 @@ internal object LuluBackgroundPhoneSession {
                 // repeat it when pixels/UI acknowledgement are unavailable.
                 lastObservedUi = null
                 val dispatched = applied?.optBoolean("messageSendClicked") == true
+                val attempted = applied?.optBoolean("messageSendAttempted") == true
                 val outgoingBefore = applied?.optInt("outgoingVisibleBefore", -1) ?: -1
                 val recipient = args.optString("recipient")
                 val message = args.optString("text")
@@ -1123,7 +1160,7 @@ internal object LuluBackgroundPhoneSession {
                             break
                         val after = withContext(Dispatchers.Main) {
                             LuluAccessibilityService.virtualChatOutgoingTextCount(
-                                id, activeApp, recipient, message)
+                                id, activeApp, recipient, message, ::captureChatTitleFrame)
                         }
                         if (after > outgoingBefore) {
                             appearedInChat = true
@@ -1133,7 +1170,17 @@ internal object LuluBackgroundPhoneSession {
                     }
                 }
                 val appName = LuluVirtualChatSendPolicy.appName(activeApp)
-                return JSONObject().put("success", appearedInChat)
+                val inputVerified = applied?.optBoolean("messageInputReadbackVerified") == true
+                val stage = when {
+                    appearedInChat -> "client_message_visible"
+                    attempted -> "send_click"
+                    inputVerified -> "draft_written"
+                    applied?.optString("errorCode") == "chat_recipient_unverified" -> "recipient_check"
+                    applied?.optBoolean("inputModeSwitchClicked") == true -> "keyboard_switch"
+                    applied?.optBoolean("chatRecipientVerified") == true -> "text_input"
+                    else -> "conversation_check"
+                }
+                val receipt = JSONObject().put("success", appearedInChat)
                     .put("accepted", dispatched)
                     .put("status", when {
                         appearedInChat -> "client_message_visible"
@@ -1142,10 +1189,11 @@ internal object LuluBackgroundPhoneSession {
                     })
                     .put("mode", "independent_virtual_display").put("displayId", id)
                     .put("packageName", activeApp)
-                    .put("messageInputReadbackVerified",
-                        applied?.optBoolean("messageInputReadbackVerified") == true)
+                    .put("chatStage", stage)
+                    .put("messageInputReadbackVerified", inputVerified)
                     .put("chatRecipientVerified",
                         applied?.optBoolean("chatRecipientVerified") == true)
+                    .put("messageSendAttempted", attempted)
                     .put("messageSendClicked", dispatched)
                     .put("messageAppearedInChat", appearedInChat)
                     .put("inputModeSwitchClicked",
@@ -1157,13 +1205,29 @@ internal object LuluBackgroundPhoneSession {
                         "已在真实${appName}会话中观察到新增的右侧消息气泡，确认客户端显示发出；服务器或对方是否收到尚无独立证据"
                     else if (dispatched)
                         "当前${appName}聊天对象和正文已核实，发送按钮仅被点击一次，但未观察到新消息气泡；结果不确定，不得重复点击发送"
+                    else if (attempted)
+                        "已尝试点一次发送，设备未确认是否接收，结果未知"
                     else if (applied?.optBoolean("messageInputReadbackVerified") == true)
                         "聊天文字已写入并读回，但发送按钮或收件人未能再次核实；没有确认发送，请先只读观察"
                     else applied?.optString("verification")?.takeIf(String::isNotBlank)
-                        ?: "${appName}消息尚未确认发送；详情见errorCode")
+                        ?: if (applied?.optBoolean("chatRecipientVerified") == true)
+                            "已核实目标${appName}会话，在切换或填写文字阶段停下；未点发送"
+                        else "${appName}消息尚未确认发送；详情见errorCode")
                     .put("observedChatHeaderTexts", applied?.optJSONArray("observedChatHeaderTexts")
                         ?: org.json.JSONArray())
-                    .toString()
+                // Keep the continuation on the live chat after a pre-send
+                // failure; a new token is bound to the observed current page.
+                if (!attempted && !dispatched && stillAuthorized() &&
+                    windowGate(id, activeApp).optString("kind") == "target") {
+                    receipt.put("targetWindowVerified", true)
+                    val current = withContext(Dispatchers.Main) {
+                        LuluAccessibilityService.observeDisplay(id)
+                    }
+                    if (current.connected && current.packageName == activeApp)
+                        receipt.put("visibleText", current.visibleText.take(3_000))
+                    attachUiEvidence(receipt, characterId, id, activeApp)
+                }
+                return receipt.toString()
             }
             if (action == "search") searchReceipt = applied
             if (action == "search" && applied?.optString("status").orEmpty().isNotBlank()) {
@@ -1468,6 +1532,10 @@ internal object LuluBackgroundPhoneSession {
                 .put("frameValidated", hasFrame)
                 .put("frameBlack", frame.optBoolean("frameBlack", false))
                 .put("frameTimestampNanos", frame.optLong("frameTimestampNanos", 0L))
+                .put("displayWidth", frame.optInt("displayWidth"))
+                .put("displayHeight", frame.optInt("displayHeight"))
+                .put("captureWidth", frame.optInt("captureWidth"))
+                .put("captureHeight", frame.optInt("captureHeight"))
                 .put("newerThanPreviousCapture", frame.optBoolean("newerThanPreviousCapture", false))
                 .put("screenSource", "virtual_display")
                 .put("sentToChat", sharedReceipt.optBoolean("sentToChat"))

@@ -15,11 +15,12 @@ class LuluShellDisplayCommandTest {
     @Test fun virtualPhonePreservesTallScreenRatioAndLogicalDensity() {
         // 1220x2712 at 480dpi must not become a 9:16 360dp-wide phone.
         val phone = LuluShellDisplayMain.chooseGeometry(1220, 2712, 480)
-        org.junit.Assert.assertEquals(720, phone.width)
-        org.junit.Assert.assertEquals(1600, phone.height)
-        org.junit.Assert.assertEquals(283, phone.densityDpi)
-        // Logical dp width/height differ by less than one dp due to rounding.
-        org.junit.Assert.assertEquals(407, (phone.width * 160f / phone.densityDpi).toInt())
+        org.junit.Assert.assertEquals(1220, phone.width)
+        org.junit.Assert.assertEquals(2712, phone.height)
+        org.junit.Assert.assertEquals(480, phone.densityDpi)
+        org.junit.Assert.assertEquals(406, (phone.width * 160f / phone.densityDpi).toInt())
+        // Transport resolution can be smaller without changing Android layout.
+        org.junit.Assert.assertEquals(720 to 1601, LuluShellDisplayMain.captureSize(phone))
         val fallback = LuluShellDisplayMain.chooseGeometry(0, 0, 0)
         org.junit.Assert.assertEquals(720, fallback.width)
         org.junit.Assert.assertEquals(1280, fallback.height)

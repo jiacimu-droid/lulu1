@@ -182,6 +182,14 @@ internal object LuluVirtualChatSendPolicy {
         return smallest
     }
 
+    fun isKeyboardControl(label: String, resourceId: String): Boolean {
+        val name = label.filterNot(Char::isWhitespace).lowercase()
+        val id = resourceId.substringAfterLast('/').lowercase()
+        return name in setOf("键盘", "切换到键盘", "切换为键盘", "切换到文字", "切换到文字输入",
+            "切换到打字", "keyboard", "switchtokeyboard") ||
+            (name.isBlank() && id in setOf("keyboard", "switch_keyboard", "keyboard_toggle"))
+    }
+
     /** The keyboard toggle is the compact control immediately LEFT of a
      * verified bottom press-to-talk composer. Never use a fixed coordinate,
      * guess an unidentified page button, or select a Send/Add control. */
@@ -195,7 +203,7 @@ internal object LuluVirtualChatSendPolicy {
         val matches = controls.withIndex().filter { (_, c) ->
             val b = c.bounds
             val label = c.label.replace(Regex("\\s+"), "").lowercase()
-            c.clickable && b.width in 12..(screenWidth / 4).coerceAtLeast(12) &&
+            (c.clickable || isKeyboardControl(c.label, c.resourceId)) && b.width in 12..(screenWidth / 4).coerceAtLeast(12) &&
                 b.height in 12..(screenHeight / 7).coerceAtLeast(12) &&
                 b.centerX < talk.left &&
                 talk.left - b.right in 0..(screenWidth / 6).coerceAtLeast(12) &&
@@ -203,21 +211,37 @@ internal object LuluVirtualChatSendPolicy {
                     maxOf(talk.height / 2, screenHeight / 32) &&
                 !label.contains("切换到语音") && !label.contains("切换成语音") &&
                 !label.contains("holdtotalk") &&
-                (LuluVirtualUiPolicy.mayClick(c.label, c.resourceId, "") ||
+                (isKeyboardControl(c.label, c.resourceId) || (label.isBlank() &&
+                    LuluVirtualUiPolicy.mayClick(c.label, c.resourceId, "")) ||
                     (c.label.isBlank() && c.resourceId.isBlank()))
         }.sortedWith(compareBy<IndexedValue<ComposerControl>> {
             talk.left - it.value.bounds.right
         }.thenBy { it.value.bounds.width.toLong() * it.value.bounds.height })
-        val best = matches.firstOrNull() ?: return null
+        val preferred = matches.filter { isKeyboardControl(it.value.label, it.value.resourceId) }
+            .ifEmpty { matches }
+        val best = preferred.firstOrNull() ?: return null
         // Multiple nodes may wrap one icon; different physical targets mean
         // the geometry is ambiguous and nothing is clicked.
-        if (matches.any {
+        if (preferred.any {
                 kotlin.math.abs(it.value.bounds.centerX - best.value.bounds.centerX) >
                     screenWidth / 35 ||
                 kotlin.math.abs(it.value.bounds.centerY - best.value.bounds.centerY) >
                     screenHeight / 35
             }) return null
         return best.index
+    }
+
+    /** The WeChat voice composer can draw the keyboard icon itself. This
+     * estimates only its adjacent slot from the currently verified talk bar,
+     * using the same layout envelope as the exposed control path. */
+    fun wechatKeyboardSlot(
+        talk: ComposerBounds, screenWidth: Int, screenHeight: Int,
+    ): Pair<Int, Int>? {
+        if (screenWidth <= 0 || screenHeight <= 0 ||
+            talk.width < screenWidth / 3 || talk.left !in (screenWidth / 14)..(screenWidth / 5) ||
+            talk.height !in 1..(screenHeight / 8) ||
+            talk.centerY !in (screenHeight * 3 / 4) until screenHeight) return null
+        return (talk.left / 2) to talk.centerY
     }
 
     /** A deliberately narrow action rather than a general allow-list override

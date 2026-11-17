@@ -4,6 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.ComponentName
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
 import android.graphics.Point
 import android.util.DisplayMetrics
 import android.graphics.PixelFormat
@@ -51,19 +54,19 @@ object LuluShellDisplayMain {
     private const val FRAME_POLL_MS = 80L
     internal data class ScreenGeometry(val width: Int, val height: Int, val densityDpi: Int)
 
-    /** Keep the main display's portrait aspect ratio AND logical dp size.
-     * Pixel transport stays capped at 720px wide to protect image memory and
-     * the existing JPEG budget. 720x1280/320 made modern tall phones render
-     * a different, zoomed-in WeChat layout in the virtual display. */
+    /** Use the actual phone viewport for Android layout. Some OEMs apply
+     * the physical display DPI to secondary displays even if requested DPI
+     * is different; scaling display pixels there would enlarge every app. */
     internal fun chooseGeometry(realWidth: Int, realHeight: Int, realDpi: Int): ScreenGeometry {
         if (realWidth <= 0 || realHeight <= 0 || realDpi <= 0)
             return ScreenGeometry(720, 1280, 320)
-        val short = minOf(realWidth, realHeight)
-        val long = maxOf(realWidth, realHeight)
-        val width = short.coerceAtMost(720)
-        val scale = width.toDouble() / short
-        return ScreenGeometry(width, (long * scale).toInt().coerceAtLeast(1),
-            (realDpi * scale).toInt().coerceAtLeast(1))
+        return ScreenGeometry(minOf(realWidth, realHeight), maxOf(realWidth, realHeight), realDpi)
+    }
+
+    internal fun captureSize(geometry: ScreenGeometry): Pair<Int, Int> {
+        val width = geometry.width.coerceAtMost(720)
+        return width to ((geometry.height.toLong() * width + geometry.width / 2) /
+            geometry.width).toInt().coerceAtLeast(1)
     }
 
     private var frameGeometry = ScreenGeometry(720, 1280, 320)
@@ -123,7 +126,9 @@ object LuluShellDisplayMain {
                     checkNotNull(main) { "main display unavailable" }
                     main.getRealSize(real)
                     main.getRealMetrics(metrics)
-                    chooseGeometry(real.x, real.y, metrics.densityDpi)
+                    val ownerDpi = cmd.optInt("ownerDensityDpi")
+                        .takeIf { it in 72..1_200 } ?: metrics.densityDpi
+                    chooseGeometry(real.x, real.y, ownerDpi)
                 }.getOrDefault(ScreenGeometry(720, 1280, 320))
                 val img = ImageReader.newInstance(
                     geometry.width, geometry.height, PixelFormat.RGBA_8888, 3)
@@ -159,6 +164,8 @@ object LuluShellDisplayMain {
                 .put("displayId", virtual!!.display.displayId)
                 .put("width", WIDTH).put("height", HEIGHT)
                 .put("densityDpi", frameGeometry.densityDpi)
+                .put("captureWidth", captureSize(frameGeometry).first)
+                .put("captureHeight", captureSize(frameGeometry).second)
                 .put("ownFocus", true)
                 .put("ownFocusVerifiedByDisplayFlags", true)
         }
@@ -305,14 +312,17 @@ object LuluShellDisplayMain {
             try {
                 plane.buffer.rewind()
                 full.copyPixelsFromBuffer(plane.buffer)
-                val crop = Bitmap.createBitmap(full, 0, 0, WIDTH, HEIGHT)
+                val (captureWidth, captureHeight) = captureSize(frameGeometry)
+                val scaled = Bitmap.createBitmap(captureWidth, captureHeight, Bitmap.Config.ARGB_8888)
                 try {
+                    Canvas(scaled).drawBitmap(full, Rect(0, 0, WIDTH, HEIGHT),
+                        Rect(0, 0, captureWidth, captureHeight), Paint(Paint.FILTER_BITMAP_FLAG))
                     // Mika FrameMath: an accepted gesture can produce a NEW
                     // all-black virtual frame (compositor/security failure).
                     // This is not a readable screenshot; never send it to the
                     // character or silently use the owner's main display.
-                    val allBlack = LuluMikaFrameMath.isBlack(WIDTH, HEIGHT) { x, y ->
-                        crop.getPixel(x, y)
+                    val allBlack = LuluMikaFrameMath.isBlack(captureWidth, captureHeight) { x, y ->
+                        scaled.getPixel(x, y)
                     }
                     if (allBlack) {
                         lastDeliveredFrameNanos = timestamp
@@ -326,7 +336,7 @@ object LuluShellDisplayMain {
                             .put("verification", "后台独立屏产生了全黑新帧，无法当作可读画面；仍可仅使用目标App控件树的安全证据")
                     }
                     val bytes = ByteArrayOutputStream().use { buffer ->
-                        check(crop.compress(Bitmap.CompressFormat.JPEG, 65, buffer))
+                        check(scaled.compress(Bitmap.CompressFormat.JPEG, 65, buffer))
                         buffer.toByteArray()
                     }
                     check(bytes.size <= 700_000) { "image buffer too large" }
@@ -337,11 +347,13 @@ object LuluShellDisplayMain {
                         .put("displayId", displayId).put("targetPackage", targetPackage)
                         .put("frameTimestampNanos", timestamp)
                         .put("frameValidated", true)
+                        .put("displayWidth", WIDTH).put("displayHeight", HEIGHT)
+                        .put("captureWidth", captureWidth).put("captureHeight", captureHeight)
                         .put("frameFreshAfterAction", afterAction)
                         .put("newerThanPreviousCapture", newerThanLast)
                         .put("imageDataUrl", "data:image/jpeg;base64," +
                             Base64.getEncoder().encodeToString(bytes))
-                } finally { crop.recycle() }
+                } finally { scaled.recycle() }
             } finally { full.recycle() }
         } finally { pixels.close() }
     }

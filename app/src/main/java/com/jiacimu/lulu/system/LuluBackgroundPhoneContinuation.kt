@@ -35,7 +35,8 @@ internal object LuluBackgroundPhoneContinuation {
      * The same character may inspect/navigate once more, unlike an accepted or
      * ambiguous send click. Never infer a failed delivery from missing pixels. */
     internal fun mayRecoverUnsentChat(receipt: JSONObject?): Boolean {
-        if (receipt == null || receipt.optBoolean("messageSendClicked") ||
+        if (receipt == null || receipt.optBoolean("messageSendAttempted") ||
+            receipt.optBoolean("messageSendClicked") ||
             receipt.optBoolean("messageAppearedInChat")) return false
         return receipt.optString("errorCode") in setOf(
             "chat_snapshot_expired", "chat_recipient_unverified",
@@ -297,6 +298,7 @@ internal object LuluBackgroundPhoneContinuation {
                     或 {"decision":"ask","reason":"需要主人确认的事项或设备障碍"}
                     如果上一步真实失败而仍有安全的新方法，可以自行选择一次重新建屏或打开已授权应用；同一错误反复发生时停止，向主人说明真实阻碍。微信聊天显示「按住说话」并不要求你自己逐字打字：选定收件人和完整正文后直接调用send_chat_message，本机负责验证切换文字输入、全文写入读回与单次发送，不需要为每个字重新看图。无截图时不可凭坐标盲点或滑动；可observe只读重新观察。若回执有当前后台App的screenSnapshotId和interactiveElements，可用tap_element+对应ref精准选择安全可点控件，执行器会重新核实并拒绝过期控件。搜索框另可focus_search/type/submit，提交前须文字读回；无证据则ask/finish。
                     launch可同时附navigationLabels，或在已打开的App里选择navigate。比如已知微信「发现」和「朋友圈」两个入口时，可以给出["发现","朋友圈"]；已看到联系人则直接给一个完整昵称。每步独立核实目标和界面变化，停在首个未核实的步骤。根据navigationSteps判断真实进度，找不到名字可以打开搜索结果后再选；打开应用或点击被接收不能当作已进入会话、已发送或已发表。
+                    chatRecipientVerified=true 表示已核实在目标会话；键盘切换、输入正文、发送是三项不同的操作。若输入或发送没核实，向主人说明真正停止的阶段。chat_recipient_unverified 只表示标题无法核实，不能据此声称页面没跳进去。
                     若某次点击/滑动/搜索提交已被设备接受但效果未知，先核对当前页面或换安全目标；读到相同页面不能解除重复动作保护。
                     continue 每次仅提交本角色真正想执行的一步，不存在默认下一步。
                     搜索时，当前目标App回执若有唯一可验证搜索框，可一次选择{"action":"search","text":"关键词"}。本机会核实焦点、输入读回后才提交，并返回实际页面；searchSubmitted只说明提交已派发，要阅读页面才知道搜到了什么。没有唯一搜索框时先根据真实控件或画面打开搜索入口；type仍只填入，单独submit才会提交。弹出输入法时仍根据后台App窗口核验，不能把键盘当目标App。launch可提供真实packageName或准确appName（例如「抖音」）；appName只由本机精确查找已安装App，找不到、重名或被主人排除就停止，不猜包名。相对坐标0至1000，滑动使用startX/startY/endX/endY。只有想真实给主人看这块后台屏时，才在observe等操作附加sendToChat=true；capture_screen永远是主屏，不能冒充后台。

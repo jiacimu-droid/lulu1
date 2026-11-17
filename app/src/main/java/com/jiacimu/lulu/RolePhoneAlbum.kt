@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -167,11 +168,27 @@ private fun ScreenRecordViewer(
             decorFitsSystemWindows = false,
         ),
     ) {
-        // No 94%-height card, inset frame or image-sized header/footer: a phone
-        // screenshot needs the same portrait viewport as the phone itself.
-        Box(Modifier.fillMaxSize().background(Color(0xFF101012))) {
+        Column(
+            Modifier.fillMaxSize().background(Color(0xFF101012))
+                .windowInsetsPadding(WindowInsets.safeDrawing),
+        ) {
+            if (showControls) {
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    TextButton(onClick = onClose) { Text("‹ 返回", color = Color.White) }
+                    Text("屏幕记录", fontWeight = FontWeight.SemiBold,
+                        color = Color.White, fontSize = 15.sp)
+                    TextButton(onClick = {
+                        resetZoom()
+                        showControls = false
+                    }) { Text("全屏", color = Color.White) }
+                }
+            }
             Box(
-                Modifier.fillMaxSize()
+                Modifier.fillMaxWidth().weight(1f).clipToBounds()
                     .onSizeChanged { viewport = it }
                     .transformable(zoom)
                     .pointerInput(photo.id) {
@@ -197,60 +214,29 @@ private fun ScreenRecordViewer(
                             translationY = shiftY
                         },
                     contentScale = ContentScale.Fit,
-                    contentDescription = "完整原始手机截屏，双指缩放，轻点隐藏工具栏",
+                    contentDescription = "完整手机截屏，双指缩放，轻点隐藏工具栏",
                     cornerRadius = 0.dp,
                     backgroundColor = Color(0xFF101012),
                     foregroundColor = Color.White,
                 )
             }
             if (showControls) {
-                // Controls float OVER the image instead of shrinking it.
-                Surface(
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    color = Color.Black.copy(alpha = 0.74f),
+                val caption = photo.caption.substringBeforeLast(" · ")
+                    .takeIf { photo.caption.substringAfterLast(" · ").let { timestamp ->
+                        runCatching { Instant.parse(timestamp) }.isSuccess
+                    } } ?: photo.caption
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(
-                        Modifier.fillMaxWidth()
-                            .windowInsetsPadding(WindowInsets.statusBars)
-                            .padding(horizontal = 12.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        TextButton(onClick = onClose) { Text("‹ 返回", color = Color.White) }
-                        Text("屏幕记录", fontWeight = FontWeight.SemiBold,
-                            color = Color.White, fontSize = 15.sp)
-                        TextButton(onClick = { showControls = false }) { Text("全屏", color = Color.White) }
-                    }
-                }
-                Surface(
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                    color = Color.Black.copy(alpha = 0.78f),
-                ) {
-                    Column(
-                        Modifier.fillMaxWidth()
-                            .windowInsetsPadding(WindowInsets.navigationBars)
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(3.dp),
-                    ) {
-                        if (photo.caption.isNotBlank()) Text(
-                            screenRecordLocalTime(photo.savedAt) + " · " + photo.caption,
-                            maxLines = 2, fontSize = 11.sp, color = Color.White,
-                        )
-                        Text("历史真实截屏（非实时） · 双指缩放 · 轻点隐藏工具栏",
-                            fontSize = 11.sp, color = Color.White.copy(alpha = 0.70f))
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            TextButton(onClick = onDelete) {
-                                Text("删除这张", color = Color.White)
-                            }
-                            TextButton(onClick = resetZoom) {
-                                Text("复原大小", color = Color.White)
-                            }
-                        }
-                    }
+                    Text(
+                        listOf(screenRecordLocalTime(photo.savedAt), caption)
+                            .filter(String::isNotBlank).joinToString(" · "),
+                        modifier = Modifier.weight(1f),
+                        maxLines = 2, fontSize = 11.sp, color = Color.White,
+                    )
+                    TextButton(onClick = resetZoom) { Text("复原", color = Color.White) }
+                    TextButton(onClick = onDelete) { Text("删除", color = Color.White) }
                 }
             }
         }

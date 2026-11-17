@@ -104,6 +104,8 @@ internal object LuluVirtualChatTitleOcr {
             lastScreenshotAtMs = SystemClock.uptimeMillis()
             try {
                 return LuluAccessibilityService.captureBitmap(displayId)
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
                 if (attempt == 1) return null
             }
@@ -116,6 +118,7 @@ internal object LuluVirtualChatTitleOcr {
     suspend fun matches(
         displayId: Int, packageName: String, recipient: String,
         forceFresh: Boolean = false,
+        frameSource: suspend () -> Bitmap? = { null },
     ): Boolean {
         if (displayId <= 0 || !LuluVirtualChatSendPolicy.supports(packageName) ||
             !LuluVirtualChatSendPolicy.validRecipient(recipient)) return false
@@ -124,14 +127,13 @@ internal object LuluVirtualChatTitleOcr {
                 val before = withContext(Dispatchers.Main) {
                     if (LuluAccessibilityService.virtualWindowStatus(displayId, packageName)
                             .optString("kind") != "target") return@withContext ""
-                    LuluAccessibilityService.virtualUiSnapshot(displayId, packageName)
-                        .optString("fingerprint")
+                    LuluAccessibilityService.virtualNavigationFingerprint(displayId, packageName)
                 }
                 if (before.isBlank()) return@withLock false
                 if (!forceFresh && proofUsable(latestProof, displayId, packageName,
                         recipient, before, SystemClock.uptimeMillis())) return@withLock true
                 latestProof = null
-                val screenshot = captureRateLimited(displayId)
+                val screenshot = frameSource() ?: captureRateLimited(displayId)
                     ?: return@withLock false
                 val width = screenshot.width
                 val height = screenshot.height
@@ -151,8 +153,7 @@ internal object LuluVirtualChatTitleOcr {
                 val stillSame = withContext(Dispatchers.Main) {
                     LuluAccessibilityService.virtualWindowStatus(displayId, packageName)
                         .optString("kind") == "target" &&
-                        LuluAccessibilityService.virtualUiSnapshot(displayId, packageName)
-                            .optString("fingerprint") == before
+                        LuluAccessibilityService.virtualNavigationFingerprint(displayId, packageName) == before
                 }
                 if (stillSame) latestProof = Proof(
                     displayId, packageName, recipient, before, SystemClock.uptimeMillis())

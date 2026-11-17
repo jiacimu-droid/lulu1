@@ -55,6 +55,19 @@ class LuluVirtualSocialActionsTest {
             ComposerBounds(25, 900, 695, 960), publish, width, height, "输入", ""))
     }
 
+    @Test fun visibleKeyboardCanBeTappedWhenNoClickableNodeIsExposed() {
+        val voiceBar = ComposerBounds(86, 1050, 560, 1132)
+        val keyboard = LuluVirtualChatSendPolicy.ComposerControl(
+            ComposerBounds(15, 1052, 75, 1130), "切换到键盘", "", clickable = false)
+        val competingIcon = LuluVirtualChatSendPolicy.ComposerControl(
+            ComposerBounds(0, 1052, 20, 1130), "", "", clickable = true)
+        assertEquals(1, LuluVirtualChatSendPolicy.voiceToTextControl(
+            voiceBar, listOf(competingIcon, keyboard), 720, 1200))
+        assertEquals(43 to 1091, LuluVirtualChatSendPolicy.wechatKeyboardSlot(voiceBar, 720, 1200))
+        assertNull(LuluVirtualChatSendPolicy.wechatKeyboardSlot(
+            ComposerBounds(86, 620, 560, 702), 720, 1200))
+    }
+
     @Test fun momentsActionsRequireTheCorrespondingLiveSnapshotAndExplicitInput() {
         val open = LuluWeChatMomentsPolicy.OPEN_COMPOSER
         val publish = LuluWeChatMomentsPolicy.PUBLISH
