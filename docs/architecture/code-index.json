@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:38:37.326792+00:00",
-  "commit": "bad02d9cceedf0f1a190f5375b3d7080ecefc8fe",
+  "generatedAt": "2026-11-17T16:39:18.082812+00:00",
+  "commit": "290adae5d05087e43c0cca9a10f17c41cef81dc8",
   "branch": "main",
-  "sourceFingerprint": "3f9c8d0262ac8c1089a671e0ec3ef1f11a138e0ef97d14b8485b32ab44eecddc",
+  "sourceFingerprint": "608c8d382e78f81f1e54cf3181436e620eac247170ec3e9bdfa7225d1ddeeddb",
   "summary": {
     "files": 1420,
-    "lines": 299737,
+    "lines": 299739,
     "symbols": 4293
   },
   "symbolIndex": {
@@ -4009,19 +4009,19 @@
     "gridTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 195
+        "line": 196
       }
     ],
     "gridHeight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 198
+        "line": 199
       }
     ],
     "slotAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 200
+        "line": 201
       }
     ],
     "MigrationRoute": [
@@ -4439,7 +4439,7 @@
     "openReceiptLink": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-        "line": 918
+        "line": 919
       }
     ],
     "import": [
@@ -27042,20 +27042,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 654,
-      "sha256": "f7ff6567c94896868a8860bb0a6dbf907cdfa655d6d67e9bd3795c80e02fd5ab",
+      "lines": 655,
+      "sha256": "80ab7c903254461ad192502a928fc39e02db0db848710497d7cc41e696ae1a0d",
       "symbols": [
         {
           "name": "gridTop",
-          "line": 195
+          "line": 196
         },
         {
           "name": "gridHeight",
-          "line": 198
+          "line": 199
         },
         {
           "name": "slotAt",
-          "line": 200
+          "line": 201
         }
       ]
     },
@@ -27530,12 +27530,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 1044,
-      "sha256": "8c6c81c5852116394b3f1d8be0fcad706cb1d753813586eeca0fd37dd3571bea",
+      "lines": 1045,
+      "sha256": "52341a54a37d42a6fa002404e62b6e8513a9f98c4d70e141bc1b8dfe24a8aa95",
       "symbols": [
         {
           "name": "openReceiptLink",
-          "line": 918
+          "line": 919
         }
       ]
     },

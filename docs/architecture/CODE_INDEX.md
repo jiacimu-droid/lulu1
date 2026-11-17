@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`bad02d9cceedf0f1a190f5375b3d7080ecefc8fe`
+- 基准提交：`290adae5d05087e43c0cca9a10f17c41cef81dc8`
 - 分支：`main`
 - 已索引文件：1420
-- 已索引代码/文本行：299737
+- 已索引代码/文本行：299739
 - 已发现符号：4293
 
 | 文件 | 行数 | 符号数 |
@@ -228,7 +228,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 305 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 654 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 655 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 102 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 123 | 1 |
@@ -260,7 +260,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 92 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 165 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageViewer.kt` | 121 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 1044 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 1045 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt` | 87 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 953 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
