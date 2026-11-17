@@ -448,6 +448,113 @@ internal object LuluBackgroundPhoneSession {
         )
     }
 
+    /**
+     * One verified visual WeChat transaction for ROMs where a real virtual
+     * screenshot exists but no chat EditText / ACTION_SET_TEXT node does.
+     *
+     * The model supplies ONLY an input tap from its last owned screenshot.
+     * Shell pastes Unicode using target-UID keyboard events on that same
+     * display. The outgoing Send point comes exclusively from local OCR of
+     * a fresh screenshot showing title + exact draft + Send together.
+     *
+     * Never paste into an unverified app/IME, never infer success from injected
+     * events, never re-send on a possibly dispatched click.
+     */
+    private suspend fun visualWeChatSend(
+        id: Int, packageName: String, recipient: String, message: String,
+        composerX: Int, composerY: Int, authorized: () -> Boolean,
+        frameSource: suspend () -> android.graphics.Bitmap?,
+    ): JSONObject {
+        fun denied(code: String, explanation: String): JSONObject = JSONObject()
+            .put("accepted", false).put("messageSendClicked", false)
+            .put("messageSendAttempted", false)
+            .put("taskCompleted", false).put("errorCode", code)
+            .put("verification", explanation)
+            .put("actionMethod", "visual_chat_targeted_unicode")
+        if (packageName != LuluVirtualChatSendPolicy.WECHAT ||
+            !LuluVisualChatDraftPolicy.composerPointSafe(composerX, composerY))
+            return denied("visual_chat_composer_point_invalid",
+                "视觉输入位置不在可接受的聊天输入区，未点击或输入")
+        if (!authorized() || windowGate(id, packageName).optString("kind") != "target")
+            return denied("visual_chat_window_unverified", "后台微信窗口或授权未核实，未输入")
+        val before = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.virtualChatWindowIdentity(id, packageName)
+        }
+        if (before.isBlank()) return denied("visual_chat_window_unverified", "独立微信窗口身份不可用")
+        // Verify the actual rendered header BEFORE even focusing the editor.
+        val title = LuluVirtualChatTitleOcr.matches(
+            id, packageName, recipient, forceFresh = true, frameSource = frameSource)
+        if (!title || !authorized()) return denied("chat_recipient_unverified",
+            "没有从本次后台微信真实截图核实唯一收件人标题；未输入")
+        if (!command(JSONObject().put("action", "prepare_type")).optBoolean("accepted"))
+            return denied("visual_chat_frame_barrier_missing", "输入前的独立屏图像屏障失败")
+        val tapped = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.tapVirtualDisplay(id, packageName, composerX, composerY)
+        }
+        if (!tapped.optBoolean("accepted"))
+            return denied("visual_chat_focus_tap_unverified",
+                "未核实输入栏聚焦点击已完成；没有注入文字")
+        var keyboard = false
+        for (attempt in 0 until 6) {
+            if (!authorized() || windowGate(id, packageName).optString("kind") != "target") break
+            keyboard = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualChatKeyboardVisible(id, packageName)
+            }
+            if (keyboard) break
+            if (attempt < 5) kotlinx.coroutines.delay(150)
+        }
+        if (!keyboard || !authorized()) return denied("visual_chat_keyboard_not_on_display",
+            "独立屏没有观察到微信输入法窗口，不能保证文字输入目标，未粘贴")
+        if (withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualChatWindowIdentity(id, packageName)
+            } != before) return denied("visual_chat_window_changed",
+            "输入框聚焦后微信窗口身份已变，未粘贴")
+        val paste = command(JSONObject().put("action", "paste_text")
+            .put("packageName", packageName).put("text", message))
+        if (!paste.optBoolean("accepted")) {
+            // A partial key injection may have put a draft into the editor.
+            // Never retry or click Send until an entirely new user/model
+            // decision with real visual proof is made.
+            return denied(paste.optString("errorCode").ifBlank { "visual_chat_paste_unverified" },
+                "已尝试指定微信进程的输入通道，但未核实文字完整派发和剪贴板还原；不重复输入或发送")
+                .put("inputDispatched", paste.optBoolean("inputDispatched"))
+        }
+        val proof = LuluVirtualChatTitleOcr.inspectVisualDraft(
+            id, packageName, recipient, message, frameSource)
+            ?: return denied("visual_chat_draft_or_send_unverified",
+                "指定后台微信已接收按键，但截图未同时确认顶部收件人、输入正文及右侧发送键，未点发送")
+                .put("inputDispatched", true)
+        if (!authorized() || windowGate(id, packageName).optString("kind") != "target" ||
+            withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualChatWindowIdentity(id, packageName)
+            } != before) return denied("visual_chat_changed_before_send",
+            "发送前后台窗口或授权变化，已保留未发送草稿")
+            .put("messageInputReadbackVerified", true).put("chatRecipientVerified", true)
+        if (!command(JSONObject().put("action", "prepare_type")).optBoolean("accepted"))
+            return denied("visual_chat_send_barrier_missing",
+                "正文核实但发送前无法建立图像屏障，未点发送")
+                .put("messageInputReadbackVerified", true).put("chatRecipientVerified", true)
+        // ONE irreversible action; OCR provided the center of a unique button.
+        val click = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.tapVirtualDisplay(id, packageName,
+                proof.sendX, proof.sendY)
+        }
+        val attempted = click.optBoolean("gestureDispatched")
+        val clicked = click.optBoolean("accepted")
+        return JSONObject().put("accepted", clicked)
+            .put("messageSendAttempted", attempted)
+            .put("messageSendClicked", clicked)
+            .put("messageSendMethod", "fresh_visual_ocr_unique_send")
+            .put("messageInputReadbackVerified", true)
+            .put("chatRecipientVerified", true)
+            .put("visualOutgoingBefore", proof.previousOutgoing)
+            .put("errorCode", if (clicked) "" else "visual_chat_send_click_unverified")
+            .put("taskCompleted", false)
+            .put("verification", if (clicked)
+                "截图已核实收件人/草稿/唯一发送键，并仅在独立屏点发送一次；仍需核实新消息气泡"
+                else "一次发送手势的效果不确定，禁止再次点击发送")
+    }
+
     private data class SearchDispatch(val receipt: JSONObject, val beforeSubmitTree: String? = null)
 
     /** Mika BatchRunner pattern for one explicitly selected search. Every
