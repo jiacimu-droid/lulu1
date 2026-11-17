@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:47:07.286191+00:00",
-  "commit": "52aebad0e3caa5cb731f0694f65465cd0c4c0419",
+  "generatedAt": "2026-11-17T16:53:06.102971+00:00",
+  "commit": "e9c4c06dc2abeb12d99edca46d706221b38a3d66",
   "branch": "main",
-  "sourceFingerprint": "1d2e1a25cfa14ae3a772f64c8b1bc1de300bdc1f46f48e99474039219e28db9b",
+  "sourceFingerprint": "b1de441e9256177c9da34fcbadddce2fb07a7c7bcf4505a3ab9e56e42d3a8541",
   "summary": {
     "files": 1423,
     "lines": 300164,
@@ -33849,7 +33849,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
       "lines": 85,
-      "sha256": "ee155123aaeee4112cd93bc40a61a2e09062e673e6bebe5bdd30b0e006472de5",
+      "sha256": "c88ca96d8c1036b50e37a8e5d322570a8eb82023a94526e675b7037dfd41d472",
       "symbols": [
         {
           "name": "LuluAppearancePalette",
@@ -40603,7 +40603,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
       "lines": 399,
-      "sha256": "df8fe15f5f6d0259a61b21538a0f9f991639df436eb01ffd54f8648e34bf17e8",
+      "sha256": "da71ab0bdc94bf7bb47a251ba1b65358ce3ae3d9b316ad206a12245c25290592",
       "symbols": [
         {
           "name": "LuluReadingScreen",
