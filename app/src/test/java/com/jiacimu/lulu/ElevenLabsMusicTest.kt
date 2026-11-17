@@ -39,6 +39,37 @@ class ElevenLabsMusicTest {
         }
     }
 
+    @Test fun oneStoredElevenLabsKeyServesSpeechScribeAndMusicIndependently() {
+        val context = RuntimeEnvironment.getApplication()
+        val prefs = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+        prefs.edit().clear()
+            .putString("eleven_api_key", "already-saved-key")
+            .putString("eleven_voice_id", "regular-speech-voice")
+            .putString("tts_provider", "elevenlabs")
+            .putString("call_stt_mode", "elevenlabs")
+            .putBoolean("tts_enabled", true)
+            .putBoolean("eleven_music_enabled", true)
+            .commit()
+        com.jiacimu.lulu.data.CharacterVoicePreferenceStore.initialize(context)
+
+        // This is the same preference key used by the older sleep/Scribe/TTS settings.
+        assertNull(CallVoiceConfiguration.sttPreflight(context))
+        assertNull(CallVoiceConfiguration.preflight(context, "lulu"))
+        assertTrue(ElevenLabsMusic.isEnabledAndConfigured(context, "lulu"))
+
+        // Choosing a different TTS provider must not remove Scribe/Music access.
+        prefs.edit().putString("tts_provider", "system")
+            .putString("eleven_music_model", "music_v2_5").commit()
+        assertEquals("already-saved-key", prefs.getString("eleven_api_key", ""))
+        assertNull(CallVoiceConfiguration.sttPreflight(context))
+        assertTrue(ElevenLabsMusic.isEnabledAndConfigured(context, "lulu"))
+
+        // Clearing the single owner credential invalidates both external consumers.
+        prefs.edit().remove("eleven_api_key").commit()
+        assertNotNull(CallVoiceConfiguration.sttPreflight(context))
+        assertFalse(ElevenLabsMusic.isEnabledAndConfigured(context, "lulu"))
+    }
+
     @Test fun roleSingingIsExplicitlyEnabledAndFinetuneIsRoleScoped() {
         val context = RuntimeEnvironment.getApplication()
         val prefs = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
