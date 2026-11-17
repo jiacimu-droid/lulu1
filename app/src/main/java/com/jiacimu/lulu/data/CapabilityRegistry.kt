@@ -34,7 +34,7 @@ object CapabilityRegistry {
         Capability("cloud_task", "cloud", "cloud", "persistent task id; file success comes later", false),
     )
     val application = listOf("send_private_message", "send_group_message", "create_group_chat", "send_private_sticker", "send_group_sticker", "send_game_invite", "play_solo_game", "invite_duel_game", "respond_duel_invite",
-        "publish_moment", "set_phone_moments_cover", "like_moment", "comment_moment", "send_friend_request", "respond_friend_request", "send_character_message", "write_journal", "read_self_todo", "start_study_watch", "stop_study_watch", "verify_commitment", "schedule_commitment_review", "retire_development_record", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity", "go_offline", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "learn_topic", "web_search", "image_search", "save_photo", "write_phone_memo", "share_xiaohongshu")
+        "publish_moment", "set_phone_moments_cover", "like_moment", "comment_moment", "send_friend_request", "respond_friend_request", "send_character_message", "write_journal", "read_self_todo", "start_study_watch", "stop_study_watch", "strict_supervision", "verify_commitment", "schedule_commitment_review", "retire_development_record", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity", "go_offline", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "learn_topic", "web_search", "image_search", "save_photo", "write_phone_memo", "share_xiaohongshu")
         .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", it == "read_self_todo", retired = it == "write_journal") }
     val external = listOf(
         Capability(com.jiacimu.lulu.ai.JevDirections.TOOL, "analysis", "jev", "native TypeSafe response, named probabilities and actual usage; no action chosen", false),
@@ -120,6 +120,7 @@ object CapabilityRegistry {
             appendLine("如果你本人决定现在开始持续监督，应在同轮选择 steps=[{tool:start_study_watch,args:{minutes:45}}] 真实申请限时许可；只说「我监督你」不会启动检查，不能把口头答应、申请中、主人同意和成功看到屏幕混为一谈。主人同意后显示可结束的悬浮窗（需悬浮窗权限）及持续通知，系统间歇截图，再交给你原有感知决定是否开口。用户停止时用 stop_study_watch；你也可以选择不申请或稍后安排，不要把监督变成固定口癖。")
             appendLine("summon_lulu 工具已注册=$summonRegistered；发送可点击的回到露露机通知获授权=${summonRegistered && screen.summonAllowed(context)}。已获授权时可用 action=tool,tool=summon_lulu,args={}，不是强制切回 App。")
             appendLine("bring_lulu_front（直接切回露露机）工具已注册=${find("bring_lulu_front") != null}；主人单独授权=${screen.directReturnAllowed(context)}；需主屏无障碍已连接、主屏解锁、当前App可核实且非敏感页。只有你确实选择并执行 action=tool,tool=bring_lulu_front,args={} 才会尝试将主屏其他App切到后台、把露露机拉到前台；它不会强制停止其他App、不会持续封禁或锁住屏幕。可先按本人意愿用 get_current_app 查询最新状态，再自行决定是否执行，不能因主人说要睡就机械抢屏；未授权时只能请求开启，不得绕过。执行后的 success=true,status=observed 才是主屏已经真实切换的证据；仅 accepted 或旧回执都不代表本次已切回。")
+            appendLine(com.jiacimu.lulu.system.LuluStrictMode.modelContext(context, characterId))
             appendLine("以上是当前本机能力记录。不要声称自己查过『动作清单』、拿到了截图或真正打开某 App，除非本轮有相应执行回执。")
         }.trim()
     }
