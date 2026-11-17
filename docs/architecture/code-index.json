@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:21:23.324705+00:00",
-  "commit": "5815d96025f1bf8ba8220e9ed220526b54dae902",
+  "generatedAt": "2026-11-17T16:30:25.837181+00:00",
+  "commit": "e80d1183c1faf23f9948fd0bf08e4114a02271a8",
   "branch": "main",
-  "sourceFingerprint": "951e567edf222d294a22e2fef5fba755e59ca90048821ef8245907d5f0e06eb5",
+  "sourceFingerprint": "5b2612ac15552064d9bfcdf66afaab21c830e2f69b872d0dd7dde461f1f2fca5",
   "summary": {
-    "files": 1417,
-    "lines": 299530,
-    "symbols": 4274
+    "files": 1418,
+    "lines": 299573,
+    "symbols": 4275
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4103,7 +4103,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
-        "line": 61
+        "line": 62
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt",
@@ -4365,19 +4365,19 @@
     "uniqueMood": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
-        "line": 31
+        "line": 32
       }
     ],
     "stateFields": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
-        "line": 37
+        "line": 38
       }
     ],
     "gestureLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
-        "line": 59
+        "line": 60
       }
     ],
     "connect": [
@@ -9398,6 +9398,20 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
         "line": 1088
+      }
+    ],
+    "text": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceMood.kt",
+        "line": 13
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
+        "line": 22
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
+        "line": 86
       }
     ],
     "repeatsConfirmedAction": [
@@ -17242,16 +17256,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterChapterPlanRecovery.kt",
         "line": 42
-      }
-    ],
-    "text": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
-        "line": 22
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
-        "line": 86
       }
     ],
     "han": [
@@ -27309,24 +27313,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt",
-      "lines": 65,
-      "sha256": "c6bdb11ad389db45948c4cf3fca666280b6235f43eb80fbe133e40e86913995b",
+      "lines": 66,
+      "sha256": "2d46461dde9037ea4f100a7e6b725bf530ba9b0908b8b73d10787c3064d9eff7",
       "symbols": [
         {
           "name": "uniqueMood",
-          "line": 31
+          "line": 32
         },
         {
           "name": "stateFields",
-          "line": 37
+          "line": 38
         },
         {
           "name": "gestureLabel",
-          "line": 59
+          "line": 60
         },
         {
           "name": "status",
-          "line": 61
+          "line": 62
         }
       ]
     },
@@ -32034,9 +32038,20 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceMood.kt",
+      "lines": 24,
+      "sha256": "c017fca8c712c1528349c8416b0b2fce1425b8e959d6db3a0eca368628d26c62",
+      "symbols": [
+        {
+          "name": "text",
+          "line": 13
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
       "lines": 708,
-      "sha256": "9f158f005a53158c0af9b9327ea4320558d32cdf132869763d850b1dcdd31e0b",
+      "sha256": "21ec396f4cf7292b0385bc87c63cbccf45d0ae25728c09e2a1f0254b5c9e8899",
       "symbols": [
         {
           "name": "repeatsConfirmedAction",
@@ -44381,8 +44396,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt",
-      "lines": 102,
-      "sha256": "f686b6b53494977c92edc3154f7e0b5fad45ab7665d500f333bca3748acd52c6",
+      "lines": 120,
+      "sha256": "c2eca6eb561589a7cf844185d0fea0bae36da67c29b4cc95550472ca02414e91",
       "symbols": [
         {
           "name": "PresencePresentationTest",

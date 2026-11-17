@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`5815d96025f1bf8ba8220e9ed220526b54dae902`
+- 基准提交：`e80d1183c1faf23f9948fd0bf08e4114a02271a8`
 - 分支：`main`
-- 已索引文件：1417
-- 已索引代码/文本行：299530
-- 已发现符号：4274
+- 已索引文件：1418
+- 已索引代码/文本行：299573
+- 已发现符号：4275
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -251,7 +251,7 @@
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 128 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleProgress.kt` | 19 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneTranscriptAssembler.kt` | 17 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 65 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/PresencePresentation.kt` | 66 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 255 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 557 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt` | 43 | 0 |
@@ -457,6 +457,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 2040 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 65 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 1169 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceMood.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt` | 708 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt` | 26 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt` | 95 | 3 |
@@ -969,7 +970,7 @@
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleLayoutTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneSubtitleProgressTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneTranscriptAssemblerTest.kt` | 21 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt` | 102 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/PresencePresentationTest.kt` | 120 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatComposerDisplayTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatImageDisplayTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatImageViewerTest.kt` | 55 | 1 |
