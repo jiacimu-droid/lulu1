@@ -37,9 +37,10 @@ internal object ConversationHistoryWindow {
         messages: List<LuluChatMessage>,
         maxMessages: Int,
         maxCharacters: Int,
+        maxTurns: Int = Int.MAX_VALUE,
         visibleLength: (LuluChatMessage) -> Int,
     ): List<LuluChatMessage> {
-        if (maxMessages <= 0 || maxCharacters <= 0 || messages.isEmpty()) return emptyList()
+        if (maxMessages <= 0 || maxCharacters <= 0 || maxTurns <= 0 || messages.isEmpty()) return emptyList()
         val chosen = ArrayDeque<List<LuluChatMessage>>()
         var chars = 0
         var count = 0
@@ -55,7 +56,8 @@ internal object ConversationHistoryWindow {
             // The most recent whole turn is always kept, even if unusually
             // long. Older turns fit only when BOTH budgets have room.
             if (chosen.isNotEmpty() &&
-                (count + turn.size > maxMessages || chars + size > maxCharacters)) break
+                (chosen.size >= maxTurns || count + turn.size > maxMessages ||
+                    chars + size > maxCharacters)) break
             chosen.addFirst(turn)
             count += turn.size
             chars += size
