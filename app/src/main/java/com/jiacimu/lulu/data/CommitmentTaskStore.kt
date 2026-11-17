@@ -146,6 +146,27 @@ object CommitmentTaskStore {
                             "未自动重播旧动作，须由本人根据当前时刻决定补救；目标未证实",
                     )
                 }
+                task.status == CommitmentTaskStatus.Expired &&
+                    task.repeat != "daily" && task.dueAt?.isBefore(now) == true &&
+                    (task.lastActionResult.startsWith("系统回调迟于约定超过两分钟") ||
+                        task.lastActionResult.startsWith("恢复时已超出定时执行窗口") ||
+                        task.lastActionResult.startsWith("约定时间已经过去，不能把补救当作准时履约")) -> {
+                    // One-time compatibility migration for older builds which
+                    // discarded the exact accepted duty after just 120s.
+                    // This is not a second call, nor a re-dated appointment:
+                    // keep the missed original time and its failure evidence.
+                    missedByRole.putIfAbsent(task.characterId, task.dueAt)
+                    changed = true
+                    task.copy(
+                        status = CommitmentTaskStatus.Blocked,
+                        nextCheckAt = null,
+                        linkedAlarmId = null,
+                        revision = task.revision + 1L,
+                        updatedAt = now,
+                        lastActionResult = task.lastActionResult.take(200) +
+                            "；旧版两分钟丢弃记录已恢复为待本人决定补救；此前未证实执行",
+                    )
+                }
                 task.status == CommitmentTaskStatus.WaitingForFeedback &&
                     task.nextCheckAt != null &&
                     CommitmentAlarmTiming.expired(task.nextCheckAt, now) &&
