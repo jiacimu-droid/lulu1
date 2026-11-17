@@ -174,6 +174,35 @@ class MemoryWorkingSetPolicyTest {
         assertTrue(result.sections.values.single().contains("角色在周二说"))
     }
 
+    @Test fun fullLifeCanBorrowUnusedCategoryCapacityWithoutDroppingCurrentState() {
+        val state = MemoryPromptCandidate("live-state", "当前状态",
+            "【现在】真实收到的新消息，需要先回应与核查。", 950)
+        val evidence = MemoryPromptCandidate("live-evidence", "原始证据",
+            "用户明确说：不要把暂时沉默当作同意。", 850,
+            sources = setOf("raw-source"), originalEvidence = true)
+        val older = (1..18).map { index ->
+            MemoryPromptCandidate("memory:$index", "往事",
+                "第$index 条已核实的不同经历：" + "过去的真实经历".repeat(30), 650 - index,
+                sources = setOf("old-$index"))
+        }
+        val rows = listOf(state, evidence) + older
+        val limits = mapOf("往事" to 900, "原始证据" to 1_000)
+        val firstPass = MemoryWorkingSetPolicy.select(rows, 4_800,
+            protectedCharacters = 500, sectionLimits = limits)
+        val flexible = MemoryWorkingSetPolicy.select(rows, 4_800,
+            protectedCharacters = 500, sectionLimits = limits,
+            borrowUnusedSectionBudget = true)
+        assertEquals("live-state", flexible.selected.first())
+        assertTrue("live-evidence" in flexible.selected)
+        assertTrue(flexible.sections.values.any { it.contains("不要把暂时沉默当作同意") })
+        assertTrue(flexible.selected.size > firstPass.selected.size)
+        assertTrue(flexible.usedCharacters > firstPass.usedCharacters)
+        assertTrue(flexible.usedCharacters + flexible.protectedCharacters <= flexible.budget)
+        assertFalse(flexible.omitted.containsKey("live-evidence"))
+        // Borrowing is opt-in: specialized compact callers retain their quotas.
+        assertTrue(firstPass.selected.size < flexible.selected.size)
+    }
+
     @Test fun categoryQuotaCannotConsumeOtherCategoriesAndExactDuplicatesAreReported() {
         val rows = listOf(
             MemoryPromptCandidate("huge", "日记", "一".repeat(300), 100),
