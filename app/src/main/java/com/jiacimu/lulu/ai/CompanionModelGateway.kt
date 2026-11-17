@@ -1293,6 +1293,7 @@ class CompanionModelGateway(
                 onAdditionalHttpAttempt?.invoke()
                 LuluRepositories.performance.recordModelHandoff("流式协议回退", connection.model)
                 body.remove("stream")
+                body.remove("stream_options")
                 onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
             }
         }

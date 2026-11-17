@@ -5,6 +5,7 @@ import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelConnection
+import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import com.jiacimu.lulu.system.PhoneModelTransportPolicy
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
@@ -82,6 +83,53 @@ class PhoneModelTransportPolicyTest {
             assertEquals("/v1/chat/completions", request.path)
             assertTrue(JSONObject(request.body.readUtf8()).getBoolean("stream"))
             assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test(timeout = 60_000) fun explicitStreamRejectionRetriesTheSamePhoneDecisionWithoutStreaming() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CharacterLifeStore.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val actor = MigratedDomainStores.characters.create("来电主体", "慢慢想清楚再说")
+        val agreement = "只有我明确同意才再联系；沉默不等于许可。"
+        assertTrue(CharacterSocialRelationship.setAgreement(actor.characterId, "user", "原约定", agreement))
+        val transcript = "如果我没明确说可以，今晚就不要再拨电话。"
+        val decisionSpeech = "好，我听见了。"
+        val decision = JSONObject().put("action", "reply").put("text", decisionSpeech)
+        val response = JSONObject().put("choices", JSONArray().put(JSONObject()
+            .put("message", JSONObject().put("content", decision.toString())).put("finish_reason", "stop")))
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setResponseCode(400)
+            .setBody("""{"error":{"message":"Stream mode is unsupported by this endpoint."}}"""))
+        server.enqueue(MockResponse().setHeader("Content-Type", "application/json").setBody(response.toString()))
+        server.start()
+        try {
+            val config = LuluAiServices.connectionStore.saveConfiguration(
+                null, "phone-retry", server.url("/").toString(), "test-only",
+            )
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test-model")
+            val result = LuluDeviceToolBridge.respond(
+                actor.characterId, "", transcript, "电话协议回退",
+                archiveId = archive.id, sceneContext = "正在与用户进行一对一实时电话",
+                phoneCallId = "phone-stream-retry-${actor.characterId}",
+            ).getOrThrow()
+            assertEquals(decisionSpeech, result.text)
+            assertEquals(2, server.requestCount)
+            val first = JSONObject(checkNotNull(server.takeRequest(5, TimeUnit.SECONDS)).body.readUtf8())
+            val retry = JSONObject(checkNotNull(server.takeRequest(5, TimeUnit.SECONDS)).body.readUtf8())
+            assertTrue(first.getBoolean("stream"))
+            assertFalse(retry.optBoolean("stream"))
+            assertFalse(retry.has("stream_options"))
+            first.remove("stream")
+            first.remove("stream_options")
+            assertEquals(first.toString(), retry.toString())
+            val messages = retry.getJSONArray("messages")
+            val system = messages.getJSONObject(0).getString("content")
+            assertTrue(system.contains(actor.displayName))
+            assertTrue(system.contains(agreement))
+            assertTrue((1 until messages.length()).any {
+                messages.getJSONObject(it).getString("content").contains(transcript)
+            })
         } finally { server.shutdown() }
     }
 
