@@ -62,6 +62,17 @@ function renderArtGallery(){
     }
     section.append(grid);box.append(section);
   }
+  const atlasTitle=document.createElement('section');atlasTitle.className='art-shelf';
+  const h=document.createElement('h3');h.textContent='查看完整原始图集（滑动浏览全部图块）';atlasTitle.append(h);
+  const album={town:'Tiny Town · 室外自然',dungeon:'Tiny Dungeon · 怪物与战斗',rogue:'Roguelike/RPG · 大型道具与地形',characters:'Roguelike Characters · 人物及装备',interior:'Roguelike Indoors · 家具',city:'Roguelike Modern City · 建筑道路'};
+  for(const [key,label] of Object.entries(album)){
+    const details=document.createElement('details');details.className='art-sheet';
+    const summary=document.createElement('summary');summary.textContent=label;
+    const frame=document.createElement('div');frame.className='art-sheet-frame';
+    const image=document.createElement('img');image.src=paths[key];image.alt=label+'，完整 Kenney CC0 像素图集';image.loading='lazy';
+    frame.append(image);details.append(summary,frame);atlasTitle.append(details);
+  }
+  box.append(atlasTitle);
 }
 function tileSprite(tile,x,y,t){const specs={grass:['town',0,0],path:['town',0,32],floor:['dungeon',0,0],stone:['dungeon',0,16],wall:['dungeon',16,0],border:['dungeon',16,0],water:['town',0,0]};const a=specs[tile]||specs.grass;if(tile==='water') {ctx.fillStyle='#427d8e';ctx.fillRect(Math.round(x),Math.round(y),Math.ceil(t),Math.ceil(t));return}if(tile==='wall'||tile==='border'){ctx.fillStyle='#343c43';ctx.fillRect(Math.round(x),Math.round(y),Math.ceil(t),Math.ceil(t))}if(!sprite(a[0],a[1],a[2],16,16,x,y,t,t)){ctx.fillStyle=tile==='wall'?'#596770':tile==='floor'?'#765b54':'#739e6b';ctx.fillRect(x,y,t+1,t+1)}}
 function drawProp(p,t,x,y,time){const k=p.kind,at=(sx,sy,sw=16,sh=16,dx=x,dy=y-t*(sh/16-1),dw=t*(sw/16),dh=t*(sh/16),sheet='town')=>sprite(sheet,sx,sy,sw,sh,dx,dy,dw,dh);
