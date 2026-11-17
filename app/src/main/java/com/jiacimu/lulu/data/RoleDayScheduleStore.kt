@@ -54,6 +54,20 @@ data class RoleDayPlan(
     val lastWakeHandoffAt: Instant? = null,
 )
 
+/**
+ * An executed personal plan has a durable action receipt, not a verdict on
+ * the owner's real-life goal. A next-day rollover must not hide a late-night
+ * action when the owner comes back after midnight and reports it didn't help.
+ */
+internal fun RoleDayPlan.recentExecutionReceiptContext(now: Instant): String {
+    val at = resolvedAt ?: return ""
+    if (resultEvidenceId.isBlank() || at.isAfter(now) ||
+        Duration.between(at, now) > Duration.ofHours(16)) return ""
+    return "上一次已执行的日程动作=${at}；真实动作证据ID=${resultEvidenceId}；" +
+        "动作回执=${resultSummary.take(160)}。这只证明该日程指定动作已执行；" +
+        "若主人原本还托付了某个后续生活目标，不能据此推断已经达成。" 
+}
+
 /** Intentions chosen by each role, never reconstructed from outgoing chat messages. */
 object RoleDayScheduleStore {
     private const val PREFS = "lulu_role_day_plans_v1"
@@ -231,11 +245,19 @@ object RoleDayScheduleStore {
         }.trim()
     }
 
-    fun plannedContext(context: Context, characterId: String, now: Instant = Instant.now()): String =
-        plans(context, characterId).filter {
-            it.status in setOf("planned", "due") &&
+    fun plannedContext(context: Context, characterId: String, now: Instant = Instant.now()): String {
+        val records = plans(context, characterId)
+        // Real completed actions are shown briefly, whether this was a
+        // one-shot plan or an already-rolled daily plan. No second planner,
+        // wake-up or inferred sleep result is created here.
+        val recent = records.filter { it.recentExecutionReceiptContext(now).isNotBlank() }
+            .sortedByDescending { it.resolvedAt }.take(3)
+        val recentIds = recent.map(RoleDayPlan::id).toSet()
+        val future = records.filter {
+            it.id !in recentIds && it.status in setOf("planned", "due") &&
                 it.dueAt.isAfter(now.minus(Duration.ofDays(1)))
-        }.take(8).joinToString("\n") { plan ->
+        }.take(8 - recent.size)
+        return (recent + future).joinToString("\n") { plan ->
             "planId=${plan.id}，${plan.title}，${plan.dueAt}，" +
                 "动机=${plan.intent}，重复=${plan.repeat}，" +
                 "状态=${plan.status}，动作=${plan.activityAction}，" +
@@ -244,8 +266,10 @@ object RoleDayScheduleStore {
                 "关联约定=${plan.commitmentTaskId.ifBlank { "无" }}，" +
                 "预选参数=${plan.activityArgs.take(360)}；" +
                 "上次等待/改期的本人记录=${plan.resultSummary.ifBlank { "无" }}；" +
-                "原时间版本 expectedDueAt=${plan.dueAt}。"
+                "原时间版本 expectedDueAt=${plan.dueAt}。" +
+                plan.recentExecutionReceiptContext(now).let { if (it.isBlank()) "" else "；$it" }
         }
+    }
 
     /** Already persisted personal commitments outrank a generic periodic sleep timer.
      * Overdue plans are owned by their existing worker; don't replay them every sweep. */
