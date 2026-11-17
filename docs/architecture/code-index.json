@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T10:43:26.922762+00:00",
-  "commit": "af3885209ff4a594fe1427478820f1c36a9f3878",
+  "generatedAt": "2026-11-17T10:44:35.994971+00:00",
+  "commit": "7f1f7a07be393c2d71cfcec2567e3ebbeacda7b5",
   "branch": "main",
-  "sourceFingerprint": "b2a35e39851551d4df83ab9e9ca2e45de7e7d51f862aa1272f0090b881299a11",
+  "sourceFingerprint": "b37ba50dc407d0c48dd348c4ab98a89f5000289266d70dcdb6064dfd4d9aff0c",
   "summary": {
     "files": 1398,
-    "lines": 299740,
-    "symbols": 4234
+    "lines": 299779,
+    "symbols": 4236
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11245,7 +11245,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversal.kt",
-        "line": 25
+        "line": 30
       }
     ],
     "validateZip": [
@@ -18284,52 +18284,64 @@
         "line": 174
       }
     ],
+    "bottomComposerScanPriority": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 183
+      }
+    ],
+    "isConversationTranscript": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 190
+      }
+    ],
     "isPressToTalk": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 181
+        "line": 199
       }
     ],
     "ComposerBounds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 187
+        "line": 205
       }
     ],
     "ComposerControl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 196
+        "line": 214
       }
     ],
     "uniqueVoiceComposer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 207
+        "line": 225
       }
     ],
     "isKeyboardControl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 226
+        "line": 244
       }
     ],
     "voiceToTextControl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 238
+        "line": 256
       }
     ],
     "wechatKeyboardSlot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 279
+        "line": 297
       }
     ],
     "sendButton": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 291
+        "line": 309
       }
     ],
     "Line": [
@@ -42068,19 +42080,19 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversal.kt",
-      "lines": 45,
-      "sha256": "44168d041a54030b0486082c09cbad6c7f95a385a22beec3f54bf746bf14cdc8",
+      "lines": 66,
+      "sha256": "e602367927e9e8c3632131fdbf9988c5e7b4a45b2b9df42ea1cb95484d9ba1d6",
       "symbols": [
         {
           "name": "walk",
-          "line": 25
+          "line": 30
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-      "lines": 298,
-      "sha256": "40bab75eb6aa7c388e866c1bd52fb7b64e050b2f8e98b763717a7d0474b238db",
+      "lines": 316,
+      "sha256": "994e138bb226b56b6f86bb0e105dbe9cc2434d5406ae48dcd5be493546faf044",
       "symbols": [
         {
           "name": "supports",
@@ -42155,36 +42167,44 @@
           "line": 174
         },
         {
+          "name": "bottomComposerScanPriority",
+          "line": 183
+        },
+        {
+          "name": "isConversationTranscript",
+          "line": 190
+        },
+        {
           "name": "isPressToTalk",
-          "line": 181
+          "line": 199
         },
         {
           "name": "ComposerBounds",
-          "line": 187
+          "line": 205
         },
         {
           "name": "ComposerControl",
-          "line": 196
+          "line": 214
         },
         {
           "name": "uniqueVoiceComposer",
-          "line": 207
+          "line": 225
         },
         {
           "name": "isKeyboardControl",
-          "line": 226
+          "line": 244
         },
         {
           "name": "voiceToTextControl",
-          "line": 238
+          "line": 256
         },
         {
           "name": "wechatKeyboardSlot",
-          "line": 279
+          "line": 297
         },
         {
           "name": "sendButton",
-          "line": 291
+          "line": 309
         }
       ]
     },
