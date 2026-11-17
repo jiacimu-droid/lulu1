@@ -221,7 +221,8 @@ object DigitalWorldStore {
     }
 
     fun locationOf(characterId: String): String = mutable.value.characterLocations[characterId]
-        ?: homeLocation(characterId)
+        ?: if (DigitalLifeProfileStore.isEnabled(characterId)) homeLocation(characterId)
+        else "未确认数字世界位置"
 
     fun contextFor(characterId: String): String {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return "该角色不是数字生命，没有原生数字家园。"
