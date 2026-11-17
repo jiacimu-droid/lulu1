@@ -598,6 +598,12 @@ internal fun LuluDesktopWidgetEditor(
     var openSigns by remember { mutableStateOf(false) }
     var importError by remember { mutableStateOf<String?>(null) }
     var layoutError by remember { mutableStateOf<String?>(null) }
+    val notificationPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) draft = draft.copy(dailyNotifyEnabled = true)
+        else importError = "通知未授权，角色当天的解读仍可在桌面查看。"
+    }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             runCatching { LuluCssStore.importImage(context, uri) }
@@ -701,7 +707,15 @@ internal fun LuluDesktopWidgetEditor(
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = draft.dailyNotifyEnabled,
-                            onCheckedChange = { draft = draft.copy(dailyNotifyEnabled = it) })
+                            onCheckedChange = { wants ->
+                                if (!wants) draft = draft.copy(dailyNotifyEnabled = false)
+                                else if (android.os.Build.VERSION.SDK_INT >= 33 &&
+                                    androidx.core.content.ContextCompat.checkSelfPermission(
+                                        context, android.Manifest.permission.POST_NOTIFICATIONS,
+                                    ) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                                    notificationPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                                } else draft = draft.copy(dailyNotifyEnabled = true)
+                            })
                         Text("允许角色决定是否发送当天的通知提醒",
                             style = MaterialTheme.typography.bodySmall)
                     }
