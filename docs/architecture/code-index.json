@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:43:01.682074+00:00",
-  "commit": "fc805b02ab3851368a5f85aaaba80048f9ea8cb5",
+  "generatedAt": "2026-11-17T16:44:08.530033+00:00",
+  "commit": "f12e139440f0fb4351341adc87e5e2e80d37025d",
   "branch": "main",
-  "sourceFingerprint": "e7b31ea3f58e9a42fe3cc1702ea82704865da9ae438c67a417b5ae9ce0f91cab",
+  "sourceFingerprint": "0507e8fc0c611aee1a41688fbe4964bac0899958c39fea0f4b2a3d020995177f",
   "summary": {
-    "files": 1422,
-    "lines": 300104,
-    "symbols": 4289
+    "files": 1423,
+    "lines": 300155,
+    "symbols": 4290
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7393,7 +7393,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 117
+        "line": 129
       }
     ],
     "CharacterEvaluationLedger": [
@@ -17063,31 +17063,31 @@
     "availableBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 59
+        "line": 71
       }
     ],
     "theaterBooks": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 76
+        "line": 88
       }
     ],
     "progressLabel": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 78
+        "line": 90
       }
     ],
     "nextSlice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 89
+        "line": 101
       }
     ],
     "commitSlice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-        "line": 110
+        "line": 122
       }
     ],
     "ReadingMoment": [
@@ -23448,6 +23448,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingStarterLibraryTest.kt",
         "line": 5
+      }
+    ],
+    "ReadingTxtLibraryTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingTxtLibraryTest.kt",
+        "line": 8
       }
     ],
     "StarWishTheaterStoryExportTest": [
@@ -40590,8 +40596,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
-      "lines": 401,
-      "sha256": "22a4fff1e9e149231a5898195ea6df3582a5cdc2aba45cbdf5ff7f45fc3e7a51",
+      "lines": 399,
+      "sha256": "87ec0c982be3ba21ed340cc7cd405a24d21309e6478bdeecc5d6dfb2c63a6324",
       "symbols": [
         {
           "name": "LuluReadingScreen",
@@ -40857,8 +40863,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
-      "lines": 177,
-      "sha256": "a74c333b3d47d58f113cb8da3ff1a0421318369504793a3952dc8814ada2c33a",
+      "lines": 189,
+      "sha256": "899e3b1382b201b12fb4ea18cf2830fd4f6b19e1e1fef181f9f670041d2e61a5",
       "symbols": [
         {
           "name": "books",
@@ -40866,27 +40872,27 @@
         },
         {
           "name": "availableBooks",
-          "line": 59
+          "line": 71
         },
         {
           "name": "theaterBooks",
-          "line": 76
+          "line": 88
         },
         {
           "name": "progressLabel",
-          "line": 78
+          "line": 90
         },
         {
           "name": "nextSlice",
-          "line": 89
+          "line": 101
         },
         {
           "name": "commitSlice",
-          "line": 110
+          "line": 122
         },
         {
           "name": "clearCharacter",
-          "line": 117
+          "line": 129
         }
       ]
     },
@@ -49935,6 +49941,17 @@
         {
           "name": "ReadingStarterLibraryTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/study/ReadingTxtLibraryTest.kt",
+      "lines": 41,
+      "sha256": "360f91e7626499aa8778b0e802aa61747e962ab74ac1e50b453f5cb1df0cef42",
+      "symbols": [
+        {
+          "name": "ReadingTxtLibraryTest",
+          "line": 8
         }
       ]
     },
