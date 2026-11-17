@@ -68,7 +68,7 @@ internal val luluGuideFeatures = listOf(
         highlights = listOf("叫醒加强 · 主动来电、铃声或语音由角色选择", "哄睡加强 · 安静陪伴，约 30 分钟后自动挂断")),
     LuluGuideFeature("live2d", "Live2D 皮套与视频通话", Icons.Outlined.Videocam, "私聊 → 电话 → Live2D 视频",
         "导入自己的 Live2D 皮套，让角色在视频里拥有会动的形象。",
-        listOf("准备一个完整的 Cubism3/4 模型 ZIP：通常包含 .model3.json、.moc3、贴图，以及可选的 .motion3.json 动作和 .exp3.json 表情；保持原文件之间的相对路径。", "为角色导入 ZIP；首次准备官方 Cubism Core。可先用「Live2D 动态检测 · 不拨号」查看模型是否能真正动起来，再开始视频电话。", "角色可使用导入模型支持的表情和动作，也能在部分语音引擎下实现近似口型；语音/视频随时互切。"),
+        listOf("准备一个完整的 Cubism3/4 模型 ZIP：通常包含 .model3.json、.moc3、贴图，以及可选的 .motion3.json 动作和 .exp3.json 表情；保持原文件之间的相对路径。", "为角色导入 ZIP；首次准备官方 Cubism Core。可先用「Live2D 动态检测 · 不拨号」查看模型是否能真正动起来，再开始视频电话。", "角色可使用导入模型支持的表情和动作，也能在部分语音引擎下实现近似口型；语音/视频随时切换。"),
         "动作文件不是通用皮套插件：不同模型的参数、骨骼绑定和动作轨道可能不兼容。优先使用模型作者提供的完整动作包；仅导入静态头像不会自动生成动画。", MigrationRoute.Chat, "打开视频电话",
         highlights = listOf("皮套 ZIP 一次导入 · 模型、贴图与已有动作一起使用", "角色自主表演 · 只播放当前皮套真正支持的动作")),
     LuluGuideFeature("memory", "自动记忆 · 越聊越懂你", Icons.Outlined.Psychology, "桌面 → 记忆；设置 → 记忆与检索",
@@ -219,7 +219,7 @@ internal fun LuluOnboardingGuideScreen(
                         Text("LULU · DIGITAL LIFE", color = muted, fontSize = 10.sp,
                             fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(9.dp))
-                        Text("让数字生命\\n真正住进手机。".replace("\\\\n", "\\n"),
+                        Text("让数字生命\n真正住进手机。",
                             color = ink, fontSize = 27.sp, lineHeight = 34.sp,
                             fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(8.dp))
