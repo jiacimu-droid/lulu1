@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T19:51:50.361603+00:00",
-  "commit": "34b91f018bd4e3478432abff5c3a826a75032978",
+  "generatedAt": "2026-11-17T19:53:13.643368+00:00",
+  "commit": "e602f4c871d1c73c455072d01699608fa65364ad",
   "branch": "main",
-  "sourceFingerprint": "1169187d332f06ca8be4e04966cd93530d7f89c3de164d480ab04a5cd22d7dfe",
+  "sourceFingerprint": "5535fb3eeedc9ec980609cd262ba496c79c4d279cf58eb121100239baa7f4c57",
   "summary": {
     "files": 1443,
-    "lines": 304058,
+    "lines": 304086,
     "symbols": 4344
   },
   "symbolIndex": {
@@ -5017,7 +5017,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-        "line": 32
+        "line": 37
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
@@ -16567,25 +16567,25 @@
     "safeSpawnDistance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-        "line": 18
+        "line": 23
       }
     ],
     "separation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-        "line": 20
+        "line": 25
       }
     ],
     "eliteUnlocked": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-        "line": 22
+        "line": 27
       }
     ],
     "carve": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-        "line": 42
+        "line": 47
       }
     ],
     "forPhase": [
@@ -26887,8 +26887,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt",
-      "lines": 495,
-      "sha256": "6c85c297b5780c9782aeab946a417a7aee59292a8fa0dfdc1518a4320986c408",
+      "lines": 513,
+      "sha256": "ef18f00417dfe2fcc825d1485621e33863ca860c950b9c21dbbed46e99a1de59",
       "symbols": []
     },
     {
@@ -40277,7 +40277,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt",
       "lines": 486,
-      "sha256": "482c166609677599f3ef05e8ff78203edf1b9d351e98b348eec426c3c2937df0",
+      "sha256": "50f9dca3fd163b08c1484d1b654d3e1dd9e19e0674fc48073cd3db59699af2ee",
       "symbols": []
     },
     {
@@ -40444,8 +40444,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeWorld.kt",
-      "lines": 244,
-      "sha256": "5e5756cb25d44dcca4d9c15de170b1e9ea92fb6293717742aef50c16b35a4d24",
+      "lines": 249,
+      "sha256": "4a65388471bd9f30fe7137c239674b7ea8b5f45287a42f6d740db322fff034b4",
       "symbols": [
         {
           "name": "monsterCount",
@@ -40453,23 +40453,23 @@
         },
         {
           "name": "safeSpawnDistance",
-          "line": 18
+          "line": 23
         },
         {
           "name": "separation",
-          "line": 20
+          "line": 25
         },
         {
           "name": "eliteUnlocked",
-          "line": 22
+          "line": 27
         },
         {
           "name": "create",
-          "line": 32
+          "line": 37
         },
         {
           "name": "carve",
-          "line": 42
+          "line": 47
         }
       ]
     },
@@ -50253,8 +50253,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt",
-      "lines": 1209,
-      "sha256": "d15b2908189f06011974a130a02bd29a8f5ca1ae3a45757d07a432502ef728ba",
+      "lines": 1214,
+      "sha256": "be40caed4a00bb04ba03918d8b40a1e8860c18c7371a63f8913203db70e9edf7",
       "symbols": [
         {
           "name": "RelicEscapeRulesTest",
