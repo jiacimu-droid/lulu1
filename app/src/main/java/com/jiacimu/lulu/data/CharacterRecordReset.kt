@@ -16,7 +16,12 @@ object CharacterRecordReset {
         MigratedDomainStores.chat.conversations.value
             .filter { it.characterId == cleanId && it.groupChat == null }
             .forEach { conversation ->
-                MigratedDomainStores.chat.clearConversationMessages(conversation.id)
+                // A failed chat write must stop the reset before derived memories,
+                // timeline, and origin are erased. Otherwise the UI reports a
+                // fresh start while the old conversation remains on disk.
+                check(MigratedDomainStores.chat.clearConversationMessages(conversation.id)) {
+                    "Cannot clear persisted conversation ${conversation.id}; character reset aborted"
+                }
             }
 
         // Remove sources before derived stores, so a late extraction cannot revive old history.
