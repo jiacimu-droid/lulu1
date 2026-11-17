@@ -4,7 +4,12 @@ import com.jiacimu.lulu.system.LuluVirtualChatSendPolicy.ComposerBounds
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class LuluVirtualSocialActionsTest {
     @Test fun douyinMessagingRequiresAnExplicitPrivateMessageEditor() {
         val app = LuluVirtualChatSendPolicy.DOUYIN
