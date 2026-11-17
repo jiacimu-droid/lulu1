@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:43:06.385946+00:00",
-  "commit": "9da089d22d5f79e257ea315f4d0638bea5691716",
+  "generatedAt": "2026-11-17T17:44:08.095702+00:00",
+  "commit": "bc3b70d3127bd5e2de6f78d57018d50616d2e1f6",
   "branch": "main",
-  "sourceFingerprint": "ae24d9c5d5885a18a8549e1137ef5e89c549ed92e60ab32f40beb353a44c8695",
+  "sourceFingerprint": "f8185470c4355a59a5a12c6db223fd5e9886424035eb3929690d6bfb3ff07cfd",
   "summary": {
-    "files": 1438,
-    "lines": 302744,
-    "symbols": 4341
+    "files": 1439,
+    "lines": 302847,
+    "symbols": 4342
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20042,6 +20042,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/LuluVoiceCallReplyActivityTest.kt",
         "line": 5
+      }
+    ],
+    "LuluWidgetLiveIntegrationTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/LuluWidgetLiveIntegrationTest.kt",
+        "line": 18
       }
     ],
     "MeetingPhysicalStateReducerTest": [
@@ -44891,6 +44897,17 @@
         {
           "name": "LuluVoiceCallReplyActivityTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/LuluWidgetLiveIntegrationTest.kt",
+      "lines": 103,
+      "sha256": "60874422cef45da235b7279b5a1651d6965b2408fb59e7209c0aeb8f7a540f06",
+      "symbols": [
+        {
+          "name": "LuluWidgetLiveIntegrationTest",
+          "line": 18
         }
       ]
     },
