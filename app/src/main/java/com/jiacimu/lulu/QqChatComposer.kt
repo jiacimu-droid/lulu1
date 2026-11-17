@@ -33,6 +33,10 @@ internal data class QqComposerPayload(
     val imageDescription: String = "",
 )
 
+/** A blank composer keeps the plus button; a ready photo is sendable without text. */
+internal fun qqComposerHasDraft(text: String, imageUri: String?): Boolean =
+    text.isNotBlank() || !imageUri.isNullOrBlank()
+
 @Composable
 internal fun QqChatComposer(
     inputState: MutableState<String>,
@@ -152,7 +156,7 @@ internal fun QqChatComposer(
 
         // A single quiet input row at rest. The old always-visible action strip
         // competed with the conversation on every screen, even when unused.
-        val hasDraft = inputState.value.isNotBlank() || imageUri != null
+        val hasDraft = qqComposerHasDraft(inputState.value, imageUri)
         val canSend = hasDraft && !importingPhoto
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 7.dp),
@@ -235,7 +239,7 @@ internal fun QqChatComposer(
                     modifier = Modifier.size(48.dp),
                 ) {
                     Icon(
-                        if (showTools) Icons.Outlined.Close else Icons.Outlined.AddCircleOutline,
+                        Icons.Outlined.AddCircleOutline,
                         if (showTools) "收起更多功能" else "展开更多功能",
                         modifier = Modifier.size(29.dp),
                         tint = QqInk,
