@@ -18,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.ModelUsage
@@ -49,6 +51,9 @@ internal fun QqChatComposer(
     onStop: () -> Unit,
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var showTools by remember { mutableStateOf(false) }
     var imageUri by remember { mutableStateOf<String?>(null) }
     var importingPhoto by remember { mutableStateOf(false) }
     var photoImportError by remember { mutableStateOf("") }
@@ -112,22 +117,6 @@ internal fun QqChatComposer(
     }
 
     Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
-        if (showStickerShelf) {
-            QqStickerShelf(
-                onSendSticker = onSendSticker,
-                onInsertText = { kaomoji -> inputState.value += kaomoji },
-                onNotice = { stickerNotice = it },
-            )
-            if (stickerNotice.isNotBlank()) {
-                Text(
-                    stickerNotice,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 3.dp),
-                    fontSize = 11.sp,
-                    color = QqMuted,
-                    maxLines = 2,
-                )
-            }
-        }
         if (importingPhoto) {
             Text("正在准备图片，完成后才能发送…", color = QqMuted,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp), fontSize = 12.sp)
@@ -161,75 +150,14 @@ internal fun QqChatComposer(
             }
         }
 
-        // The entire chat action tray is ONE row, including image/stickers/model/phone/video/watch.
-        // Equal-width cells keep everything visible on narrow phones without a second row.
+        // A single quiet input row at rest. The old always-visible action strip
+        // competed with the conversation on every screen, even when unused.
+        val hasDraft = inputState.value.isNotBlank() || imageUri != null
+        val canSend = hasDraft && !importingPhoto
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 5.dp, vertical = 3.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 7.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            QqComposerTool(
-                label = "图片", icon = Icons.Outlined.AddPhotoAlternate,
-                modifier = Modifier.weight(1f),
-                onClick = { imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-            )
-            QqComposerTool(
-                label = "表情", icon = Icons.Outlined.EmojiEmotions,
-                modifier = Modifier.weight(1f),
-                onClick = { showStickerShelf = !showStickerShelf },
-            )
-            Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                ModelArchiveIconButton(
-                    usage = ModelUsage.Chat,
-                    characterId = characterId.takeUnless { groupMode },
-                    title = if (groupMode) "公共聊天模型" else "当前角色聊天模型",
-                    subtitle = if (groupMode) "只设置未单独选择的角色的默认模型。"
-                        else "这里只修改当前角色，其他角色原来的模型保持不变。",
-                    icon = Icons.Outlined.SwapHoriz,
-                    contentDescription = "切换聊天模型",
-                    tint = QqInk,
-                    accent = QqInk,
-                    background = QqPage,
-                    ink = QqInk,
-                    muted = QqMuted,
-                    border = QqBorder,
-                )
-                Text("模型", fontSize = 10.sp, color = QqMuted, maxLines = 1)
-            }
-            if (groupMode) {
-                QqComposerTool(
-                    label = "@", icon = Icons.Outlined.AlternateEmail,
-                    modifier = Modifier.weight(1f), onClick = onMention,
-                )
-            }
-            QqComposerTool(
-                label = "电话", icon = Icons.Outlined.Call,
-                modifier = Modifier.weight(1f), onClick = onCall,
-            )
-            if (!groupMode && onVideoCall != null) {
-                QqComposerTool(
-                    label = "视频", icon = Icons.Outlined.Videocam,
-                    modifier = Modifier.weight(1f), onClick = onVideoCall,
-                )
-            }
-            if (!groupMode && onWatchTogether != null) {
-                QqComposerTool(
-                    label = "一起看", icon = Icons.Outlined.Theaters,
-                    modifier = Modifier.weight(1f), onClick = onWatchTogether,
-                )
-            }
-            if (!groupMode && onListenTogether != null) {
-                QqComposerTool(
-                    label = "一起听", icon = Icons.Outlined.MusicNote,
-                    modifier = Modifier.weight(1f), onClick = onListenTogether,
-                )
-            }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 7.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
         ) {
             FilledTonalIconButton(
                 onClick = {
@@ -239,19 +167,32 @@ internal fun QqChatComposer(
                         putExtra(RecognizerIntent.EXTRA_PROMPT, "说点什么")
                     })
                 },
-                modifier = Modifier.size(50.dp),
-                colors = IconButtonDefaults.filledTonalIconButtonColors(containerColor = QqIconSurface, contentColor = QqInk),
-            ) { Icon(Icons.Outlined.KeyboardVoice, "语音输入", modifier = Modifier.size(27.dp)) }
+                modifier = Modifier.size(48.dp),
+                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                    containerColor = QqIconSurface, contentColor = QqInk,
+                ),
+            ) { Icon(Icons.Outlined.KeyboardVoice, "语音输入", modifier = Modifier.size(26.dp)) }
 
             TextField(
                 value = inputState.value,
-                onValueChange = { inputState.value = it },
-                modifier = Modifier.weight(1f)
-                    .onFocusChanged { state -> onInputFocusChanged(state.isFocused) },
+                onValueChange = {
+                    inputState.value = it
+                    if (it.isNotBlank()) {
+                        showTools = false
+                        showStickerShelf = false
+                    }
+                },
+                modifier = Modifier.weight(1f).onFocusChanged { state ->
+                    onInputFocusChanged(state.isFocused)
+                    if (state.isFocused) {
+                        showTools = false
+                        showStickerShelf = false
+                    }
+                },
                 minLines = 1,
                 maxLines = 5,
                 placeholder = { Text("发消息", color = QqMuted, maxLines = 1) },
-                shape = RoundedCornerShape(18.dp),
+                shape = RoundedCornerShape(14.dp),
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = QqInk,
                     unfocusedTextColor = QqInk,
@@ -263,38 +204,157 @@ internal fun QqChatComposer(
                 ),
             )
 
-            val canSend = !importingPhoto && (inputState.value.isNotBlank() || imageUri != null)
-            FilledIconButton(
-                onClick = { if (onSendOnly(payload())) clearAttachment() },
-                enabled = canSend,
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = QqInk,
-                    contentColor = Color.White,
-                    disabledContainerColor = QqBorder,
-                    disabledContentColor = QqMuted,
-                ),
-            ) { Icon(Icons.Outlined.Send, "只发送") }
+            if (hasDraft) {
+                Button(
+                    onClick = {
+                        // This is the same durable send path as the old "只发送"
+                        // button; private/group reply scheduling stays in its store.
+                        if (canSend && onSendOnly(payload())) {
+                            clearAttachment()
+                            showTools = false
+                            showStickerShelf = false
+                        }
+                    },
+                    enabled = canSend,
+                    modifier = Modifier.height(48.dp),
+                    contentPadding = PaddingValues(horizontal = 13.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = QqMine, contentColor = QqMineInk,
+                    ),
+                ) { Text("发送", fontSize = 13.sp) }
+            } else {
+                IconButton(
+                    onClick = {
+                        val opening = !showTools
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
+                        showStickerShelf = false
+                        showTools = opening
+                    },
+                    modifier = Modifier.size(48.dp),
+                ) {
+                    Icon(
+                        if (showTools) Icons.Outlined.Close else Icons.Outlined.AddCircleOutline,
+                        if (showTools) "收起更多功能" else "展开更多功能",
+                        modifier = Modifier.size(29.dp),
+                        tint = QqInk,
+                    )
+                }
+            }
+        }
 
-            FilledTonalIconButton(
-                onClick = {
-                    // The user can interrupt an ongoing group conversation
-                    // simply by sending their new message. Stop remains
-                    // available when the draft is empty.
-                    if (receiving && !canSend) onStop()
-                    else if (!importingPhoto && onWakeOrReply(payload())) clearAttachment()
-                },
-                enabled = receiving || !importingPhoto,
-                colors = IconButtonDefaults.filledTonalIconButtonColors(
-                    containerColor = QqIconSurface,
-                    contentColor = QqInk,
-                ),
+        if (showTools) {
+            HorizontalDivider(color = QqBorder.copy(alpha = 0.35f))
+            Column(
+                Modifier.fillMaxWidth().padding(horizontal = 9.dp, vertical = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                Icon(
-                    if (receiving && !canSend) Icons.Outlined.StopCircle else Icons.Outlined.MarkChatRead,
-                    if (receiving && !canSend) "停止" else if (receiving) "发送并插话" else "回复",
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    QqComposerTool("图片", Icons.Outlined.AddPhotoAlternate, Modifier.weight(1f)) {
+                        showTools = false
+                        imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    }
+                    QqComposerTool("表情", Icons.Outlined.EmojiEmotions, Modifier.weight(1f)) {
+                        showTools = false
+                        showStickerShelf = true
+                    }
+                    Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Surface(
+                            modifier = Modifier.size(58.dp),
+                            color = QqIconSurface, shape = RoundedCornerShape(15.dp),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                ModelArchiveIconButton(
+                                    usage = ModelUsage.Chat,
+                                    characterId = characterId.takeUnless { groupMode },
+                                    title = if (groupMode) "公共聊天模型" else "当前角色聊天模型",
+                                    subtitle = if (groupMode) "只设置未单独选择的角色的默认模型。"
+                                        else "这里只修改当前角色，其他角色原来的模型保持不变。",
+                                    icon = Icons.Outlined.SwapHoriz,
+                                    contentDescription = "切换聊天模型",
+                                    tint = QqInk,
+                                    accent = QqInk,
+                                    background = QqPage,
+                                    ink = QqInk,
+                                    muted = QqMuted,
+                                    border = QqBorder,
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(5.dp))
+                        Text("模型", fontSize = 11.sp, color = QqMuted, maxLines = 1)
+                    }
+                    if (groupMode) {
+                        QqComposerTool("@成员", Icons.Outlined.AlternateEmail, Modifier.weight(1f)) {
+                            showTools = false
+                            onMention()
+                        }
+                    } else {
+                        QqComposerTool("电话", Icons.Outlined.Call, Modifier.weight(1f)) {
+                            showTools = false
+                            onCall()
+                        }
+                    }
+                }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    if (groupMode) {
+                        QqComposerTool("电话", Icons.Outlined.Call, Modifier.weight(1f)) {
+                            showTools = false
+                            onCall()
+                        }
+                    } else {
+                        if (onVideoCall != null) {
+                            QqComposerTool("视频", Icons.Outlined.Videocam, Modifier.weight(1f)) {
+                                showTools = false
+                                onVideoCall()
+                            }
+                        }
+                        if (onWatchTogether != null) {
+                            QqComposerTool("一起看", Icons.Outlined.Theaters, Modifier.weight(1f)) {
+                                showTools = false
+                                onWatchTogether()
+                            }
+                        }
+                        if (onListenTogether != null) {
+                            QqComposerTool("一起听", Icons.Outlined.MusicNote, Modifier.weight(1f)) {
+                                showTools = false
+                                onListenTogether()
+                            }
+                        }
+                    }
+                    QqComposerTool(
+                        if (receiving) "停止回复" else "催回复",
+                        if (receiving) Icons.Outlined.StopCircle else Icons.Outlined.MarkChatRead,
+                        Modifier.weight(1f),
+                    ) {
+                        showTools = false
+                        if (receiving) onStop() else onWakeOrReply(QqComposerPayload(""))
+                    }
+                    if (groupMode) {
+                        Spacer(Modifier.weight(1f))
+                        Spacer(Modifier.weight(1f))
+                    }
+                }
+            }
+        }
+        if (showStickerShelf) {
+            QqStickerShelf(
+                onSendSticker = onSendSticker,
+                onInsertText = { kaomoji -> inputState.value += kaomoji },
+                onNotice = { stickerNotice = it },
+            )
+            if (stickerNotice.isNotBlank()) {
+                Text(
+                    stickerNotice,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 3.dp),
+                    fontSize = 11.sp,
+                    color = QqMuted,
+                    maxLines = 2,
                 )
             }
         }
+
     }
 }
 
@@ -308,9 +368,18 @@ private fun QqComposerTool(
     onClick: () -> Unit,
 ) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        IconButton(onClick = onClick, modifier = Modifier.size(48.dp)) {
-            Icon(icon, label, modifier = Modifier.size(21.dp), tint = QqInk)
+        Surface(
+            modifier = Modifier.size(58.dp),
+            color = QqIconSurface,
+            shape = RoundedCornerShape(15.dp),
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                IconButton(onClick = onClick, modifier = Modifier.size(48.dp)) {
+                    Icon(icon, label, modifier = Modifier.size(25.dp), tint = QqInk)
+                }
+            }
         }
-        Text(label, fontSize = 10.sp, color = QqMuted, maxLines = 1)
+        Spacer(Modifier.height(5.dp))
+        Text(label, fontSize = 11.sp, color = QqMuted, maxLines = 1)
     }
 }
