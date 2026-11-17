@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`bb31fa245f00f54e66fc84e37340232277e38f28`
+- 基准提交：`e109a5093beaec9f191d78f7ab84687b31d39731`
 - 分支：`main`
 - 已索引文件：1390
-- 已索引代码/文本行：297382
-- 已发现符号：4198
+- 已索引代码/文本行：297489
+- 已发现符号：4199
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -152,9 +152,9 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt` | 513 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt` | 258 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt` | 261 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 368 | 14 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt` | 233 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt` | 262 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSongAudioMix.kt` | 203 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 305 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
@@ -190,7 +190,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 539 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 829 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 851 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 432 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt` | 364 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt` | 279 | 9 |
@@ -915,7 +915,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsBatchLatencyPolicyTest.kt` | 19 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsMusicTest.kt` | 151 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ElevenLabsRoleSongPipelineTest.kt` | 91 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ElevenLabsRoleSongPipelineTest.kt` | 144 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 308 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |

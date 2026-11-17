@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T05:23:46.501969+00:00",
-  "commit": "bb31fa245f00f54e66fc84e37340232277e38f28",
+  "generatedAt": "2026-11-17T05:27:17.827485+00:00",
+  "commit": "e109a5093beaec9f191d78f7ab84687b31d39731",
   "branch": "main",
-  "sourceFingerprint": "6c53be798fd65bb745cfa7a812c29dce8f97cbc5b429f112dd7404c5be983cd7",
+  "sourceFingerprint": "2c396f78d97f694ebcbcfc58249ceab811995bad6205b87718a04cf1f58e2e05",
   "summary": {
     "files": 1390,
-    "lines": 297382,
-    "symbols": 4198
+    "lines": 297489,
+    "symbols": 4199
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -97,7 +97,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 222
+        "line": 225
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
@@ -1581,7 +1581,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 557
+        "line": 579
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
@@ -1853,25 +1853,25 @@
     "latestOriginalSong": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 198
+        "line": 200
       }
     ],
     "latestRoleVoiceSong": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 204
+        "line": 206
       }
     ],
     "latestSong": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 214
+        "line": 217
       }
     ],
     "play": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 231
+        "line": 234
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
@@ -1986,10 +1986,16 @@
         "line": 365
       }
     ],
+    "voiceStyle": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
+        "line": 37
+      }
+    ],
     "enabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
-        "line": 31
+        "line": 57
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt",
@@ -2011,25 +2017,25 @@
     "roleVoiceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
-        "line": 37
+        "line": 63
       }
     ],
     "convertedFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
-        "line": 47
+        "line": 73
       }
     ],
     "convert": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
-        "line": 55
+        "line": 84
       }
     ],
     "part": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
-        "line": 192
+        "line": 221
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
@@ -3173,19 +3179,19 @@
     "saveVoiceSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 129
+        "line": 132
       }
     ],
     "LuluMemorySettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 544
+        "line": 566
       }
     ],
     "LuluImageSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 637
+        "line": 659
       }
     ],
     "LuluAppearanceScreen": [
@@ -19057,7 +19063,7 @@
     "ElevenLabsRoleSongPipelineTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsRoleSongPipelineTest.kt",
-        "line": 17
+        "line": 18
       }
     ],
     "GameInviteMessageParserTest": [
@@ -24864,8 +24870,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-      "lines": 258,
-      "sha256": "efa28e35807bc7f3958ed342a50cab566e1f457a7a52c8d6b5e16576c3a33815",
+      "lines": 261,
+      "sha256": "3a0ca2b97f67a13a4486679b79e0150699912beee13713766fedd47a25613aac",
       "symbols": [
         {
           "name": "Song",
@@ -24885,23 +24891,23 @@
         },
         {
           "name": "latestOriginalSong",
-          "line": 198
+          "line": 200
         },
         {
           "name": "latestRoleVoiceSong",
-          "line": 204
+          "line": 206
         },
         {
           "name": "latestSong",
-          "line": 214
+          "line": 217
         },
         {
           "name": "stop",
-          "line": 222
+          "line": 225
         },
         {
           "name": "play",
-          "line": 231
+          "line": 234
         }
       ]
     },
@@ -24970,28 +24976,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
-      "lines": 233,
-      "sha256": "8b67bf2c88a8f5eb2b1b9f826d2c046464d36b5f326421822742292250cd580c",
+      "lines": 262,
+      "sha256": "14bcd745ce61b63c89bc9d23c0641c01ab6668a53e8be1920ece0ff11fb454d6",
       "symbols": [
         {
-          "name": "enabled",
-          "line": 31
-        },
-        {
-          "name": "roleVoiceId",
+          "name": "voiceStyle",
           "line": 37
         },
         {
+          "name": "enabled",
+          "line": 57
+        },
+        {
+          "name": "roleVoiceId",
+          "line": 63
+        },
+        {
           "name": "convertedFile",
-          "line": 47
+          "line": 73
         },
         {
           "name": "convert",
-          "line": 55
+          "line": 84
         },
         {
           "name": "part",
-          "line": 192
+          "line": 221
         }
       ]
     },
@@ -25733,8 +25743,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-      "lines": 829,
-      "sha256": "5d2d2bbfc4e6f328d2c0589d6098c980edd987f055cd000edb80551b1964fe89",
+      "lines": 851,
+      "sha256": "374af46a8cea39ae288beeb9eb7e0e75c9b2b17feaa6a92c1d66d465d0340df8",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
@@ -25742,19 +25752,19 @@
         },
         {
           "name": "saveVoiceSettings",
-          "line": 129
+          "line": 132
         },
         {
           "name": "LuluMemorySettingsScreen",
-          "line": 544
+          "line": 566
         },
         {
           "name": "save",
-          "line": 557
+          "line": 579
         },
         {
           "name": "LuluImageSettingsScreen",
-          "line": 637
+          "line": 659
         }
       ]
     },
@@ -43108,12 +43118,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsRoleSongPipelineTest.kt",
-      "lines": 91,
-      "sha256": "75e13ea4d945322012248f440823c0bca965935a21c7f31826e95cdc8ca55d64",
+      "lines": 144,
+      "sha256": "1af652cec82b27e79d76bacdd67d61ac8e4d4f6712112ba6e889b5d1ab56dead",
       "symbols": [
         {
           "name": "ElevenLabsRoleSongPipelineTest",
-          "line": 17
+          "line": 18
         }
       ]
     },
