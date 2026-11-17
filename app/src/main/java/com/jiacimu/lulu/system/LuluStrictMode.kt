@@ -45,7 +45,6 @@ internal object LuluStrictMode {
         Thread(task, "lulu-strict-receipts").apply { isDaemon = true }
     }
     private var lastPackage = ""
-    private var lastAt = 0L
 
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -162,7 +161,6 @@ internal object LuluStrictMode {
         if (!prefs(context).edit().putString(ACTIVE, session.toString()).commit())
             return response(false, "failed", "无法持久化强制监督会话")
         lastPackage = ""
-        lastAt = 0L
         if (previous == null) prefs(context).edit().putLong("lastReview", 0L).apply()
         showNotice(context, session)
         // Expiry is a local time limit, not a character decision to continue watching.
@@ -221,10 +219,9 @@ internal object LuluStrictMode {
         if (foreground == context.packageName) { lastPackage = ""; return }
         if (foreground.isBlank() || event.packageName?.toString() != foreground ||
             LuluScreenAwareness.isExcluded(context, foreground)) return
-        val now = System.currentTimeMillis()
-        if (lastPackage == foreground && now - lastAt < 900L) return
+        // A redraw in the same app is not a new launch.
+        if (lastPackage == foreground) return
         lastPackage = foreground
-        lastAt = now
         val exceptions = (session.optJSONArray("exceptPackages") ?: JSONArray()).let { array ->
             (0 until array.length()).map { array.optString(it) }.toSet()
         }
@@ -284,7 +281,6 @@ internal object LuluStrictMode {
         if (!prefs(context).edit().remove(ACTIVE)
                 .remove("recent_" + sessionId).commit()) return false
         lastPackage = ""
-        lastAt = 0L
         context.getSystemService(NotificationManager::class.java).cancel(NOTICE_ID)
         WorkManager.getInstance(context.applicationContext)
             .cancelUniqueWork("lulu-strict-review-" + sessionId)
@@ -348,6 +344,8 @@ class LuluStrictReviewWorker(context: Context, params: WorkerParameters) :
             initializeBackgroundRuntime(applicationContext)
             val fresh = LuluStrictMode.status(applicationContext, role)
             val snapshot = JSONObject(fresh).optString("recent").take(4500)
+            if (LuluStrictMode.active(applicationContext)?.optString("id") != id)
+                return@runCatching Result.success()
             SharedExperienceTimeline.record(
                 "strict-review-" + id + "-" + System.currentTimeMillis(),
                 role, "临时强制监督", "手机",
