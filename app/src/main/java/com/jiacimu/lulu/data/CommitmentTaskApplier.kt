@@ -310,17 +310,28 @@ private fun scheduleTaskAlarm(task: CommitmentTask) {
         }
         return
     }
-    if (!dueAt.isAfter(Instant.now().plusSeconds(5))) {
+    val registeringAt = Instant.now()
+    val needsImmediateDelivery = !dueAt.isAfter(registeringAt.plusSeconds(5))
+    if (needsImmediateDelivery && CommitmentAlarmTiming.expired(dueAt, registeringAt)) {
+        // The model's accepted commitment reached persistence after the original
+        // OS deadline. It cannot be discarded as an inactive task: the owner
+        // still needs an opportunity to decide whether it matters NOW.
         CommitmentTaskStore.update(task.id) { current ->
             current.copy(
-                status = CommitmentTaskStatus.Expired,
+                status = CommitmentTaskStatus.Blocked,
                 nextCheckAt = null,
                 linkedAlarmId = null,
-                lastActionResult = "约定时间已经过去，不能把补救当作准时履约",
+                lastActionResult = "任务保存时已晚于原定投递窗口；尚未发出任何提醒或来电。" +
+                    "原时刻=$dueAt；实际保存=$registeringAt；需本人重新决定补救，不能冒充准时履约",
             )
         }
+        CommitmentTaskStore.handoffMissedCommitment(task.characterId, dueAt)
         return
     }
+    // For a small API/network delay, keep the already chosen delivery action
+    // instead of failing before an AlarmManager callback can even be registered.
+    // dueAt remains the ORIGINAL promise; this is only the real OS handoff time.
+    val physicalAlarmAt = if (needsImmediateDelivery) registeringAt.plusSeconds(8) else dueAt
     val character = MigratedDomainStores.characters.get(task.characterId)
     if (task.deliveryAction == "start_call" && !character.contactPolicy.proactiveCallsEnabled) {
         CommitmentTaskStore.update(task.id) { current ->
@@ -333,7 +344,7 @@ private fun scheduleTaskAlarm(task: CommitmentTask) {
         }
         return
     }
-    val result = LuluAlarmSystem.create(task.characterId, character.displayName, dueAt, task.goal,
+    val result = LuluAlarmSystem.create(task.characterId, character.displayName, physicalAlarmAt, task.goal,
         commitmentTaskId = task.id)
     result.onSuccess { alarm ->
         CommitmentTaskStore.update(task.id) { current ->
@@ -341,11 +352,13 @@ private fun scheduleTaskAlarm(task: CommitmentTask) {
                 status = CommitmentTaskStatus.Scheduled,
                 linkedAlarmId = alarm.id,
                 nextCheckAt = dueAt,
-                lastActionResult = if (LuluAlarmSystem.canScheduleExact()) {
+                lastActionResult = (if (LuluAlarmSystem.canScheduleExact()) {
                     "已在手机上登记精确闹钟；到点将触发通知与角色叫醒动作，尚未履行"
                 } else {
                     "已登记非精确系统叫醒任务：手机未授予精确闹钟权限，可能延迟。请到人格页授予权限，不能保证准点"
-                },
+                }) + if (needsImmediateDelivery)
+                    "；原约定=$dueAt，实际登记投递=$physicalAlarmAt；执行如实标记延迟，不算准点"
+                    else "",
             )
         }
         // Only AFTER this single native alarm succeeds, retire any competing
