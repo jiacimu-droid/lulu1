@@ -14,6 +14,7 @@ import android.view.InputDevice
 import android.view.InputEvent
 import android.view.KeyEvent
 import org.json.JSONObject
+import com.jiacimu.lulu.system.LuluVirtualTextInputPolicy
 
 /**
  * The ordinary app process cannot write to a third-party editor omitted from the
@@ -33,7 +34,7 @@ internal object LuluShellTextInput {
     fun mayPaste(displayId: Int, packageName: String, text: String, launchedPackage: String): Boolean =
         displayId > 0 && packageName == launchedPackage &&
         packageName.matches(Regex("[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)+")) &&
-        text.isNotBlank() && text.length <= 500 && Build.VERSION.SDK_INT >= 34
+        text.isNotBlank() && text.length <= LuluVirtualTextInputPolicy.MAX_TEXT_CHARS && Build.VERSION.SDK_INT >= 34
 
     @SuppressLint("PrivateApi")
     private fun injectTargeted(event: KeyEvent, displayId: Int, targetUid: Int): Boolean = try {
