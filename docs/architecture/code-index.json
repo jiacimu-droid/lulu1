@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T19:45:22.492282+00:00",
-  "commit": "3cd6c2626c0a371148a9ea40dfc07d6c6f2604fd",
+  "generatedAt": "2026-11-17T19:46:27.773448+00:00",
+  "commit": "e2bf2e30d1a0438b95c9e8665f1410d0e41b611c",
   "branch": "main",
-  "sourceFingerprint": "6223e9be546428db3b706e570b34dbb7896e2e48ec5e0610baa1e9f2de492dc7",
+  "sourceFingerprint": "d077509ca868839bab5c2920477274eb27beac463678e08028a118c30b252daf",
   "summary": {
     "files": 1443,
     "lines": 304018,
@@ -51286,7 +51286,7 @@
     {
       "path": "preview/index.html",
       "lines": 101,
-      "sha256": "1a68652c28a5d4735a62a8e7436c951fc1d75e2b62934f5b187d52f192f794f6",
+      "sha256": "d5ee9cdccd925b61a45e6a7d460657f2ae1322fd1f83bc1df3089f74bea74cae",
       "symbols": []
     },
     {
