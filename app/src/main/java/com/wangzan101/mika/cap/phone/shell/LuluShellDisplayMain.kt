@@ -214,7 +214,22 @@ object LuluShellDisplayMain {
                     else "虚拟屏启动应用被系统拒绝：${launchResult.failure}")
         }
         check(targetPackage.isNotEmpty()) { "no target app on virtual screen" }
-        // Only app launching and frame transport belong to the shell helper.
+        if (action == "paste_text") {
+            // Narrowly scoped internal channel: caller proves the exact
+            // recipient using the independent display's pixels, taps a
+            // model-selected composer point, and rechecks authorization.
+            // The shell enforces its own display id, launched package and UID;
+            // no shell 'input -d', display 0, or generic keyboard fallback.
+            check(cmd.optString("packageName") == targetPackage) {
+                "paste package does not match launched app"
+            }
+            pendingActionFrameBarrierNanos = discardPreActionFrames()
+            pendingActionNeedsFrame = true
+            return LuluShellTextInput.paste(ShellContext.create(), id,
+                cmd.optString("packageName"), targetPackage, cmd.optString("text"))
+        }
+        // Only app launching, frames and this scoped Unicode transport belong
+        // to shell; every other operation remains accessibility-controlled.
         // Shell input -d is not portable: on some Android builds it requires
         // INJECT_EVENTS, which cannot be granted through the app UI. The
         // session now dispatches all input to the owned display via
