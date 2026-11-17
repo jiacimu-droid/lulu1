@@ -1,3 +1,10 @@
+## 2026-11-17 · P-03.1 电话流式协议拒绝后的同轮回退
+
+- [c02de79](https://github.com/jiacimu-droid/lulu1/commit/c02de7976694136ba2fe59dd5f4a37385dde77e0) 修正 `CompanionModelGateway.openAiCompatible`：获得明确流式协议拒绝后，普通 JSON 重发同时移除 `stream` 与 `stream_options`。此前官方 Gemini 端点的流式用量选项可能留在非流式请求中。仍沿既有窄拒绝判定与一次回退边界，不增加正常请求或普通拒绝下的调用。
+- 新增 `PhoneModelTransportPolicyTest.explicitStreamRejectionRetriesTheSamePhoneDecisionWithoutStreaming`，经真实 `LuluDeviceToolBridge.respond` 和 MockWebServer 模拟 HTTP 400 明确拒绝流式，直接比较两次 POST 除流式参数外完全相同，验证同一角色、本人关系条件与否定、完整通话转写和模型选定台词。既有普通 `invalid_argument` 回归确认只发送一次。模拟中转覆盖 HTTP 协议交接，官方 Gemini 选项清理由源码确认，实际官方服务待验。
+- 精确 SHA [原索引 #43996698816](https://github.com/jiacimu-droid/lulu1/actions/runs/43996698816) 成功。[JVM/APK #43996698859](https://github.com/jiacimu-droid/lulu1/actions/runs/43996698859) 电话正反例与上轮 Relay 503 回归通过。全量 3311 项，1 项失败、1 项跳过；唯一失败同改动前 [#43989418212](https://github.com/jiacimu-droid/lulu1/actions/runs/43989418212) 的 `RecentSemanticTimelineTest.hundredRelicActionsDoNotEvictRealConversationAndGameSpeechCountsSeparately`，APK 未发布。上轮精确 [#43980745968](https://github.com/jiacimu-droid/lulu1/actions/runs/43980745968) 复核通过目标回归，真机通话和真实模型仍待验。
+- 下一步沿 P-03.1 对照 `ModelPostTransportTest.cancelledDecoderReleasesItsSocketWithoutReposting` 与 `LuluDeviceToolBridge.respond`，确认真实通话在用户插话取消未完成的网络响应时，不发布旧心声/动作或另发请求。已有传输层取消回归，只补正式电话入口缺失的反例。
+
 ## 2026-11-17 · P-03.1 Relay 内存 503 的真实重发请求
 
 - [178db89](https://github.com/jiacimu-droid/lulu1/commit/178db89222ae9620da396552513d90dde856a3a5) 新增 `ConversationExpressionGatewayTest.relayMemoryGuardRetryKeepsTheSameActorAndCompleteUserTurn`。已有 `RelayRequestPressurePolicyTest` 只验证投影和分类。新增回归让真实网关首个 HTTP 被明确的 Relay 内存 503 拒收，同一请求仅重发一次。重发体确实更小，仍含角色身份、稳定人格、本人手改条件/否定、现场日程事实和完整的最新用户原话，未带入另一个角色的约定。网关返回的模型决定原文等于模拟响应。仅补回归，生产路径和普通请求调用次数没有变化。
