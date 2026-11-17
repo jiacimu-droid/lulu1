@@ -624,3 +624,7 @@
 ## 2026-11-17 G-02.6 · 怪物占据遗失背包的真实战斗/找回/重进回归（CI 待验）
 - `IslandTargetActionTest.guardedLostPackRequiresRealCombatThenRecoversExactlyOnceAcrossReload` 通过正式 `islandTargetAction`、`islandNearbyAction` 和 `BlockIslandRules.act` 验证：活怪占据掉包格时 HUD 优先攻击，直接取包不增加物资；真实击败怪物后存档重载才开放拾取，木/石/野果/晶石按原包精确转回，再重载后不可重复领取。测试提交 `5788abe9dac27f2ec59fcaef4fad556c5889c430`，测试 blob `72e8edbc1837d32217b47a2b0bb4ee9c5b17dd7d`；权威生产规则 `BlockIslandRules.kt` blob `ed89c1148e64d84a47e2471a9fae3d90dd063e30` 未改，不重复造掉包账本。
 - 本次测试尚无实际 JVM 通过证据；main push JVM/APK/index 必须以对应 SHA 工作流核查，Redmi 横屏地图目标切换、掉包视觉、帧时间和真实伙伴行动仍待验。下一入口：`IslandTargetActionTest` JVM 首错及 `BlockIslandScreen.kt` 目标切换/按钮点击，继续真机掉包取回后重新进入。
+
+## 2026-11-17 G-02.6 · 同格怪物/遗失背包的地图标题与权威操作一致
+- 正式地图 `BlockIslandScreen.kt` 先前 `targetTitle` 优先显示补给箱/动物，而 `islandTargetAction` 已按活怪→倒地队友→遗失背包优先执行，导致同格 HUD 可能显示“打开补给”旁却是攻击。生产提交 `135a58b75dfdc1fbb93ee4b505efb6acd8047148`（blob `2b5ac7883b5e07b0401b33e336d713e9ef4c2a5f`）将这三类标题直接从权威 action 投影；未修改怪物、奖励、人物选择或掉包存档。既有 `IslandTargetActionTest.guardedLostPackRequiresRealCombatThenRecoversExactlyOnceAcrossReload` 覆盖权威动作/资源；本轮未重复造同类规则测试。
+- CI：本次提交的 main push JVM/APK/index 尚未取得可核终态，不称通过。下一实际文件 `BlockIslandScreen.kt`（同格怪物/补给/动物 HUD 真机触控）与 `IslandTargetActionTest.kt`（现有规则回归的 JVM 首错）；Redmi 横屏、帧时间、美术审图和真实模型协作另验。
