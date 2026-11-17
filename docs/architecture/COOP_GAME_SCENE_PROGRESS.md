@@ -1,5 +1,12 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+## 2026-11-17 · G-03.5 · 藏宝馆探险中展出入口与权威账本对齐（待 CI/真机）
+
+- **生产缺口**：`RelicEscapeLedger.featureLoot` 在进行中探险拒绝更换展品，但正式 `RelicVaultPage` 的「展出」按钮仍可点击，造成无结果操作；「出售」已禁用，两个入口不一致。
+- **修复**：`2e0c4d993c3331257cdd1a08168c88fc4788faf8`，`RelicVaultPage.kt` blob `843501863cb64b51099e162c1730c42c4887d74e`。探险中禁用展出，并明确提示需回营操作；不改变实物、图鉴、存档或模型决策。原账本守卫继续是唯一权威。
+- **验证/下一入口**：本轮未新增测试；核该提交所在 main push 的 JVM/APK/index terminal，Redmi 横屏验探险中展出/出售均不可点、成功撤离后展出真实持有宝物并重进保留；下一源码 `RelicEscapeLedger.kt` / `RelicVaultPage.kt`。帧率、美术与真实模型仍独立待验。
+
+
 ## 2026-11-17 · G-02.6 · 已结算旧档工作台不得显示虚假可制作（CI 待验）
 
 - **根因**：正式规则 `BlockIslandRules.act` 拒绝 `world.finished` 的一切操作，但工作台按钮所用 `IslandWorkbenchRecipes.canCraft` 未检查该状态，旧结算存档仍显示可制作，点后不扣料、不产生工具。
