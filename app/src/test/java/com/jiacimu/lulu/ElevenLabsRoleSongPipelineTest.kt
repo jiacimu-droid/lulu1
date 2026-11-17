@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import android.content.Context
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import java.io.File
+import org.json.JSONObject
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import org.junit.Assert.*
@@ -50,6 +51,58 @@ class ElevenLabsRoleSongPipelineTest {
         assertTrue(a.name.endsWith(".wav"))
         assertThrows(IllegalArgumentException::class.java) {
             ElevenLabsRoleSongPipeline.convertedFile(source, "../badVoice")
+        }
+    }
+
+    @Test fun expressiveConversionIsAnOptInVersionOfSameSongAndRoleVoice() {
+        val original = File("/tmp/song.mp3")
+        val voice = "existingRoleVoice1234"
+        val normal = ElevenLabsRoleSongPipeline.convertedFile(
+            original, voice, ElevenLabsRoleSongPipeline.NATURAL)
+        val lively = ElevenLabsRoleSongPipeline.convertedFile(
+            original, voice, ElevenLabsRoleSongPipeline.EXPRESSIVE)
+        assertEquals(ElevenLabsRoleSongPipeline.convertedFile(original, voice), normal)
+        assertNotEquals(normal, lively)
+        assertTrue(lively.name.contains("_expressive.wav"))
+        assertFalse(lively.name.contains(voice))
+        assertEquals(
+            mapOf("model_id" to "eleven_multilingual_sts_v2"),
+            ElevenLabsRoleSongPipeline.changerFields(ElevenLabsRoleSongPipeline.NATURAL),
+        )
+        val experimental = ElevenLabsRoleSongPipeline.changerFields(
+            ElevenLabsRoleSongPipeline.EXPRESSIVE)
+        val settings = JSONObject(experimental.getValue("voice_settings"))
+        assertEquals("eleven_multilingual_sts_v2", experimental["model_id"])
+        assertTrue(settings.getDouble("stability") < 0.5)
+        assertTrue(settings.getDouble("similarity_boost") > 0.75)
+        assertTrue(settings.getBoolean("use_speaker_boost"))
+        assertFalse(settings.has("speed"))
+        assertThrows(IllegalArgumentException::class.java) {
+            ElevenLabsRoleSongPipeline.convertedFile(original, voice, "unknown")
+        }
+    }
+
+    @Test fun singingVoiceStyleIsScopedToTheSelectedRole() {
+        val app = RuntimeEnvironment.getApplication()
+        val prefs = app.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+        val a = "lively-role-test"
+        val b = "other-role-test"
+        val ka = "eleven_music_voice_style:$a"
+        val kb = "eleven_music_voice_style:$b"
+        try {
+            prefs.edit().remove(ka).remove(kb).commit()
+            assertEquals(ElevenLabsRoleSongPipeline.NATURAL,
+                ElevenLabsRoleSongPipeline.voiceStyle(app, a))
+            prefs.edit().putString(ka, ElevenLabsRoleSongPipeline.EXPRESSIVE).commit()
+            assertEquals(ElevenLabsRoleSongPipeline.EXPRESSIVE,
+                ElevenLabsRoleSongPipeline.voiceStyle(app, a))
+            assertEquals(ElevenLabsRoleSongPipeline.NATURAL,
+                ElevenLabsRoleSongPipeline.voiceStyle(app, b))
+            prefs.edit().putString(ka, "unknown").commit()
+            assertEquals(ElevenLabsRoleSongPipeline.NATURAL,
+                ElevenLabsRoleSongPipeline.voiceStyle(app, a))
+        } finally {
+            prefs.edit().remove(ka).remove(kb).commit()
         }
     }
 
