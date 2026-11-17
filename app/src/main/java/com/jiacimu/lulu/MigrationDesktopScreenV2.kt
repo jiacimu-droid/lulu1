@@ -152,6 +152,26 @@ internal fun MigrationHomeV2(
     val personalizedGreeting = ownerDisplayName?.let { "$greeting，$it" } ?: greeting
     var slots by remember { mutableStateOf(loadDesktopSlots(context)) }
     var widgets by remember { mutableStateOf(LuluDesktopWidgetStore.load(context)) }
+    val widgetRevision by LuluDesktopWidgetStore.revision.collectAsState()
+    val dailyReadingRevision by LuluWidgetDailyRole.revision.collectAsState()
+    LaunchedEffect(widgetRevision) {
+        if (widgetRevision > 0L) widgets = LuluDesktopWidgetStore.load(context)
+    }
+    val dailyReadings = remember(widgets, today, dailyReadingRevision) {
+        widgets.mapNotNull { card ->
+            LuluWidgetDailyRole.read(context, card, today)?.let { card.id to it }
+        }.toMap()
+    }
+    LaunchedEffect(today, widgets.map { listOf(it.id, it.characterId, it.sign.toString(),
+        it.dailyReadingEnabled.toString()) }) {
+        // Reopening and midnight rollover are cache checks, not extra paid turns.
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching { LuluWidgetDailyRole.schedule(context, widgets) }
+            widgets.filter { it.kind == LuluWidgetKind.HOROSCOPE &&
+                it.dailyReadingEnabled && it.characterId.isNotBlank() }
+                .forEach { card -> LuluWidgetDailyRole.refresh(context, card, today) }
+        }
+    }
     var showWidgetPicker by remember { mutableStateOf(false) }
     var editingWidgetId by remember { mutableStateOf<String?>(null) }
     var showingWidgetPlanner by remember { mutableStateOf(false) }
@@ -447,6 +467,7 @@ internal fun MigrationHomeV2(
                                     today = today,
                                     characterNames = widgetCharacterNames,
                                     conversationTexts = widgetConversationTexts,
+                                    roleReadings = dailyReadings,
                                     plannerTasks = widgetTodayTasks,
                                     onCompleteTask = onWidgetTodoCheck,
                                     modifier = Modifier.fillMaxSize(),
@@ -511,6 +532,7 @@ internal fun MigrationHomeV2(
                                 widget = w, today = today,
                                 characterName = widgetCharacterNames[w.characterId],
                                 lastConversationText = widgetConversationTexts[w.characterId],
+                                roleReading = dailyReadings[w.id],
                                 modifier = Modifier.width(cellWidth * w.columns).height(cellHeight * w.rows)
                                     .offset {
                                         IntOffset(
