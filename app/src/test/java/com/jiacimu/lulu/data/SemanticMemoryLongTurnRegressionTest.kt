@@ -85,11 +85,13 @@ class SemanticMemoryLongTurnRegressionTest {
 
     @Test(timeout = 60000) fun triggeredFifteenTurnsDrainAcrossTwoFullTextRequestsWithoutTouchingFiveProtectedTurns() = runBlocking {
         val server = MockWebServer()
-        val empty = MockResponse().setHeader("Content-Type", "application/json").setBody(
-            JSONObject().put("choices", JSONArray().put(JSONObject()
-                .put("message", JSONObject().put("content", "[]"))
-                .put("finish_reason", "stop"))).toString())
-        repeat(4) { server.enqueue(empty.clone()) }
+        val emptyReply = JSONObject().put("choices", JSONArray().put(JSONObject()
+            .put("message", JSONObject().put("content", "[]"))
+            .put("finish_reason", "stop"))).toString()
+        repeat(4) {
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody(emptyReply))
+        }
         server.start()
         try {
             val app = RuntimeEnvironment.getApplication() as Context
