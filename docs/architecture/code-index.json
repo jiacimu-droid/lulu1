@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:40:41.995447+00:00",
-  "commit": "e0ae7630147fc306c3670b197d2530bbcd959d15",
+  "generatedAt": "2026-11-17T16:42:12.367612+00:00",
+  "commit": "868965190b8f246c4c79c290e5b1fe56cf842c7a",
   "branch": "main",
-  "sourceFingerprint": "d19481b9ed0c21dc27046d6241c7414588ab262de43840f76a31dec43474816e",
+  "sourceFingerprint": "dac9311f1bea015016d9d109f48cc43e299d0edd42cecfdbe166733ac1c2db86",
   "summary": {
     "files": 1421,
-    "lines": 299795,
+    "lines": 299999,
     "symbols": 4288
   },
   "symbolIndex": {
@@ -16791,7 +16791,7 @@
     "LuluReadingScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
-        "line": 26
+        "line": 77
       }
     ],
     "priorTextForPrompt": [
@@ -40584,12 +40584,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
-      "lines": 197,
-      "sha256": "b2415d44811cefc1f6418b34f67c11378129498e90d1757c08b98fb46ce8b354",
+      "lines": 401,
+      "sha256": "22a4fff1e9e149231a5898195ea6df3582a5cdc2aba45cbdf5ff7f45fc3e7a51",
       "symbols": [
         {
           "name": "LuluReadingScreen",
-          "line": 26
+          "line": 77
         }
       ]
     },
