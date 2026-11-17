@@ -308,6 +308,10 @@
 
 ## 二、跨窗口接力看板（仅列未完成项）
 
+**2026-11-18 · 跨日督睡责任（源码/回归已提交，CI/Redmi/真实模型待验）**：23:00 已送达提醒的执行回执和「主人实际入睡」是不同目标；每日约定进入下一天 23:00 后，次日 03:00 本人的新发言仍需看到前一夜 16h 内的原任务轮次事实，不能仅因日程已滚动或一次性执行计划完成就失去因果。正式 `CommitmentTask.recentDailyOutcomeContext` 和 `PersistentResponsibilityAttention` 保留有时效的昨日未核实结果/仅 delivery 成功的回执，`RoleDayPlan.recentExecutionReceiptContext` 回传最近真实执行而不虚构睡眠效果；统一 `CommitmentDecisionProtocol` 交由本人根据既有承诺、新事实与授权选择行动、复查或暂停。不额外轮询、不自动改 23:00、不替人物定死催睡方式。生产 `040779ea`、`c3c4de0`、`07d50d9`；测试 `89206c6`、`b9602de`；[首轮 APK/JVM #44158433831](https://github.com/jiacimu-droid/lulu1/actions/runs/44158433831) 最初 pending，需查询后继 main 最终 run 和新回归结果；Android 设备上从前夜提醒→凌晨互动→真实复查/哄睡的完整闭环仍未验。细节见 `docs/architecture/BEDTIME_RESPONSIBILITY_PROGRESS.md`。
+
+
+
 **UI-05 · 2026-11-18 CSS 装修工坊（源码与测试已提交；APK/真机未验）**：主人要求删除 9 套固定美化，改用户导入素材和 CSS 定义各页面。新增 LuluCssRuntime CSS 作用域/私有图片存储、LuluCssDecor Compose 组件 hook/背景渲染、LuluAppearanceScreen 自编写/导入/导出/预览/撤销、主题路由及桌面/气泡接线，移除旧方案目录（保留旧自建数据），新增 LuluCssRuntimeTest 与迁移旧测试。源码提交 d2e6930、40563a0、7f720c5、3b72665、81b6dee、bad02d9、a3c9ec2、290adae、e0ae763、ff3444c；文档 docs/appearance-studio.md。CSS 本轮实际仅全局/各页面调色、字体、背景以及 Home.launcher/Home.companion/Chat.bubble 位移，不是任意控件重排；其他选择器提示未映射。APK/JVM 不能将 pending/cancelled 认作成功；后续先核包含 ff3444c 的 main APK/JVM 首错，再做 Redmi 360/412dp、图片导入/输出、桌面拖拽、消息长按、窄屏/字体放大/退出恢复验收。后续逐页开放更多 Compose hooks、可视化位置调整、包含图片的可移植包。
 
 
