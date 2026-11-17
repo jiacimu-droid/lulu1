@@ -206,6 +206,15 @@ class Live2DVisualActionBusTest {
                 JSONObject().put("performance", JSONObject().put("movement", "tilt"))
                     .put("_executeNow", true)))
             assertTrue(Live2DVisualActionBus.cues.value[role]!!.immediate)
+            // Minimizing a LIVE video must not erase the character's newest
+            // authored score; otherwise returning during speech shows only lips.
+            val retainedSequence = Live2DVisualActionBus.cues.value[role]!!.sequence
+            Live2DVisualActionBus.stageDetached(role, call)
+            assertFalse(Live2DVisualActionBus.isStageVisible(role, call))
+            assertEquals(retainedSequence, Live2DVisualActionBus.cues.value[role]?.sequence)
+            Live2DVisualActionBus.stageReady(role, call)
+            assertTrue(Live2DVisualActionBus.isStageVisible(role, call))
+            assertEquals(retainedSequence, Live2DVisualActionBus.cues.value[role]?.sequence)
             // Even existing dimensions cannot leak across a closed call.
             Live2DVisualActionBus.stageClosed(role, call)
             assertFalse(Live2DVisualActionBus.publish(context, role, call, smile))
