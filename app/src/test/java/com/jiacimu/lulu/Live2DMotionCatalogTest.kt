@@ -13,8 +13,8 @@ class Live2DMotionCatalogTest {
     )
 
     @Test fun catalogCoversWholeWolfPackExactlyOnce() {
-        assertEquals((0..48).toSet(), Live2DMotionCatalog.entries.keys)
-        assertEquals(49, Live2DMotionCatalog.entries.values.distinctBy { it.name }.size)
+        assertEquals((0..49).toSet(), Live2DMotionCatalog.entries.keys)
+        assertEquals(50, Live2DMotionCatalog.entries.values.distinctBy { it.name }.size)
     }
 
     @Test fun kissIsAnExplicitCharacterSelectableWolfMotion() {
@@ -22,6 +22,16 @@ class Live2DMotionCatalogTest {
         assertEquals("贴屏亲亲", kiss?.name)
         assertTrue(kiss?.fits?.contains("镜头") == true)
         assertTrue((kiss?.face?.get("pout") ?: 0f) > 0.8f)
+    }
+
+    @Test fun approachIsNeutralAndSeparateFromKiss() {
+        val approach = Live2DMotionCatalog.entries[49]
+        assertEquals("靠近屏幕", approach?.name)
+        assertTrue(approach?.fits?.contains("动作本身没有预设情绪") == true)
+        assertEquals(null, approach?.expression)
+        assertTrue(approach?.face?.isEmpty() == true)
+        assertTrue(Live2DMotionCatalog.entries[48]?.name != approach?.name)
+        assertTrue(Live2DMotionCatalog.describe("LuluWolf", 49)?.contains("打量") == true)
     }
 
     @Test fun everyEntryHasUsableNameFitsAndRealReferences() {
@@ -50,13 +60,13 @@ class Live2DMotionCatalogTest {
     }
 
     @Test fun everydayEmotionalRepertoireStillKeepsAllOriginalMotionIdsAvailable() {
-        val available = (0..48).map { "LuluWolf" to it }
+        val available = (0..49).map { "LuluWolf" to it }
         val sections = Live2DMotionCatalog.selectionSections(available)
         val primary = sections.filterNot { it.supplementary }
-        assertEquals(5, primary.size)
-        assertEquals(24, primary.sumOf { it.motions.size })
-        assertEquals(24, Live2DMotionCatalog.everydayIds.size)
-        assertEquals(49, sections.flatMap { it.motions }.distinct().size)
+        assertEquals(6, primary.size)
+        assertEquals(25, primary.sumOf { it.motions.size })
+        assertEquals(25, Live2DMotionCatalog.everydayIds.size)
+        assertEquals(50, sections.flatMap { it.motions }.distinct().size)
         assertEquals(available.toSet(), sections.flatMap { it.motions }.toSet())
         assertTrue(sections.last().supplementary)
         // "Change of head direction" alone is not an everyday emotional cue.
@@ -66,11 +76,14 @@ class Live2DMotionCatalogTest {
         assertTrue(("LuluWolf" to 35) in sections.last().motions)
         assertTrue(("LuluWolf" to 24) in sections.last().motions)
         assertTrue(("LuluWolf" to 48) in primary.flatMap { it.motions })
+        assertTrue(("LuluWolf" to 49) in primary.flatMap { it.motions })
     }
 
     @Test fun motionGuideDescribesEmotionAndStatesBeforeOptionalVariants() {
-        val guide = Live2DMotionCatalog.selectionGuide((0..48).map { "LuluWolf" to it })
+        val guide = Live2DMotionCatalog.selectionGuide((0..49).map { "LuluWolf" to it })
         assertTrue(guide.contains("情绪·开心与亲近："))
+        assertTrue(guide.contains("交互·距离与注视："))
+        assertTrue(guide.contains("LuluWolf#49=靠近屏幕"))
         assertTrue(guide.contains("情绪·害羞、失落与担忧："))
         assertTrue(guide.contains("情绪·受惊与抗拒："))
         assertTrue(guide.contains("交流·倾听与回应："))
