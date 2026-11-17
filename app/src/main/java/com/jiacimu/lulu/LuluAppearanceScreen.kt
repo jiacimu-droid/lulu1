@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -109,21 +110,18 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                             it.first.contains(scopeSearch, true)
                     }) { (id, name) ->
                         ListItem(
-                            headlineContent = { Text(name + "  #" + id) },
+                            headlineContent = { Text(name) },
+                            supportingContent = { Text("#" + id) },
                             trailingContent = {
                                 if (id == scope) Icon(Icons.Outlined.Check, contentDescription = null)
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().clickable {
+                                scope = id
+                                selectScope = false
+                                scopeSearch = ""
+                            },
                         )
                         HorizontalDivider()
-                        Spacer(Modifier.height(2.dp))
-                        if (id != scope) {
-                            // Full-width explicit target, independent of swiping the sheet.
-                            TextButton(
-                                onClick = { scope = id; selectScope = false; scopeSearch = "" },
-                                modifier = Modifier.fillMaxWidth(),
-                            ) { Text("编辑" + name) }
-                        }
                     }
                 }
                 Spacer(Modifier.height(16.dp))
