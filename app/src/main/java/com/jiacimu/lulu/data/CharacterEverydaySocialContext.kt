@@ -61,13 +61,14 @@ internal object CharacterEverydaySocialContext {
                 (!it.characterId.startsWith("resident:") || it.characterId in residentIds)
         }
         // A registered stranger is NOT automatically someone this actor knows.
-        // Look up the authoritative roster only to validate people with an
-        // actor-owned contact, meeting, group or friend-request provenance.
+        // Read one actor-owned request ledger, not a fresh disk decode per peer.
+        val requestHistory = CharacterFriendRequests.historyFor(characterId)
+        val requestPeerIds = requestHistory.mapTo(hashSetOf()) {
+            if (it.fromId == characterId) it.toId else it.fromId
+        }
         val personalContacts = peers.filter {
-            CharacterSocialRelationship.knowsEachOther(characterId, it.characterId) ||
-                CharacterFriendRequests.historyFor(characterId).any { request ->
-                    request.fromId == it.characterId || request.toId == it.characterId
-                }
+            it.characterId in requestPeerIds ||
+                CharacterSocialRelationship.knowsEachOther(characterId, it.characterId)
         }
         val native = personalContacts.filter { it.characterId.startsWith("resident:") }
         val other = personalContacts.filterNot { it.characterId.startsWith("resident:") }
@@ -76,14 +77,14 @@ internal object CharacterEverydaySocialContext {
         val friends = personalContacts.filter {
             MomentFriendAccess.areFriends(characterId, it.characterId)
         }
-        val requests = CharacterFriendRequests.historyFor(characterId).filter {
+        val requests = requestHistory.filter {
             it.status == "pending" &&
                 MomentFriendAccess.isActiveCharacter(it.fromId) &&
                 MomentFriendAccess.isActiveCharacter(it.toId)
         }
         val received = requests.filter { it.toId == characterId }
         val sent = requests.filter { it.fromId == characterId }
-        val accepted = CharacterFriendRequests.historyFor(characterId).filter {
+        val accepted = requestHistory.filter {
             it.status == "accepted" && it.resolvedAt != null &&
                 MomentFriendAccess.areFriends(it.fromId, it.toId)
         }.takeLast(6)
