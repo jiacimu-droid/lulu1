@@ -103,6 +103,7 @@ fun LuluMigrationRootAppV2(
     val chatUiStateHolder = rememberSaveableStateHolder()
     // Keep a game's saveable route/UI state while the owner briefly opens chat.
     val gamesUiStateHolder = rememberSaveableStateHolder()
+    val guideUiStateHolder = rememberSaveableStateHolder()
     var selectedCharacterId by rememberSaveable(initialTargetCharacterId) {
         mutableStateOf(initialTargetCharacterId?.takeIf(String::isNotBlank).orEmpty())
     }
@@ -440,7 +441,9 @@ fun LuluMigrationRootAppV2(
                                     gameStore = LuluGames.store,
                                     onBack = ::popRoute,
                                 )
-                                MigrationRoute.Guide -> LuluOnboardingGuideScreen(onBack = ::popRoute, onOpen = ::pushRoute)
+                                MigrationRoute.Guide -> guideUiStateHolder.SaveableStateProvider("guide") {
+                                    LuluOnboardingGuideScreen(onBack = ::popRoute, onOpen = ::pushRoute)
+                                }
                                 MigrationRoute.Settings -> LuluSettingsHomeScreen(::popRoute)
                                 MigrationRoute.Appearance -> LuluAppearanceScreen(::popRoute)
                                 // Playground is opened as an Activity from the
