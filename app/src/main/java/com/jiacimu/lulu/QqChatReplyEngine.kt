@@ -913,8 +913,9 @@ internal fun buildBoundedHistory(
     messages: List<LuluChatMessage>,
     characterName: String,
     characterNames: Map<String, String> = emptyMap(),
-    maxMessages: Int = 30,
+    maxMessages: Int = Int.MAX_VALUE,
     maxChars: Int = 12_000,
+    maxTurns: Int = 35,
 ): String {
     val inferredId = MigratedDomainStores.characters.settings.value.values.singleOrNull { it.displayName == characterName }?.characterId
     val eligible = inferredId?.let { id -> messages.filter { DigitalLifeProfileStore.allowsTimestamp(id, it.createdAt) } } ?: messages
@@ -945,7 +946,7 @@ internal fun buildBoundedHistory(
     // Years of archived chat remain in their original store; they must not
     // trigger expensive re-decoding of every historical forward or image card.
     return com.jiacimu.lulu.data.ConversationHistoryWindow.select(
-        visible, maxMessages, maxChars,
+        visible, maxMessages, maxChars, maxTurns = maxTurns,
     ) { render(it).length }.joinToString("\n") { render(it) }
 }
 
