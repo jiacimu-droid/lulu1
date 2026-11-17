@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:32:12.304374+00:00",
-  "commit": "4786e6c51d622f9c86264363af681c8a43f18d81",
+  "generatedAt": "2026-11-17T16:33:01.299644+00:00",
+  "commit": "54e77c77a0c98a5366f486f84f109eddddd3b4bb",
   "branch": "main",
-  "sourceFingerprint": "a79b4ce7581d955fa95ffac29b0da77189dd4651b568b23a98fa32a33a69faa8",
+  "sourceFingerprint": "461ae377b062acae028e9cbb5f7634827fcae784e13f1a84af9ea7d8a8e5f555",
   "summary": {
     "files": 1418,
-    "lines": 299586,
-    "symbols": 4275
+    "lines": 299606,
+    "symbols": 4276
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2251,7 +2251,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 74
+        "line": 83
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CloudTaskBridge.kt",
@@ -3243,7 +3243,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 24
+        "line": 32
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
@@ -4777,7 +4777,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 47
+        "line": 56
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
@@ -5483,7 +5483,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 97
+        "line": 106
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt",
@@ -8134,10 +8134,16 @@
         "line": 110
       }
     ],
+    "tooLateForDedicatedReview": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
+        "line": 30
+      }
+    ],
     "candidate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 27
+        "line": 36
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContextTest.kt",
@@ -8147,13 +8153,13 @@
     "eligibleAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 52
+        "line": 61
       }
     ],
     "quiet": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 54
+        "line": 63
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt",
@@ -8163,7 +8169,7 @@
     "CharacterMotiveReviewWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-        "line": 105
+        "line": 114
       }
     ],
     "isActive": [
@@ -30643,40 +30649,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
-      "lines": 138,
-      "sha256": "624c87859df57096b2dee31c32a7d1fcc10102df87665250a116b95f5eff9a4d",
+      "lines": 148,
+      "sha256": "ef92adc2508f41033a81ed039d8747ee862b0e8779659b6d87c116e679e29673",
       "symbols": [
         {
+          "name": "tooLateForDedicatedReview",
+          "line": 30
+        },
+        {
           "name": "from",
-          "line": 24
+          "line": 32
         },
         {
           "name": "candidate",
-          "line": 27
+          "line": 36
         },
         {
           "name": "pending",
-          "line": 47
+          "line": 56
         },
         {
           "name": "eligibleAt",
-          "line": 52
+          "line": 61
         },
         {
           "name": "quiet",
-          "line": 54
+          "line": 63
         },
         {
           "name": "schedule",
-          "line": 74
+          "line": 83
         },
         {
           "name": "restore",
-          "line": 97
+          "line": 106
         },
         {
           "name": "CharacterMotiveReviewWorker",
-          "line": 105
+          "line": 114
         }
       ]
     },
@@ -46057,8 +46067,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt",
-      "lines": 114,
-      "sha256": "3185a1a3c3847f3828e4a3f9b5b73c96801a2ea009412bc7a8c2f5c88470a1d7",
+      "lines": 124,
+      "sha256": "e3ea09d95dc12bf6ffc69be0cc21bd7269670e44cff70ad81f8d152f9c392445",
       "symbols": [
         {
           "name": "CharacterMotiveReviewTest",
