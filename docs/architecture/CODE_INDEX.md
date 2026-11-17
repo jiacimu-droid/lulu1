@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ef1777595bcb3e89c1c5414c6ce98f6d1a48caf0`
+- 基准提交：`52a207c7b8dd906e82878f21d3cd034f02607b89`
 - 分支：`main`
 - 已索引文件：1443
-- 已索引代码/文本行：304211
+- 已索引代码/文本行：304253
 - 已发现符号：4345
 
 | 文件 | 行数 | 符号数 |
@@ -1383,7 +1383,7 @@
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudgetTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt` | 109 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt` | 78 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGateTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluDirectReturnPolicyTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluGroundingEvidenceTest.kt` | 73 | 1 |
@@ -1423,7 +1423,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSocialActionsTest.kt` | 126 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt` | 86 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt` | 96 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt` | 111 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicyTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicyTest.kt` | 99 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVisualTargetFrameTest.kt` | 29 | 1 |

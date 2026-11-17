@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T19:57:56.038649+00:00",
-  "commit": "ef1777595bcb3e89c1c5414c6ce98f6d1a48caf0",
+  "generatedAt": "2026-11-17T19:58:29.767451+00:00",
+  "commit": "52a207c7b8dd906e82878f21d3cd034f02607b89",
   "branch": "main",
-  "sourceFingerprint": "8b6cf89b644c1cdfbf1eba721b7a1d8bc933601fa549fb39f991e8cb64c46b0c",
+  "sourceFingerprint": "370f1f0bbf85346d50804b529a1282ebd613b46c1e7f07a0f1f2a89f1d98c0e6",
   "summary": {
     "files": 1443,
-    "lines": 304211,
+    "lines": 304253,
     "symbols": 4345
   },
   "symbolIndex": {
@@ -23993,11 +23993,11 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt",
-        "line": 44
+        "line": 59
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt",
-        "line": 58
+        "line": 73
       }
     ],
     "LuluVirtualChatTitleOcrTest": [
@@ -50642,8 +50642,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt",
-      "lines": 78,
-      "sha256": "702831b89b6e557d8ad6d4a351742e1df62ece473ad2b04aade37e8a620e4537",
+      "lines": 105,
+      "sha256": "2532a5e3d252ff675ce862400b76dd245f912d1d786edc8574656ef9ca6a1c08",
       "symbols": [
         {
           "name": "LuluBackgroundPhoneContinuationYieldTest",
@@ -51118,8 +51118,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt",
-      "lines": 96,
-      "sha256": "a807e1022542e529aa42cad5072c747e1bc7c2eea3842fa689dcd2b161442a83",
+      "lines": 111,
+      "sha256": "9e6ff520984f76d5bf17e8965682dd81ff80b173b94491dc266ff3b60d603e78",
       "symbols": [
         {
           "name": "LuluVirtualUiPolicyTest",
@@ -51127,11 +51127,11 @@
         },
         {
           "name": "c",
-          "line": 44
+          "line": 59
         },
         {
           "name": "c",
-          "line": 58
+          "line": 73
         }
       ]
     },
