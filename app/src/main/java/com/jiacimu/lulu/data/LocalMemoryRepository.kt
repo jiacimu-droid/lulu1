@@ -694,22 +694,34 @@ class LocalMemoryRepository : MemoryRepository {
         }
     }
 
-    fun shouldFlushPendingTail(characterId: String, now: Instant = Instant.now()): Boolean =
-        shouldFlushPendingMemoryTail(memoryEligibleTimelineEvents(characterId),
-            state.value.processedMessageIds[characterId].orEmpty(), now)
+    fun shouldFlushPendingTail(characterId: String, now: Instant = Instant.now()): Boolean {
+        val policy = state.value.resolvedPolicy(characterId)
+        val readable = extractableTurns(characterId, policy, flushTail = false)
+        val processed = state.value.processedMessageIds[characterId].orEmpty()
+        val pendingTurns = readable.count { turn -> turn.events.any { it.id !in processed } }
+        // Never wake the paid extractor merely because an incomplete or
+        // protected tail has been idle for ten minutes.
+        return pendingTurns >= policy.readableThreshold &&
+            shouldFlushPendingMemoryTail(readable.flatMap { it.events }, processed, now)
+    }
 
     fun hasUnprocessedEvents(characterId: String): Boolean = memoryEligibleTimelineEvents(characterId)
         .any { it.id !in state.value.processedMessageIds[characterId].orEmpty() }
 
-    fun pendingMessageCount(characterId: String): Int = pendingTimelineEvents(characterId).size
+    /** Pending is measured in complete semantic turns; the API still returns
+     * genuine source rows so old debug, source and deletion callers stay safe. */
+    fun pendingMessageCount(characterId: String): Int {
+        val processed = state.value.processedMessageIds[characterId].orEmpty()
+        return extractableTurns(characterId).count { turn ->
+            turn.events.any { it.id !in processed }
+        }
+    }
 
     fun pendingTimelineEvents(characterId: String): List<SharedTimelineEvent> {
-        val policy = state.value.resolvedPolicy(characterId)
         val processed = state.value.processedMessageIds[characterId].orEmpty()
-        return memoryEligibleTimelineEvents(characterId)
-            .dropLast(policy.excludedRecentMessages.coerceAtLeast(0))
-            .filterNot { event -> event.id in processed }
-            .sortedBy(SharedTimelineEvent::occurredAt)
+        return extractableTurns(characterId).flatMap { turn ->
+            turn.events.filterNot { it.id in processed }
+        }
     }
 
     /**
@@ -717,19 +729,32 @@ class LocalMemoryRepository : MemoryRepository {
      * receipts. A long co-op game or phone navigation can contain hundreds of
      * immutable facts but must not evict the owner's last real exchange.
      */
-    internal fun contextTimelineTurns(characterId: String): List<RecentSemanticTimeline.Turn> {
-        val policy = state.value.resolvedPolicy(characterId)
+    internal fun contextTimelineTurns(characterId: String): List<RecentSemanticTimeline.Turn> =
+        semanticTimelineTurns(characterId)
+            .takeLast(state.value.resolvedPolicy(characterId).rawContextMessageCount)
+
+    /** Exactly the same grouping for the reader, extraction queue and recap.
+     * Never reinterpret already saved message IDs or raw tool receipts. */
+    private fun semanticTimelineTurns(characterId: String): List<RecentSemanticTimeline.Turn> {
         val eligible = memoryEligibleTimelineEvents(characterId)
-        // Read actual message batches from the authoritative chat store. Never
-        // guess a character reply boundary from time, speaker names or AI calls.
         val cachedBatches = mutableMapOf<String, String?>()
-        return RecentSemanticTimeline.select(eligible, policy.rawContextMessageCount) { event ->
+        return RecentSemanticTimeline.select(eligible, Int.MAX_VALUE) { event ->
             if (event.source != "message" || event.sessionId.isBlank()) null
             else cachedBatches.getOrPut(event.id) {
                 val id = event.id.substringBefore(":group:")
                 MigratedDomainStores.chat.recordedMessage(event.sessionId, id)?.replyBatchId
             }
         }
+    }
+
+    private fun extractableTurns(
+        characterId: String,
+        policy: MemoryPolicy = state.value.resolvedPolicy(characterId),
+        flushTail: Boolean = false,
+    ): List<RecentSemanticTimeline.Turn> {
+        val all = semanticTimelineTurns(characterId)
+        return if (flushTail) all else
+            all.dropLast(policy.excludedRecentMessages.coerceAtLeast(0))
     }
 
     /** Legacy event API still returns real original IDs, never synthetic rows. */
@@ -744,21 +769,7 @@ class LocalMemoryRepository : MemoryRepository {
                     event.source == "owner-phone-inspection"
             }
 
-    private fun readableMessages(characterId: String, policy: MemoryPolicy, flushTail: Boolean = false): List<LuluChatMessage> =
-        memoryEligibleTimelineEvents(characterId)
-            .map { event ->
-                LuluChatMessage(
-                    id = event.id,
-                    conversationId = "shared-timeline",
-                    sender = if (event.isUserMemoryStatement()) {
-                        LuluChatMessage.Sender.User
-                    } else LuluChatMessage.Sender.Character,
-                    content = "[${event.channel}] ${event.speaker}：${event.evidenceContent}",
-                    createdAt = event.occurredAt,
-                )
-            }
-            .dropLast(if (flushTail) 0 else policy.excludedRecentMessages.coerceAtLeast(0))
-
+ 
     private fun parseMemoryArray(raw: String, characterId: String, evidenceSnapshot: List<SharedTimelineEvent>): List<ExtractedMemoryUpdate> {
         val array = decodeMemoryResponseArray(raw)
         val allowedSourceIds = evidenceSnapshot.mapTo(mutableSetOf()) { it.id }
