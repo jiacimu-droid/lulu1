@@ -435,7 +435,20 @@ internal fun MigrationHomeV2(
                                     characterNames = widgetCharacterNames,
                                     conversationTexts = widgetConversationTexts,
                                     modifier = Modifier.fillMaxSize(),
-                                    onOpenWidget = { editingWidgetId = it.id },
+                                    onOpenWidget = { widget ->
+                                        when (widget.kind) {
+                                            LuluWidgetKind.PLANNER -> onOpen(MigrationRoute.SelfPreface)
+                                            LuluWidgetKind.HOROSCOPE, LuluWidgetKind.NOTE -> {
+                                                ownerChats.firstOrNull {
+                                                    it.characterId == widget.characterId &&
+                                                        it.groupChat == null
+                                                }?.let { onOpenConversation(it.id) }
+                                                    ?: run { editingWidgetId = widget.id }
+                                            }
+                                            LuluWidgetKind.COUNTDOWN -> editingWidgetId = widget.id
+                                        }
+                                    },
+                                    onEditWidget = { editingWidgetId = it.id },
                                     onBlankLongPress = { showWidgetPicker = true },
                                 )
                                 // Draw the launchers over the widget canvas: transparent
