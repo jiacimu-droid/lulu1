@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T10:38:00.285335+00:00",
-  "commit": "032bd527be2c034936e3139c5246d2e7fbeccac7",
+  "generatedAt": "2026-11-17T10:38:32.859673+00:00",
+  "commit": "2ac5f98a313b86ed40d9051cc466f8daada38db4",
   "branch": "main",
-  "sourceFingerprint": "927b9611c48587dabb8d09b6390e9e551b7c745b0bc83b18a3fa78e8cd98e2b4",
+  "sourceFingerprint": "6c35604fbb94a5596cfaccce001c7a7af819dfe27764bcd9badc408a68829344",
   "summary": {
     "files": 1398,
     "lines": 299740,
@@ -50001,13 +50001,13 @@
     {
       "path": "preview/index.html",
       "lines": 100,
-      "sha256": "e117a785221e5a9afb92be334af499ee84f825b9db176b22460e1632dc2e7496",
+      "sha256": "f44e7f5376d6965c6f059150a02d951a0d3e7d27a9596c039e1d0f5ae7379138",
       "symbols": []
     },
     {
       "path": "preview/play.html",
       "lines": 173,
-      "sha256": "c1b768cf32ef53d90b4bdb4daa67401d231ee8695c4998bdc595cdddfe4c3944",
+      "sha256": "dc7d1940ad42aa95581d62ddcbeb41442550944053d6adbaf69e119c99e8cfca",
       "symbols": []
     },
     {
