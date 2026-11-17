@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T11:11:46.047398+00:00",
-  "commit": "1f4d7cc7beeb6c51578c540abc5765a1f3cfe7e8",
+  "generatedAt": "2026-11-17T11:14:12.516249+00:00",
+  "commit": "4eee7affd046250773237d666901efda3553aeb8",
   "branch": "main",
-  "sourceFingerprint": "182536a785c6569add9cc1a4a39bc86bc918cd26a3b960eee4d58310a1494d71",
+  "sourceFingerprint": "82b26da45deac6758176ed8ca9fcd2e832ff0978c4ebb2f0b2accb0ba24376d8",
   "summary": {
     "files": 1403,
-    "lines": 300082,
+    "lines": 298519,
     "symbols": 4234
   },
   "symbolIndex": {
@@ -539,7 +539,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1374
+        "line": 639
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -1357,7 +1357,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 483
+        "line": 49
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
@@ -7737,7 +7737,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1334
+        "line": 599
       }
     ],
     "cue": [
@@ -7879,37 +7879,37 @@
     "bodyStorageReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 493
+        "line": 59
       }
     ],
     "bodyState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 494
+        "line": 60
       }
     ],
     "lastBodyChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 496
+        "line": 62
       }
     ],
     "phoneMemos": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 550
+        "line": 116
       }
     ],
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 714
+        "line": 280
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 1305
+        "line": 570
       }
     ],
     "current": [
@@ -30219,8 +30219,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 1423,
-      "sha256": "32bc35c827947c451e0e4022ff334f01f9c868241dd0aa6414624b6c43392605",
+      "lines": 688,
+      "sha256": "e7c1b806549e862500c04de9468ed94283e7443f21aef320f6df394253a2a89b",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -30228,39 +30228,39 @@
         },
         {
           "name": "state",
-          "line": 483
+          "line": 49
         },
         {
           "name": "bodyStorageReady",
-          "line": 493
+          "line": 59
         },
         {
           "name": "bodyState",
-          "line": 494
+          "line": 60
         },
         {
           "name": "lastBodyChange",
-          "line": 496
+          "line": 62
         },
         {
           "name": "phoneMemos",
-          "line": 550
+          "line": 116
         },
         {
           "name": "afterglowContext",
-          "line": 714
+          "line": 280
         },
         {
           "name": "profileContext",
-          "line": 1305
+          "line": 570
         },
         {
           "name": "compactContext",
-          "line": 1334
+          "line": 599
         },
         {
           "name": "context",
-          "line": 1374
+          "line": 639
         }
       ]
     },
@@ -30661,8 +30661,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterProfileSchema.kt",
-      "lines": 867,
-      "sha256": "2b0b63b4b36b4cd0b20131c8d9a120b6fd426f626a0144a9400508e11c4ad98b",
+      "lines": 39,
+      "sha256": "cbb537a2f395278cc650bd8d863aef052d0c44de67cac653c3f424d34844ff13",
       "symbols": [
         {
           "name": "groupedFields",
