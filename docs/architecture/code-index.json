@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:44:30.670131+00:00",
-  "commit": "f9bc8c8cb337d02e813cdc9f622257df2ff1dbfc",
+  "generatedAt": "2026-11-17T16:44:58.516089+00:00",
+  "commit": "ff3444c1e490a5d990467c41b1c920ed193fba35",
   "branch": "main",
-  "sourceFingerprint": "0507e8fc0c611aee1a41688fbe4964bac0899958c39fea0f4b2a3d020995177f",
+  "sourceFingerprint": "9dcc48502b93a62900b7425084643623d7df6ae67e3e6ef617cdc1179f1dc553",
   "summary": {
     "files": 1423,
-    "lines": 300155,
+    "lines": 300164,
     "symbols": 4290
   },
   "symbolIndex": {
@@ -1075,7 +1075,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 151
+        "line": 160
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
@@ -1641,7 +1641,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 160
+        "line": 169
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt",
@@ -11337,31 +11337,31 @@
     "parseColor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 128
+        "line": 137
       }
     ],
     "dp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 137
+        "line": 146
       }
     ],
     "LuluCssStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 144
+        "line": 153
       }
     ],
     "importImage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 171
+        "line": 180
       }
     ],
     "assetFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 210
+        "line": 219
       }
     ],
     "LuluDataBackup": [
@@ -34007,8 +34007,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-      "lines": 218,
-      "sha256": "1bed146578372f1f5cbb6dacd96ea2d4fc4eba1cc6d9996f634a178ea93aea8b",
+      "lines": 227,
+      "sha256": "6ff21da6bd23a799ced9d4fe72fc048ea4d2e4d622d775285acf8b41711e3858",
       "symbols": [
         {
           "name": "LuluCssRule",
@@ -34044,31 +34044,31 @@
         },
         {
           "name": "parseColor",
-          "line": 128
-        },
-        {
-          "name": "dp",
           "line": 137
         },
         {
+          "name": "dp",
+          "line": 146
+        },
+        {
           "name": "LuluCssStore",
-          "line": 144
+          "line": 153
         },
         {
           "name": "initialize",
-          "line": 151
-        },
-        {
-          "name": "save",
           "line": 160
         },
         {
+          "name": "save",
+          "line": 169
+        },
+        {
           "name": "importImage",
-          "line": 171
+          "line": 180
         },
         {
           "name": "assetFile",
-          "line": 210
+          "line": 219
         }
       ]
     },
