@@ -345,8 +345,10 @@ object ProactivePerceptionScheduler {
      * One pending work per role coalesces several missed obligations; the
      * authoritative CommitmentTaskStore supplies their IDs and real receipts. */
     fun scheduleMissedCommitmentReview(context: Context, characterId: String, missedAt: Instant) {
-        if (characterId.isBlank() ||
-            !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        // Explicit, previously accepted time-bound commitments are not the
+        // optional periodic perception subscription. The runtime revalidates
+        // actual persisted overdue evidence before making this one decision.
+        if (characterId.isBlank()) return
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(Data.Builder()
