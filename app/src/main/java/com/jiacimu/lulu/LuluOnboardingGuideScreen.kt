@@ -2,6 +2,7 @@ package com.jiacimu.lulu
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,8 +18,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -353,16 +355,29 @@ private fun GuideSafeScreen(kind: String) {
         "chat" -> R.drawable.lulu_guide_chat
         else -> null
     }
+    // A drawable resource ID is not proof that the JPEG decoder can open its bytes.
+    // The previous painterResource() path threw ResourceResolutionException during
+    // lazy-list measurement and crashed the entire app. Decode defensively here;
+    // missing/corrupt screenshots must never prevent users from reading the guide.
+    val resources = LocalContext.current.resources
+    val bitmap = remember(screenshot, resources) {
+        if (screenshot == null) null
+        else try {
+            BitmapFactory.decodeResource(resources, screenshot)?.asImageBitmap()
+        } catch (_: Exception) {
+            null
+        }
+    }
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(15.dp),
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
-        if (screenshot != null) {
+        if (bitmap != null) {
             Column(Modifier.padding(9.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                 Image(
-                    painter = painterResource(id = screenshot),
+                    bitmap = bitmap,
                     contentDescription = "露露机真实操作截图，私人内容已打码",
                     modifier = Modifier.fillMaxWidth().height(194.dp),
                     contentScale = ContentScale.Fit,
