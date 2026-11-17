@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T01:56:33.275091+00:00",
-  "commit": "dfaacb6d96bc9b91164a8536c1cdbcae5da64a97",
+  "generatedAt": "2026-11-17T01:58:11.957813+00:00",
+  "commit": "9502da8874d84fcd6d75a3f8256e1d5c28bdfc1e",
   "branch": "main",
-  "sourceFingerprint": "6f4192586d891640496e264b4eacb4d8310656cb67eb0f5ced13e83250b70fa9",
+  "sourceFingerprint": "5b61120526964546e527cc64199e2a67a666f1e596cf3e904daff112319612d8",
   "summary": {
     "files": 1377,
-    "lines": 294139,
-    "symbols": 4142
+    "lines": 294157,
+    "symbols": 4143
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6100,6 +6100,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
         "line": 316
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
+        "line": 371
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -30876,9 +30880,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-      "lines": 405,
-      "sha256": "662722a798d64bed45385e382a05a47a85289d2374da6a65ff66e0ddd62e94e0",
-      "symbols": []
+      "lines": 423,
+      "sha256": "9910d4e35def84e9e950608184f4df04a30ea52421c775987d02393bebe081f8",
+      "symbols": [
+        {
+          "name": "normalize",
+          "line": 371
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt",
