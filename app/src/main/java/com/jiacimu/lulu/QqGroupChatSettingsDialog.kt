@@ -44,6 +44,7 @@ internal fun QqGroupChatSettingsScreen(
     var editing by remember(group) { mutableStateOf(group) }
     var confirmDelete by remember { mutableStateOf(false) }
     var confirmClear by remember { mutableStateOf(false) }
+    var clearFailure by remember { mutableStateOf(false) }
     var searchVisible by remember { mutableStateOf(false) }
     var memberPickerVisible by remember { mutableStateOf(false) }
     var memberManagementVisible by remember { mutableStateOf(false) }
@@ -222,7 +223,7 @@ internal fun QqGroupChatSettingsScreen(
                         icon = Icons.Outlined.DeleteSweep,
                         title = "删除群聊的聊天信息",
                         subtitle = "清空消息和原始时间线上下文，但保留这个群",
-                        onClick = { confirmClear = true },
+                        onClick = { clearFailure = false; confirmClear = true },
                     )
                 }
             }
@@ -283,11 +284,20 @@ internal fun QqGroupChatSettingsScreen(
         AlertDialog(
             onDismissRequest = { confirmClear = false },
             title = { Text("清空群聊聊天信息？") },
-            text = { Text("聊天消息、每位成员的原始时间线副本以及由这些消息提取的记忆都会实质删除。群名称和成员设置会保留。") },
+            text = {
+                Text(if (clearFailure) "清空未完成，原聊天记录仍保留。请检查设备存储状态后重试。" else "聊天消息、每位成员的原始时间线副本以及由这些消息提取的记忆都会实质删除。群名称和成员设置会保留。")
+            },
             confirmButton = {
                 TextButton(onClick = {
-                    MigratedDomainStores.chat.clearConversationMessages(conversationId)
-                    confirmClear = false
+                    val cleared = runCatching {
+                        MigratedDomainStores.chat.clearConversationMessages(conversationId)
+                    }.getOrDefault(false)
+                    if (cleared) {
+                        clearFailure = false
+                        confirmClear = false
+                    } else {
+                        clearFailure = true
+                    }
                 }) { Text("确认清空", color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = { TextButton(onClick = { confirmClear = false }) { Text("取消") } },
