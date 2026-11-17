@@ -382,13 +382,15 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     } else "关闭时使用音乐模型生成的人声，不保证像角色本人。",
                     color = AdvancedMuted, fontSize = 12.sp)
                 TextButton(onClick = { musicAdvancedOpen = !musicAdvancedOpen }) {
-                    Text(if (musicAdvancedOpen) "收起 Music Finetune 设置" else "Music Finetune 高级设置（可选）")
+                    Text(if (musicAdvancedOpen) "收起 Music Finetune" else "Music Finetune（可选，非修音）")
                 }
                 if (musicAdvancedOpen) {
                     AdvancedTextField("Music Finetune ID", musicFinetune, {
                         musicFinetune = it
                         prefs.edit().putString("eleven_music_finetune:" + selectedVoiceRole, it.trim()).apply()
                     }, "与普通 ElevenLabs Voice ID 不同")
+                    Text("用于训练和固定曲风、人声风格；不能自动修正跑调。没有单独训练过就留空。",
+                        color = AdvancedMuted, fontSize = 12.sp)
                 }
                 Spacer(Modifier.height(10.dp))
                 AdvancedTextField("试听歌曲描述", musicPrompt, { musicPrompt = it },
@@ -432,32 +434,48 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     }
                     Text(if (generatingMusic) "歌曲处理中" else if (musicUseRoleVoice) "生成并试听角色原声（消耗额度）" else "生成并试听原创歌曲（消耗额度）")
                 }
+                Text("对比同一首歌 · 本地播放，不消耗额度", color = AdvancedMuted, fontSize = 12.sp)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(
                         modifier = Modifier.weight(1f),
-                        enabled = musicSaved && !generatingMusic,
+                        enabled = musicSaved && !generatingMusic &&
+                            ElevenLabsMusic.latestOriginalSong(context, selectedVoiceRole) != null,
                         onClick = {
                             val role = selectedVoiceRole
                             scope.launch {
                                 runCatching {
-                                    val lastSong = ElevenLabsMusic.latestSong(context, role)
-                                        ?: error("该角色没有已保存的歌曲")
-                                    if (musicUseRoleVoice && !lastSong.usedRoleVoice)
-                                        error("上一首还没有转换成角色音色，请点击「只重试换声」")
-                                    withContext(Dispatchers.IO) { ElevenLabsMusic.play(lastSong) }
-                                }.onSuccess { musicNotice = "正在重播本地歌曲，不会重复扣费。" }
-                                    .onFailure { musicNotice = it.message ?: "重播失败" }
+                                    val original = ElevenLabsMusic.latestOriginalSong(context, role)
+                                        ?: error("没有找到本首歌曲的音乐模型原版")
+                                    withContext(Dispatchers.IO) { ElevenLabsMusic.play(original) }
+                                }.onSuccess { musicNotice = "正在播放音乐模型原版，用来检查生成旋律是否跑调；无额外费用。" }
+                                    .onFailure { musicNotice = it.message ?: "原版试听失败" }
                             }
                         },
-                    ) { Text("重播上一首") }
+                    ) { Text("听生成原版") }
                     OutlinedButton(
                         modifier = Modifier.weight(1f),
+                        enabled = musicSaved && !generatingMusic &&
+                            ElevenLabsMusic.latestRoleVoiceSong(context, selectedVoiceRole) != null,
                         onClick = {
-                            ElevenLabsMusic.stop()
-                            musicNotice = "已停止播放"
+                            val role = selectedVoiceRole
+                            scope.launch {
+                                runCatching {
+                                    val converted = ElevenLabsMusic.latestRoleVoiceSong(context, role)
+                                        ?: error("这首歌还没有当前角色的换声版本")
+                                    withContext(Dispatchers.IO) { ElevenLabsMusic.play(converted) }
+                                }.onSuccess { musicNotice = "正在播放同一首歌的角色音色版；无额外费用。" }
+                                    .onFailure { musicNotice = it.message ?: "角色版试听失败" }
+                            }
                         },
-                    ) { Text("停止歌曲") }
+                    ) { Text("听角色版") }
                 }
+                OutlinedButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        ElevenLabsMusic.stop()
+                        musicNotice = "已停止播放"
+                    },
+                ) { Text("停止歌曲") }
                 if (musicUseRoleVoice && musicSaved) {
                     OutlinedButton(
                         modifier = Modifier.fillMaxWidth(),
