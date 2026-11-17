@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T03:29:44.870990+00:00",
-  "commit": "224e4c0fbeacc8e6341943e4556d0687ca56f6d9",
+  "generatedAt": "2026-11-17T03:30:41.578882+00:00",
+  "commit": "28328b1defd86c035bd115915013772aeb28b49b",
   "branch": "main",
-  "sourceFingerprint": "580d6d90c1db5dcf5c8de40c5ea958c3d006b6b24c6d960697f786cb90c9541f",
+  "sourceFingerprint": "999ff35d990f50d1aee10afe5a005746e26e80329fa24ea11804c0b6fbd1cb4f",
   "summary": {
     "files": 1382,
-    "lines": 295756,
+    "lines": 295761,
     "symbols": 4174
   },
   "symbolIndex": {
@@ -23183,7 +23183,7 @@
     "LuluVirtualSocialActionsTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSocialActionsTest.kt",
-        "line": 7
+        "line": 13
       }
     ],
     "LuluVirtualUiPolicyTest": [
@@ -49212,12 +49212,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSocialActionsTest.kt",
-      "lines": 65,
-      "sha256": "fd8360ac59be3cbba9dd533bceed66d49d30d6dcb74932310df7d1ecfd04de78",
+      "lines": 70,
+      "sha256": "8f7c62d3fe6ff09733701a14a6f98340e81d0b2469d0837ac75a756e97fcb145",
       "symbols": [
         {
           "name": "LuluVirtualSocialActionsTest",
-          "line": 7
+          "line": 13
         }
       ]
     },
