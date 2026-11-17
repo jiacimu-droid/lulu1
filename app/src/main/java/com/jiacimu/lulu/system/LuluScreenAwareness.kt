@@ -26,6 +26,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.PowerManager
 import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.ai.VisionModelService
 import java.time.Instant
@@ -33,6 +34,24 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 import org.json.JSONObject
+
+/** Pure authorization/state boundary: role intent never bypasses owner's control. */
+internal object LuluDirectReturnPolicy {
+    fun blockReason(
+        granted: Boolean, tracking: Boolean, connected: Boolean,
+        interactive: Boolean, locked: Boolean, foregroundPackage: String,
+        luluPackage: String, protectedApp: Boolean,
+    ): String? = when {
+        !granted -> "主人未开启「允许角色直接切回露露机」"
+        !tracking -> "主人关闭了应用使用感知"
+        !connected -> "主屏无障碍服务未连接，不能切换应用"
+        !interactive || locked -> "手机已锁屏或屏幕未唤醒，不主动打断"
+        foregroundPackage.isBlank() -> "无法核实主人主屏正在使用的应用"
+        foregroundPackage == luluPackage -> "露露机已经在前台，无须切换"
+        protectedApp -> "当前是系统或敏感应用，禁止强制切换"
+        else -> null
+    }
+}
 
 /** Independent Android implementation. No Veglia server, polling loop, or screenshot files. */
 object LuluScreenAwareness {
@@ -42,6 +61,7 @@ object LuluScreenAwareness {
     const val ON_DEMAND = "on_demand"
     const val AUTONOMOUS = "autonomous"
     const val SUMMON = "summon"
+    const val DIRECT_RETURN = "direct_return"
     const val EXCLUDED = "excluded_packages"
     private const val LAST_AUTO = "last_autonomous_attempt"
     private const val LAST_DIAG = "last_diagnostic"
@@ -55,6 +75,7 @@ object LuluScreenAwareness {
         "com.google.android.permissioncontroller", "com.google.android.apps.authenticator",
         "com.google.android.gms.auth", "com.google.android.apps.wallet",
         "com.android.vending.billing", "com.miui.securitycenter",
+        "com.android.incallui", "com.android.dialer", "com.google.android.dialer",
     )
 
     fun preferences(context: Context) = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -68,6 +89,11 @@ object LuluScreenAwareness {
         preferences(context).getBoolean(AUTONOMOUS, true)
     fun summonAllowed(context: Context) = consented(context) &&
         preferences(context).getBoolean(SUMMON, true)
+
+    /** This is a separately opt-in interruption, NEVER part of general screen
+     * or virtual-device permission. An old install defaults to DISABLED. */
+    fun directReturnAllowed(context: Context) = consented(context) &&
+        preferences(context).getBoolean(DIRECT_RETURN, false)
 
     fun excluded(context: Context): Set<String> = preferences(context).getString(EXCLUDED, "")
         .orEmpty().split(Regex("[,;\\s]+")).map(String::trim)
@@ -383,6 +409,65 @@ object LuluScreenAwareness {
             .put("studyFocus", if (sessionId.isNotBlank())
                 LuluStudyWatch.classifyVision(description) else "unknown")
             .put("verification", "真实截图＋视觉模型描述，不代表持续监看").toString()
+    }
+
+    /** Owner-authorized one-shot switch from a live other app to Lulu's real
+     * Android task. No force-stop, app ban, screenshot or virtual-display action.
+     * Success means Android's owner display NOW reports Lulu in the foreground,
+     * not that the user went to sleep or stayed inside the app afterwards. */
+    suspend fun directReturn(context: Context): String {
+        val app = context.applicationContext
+        val connected = LuluAccessibilityService.state.value.connected
+        val power = app.getSystemService(PowerManager::class.java)
+        val keyguard = app.getSystemService(KeyguardManager::class.java)
+        val interactive = power?.isInteractive == true
+        val locked = keyguard?.isKeyguardLocked != false
+        val before = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.ownerForegroundPackage().orEmpty()
+        }
+        val denial = LuluDirectReturnPolicy.blockReason(
+            granted = directReturnAllowed(app),
+            tracking = appTracking(app),
+            connected = connected,
+            interactive = interactive,
+            locked = locked,
+            foregroundPackage = before,
+            luluPackage = app.packageName,
+            protectedApp = isExcluded(app, before),
+        )
+        if (denial != null) return rejected(app, denial)
+        // Consent or foreground focus can change while a model response is
+        // pending. Verify again immediately before crossing the UI boundary.
+        val accepted = withContext(Dispatchers.Main) {
+            val current = LuluAccessibilityService.ownerForegroundPackage().orEmpty()
+            if (!directReturnAllowed(app) || !appTracking(app) ||
+                current != before || isExcluded(app, current)) false
+            else LuluAccessibilityService.requestLuluForeground(app)
+        }
+        if (!accepted) return rejected(app,
+            "切换前授权或前台窗口发生变化，或 Android 拒绝启动露露机；未确认切换", "unverified")
+        var observed = ""
+        repeat(3) {
+            kotlinx.coroutines.delay(400)
+            observed = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.ownerForegroundPackage().orEmpty()
+            }
+            if (observed == app.packageName) {
+                report(app, "已核实主屏从 $before 切到露露机")
+                return JSONObject().put("success", true).put("status", "observed")
+                    .put("accepted", true).put("previousPackageName", before)
+                    .put("observedPackageName", observed)
+                    .put("summary", "已经实际将露露机切到主人手机前台；原应用进入后台，未被强行停止")
+                    .put("verification", "已重新读取真实主屏(displayId=0)的前台应用")
+                    .toString()
+            }
+        }
+        report(app, "已申请直接切回，但系统未核实露露机在前台")
+        return JSONObject().put("success", false).put("status", "unverified")
+            .put("accepted", true).put("previousPackageName", before)
+            .put("observedPackageName", observed)
+            .put("summary", "已请求 Android 切到露露机，但当前主屏未核实成功；不能声称已强制返回")
+            .toString()
     }
 
     /** A notification the phone owner may tap, never a background Activity hijack. */
