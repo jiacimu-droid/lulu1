@@ -11,18 +11,21 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterRelationshipAuthorityTest {
-    @Test fun bestFriendBoundariesComeFromThatPersonsAuthoredAgreement() {
+    @Test fun relationshipBoundariesBelongOnlyToThePersonWhoSavedThem() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(context)
         CharacterLifeStore.initialize(context)
-        val agreement = CharacterSocialRelationship.agreement("lulu", "user")!!
-        val prompt = CharacterRuntime.definition("lulu").relationshipPromptSection()
-        assertTrue(agreement.details.contains("平等"))
-        assertTrue(agreement.details.contains("不把关心演成管家服务或恋人告白"))
-        assertTrue(prompt.contains(agreement.title))
-        assertTrue(prompt.contains(agreement.details))
-        assertFalse(CharacterRuntime.definition(CharacterLifeStore.BUNDLED_JIANG_DU_ID)
-            .relationshipPromptSection().contains(agreement.details))
+        val first = MigratedDomainStores.characters.create("关系甲")
+        val second = MigratedDomainStores.characters.create("关系乙")
+        val details = "我们是自己明确约定的平等朋友，不预设其他人的关系。"
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(
+            first.characterId, "user", "朋友", details))
+        val agreement = CharacterSocialRelationship.agreement(first.characterId, "user")!!
+        assertEquals(details, agreement.details)
+        assertTrue(CharacterRuntime.definition(first.characterId).relationshipPromptSection()
+            .contains(agreement.details))
+        assertFalse(CharacterRuntime.definition(second.characterId).relationshipPromptSection()
+            .contains(agreement.details))
     }
 
     @Test fun editedMixedRelationshipRemainsCompleteAndDoesNotChangeAnotherPerson() {
