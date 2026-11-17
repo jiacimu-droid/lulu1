@@ -524,6 +524,17 @@ object LuluDeviceToolBridge {
                 else if (callSilence) "通话观察期间${phoneInvalidationReason()}，旧决定未提交"
                 else "本轮电话期间${phoneInvalidationReason()}，旧决定未提交，请继续说话",
             ))
+        // A queued receipt can be acknowledged by another entry point while
+        // this call is preparing or waiting for the model. Only check this
+        // before committing our own perception, which also acknowledges it.
+        fun queuedReceiptAlreadyObserved() = externalObservationRevision != null &&
+            externalCallResult?.let {
+                com.jiacimu.lulu.data.PerceptionStimulusLedger.hasSeen(appContext, characterId, it.id, it.revision)
+            } == true
+        fun alreadyObservedPhoneTurn() = Result.failure<ModelReply>(
+            IllegalStateException("原工具回执已由角色的另一轮感知处理，本轮旧决定未提交"),
+        )
+        if (queuedReceiptAlreadyObserved()) return alreadyObservedPhoneTurn()
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -707,6 +718,7 @@ object LuluDeviceToolBridge {
         // Direct phone speech and tool decisions also belong to the definition
         // under which they were requested, even when no speech repair is needed.
         if (phoneDecisionInvalidated()) return stalePhoneTurn()
+        if (queuedReceiptAlreadyObserved()) return alreadyObservedPhoneTurn()
         val plannedReply = planner.getOrThrow()
         val plannerCompletedNanos = System.nanoTime()
         val firstParsedPlan = parsePlan(plannedReply.text)
@@ -848,6 +860,7 @@ object LuluDeviceToolBridge {
         // Start the authored side effects only after the cancellable handoff.
         currentCoroutineContext().ensureActive()
         if (phoneDecisionInvalidated()) return stalePhoneTurn()
+        if (queuedReceiptAlreadyObserved()) return alreadyObservedPhoneTurn()
         // The character's own model interprets natural speech. Only an actual
         // new user turn can revise the previous music-stop boundary or confirm
         // the wake goal. Time-based silence and old chat history cannot.

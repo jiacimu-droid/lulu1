@@ -1256,6 +1256,80 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+    @Test(timeout = 60_000) fun queuedPhoneReceiptDoesNotDecideAgainAfterAnotherEntryAcknowledgesIt() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        MomentsStore.initialize(context)
+
+        val id = MigratedDomainStores.characters.create("通话与私聊共用回执").characterId
+        val originalPost = "已实际发布且保留的原动态"
+        val result = JSONObject(ToolRouter.execute(context, id, "publish_moment",
+            JSONObject().put("text", originalPost), requestId = "queued-cross-entry-receipt"))
+        assertTrue(ToolExecutionStatus.completed(result))
+        val receipt = SharedExperienceTimeline.all(id)
+            .single { it.source == "tool-router" && it.evidenceKind == EventEvidenceKind.ToolResult }
+        assertEquals(receipt, com.jiacimu.lulu.CallExternalResultPolicy.pendingEvidence(context, id, receipt.id))
+
+        val stalePlan = JSONObject().put("action", "reply").put("text", "按这份回执再做一次。")
+            .put("statusText", "过期电话状态").put("endCall", true)
+            .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
+                .put("args", JSONObject().put("text", "过期电话决定发布的动态"))))
+        val release = CountDownLatch(1)
+        val hangups = AtomicInteger()
+        val requests = AtomicInteger()
+        MockWebServer().use { server ->
+            server.dispatcher = object : Dispatcher() {
+                override fun dispatch(request: RecordedRequest): MockResponse {
+                    if (requests.incrementAndGet() != 1 || !release.await(15, TimeUnit.SECONDS)) {
+                        return MockResponse().setResponseCode(400).setBody("unexpected request")
+                    }
+                    return MockResponse().setHeader("Content-Type", "application/json")
+                        .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                            .put("message", JSONObject().put("content", stalePlan.toString()))
+                            .put("finish_reason", "stop"))).toString())
+                }
+            }
+            server.start()
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            suspend fun respondToQueuedReceipt() = LuluDeviceToolBridge.respond(
+                id, "", "", "电话回执", archiveId = archive.id,
+                sceneContext = "一对一电话仍然接通",
+                silenceObservationId = receipt.id, externalObservationRevision = receipt.revision,
+                onCharacterHangup = { hangups.incrementAndGet() },
+            )
+
+            val pendingPhone = async { respondToQueuedReceipt() }
+            try {
+                val request = withContext(Dispatchers.IO) {
+                    checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
+                }
+                assertTrue(request.contains("- evidenceId=${receipt.id}"))
+                val otherEntry = CharacterPerceptionContext.integrate(
+                    context, id, listOf(receipt), deferAcknowledgement = true,
+                )
+                assertEquals(receipt.id, otherEntry.freshStimuli.single().evidenceId)
+                CharacterPerceptionContext.acknowledge(context, id, otherEntry)
+                assertTrue(PerceptionStimulusLedger.hasSeen(context, id, receipt.id, receipt.revision))
+            } finally {
+                release.countDown()
+            }
+            assertTrue(pendingPhone.await().exceptionOrNull()?.message.orEmpty().contains("另一轮感知处理"))
+            assertTrue(respondToQueuedReceipt().exceptionOrNull()?.message.orEmpty().contains("另一轮感知处理"))
+            assertEquals(1, server.requestCount)
+            assertEquals(0, hangups.get())
+            assertNotEquals("过期电话状态", CompanionPresenceStore.current(id)?.statusText)
+            assertEquals(listOf(originalPost), MomentsStore.posts.value
+                .filter { it.authorCharacterId == id }.map { it.content })
+            assertEquals(receipt, SharedExperienceTimeline.eventsByIds(id, listOf(receipt.id)).single())
+        }
+    }
+
     @Test(timeout = 60_000) fun phoneObservationDiscardsDecisionWhenItsReceiptIsRevisedOrWithdrawn() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
