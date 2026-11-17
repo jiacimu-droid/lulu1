@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>露露机 · 原生与网页画面对照</title>
+<style>
+:root{color-scheme:light;--paper:#f7f8fa;--ink:#1d2429;--sub:#687780;--line:#dce3e7;--blue:#335c65;--soft:#e7eff0;font-family:system-ui,-apple-system,"PingFang SC","Microsoft Yahei",sans-serif;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink)}button,select,input{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #377f94;outline-offset:3px}header{display:flex;gap:20px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:20px clamp(16px,3vw,40px);background:white;border-bottom:1px solid var(--line)}h1{font-size:19px;margin:0;letter-spacing:-.02em}header p{font-size:12px;color:var(--sub);margin:5px 0 0}header a{font-size:13px;color:#315d6b}.layout{max-width:1400px;margin:auto;padding:clamp(14px,3vw,36px)}.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:end;background:white;border:1px solid var(--line);padding:15px;border-radius:16px;margin-bottom:22px}.field{display:flex;flex-direction:column;gap:6px;min-width:114px;color:var(--sub);font-size:12px;font-weight:600}.field select,.field input[type=number]{height:40px;border-radius:9px;border:1px solid var(--line);padding:0 12px;background:white;color:var(--ink)}.upload{display:flex;align-items:center;justify-content:center;background:#294e58;color:white;height:40px;padding:0 14px;border-radius:9px;font-size:13px;cursor:pointer}.upload input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}.tools .button{height:40px;border:1px solid var(--line);border-radius:9px;padding:0 13px;background:white;color:var(--ink)}.tools .button:disabled{color:#9da5aa;background:#f7f8f9;cursor:not-allowed}.notice{font-size:13px;line-height:1.65;padding:13px 15px;border-left:3px solid #ae7d3b;background:#fffaf1;color:#6c5330;margin-bottom:20px;border-radius:0 10px 10px 0}.stage-area{display:flex;gap:24px;justify-content:center;align-items:start;flex-wrap:wrap}.pane{flex:0 1 auto;min-width:0}.pane h2{font-size:14px;margin:0 0 7px}.pane p{font-size:12px;color:var(--sub);margin:0 0 10px;line-height:1.6}.frame{position:relative;overflow:hidden;background:#dce5e9;box-shadow:0 10px 36px #23333e18;border:1px solid #bcc8d0;border-radius:8px;isolation:isolate}.frame iframe{display:block;width:100%;height:100%;border:0;background:#fff}.native-layer{position:absolute;inset:0;pointer-events:none;width:100%;height:100%;object-fit:fill;z-index:2}.native-only{background:#e6eaed;display:grid;place-items:center}.native-only .empty{padding:22px;color:#63727a;text-align:center;font-size:13px;max-width:220px;line-height:1.7}.native-only img{display:block;width:100%;height:100%;object-fit:fill}.native-only .trimmed{position:absolute;inset:0;overflow:hidden}.comparediff{margin-top:14px;padding:12px;border:1px solid var(--line);background:white;border-radius:12px;color:var(--sub);font-size:12px;display:flex;align-items:center;gap:10px}.comparediff label{white-space:nowrap}.comparediff input{flex:1;min-width:45px;accent-color:#315a68}.comparediff output{font-variant-numeric:tabular-nums;color:#263d47;min-width:40px;text-align:right}.result{background:white;border:1px solid var(--line);padding:18px;border-radius:14px;max-width:980px;margin:26px auto 0}.result h2{font-size:15px;margin:0 0 8px}.result p,.result li{font-size:13px;line-height:1.8;color:#5d6b72}.result ul{margin:9px 0 0;padding-left:20px}.footer{font-size:12px;color:#859399;padding:20px 0;text-align:center}.native-only img{user-select:none;-webkit-user-drag:none}@media(max-width:720px){header{align-items:start}.tools{gap:8px}.field{flex:1 1 100px}.tools .button{flex:1}.layout{padding:12px}.stage-area{gap:18px}.frame{max-width:calc(100vw - 26px)}.pane p{max-width:90vw}}
+</style>
+</head>
+<body>
+<header><div><h1>露露机 · 原生画面对照</h1><p>把当前 App 截图当作真实基准，逐屏检查网页，避免另一套“凭印象重画”的游戏。</p></div><a href="./play.html" target="_blank" rel="noopener">打开旧网页独立试玩</a></header>
+<main class="layout">
+  <section class="tools" aria-label="对照设置">
+    <label class="field">对照场景<select id="scene"><option value="island">方块小岛</option><option value="relic">迷雾摸金</option><option value="meet">见面／数字世界</option><option value="soup">海龟汤</option><option value="memory">记忆翻牌</option><option value="dice">快艇骰子</option><option value="gomoku">五子棋</option></select></label>
+    <label class="field">画布宽度<select id="width"><option value="360">360px</option><option value="412">412px</option><option value="430">430px</option><option value="full">按截图宽度</option></select></label>
+    <label class="field">截图顶部裁切<input id="crop" type="number" min="0" max="200" step="1" value="0" aria-label="裁切顶部状态栏（原图像素）"></label>
+    <label class="upload">导入当前 App 截图<input id="nativeFile" type="file" accept="image/png,image/jpeg,image/webp"></label>
+    <button class="button" id="clearFile" disabled>清除截图</button>
+    <button class="button" id="toggleNative" disabled>显示叠加</button>
+  </section>
+  <div class="notice" role="note"><strong>关键说明：</strong>这里是<strong>视觉对照工具</strong>，不是“已经与 App 完全共用代码”的页面。右边仍是先前独立的 JS 试玩，左边必须使用<strong>正式 App 的真实截图</strong>。只有同一绘制源或经逐屏一致性验收后，才能宣布网页版与 App 一样。截图只在本地浏览器读取，不上传服务器。</div>
+  <section class="stage-area">
+    <div class="pane"><h2>① 正式 Android App（原始基准）</h2><p>在手机里进入相同场景，截屏后从上方选择文件。</p><div class="frame native-only" id="native"><div class="empty" id="empty">尚未选择 App 截图。不能把网页模拟画面冒充为原生截图。</div><div class="trimmed" id="nativeClip" hidden><img id="nativeImg" alt="导入的正式 App 截图"></div></div></div>
+    <div class="pane"><h2>② 网页版（需要逐项核对）</h2><p>同尺寸显示；没有导入原生截图时，不能声称一模一样。</p><div class="frame" id="webFrame"><iframe id="browser" title="网页游戏预览" src="./play.html#island"></iframe><img class="native-layer" id="overlay" alt="App 截图透明叠加对比" hidden></div><div class="comparediff"><label for="opacity">原生叠加</label><input id="opacity" type="range" min="0" max="100" value="50" disabled><output id="opacityValue">50%</output></div></div>
+  </section>
+  <section class="result"><h2>当前实现的真实状态</h2><p id="status">尚未提供原生截图：只能验证网页本身是否能操作，不能验证和 App 的视觉一致性。</p><ul>
+    <li><strong>方块小岛：</strong>正式界面来自 <code>BlockIslandScreen.kt / BlockIslandArt.kt</code>；旧网页 <code>play.html</code> 独立绘制。</li>
+    <li><strong>迷雾摸金：</strong>正式界面来自 <code>RelicEscapeScreen.kt</code> 与正式美术模块；旧网页不是同一渲染器。</li>
+    <li><strong>见面：</strong>正式界面来自 <code>DigitalWorldMeetingSceneExperience.kt / DigitalWorldGameScene.kt</code>；旧网页没有连接实际位置、人物和会话。</li>
+    <li><strong>验收门槛：</strong>先一致的主画面、导航、地图、按钮、安全区、角色；再逐一核状态/操作/存档。只有页面试验通过并接入正式运行路径后才打 APK 验收。</li>
+  </ul></section><p class="footer">本页不会修改 App 数据、角色记忆或正式游戏存档。</p>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+let sourceUrl=null,sourceWidth=0,sourceHeight=0,overlayEnabled=false;
+const scene=$('scene'),width=$('width'),crop=$('crop'),native=$('native'),web=$('webFrame'),nativeImg=$('nativeImg'),overlay=$('overlay'),opacity=$('opacity');
+function setSizes(){const cropPx=Math.max(0,Number(crop.value)||0);const w=width.value==='full'&&sourceWidth?sourceWidth:Number(width.value)||360;const aspect=sourceWidth&&sourceHeight?Math.max(1,(sourceHeight-cropPx)/sourceWidth):780/360;const h=Math.max(300,Math.round(w*aspect));for(const el of [native,web]){el.style.width=w+'px';el.style.height=h+'px'}const trimmed=$('nativeClip');trimmed.style.top='0px';trimmed.style.height='100%';nativeImg.style.width='100%';nativeImg.style.height=sourceHeight?Math.round(w*sourceHeight/sourceWidth)+'px':'100%';nativeImg.style.transform=`translateY(-${Math.round(cropPx*w/(sourceWidth||w))}px)`;overlay.style.objectFit='fill';overlay.style.height=sourceHeight?Math.round(w*sourceHeight/sourceWidth)+'px':'100%';overlay.style.top=`-${Math.round(cropPx*w/(sourceWidth||w))}px`;overlay.style.bottom='auto';overlay.style.width='100%';}
+function updateOverlay(){overlay.hidden=!(sourceUrl&&overlayEnabled);overlay.style.opacity=String(Number(opacity.value)/100);$('opacityValue').textContent=opacity.value+'%';$('toggleNative').textContent=overlayEnabled?'隐藏叠加':'显示叠加';}
+scene.addEventListener('change',()=>{$('browser').src='./play.html#'+encodeURIComponent(scene.value);$('status').textContent=sourceUrl?'已导入截图；现在需要逐一检查画面、交互和状态，不能只凭截图宣布功能一致。':'尚未导入原生截图；当前网页和正式 App 使用不同绘制实现。';});
+width.addEventListener('change',setSizes);crop.addEventListener('change',setSizes);opacity.addEventListener('input',updateOverlay);
+$('nativeFile').addEventListener('change',e=>{const file=e.target.files?.[0];if(!file)return;if(!/^image\/(png|jpeg|webp)$/.test(file.type)){alert('请选择 PNG、JPG 或 WebP 截图');return;}const url=URL.createObjectURL(file);const img=new Image();img.onload=()=>{if(sourceUrl)URL.revokeObjectURL(sourceUrl);sourceUrl=url;sourceWidth=img.naturalWidth;sourceHeight=img.naturalHeight;crop.max=String(Math.floor(sourceHeight/4));if(Number(crop.value)>Number(crop.max))crop.value='0';nativeImg.src=url;overlay.src=url;$('nativeClip').hidden=false;$('empty').hidden=true;$('clearFile').disabled=false;$('toggleNative').disabled=false;opacity.disabled=false;$('status').textContent='已导入真实 App 截图（'+sourceWidth+' × '+sourceHeight+'）。叠加右侧检查布局；真实游戏逻辑仍未连接，不等于已经达到一模一样。';setSizes();updateOverlay()};img.onerror=()=>{URL.revokeObjectURL(url);alert('无法读取这张图片')};img.src=url;});
+$('toggleNative').addEventListener('click',()=>{overlayEnabled=!overlayEnabled;updateOverlay()});
+$('clearFile').addEventListener('click',()=>{if(sourceUrl)URL.revokeObjectURL(sourceUrl);sourceUrl=null;sourceWidth=sourceHeight=0;nativeImg.removeAttribute('src');overlay.removeAttribute('src');$('nativeClip').hidden=true;$('empty').hidden=false;$('nativeFile').value='';$('clearFile').disabled=true;$('toggleNative').disabled=true;opacity.disabled=true;overlayEnabled=false;$('status').textContent='已清除原生截图：无法声称与 App 一致。';setSizes();updateOverlay()});
+window.addEventListener('beforeunload',()=>{if(sourceUrl)URL.revokeObjectURL(sourceUrl)});
+setSizes();updateOverlay();
+</script>
+</body>
+</html>
