@@ -89,6 +89,21 @@ class LuluVirtualChatSendPolicyTest {
         assertFalse(recheck(false, "chat_keyboard_toggle_rejected"))
     }
 
+    @Test fun scrollableWeChatTranscriptIsSkippedWithoutHidingBottomComposer() {
+        fun b(l: Int, t: Int, r: Int, bt: Int) =
+            LuluVirtualChatSendPolicy.ComposerBounds(l, t, r, bt)
+        val history = b(0, 200, 720, 1040)
+        val composer = b(120, 1045, 610, 1105)
+        assertTrue(LuluVirtualChatSendPolicy.isConversationTranscript(
+            scrollable = true, visible = true, bounds = history, height = 1280))
+        assertFalse(LuluVirtualChatSendPolicy.isConversationTranscript(
+            scrollable = false, visible = true, bounds = composer, height = 1280))
+        assertFalse(LuluVirtualChatSendPolicy.isConversationTranscript(
+            scrollable = true, visible = false, bounds = history, height = 1280))
+        assertTrue(LuluVirtualChatSendPolicy.bottomComposerScanPriority(composer, 1280) >
+            LuluVirtualChatSendPolicy.bottomComposerScanPriority(history, 1280))
+    }
+
     @Test fun nestedVoiceBarLabelsAreOnePhysicalComposerButSeparateBarsAreAmbiguous() {
         fun b(l: Int, t: Int, r: Int, bt: Int) =
             LuluVirtualChatSendPolicy.ComposerBounds(l, t, r, bt)
