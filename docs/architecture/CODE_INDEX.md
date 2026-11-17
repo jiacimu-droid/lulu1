@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e91f56b77da050b9963673486966bb0f77b6362e`
+- 基准提交：`90096a337a5f5a2fe5b948fd4aa2e491c02206cc`
 - 分支：`main`
 - 已索引文件：1415
-- 已索引代码/文本行：299386
+- 已索引代码/文本行：299388
 - 已发现符号：4272
 
 | 文件 | 行数 | 符号数 |
@@ -841,7 +841,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt` | 145 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt` | 367 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt` | 369 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversal.kt` | 66 | 1 |
