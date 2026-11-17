@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T18:48:20.031752+00:00",
-  "commit": "a6e4b85d1030b16eee8f0e9c84c3849715f62f18",
+  "generatedAt": "2026-11-17T18:57:00.673126+00:00",
+  "commit": "008dbc61bbc13c3622ed190c8dcc1210daf93947",
   "branch": "main",
-  "sourceFingerprint": "bb5979f283ef40554316cf3db016a347d520cee89c2e41b25abb68b4efc7c60a",
+  "sourceFingerprint": "47eaa33b12c2972fb25c40aed70639ee1040ce4ba8e060b0584cf96db7e63cff",
   "summary": {
     "files": 1442,
-    "lines": 303232,
+    "lines": 303236,
     "symbols": 4343
   },
   "symbolIndex": {
@@ -51292,8 +51292,8 @@
     },
     {
       "path": "preview/world-core.js",
-      "lines": 82,
-      "sha256": "533d27afac8f5c1abfc439165bfaf416c172cb6a0954e56d00e4e49316553f31",
+      "lines": 86,
+      "sha256": "732d40ae8d80e37cc19b1b6c611abf0807fc8924d08cc6b658317630a9201c99",
       "symbols": []
     },
     {

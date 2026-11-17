@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a6e4b85d1030b16eee8f0e9c84c3849715f62f18`
+- 基准提交：`008dbc61bbc13c3622ed190c8dcc1210daf93947`
 - 分支：`main`
 - 已索引文件：1442
-- 已索引代码/文本行：303232
+- 已索引代码/文本行：303236
 - 已发现符号：4343
 
 | 文件 | 行数 | 符号数 |
@@ -1445,7 +1445,7 @@
 | `preview/play.html` | 173 | 0 |
 | `preview/styles.css` | 2 | 0 |
 | `preview/world-art-catalog.js` | 10 | 0 |
-| `preview/world-core.js` | 82 | 0 |
+| `preview/world-core.js` | 86 | 0 |
 | `preview/world-joystick.js` | 20 | 0 |
 | `preview/worlds.css` | 70 | 0 |
 | `preview/worlds.html` | 22 | 0 |
