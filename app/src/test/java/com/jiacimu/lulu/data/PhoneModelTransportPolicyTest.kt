@@ -7,9 +7,15 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelConnection
 import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import com.jiacimu.lulu.system.PhoneModelTransportPolicy
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.SocketPolicy
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
@@ -131,6 +137,68 @@ class PhoneModelTransportPolicyTest {
                 messages.getJSONObject(it).getString("content").contains(transcript)
             })
         } finally { server.shutdown() }
+    }
+
+    @Test(timeout = 60_000) fun interruptedPhoneRequestDoesNotCommitAndNextUtteranceCanRespond() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CharacterLifeStore.initialize(context)
+        CharacterInnerLifeStore.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val actor = MigratedDomainStores.characters.create("被打断的电话角色", "先听清再回答")
+        val role = actor.characterId
+        val original = "如果下雨，今晚就取消出门。"
+        val correction = "等等，说反了。只取消明天的安排，今晚照旧。"
+        val speech = "听清了，今晚照旧。"
+        val response = JSONObject().put("choices", JSONArray().put(JSONObject()
+            .put("message", JSONObject().put("content", JSONObject().put("action", "reply")
+                .put("text", speech).toString())).put("finish_reason", "stop")))
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE))
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json").setBody(response.toString()))
+            server.start()
+            val config = LuluAiServices.connectionStore.saveConfiguration(
+                null, "phone-interruption", server.url("/").toString(), "test-only",
+            )
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test-model")
+            var published = false
+            var hangup = false
+            suspend fun respond(transcript: String) = LuluDeviceToolBridge.respond(
+                role, "", transcript, "电话插话",
+                archiveId = archive.id, sceneContext = "正在与用户进行一对一实时电话",
+                phoneCallId = "interrupted-$role", onCharacterHangup = { hangup = true },
+            )
+            val before = CharacterInnerLifeStore.snapshot(role).toString()
+            fun authoredEffects() = SharedExperienceTimeline.all(role).filter {
+                it.evidenceKind == EventEvidenceKind.CharacterStatement ||
+                    it.evidenceKind == EventEvidenceKind.ToolResult
+            }.map { it.id }
+            val priorEffects = authoredEffects()
+            val pending = launch {
+                respond(original)
+                published = true
+            }
+            try {
+                val first = withContext(Dispatchers.IO) {
+                    checkNotNull(server.takeRequest(5, TimeUnit.SECONDS)).body.readUtf8()
+                }
+                assertTrue(first.contains(original))
+                assertTrue(JSONObject(first).getBoolean("stream"))
+                withTimeout(5_000L) { pending.cancelAndJoin() }
+                assertFalse(published)
+                assertFalse(hangup)
+                assertEquals(1, server.requestCount)
+                assertEquals(before, CharacterInnerLifeStore.snapshot(role).toString())
+                assertEquals(priorEffects, authoredEffects())
+
+                assertEquals(speech, respond(correction).getOrThrow().text)
+                val followUp = checkNotNull(server.takeRequest(5, TimeUnit.SECONDS)).body.readUtf8()
+                assertTrue(followUp.contains(correction))
+                assertTrue(followUp.contains(actor.displayName))
+                assertEquals(2, server.requestCount)
+            } finally {
+                pending.cancel()
+            }
+        }
     }
 
     @Test fun providerInvalidArgumentIsNeverReplayedAsAnotherPaidRequest() = runBlocking {
