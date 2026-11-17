@@ -183,18 +183,14 @@ object UnifiedMemoryOrchestrator {
                 if (valid.isEmpty()) null else turn.copy(events = valid)
             }
         val recentEvents = recentTurns.flatMap { it.events }
-        val seenInChat = listOf(request.recentContext, request.alreadyPresentedEvidence)
-            .filter(String::isNotBlank).joinToString("\n")
-            .replace(Regex("\\s+"), " ")
-        val promptRecentTurns = recentTurns.mapNotNull { turn ->
-            val visible = turn.events.filterNot { event ->
-                val text = event.evidenceContent.trim().replace(Regex("\\s+"), " ")
-                text.length >= 36 && seenInChat.contains(text)
-            }
-            if (visible.isEmpty()) null else turn.copy(events = visible)
-        }
-        val promptRecentEvents = promptRecentTurns.flatMap { it.events }
-        val seenIds = (recentEvents - promptRecentEvents.toSet()).mapTo(mutableSetOf()) { it.id }
+        // Full owner-configured recent turns are delivered independently.
+        // Plain-text substring matching against scene facts is NOT proof that
+        // the exact source record will survive the final relay projection;
+        // silently excluding it here can leave a configured turn unread.
+        // Only explicit source/revision exclusions above may remove a turn.
+        val promptRecentTurns = recentTurns
+        val promptRecentEvents = recentEvents
+        val seenIds = emptySet<String>()
         val query = request.retrievalQuery()
         val core = CoreMemoryDelivery.active(characterId).filterNot { memory ->
             shouldExcludeReplyDerivedMemory(memory.source, excluded)
@@ -232,8 +228,9 @@ object UnifiedMemoryOrchestrator {
         } }
         val inspectionId = MemoryInspectionStore.recordRecall(characterId, query, memories, sourceEvents,
             recall.candidates, recall.reasons, omissions, recall.notes)
-        // The chat window already contains these exact words. Preserve the originals
-        // in the authoritative timeline; only remove this duplicate prompt copy.
+        // Preserve all authorized recent source turns in the character's
+        // model context, even when separately presented dialogue happens to
+        // quote some of the same words. Excluded/revoked IDs stay excluded.
         return UnifiedMemoryContext(
             memories = memories,
             coreMemories = core,
