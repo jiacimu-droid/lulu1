@@ -157,6 +157,39 @@ class LuluAccessibilityService : AccessibilityService() {
                 visibleText = root.collectVisibleText().take(6_000), capturedAt = Instant.now()).also { mutableState.value = it }
         }
 
+        /** Inspect ONLY the owner's real display (0), never the independent
+         * virtual screen. An IME may temporarily be the highest layer, but an
+         * Android permission dialog is a barrier and must not be skipped. */
+        fun ownerForegroundPackage(): String? {
+            val service = instance ?: return null
+            val window = service.windowsOnAllDisplays.get(Display.DEFAULT_DISPLAY).orEmpty()
+                .filterNot {
+                    it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD ||
+                        it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY ||
+                        it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_MAGNIFICATION_OVERLAY ||
+                        it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SPLIT_SCREEN_DIVIDER
+                }.maxByOrNull { it.layer }
+            return window?.root?.packageName?.toString()?.takeIf(String::isNotBlank)
+        }
+
+        /** An authorized, single foreground switch, initiated FROM the bound
+         * AccessibilityService. startActivity returning normally is NOT proof
+         * Android accepted the background launch. The caller observes display 0
+         * again before reporting success; no force-stop or third-party click. */
+        fun requestLuluForeground(context: android.content.Context): Boolean {
+            val service = instance ?: return false
+            val intent = android.content.Intent(context,
+                com.jiacimu.lulu.MigrationActivity::class.java).addFlags(
+                android.content.Intent.FLAG_ACTIVITY_NEW_TASK or
+                    android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            return runCatching {
+                service.startActivity(intent)
+                true
+            }.getOrDefault(false)
+        }
+
+
         /**
          * The virtual display has a different Android display ID.
          * Never mix its windows with rootInActiveWindow (owner's main screen).
