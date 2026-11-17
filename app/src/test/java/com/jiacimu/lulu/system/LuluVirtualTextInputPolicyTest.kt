@@ -33,7 +33,10 @@ class LuluVirtualTextInputPolicyTest {
         assertFalse(LuluShellTextInput.mayPaste(7,
             "notes", "中文", "notes"))
         assertFalse(LuluShellTextInput.mayPaste(7,
-            "com.example.notes", "a".repeat(501), "com.example.notes"))
+            "com.example.notes", "a".repeat(LuluVirtualTextInputPolicy.MAX_TEXT_CHARS + 1),
+            "com.example.notes"))
+        assertTrue(LuluShellTextInput.mayPaste(7,
+            "com.example.notes", "a".repeat(800), "com.example.notes"))
     }
 
     @Test fun visualTypingRequiresLatestSnapshotAndPairedRealCoordinates() {
