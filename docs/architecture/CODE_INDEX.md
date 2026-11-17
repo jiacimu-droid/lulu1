@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c3328add6e3cb3db55e9cb85fc7864c9be52a02e`
+- 基准提交：`5901008b7f91b9de50712c8e94fc0973fc854417`
 - 分支：`main`
 - 已索引文件：1408
-- 已索引代码/文本行：297741
+- 已索引代码/文本行：297771
 - 已发现符号：4237
 
 | 文件 | 行数 | 符号数 |
@@ -970,7 +970,7 @@
 | `app/src/test/java/com/jiacimu/lulu/QqChatImageViewerTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt` | 57 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt` | 228 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt` | 883 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt` | 900 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqShoppingProductLinkOpenerTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqXhsShareCodecTest.kt` | 129 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RainyDioramaOrbitTest.kt` | 37 | 1 |
@@ -1185,7 +1185,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryTestEnvironment.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicyTest.kt` | 243 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ModelStructuredOutputTest.kt` | 511 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MomentConversationContinuationTest.kt` | 420 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MomentConversationContinuationTest.kt` | 433 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MomentFriendAccessTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MomentOwnerUnreadTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MomentsOwnerUnreadIntegrationTest.kt` | 124 | 1 |

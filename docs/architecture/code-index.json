@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T13:00:19.275370+00:00",
-  "commit": "c3328add6e3cb3db55e9cb85fc7864c9be52a02e",
+  "generatedAt": "2026-11-17T13:04:06.072669+00:00",
+  "commit": "5901008b7f91b9de50712c8e94fc0973fc854417",
   "branch": "main",
-  "sourceFingerprint": "d2ad695453c8550d4b1899c4ff01d5eb1a6584a3c87e80811821736d92cdbdca",
+  "sourceFingerprint": "ae223bbd325ddc7272f2e6e6c95fa2fdd372aee1ab916f24f4c8a7649d843787",
   "summary": {
     "files": 1408,
-    "lines": 297741,
+    "lines": 297771,
     "symbols": 4237
   },
   "symbolIndex": {
@@ -44090,8 +44090,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt",
-      "lines": 883,
-      "sha256": "080ee5b86b0bc25fd4cd020d4a3da4803f7f07af2b7bf1f1780e0d6b50746241",
+      "lines": 900,
+      "sha256": "d9dc32ba888fc5db0e06694d2e255bcd22c3944840892d553521619bda98a115",
       "symbols": [
         {
           "name": "QqReplySourceWatermarkTest",
@@ -47207,8 +47207,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MomentConversationContinuationTest.kt",
-      "lines": 420,
-      "sha256": "b94e7573f5c5449c857041e21f245d8724d753f0c8d897395beb3a46a52bfed1",
+      "lines": 433,
+      "sha256": "f76f615a3375ac822679e3805ae398fa8f59ba9ee68507c0979e2384a17bf071",
       "symbols": [
         {
           "name": "MomentConversationContinuationTest",
