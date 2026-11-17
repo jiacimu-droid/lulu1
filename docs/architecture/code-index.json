@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T15:54:11.670398+00:00",
-  "commit": "67708eb0f4b196edb2f6038c67540263b6828d2d",
+  "generatedAt": "2026-11-17T16:03:57.286264+00:00",
+  "commit": "dbd3d651340a3636e00413dcafa84b6c50408836",
   "branch": "main",
-  "sourceFingerprint": "82af4d88a5fe118390eb2accf70e19dbc65084486927fa3e5b2362181f75db21",
+  "sourceFingerprint": "bbfba77aa2cd833081d3ed3e81e8d85caa7b99f639417eacfa4e476666594423",
   "summary": {
-    "files": 1413,
-    "lines": 298897,
-    "symbols": 4260
+    "files": 1414,
+    "lines": 299228,
+    "symbols": 4270
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -146,6 +146,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt",
         "line": 70
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
+        "line": 264
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -4100,6 +4104,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicContractBoard.kt",
         "line": 49
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
+        "line": 179
       }
     ],
     "errorNote": [
@@ -5492,6 +5500,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCoopTravel.kt",
         "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
+        "line": 280
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
@@ -7262,6 +7274,10 @@
         "line": 21
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
+        "line": 60
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
         "line": 102
       },
@@ -8316,6 +8332,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
         "line": 145
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
+        "line": 290
       }
     ],
     "requestContext": [
@@ -18268,6 +18288,36 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
         "line": 87
+      }
+    ],
+    "ownerGranted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
+        "line": 54
+      }
+    ],
+    "command": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
+        "line": 109
+      }
+    ],
+    "onWindowChanged": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
+        "line": 194
+      }
+    ],
+    "LuluStrictModeReceiver": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
+        "line": 305
+      }
+    ],
+    "LuluStrictReviewWorker": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
+        "line": 313
       }
     ],
     "canObserve": [
@@ -42175,6 +42225,53 @@
         {
           "name": "clipboardTimestamp",
           "line": 87
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
+      "lines": 331,
+      "sha256": "90b67eb03fcd581a7915d2a92bef2a3c7a1c5256d1e685834972f6f51bc3812a",
+      "symbols": [
+        {
+          "name": "ownerGranted",
+          "line": 54
+        },
+        {
+          "name": "active",
+          "line": 60
+        },
+        {
+          "name": "command",
+          "line": 109
+        },
+        {
+          "name": "status",
+          "line": 179
+        },
+        {
+          "name": "onWindowChanged",
+          "line": 194
+        },
+        {
+          "name": "stop",
+          "line": 264
+        },
+        {
+          "name": "restore",
+          "line": 280
+        },
+        {
+          "name": "modelContext",
+          "line": 290
+        },
+        {
+          "name": "LuluStrictModeReceiver",
+          "line": 305
+        },
+        {
+          "name": "LuluStrictReviewWorker",
+          "line": 313
         }
       ]
     },
