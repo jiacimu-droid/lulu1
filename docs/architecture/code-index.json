@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:33:34.499387+00:00",
-  "commit": "7b03d39a87f8de8ef3844366329cc2101d76efce",
+  "generatedAt": "2026-11-17T17:34:36.054415+00:00",
+  "commit": "9a0e91b0ece4e4774042a9a267198f0fa591955f",
   "branch": "main",
-  "sourceFingerprint": "74bfcf9047654d4dfc8d642c20b1108abcffa13b2a5cca3ab0bf9e3bb0b715a2",
+  "sourceFingerprint": "f1215ab8f4eed988358716212f6a90a1fd3f2a386fce5d433e5f2bdd32f6269b",
   "summary": {
-    "files": 1435,
-    "lines": 301915,
+    "files": 1436,
+    "lines": 302115,
     "symbols": 4332
   },
   "symbolIndex": {
@@ -24374,6 +24374,12 @@
       "path": "app/src/main/assets/live2d/wolf-motions/48_kiss_close.motion3.json",
       "lines": 248,
       "sha256": "471ba99b99dfd44326bc3746a26c5dfd3aa2c6053a03da4c934795a6b10c90c8",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/assets/live2d/wolf-motions/49_look_close.motion3.json",
+      "lines": 200,
+      "sha256": "0ae445371bebcae4a73be0e13985cb5fb33fe79ec99a505048eb36976a04bdfd",
       "symbols": []
     },
     {

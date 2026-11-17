@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7b03d39a87f8de8ef3844366329cc2101d76efce`
+- 基准提交：`9a0e91b0ece4e4774042a9a267198f0fa591955f`
 - 分支：`main`
-- 已索引文件：1435
-- 已索引代码/文本行：301915
+- 已索引文件：1436
+- 已索引代码/文本行：302115
 - 已发现符号：4332
 
 | 文件 | 行数 | 符号数 |
@@ -61,6 +61,7 @@
 | `app/src/main/assets/live2d/wolf-motions/46_resigned_sigh.motion3.json` | 142 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/47_confused_double_tilt.motion3.json` | 120 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/48_kiss_close.motion3.json` | 248 | 0 |
+| `app/src/main/assets/live2d/wolf-motions/49_look_close.motion3.json` | 200 | 0 |
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
