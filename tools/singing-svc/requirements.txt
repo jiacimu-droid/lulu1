@@ -1,0 +1,5 @@
+fastapi>=0.115,<1
+uvicorn>=0.30,<1
+python-multipart>=0.0.20,<1
+# Install the upstream Seed-VC requirements from its official repository.
+# Do not copy model weights into the Lulu1 source tree.
