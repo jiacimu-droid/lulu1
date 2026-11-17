@@ -68,8 +68,12 @@ internal fun relicAttackHint(run: RelicRun, selected: Pair<Int, Int>): String {
     }
     return when {
         mob != null && !run.visible(mob.x, mob.y) -> "目标在迷雾中，需要先探索"
+        run.equipped == "bow" && run.bolts <= 0 ->
+            "弩箭已耗尽，换短剑或长矛再战"
         mob != null -> "当前"+RelicArsenal.label(run.equipped)+"："+RelicArsenal.description(run.equipped)+"；靠近或换武器"
-        else -> "没有进入武器射程的怪物；短剑只能打上下左右相邻1格"
+        run.equipped == "spear" -> "没有进入长矛射程的怪物；长矛只能直线攻击2格，不能隔墙"
+        run.equipped == "bow" -> "没有进入弩弓射程的怪物；弩弓只能直线攻击4格，每箭消耗1弹"
+        else -> "没有进入短剑射程的怪物；短剑只能打上下左右相邻1格"
     }
 }
 
