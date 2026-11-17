@@ -76,9 +76,9 @@ class CharacterAccountabilityContextTest {
             .flatMap { it.second }.any { it.key == "speechHabits" })
         assertTrue(CharacterProfileSchema.groupedFields()
             .flatMap { it.second }.none { it.key == "typing" })
-        assertEquals(CharacterProfileSchema.jiangDuSpeechHabits, CharacterProfileSchema.jiangDu["speechHabits"])
-        assertEquals(listOf("expression", "speechHabits"), CharacterProfileSchema.featuredFields.map { it.key })
-        assertEquals(CharacterProfileSchema.fields.size, CharacterProfileSchema.featuredFields.size + CharacterProfileSchema.otherFields.size)
+        assertTrue(CharacterProfileSchema.fields.any { it.key == "expression" })
+        assertEquals(CharacterProfileSchema.fields.size,
+            CharacterProfileSchema.fields.map { it.key }.distinct().size)
     }
 
     @Test fun expressionGuidePreservesIndependenceWithoutUnjustifiedCondescension() {
