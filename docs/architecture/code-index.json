@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:36:07.586355+00:00",
-  "commit": "40563a00cf5e4477b97331f3f19e129948270d50",
+  "generatedAt": "2026-11-17T16:37:33.482693+00:00",
+  "commit": "7f720c5b1bee33a7bc56080d9957fb59afd95101",
   "branch": "main",
-  "sourceFingerprint": "d6bfd999be38f1b9ac9cd07ce9c9452477d659edc8a9d5de2f73b073e81aada7",
+  "sourceFingerprint": "c0546cdb5cf117f340b9718162a176890b9b7ae92b9ff306e3f6741fd23e2b6b",
   "summary": {
     "files": 1420,
-    "lines": 299878,
+    "lines": 299736,
     "symbols": 4293
   },
   "symbolIndex": {
@@ -3317,7 +3317,7 @@
     "LuluAppearanceScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt",
-        "line": 51
+        "line": 37
       }
     ],
     "LuluBackupScreen": [
@@ -26316,12 +26316,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt",
-      "lines": 432,
-      "sha256": "9465382dbe1199c6a60709503f933258a478b48b460136832404762e9feb7f80",
+      "lines": 290,
+      "sha256": "9207b417ccb9867ffd74b7f669f53e5e72b4fa1ae527a22535f6877b0f5b07ef",
       "symbols": [
         {
           "name": "LuluAppearanceScreen",
-          "line": 51
+          "line": 37
         }
       ]
     },
