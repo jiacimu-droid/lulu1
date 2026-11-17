@@ -117,3 +117,35 @@ test('building a shelter cannot trap player or companion inside its new footprin
  assert.equal(Core.blocked(scene,4,12),false);
  assert.equal(Core.valid(scene),true,'constructed house preserves valid save');
 });
+
+test('island harvests physical trees into a shelter that survives reload without duplicating wood',()=>{
+ const s=Core.createWorld('island',813);
+ for(const id of ['tree-a','tree-b']){
+  const tree=s.props.find(p=>p.id===id);
+  const options=Core.approaches(s,tree);
+  const candidates=options.map(p=>Core.route(s,p.x,p.y)).filter(route=>route.length);
+  assert.ok(candidates.length,'tree must be reachable: '+id);
+  const route=candidates.sort((a,b)=>a.length-b.length)[0];
+  for(const step of route){
+   const dx=step.x-s.player.x,dy=step.y-s.player.y;
+   assert.equal(Core.walk(s,dx,dy).ok,true,'real walk to '+id);
+  }
+  assert.equal(Core.use(s,id).ok,true,'harvest actual tree '+id);
+ }
+ assert.equal(s.inventory.wood,2,'wood comes only from two removed trees');
+ const bench=s.props.find(p=>p.id==='bench');
+ const approaches=Core.approaches(s,{...bench,kind:'house'});
+ const paths=approaches.map(p=>Core.route(s,p.x,p.y)).filter(route=>route.length);
+ assert.ok(paths.length,'shelter entrance must be reachable');
+ for(const step of paths.sort((a,b)=>a.length-b.length)[0]){
+  assert.equal(Core.walk(s,step.x-s.player.x,step.y-s.player.y).ok,true);
+ }
+ assert.equal(Core.use(s,'bench').ok,true,'construct at the real workbench');
+ assert.equal(s.inventory.wood,0,'construction consumes the harvested wood');
+ assert.equal(bench.kind,'house');
+ const saved=JSON.parse(JSON.stringify(s));
+ assert.equal(Core.valid(saved),true,'completed shelter can be restored');
+ assert.equal(saved.props.find(p=>p.id==='bench').kind,'house');
+ for(const id of ['tree-a','tree-b'])assert.equal(Core.use(saved,id).ok,false,'no duplicate harvest after reload');
+ assert.equal(saved.inventory.wood,0);
+});
