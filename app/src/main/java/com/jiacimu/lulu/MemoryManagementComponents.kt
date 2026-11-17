@@ -385,7 +385,7 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                 } catch (error: Exception) { onNotice(error.message ?: "整理失败") }
                 finally { busy = false }
             } }, modifier = Modifier.fillMaxWidth()) { Text(if (busy) "正在整理…" else "整理当前角色记忆") }
-            Text("待提取的完整轮次：${repository.pendingMessageCount(characterId)} 条", fontSize = 12.sp, color = FeatureBlueGray)
+            Text("待提取的完整轮次：${repository.pendingMessageCount(characterId)} 轮", fontSize = 12.sp, color = FeatureBlueGray)
             debug.lastError?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
             TextButton(onClick = { audit = !audit }) { Text(if (audit) "收起下发记录" else "查看置顶记忆下发记录") }
             if (audit) CoreMemoryInjectionCard(characterId, memories)
