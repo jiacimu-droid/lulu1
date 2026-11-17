@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T12:46:13.695974+00:00",
-  "commit": "b9270689a0d1b88c623a7141b221a65525f256e6",
+  "generatedAt": "2026-11-17T12:47:52.522899+00:00",
+  "commit": "4afa0ad1880469f9735c7950a6680b2b29f740eb",
   "branch": "main",
-  "sourceFingerprint": "3d3b07b13c34d2741bcca96b79de2c721875aae1698884cbfeb97ce41ddaad7c",
+  "sourceFingerprint": "d6f509460cd005e623b1c3e7bffcdb230a6161bdaaf96bdeba4cbd1275c260b8",
   "summary": {
     "files": 1406,
-    "lines": 297273,
-    "symbols": 4232
+    "lines": 297428,
+    "symbols": 4234
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1181,7 +1181,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 61
+        "line": 67
       }
     ],
     "suppressAutoPlay": [
@@ -5705,7 +5705,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 580
+        "line": 593
       }
     ],
     "asUserMessages": [
@@ -13718,16 +13718,22 @@
         "line": 52
       }
     ],
+    "recoveredReceipt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
+        "line": 59
+      }
+    ],
     "ToolRouter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 58
+        "line": 71
       }
     ],
     "rejected": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 86
+        "line": 99
       }
     ],
     "allowsExpansion": [
@@ -17388,6 +17394,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
         "line": 1364
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
+        "line": 468
       }
     ],
     "liveRoot": [
@@ -17631,13 +17641,13 @@
     "stopped": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 475
+        "line": 582
       }
     ],
     "stillAuthorized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 826
+        "line": 933
       }
     ],
     "LuluDeviceToolBridge": [
@@ -17649,55 +17659,55 @@
     "ReconsideredChatReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 73
+        "line": 79
       }
     ],
     "commitReconsideredChatReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 86
+        "line": 92
       }
     ],
     "phoneReceiptChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 508
+        "line": 514
       }
     ],
     "phoneDecisionInvalidated": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 514
+        "line": 520
       }
     ],
     "phoneInvalidationReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 518
+        "line": 524
       }
     ],
     "stalePhoneTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 520
+        "line": 526
       }
     ],
     "queuedReceiptAlreadyObserved": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 530
+        "line": 536
       }
     ],
     "alreadyObservedPhoneTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 534
+        "line": 540
       }
     ],
     "staleReplyExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 1603
+        "line": 1609
       }
     ],
     "LaunchableApp": [
@@ -36197,8 +36207,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 699,
-      "sha256": "fe7b3e87a87942d1cfdbfa0c4af7fb07afe2a37ef01048c9e85a05acbe3575b7",
+      "lines": 712,
+      "sha256": "7ed3a79fc4287dd90225bca0ab71819fc7423f61a14b0fc803e15bc114bb719d",
       "symbols": [
         {
           "name": "completed",
@@ -36217,16 +36227,20 @@
           "line": 52
         },
         {
+          "name": "recoveredReceipt",
+          "line": 59
+        },
+        {
           "name": "ToolRouter",
-          "line": 58
+          "line": 71
         },
         {
           "name": "rejected",
-          "line": 86
+          "line": 99
         },
         {
           "name": "project",
-          "line": 580
+          "line": 593
         }
       ]
     },
@@ -41347,8 +41361,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 1632,
-      "sha256": "688d9c77f584a26a152db2a810193e75b3866027acfc25053e486b6f590748f7",
+      "lines": 1761,
+      "sha256": "6585fae0fa0be5494c7e79cdb99982324ed3760e1dabd76cce8ad50d59ad1789",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -41371,19 +41385,23 @@
           "line": 188
         },
         {
+          "name": "denied",
+          "line": 468
+        },
+        {
           "name": "stopped",
-          "line": 475
+          "line": 582
         },
         {
           "name": "stillAuthorized",
-          "line": 826
+          "line": 933
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2370,
-      "sha256": "cd19319218982723b43e2704c1373947b9cbee36a077d46ff9a495cc41f7f56b",
+      "lines": 2383,
+      "sha256": "866e88a5b180df771c79b004a7f12eaf358552eebc1e4525038f7d8472431237",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -41391,43 +41409,43 @@
         },
         {
           "name": "initialize",
-          "line": 61
+          "line": 67
         },
         {
           "name": "ReconsideredChatReply",
-          "line": 73
+          "line": 79
         },
         {
           "name": "commitReconsideredChatReply",
-          "line": 86
+          "line": 92
         },
         {
           "name": "phoneReceiptChanged",
-          "line": 508
-        },
-        {
-          "name": "phoneDecisionInvalidated",
           "line": 514
         },
         {
-          "name": "phoneInvalidationReason",
-          "line": 518
-        },
-        {
-          "name": "stalePhoneTurn",
+          "name": "phoneDecisionInvalidated",
           "line": 520
         },
         {
+          "name": "phoneInvalidationReason",
+          "line": 524
+        },
+        {
+          "name": "stalePhoneTurn",
+          "line": 526
+        },
+        {
           "name": "queuedReceiptAlreadyObserved",
-          "line": 530
+          "line": 536
         },
         {
           "name": "alreadyObservedPhoneTurn",
-          "line": 534
+          "line": 540
         },
         {
           "name": "staleReplyExpression",
-          "line": 1603
+          "line": 1609
         }
       ]
     },
