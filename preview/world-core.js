@@ -50,7 +50,11 @@
       Array.isArray(state.props)&&state.props.length<=WIDTH*HEIGHT&&
       state.props.every(p=>point(p)&&typeof p.id==='string'&&typeof p.kind==='string'&&typeof p.solid==='boolean'&&typeof p.used==='boolean')&&
       new Set(state.props.map(p=>p.id)).size===state.props.length&&
-      point(state.player)&&point(state.companion)&&typeof state.companion.following==='boolean'&&
+      point(state.player)&&point(state.companion)&&
+      !['border','water','wall'].includes(state.terrain[state.player.y*WIDTH+state.player.x])&&
+      !['border','water','wall'].includes(state.terrain[state.companion.y*WIDTH+state.companion.x])&&
+      !state.props.some(p=>p.solid&&!p.used&&p.x===state.player.x&&p.y===state.player.y)&&
+      typeof state.companion.following==='boolean'&&
       state.inventory&&count(state.inventory.wood)&&count(state.inventory.stone)&&count(state.inventory.relic)&&
       count(state.turns)&&count(state.hp)&&typeof state.finished==='boolean'&&typeof state.holding==='boolean'&&
       Array.isArray(state.notes);
