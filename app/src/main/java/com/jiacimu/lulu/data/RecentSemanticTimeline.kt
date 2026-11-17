@@ -133,18 +133,26 @@ object RecentSemanticTimeline {
             if (key != null) accept(key, Kind.EXPERIENCE, event)
             else accept("single:${event.id}", Kind.SINGLE, event)
         }
-        // Subjective snapshots are part of the reply/experience that caused
-        // them when their real provenance ID resolves. Never make every mood
-        // update another counted turn; otherwise busy autonomous perception
-        // evicts actual conversation. Unlinked snapshots remain in raw recall
-        // and the separate current-presence context.
+        // Subjective snapshots whose source ID resolves belong to the
+        // producing reply, not another memory turn. A genuinely independent
+        // snapshot must NOT vanish: it is the only evidence for some of the
+        // character's own feelings. Coalesce unlinked snapshots by their
+        // original session/day to avoid counting every background perception
+        // heartbeat as a new "conversation".
         unlinkedPresence.forEach { event ->
             val prefix = "presence-"
             val suffix = "-${event.characterId}"
             val sourceId = if (event.id.startsWith(prefix) && event.id.endsWith(suffix))
                 event.id.removePrefix(prefix).removeSuffix(suffix) else ""
             val parent = idToTurn[sourceId]
-            if (parent != null) groups[parent]?.add(event)
+            if (parent != null) {
+                groups[parent]?.add(event)
+            } else {
+                val day = event.occurredAt.atZone(java.time.ZoneOffset.UTC).toLocalDate()
+                val session = event.sessionId.ifBlank { "unlinked" }
+                accept("presence-experience:${event.characterId}:$session:$day",
+                    Kind.EXPERIENCE, event)
+            }
         }
         return groups.map { (key, items) ->
             Turn(key, kinds.getValue(key), items.sortedWith(
@@ -161,7 +169,10 @@ object RecentSemanticTimeline {
      */
     fun render(turn: Turn, budget: Int = 1_600, focus: String = ""): String {
         if (budget < 90 || turn.events.isEmpty()) return ""
-        val evidence = turn.events.filter { it.source != "presence" }
+        val independentPresence = turn.kind == Kind.EXPERIENCE &&
+            turn.key.startsWith("presence-experience:")
+        val evidence = if (independentPresence) turn.events
+            else turn.events.filter { it.source != "presence" }
         if (evidence.isEmpty()) return ""
         // A short old-episode preview should contain its ACTUAL outcome, not
         // five half-rendered movement receipts with no result.
@@ -176,7 +187,9 @@ object RecentSemanticTimeline {
         } else evidence
         val heading = when (turn.kind) {
             Kind.SPEECH -> "【完整交流｜${evidence.size}条发言】"
-            Kind.EXPERIENCE -> "【同一经历｜${evidence.size}条原始事件；以下为真实片段】"
+            Kind.EXPERIENCE -> if (independentPresence)
+                "【角色本人当时独立的主观记录｜${evidence.size}条；不是客观执行回执或当前心情】"
+                else "【同一经历｜${evidence.size}条原始事件；以下为真实片段】"
             Kind.SINGLE -> "【原始事实】"
         }
         val b = StringBuilder(heading)
@@ -207,7 +220,9 @@ object RecentSemanticTimeline {
                 "【原文字符${span.start + 1}起的片段】" else ""
             val available = (limit - offsetNote.length).coerceAtLeast(0)
             if (available == 0) continue
-            b.append(prefix).append(offsetNote).append(excerpt.take(available))
+            b.append(prefix)
+            if (event.source == "presence") b.append("【当时本人的主观心声/感受，不是客观亲历】")
+            b.append(offsetNote).append(excerpt.take(available))
             written++
             if (available < excerpt.length && b.length < budget) b.append("…")
         }
