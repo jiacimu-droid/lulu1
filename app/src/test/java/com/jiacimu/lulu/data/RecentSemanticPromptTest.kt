@@ -11,7 +11,7 @@ class RecentSemanticPromptTest {
         occurredAt = Instant.parse("2026-11-17T00:00:00Z").plusSeconds(second),
         source = "game-relic", evidenceKind = EventEvidenceKind.ToolResult)
 
-    @Test fun omittedMiddleCombatStepRemainsAvailableToExactSourceRecall() {
+    @Test fun longGameExperienceKeepsEveryReceiptInConfiguredRecentTurn() {
         val events = (0 until 75).map { i ->
             gameEvent("relic:run:my-role:$i", i.toLong(), if (i == 38)
                 "主人要求我在宝库先拉开左侧机关，机关已触发"
@@ -30,11 +30,47 @@ class RecentSemanticPromptTest {
         val recent = working.sections[MemoryWorkingSet.RECENT].orEmpty()
         val recalled = working.sections[MemoryWorkingSet.EVIDENCE].orEmpty()
         assertEquals(1, working.selected.count { it.startsWith("recent-turn:game:relic_escape:run") })
-        assertTrue(recalled.contains("左侧机关"))
-        assertTrue(recalled.contains("eventId=${middle.id}@${middle.revision}"))
+        // All 75 events are now in the single complete semantic experience.
+        // The recalled copy is redundant, not a missing middle-game witness.
+        assertTrue(recent.contains("左侧机关"))
+        assertTrue(recent.contains("eventId=${middle.id}@${middle.revision}"))
+        events.forEach { assertTrue("Missing ${it.id}", recent.contains("eventId=${it.id}@")) }
+        assertFalse(recalled.contains("左侧机关"))
         assertFalse(working.omitted.containsKey("event:${middle.id}"))
         assertTrue(recent.contains("同一经历"))
         assertTrue(working.usedCharacters <= budget.workingSetCharacters)
+    }
+
+    @Test fun ownerConfiguredTwentyLongTurnsAreVerbatimAndOutsideMemoryWorkingSetQuota() {
+        val at = Instant.parse("2026-11-17T00:00:00Z")
+        val events = (0 until 20).map { index ->
+            SharedTimelineEvent(
+                id = "long-talk-$index", characterId = "my-role", channel = "私聊",
+                speaker = if (index % 2 == 0) "用户" else "角色",
+                content = "第${index}轮开头：" + "真实的完整对话内容".repeat(400) +
+                    "第${index}轮结尾的重要否定与纠正：不要擅自取消。",
+                occurredAt = at.plusSeconds(index.toLong()),
+                source = "message", sessionId = "owner-and-role",
+                evidenceKind = if (index % 2 == 0) EventEvidenceKind.UserStatement
+                    else EventEvidenceKind.CharacterStatement,
+            )
+        }
+        val turns = RecentSemanticTimeline.select(events, 20)
+        assertEquals(20, turns.size)
+        val budget = PromptContextBudget(40, 10_000, 5_500, 5_900, false, true,
+            3_300, false, workingSetCharacters = 28_000)
+        val selection = MemoryWorkingSet.assemble(UnifiedMemoryContext(
+            characterId = "my-role", recentEvents = events, recentTurns = turns,
+        ), emptyList(), emptyList(), budget, "")
+        val recent = selection.sections[MemoryWorkingSet.RECENT].orEmpty()
+        assertTrue("The 20 complete turns must not be squeezed into 28k", recent.length > 28_000)
+        events.forEach { event ->
+            assertTrue(recent.contains("eventId=${event.id}@${event.revision}"))
+            assertTrue(recent.contains("第${event.id.substringAfterLast('-')}轮结尾的重要否定与纠正：不要擅自取消。"))
+        }
+        assertFalse(recent.contains("原文片段字符"))
+        assertTrue(selection.usedCharacters + selection.protectedCharacters <= budget.workingSetCharacters)
+        assertEquals(20, selection.selected.count { it.startsWith("recent:long-talk-") })
     }
 
     @Test fun filteredOrDeletedSourcesAreNotReintroducedFromAnOldEpisode() {
