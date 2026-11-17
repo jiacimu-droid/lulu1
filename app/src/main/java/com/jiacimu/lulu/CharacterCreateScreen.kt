@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
+import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -41,6 +42,8 @@ internal fun CharacterCreateScreen(
     var identity by rememberSaveable { mutableStateOf("") }
     var persona by rememberSaveable { mutableStateOf("") }
     var preferredAddress by rememberSaveable { mutableStateOf("") }
+    var userRemark by rememberSaveable { mutableStateOf("") }
+    var selfNickname by rememberSaveable { mutableStateOf("") }
     var profile by rememberSaveable { mutableStateOf<Map<String, String>>(emptyMap()) }
     var perceptionEnabled by rememberSaveable { mutableStateOf(true) }
     var adaptiveFrequency by rememberSaveable { mutableStateOf(true) }
@@ -72,6 +75,13 @@ internal fun CharacterCreateScreen(
             ProactivePerceptionPolicyStore.initialize(app)
             val id = createdId ?: MigratedDomainStores.characters.create(name.trim(), persona.trim())
                 .characterId.also { createdId = it }
+            if (!DigitalLifeProfileStore.isResolved(id)) {
+                DigitalLifeProfileStore.registerNewLife(
+                    characterId = id,
+                    displayName = name.trim(),
+                    creatorName = UserProfileContext.displayLabel(),
+                )
+            }
             val current = MigratedDomainStores.characters.get(id)
             MigratedDomainStores.characters.update(current.copy(
                 displayName = name.trim(),
@@ -85,6 +95,10 @@ internal fun CharacterCreateScreen(
             }
             if (preferredAddress.isNotBlank())
                 CharacterLifeStore.setSocialName(id, "preferredAddress", preferredAddress)
+            if (userRemark.isNotBlank())
+                CharacterLifeStore.setSocialName(id, "userRemark", userRemark)
+            if (selfNickname.isNotBlank())
+                CharacterLifeStore.setSocialName(id, "selfNickname", selfNickname)
             ProactivePerceptionPolicyStore.update(id) { currentPolicy ->
                 currentPolicy.copy(
                     enabled = perceptionEnabled,
@@ -98,13 +112,6 @@ internal fun CharacterCreateScreen(
             if (realtimeVoiceId.isNotBlank())
                 CharacterVoicePreferenceStore.setRealtimeVoiceId(id, realtimeVoiceId)
             if (autoPlayVoice) CharacterVoicePreferenceStore.setEnabled(id, true)
-            if (!DigitalLifeProfileStore.isResolved(id)) {
-                DigitalLifeProfileStore.registerNewLife(
-                    characterId = id,
-                    displayName = name.trim(),
-                    creatorName = UserProfileContext.displayLabel(),
-                )
-            }
             // Create a blank conversation only after all editable definition data
             // has been written. Never manufacture a welcome message.
             MigratedDomainStores.chat.ensureConversation(id, name.trim())
@@ -194,7 +201,18 @@ internal fun CharacterCreateScreen(
                             style = MaterialTheme.typography.titleMedium)
                         OutlinedTextField(preferredAddress,
                             { preferredAddress = it.take(24) },
-                            label = { Text("角色对你的称呼") },
+                            label = { Text("角色平时怎样称呼你") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+                        OutlinedTextField(userRemark,
+                            { userRemark = it.take(24) },
+                            label = { Text("给你的私人备注") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
+                        OutlinedTextField(selfNickname,
+                            { selfNickname = it.take(24) },
+                            label = { Text("角色自己的聊天网名") },
+                            singleLine = true,
                             modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                     }
                 }
