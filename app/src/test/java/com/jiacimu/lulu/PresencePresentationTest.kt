@@ -98,4 +98,22 @@ class PresencePresentationTest {
         assertEquals(state.gesture, fields["动作"])
     }
 
+
+    @Test fun accidentalEmotionJsonDisplaysOnlyTheHumanReadableLabel() {
+        val raw = """{"label":"好笑又拿她没办法","valence":0.4,"arousal":0.25}"""
+        val state = CompanionPresenceState(characterId = "role", mood = raw)
+        assertEquals("好笑又拿她没办法",
+            PresencePresentation.stateFields(state).toMap()["心情"])
+        assertEquals("好笑又拿她没办法",
+            com.jiacimu.lulu.data.CompanionPresenceMood.text(raw))
+        assertEquals("好笑又拿她没办法",
+            com.jiacimu.lulu.data.CompanionPresenceMood.text(raw.take(36)))
+    }
+
+    @Test fun malformedStructuredMoodNeverLeaksRawJsonOrScores() {
+        assertEquals("", com.jiacimu.lulu.data.CompanionPresenceMood.text(
+            """{"valence":0.4,"arousal":0.25}"""))
+        assertEquals("有点困 · 还惦记她", PresencePresentation.uniqueMood(
+            "有点困 · 还惦记她"))
+    }
 }
