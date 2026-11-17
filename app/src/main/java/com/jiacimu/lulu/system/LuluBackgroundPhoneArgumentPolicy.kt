@@ -81,6 +81,10 @@ internal object LuluBackgroundPhoneArgumentPolicy {
                 "聊天正文必须为1到500个字符"
             args.optString("screenSnapshotId").isBlank() ->
                 "发送聊天消息必须提供最近一次真实聊天界面的screenSnapshotId"
+            args.has("composerX") != args.has("composerY") ->
+                "视觉输入回退需要同时提供composerX和composerY；不能猜测坐标"
+            args.has("composerX") && coordinateError(args, listOf("composerX", "composerY")) != null ->
+                coordinateError(args, listOf("composerX", "composerY"))
             else -> null
         }
         LuluWeChatMomentsPolicy.OPEN_COMPOSER -> if (
