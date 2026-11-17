@@ -6,6 +6,11 @@ package com.jiacimu.lulu.system
  * checkout and search submission remain separate explicit actions.
  */
 internal object LuluVirtualTextInputPolicy {
+    // Bounded to fit the shell transport's 4000-character JSON line,
+    // but not the old search-only 500-character limit. Long drafts are
+    // independent of chat / search / purchase submission constraints.
+    const val MAX_TEXT_CHARS = 1800
+
     fun inputPointSafe(x: Int, y: Int, imeTopPermille: Int?): Boolean =
         x in 15..985 && y in 35..970 &&
             (imeTopPermille == null || y < imeTopPermille - 8)
