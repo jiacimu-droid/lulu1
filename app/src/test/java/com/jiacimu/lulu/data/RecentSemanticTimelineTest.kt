@@ -59,6 +59,33 @@ class RecentSemanticTimelineTest {
         assertEquals(3, RecentSemanticTimeline.select(events, 3).size)
     }
 
+    @Test fun separateRelicRunsDoNotMergeAndTeamActionsJoinTheirOwnLedger() {
+        val one = listOf(
+            row("relic:run-a:role:join", 1, "game-relic",
+                EventEvidenceKind.ToolResult, channel = "共同游戏《迷雾摸金》"),
+            row("game-accepted-relic_escape-run-a-1", 2, "game-team-action",
+                EventEvidenceKind.ToolResult, "game-session-relic_escape-run-a",
+                content = "第一局行动", channel = "共同游戏《迷雾摸金》·本人行动"),
+            row("game-raw-a", 3, "legacy", EventEvidenceKind.Observation,
+                content = "第一局原件:{\\"id\\":\\"run-a\\"}", channel = "共同游戏《迷雾摸金》"),
+        )
+        val two = listOf(
+            row("relic:run-b:role:join", 4, "game-relic",
+                EventEvidenceKind.ToolResult, channel = "共同游戏《迷雾摸金》"),
+            row("game-accepted-relic_escape-run-b-1", 5, "game-team-action",
+                EventEvidenceKind.ToolResult, "game-session-relic_escape-run-b",
+                content = "第二局行动", channel = "共同游戏《迷雾摸金》·本人行动"),
+            row("game-raw-b", 6, "legacy", EventEvidenceKind.Observation,
+                content = "第二局原件:{\\"id\\":\\"run-b\\"}", channel = "共同游戏《迷雾摸金》"),
+        )
+        val turns = RecentSemanticTimeline.select(one + two, 35)
+        assertEquals(2, turns.size)
+        assertEquals(setOf("game:relic_escape:run-a", "game:relic_escape:run-b"),
+            turns.map { it.key }.toSet())
+        assertTrue(turns.all { it.kind == RecentSemanticTimeline.Kind.EXPERIENCE })
+        assertTrue(turns.all { it.events.size == 3 })
+    }
+
     @Test fun userBurstAndCharacterBubblesAreTwoTurnsWithLinkedThought() {
         val rows = listOf(
             row("u1", 1, "message", EventEvidenceKind.UserStatement, "dm", content = "第一句"),
