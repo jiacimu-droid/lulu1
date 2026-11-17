@@ -76,7 +76,8 @@ class RecentSemanticTimelineTest {
         val text = RecentSemanticTimeline.render(turns.last(), 700)
         assertTrue(text.contains("回答一"))
         assertTrue(text.contains("回答二"))
-        assertFalse(text.contains("当时心情和心声")) // private thought is not falsely made spoken text
+        assertTrue(text.contains("当时心情和心声")) // source-linked past thought is within the same turn
+        assertTrue(text.contains("未公开的主观状态/心声")) // it is NOT a spoken bubble
         assertEquals(3, RecentSemanticTimeline.select(rows.dropLast(1), 35).size) // without a real batch, two replies
     }
 
