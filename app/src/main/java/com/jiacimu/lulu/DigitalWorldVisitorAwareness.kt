@@ -111,10 +111,11 @@ internal object DigitalWorldVisitorAwareness {
                 owner != null -> "家园到访通知：${UserProfileContext.displayLabel()}来到你自己的家“${sceneLabel}”；只通知房主，不能据此假定你已在家里看见对方。"
                 else -> "公共地点到访通知：与你建立过联系的${UserProfileContext.displayLabel()}来到${sceneLabel}；这是通知，不代表你在场或已看见。"
             }
-            val evidenceId = "world-arrival-${UUID.randomUUID()}-$id"
+            val evidenceId = "world-arrival-${if (entering) "enter" else "leave"}-${UUID.randomUUID()}-$id"
             SharedExperienceTimeline.record(eventId = evidenceId, characterId = id,
                 channel = "数字世界·到访通知", speaker = "地图事件",
-                content = text, occurredAt = now, source = "digital-world-arrival",
+                content = text, occurredAt = now, sessionId = sceneCode,
+                source = "digital-world-arrival",
                 evidenceKind = EventEvidenceKind.Observation, triggerExtraction = true)
             CompanionPresenceStore.recordPerceptionAttempt(id, "地图通知 · ${if (entering) "到访" else "离场"} · $sceneLabel", now)
             if (CompanionOnlineStore.isOnline(id)) {
