@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -128,6 +129,7 @@ internal fun LuluOnboardingGuideScreen(
     onOpen: (MigrationRoute) -> Unit,
 ) {
     var selectedKey by rememberSaveable { mutableStateOf<String?>(null) }
+    val overviewScrollState = rememberLazyListState()
     val selected = luluGuideFeatures.firstOrNull { it.key == selectedKey }
     BackHandler(enabled = selected != null) { selectedKey = null }
     val ink = MaterialTheme.colorScheme.onBackground
