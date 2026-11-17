@@ -99,6 +99,11 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var musicUseRoleVoice by remember { mutableStateOf(prefs.getBoolean("eleven_music_use_role_voice", false)) }
     var musicModel by remember { mutableStateOf(prefs.getString("eleven_music_model", ElevenLabsMusic.DEFAULT_MODEL).orEmpty().ifBlank { ElevenLabsMusic.DEFAULT_MODEL }) }
     var musicPrompt by remember { mutableStateOf("一首温柔的中文原创小夜曲，轻柔钢琴伴奏，清澈的年轻人声，唱出温暖和陪伴。") }
+    var directSingingLyrics by remember {
+        mutableStateOf("晚风轻轻吹过窗台，\n我把想念唱给你听。\n你抬头时，我就在这里。")
+    }
+    var directSingingBusy by remember { mutableStateOf(false) }
+    var directSingingNotice by remember { mutableStateOf("") }
     var musicSeconds by remember { mutableFloatStateOf(30f) }
     var generatingMusic by remember { mutableStateOf(false) }
     var musicNotice by remember { mutableStateOf("") }
@@ -369,6 +374,81 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     Text(if (testingVoice) "正在试听" else "试听当前声音")
                 }
                 if (voiceNotice.isNotBlank()) Text(voiceNotice, color = AdvancedMuted, fontSize = 12.sp)
+            }
+        }
+        item {
+            SettingsSectionCard("角色直接试唱 · ElevenLabs v4") {
+                Text("真正使用角色已有的 ElevenLabs Voice ID 直接唱几句，不经过其他歌手、音乐生成、分轨和换声。" +
+                    "目前是无伴奏的短句实验：音准、旋律及是否像唱歌，需要听效果确认。",
+                    color = AdvancedMuted, fontSize = 12.sp)
+                AdvancedChoiceField("试唱角色", selectedVoiceRole, voiceRoleOptions) {
+                    selectedVoiceRole = it
+                }
+                val directVoiceId = ElevenLabsRoleSongPipeline.roleVoiceId(context, selectedVoiceRole)
+                if (directVoiceId == null) {
+                    Text("此角色还没有可用的 ElevenLabs Voice ID，请先选好角色原本的音色。",
+                        color = AdvancedMuted, fontSize = 12.sp)
+                }
+                AdvancedTextField("让角色唱的歌词", directSingingLyrics,
+                    { directSingingLyrics = it },
+                    "写2～240字原创歌词；模型会即兴决定旋律", minLines = 3)
+                Text("使用 Eleven v4 的实验性唱歌指令。单次请求消耗 Text to Speech 字符额度，" +
+                    "不会发起 Eleven Music 生成，也不会偷偷调用普通变声。",
+                    color = AdvancedMuted, fontSize = 12.sp)
+                OutlinedButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !directSingingBusy && elevenKey.isNotBlank() &&
+                        directVoiceId != null && directSingingLyrics.trim().length in 2..240,
+                    onClick = {
+                        saveVoiceSettings()
+                        directSingingBusy = true
+                        directSingingNotice = "正用角色本人音色直接试唱…"
+                        val role = selectedVoiceRole
+                        val lyrics = directSingingLyrics
+                        scope.launch {
+                            runCatching {
+                                val file = ElevenLabsDirectSinging.generate(context, role, lyrics)
+                                val played = withContext(Dispatchers.IO) {
+                                    ElevenLabsMusic.play(ElevenLabsMusic.Song(
+                                        file, ElevenLabsDirectSinging.MODEL, false, "",
+                                        usedRoleVoice = true))
+                                }
+                                if (played) "正在播放角色本人的短句试唱；是否唱准请以实际听感为准。"
+                                else "试唱已保存，但无法开始播放。"
+                            }.onSuccess { directSingingNotice = it }
+                                .onFailure { directSingingNotice = it.message ?: "角色直接试唱失败" }
+                            directSingingBusy = false
+                        }
+                    },
+                ) {
+                    if (directSingingBusy) {
+                        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    Text(if (directSingingBusy) "正在试唱" else "用角色本人声音直接唱几句（消耗语音额度）")
+                }
+                OutlinedButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !directSingingBusy &&
+                        ElevenLabsDirectSinging.latest(context, selectedVoiceRole) != null,
+                    onClick = {
+                        val role = selectedVoiceRole
+                        scope.launch {
+                            runCatching {
+                                val saved = ElevenLabsDirectSinging.latest(context, role)
+                                    ?: error("还没有保存的直接试唱")
+                                withContext(Dispatchers.IO) {
+                                    ElevenLabsMusic.play(ElevenLabsMusic.Song(
+                                        saved, ElevenLabsDirectSinging.MODEL, false, "",
+                                        usedRoleVoice = true))
+                                }
+                            }.onSuccess { directSingingNotice = "正在播放本地试唱，不会再次扣费。" }
+                                .onFailure { directSingingNotice = it.message ?: "试唱重播失败" }
+                        }
+                    },
+                ) { Text("重听上次试唱（免费）") }
+                if (directSingingNotice.isNotBlank())
+                    Text(directSingingNotice, color = AdvancedMuted, fontSize = 12.sp)
             }
         }
         item {
