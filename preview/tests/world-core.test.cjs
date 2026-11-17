@@ -71,3 +71,17 @@ test('relic extraction seals the authoritative preview snapshot against direct a
  assert.equal(s.finished,true);
  assert.equal(before.includes('"finished":true'),true);
 });
+
+test('persisted worlds reject blocked player spawns and occupied solid props before gameplay',()=>{
+ for(const kind of ['island','relic']){
+  const base=Core.createWorld(kind,42);
+  const clone=()=>JSON.parse(JSON.stringify(base));
+  const wall=clone();wall.terrain[wall.player.y*wall.width+wall.player.x]='wall';
+  assert.equal(Core.valid(wall),false,'player cannot reload inside a wall');
+  const flooded=clone();flooded.terrain[flooded.companion.y*flooded.width+flooded.companion.x]='water';
+  assert.equal(Core.valid(flooded),false,'companion cannot reload in water');
+  const occupied=clone();occupied.props.push({id:'occupied-spawn',kind:'tree',x:occupied.player.x,y:occupied.player.y,solid:true,used:false});
+  assert.equal(Core.valid(occupied),false,'solid live prop cannot overlap player');
+  assert.equal(Core.valid(base),true,'unmodified world still resumes');
+ }
+});
