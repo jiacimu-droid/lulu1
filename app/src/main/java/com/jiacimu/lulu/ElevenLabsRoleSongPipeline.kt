@@ -14,6 +14,7 @@ import java.security.MessageDigest
 import java.util.Locale
 import java.util.UUID
 import java.util.zip.ZipInputStream
+import org.json.JSONObject
 
 /**
  * Eleven Music -> two-stem separation -> multilingual Voice Changer -> local mix.
@@ -28,6 +29,31 @@ internal object ElevenLabsRoleSongPipeline {
     private const val MAX_UPLOAD = 26L * 1024 * 1024
     private const val MAX_DOWNLOAD = 65L * 1024 * 1024
     private val VOICE_ID_PATTERN = Regex("[A-Za-z0-9_-]{5,100}")
+    private const val VOICE_STYLE_PREFIX = "eleven_music_voice_style:"
+    const val NATURAL = "natural"
+    const val EXPRESSIVE = "expressive"
+
+    /** Independent per-role singing setting: do not alter speaking voice or phone calls. */
+    fun voiceStyle(context: Context, characterId: String): String =
+        context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+            .getString(VOICE_STYLE_PREFIX + characterId.trim(), NATURAL)
+            ?.takeIf { it == EXPRESSIVE } ?: NATURAL
+
+    internal fun changerFields(style: String): Map<String, String> {
+        require(style == NATURAL || style == EXPRESSIVE) { "未知的歌声转换模式" }
+        if (style == NATURAL) return mapOf("model_id" to "eleven_multilingual_sts_v2")
+        // Lower stability can allow a more expressive delivery, but does NOT
+        // guarantee accurate singing pitch. Keep it opt-in and per-request.
+        return mapOf(
+            "model_id" to "eleven_multilingual_sts_v2",
+            "voice_settings" to JSONObject()
+                .put("stability", 0.35)
+                .put("similarity_boost", 0.85)
+                .put("style", 0.0)
+                .put("use_speaker_boost", true)
+                .toString(),
+        )
+    }
 
     fun enabled(context: Context): Boolean =
         context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
@@ -45,19 +71,22 @@ internal object ElevenLabsRoleSongPipeline {
             .firstOrNull { VOICE_ID_PATTERN.matches(it) }
     }
 
-    fun convertedFile(original: File, voiceId: String): File {
+    fun convertedFile(original: File, voiceId: String, style: String = NATURAL): File {
         require(VOICE_ID_PATTERN.matches(voiceId)) { "角色 ElevenLabs Voice ID 无效" }
+        require(style == NATURAL || style == EXPRESSIVE) { "未知的歌声转换模式" }
         val hash = MessageDigest.getInstance("SHA-256")
             .digest(voiceId.toByteArray(Charsets.UTF_8))
             .take(6).joinToString("") { "%02x".format(it) }
-        return File(original.parentFile, original.nameWithoutExtension + "_role_" + hash + ".wav")
+        // Keep the original natural cache filename unchanged for existing users.
+        val suffix = if (style == EXPRESSIVE) "_expressive" else ""
+        return File(original.parentFile, original.nameWithoutExtension + "_role_" + hash + suffix + ".wav")
     }
 
-    fun convert(context: Context, original: File, voiceId: String): File {
+    fun convert(context: Context, original: File, voiceId: String, style: String = NATURAL): File {
         require(original.isFile && original.length() in 1025..MAX_UPLOAD) {
             "原始歌曲文件不可用或过大"
         }
-        val target = convertedFile(original, voiceId)
+        val target = convertedFile(original, voiceId, style)
         if (target.isFile && target.length() > 44L) return target
         // Check duration BEFORE paying for separation or voice conversion.
         val durationMs = runCatching {
@@ -97,7 +126,7 @@ internal object ElevenLabsRoleSongPipeline {
                 apiKey = apiKey,
                 file = vocals,
                 fileField = "audio",
-                fields = mapOf("model_id" to "eleven_multilingual_sts_v2"),
+                fields = changerFields(style),
                 accept = "audio/mpeg",
                 output = convertedVoice,
             )
