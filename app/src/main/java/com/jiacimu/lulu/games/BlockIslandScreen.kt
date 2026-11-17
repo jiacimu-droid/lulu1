@@ -280,6 +280,11 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
         it.x==aimedCell.first && it.y==aimedCell.second
     }
     val targetTitle = when {
+        // The title must describe the same physical target as the authoritative
+        // action: a live guard blocks supplies, animals and dropped belongings.
+        primaryAction.action == "fight" -> "守卫怪物"
+        primaryAction.action == "revive" -> "倒地队友"
+        primaryAction.action == "recover_pack" -> "遗失背包"
         supplySelected -> if (island.world.index(aimedCell.first,aimedCell.second) in island.rareSupplyCaches) "✦ 潮汐秘藏" else "漂流补给箱"
         animalSelected!=null -> IslandWildlife.name(animalSelected.species)
         else -> islandCellTitle(selectedCell,selectedStructure)
