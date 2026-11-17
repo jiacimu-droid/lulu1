@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T01:55:26.357044+00:00",
-  "commit": "98aa9b3b4f23b308ee6f3c85b4e6564ff4b2f006",
+  "generatedAt": "2026-11-17T01:56:05.486770+00:00",
+  "commit": "78345faa57d8656d231541bfa2019bb053b9a995",
   "branch": "main",
-  "sourceFingerprint": "77132677c051e2b7ee4731f9e8f1b4f8e0c72ee32e2f157877825efcb5332537",
+  "sourceFingerprint": "9bd769407a8fb2a82a4cf539b081b7e002d75cd1ef4a46a173b51cc62faca3fc",
   "summary": {
     "files": 1377,
-    "lines": 294087,
+    "lines": 294091,
     "symbols": 4142
   },
   "symbolIndex": {
@@ -19323,7 +19323,7 @@
     "SemanticDialogueWindowRegressionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SemanticDialogueWindowRegressionTest.kt",
-        "line": 16
+        "line": 18
       }
     ],
     "SettingsHomeSearchTest": [
@@ -43334,12 +43334,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SemanticDialogueWindowRegressionTest.kt",
-      "lines": 76,
-      "sha256": "aabaf0b607b27ea19fc3984602e2e4e9c27fe72a379139caaaf2f15b4c671a22",
+      "lines": 80,
+      "sha256": "dbbbaf8f861548533e526de49f4cc11dc83aa2b4115bf1dde1a3240bddff3464",
       "symbols": [
         {
           "name": "SemanticDialogueWindowRegressionTest",
-          "line": 16
+          "line": 18
         }
       ]
     },
