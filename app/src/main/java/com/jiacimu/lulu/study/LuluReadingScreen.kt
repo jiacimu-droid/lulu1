@@ -109,7 +109,7 @@ fun LuluReadingScreen(
     val target = targetId?.let(ReadingReflectionStore::get)
     val selected = books.firstOrNull { it.id == selectedId }
     val passages = remember(selected?.id, selected?.content) {
-        selected?.let(::readingPassages).orEmpty()
+        selected?.let { readingPassages(it) }.orEmpty()
     }
     val listState = rememberLazyListState()
 
