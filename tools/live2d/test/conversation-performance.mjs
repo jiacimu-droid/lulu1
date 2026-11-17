@@ -1074,6 +1074,7 @@ assert.equal(bridge.playing, false,
   bridge.cameraBasePose = { x: 350, y: 600, width: 700, height: 700, scale: 2 }
   bridge.touchCalibration = {}
   bridge.kissMouthLocalOffsetX = () => 0
+  bridge.screenFaceLocalOffsetX = () => 0
   bridge.kissFaceLocalOffsetY = () => -100
   bridge.model.getBounds = () => ({ x: 100, y: 0, width: 500, height: 500 })
   const countBeforeVoice = motions.length
