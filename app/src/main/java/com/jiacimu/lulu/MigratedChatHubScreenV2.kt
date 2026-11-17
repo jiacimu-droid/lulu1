@@ -141,7 +141,7 @@ fun MigratedChatHubScreenV2(
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding).imePadding()) {
             when (selectedTab) {
-                0 -> ChatHubV2Messages(onOpenConversation)
+                0 -> ChatHubV2Messages(onOpenConversation, onCreateCharacter = { showCreateCharacter = true })
                 1 -> ChatHubV2Characters(onCharacterSettings, onWorldBook, onOpenConversation)
                 2 -> MomentsScreen()
                 else -> ChatHubV2Profile(onFavorites = { showFavorites = true })
@@ -256,7 +256,7 @@ internal fun ownerVisibleQqConversations(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
+private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit, onCreateCharacter: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
@@ -293,7 +293,8 @@ private fun ChatHubV2Messages(onOpenConversation: (String) -> Unit) {
             item(key = "empty") {
                 ChatHubV2Card {
                     Text("还没有聊天", fontWeight = FontWeight.Bold)
-                    Text("先到角色页创建角色，或从桌面最近聊天卡进入露露。", color = LuluColors.Muted)
+                    Text("还没有角色或聊天记录。创建自己的角色后，就能从这里开始聊天。", color = LuluColors.Muted)
+                    Button(onClick = onCreateCharacter) { Text("创建第一位角色") }
                 }
             }
         } else {
@@ -389,6 +390,7 @@ private fun ChatHubV2Characters(
         item(key = "companion-heading") {
             Text("人物与原住民", fontWeight = FontWeight.Bold, fontSize = 17.sp)
         }
+        if (sortedCharacters.isEmpty()) item { Text("这里还没有角色。点击右上角的加号，创建你自己的第一位角色。", color = LuluColors.Muted) }
         items(sortedCharacters, key = CharacterSettings::characterId, contentType = { "character" }) { character ->
             val privateChat = privateByCharacter[character.characterId]
             val presence = presenceStates[character.characterId]
@@ -410,7 +412,6 @@ private fun ChatHubV2Characters(
                         }
                         Text(
                             when {
-                                character.characterId == "lulu" -> "默认陪伴角色"
                                 character.characterId.startsWith("resident:") -> {
                                     val resident = ResidentCharacterBridge.nativeResident(character.characterId)
                                     if (resident != null) "数字世界原住民 · ${resident.dutyActivity.ifBlank { resident.identity }}"
@@ -478,7 +479,7 @@ private fun ChatHubV2CreateGroupDialog(
                     value = name,
                     onValueChange = { name = it.take(30) },
                     label = { Text("群名称") },
-                    placeholder = { Text("例如：露露的小客厅") },
+                    placeholder = { Text("例如：朋友们的客厅") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                 )
