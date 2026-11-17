@@ -53,24 +53,50 @@
       point(state.player)&&point(state.companion)&&
       !['border','water','wall'].includes(state.terrain[state.player.y*WIDTH+state.player.x])&&
       !['border','water','wall'].includes(state.terrain[state.companion.y*WIDTH+state.companion.x])&&
-      !state.props.some(p=>p.solid&&!p.used&&p.x===state.player.x&&p.y===state.player.y)&&
+      !state.props.some(p=>occupies(p,state.player.x,state.player.y)||occupies(p,state.companion.x,state.companion.y))&&
       typeof state.companion.following==='boolean'&&
       state.inventory&&count(state.inventory.wood)&&count(state.inventory.stone)&&count(state.inventory.relic)&&
       count(state.turns)&&count(state.hp)&&typeof state.finished==='boolean'&&typeof state.holding==='boolean'&&
       Array.isArray(state.notes);
   }
+  // Visual props with a wide sprite must block their WHOLE physical footprint.
+  // Anchor-only collision made players and auto-paths walk through buildings.
+  function footprint(p){
+    if(p.kind==='house'||p.kind==='shop')return {left:p.x-1,right:p.x+1,top:p.y-2,bottom:p.y};
+    if(p.kind==='well')return {left:p.x,right:p.x+1,top:p.y-1,bottom:p.y};
+    return {left:p.x,right:p.x,top:p.y,bottom:p.y};
+  }
+  function occupies(p,x,y){
+    if(p.used||!p.solid)return false;
+    const b=footprint(p);
+    return x>=b.left&&x<=b.right&&y>=b.top&&y<=b.bottom;
+  }
+  function distance(p,x,y){
+    const b=footprint(p);
+    return Math.max(b.left-x,0,x-b.right)+Math.max(b.top-y,0,y-b.bottom);
+  }
   function inBounds(s,x,y){return x>0&&y>0&&x<s.width-1&&y<s.height-1}
-  function blocked(s,x,y){if(!inBounds(s,x,y))return true;const t=s.terrain[y*s.width+x];return ['border','water','wall'].includes(t)||s.props.some(p=>p.solid&&!p.used&&p.x===x&&p.y===y)}
-  function nearest(s,range=1){return s.props.filter(p=>!p.used&&Math.abs(p.x-s.player.x)+Math.abs(p.y-s.player.y)<=range).sort((a,b)=>Math.abs(a.x-s.player.x)+Math.abs(a.y-s.player.y)-Math.abs(b.x-s.player.x)-Math.abs(b.y-s.player.y))[0]||null}
+  function blocked(s,x,y){if(!inBounds(s,x,y))return true;const t=s.terrain[y*s.width+x];return ['border','water','wall'].includes(t)||s.props.some(p=>occupies(p,x,y))}
+  function nearest(s,range=1){return s.props.filter(p=>!p.used&&distance(p,s.player.x,s.player.y)<=range).sort((a,b)=>distance(a,s.player.x,s.player.y)-distance(b,s.player.x,s.player.y))[0]||null}
+  function at(s,x,y){return s.props.find(p=>!p.used&&(occupies(p,x,y)||(p.x===x&&p.y===y)))||null}
+  function approaches(s,p){
+    const b=footprint(p),out=[];
+    for(let y=b.top-1;y<=b.bottom+1;y++)for(let x=b.left-1;x<=b.right+1;x++)
+      if(distance(p,x,y)===1&&!blocked(s,x,y))out.push({x,y});
+    return out;
+  }
   function walk(s,dx,dy){if(s.finished)return {ok:false,message:'本局已结算，请重新开始'};if(!Number.isInteger(dx)||!Number.isInteger(dy)||Math.abs(dx)+Math.abs(dy)!==1)return {ok:false,message:'无效方向'};const x=s.player.x+dx,y=s.player.y+dy;if(blocked(s,x,y))return {ok:false,message:'前面有障碍，试试绕开'};const old={...s.player};s.player={x,y};s.turns++;if(s.companion.following)s.companion={...old,following:true};return {ok:true,message:''}}
   function record(s,message){s.notes=[message,...s.notes].slice(0,8);return {ok:true,message}}
-  function use(s,id){if(s.finished)return {ok:false,message:'本局已结算，请重新开始'};const p=s.props.find(o=>o.id===id&&!o.used);if(!p)return {ok:false,message:'这里没有可互动目标'};if(Math.abs(p.x-s.player.x)+Math.abs(p.y-s.player.y)>1)return {ok:false,message:'先走近目标，再互动'};
+  function use(s,id){if(s.finished)return {ok:false,message:'本局已结算，请重新开始'};const p=s.props.find(o=>o.id===id&&!o.used);if(!p)return {ok:false,message:'这里没有可互动目标'};if(distance(p,s.player.x,s.player.y)>1)return {ok:false,message:'先走近目标，再互动'};
     if(p.kind==='friend'){s.holding=!s.holding;s.companion={x:p.x,y:p.y,following:s.holding};return record(s,s.holding?'牵手成功 · 演示同伴会跟着走':'已松开手 · 你可以独自探索')}
     if(s.kind==='meet'){if(p.kind==='house'||p.kind==='shop')return record(s,`来到了${p.kind==='house'?'咖啡店':'书店'}门口；内部地图仍在制作`);return record(s,'看见了街边的小景物')}
     if(s.kind==='island'){
       if(p.kind==='tree'){p.used=true;s.inventory.wood++;return record(s,'采到 1 份木材，树木已真实消失（试玩存档）')}
       if(p.kind==='ore'){p.used=true;s.inventory.stone++;return record(s,'采得 1 份矿石')}
-      if(p.kind==='workbench'){if(s.inventory.wood<2)return {ok:false,message:'工作台需要至少 2 木材才能试建'};s.inventory.wood-=2;p.kind='house';return record(s,'在工作台位置搭起了小屋模型（独立试玩）')}
+      if(p.kind==='workbench'){if(s.inventory.wood<2)return {ok:false,message:'工作台需要至少 2 木材才能试建'};const built={...p,kind:'house'};if(occupies(built,s.player.x,s.player.y)||occupies(built,s.companion.x,s.companion.y))
+        return {ok:false,message:'施工区域被人物占用，请先走到工作台南侧再建造'};
+        if(approaches(s,built).length===0)return {ok:false,message:'施工位置无可用入口'};
+        s.inventory.wood-=2;p.kind='house';return record(s,'在工作台位置搭起了小屋模型（独立试玩）')}
       return record(s,'查看了营地')
     }
     if(s.kind==='relic'){
@@ -81,5 +107,5 @@
     return {ok:false,message:'当前没有对应动作'};
   }
   function route(s,x,y){if(blocked(s,x,y))return [];const start=s.player.y*s.width+s.player.x,end=y*s.width+x,queue=[start],parent=new Map([[start,-1]]);for(let i=0;i<queue.length&&queue.length<450;i++){const at=queue[i];if(at===end)break;const ox=at%s.width,oy=(at/s.width)|0;for(const [dx,dy] of [[0,-1],[1,0],[0,1],[-1,0]]){const nx=ox+dx,ny=oy+dy,ni=ny*s.width+nx;if(!parent.has(ni)&&!blocked(s,nx,ny)){parent.set(ni,at);queue.push(ni)}}}if(!parent.has(end))return [];let out=[];for(let at=end;at!==start;at=parent.get(at))out.push({x:at%s.width,y:(at/s.width)|0});return out.reverse()}
-  return Object.freeze({labels,createWorld,valid,walk,blocked,nearest,use,route});
+  return Object.freeze({labels,createWorld,valid,walk,blocked,nearest,at,approaches,footprint,distance,use,route});
 });
