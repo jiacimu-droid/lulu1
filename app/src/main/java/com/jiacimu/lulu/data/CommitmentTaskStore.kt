@@ -155,7 +155,8 @@ object CommitmentTaskStore {
                     // discarded the exact accepted duty after just 120s.
                     // This is not a second call, nor a re-dated appointment:
                     // keep the missed original time and its failure evidence.
-                    missedByRole.putIfAbsent(task.characterId, task.dueAt)
+                    task.dueAt?.let { missedByRole.putIfAbsent(task.characterId, it) }
+                    task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
                     changed = true
                     task.copy(
                         status = CommitmentTaskStatus.Blocked,
