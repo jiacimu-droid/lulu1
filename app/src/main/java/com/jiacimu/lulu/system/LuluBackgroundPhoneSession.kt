@@ -1166,8 +1166,8 @@ internal object LuluBackgroundPhoneSession {
                 }
                 "type" -> {
                     val value = args.getString("text")
-                    require(value.isNotEmpty() && value.length <= 500) {
-                        "每次只允许输入1到500个字符"
+                    require(value.isNotEmpty() && value.length <= LuluVirtualTextInputPolicy.MAX_TEXT_CHARS) {
+                        "每次输入1到${LuluVirtualTextInputPolicy.MAX_TEXT_CHARS}个字符"
                     }
                     val prepared = command(JSONObject().put("action", "prepare_type"))
                     check(prepared.optBoolean("accepted")) {
