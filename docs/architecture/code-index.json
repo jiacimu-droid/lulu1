@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:35:45.950095+00:00",
-  "commit": "899429dd1c92f38c2355995fda583afe3ef4bdb0",
+  "generatedAt": "2026-11-17T17:36:37.977108+00:00",
+  "commit": "be86ad2aff330604899020d1921b5532bdbae446",
   "branch": "main",
-  "sourceFingerprint": "d2fa1701bf8e5dd1f8276c726d615f476f2eb44c689040f702691e15b3a30266",
+  "sourceFingerprint": "2c9081fd17b7845fdfbecd5634baf2c5737ebe445ffcdab4f9137ef07fd4d89a",
   "summary": {
     "files": 1436,
-    "lines": 302159,
+    "lines": 302270,
     "symbols": 4333
   },
   "symbolIndex": {
@@ -2815,7 +2815,7 @@
     "describe": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-        "line": 288
+        "line": 293
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt",
@@ -4093,19 +4093,19 @@
     "gridTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 206
+        "line": 219
       }
     ],
     "gridHeight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 209
+        "line": 222
       }
     ],
     "slotAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 211
+        "line": 224
       }
     ],
     "MigrationRoute": [
@@ -26186,8 +26186,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt",
-      "lines": 300,
-      "sha256": "a53d4a4c5943a2b6fc076dcd68e9bda104addb8086e8d2f3e0287942646eb9ce",
+      "lines": 305,
+      "sha256": "49ac09646f3b05c71eaaa868a3453c635b32097c268fd997b5db04af08527ee0",
       "symbols": [
         {
           "name": "Entry",
@@ -26195,7 +26195,7 @@
         },
         {
           "name": "describe",
-          "line": 288
+          "line": 293
         }
       ]
     },
@@ -26723,8 +26723,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-      "lines": 595,
-      "sha256": "c44edb0075c2d84e04bdf5e1ccb83a051ad86d02ad20c5175398d0d4d46a817f",
+      "lines": 665,
+      "sha256": "d4978c60f7651b2b9795e174b2a68a6662d329dbe2215d3ea5b81196fdafe8e0",
       "symbols": [
         {
           "name": "profileSign",
@@ -27285,20 +27285,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 829,
-      "sha256": "28892357be57d484708ef46d81751142239c6119be1be37faac6e0d17cf37233",
+      "lines": 852,
+      "sha256": "9f0cd7787bf308cd1953bfde0bbeab5c674f2fa20f59319d3dc3479acd735900",
       "symbols": [
         {
           "name": "gridTop",
-          "line": 206
+          "line": 219
         },
         {
           "name": "gridHeight",
-          "line": 209
+          "line": 222
         },
         {
           "name": "slotAt",
-          "line": 211
+          "line": 224
         }
       ]
     },
@@ -44663,8 +44663,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/Live2DMotionCatalogTest.kt",
-      "lines": 110,
-      "sha256": "8cd1a8eb5c2fdb481d2a5749bcff6ccf90b8f350b303775cdf53567d1f212c64",
+      "lines": 123,
+      "sha256": "ab6ce764d2834e2d986ad04286196376498318b148576ba2145cbcf55c6ecb95",
       "symbols": [
         {
           "name": "Live2DMotionCatalogTest",
