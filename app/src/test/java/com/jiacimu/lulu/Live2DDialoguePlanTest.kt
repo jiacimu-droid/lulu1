@@ -35,6 +35,21 @@ class Live2DDialoguePlanTest {
         assertNull(Live2DDialoguePlan.queuedParts(parts, "改写后的另一句话"))
     }
 
+    @Test fun faceLayerCombinesWithAnAuthoredBodyClipWithoutChoosingTheMoodForTheRole() {
+        val visual = envelope()
+        visual.getJSONArray("speech").getJSONObject(0).put("face",
+            JSONObject().put("smile", -0.4).put("browY", -0.65)
+                .put("eyeOpen", 0.7))
+        val part = Live2DDialoguePlan.parts(visual)!!.first()
+        assertEquals("Gesture" to 0, part.motion)
+        assertEquals(-0.4, part.face!!.getDouble("smile"), 0.001)
+        assertNull(Live2DDialoguePlan.parts(envelope())!!.first().face)
+        val beat = Live2DDialoguePlan.beats(listOf(part)).getJSONObject(0)
+        assertEquals(-0.65, beat.getJSONObject("face").getDouble("browY"), 0.001)
+        assertEquals("Gesture", beat.getJSONObject("motion").getString("group"))
+        assertNull(beat.optJSONObject("body"))
+    }
+
     @Test fun longSpeechPartCarriesMultipleChosenFollowUpMotions() {
         val visual = envelope().apply {
             getJSONArray("speech").getJSONObject(0).put("followUps", org.json.JSONArray()
@@ -102,7 +117,12 @@ class Live2DDialoguePlanTest {
         prefs.edit().putString("model:$role", relative).commit()
         try {
             Live2DVisualActionBus.stageReady(role, call)
+            Live2DVisualActionBus.stageParameters(role, call,
+                "ParamMouthForm,ParamEyeLOpen,ParamEyeROpen")
             val authored = envelope().apply {
+                getJSONArray("speech").getJSONObject(0).put("face",
+                    JSONObject().put("smile", 0.7).put("eyeOpen", 0.6)
+                        .put("unsupported", 0.9))
                 getJSONArray("speech").getJSONObject(0).put("followUps",
                     org.json.JSONArray().put(JSONObject().put("motion",
                         JSONObject().put("group", "Gesture").put("index", 1))))
@@ -110,6 +130,9 @@ class Live2DDialoguePlanTest {
             assertTrue(Live2DVisualActionBus.publish(context, role, call,
                 Live2DDialoguePlan.visual(authored)))
             val cue = Live2DVisualActionBus.cues.value.getValue(role)
+            assertEquals(0.7f, cue.beats[0].face?.values?.get("smile"))
+            assertEquals(0.6f, cue.beats[0].face?.values?.get("eyeOpen"))
+            assertFalse(cue.beats[0].face?.values?.containsKey("unsupported") == true)
             assertEquals(1, cue.beats[0].followUps.size)
             assertEquals("Gesture" to 1, cue.beats[0].followUps[0].motion)
             assertEquals(2500, cue.beats[0].followUps[0].metadata?.durationMs)
