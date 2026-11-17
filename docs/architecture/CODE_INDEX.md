@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0e7febeae43ca920899b9bc80735d2ea16a59230`
+- 基准提交：`032bdd37d17c9ba8fc8ac349f62b2c42fec8b8bd`
 - 分支：`main`
 - 已索引文件：1414
-- 已索引代码/文本行：298822
+- 已索引代码/文本行：298828
 - 已发现符号：4255
 
 | 文件 | 行数 | 符号数 |
@@ -1045,7 +1045,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 257 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundModelRequestBudgetTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 125 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt` | 114 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt` | 120 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BedtimeTimelineBoundaryTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt` | 25 | 1 |
