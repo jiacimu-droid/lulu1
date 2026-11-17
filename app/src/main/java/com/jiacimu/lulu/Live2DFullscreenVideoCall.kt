@@ -585,7 +585,9 @@ internal fun Live2DFullscreenVideoCall(
                         )
                         manualMotionOptions.forEach { selected ->
                             val label = if (selected.first == "LuluWolf")
-                                names.getOrNull(selected.second) ?: "动作 ${selected.second + 1}"
+                                names.getOrNull(selected.second)
+                                    ?: Live2DMotionCatalog.entries[selected.second]?.name
+                                    ?: "动作 ${selected.second + 1}"
                             else "${selected.first} · ${selected.second + 1}"
                             TextButton(modifier = Modifier.fillMaxWidth(), onClick = {
                                 motionPickerExpanded = false
