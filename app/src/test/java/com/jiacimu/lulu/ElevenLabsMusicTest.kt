@@ -1,6 +1,9 @@
 package com.jiacimu.lulu
 
 import android.content.Context
+import java.io.File
+import java.security.MessageDigest
+import java.util.UUID
 import com.jiacimu.lulu.data.CapabilityRegistry
 import org.junit.Assert.*
 import org.junit.Test
@@ -51,6 +54,48 @@ class ElevenLabsMusicTest {
         assertTrue(ElevenLabsMusic.explainHttpError(403, "{}").contains("权限"))
         assertTrue(ElevenLabsMusic.explainHttpError(402, "{}").contains("额度"))
         assertTrue(ElevenLabsMusic.explainHttpError(429, "{}").contains("频繁"))
+    }
+
+    @Test fun comparisonUsesExactOriginalAndMatchingRoleVoiceWithoutNewMusicRequests() {
+        val context = RuntimeEnvironment.getApplication()
+        val prefs = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+        val previousVoice = prefs.getString("eleven_voice_id", null)
+        val roleId = "compare-" + UUID.randomUUID()
+        val folderKey = MessageDigest.getInstance("SHA-256")
+            .digest(roleId.toByteArray(Charsets.UTF_8))
+            .take(10).joinToString("") { "%02x".format(it) }
+        val folder = File(context.filesDir, "eleven_music/$folderKey")
+        assertTrue(folder.mkdirs())
+        try {
+            prefs.edit().putString("eleven_voice_id", "voiceForSongCompare123").commit()
+            val original = File(folder, "first.mp3").apply {
+                writeBytes(ByteArray(2048) { 1 })
+                setLastModified(1_000_000L)
+            }
+            val voiceVersion = ElevenLabsRoleSongPipeline.convertedFile(original, "voiceForSongCompare123")
+                .apply { writeBytes(ByteArray(2048) { 2 }); setLastModified(1_010_000L) }
+            assertEquals(original, ElevenLabsMusic.latestOriginalSong(context, roleId)?.file)
+            assertEquals(voiceVersion, ElevenLabsMusic.latestRoleVoiceSong(context, roleId)?.file)
+            assertFalse(ElevenLabsMusic.latestOriginalSong(context, roleId)!!.usedRoleVoice)
+            assertTrue(ElevenLabsMusic.latestRoleVoiceSong(context, roleId)!!.usedRoleVoice)
+
+            // Switching this role's voice must not play an older voice as the current one.
+            prefs.edit().putString("eleven_voice_id", "anotherVoiceCompare123").commit()
+            assertNull(ElevenLabsMusic.latestRoleVoiceSong(context, roleId))
+            prefs.edit().putString("eleven_voice_id", "voiceForSongCompare123").commit()
+
+            // A later song with failed voice conversion must not be paired with the first.
+            val next = File(folder, "second.mp3").apply {
+                writeBytes(ByteArray(2048) { 3 })
+                setLastModified(2_000_000L)
+            }
+            assertEquals(next, ElevenLabsMusic.latestOriginalSong(context, roleId)?.file)
+            assertNull(ElevenLabsMusic.latestRoleVoiceSong(context, roleId))
+        } finally {
+            folder.deleteRecursively()
+            if (previousVoice == null) prefs.edit().remove("eleven_voice_id").commit()
+            else prefs.edit().putString("eleven_voice_id", previousVoice).commit()
+        }
     }
 
     @Test fun oneStoredElevenLabsKeyServesSpeechScribeAndMusicIndependently() {
