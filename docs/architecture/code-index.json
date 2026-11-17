@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T02:11:16.385231+00:00",
-  "commit": "2267f8de5238de65ffb84919d23db5e463f43eec",
+  "generatedAt": "2026-11-17T02:12:25.553694+00:00",
+  "commit": "ca8a4934e6f3f71bace4eb0eb0adfaeee9f13348",
   "branch": "main",
-  "sourceFingerprint": "b82d0c07b0cc167bea058c61c0db29c76b56e20703a4c6acdf7015044b1c7f4c",
+  "sourceFingerprint": "ee3abaf9cd09db2e9d2d24adae46fce4a294dbfeb8d0c0c435db76be9807309f",
   "summary": {
     "files": 1378,
-    "lines": 294502,
+    "lines": 294536,
     "symbols": 4145
   },
   "symbolIndex": {
@@ -253,7 +253,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 434
+        "line": 435
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
@@ -1245,7 +1245,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 611
+        "line": 612
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -6989,7 +6989,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1206
+        "line": 1213
       }
     ],
     "DevelopmentKind": [
@@ -7111,7 +7111,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 658
+        "line": 659
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -8903,13 +8903,13 @@
     "claimAlarmExecution": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 305
+        "line": 306
       }
     ],
     "removeBySourceEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 647
+        "line": 648
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -10699,19 +10699,19 @@
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1100
+        "line": 1107
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1175
+        "line": 1182
       }
     ],
     "valid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1235
+        "line": 1242
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
@@ -26051,7 +26051,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt",
       "lines": 396,
-      "sha256": "1d58d9676f3713433be7021e8cb783eee9c792c69d9c4e56b35e8848e5afccd1",
+      "sha256": "983161c0dda39a87baeec2bb4e63e98eab33b36780073f3626741887197b4c44",
       "symbols": []
     },
     {
@@ -30939,8 +30939,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-      "lines": 675,
-      "sha256": "7cb7c61504ef82d31ff30b9884abf484482b42676c1534cf906ef7219247bdf0",
+      "lines": 676,
+      "sha256": "ff225e542ed966537da3e0946f5ada73c1cdf76b09ba7cfc87cd18bfdaf0a052",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -30972,23 +30972,23 @@
         },
         {
           "name": "claimAlarmExecution",
-          "line": 305
+          "line": 306
         },
         {
           "name": "cancel",
-          "line": 434
+          "line": 435
         },
         {
           "name": "remove",
-          "line": 611
+          "line": 612
         },
         {
           "name": "removeBySourceEvent",
-          "line": 647
+          "line": 648
         },
         {
           "name": "clearCharacter",
-          "line": 658
+          "line": 659
         }
       ]
     },
@@ -32732,8 +32732,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 1283,
-      "sha256": "2908ff80974fb89292e89d06e98718df4c871f015042b6b01e5c3196bf97b010",
+      "lines": 1290,
+      "sha256": "99a3106c0997063764fc725d504c7feb341c3affe44be54fd20785a8dc49d618",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -32785,19 +32785,19 @@
         },
         {
           "name": "MemoryDebugState",
-          "line": 1100
+          "line": 1107
         },
         {
           "name": "grams",
-          "line": 1175
+          "line": 1182
         },
         {
           "name": "ids",
-          "line": 1206
+          "line": 1213
         },
         {
           "name": "valid",
-          "line": 1235
+          "line": 1242
         }
       ]
     },
@@ -34831,8 +34831,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-      "lines": 217,
-      "sha256": "05af88697d4ecae6e27b54934fc1d86bfc5dfed8a18f623002bfb85e491ef78a",
+      "lines": 219,
+      "sha256": "75f71ec522659ea816de2a52675b1ed233dbf6bc25fa90149eb1dd81acf9c7d5",
       "symbols": [
         {
           "name": "RecentSemanticTimeline",
@@ -45234,8 +45234,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt",
-      "lines": 587,
-      "sha256": "a09d61f2b81e2b354dbf7b81967acb944eca6c7060776182f9786b0d3bbb9761",
+      "lines": 611,
+      "sha256": "4040b41dd24655257e5ce5b2aec51b8f4e7d0b2fe8706519a97d77b34a7596a9",
       "symbols": [
         {
           "name": "CommitmentAlarmRecoveryTest",

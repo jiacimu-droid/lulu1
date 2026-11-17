@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2267f8de5238de65ffb84919d23db5e463f43eec`
+- 基准提交：`ca8a4934e6f3f71bace4eb0eb0adfaeee9f13348`
 - 分支：`main`
 - 已索引文件：1378
-- 已索引代码/文本行：294502
+- 已索引代码/文本行：294536
 - 已发现符号：4145
 
 | 文件 | 行数 | 符号数 |
@@ -447,7 +447,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt` | 56 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 675 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 676 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 481 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 2032 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 65 | 3 |
@@ -505,7 +505,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyJiangDuProfileSchema.kt` | 21 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt` | 51 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1283 | 16 |
+| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1290 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 610 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocationAddressCache.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
@@ -569,7 +569,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt` | 217 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt` | 219 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt` | 103 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt` | 94 | 5 |
@@ -1105,7 +1105,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt` | 1117 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatLexiconRetryPolicyTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ChatTimingTraceTest.kt` | 35 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt` | 587 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CommitmentAlarmRecoveryTest.kt` | 611 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentCallRetryPolicyTest.kt` | 108 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentDecisionProtocolTest.kt` | 142 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt` | 178 | 1 |
