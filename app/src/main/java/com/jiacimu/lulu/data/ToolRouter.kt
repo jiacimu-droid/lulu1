@@ -259,6 +259,28 @@ object ToolRouter {
                             JSONObject().put("request", args.optString("request")).put("sources", args.optJSONArray("sources") ?: org.json.JSONArray()).put("notes", args.optString("notes")), requestId)
                         JSONObject().put("success", true).put("status", "pending").put("requestId", job.getString("requestId"))
                             .put("summary", "已保存云端任务请求，尚未生成文件").toString()
+                    } else if (name == "sing_song") {
+                        // Music generation is charged and non-retry-safe. Store the audio
+                        // before starting playback, and never regenerate on player failure.
+                        val prompt = args.optString("prompt").trim()
+                        val duration = args.optInt("durationSeconds", 30)
+                        val song = com.jiacimu.lulu.ElevenLabsMusic.generate(
+                            context, characterId, prompt, duration)
+                        val played = runCatching {
+                            withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                com.jiacimu.lulu.ElevenLabsMusic.play(song)
+                            }
+                        }
+                        JSONObject().put("success", true).put("status", "succeeded")
+                            .put("model", song.model).put("songId", song.songId)
+                            .put("fileName", song.file.name)
+                            .put("usedFinetune", song.usedFinetune)
+                            .put("playbackStarted", played.getOrDefault(false))
+                            .put("summary", if (played.getOrDefault(false))
+                                "原创歌曲已真正生成并保存，已启动本机音乐播放；不代表播放到结尾"
+                            else "原创歌曲已生成并保存，但手机未能启动播放：" +
+                                played.exceptionOrNull()?.message.orEmpty().take(120))
+                            .toString()
                     } else if (name == com.jiacimu.lulu.ai.JevDirections.TOOL) {
                         com.jiacimu.lulu.ai.JevDirections.evaluate(context, characterId, args)
                     } else if (name == "save_photo") {
