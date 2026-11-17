@@ -1047,15 +1047,12 @@ internal object LuluBackgroundPhoneSession {
                         toggleClicked = switched.optBoolean("inputModeSwitchClicked")
                         switchFailure = switched
                         if (switched.optBoolean("inputModeTextVerified")) true else if (
-                            switched.optBoolean("accepted") ||
-                            // The app can finish its transition between the
-                            // first editor scan and the voice-bar scan. A
-                            // missing voice bar is not proof that it is still
-                            // in voice mode; recheck for a REAL editable node,
-                            // without tapping a second time or guessing a slot.
-                            switched.optString("errorCode") in setOf(
-                                "chat_voice_composer_unverified",
-                                "chat_keyboard_toggle_unverified",
+                            // A missing voice bar can mean the app changed
+                            // modes during the scan. Only recheck an actual
+                            // editor, never blindly click another keyboard slot.
+                            LuluVirtualChatSendPolicy.mayRecheckTextEditorAfterVoiceProbe(
+                                switched.optBoolean("accepted"),
+                                switched.optString("errorCode"),
                             )
                         ) {
                             var ready = false
