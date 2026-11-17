@@ -325,21 +325,27 @@ internal fun BlockIslandScreen(store: LuluGameStore) {
     GameSceneDeck(
         accent = Color(0xFFA9E5BD),
         healthFraction = world.hp / 12f,
-        secondaryFraction = island.hunger / 10f,
-        secondaryLabel = "饱食",
+        // Do not pin a permanent food meter over the island. Survival food is
+        // still authoritative in the inventory; low food is surfaced explicitly.
+        secondaryFraction = null,
         compactStatus = true,
-        compactSummary = "❤ ${world.hp}/12 · 饱 ${island.hunger}/10",
+        compactSummary = "❤ ${world.hp}/12" +
+            (if(island.hunger<=3) " · ⚠ 饥饿 ${island.hunger}/10" else ""),
         resourceSummary = "木 ${world.wood} · 石 ${world.stone} · 果 ${island.fruit} · 鱼 ${island.fish} · 晶 ${island.crystals}",
         toolsLabel = "☰ 地图 / 行囊",
         toolsFromTop = true,
         companionCenterBottom = true,
         helpAction = { islandGuideTab = "入门"; showIslandGuideDialog = true },
         closeToolsSignal = dismissToolsVersion,
-        notice = if (activeGuardian != null &&
-            abs(activeGuardian.x - world.x) + abs(activeGuardian.y - world.y) <= 2 &&
-            IslandGuardianEncounter.impendingHeavyAttack(island))
-            "⚠ 守卫下一回合重击 · 躲开" else "",
-        status = "❤ ${world.hp}/12  饱 ${island.hunger}/10  木 ${world.wood}  石 ${world.stone}  果 ${island.fruit}  " +
+        notice = when {
+            activeGuardian != null &&
+                abs(activeGuardian.x - world.x) + abs(activeGuardian.y - world.y) <= 2 &&
+                IslandGuardianEncounter.impendingHeavyAttack(island) ->
+                    "⚠ 守卫下一回合重击 · 先躲开"
+            island.hunger <= 3 -> "⚠ 饥饿 ${island.hunger}/10 · 可吃野果或到篝火边烤鱼"
+            else -> ""
+        },
+        status = "❤ ${world.hp}/12  木 ${world.wood}  石 ${world.stone}  果 ${island.fruit}  " +
             IslandGarden.season(world.turns) + (if (night) "夜" else "昼"),
         scene = {
             BlockIslandCanvas(island, aimedCell, zoomed, night, impact, impactProgress.value,
