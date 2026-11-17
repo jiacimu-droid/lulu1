@@ -75,6 +75,16 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var minimaxVolume by remember { mutableFloatStateOf(prefs.getFloat("minimax_volume", 1f)) }
     var minimaxPitch by remember { mutableFloatStateOf(prefs.getInt("minimax_pitch", 0).toFloat()) }
     var elevenKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
+    DisposableEffect(prefs) {
+        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { changed, key ->
+            if (key == "eleven_api_key") {
+                val stored = changed.getString("eleven_api_key", "").orEmpty()
+                if (elevenKey != stored) elevenKey = stored
+            }
+        }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        onDispose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
     var elevenVoice by remember { mutableStateOf(prefs.getString("eleven_voice_id", "").orEmpty()) }
     var elevenModel by remember { mutableStateOf(prefs.getString("eleven_tts_model", ElevenLabsModels.DEFAULT).orEmpty().trim().ifBlank { ElevenLabsModels.DEFAULT }) }
     var elevenStability by remember { mutableFloatStateOf(prefs.getFloat("eleven_stability", .5f)) }
@@ -130,7 +140,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
             .putFloat("minimax_speed", minimaxSpeed)
             .putFloat("minimax_volume", minimaxVolume)
             .putInt("minimax_pitch", minimaxPitch.toInt())
-            .putString("eleven_api_key", elevenKey.trim())
             .putString("eleven_voice_id", elevenVoice.trim())
             .putString("eleven_tts_model", elevenModel.trim())
             .putFloat("eleven_stability", elevenStability)
@@ -143,7 +152,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     LaunchedEffect(
         provider, language, rate, pitch, minimaxEndpoint, minimaxApiKey, minimaxGroupId,
         minimaxModel, minimaxVoiceId, minimaxLanguage, minimaxSpeed, minimaxVolume, minimaxPitch,
-        elevenKey, elevenVoice, elevenModel, elevenStability, elevenSimilarity,
+        elevenVoice, elevenModel, elevenStability, elevenSimilarity,
         musicEnabled, musicModel,
     ) { saveVoiceSettings() }
 
@@ -164,6 +173,29 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     )
                     FilterChip(selected = provider == "elevenlabs", onClick = { provider = "elevenlabs" }, label = { Text("ElevenLabs") })
                 }
+            }
+        }
+        item {
+            SettingsSectionCard("ElevenLabs 账号 · 统一 API Key") {
+                AdvancedTextField(
+                    "ElevenLabs API Key",
+                    elevenKey,
+                    {
+                        elevenKey = it
+                        // All ElevenLabs TTS, Scribe and Music consumers already
+                        // share this one legacy key. Persist ONLY from this editor,
+                        // never from an unrelated settings save or remembered draft.
+                        prefs.edit().putString("eleven_api_key", it.trim()).apply()
+                    },
+                    "同一个 Key 用于配音、哄睡电话、Scribe 识别与唱歌",
+                    password = true,
+                )
+                Text(
+                    if (elevenKey.isBlank()) "尚未配置；如已在旧版语音识别中填写，升级后会自动读取原设置。"
+                    else "已配置 · 配音／哄睡／Scribe 识别／Eleven Music 共用，无需重复填写。",
+                    color = AdvancedMuted,
+                    fontSize = 12.sp,
+                )
             }
         }
         item {
@@ -283,8 +315,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         }
         if (provider == "elevenlabs") item {
             SettingsSectionCard("ElevenLabs 接口") {
-                AdvancedTextField("API Key", elevenKey, { elevenKey = it }, "填写个人 ElevenLabs API Key", password = true)
-                Spacer(Modifier.height(10.dp))
                 AdvancedTextField("Voice ID", elevenVoice, { elevenVoice = it }, "填写选择的声线 ID")
                 Spacer(Modifier.height(10.dp))
                 AdvancedChoiceField(
@@ -328,11 +358,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text("允许角色主动唱歌", modifier = Modifier.weight(1f), color = AdvancedInk, fontSize = 14.sp)
                     Switch(checked = musicEnabled, onCheckedChange = { musicEnabled = it })
-                }
-                if (provider != "elevenlabs") {
-                    AdvancedTextField("ElevenLabs API Key", elevenKey, { elevenKey = it },
-                        "和 ElevenLabs 配音共用一把密钥", password = true)
-                    Spacer(Modifier.height(10.dp))
                 }
                 AdvancedChoiceField("音乐模型", musicModel,
                     listOf("Music v2.5（推荐）" to "music_v2_5", "Music v2" to "music_v2"),
