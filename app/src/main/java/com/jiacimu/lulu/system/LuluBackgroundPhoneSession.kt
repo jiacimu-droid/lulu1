@@ -1600,7 +1600,14 @@ internal object LuluBackgroundPhoneSession {
                     .put("visibleText", if (owned) observed.visibleText.take(5_000) else "")
                     .put("searchEditorStatus", search)
                     .put("inputTextReadbackVerified", typed)
-                    .put("inputVerification", applied?.optString("inputVerification").orEmpty())
+                    .put("inputVerification", if (action == "type" && textReadbackVerified)
+                    "match" else applied?.optString("inputVerification").orEmpty())
+                .put("inputStage", if (action == "type")
+                    LuluVirtualTextInputPolicy.stage(
+                        applied?.optBoolean("accepted") == true, textReadbackVerified)
+                    else "")
+                .put("inputMethod", applied?.optString("inputMethod").orEmpty())
+                .put("inputDispatched", applied?.optBoolean("inputDispatched") == true)
                     .put("frameValidated", false).put("taskCompleted", false)
                     .put("frameBlack", frame.optBoolean("frameBlack", false))
                     .put("screenCaptureStatus", if (frame.optBoolean("frameBlack", false))
@@ -1695,10 +1702,25 @@ internal object LuluBackgroundPhoneSession {
                 LuluAccessibilityService.virtualSearchFieldStatus(id, activeApp)
             }
             val expected = args.optString("expectedText").trim()
-            val textReadbackVerified = if (action == "type" && applied?.optBoolean("accepted") == true) {
-                withContext(Dispatchers.Main) {
-                    LuluAccessibilityService.typedTextReadbackOnDisplay(
-                        id, activeApp, args.getString("text"))
+            val textReadbackVerified = if (action == "type" &&
+                applied?.optBoolean("accepted") == true) {
+                when {
+                    applied.optBoolean("inputTextReadbackVerified") -> true
+                    applied.optString("inputMethod") == "visual_target_uid_unicode" &&
+                        hasFrame && frameFresh && args.has("inputX") && args.has("inputY") ->
+                        withContext(Dispatchers.IO) {
+                            runCatching {
+                                val bytes = java.util.Base64.getDecoder().decode(
+                                    pixels.removePrefix("data:image/jpeg;base64,"))
+                                val bitmap = android.graphics.BitmapFactory.decodeByteArray(
+                                    bytes, 0, bytes.size)
+                                    ?: return@runCatching false
+                                LuluVirtualTextReadbackOcr.verify(
+                                    bitmap, args.getString("text"),
+                                    args.getInt("inputX"), args.getInt("inputY"))
+                            }.getOrDefault(false)
+                        }
+                    else -> false
                 }
             } else false
             val actionConditionVerified = action == "observe" ||
@@ -1794,9 +1816,9 @@ internal object LuluBackgroundPhoneSession {
                         "已核实唯一搜索框获得焦点；未输入或提交内容"
                     else "搜索框焦点未能核实；没有点击其他输入框")
                     else if (action == "type" && !textReadbackVerified)
-                    "后台搜索文字未能从目标输入框读回，可能未取得焦点或App拒绝输入；此画面仅供本人排查，不能声称已经搜到"
+                    "已尝试向当前后台App的输入框写入文字，但未能从目标输入区确认全文；只可依据新的真实画面继续核对，不能说输入成功，更不代表已发送或提交"
                     else if (action == "type" && observed)
-                    "已从后台目标应用输入框读回所输文字；尚未执行搜索提交，实际搜索结果仍需观察"
+                    "已从当前后台App的输入区读回所输入文字；只完成输入草稿，没有发送、发布或提交"
                     else if (actionConditionVerified)
                     "已观察到后台目标窗口与指定的验证条件；实际业务任务是否完成仍由角色依据画面判断"
                     else if (observed)
