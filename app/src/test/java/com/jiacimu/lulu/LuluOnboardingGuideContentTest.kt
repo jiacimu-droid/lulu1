@@ -6,6 +6,18 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LuluOnboardingGuideContentTest {
+    @Test fun everyStepHasAResourceIndependentIllustration() {
+        // The previous guide bundled corrupted JPEGs and crashed when LazyColumn
+        // composed the first screenshot. Illustrations now use Compose text only.
+        assertEquals(luluGuideSteps.size, luluGuideSteps.map { it.screen }.distinct().size)
+        luluGuideSteps.forEach { step ->
+            val rows = guideScreenRows(step.screen)
+            assertTrue("missing illustration for ${step.screen}", rows.size >= 3)
+            assertTrue(rows.none { it.contains("sk-") || it.contains("https://api.") })
+        }
+        assertTrue(guideScreenRows("unknown").isEmpty())
+    }
+
     @Test fun onboardingRunsFromApiToOwnRoleToModelToChat() {
         assertEquals(listOf("api", "role", "model", "chat"), luluGuideSteps.map { it.screen })
         assertEquals(
