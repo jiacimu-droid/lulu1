@@ -1214,6 +1214,13 @@ internal object LuluBackgroundPhoneSession {
                     .put("messageDeliveryVerified", false)
                     .put("taskCompleted", false)
                     .put("errorCode", applied?.optString("errorCode").orEmpty())
+                    .apply {
+                        if (!attempted && !dispatched && activeApp == LuluVirtualChatSendPolicy.WECHAT) {
+                            put("chatInputDiagnostics", withContext(Dispatchers.Main) {
+                                LuluAccessibilityService.virtualChatInputDiagnostics(id, activeApp)
+                            })
+                        }
+                    }
                     .put("verification", if (appearedInChat)
                         "已在真实${appName}会话中观察到新增的右侧消息气泡，确认客户端显示发出；服务器或对方是否收到尚无独立证据"
                     else if (dispatched)
