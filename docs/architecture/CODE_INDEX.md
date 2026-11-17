@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b3ac90180848f4390476a419955bc6fc96d7fa68`
+- 基准提交：`c3fe897a93c89f0f93b871da02c7216c9b27fb22`
 - 分支：`main`
 - 已索引文件：1429
-- 已索引代码/文本行：301392
+- 已索引代码/文本行：301418
 - 已发现符号：4314
 
 | 文件 | 行数 | 符号数 |
@@ -201,7 +201,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 645 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 35 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt` | 562 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt` | 578 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 483 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 299 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 603 | 9 |
@@ -229,7 +229,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 305 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 793 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 803 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 102 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 123 | 1 |

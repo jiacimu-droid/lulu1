@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:05:56.833576+00:00",
-  "commit": "b3ac90180848f4390476a419955bc6fc96d7fa68",
+  "generatedAt": "2026-11-17T17:06:39.080247+00:00",
+  "commit": "c3fe897a93c89f0f93b871da02c7216c9b27fb22",
   "branch": "main",
-  "sourceFingerprint": "4b4fe180a83b461a4a163f9ddbe504ca5231d3301cb6cdbcdf01d5fead15247a",
+  "sourceFingerprint": "5e17ccffdebdfa5e5f34162ca59bf9aefb1ad66c02cd04e26b18f9426366d380",
   "summary": {
     "files": 1429,
-    "lines": 301392,
+    "lines": 301418,
     "symbols": 4314
   },
   "symbolIndex": {
@@ -4075,19 +4075,19 @@
     "gridTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 205
+        "line": 206
       }
     ],
     "gridHeight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 208
+        "line": 209
       }
     ],
     "slotAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 210
+        "line": 211
       }
     ],
     "MigrationRoute": [
@@ -26615,8 +26615,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-      "lines": 562,
-      "sha256": "105295c1db443813c23579c6d33b39f97efda2d21bd628547b5ca52ef7c63870",
+      "lines": 578,
+      "sha256": "e1c5277005dd6021813e5f9073f58000fcb34435ab33cbc0c7be314bf69f273e",
       "symbols": [
         {
           "name": "profileSign",
@@ -27177,20 +27177,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 793,
-      "sha256": "af944b89ecab0e48ad3b6e18523bdd960518feacbee643a9d8e937726e298530",
+      "lines": 803,
+      "sha256": "2a112a45eb2d0e2a0dd440561c4034b356d5cda3063e65736ab95f2417770637",
       "symbols": [
         {
           "name": "gridTop",
-          "line": 205
+          "line": 206
         },
         {
           "name": "gridHeight",
-          "line": 208
+          "line": 209
         },
         {
           "name": "slotAt",
-          "line": 210
+          "line": 211
         }
       ]
     },
