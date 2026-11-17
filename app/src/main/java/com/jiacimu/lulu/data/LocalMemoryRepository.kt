@@ -249,10 +249,12 @@ class LocalMemoryRepository : MemoryRepository {
             val readable = extractableTurns(characterId, policy, flushTail)
             val processed = state.value.processedMessageIds[characterId].orEmpty()
             // A group is pending if ANY of its original facts is unprocessed.
-            // Old raw-message checkpoints survive the migration unchanged.
-            val pending = readable.mapNotNull { turn ->
-                val unprocessed = turn.events.filterNot { it.id in processed }
-                if (unprocessed.isEmpty()) null else turn.copy(events = unprocessed)
+            // Always present the WHOLE conversation turn to extraction, even
+            // when a legacy raw-message checkpoint split its three bubbles.
+            // Marking the existing source IDs again is idempotent; dropping
+            // the already-processed prefix would erase the context of the tail.
+            val pending = readable.filter { turn ->
+                turn.events.any { it.id !in processed }
             }
             val batchTurns = pending.take(threshold)
             val batch = batchTurns.flatMap { it.events }
