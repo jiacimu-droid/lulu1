@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c0ce1f5bbed49770bab59e339216b90bada36a25`
+- 基准提交：`46b11c0c1811962d74a11fb538ec6c844365e8f0`
 - 分支：`main`
 - 已索引文件：1413
-- 已索引代码/文本行：298868
+- 已索引代码/文本行：298897
 - 已发现符号：4260
 
 | 文件 | 行数 | 符号数 |
@@ -1357,7 +1357,7 @@
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterCanonEvidenceTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterChapterCompletionTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterContinuityPayloadTest.kt` | 66 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt` | 210 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt` | 239 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterProseRhythmTest.kt` | 18 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterSwipeDirectionTest.kt` | 23 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/TheaterWorldBookContextTest.kt` | 38 | 1 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T15:51:48.221466+00:00",
-  "commit": "c0ce1f5bbed49770bab59e339216b90bada36a25",
+  "generatedAt": "2026-11-17T15:52:33.407696+00:00",
+  "commit": "46b11c0c1811962d74a11fb538ec6c844365e8f0",
   "branch": "main",
-  "sourceFingerprint": "23c8d03f725095c19b4182b3d55d72403234296f83cd90f1e63083d5d7088679",
+  "sourceFingerprint": "c7e209c8e334bbd3018dfbc39f2c2b451441d18f315c16e3d0f3e71ee8815995",
   "summary": {
     "files": 1413,
-    "lines": 298868,
+    "lines": 298897,
     "symbols": 4260
   },
   "symbolIndex": {
@@ -40711,7 +40711,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
       "lines": 625,
-      "sha256": "6d459814dc05246e749f8b3a9fcd6434dec8dea82109d7f693a8ff386b2659f4",
+      "sha256": "2d99149a416dde99dde544837474c0ac1f1cfb23f8b5689565622e9c316243fe",
       "symbols": [
         {
           "name": "promptText",
@@ -49677,8 +49677,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/TheaterPlanningPayloadTest.kt",
-      "lines": 210,
-      "sha256": "d3e0b88f2bb8ea4cff8c0c82764e278c64349b3038636a437b9de358002864f5",
+      "lines": 239,
+      "sha256": "3f4f9fef91856f476cad0d860495f4fcd7845e917acf13eba046c0f34208bd16",
       "symbols": [
         {
           "name": "TheaterPlanningPayloadTest",
