@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T05:10:06.103890+00:00",
-  "commit": "2c2ade1f9bea4f15f46a8b149ffaf5b10d37c561",
+  "generatedAt": "2026-11-17T05:15:43.830094+00:00",
+  "commit": "653f2c9e788c683903604d552779f7b1675d915b",
   "branch": "main",
-  "sourceFingerprint": "0d7dab4b65d201c4110bd46ffcef6f8bb33a6838e0fb74da40458fc00dbd59cd",
+  "sourceFingerprint": "d113134cb71c612e8e087e18dc2a87a74b615cda647a32e397439fdb9a4aee9c",
   "summary": {
-    "files": 1387,
-    "lines": 297065,
-    "symbols": 4190
+    "files": 1389,
+    "lines": 297167,
+    "symbols": 4195
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2676,6 +2676,10 @@
         "line": 33
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldVisitorSceneContext.kt",
+        "line": 32
+      },
+      {
         "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
         "line": 12
       }
@@ -4554,6 +4558,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
         "line": 83
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldVisitorSceneContext.kt",
+        "line": 11
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -13900,6 +13908,18 @@
         "line": 5
       }
     ],
+    "eventsFor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldVisitorSceneContext.kt",
+        "line": 29
+      }
+    ],
+    "forCharacter": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldVisitorSceneContext.kt",
+        "line": 46
+      }
+    ],
     "failureMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsMcpLoginStatus.kt",
@@ -22536,6 +22556,12 @@
         "line": 8
       }
     ],
+    "WorldVisitorSceneContextTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/WorldVisitorSceneContextTest.kt",
+        "line": 6
+      }
+    ],
     "XhsAutonomousReadingTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/XhsAutonomousReadingTest.kt",
@@ -24762,8 +24788,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt",
-      "lines": 136,
-      "sha256": "56697e0a1a33431ff540caf00902efd40894ab7833373ac3d6b6b6a6a98ed8d3",
+      "lines": 137,
+      "sha256": "5214d5d19330818aa1b1f90f2cf7a4185165782b3ea2cbc17e157952f80c6632",
       "symbols": [
         {
           "name": "observeAction",
@@ -36439,6 +36465,29 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/WorldVisitorSceneContext.kt",
+      "lines": 50,
+      "sha256": "59d47eded0f923b6a737a0056c25787a4942873bd5e63c374238d44a66779269",
+      "symbols": [
+        {
+          "name": "select",
+          "line": 11
+        },
+        {
+          "name": "eventsFor",
+          "line": 29
+        },
+        {
+          "name": "describe",
+          "line": 32
+        },
+        {
+          "name": "forCharacter",
+          "line": 46
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
       "lines": 31,
       "sha256": "272e09a245d1bace01197c42219792171d5ec6679089b6aa3b3fe9efeec2b672",
@@ -48099,6 +48148,17 @@
         {
           "name": "WorldSceneParticipantProfileGenderTest",
           "line": 8
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/WorldVisitorSceneContextTest.kt",
+      "lines": 51,
+      "sha256": "29feb08aa5598be9bc4691cc7d9978a21d74cce0e00b683ef932848f1b6c41f6",
+      "symbols": [
+        {
+          "name": "WorldVisitorSceneContextTest",
+          "line": 6
         }
       ]
     },

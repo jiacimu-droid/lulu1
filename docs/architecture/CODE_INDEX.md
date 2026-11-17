@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2c2ade1f9bea4f15f46a8b149ffaf5b10d37c561`
+- 基准提交：`653f2c9e788c683903604d552779f7b1675d915b`
 - 分支：`main`
-- 已索引文件：1387
-- 已索引代码/文本行：297065
-- 已发现符号：4190
+- 已索引文件：1389
+- 已索引代码/文本行：297167
+- 已发现符号：4195
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -148,7 +148,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldSocialGraph.kt` | 324 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldUprightFurnitureArt.kt` | 89 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVenueAnchors.kt` | 116 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 136 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 137 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt` | 513 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
@@ -617,6 +617,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeWorker.kt` | 141 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuide.kt` | 28 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/WorldSceneParticipantProfile.kt` | 31 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/WorldVisitorSceneContext.kt` | 50 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt` | 31 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt` | 129 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/XhsMcpLoginStatus.kt` | 43 | 2 |
@@ -1267,6 +1268,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeEpisodeTemporalContextTest.kt` | 42 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldLifeNarrativeGuideTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WorldSceneParticipantProfileGenderTest.kt` | 39 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/WorldVisitorSceneContextTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsAutonomousReadingTest.kt` | 128 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsBrowserSessionTest.kt` | 276 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsExplicitReadIntentTest.kt` | 38 | 1 |
