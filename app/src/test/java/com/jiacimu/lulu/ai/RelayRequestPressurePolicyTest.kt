@@ -18,6 +18,21 @@ class RelayRequestPressurePolicyTest {
             .contains("2026-11-12T09:39:00+08:00"))
     }
 
+    @Test fun twentyTurnTranscriptSurvivesBackgroundRelayMemoryPressureUnabridged() {
+        val complete = "【完整交流】\\n" + "原始人物对话与独立行动证据，不能缩写。\\n".repeat(5_000) +
+            "最后一轮的纠正：已经明确拒绝，不允许当作同意"
+        val compacted = RelayRequestPressurePolicy.compactSectionPairs(listOf(
+            MemoryWorkingSet.RECENT to complete,
+            "本轮背景依据" to ("较早现场资料\\n".repeat(8_000)),
+            MemoryWorkingSet.SUMMARY to ("旧的回忆摘要\\n".repeat(2_000)),
+        )).toMap()
+        assertEquals(complete, compacted.getValue(MemoryWorkingSet.RECENT))
+        assertTrue(compacted.getValue("本轮背景依据").length <
+            "较早现场资料\\n".repeat(8_000).length)
+        assertTrue(compacted.getValue(MemoryWorkingSet.SUMMARY).length <
+            "旧的回忆摘要\\n".repeat(2_000).length)
+    }
+
     @Test fun separatedNativeRelationshipsRemainWholeUnderRequestPressure() {
         val relationship = "只针对当前对象的关系约定与具体条件\n".repeat(500) +
             "最后的条件：明确拒绝本次以后再调整，不能推断全局拒绝主动关心"
