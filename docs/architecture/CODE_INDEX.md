@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`ea19c9651e8e831cc606142e0065cfb15552662d`
+- 基准提交：`decdbac4cc85443f62032c0a5afdc0f18fb06926`
 - 分支：`main`
 - 已索引文件：1398
-- 已索引代码/文本行：299837
-- 已发现符号：4235
+- 已索引代码/文本行：299958
+- 已发现符号：4237
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -811,14 +811,14 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt` | 32 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1828 | 54 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1903 | 55 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 100 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 566 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1616 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 1623 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2357 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -1379,9 +1379,9 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicyTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt` | 166 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversalTest.kt` | 61 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversalTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualAccessibilityInputTest.kt` | 50 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt` | 214 | 6 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt` | 229 | 7 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcrTest.kt` | 76 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualFrameSafetyTest.kt` | 21 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualHumanGateTest.kt` | 46 | 1 |
