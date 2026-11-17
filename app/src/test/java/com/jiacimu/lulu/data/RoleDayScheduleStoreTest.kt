@@ -21,6 +21,32 @@ class RoleDayScheduleStoreTest {
         activityAction = "read_book",
     )
 
+    @Test fun yesterdayExecutedPlanReceiptDoesNotProveOwnerSlept() {
+        val now = Instant.parse("2026-11-17T19:00:00Z") // 03:00 after 23:00
+        val deliveredAt = Instant.parse("2026-11-17T15:00:00Z")
+        val daily = plan.copy(
+            id = "bedtime-receipt", title = "23点提醒休息",
+            repeat = "daily", status = "planned",
+            dueAt = Instant.parse("2026-11-18T15:00:00Z"),
+            resolvedAt = deliveredAt,
+            resultEvidenceId = "receipt:night-17",
+            resultSummary = "睡前提醒已真实送达",
+        )
+        val context = daily.recentExecutionReceiptContext(now)
+        assertTrue(context, context.contains("receipt:night-17"))
+        assertTrue(context, context.contains("睡前提醒已真实送达"))
+        assertTrue(context, context.contains("不能据此推断已经达成"))
+        assertEquals(context, daily.copy(repeat = "once",
+            status = "completed").recentExecutionReceiptContext(now))
+        assertEquals("", daily.copy(
+            resultEvidenceId = "").recentExecutionReceiptContext(now))
+        assertEquals("", daily.copy(
+            resolvedAt = deliveredAt.minusSeconds(17 * 3600L))
+            .recentExecutionReceiptContext(now))
+        assertEquals("", daily.copy(
+            resolvedAt = now.plusSeconds(60)).recentExecutionReceiptContext(now))
+    }
+
     @Test fun missedAndCrossMidnightOwnerPlansRecoverWithoutInventingACompletedAction() {
         // 00:42 on 10/31 in China; 72 minutes before was 23:30 on 10/30.
         val midnight = Instant.parse("2026-10-30T16:42:00Z")
