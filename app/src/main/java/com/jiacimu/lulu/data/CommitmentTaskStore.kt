@@ -172,10 +172,12 @@ object CommitmentTaskStore {
                     task.nextCheckAt != null &&
                     task.linkedAlarmId != null &&
                     (CommitmentAlarmTiming.expired(task.nextCheckAt, now) ||
-                        // Twenty minutes is a grace period for a genuinely
-                        // scheduled Android delivery, not permission to keep
-                        // a ghost result check whose physical alarm vanished.
-                        (!task.nextCheckAt.isAfter(now) &&
+                        // The 20-minute transport grace applies to a real
+                        // registered alarm. A missing physical result-check
+                        // token is allowed a short 2-minute recovery window
+                        // (a just-due callback must still be claimable), then
+                        // is handed back to the role as missed/unverified.
+                        (task.nextCheckAt.isBefore(now.minusSeconds(120)) &&
                             LuluAlarmSystem.list().none { alarm ->
                                 alarm.id == task.linkedAlarmId &&
                                     alarm.characterId == task.characterId &&
