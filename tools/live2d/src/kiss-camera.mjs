@@ -1,6 +1,19 @@
 // Renderer-only framing and facial score for a successfully started wolf
 // kiss Motion3. No new character intent, audio or independent scheduler.
 export const WOLF_KISS_MOTION_INDEX = 48
+// A neutral proximity action: any expression can accompany a closer look.
+// It uses the SAME calibrated face framing as a kiss, without a kiss face score.
+export const WOLF_APPROACH_MOTION_INDEX = 49
+export const APPROACH_CAMERA_DURATION_MS = 4200
+export const APPROACH_CAMERA_PEAK_ZOOM = 1.82
+export const isScreenProximityMotion = index =>
+  index === WOLF_KISS_MOTION_INDEX || index === WOLF_APPROACH_MOTION_INDEX
+export const screenProximityDuration = index =>
+  index === WOLF_APPROACH_MOTION_INDEX ? APPROACH_CAMERA_DURATION_MS :
+    index === WOLF_KISS_MOTION_INDEX ? KISS_CAMERA_DURATION_MS : 0
+export const screenProximityPeak = index =>
+  index === WOLF_APPROACH_MOTION_INDEX ? APPROACH_CAMERA_PEAK_ZOOM :
+    KISS_CAMERA_PEAK_ZOOM
 // The original 3.35s Motion3 starts the action. A renderer-only recovery tail
 // lets the lips soften and the camera retreat without racing the next TTS part.
 export const KISS_CAMERA_DURATION_MS = 4450
@@ -31,13 +44,14 @@ export function kissMouthLocalOffsetX(base, bounds, calibratedMouth) {
  * their offset from the torso pivot. At zoom=1 the ordinary framing stays
  * unchanged; the exact same curve reverses smoothly during withdrawal.
  */
-export function kissCameraHorizontalPosition(base, zoom, mouthLocalX) {
+export function kissCameraHorizontalPosition(base, zoom, mouthLocalX,
+  peakZoom = KISS_CAMERA_PEAK_ZOOM) {
   if (!base || ![base.x, base.width, base.scale, zoom, mouthLocalX]
       .every(Number.isFinite) || base.width <= 0 || base.scale <= 0 ||
       zoom < 1) return base?.x ?? 0
   const mouthX = base.x + mouthLocalX * base.scale
   const closeness = Math.max(0, Math.min(1,
-    (zoom - 1) / (KISS_CAMERA_PEAK_ZOOM - 1)))
+    (zoom - 1) / Math.max(.01, peakZoom - 1)))
   return base.x + (1 - zoom) * (mouthX - base.x) +
     closeness * (base.width * .5 - mouthX)
 }
@@ -74,13 +88,14 @@ export function kissFaceLocalOffsetY(base, bounds, calibration = {}) {
  * because this portrait's actual face starts much higher than its torso.
  * Zoom=1 always restores the exact original fit without a vertical jump.
  */
-export function kissCameraVerticalPosition(base, zoom, faceLocalY) {
+export function kissCameraVerticalPosition(base, zoom, faceLocalY,
+  peakZoom = KISS_CAMERA_PEAK_ZOOM) {
   if (!base || ![base.y, base.height, base.scale, zoom, faceLocalY]
       .every(Number.isFinite) || base.height <= 0 || base.scale <= 0 ||
       zoom < 1) return base?.y ?? 0
   const faceY = base.y + faceLocalY * base.scale
   const closeness = Math.max(0, Math.min(1,
-    (zoom - 1) / (KISS_CAMERA_PEAK_ZOOM - 1)))
+    (zoom - 1) / Math.max(.01, peakZoom - 1)))
   const desiredFaceY = base.height * .45
   return base.y + (1 - zoom) * (faceY - base.y) +
     closeness * (desiredFaceY - faceY)
@@ -161,4 +176,26 @@ export function kissHandoffFrame(startZoom, elapsedMs) {
     return { zoom: 1, finished: true }
   const recovery = smooth(Math.max(0, elapsedMs) / KISS_HANDOFF_MS)
   return { zoom: 1 + (startZoom - 1) * (1 - recovery), finished: false }
+}
+
+/**
+ * Screen proximity is a distance/placement channel, NOT a mood. The body
+ * Motion3 brings the wolf forward; the renderer tracks its calibrated face,
+ * holds direct visual contact, then withdraws. Eye, brow, mouth, blush and
+ * character-chosen exp3 belong to independent layers, never this curve.
+ */
+export function approachCameraFrame(elapsedMs) {
+  if (!Number.isFinite(elapsedMs) || elapsedMs < 0 ||
+      elapsedMs >= APPROACH_CAMERA_DURATION_MS)
+    return { zoom: 1, finished: true }
+  const approach = smooth((elapsedMs - 110) / 1190)
+  const withdraw = 1 - smooth((elapsedMs - 2610) / 1590)
+  return { zoom: 1 + (APPROACH_CAMERA_PEAK_ZOOM - 1) *
+    approach * withdraw, finished: false }
+}
+
+export function screenProximityFrame(index, elapsedMs) {
+  return index === WOLF_KISS_MOTION_INDEX ? kissCameraFrame(elapsedMs) :
+    index === WOLF_APPROACH_MOTION_INDEX ? approachCameraFrame(elapsedMs) :
+      { zoom: 1, finished: true }
 }
