@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b646ac258e240b7a120365f85b5b12e54bc87f25`
+- 基准提交：`4544573a43fd86eff487f30f1d063b64eebebbe9`
 - 分支：`main`
-- 已索引文件：1402
-- 已索引代码/文本行：300127
+- 已索引文件：1403
+- 已索引代码/文本行：300143
 - 已发现符号：4237
 
 | 文件 | 行数 | 符号数 |
@@ -1401,12 +1401,13 @@
 | `scripts/test_timeline_migration.py` | 28 | 1 |
 | `scripts/test_xhs_reader.js` | 744 | 1 |
 | `scripts/verify_phone_apk_bytecode.py` | 51 | 0 |
+| `preview/ASSET_ORIGINS.md` | 11 | 0 |
 | `preview/app.js` | 54 | 0 |
 | `preview/compare.html` | 52 | 0 |
-| `preview/index.html` | 100 | 0 |
+| `preview/index.html` | 101 | 0 |
 | `preview/play.html` | 173 | 0 |
 | `preview/styles.css` | 2 | 0 |
 | `preview/world-core.js` | 68 | 0 |
-| `preview/worlds.css` | 2 | 0 |
+| `preview/worlds.css` | 4 | 0 |
 | `preview/worlds.html` | 22 | 0 |
-| `preview/worlds.js` | 68 | 0 |
+| `preview/worlds.js` | 70 | 0 |
