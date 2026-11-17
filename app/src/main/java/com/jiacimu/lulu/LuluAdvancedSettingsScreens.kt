@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.CharacterVoicePreferenceStore
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private val AdvancedPage = Color.White
 private val AdvancedCard = Color(0xFFFCFCFC)
@@ -83,6 +85,15 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     CharacterVoicePreferenceStore.initialize(context)
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     var selectedVoiceRole by remember { mutableStateOf("lulu") }
+    var musicEnabled by remember { mutableStateOf(prefs.getBoolean("eleven_music_enabled", false)) }
+    var musicModel by remember { mutableStateOf(prefs.getString("eleven_music_model", ElevenLabsMusic.DEFAULT_MODEL).orEmpty().ifBlank { ElevenLabsMusic.DEFAULT_MODEL }) }
+    var musicPrompt by remember { mutableStateOf("一首温柔的中文原创小夜曲，轻柔钢琴伴奏，清澈的年轻人声，唱出温暖和陪伴。") }
+    var musicSeconds by remember { mutableFloatStateOf(30f) }
+    var generatingMusic by remember { mutableStateOf(false) }
+    var musicNotice by remember { mutableStateOf("") }
+    var musicFinetune by remember(selectedVoiceRole) {
+        mutableStateOf(ElevenLabsMusic.finetuneId(context, selectedVoiceRole))
+    }
     val voiceRoleOptions = (listOf("主角" to "lulu") +
         characters.entries.map { (id, character) ->
             character.displayName.ifBlank { id } to id
@@ -121,6 +132,8 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
             .putString("eleven_tts_model", elevenModel.trim())
             .putFloat("eleven_stability", elevenStability)
             .putFloat("eleven_similarity", elevenSimilarity)
+            .putBoolean("eleven_music_enabled", musicEnabled)
+            .putString("eleven_music_model", musicModel)
             .apply()
     }
 
@@ -128,6 +141,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         provider, language, rate, pitch, minimaxEndpoint, minimaxApiKey, minimaxGroupId,
         minimaxModel, minimaxVoiceId, minimaxLanguage, minimaxSpeed, minimaxVolume, minimaxPitch,
         elevenKey, elevenVoice, elevenModel, elevenStability, elevenSimilarity,
+        musicEnabled, musicModel,
     ) { saveVoiceSettings() }
 
     AdvancedSettingsScaffold(title = "语音设置", onBack = onBack) {
@@ -302,6 +316,74 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     Text(if (testingVoice) "正在试听" else "试听当前声音")
                 }
                 if (voiceNotice.isNotBlank()) Text(voiceNotice, color = AdvancedMuted, fontSize = 12.sp)
+            }
+        }
+        item {
+            SettingsSectionCard("角色唱歌 · Eleven Music") {
+                Text("独立音乐生成，不改变聊天和电话的 TTS 声音。生成原创歌曲会消耗 Eleven Music 额度。",
+                    color = AdvancedMuted, fontSize = 12.sp)
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("允许角色主动唱歌", modifier = Modifier.weight(1f), color = AdvancedInk, fontSize = 14.sp)
+                    Switch(checked = musicEnabled, onCheckedChange = { musicEnabled = it })
+                }
+                if (provider != "elevenlabs") {
+                    AdvancedTextField("ElevenLabs API Key", elevenKey, { elevenKey = it },
+                        "和 ElevenLabs 配音共用一把密钥", password = true)
+                    Spacer(Modifier.height(10.dp))
+                }
+                AdvancedChoiceField("音乐模型", musicModel,
+                    listOf("Music v2.5（推荐）" to "music_v2_5", "Music v2" to "music_v2"),
+                    { musicModel = it })
+                Spacer(Modifier.height(10.dp))
+                AdvancedChoiceField("选择角色", selectedVoiceRole, voiceRoleOptions) {
+                    selectedVoiceRole = it
+                }
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("角色 Music Finetune ID（可选）", musicFinetune, {
+                    musicFinetune = it
+                    prefs.edit().putString("eleven_music_finetune:" + selectedVoiceRole, it.trim()).apply()
+                }, "从 ElevenMusic 获取该角色的歌声音色 ID")
+                Text("TTS Voice ID 不能直接用于唱歌。未填写 Music Finetune 时，歌曲会使用模型生成的人声；专属歌声需先在 ElevenMusic 制作并取得有 API 权限的 Finetune。",
+                    color = AdvancedMuted, fontSize = 12.sp)
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("试听歌曲描述", musicPrompt, { musicPrompt = it },
+                    "想要的中文歌词主题、曲风与唱法")
+                Text("时长 · " + musicSeconds.toInt() + " 秒", color = AdvancedInk, fontSize = 13.sp)
+                Slider(value = musicSeconds, onValueChange = { musicSeconds = it },
+                    valueRange = 10f..180f, enabled = musicEnabled && !generatingMusic)
+                OutlinedButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = musicEnabled && !generatingMusic && elevenKey.isNotBlank() &&
+                        musicPrompt.isNotBlank(),
+                    onClick = {
+                        saveVoiceSettings()
+                        generatingMusic = true
+                        musicNotice = "正在生成原创歌曲，完成后自动试听…"
+                        val requestedRole = selectedVoiceRole
+                        val requestedPrompt = musicPrompt
+                        val requestedSeconds = musicSeconds.toInt()
+                        scope.launch {
+                            runCatching {
+                                val song = ElevenLabsMusic.generate(
+                                    context, requestedRole, requestedPrompt, requestedSeconds)
+                                val played = withContext(Dispatchers.IO) { ElevenLabsMusic.play(song) }
+                                if (played) "歌曲已保存，开始播放；没有配置专属 Finetune 时不是角色原 TTS 音色。"
+                                else "歌曲已保存，但本机未能开始播放。"
+                            }.onSuccess { musicNotice = it }
+                                .onFailure { musicNotice = it.message ?: "Eleven Music 生成或播放失败" }
+                            generatingMusic = false
+                        }
+                    },
+                ) {
+                    if (generatingMusic) {
+                        CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    Text(if (generatingMusic) "歌曲生成中" else "生成并试听原创歌曲（消耗额度）")
+                }
+                if (musicNotice.isNotBlank()) Text(musicNotice, color = AdvancedMuted, fontSize = 12.sp)
+                Text("现成热门歌曲翻唱不属于此生成接口；请使用原创或确有授权的歌词与素材。",
+                    color = AdvancedMuted, fontSize = 12.sp)
             }
         }
         if (provider == "elevenlabs") item {
