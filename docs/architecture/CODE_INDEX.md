@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c02de7976694136ba2fe59dd5f4a37385dde77e0`
+- 基准提交：`7b64d4dda6bb5934e10ffca0748f9d7621046a3e`
 - 分支：`main`
 - 已索引文件：1376
-- 已索引代码/文本行：293971
+- 已索引代码/文本行：293989
 - 已发现符号：4141
 
 | 文件 | 行数 | 符号数 |
@@ -804,7 +804,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt` | 32 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1402 | 47 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1407 | 47 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 82 | 2 |
@@ -845,7 +845,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicy.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcome.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 36 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 141 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 144 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 45 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt` | 135 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt` | 21 | 1 |
@@ -1370,7 +1370,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicyTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcomeTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicyTest.kt` | 64 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt` | 86 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt` | 96 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicyTest.kt` | 75 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluWirelessDebuggingHostTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/PhoneSleepPromptModeTest.kt` | 20 | 1 |
