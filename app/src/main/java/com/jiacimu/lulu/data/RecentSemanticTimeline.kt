@@ -194,6 +194,23 @@ object RecentSemanticTimeline {
             written++
             if (available < excerpt.length && b.length < budget) b.append("…")
         }
+        // A source-linked presence snapshot belongs to the same character
+        // reply, not another turn. Label it explicitly as private *past*
+        // subjective state; it is not another spoken bubble, verified action,
+        // or the character's current mood.
+        if (written > 0 && turn.kind == Kind.SPEECH &&
+            evidence.any { it.evidenceKind == EventEvidenceKind.CharacterStatement }) {
+            val snapshots = turn.events.filter { it.source == "presence" &&
+                it.evidenceKind == EventEvidenceKind.Inference }
+            val snapshot = snapshots.lastOrNull()
+            if (snapshot != null) {
+                val prefix = "\n- 【本人当时未公开的主观状态/心声，非对外发言或当前事实】"
+                val left = budget - b.length - prefix.length
+                if (left >= 32) {
+                    b.append(prefix).append(snapshot.evidenceContent.take(left))
+                }
+            }
+        }
         return if (written == 0) "" else b.toString()
     }
 }
