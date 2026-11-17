@@ -256,9 +256,9 @@ internal fun LuluDesktopWidgetCard(
     val context = LocalContext.current
     val css = LocalLuluCssSheet.current.element("Home", "widget-" + widget.kind.code)
     val defaultDark = widget.skin == 0 || widget.skin == 3
-    val foreground = LuluCssSheet.parseColor(css["color"])?.let(::Color)
+    val foreground = LuluCssSheet.parseColor(css["color"])?.let { Color(it.toInt()) }
         ?: if (defaultDark) Color(0xFFF8F3E8) else Color(0xFF3D3836)
-    val backing = LuluCssSheet.parseColor(css["background-color"])?.let(::Color)
+    val backing = LuluCssSheet.parseColor(css["background-color"])?.let { Color(it.toInt()) }
         ?: when (widget.skin) {
             0 -> Color(0xFF17223A)
             1 -> Color(0xFFF8F0E3)
