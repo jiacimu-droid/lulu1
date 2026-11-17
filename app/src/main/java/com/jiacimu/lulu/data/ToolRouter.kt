@@ -78,6 +78,8 @@ object ToolRouter {
         mutex.withLock("$characterId:" + when (name) {
             "web_search" -> "web"
             "image_search" -> "images"
+            "sing_song" -> "music-generation"
+            "play_saved_song", "stop_song" -> "music-playback"
             com.jiacimu.lulu.ai.JevDirections.TOOL -> "thought-reference"
             else -> "actions"
         }) {
