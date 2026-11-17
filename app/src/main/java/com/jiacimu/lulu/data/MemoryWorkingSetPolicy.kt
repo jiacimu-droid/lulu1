@@ -98,7 +98,11 @@ internal object MemoryWorkingSetPolicy {
         // no other eligible facts need it. Previously omitted facts remain
         // visible in diagnostics until genuinely injected.
         if (borrowUnusedSectionBudget && used < available) {
-            ranked.filter { omitted[it.id] == "类别上下文字数预算" }
+            // Positive section targets are soft and may borrow spare space.
+            // An explicit ZERO is a disabled source channel, never a borrow target.
+            // Full owner-configured recent turns live outside this bounded family.
+            ranked.filter { omitted[it.id] == "类别上下文字数预算" &&
+                (sectionLimits[it.section] ?: Int.MAX_VALUE) > 0 }
                 .forEach { trySelect(it, borrowing = true) }
         }
         return MemoryWorkingSelection(sections.mapValues { (title, lines) -> title + "\n" + lines.joinToString("\n") },
