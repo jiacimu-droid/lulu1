@@ -8,7 +8,8 @@ internal object Live2DDialoguePlan {
     data class FollowUp(val motion: Pair<String, Int>, val transition: String = "blend")
     data class Part(val id: String, val text: String, val motion: Pair<String, Int>,
         val expression: String? = null, val transition: String = "blend",
-        val followUps: List<FollowUp> = emptyList())
+        val followUps: List<FollowUp> = emptyList(),
+        val face: JSONObject? = null)
 
     /** Recover speakable words even when optional motion metadata needs correction. */
     fun spokenText(envelope: JSONObject): String? = envelope.optJSONArray("speech")?.let { speech ->
@@ -52,7 +53,8 @@ internal object Live2DDialoguePlan {
                     }
                 }.orEmpty()
                 add(Part(id, text, motion.optString("group") to motion.optInt("index", -1),
-                    item.optString("expression").takeIf(String::isNotBlank), transition, followUps))
+                    item.optString("expression").takeIf(String::isNotBlank), transition,
+                    followUps, item.optJSONObject("face")?.let { JSONObject(it.toString()) }))
             }
         }
     }
@@ -79,6 +81,9 @@ internal object Live2DDialoguePlan {
                 .put("motion", JSONObject().put("group", part.motion.first).put("index", part.motion.second))
                 .also { beat ->
                     part.expression?.let { beat.put("expression", it) }
+                    // Face channels compose with a real body Motion3; the
+                    // bus still filters keys against actual imported rig IDs.
+                    part.face?.let { beat.put("face", JSONObject(it.toString())) }
                     if (part.followUps.isNotEmpty()) beat.put("followUps", JSONArray().also { sequence ->
                         part.followUps.forEach { extra ->
                             sequence.put(JSONObject()
