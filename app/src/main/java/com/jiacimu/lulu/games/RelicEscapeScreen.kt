@@ -506,8 +506,12 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         colors=ButtonDefaults.textButtonColors(
                             containerColor=Color(0xD0233644))) {
                         Text(run.profession.skill+"\n"+
-                            (if(professionCooldown>0)"冷却 ${professionCooldown} 回合"
-                             else "${run.professionCharges} 次可用"),
+                            (when {
+                                professionCooldown>0 -> "冷却 ${professionCooldown} 回合"
+                                run.professionCharges<=0 -> "次数已用完"
+                                professionReady -> "${run.professionCharges} 次可用"
+                                else -> "暂不可用"
+                            }),
                             color=if(professionReady)relicGreen else relicMuted,
                             fontSize=10.sp,lineHeight=13.sp,maxLines=2,
                             fontWeight=FontWeight.SemiBold,textAlign=TextAlign.Center)
