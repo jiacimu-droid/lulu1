@@ -78,6 +78,16 @@ internal object CharacterEverydaySocialContext {
             it.status == "accepted" && it.resolvedAt != null &&
                 MomentFriendAccess.areFriends(it.fromId, it.toId)
         }.takeLast(6)
+        // Browser and mailbox claims must likewise come from delivered/observed
+        // originals, not plausible prose in an old conversation or a model plan.
+        val recentRead = SharedExperienceTimeline.recentEvents(characterId, 120)
+            .asSequence().filter {
+                it.source == "moment:phone-read" &&
+                    it.evidenceKind == EventEvidenceKind.Observation &&
+                    it.revision == 1L
+            }.sortedByDescending { it.occurredAt }.take(3).toList()
+        val recentSent = ResidentSocialMailbox.inbox(characterId, 12)
+            .filter { it.fromId == characterId }.takeLast(3)
         return buildString {
             appendLine("【当前有效人物名册与QQ好友凭据｜实时程序事实，优先于旧聊天或回忆】")
             appendLine("当前世界真正注册且仍在生活的居民：${labels(native)}。内置模板名和已删除居民都不算现存居民。")
@@ -90,6 +100,14 @@ internal object CharacterEverydaySocialContext {
             appendLine("仍有效的申请通过凭据：" +
                 accepted.joinToString("、") { "requestId=${it.id}；${it.fromId}→${it.toId}；确认于${it.resolvedAt}" }
                     .ifBlank { "没有；手动建立好友不等于收到或通过了申请" })
+            appendLine("本人最近有回执的实际朋友圈浏览：" +
+                recentRead.joinToString("；") {
+                    "evidenceId=${it.id}，浏览于${it.occurredAt}，${it.speaker}：${it.evidenceContent.take(150)}"
+                }.ifBlank { "没有可核验的最近浏览记录" })
+            appendLine("本人最近已真实送达的数字人物私信：" +
+                recentSent.joinToString("；") {
+                    "mailId=${it.id}，于${it.createdAt}发送给${it.toId}：${it.content.take(90)}"
+                }.ifBlank { "当前信箱没有可核验的本人发出私信" })
             appendLine("旧记忆、聊天台词或模板里出现名字，不等于这个人目前存在、认识我、加了我、发了消息或发了动态。")
             appendLine("只有真实申请与同意、好友权限、私信送达、帖子及本人实际已读回执，才能称对应社交行为已经发生。")
             appendLine("主人问到当前没登记的人时，承认缺少当下依据即可，不要为了接话编造已经同意好友申请等结果。")
