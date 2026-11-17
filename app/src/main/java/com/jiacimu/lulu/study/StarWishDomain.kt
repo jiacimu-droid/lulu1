@@ -133,7 +133,7 @@ internal object StarWishRules {
     const val MAX_CHAPTERS_PER_THEATER = 200
 
     // Public builds have no authored default stories or predefined cast.
-    // Previously saved chapters/guides remain discoverable from local StarWishState.
+    // Upgrading purges legacy built-in chapters, plans, guides and story records.
     val theaters: List<StarWishTheaterSeed> = emptyList()
 
     fun defaultPrompts(outfit: String, characterName: String): StarWishOutfitPrompts = StarWishOutfitPrompts(
