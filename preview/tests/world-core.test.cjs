@@ -35,3 +35,19 @@ test('valid data snapshot remains same world across serialization',()=>{
 test('route never cuts through an obstacle',()=>{
  const s=Core.createWorld('island');const r=Core.route(s,7,8);assert.ok(r.length>0);for(const p of r) assert.equal(Core.blocked(s,p.x,p.y),false)
 });
+
+test('corrupt persisted island/relic snapshots are rejected before any render or action',()=>{
+ for(const kind of ['island','relic']){
+  const original=Core.createWorld(kind,42);
+  const mutate=(fn)=>{const saved=JSON.parse(JSON.stringify(original));fn(saved);assert.equal(Core.valid(saved),false)};
+  mutate(s=>{delete s.inventory});
+  mutate(s=>{s.inventory.wood=-2});
+  mutate(s=>{s.props[0].x=999});
+  mutate(s=>{s.props[0].used='false'});
+  mutate(s=>{s.terrain[0]=null});
+  mutate(s=>{s.companion=null});
+  mutate(s=>{s.player.y=999});
+  mutate(s=>{s.props.push({...s.props[0]})});
+  assert.equal(Core.valid(JSON.parse(JSON.stringify(original))),true);
+ }
+});
