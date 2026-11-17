@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T06:04:35.059875+00:00",
-  "commit": "c642482e8a69b66125e7ca7a1cbb91b7d07411f2",
+  "generatedAt": "2026-11-17T06:04:54.060005+00:00",
+  "commit": "840c4b0e1b24231b196438a0e9b561d42a143a3f",
   "branch": "main",
-  "sourceFingerprint": "3622ce4702e10832763f3eee0c79b67c0be20f7c3c18de07d57fc564e8eb7a5f",
+  "sourceFingerprint": "35ae7604a8861f1c6b3b4480d6f2601c8d307103541e9528a0df2a1ef188f4f2",
   "summary": {
     "files": 1391,
     "lines": 298089,
@@ -35135,7 +35135,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
       "lines": 145,
-      "sha256": "60d103c025ec7fd5e87fbdf50c31a098495908e659d4e6538507abfe779d5a48",
+      "sha256": "3cc2178b400e58c64dbb7380abfa51e8dad46554a35ea833fad70d9deba5cd4c",
       "symbols": [
         {
           "name": "PromptContextBudget",
