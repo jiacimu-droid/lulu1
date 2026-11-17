@@ -281,6 +281,22 @@ object ToolRouter {
                             else "原创歌曲已生成并保存，但手机未能启动播放：" +
                                 played.exceptionOrNull()?.message.orEmpty().take(120))
                             .toString()
+                    } else if (name == "play_saved_song") {
+                        val song = com.jiacimu.lulu.ElevenLabsMusic.latestSong(context, characterId)
+                            ?: error("本角色没有已生成的歌曲；不会自动重新付费生成")
+                        val played = withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            com.jiacimu.lulu.ElevenLabsMusic.play(song)
+                        }
+                        JSONObject().put("success", played)
+                            .put("status", if (played) "succeeded" else "failed")
+                            .put("playbackStarted", played)
+                            .put("fileName", song.file.name)
+                            .put("summary", if (played) "已经开始重播本人之前保存的歌曲，没有产生新的 Music API 调用"
+                                else "本机未能重播已保存的歌曲").toString()
+                    } else if (name == "stop_song") {
+                        com.jiacimu.lulu.ElevenLabsMusic.stop()
+                        JSONObject().put("success", true).put("status", "succeeded")
+                            .put("summary", "已向本机播放器发出停止歌曲指令").toString()
                     } else if (name == com.jiacimu.lulu.ai.JevDirections.TOOL) {
                         com.jiacimu.lulu.ai.JevDirections.evaluate(context, characterId, args)
                     } else if (name == "save_photo") {
