@@ -1,5 +1,12 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+## 2026-11-17 · G-03.5 · 网页试玩撤离结算后规则层封盘（Node 待验）
+
+- 根因：共享网页试玩 UI 虽阻止已撤离局继续移动/互动，但 `LuluWorldCore.walk/use` 自身未检查 `finished`；通过地图点击或直接调用规则可在撤离后继续打开未开宝箱，改写已结算存档。此为浏览器独立试玩，不是 Android 权威掉落。
+- 生产 `45ebbd45b682f7eb15d95e57df91582cfce2b292`（`preview/world-core.js` blob `88064c5d330e8b46bdd40f4a595f97fc2e2526bd`）：已结算世界的移动与互动在规则层拒绝，保持原资源/位置/回合不变。测试 `802e74eed2fbe64e2a29a4481f5ac57afac14ea4`（`preview/tests/world-core.test.cjs` blob `7db13ebae215d87952bd128f619c73e31785c0f4`）从真实开箱→撤离→序列化恢复→尝试第二箱，断言拒绝与无新宝物。
+- 待验：`node --test preview/tests/world-core.test.cjs`、同 SHA main JVM/APK/index 终态与浏览器触控。下一文件 `preview/worlds.js` 的地图点击已结算状态及移动路径取消；Android 正式 G-03 另测真实撤离入馆。未改人物决策/美术，Redmi FPS/真机独立待验。
+
+
 ## 2026-11-17 · G-03.5 · 藏宝馆探险中展出入口与权威账本对齐（待 CI/真机）
 
 - **生产缺口**：`RelicEscapeLedger.featureLoot` 在进行中探险拒绝更换展品，但正式 `RelicVaultPage` 的「展出」按钮仍可点击，造成无结果操作；「出售」已禁用，两个入口不一致。
