@@ -755,10 +755,15 @@ class LuluAccessibilityService : AccessibilityService() {
             val buttons = mutableListOf<AccessibilityNodeInfo>()
             val hints = mutableListOf<LuluVirtualUiPolicy.AppBarControl>()
             var visited = 0
+            var scanComplete = true
             fun scan(node: AccessibilityNodeInfo, depth: Int) {
                 // Match the bounded virtual UI traversal: invisible layout wrappers
                 // may contain a visible toolbar, but protected subtrees stay closed.
-                if (depth > 80 || visited++ >= 1600 || node.isPassword) return
+                if (depth > 80 || visited++ >= 1600) {
+                    scanComplete = false
+                    return
+                }
+                if (node.isPassword) return
                 val rect = Rect().also(node::getBoundsInScreen)
                 if (node.isVisibleToUser && node.isEnabled &&
                     rect.width() > 0 && rect.height() > 0 && node.isClickable) {
@@ -774,7 +779,7 @@ class LuluAccessibilityService : AccessibilityService() {
             }
             ownedVirtualRoots(service, displayId, packageName).forEach { scan(it, 0) }
             val selected = LuluVirtualUiPolicy.appBackControlIndex(
-                dimensions.first, dimensions.second, hints)
+                dimensions.first, dimensions.second, hints, scanComplete = scanComplete)
                 ?: return receipt(false, false, "virtual_app_back_control_missing",
                     "当前页面没有唯一可核实的左上角返回按钮；可尝试一次独立屏边缘返回")
             val node = buttons[selected]
