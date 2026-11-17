@@ -48,13 +48,14 @@ class CharacterExpressionContinuityTest {
     @Test fun naturalPreferenceOmitsFewShotCuteScriptButLeavesTextAndEmojiAvailable() {
         val baseline = CharacterExpressionContinuity.guide()
         assertTrue(baseline.contains("颜文字示例"))
-        val naturalRole = "lulu"
-        // The bundled friend is initialized with her personally selected
-        // default in CharacterLifeStore. This guide is read at both planner
-        // and autonomous decision entry points, not after text generation.
+        // Public installations do not import somebody else's "lulu" persona.
+        // Explicitly configure a newly created role and verify only that role's
+        // authored expression preference changes the prompt.
         val context = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
         MigratedDomainStores.initialize(context)
         CharacterLifeStore.initialize(context)
+        val naturalRole = MigratedDomainStores.characters.create("自然表达").characterId
+        CharacterLifeStore.setExpressionPreference(naturalRole, "kaomoji", "natural")
         assertEquals("natural", CharacterExpressionPreferences.selected(naturalRole, "kaomoji"))
         val guide = CharacterExpressionContinuity.guide(naturalRole)
         assertFalse(guide.contains("颜文字示例"))
