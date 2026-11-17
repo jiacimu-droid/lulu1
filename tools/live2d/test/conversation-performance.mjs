@@ -1143,11 +1143,17 @@ assert.equal(bridge.playing, false,
   assert.equal(bridge.proximityCameraLease?.index, 49,
     'starting new audible words must not forcibly cancel neutral eye contact')
   bridge.onPlaybackEvent('finished', 0, 95005, 'next')
+  // The actual physical camera curve only begins zooming after the motion
+  // has had time to approach; cancelling at elapsed=0 requires no withdrawal.
+  clock += 1600
+  const expectedWithdrawalZoom = screenProximityFrame(WOLF_APPROACH_MOTION_INDEX,
+    clock - bridge.proximityCameraLease.startedAt).zoom
   bridge.perform({ visualSequence: 95006, motion: { group: 'Gesture', index: 1 } })
   bridge.onPlaybackEvent('playing', 0, 95006, 'different')
   await Promise.resolve()
-  assert.equal(bridge.proximityCameraLease?.handoff?.zoom, 2.1,
-    'a different body motion gets a soft camera withdrawal')
+  assert.ok(expectedWithdrawalZoom > 1.01 &&
+    Math.abs((bridge.proximityCameraLease?.handoff?.zoom ?? 0) - expectedWithdrawalZoom) < .002,
+    'a different body motion eases from the actual current camera zoom')
   bridge.onPlaybackEvent('finished', 0, 95006, 'different')
   bridge.wolfRigActive = false
 }
