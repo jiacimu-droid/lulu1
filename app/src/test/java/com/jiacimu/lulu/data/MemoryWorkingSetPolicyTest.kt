@@ -32,6 +32,29 @@ class MemoryWorkingSetPolicyTest {
         assertTrue(MemoryWorkingSetPolicy.actuallyInjectedIds(working, emptyList()).isEmpty())
     }
 
+    @Test fun zeroEvidenceLimitCannotBorrowSpareQuotaButPositiveLimitsRemainSoft() {
+        val evidence = MemoryPromptCandidate("event:source", MemoryWorkingSet.EVIDENCE,
+            "来源证据：只有本人答应以后才能发消息", 950, sources = setOf("source"),
+            originalEvidence = true)
+        val recalled = MemoryPromptCandidate("memory:source", MemoryWorkingSet.SUMMARY,
+            "记忆：只有答应后才可以发消息", 650, sources = setOf("source"),
+            derivedSummary = true)
+        val disabled = MemoryWorkingSetPolicy.select(listOf(evidence, recalled), 4_000,
+            sectionLimits = mapOf(MemoryWorkingSet.EVIDENCE to 0,
+                MemoryWorkingSet.SUMMARY to 1_000),
+            borrowUnusedSectionBudget = true)
+        assertEquals(listOf("memory:source"), disabled.selected)
+        assertEquals("类别上下文字数预算", disabled.omitted["event:source"])
+        assertFalse(disabled.sections.containsKey(MemoryWorkingSet.EVIDENCE))
+
+        val allowed = MemoryWorkingSetPolicy.select(listOf(evidence, recalled), 4_000,
+            sectionLimits = mapOf(MemoryWorkingSet.EVIDENCE to 1,
+                MemoryWorkingSet.SUMMARY to 1_000),
+            borrowUnusedSectionBudget = true)
+        assertTrue("event:source" in allowed.selected)
+        assertTrue("memory:source" !in allowed.selected)
+    }
+
     @Test fun longMiddleConditionIsInjectedAsSourcedRangeInsteadOfHeadTailPreview() {
         val original = "开头".repeat(600) + "没说完".repeat(350) +
             "只有用户确认后才能执行，未确认绝对不要发送" + "结尾".repeat(750)
