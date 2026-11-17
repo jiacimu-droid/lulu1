@@ -192,6 +192,22 @@ class RecentSemanticTimelineTest {
         assertEquals(1, turns.count { it.kind == RecentSemanticTimeline.Kind.SPEECH })
     }
 
+    @Test fun removedOriginalReplyCannotResurrectItsOldSourceLinkedThought() {
+        val reply = row("old-reply", 1, "message",
+            EventEvidenceKind.CharacterStatement, "dm", content = "我当时说过的话")
+        val thought = row("presence-old-reply-role", 2, "presence",
+            EventEvidenceKind.Inference, "dm", content = "仅属于那条已撤回消息的想法")
+        assertEquals(1, RecentSemanticTimeline.select(listOf(reply, thought), 20).size)
+        // Removing/invalidating the original evidence must not silently turn
+        // its private derivative into a new independent real-life event.
+        assertTrue(RecentSemanticTimeline.select(listOf(thought), 20).isEmpty())
+        val independentlyAuthored = row("self", 3, "presence",
+            EventEvidenceKind.Inference, content = "独立留下的真实主观心声")
+        val surviving = RecentSemanticTimeline.select(listOf(thought, independentlyAuthored), 20)
+        assertEquals(1, surviving.size)
+        assertEquals("self", surviving.single().events.single().id)
+    }
+
     @Test fun linkedPresenceIsNotDoubleCountedAsIndependentEpisode() {
         val speech = row("role-reply", 1, "message",
             EventEvidenceKind.CharacterStatement, "dm", content = "好，我知道了")
