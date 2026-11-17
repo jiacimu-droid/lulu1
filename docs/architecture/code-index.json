@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T04:15:37.189166+00:00",
-  "commit": "a3c3af6ac8c87203785c75a252f56cfaa487d43a",
+  "generatedAt": "2026-11-17T04:18:17.575760+00:00",
+  "commit": "ff09bfa291e5ad603109c9fc5ffe8598a54cc585",
   "branch": "main",
-  "sourceFingerprint": "bc001d5bffb9382598c26459bafdd32f498250a851565c2bdab408a30a49e938",
+  "sourceFingerprint": "b6a77ca3edc28fc7efa46b7862cca2be867d240657ceb360f8026c0264949fb4",
   "summary": {
     "files": 1387,
-    "lines": 296953,
+    "lines": 296970,
     "symbols": 4190
   },
   "symbolIndex": {
@@ -97,7 +97,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 167
+        "line": 170
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
@@ -1853,13 +1853,13 @@
     "latestSong": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 159
+        "line": 162
       }
     ],
     "play": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 176
+        "line": 179
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
@@ -1977,7 +1977,7 @@
     "enabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
-        "line": 30
+        "line": 31
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt",
@@ -1999,25 +1999,25 @@
     "roleVoiceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
-        "line": 36
+        "line": 37
       }
     ],
     "convertedFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
-        "line": 46
+        "line": 47
       }
     ],
     "convert": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
-        "line": 54
+        "line": 55
       }
     ],
     "part": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
-        "line": 178
+        "line": 192
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
@@ -24820,8 +24820,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-      "lines": 203,
-      "sha256": "e027767b7a960fd891f4640204ab639b60e699d8e5abb185924494c266607d8e",
+      "lines": 206,
+      "sha256": "db526b7e8eae369f3e7d4e29957560e4914ca86c155d2771a8ed6d1507edb7ce",
       "symbols": [
         {
           "name": "Song",
@@ -24841,15 +24841,15 @@
         },
         {
           "name": "latestSong",
-          "line": 159
+          "line": 162
         },
         {
           "name": "stop",
-          "line": 167
+          "line": 170
         },
         {
           "name": "play",
-          "line": 176
+          "line": 179
         }
       ]
     },
@@ -24918,28 +24918,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
-      "lines": 219,
-      "sha256": "e983dea09f478672ec6ec1a63ad261ea9ffbfa1b907019ab033731450304b5fb",
+      "lines": 233,
+      "sha256": "8b67bf2c88a8f5eb2b1b9f826d2c046464d36b5f326421822742292250cd580c",
       "symbols": [
         {
           "name": "enabled",
-          "line": 30
+          "line": 31
         },
         {
           "name": "roleVoiceId",
-          "line": 36
+          "line": 37
         },
         {
           "name": "convertedFile",
-          "line": 46
+          "line": 47
         },
         {
           "name": "convert",
-          "line": 54
+          "line": 55
         },
         {
           "name": "part",
-          "line": 178
+          "line": 192
         }
       ]
     },

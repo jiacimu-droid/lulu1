@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a3c3af6ac8c87203785c75a252f56cfaa487d43a`
+- 基准提交：`ff09bfa291e5ad603109c9fc5ffe8598a54cc585`
 - 分支：`main`
 - 已索引文件：1387
-- 已索引代码/文本行：296953
+- 已索引代码/文本行：296970
 - 已发现符号：4190
 
 | 文件 | 行数 | 符号数 |
@@ -152,9 +152,9 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt` | 513 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt` | 203 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt` | 206 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 368 | 14 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt` | 219 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt` | 233 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSongAudioMix.kt` | 202 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 305 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
