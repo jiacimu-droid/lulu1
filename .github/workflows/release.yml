@@ -84,33 +84,47 @@ jobs:
             sleep "$((attempt * 5))"
           done
 
-      # Robolectric's MavenArtifactFetcher does not use Gradle's repositories.
-      # Select a responsive repository for its original SDK 30 artifact instead
-      # of forcing a 404 prefetch (or removing/skipping tests).
+      # Robolectric resolves Android SDK test jars outside Gradle's dependency
+      # graph. A mirror can return HTTP 200 for both files yet serve a stale or
+      # corrupt POM: MavenArtifactFetcher later rejects its SHA-512 after the
+      # entire Kotlin suite has compiled. Probe actual POM bytes + checksum,
+      # never just HEAD availability, and retain all original Android SDKs.
       - name: Select Robolectric test SDK mirror
         run: |
           set -euo pipefail
           version='11-robolectric-6757853-i7'
           path="org/robolectric/android-all-instrumented/${version}/android-all-instrumented-${version}"
+          probe="$(mktemp -d)"
+          trap 'rm -rf "$probe"' EXIT
           for repository in \
-            'https://maven-central.storage-download.googleapis.com/maven2' \
             'https://repo.maven.apache.org/maven2' \
+            'https://maven-central.storage-download.googleapis.com/maven2' \
             'https://repo1.maven.org/maven2'; do
-            echo "Checking Robolectric test repository: ${repository}"
-            if curl --fail --silent --show-error --location --head \
-                --connect-timeout 8 --max-time 25 --retry 2 --retry-delay 2 \
-                "${repository}/${path}.pom" >/dev/null 2>&1 &&
-               curl --fail --silent --show-error --location --head \
-                --connect-timeout 8 --max-time 25 --retry 2 --retry-delay 2 \
+            echo "Verifying Robolectric artifact integrity at: ${repository}"
+            if ! curl --fail --silent --show-error --location \
+                --connect-timeout 8 --max-time 30 --retry 2 --retry-delay 2 \
+                "${repository}/${path}.pom" -o "$probe/sdk.pom" ||
+               ! curl --fail --silent --show-error --location \
+                --connect-timeout 8 --max-time 30 --retry 2 --retry-delay 2 \
+                "${repository}/${path}.pom.sha512" -o "$probe/sdk.pom.sha512" ||
+               ! curl --fail --silent --show-error --location --head \
+                --connect-timeout 8 --max-time 30 --retry 2 --retry-delay 2 \
                 "${repository}/${path}.jar" >/dev/null 2>&1; then
-              echo "ROBOLECTRIC_REPOSITORY_URL=${repository}" >> "$GITHUB_ENV"
-              echo "Selected Robolectric repository: ${repository}"
-              exit 0
+              echo "::warning::Robolectric artifact inaccessible at ${repository}"
+              continue
             fi
+            expected="$(grep -Eio '[0-9a-f]{128}' "$probe/sdk.pom.sha512" | head -n 1 || true)"
+            actual="$(sha512sum "$probe/sdk.pom" | cut -d' ' -f1)"
+            if [ -z "$expected" ] || [ "${expected,,}" != "$actual" ]; then
+              echo "::warning::Robolectric POM SHA-512 mismatch at ${repository}; refusing this mirror"
+              continue
+            fi
+            echo "ROBOLECTRIC_REPOSITORY_URL=${repository}" >> "$GITHUB_ENV"
+            echo "Selected checksum-verified Robolectric repository: ${repository}"
+            exit 0
           done
-          # A mirror check is advisory. Cached SDK jars may already be usable,
-          # so let the full test task run and report its actual result.
-          echo "::warning::No test SDK mirror verified; trying configured default at test runtime"
+          echo "::error::No Robolectric SDK mirror passed POM SHA-512 verification; refusing an unverified repository"
+          exit 1
 
       - name: Test and build phone APK
         # Run the full JVM/Robolectric suite against the same phone variant we ship.
