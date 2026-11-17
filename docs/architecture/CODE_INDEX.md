@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`031a9167a09eedf406a9d5ee001aac62652cfa61`
+- 基准提交：`b0de20d623646793d77f137240761f488f9d0155`
 - 分支：`main`
 - 已索引文件：1406
-- 已索引代码/文本行：297484
+- 已索引代码/文本行：297489
 - 已发现符号：4234
 
 | 文件 | 行数 | 符号数 |
@@ -1009,7 +1009,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/CharacterChatModelSelectionTest.kt` | 178 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/CharacterClockAuthorityTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicyTest.kt` | 37 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt` | 184 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt` | 186 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt` | 203 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
@@ -1022,7 +1022,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt` | 143 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AppointmentClockTest.kt` | 28 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt` | 810 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt` | 813 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionTraceTest.kt` | 148 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt` | 484 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt` | 255 | 3 |

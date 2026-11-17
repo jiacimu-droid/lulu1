@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T12:50:23.131792+00:00",
-  "commit": "031a9167a09eedf406a9d5ee001aac62652cfa61",
+  "generatedAt": "2026-11-17T12:50:59.724868+00:00",
+  "commit": "b0de20d623646793d77f137240761f488f9d0155",
   "branch": "main",
-  "sourceFingerprint": "bf9a24175dccb876042bac726e415ae9d108bdca0a80f12fdcd087023c1e6e03",
+  "sourceFingerprint": "eaa6c7d641a8b448cd5e193e1182e608ef0464867357599e1d19a713de8b71e8",
   "summary": {
     "files": 1406,
-    "lines": 297484,
+    "lines": 297489,
     "symbols": 4234
   },
   "symbolIndex": {
@@ -20105,13 +20105,13 @@
     "invalidPersonalPlanAfterModelRepairKeepsFailureReceiptAndIndependentPost": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt",
-        "line": 263
+        "line": 266
       }
     ],
     "modelCorrectsMissingPersonalScheduleTimeBeforeAnyScheduleIsSaved": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt",
-        "line": 328
+        "line": 331
       }
     ],
     "AutonomousActionTraceTest": [
@@ -41309,7 +41309,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
       "lines": 566,
-      "sha256": "03f928170876d9198a5f4d5bf0005d2e90317feebc8c66bbc1905ea720271ef7",
+      "sha256": "e20e7f4c5a780fe72d4cd162a16393bfc40c0c19405c3192e937c30201ab4b62",
       "symbols": [
         {
           "name": "Outcome",
@@ -44577,8 +44577,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt",
-      "lines": 184,
-      "sha256": "ea60e67d289bd4ec0939396c39ebcf1651c69b3c91bbf3fd4a8844254f81cea6",
+      "lines": 186,
+      "sha256": "7c6e288773b74929902717b747c3a450a2f69e5556f0d7446f54facae829b380",
       "symbols": [
         {
           "name": "JevDirectionsTest",
@@ -44736,8 +44736,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionBoundaryIntegrationTest.kt",
-      "lines": 810,
-      "sha256": "1c46af023f8b0cb7bae13d361ebc3169045eec1632b7c80240e0f8140ffc4d2a",
+      "lines": 813,
+      "sha256": "c44ed9307912c6a46ccdf13b7d54fa2e72be2f097232901ef4b81457673c82be",
       "symbols": [
         {
           "name": "AutonomousActionBoundaryIntegrationTest",
@@ -44745,11 +44745,11 @@
         },
         {
           "name": "invalidPersonalPlanAfterModelRepairKeepsFailureReceiptAndIndependentPost",
-          "line": 263
+          "line": 266
         },
         {
           "name": "modelCorrectsMissingPersonalScheduleTimeBeforeAnyScheduleIsSaved",
-          "line": 328
+          "line": 331
         }
       ]
     },
