@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8a07a38fcff2b56d5c991b0577b18758320b1da3`
+- 基准提交：`3d5a7c56cb5a9931d3394c7bbb759646e6043f29`
 - 分支：`main`
 - 已索引文件：1411
-- 已索引代码/文本行：298143
-- 已发现符号：4248
+- 已索引代码/文本行：298174
+- 已发现符号：4249
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -84,7 +84,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 32 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallReplyStream.kt` | 105 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallResponsibilityContext.kt` | 29 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt` | 52 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt` | 60 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechCallbackBoundary.kt` | 20 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechPcmEnvelope.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallSpeechPcmLevel.kt` | 25 | 1 |
@@ -214,7 +214,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 816 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2710 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2714 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 210 | 9 |
@@ -899,7 +899,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallResponsibilityContextTest.kt` | 40 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt` | 78 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallSilencePolicyTest.kt` | 97 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechCallbackBoundaryTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechPcmEnvelopeTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallSpeechPcmLevelTest.kt` | 18 | 1 |
