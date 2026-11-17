@@ -146,6 +146,54 @@ internal object StarWishRules {
     )
 }
 
+/** Removes private-author built-in theater records from old installs.
+ * Only one-way fingerprints are shipped; no private story cast or prompts remain.
+ */
+internal object LegacyBuiltInTheaters {
+    private val legacyTitleDigests = setOf(
+        "df8384e8559c50a29abc8147d7fe50bb7299a5337b4c67400306f3628903c50b",
+        "6cf6c46d8afd3acbc1c22eacae05bd8d37f1bbbbf83692dc5ef1ad3141020521",
+        "f69322b1a31129ef442627e7d19ee14ea8a9a389f3234b6a96465fdf1e896c27",
+        "601c546b3c83d6a69581b9b6bacb25676dd5f062e3b42fd5f4be365d68be3369",
+        "723cff439a1e424f6d930d3b83d3917ce77db5334a9faf5ffbe0d6796232c843",
+        "1e380002015fc2b47030a16ec64eb7243ba264d6e94fba05d5a584ca268ae0cd",
+        "f0a6edc70b624e69f1f00e30493bcccb025fee220be02fbe67a1026c71a1b710",
+        "85315a15e2e1d53155e5380d76b37522734c11655911b675405601eae8ad9bc2",
+        "c20361c077d42ca8523c441d105cf2947f11b9225c487a81dddc216055747000",
+        "7463fcc802f40611f73e93a2b81dca01896a7cf3d2cd56c5b73c25dae75e3936",
+        "f816eba24ccf8a961ea25abaffc36b2cac11c241f05b9a3ee80820fa0b31301a",
+        "4c99b567983f0d858fb4ed787805a7896ecb9baa00caa5663247d9b07c3b22ed",
+        "be82eaa71b0f7aebfdeeae4330ab656fb7181b50c57d24180b306e9c55d0cfee",
+        "3c09d8afcc6d3e4108bbadb9164c5585ac75da8f9b64108728e82d81681176a4",
+        "527951adf50599c488aa10587987b6b52aa2b3d159b0b5d76df2e5e3e282344b",
+        "a48a61c79a2a195374b6d9038507590d56a6073fd24cb5e090c0effce1ada0fa",
+    )
+
+    fun matches(title: String): Boolean {
+        if (title.isBlank()) return false
+        val digest = java.security.MessageDigest.getInstance("SHA-256")
+            .digest(title.toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it) }
+        return digest in legacyTitleDigests
+    }
+
+    fun purge(state: StarWishState): StarWishState {
+        val titles = (state.theaterChapters.keys + state.theaterGuides.keys +
+            state.theaterPlans.keys + state.theaterLedgers.keys +
+            state.theaterBibles.keys + state.theaterWorldBookIds.keys)
+            .filter(::matches).toSet()
+        if (titles.isEmpty()) return state
+        return state.copy(
+            theaterChapters = state.theaterChapters - titles,
+            theaterGuides = state.theaterGuides - titles,
+            theaterPlans = state.theaterPlans - titles,
+            theaterLedgers = state.theaterLedgers - titles,
+            theaterBibles = state.theaterBibles - titles,
+            theaterWorldBookIds = state.theaterWorldBookIds - titles,
+        )
+    }
+}
+
 internal class StarWishStore private constructor(context: Context) {
     private val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val stateFile = File(context.applicationContext.filesDir, "starwish/state_v2.json")
@@ -270,13 +318,18 @@ internal class StarWishStore private constructor(context: Context) {
         mutable.value = next
     }
 
-    private fun load(): StarWishState = runCatching { stateFile.takeIf(File::isFile)?.readText() }.getOrNull()
-        ?.takeIf(String::isNotBlank)
-        ?.let { raw -> runCatching { decode(JSONObject(raw)) }.getOrNull() }
-        ?: prefs.getString(KEY_STATE, null)
-        ?.takeIf(String::isNotBlank)
-        ?.let { raw -> runCatching { decode(JSONObject(raw)) }.getOrNull()?.also(::persist) }
-        ?: StarWishState()
+    private fun load(): StarWishState {
+        val existing = runCatching { stateFile.takeIf(File::isFile)?.readText() }.getOrNull()
+            ?.takeIf(String::isNotBlank)
+            ?.let { raw -> runCatching { decode(JSONObject(raw)) }.getOrNull() }
+            ?: prefs.getString(KEY_STATE, null)
+                ?.takeIf(String::isNotBlank)
+                ?.let { raw -> runCatching { decode(JSONObject(raw)) }.getOrNull()?.also(::persist) }
+            ?: StarWishState()
+        val cleaned = LegacyBuiltInTheaters.purge(existing)
+        if (cleaned != existing) persist(cleaned)
+        return cleaned
+    }
 
     private fun persist(value: StarWishState) {
         stateFile.parentFile?.mkdirs()
