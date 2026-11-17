@@ -247,7 +247,10 @@ internal fun MigrationHomeV2(
                             fun gridTop(page: Int): Float =
                                 if (page == 0) homeGridTopInWindow - viewportTopInWindow else 0f
                             fun gridHeight(page: Int): Float =
-                                if (page == 0) homeGridHeightPx else size.height.toFloat()
+                                if (page == 0) homeGridHeightPx else
+                                    4f * luluDesktopFullCellHeight(
+                                        size.width.toFloat(), size.height.toFloat(),
+                                    )
                             fun slotAt(position: Offset, page: Int): Int? {
                                 val top = gridTop(page)
                                 val height = gridHeight(page)
@@ -275,7 +278,7 @@ internal fun MigrationHomeV2(
                                             )
                                             edgePageHandled = -1
                                         }
-                                    } else {
+                                    } else if (source != null) {
                                         val x = (start.x / cellWidth).toInt().coerceIn(0, 3)
                                         val y = ((start.y - gridTop(page)) /
                                             (gridHeight(page) / DESKTOP_ROWS)).toInt().coerceIn(0, 3)
@@ -501,6 +504,7 @@ internal fun MigrationHomeV2(
                                     modifier = Modifier.fillMaxSize(),
                                     draggedLauncherId = draggingSource?.let(slots::get),
                                     onOpen = onOpen,
+                                    fullPageGrid = true,
                                 )
                             }
                         }
@@ -513,7 +517,10 @@ internal fun MigrationHomeV2(
                         val activePage = pagerState.currentPage
                         val cellHeight = if (activePage == 0) {
                             with(density) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
-                        } else desktopViewportHeight / DESKTOP_ROWS
+                        } else minOf(
+                            desktopViewportHeight / DESKTOP_ROWS,
+                            cellWidth * LULU_DESKTOP_CELL_ASPECT,
+                        )
                         DesktopV2LauncherItem(
                             launcher = active,
                             modifier = Modifier.width(cellWidth).height(cellHeight)
@@ -534,7 +541,10 @@ internal fun MigrationHomeV2(
                             val cellWidth = desktopViewportWidth / DESKTOP_COLUMNS
                             val cellHeight = if (pagerState.currentPage == 0) {
                                 with(LocalDensity.current) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
-                            } else desktopViewportHeight / DESKTOP_ROWS
+                            } else minOf(
+                                desktopViewportHeight / DESKTOP_ROWS,
+                                cellWidth * LULU_DESKTOP_CELL_ASPECT,
+                            )
                             LuluDesktopWidgetCard(
                                 widget = w, today = today,
                                 characterName = widgetCharacterNames[w.characterId],
@@ -787,10 +797,13 @@ private fun DesktopLauncherGrid(
     modifier: Modifier,
     draggedLauncherId: String?,
     onOpen: (MigrationRoute) -> Unit,
+    fullPageGrid: Boolean = false,
 ) {
     BoxWithConstraints(modifier) {
         val cellWidth = maxWidth / DESKTOP_COLUMNS
-        val cellHeight = maxHeight / DESKTOP_ROWS
+        val cellHeight = if (fullPageGrid)
+            minOf(maxHeight / DESKTOP_ROWS, cellWidth * LULU_DESKTOP_CELL_ASPECT)
+            else maxHeight / DESKTOP_ROWS
         slots.forEachIndexed { index, launcherId ->
             val launcher = DesktopV2Launchers.firstOrNull { it.id == launcherId } ?: return@forEachIndexed
             val column = index % DESKTOP_COLUMNS
@@ -799,6 +812,7 @@ private fun DesktopLauncherGrid(
                 launcher = launcher,
                 modifier = Modifier.width(cellWidth).height(cellHeight)
                     .offset { IntOffset((cellWidth * column).roundToPx(), (cellHeight * row).roundToPx()) }
+                    .padding(top = if (fullPageGrid) 13.dp else 0.dp)
                     .graphicsLayer { alpha = if (launcherId == draggedLauncherId) 0f else 1f },
                 onClick = { onOpen(launcher.route) },
             )
