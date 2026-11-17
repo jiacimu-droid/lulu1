@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T14:06:59.142582+00:00",
-  "commit": "05928b4caa8fe5cbf9bd263cbd97949c84bed6b7",
+  "generatedAt": "2026-11-17T14:08:02.955994+00:00",
+  "commit": "68d3b6c382a150475d161b929ad1e7957b5a0437",
   "branch": "main",
-  "sourceFingerprint": "7006270a84f2c617c86baff0cdcd7cbaa23de74602898fb966f8bcbea7fcddfb",
+  "sourceFingerprint": "0ba6ab57dfa5d87fe2143e3be391f3f4c8cbbbb7fc3859f200a73f2e091ee8d1",
   "summary": {
-    "files": 1413,
-    "lines": 298789,
-    "symbols": 4254
+    "files": 1414,
+    "lines": 298825,
+    "symbols": 4255
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -19592,6 +19592,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt",
         "line": 5
+      }
+    ],
+    "LuluOnboardingGuideContentTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt",
+        "line": 7
       }
     ],
     "LuluVoiceCallReplyActivityTest": [
@@ -43986,6 +43992,17 @@
         {
           "name": "LuluCallFloatingWindowTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt",
+      "lines": 36,
+      "sha256": "5815c56effd4466299b21d8276921b8f7f148d29eaa2f79294a928aead21928b",
+      "symbols": [
+        {
+          "name": "LuluOnboardingGuideContentTest",
+          "line": 7
         }
       ]
     },
