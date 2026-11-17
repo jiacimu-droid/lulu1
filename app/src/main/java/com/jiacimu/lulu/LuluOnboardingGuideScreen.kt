@@ -157,20 +157,22 @@ internal fun LuluOnboardingGuideScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item {
-                    Text("先看亮点，再一步一步开始", color = muted, fontSize = 12.sp)
+                    Text("内测前必读 · 佳辞的话", color = muted, fontSize = 12.sp)
                     Spacer(Modifier.height(12.dp))
                     GuidePanel {
-                        Text("生活在手机里的 AI 伙伴", fontSize = 19.sp,
+                        Text("Hi，大家好，我是佳辞！", fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold, color = ink)
-                        Spacer(Modifier.height(8.dp))
-                        Text("露露机不是普通聊天软件。你可以创建自己的角色，让他在聊天、通话、数字世界和游戏中延续关系、记忆与经历。",
-                            color = ink, fontSize = 13.sp, lineHeight = 20.sp)
-                        Spacer(Modifier.height(14.dp))
-                        GuideNote(Icons.Outlined.AutoAwesome, "亮点功能",
-                            "长期角色陪伴 · 见面与数字世界 · 电话与一起玩 · 世界书和设备能力")
-                        Spacer(Modifier.height(13.dp))
-                        GuideNote(Icons.Outlined.Info, "仍在完善",
-                            "第三方手机操作、部分游戏、复杂剧情及后台稳定性仍在内测。权限和模型需要自行配置，操作是否成功请以真实回执为准。")
+                        Spacer(Modifier.height(12.dp))
+                        Text(
+                            "欢迎来体验我正在制作的「露露机」！它是一个住在手机里的 AI 陪伴小世界，不只是一个聊天框。你可以自己创建角色、设定性格，和他聊天、通电话、在数字世界里见面，一起玩游戏，也能慢慢留下属于你们的经历和记忆。\n\n" +
+                            "我最想做好的，是让角色不只会回答问题，还能有自己的生活、想法与行动，记得你们相处过的事情。这也是露露机现在最特别、最值得试试的部分。\n\n" +
+                            "当然，它还不是一款完全成熟的产品。目前是内测阶段：部分游戏的操作和画面、角色主动行动、后台提醒，以及微信等第三方 App 的手机操控，都还在不断完善。有些功能需要你自己配置 API、模型或系统权限，偶尔也会失败、卡住或者表现得不够聪明。角色说完成了某件事，也请以实际执行结果为准。\n\n" +
+                            "谢谢你愿意来当第一批体验者！可以先跟着下面的步骤完成配置，再自由探索。如果遇到问题或有什么想法，也欢迎反馈给我，一起把这台小手机变得更好玩、更可靠。♡",
+                            color = ink, fontSize = 13.sp, lineHeight = 22.sp,
+                        )
+                        Spacer(Modifier.height(10.dp))
+                        Text("—— 佳辞", color = muted, fontSize = 12.sp,
+                            modifier = Modifier.align(Alignment.End))
                     }
                 }
                 item {
