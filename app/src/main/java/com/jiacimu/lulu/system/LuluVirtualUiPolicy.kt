@@ -78,8 +78,11 @@ internal object LuluVirtualUiPolicy {
      * to the right, otherwise do not guess what the unlabeled icon does. */
     fun appBackControlIndex(
         screenWidth: Int, screenHeight: Int, controls: List<AppBarControl>,
+        scanComplete: Boolean = true,
     ): Int? {
-        if (screenWidth <= 0 || screenHeight <= 0) return null
+        // A partial tree can hide a second BACK candidate. Never authorize
+        // a click from an exhausted accessibility traversal budget.
+        if (!scanComplete || screenWidth <= 0 || screenHeight <= 0) return null
         val topLeft = controls.withIndex().filter { (_, c) ->
             c.clickable && c.width in 12..(screenWidth / 4).coerceAtLeast(12) &&
                 c.height in 12..(screenHeight / 9).coerceAtLeast(12) &&
