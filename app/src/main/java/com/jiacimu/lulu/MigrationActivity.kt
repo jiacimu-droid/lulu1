@@ -189,6 +189,7 @@ class MigrationActivity : ComponentActivity() {
         UserDataUpgradeGuard.protectBeforeStoresInitialize(appContext)
         LuluAppPreferencesStore.initialize(appContext)
         com.jiacimu.lulu.data.LuluAppearanceStore.initialize(appContext)
+        com.jiacimu.lulu.data.LuluCssStore.initialize(appContext)
         UserProfileContext.initialize(appContext)
         DigitalLifeProfileStore.initialize(appContext)
         LuluRepositories.initialize(appContext)
