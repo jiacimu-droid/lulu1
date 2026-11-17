@@ -10,7 +10,7 @@
 
 - `LuluVoiceCallSession.handleUserSpeech` 把外部回执交付和普通定时感知都以 `autonomousSilence=true` 进入。旧分支把跨入口已处理、过期等未交付也计作定时感知失败，第三次会从 2 分钟进入 10 分钟退避。成功交付外部回执也会清掉真正定时感知的既有失败。
 - [3d5a7c56](https://github.com/jiacimu-droid/lulu1/commit/3d5a7c56cb5a9931d3394c7bbb759646e6043f29) 在成功、失败、无可用归档三处由 `CallSilencePolicy.failureCountAfterTurn` 按触发来源结算。外部观察保留自己的诊断，不修改定时感知的计数。不添加调用，也不修改模型在有效回执下可选的表达和行动。
-- `CallSilencePolicyTest.externalObservationDoesNotDelayQuietReflectionOrClearItsBackoff` 从两次实际定时失败开始，检查外部未交付不推迟 2 分钟感知，真实第三次失败仍退避到 10 分钟，外部成功不清退避，真实成功会清退避。索引 [#44093791625](https://github.com/jiacimu-droid/lulu1/actions/runs/44093791625) 已成功；JVM/APK [#44093791671](https://github.com/jiacimu-droid/lulu1/actions/runs/44093791671) 待核。前轮 [#44076512770](https://github.com/jiacimu-droid/lulu1/actions/runs/44076512770) 已复核成功。
+- `CallSilencePolicyTest.externalObservationDoesNotDelayQuietReflectionOrClearItsBackoff` 从两次实际定时失败开始，检查外部未交付不推迟 2 分钟感知，真实第三次失败仍退避到 10 分钟，外部成功不清退避，真实成功会清退避。索引 [#44093791625](https://github.com/jiacimu-droid/lulu1/actions/runs/44093791625) 已成功；以本提交源码和真实 `CharacterSceneCadence` 本地运行 JUnit，`CallSilencePolicyTest` 8 项全通过。精确 JVM/APK [#44093791671](https://github.com/jiacimu-droid/lulu1/actions/runs/44093791671) 排队时被替换。包含相同三个 blob 的后继 `569899c2` [#44095209434](https://github.com/jiacimu-droid/lulu1/actions/runs/44095209434/job/134080553497) 在 `CapabilityRegistry.kt:80` 的 PH-01 Boolean/Unit 类型错误处停止，未运行全量 JVM 或产出 APK。前轮 [#44076512770](https://github.com/jiacimu-droid/lulu1/actions/runs/44076512770) 已复核成功。
 - 真机接入和真实模型待验。下一步打开 `LuluVoiceCallSession.handleUserSpeech` 中 `sleepContinuationJob?.cancel()` 和 `scheduleSleepContinuation`，核外部观察被拒交或主动选沉默后，是否误停已明确开启的原通话继续任务。沿调用方与真实状态检查，保留模型原选择。
 
 ## 2026-11-17 · P-03.1 跨入口已处理的回执不再触发第二次电话决定
