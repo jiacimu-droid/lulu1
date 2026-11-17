@@ -278,6 +278,34 @@ class CommitmentAlarmRecoveryTest {
         assertEquals(reopened.revision, current(task).revision)
     }
 
+    @Test fun missingReviewAlarmKeepsJustDueTokenButRecoversAfterTwoMinutesWithoutBlindReplay() {
+        val now = Instant.now()
+        val task = saveTask(now.minusSeconds(3600))
+        CommitmentTaskStore.update(task.id) { original -> original.copy(
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            nextCheckAt = now,
+            linkedAlarmId = "missing-result-review",
+            followUpKind = "verification",
+            lastActionResult = "此前实际提醒过，但结果未知",
+        ) }
+        // A just-due result check may still be arriving from AlarmManager.
+        CommitmentTaskStore.reconcileAfterRestart(now.plusSeconds(1))
+        assertEquals(now, current(task).nextCheckAt)
+        assertEquals("missing-result-review", current(task).linkedAlarmId)
+        assertEquals(CommitmentTaskStatus.WaitingForFeedback, current(task).status)
+        // The physical alarm is absent and >2m late; do not let the 20m
+        // INITIAL-delivery allowance hide a missed feedback obligation.
+        CommitmentTaskStore.reconcileAfterRestart(now.plusSeconds(125))
+        val recovered = current(task)
+        assertNull(recovered.nextCheckAt)
+        assertNull(recovered.linkedAlarmId)
+        assertEquals("", recovered.followUpKind)
+        assertEquals(CommitmentTaskStatus.WaitingForFeedback, recovered.status)
+        assertTrue(recovered.lastActionResult.contains("目标结果仍未确认"))
+        assertEquals(task.dueAt, recovered.dueAt)
+        assertNull(ProactiveIncomingCallStore.pending.value)
+    }
+
     @Test fun coldStartKeepsMissedOneOffVerificationUnfinishedAndEligibleForRecovery() {
         val now = Instant.now()
         val task = saveTask(now.minusSeconds(3600))
