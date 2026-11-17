@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f2a0fecd6adb3aa062994c4feb62434a64617b7a`
+- 基准提交：`ddf7e134894b84609bea96538f3c27e69386f2e8`
 - 分支：`main`
 - 已索引文件：1443
-- 已索引代码/文本行：304127
+- 已索引代码/文本行：304135
 - 已发现符号：4344
 
 | 文件 | 行数 | 符号数 |
@@ -207,7 +207,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 483 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 299 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 612 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt` | 513 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt` | 520 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 402 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt` | 231 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 310 | 1 |
@@ -964,7 +964,7 @@
 | `app/src/test/java/com/jiacimu/lulu/LocalWhisperScriptTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluDesktopWidgetTest.kt` | 82 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt` | 88 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt` | 89 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluVoiceCallReplyActivityTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluWidgetLiveIntegrationTest.kt` | 134 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 85 | 1 |
