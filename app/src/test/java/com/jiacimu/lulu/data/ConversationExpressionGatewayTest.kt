@@ -1220,6 +1220,48 @@ class ConversationExpressionGatewayTest {
         }
     }
 
+    @Test(timeout = 60_000) fun expiredBackingEvidenceCannotDeliverAnIntactReceiptToPhone() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        LuluDeviceToolBridge.initialize(context)
+        val role = MigratedDomainStores.characters.create("通话待交付证据样本")
+        val id = role.characterId
+        val backing = "phone-search-source-$id"
+        val receiptId = "phone-search-receipt-$id"
+        SharedExperienceTimeline.record(backing, id, "已读资料", "执行器", "可核实的地址",
+            triggerExtraction = false, source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
+        val result = JSONObject().put("success", true)
+            .put("summary", "已核实地址").put("evidenceId", backing)
+        SharedExperienceTimeline.record(receiptId, id, "实际工具执行", "执行器",
+            JSONObject().put("tool", "web_search").put("status", "observed")
+                .put("result", result.toString()).toString(),
+            triggerExtraction = false, source = "tool-router", evidenceKind = EventEvidenceKind.ToolResult)
+        val receipt = SharedExperienceTimeline.eventsByIds(id, listOf(receiptId)).single()
+        val queue = com.jiacimu.lulu.CallExternalResultPolicy
+        assertEquals(receipt, queue.pendingEvidence(context, id, receiptId))
+        SharedExperienceTimeline.deleteEvent(backing)
+        assertNull(queue.pendingEvidence(context, id, receiptId))
+
+        MockWebServer().use { server ->
+            server.start()
+            val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
+                server.url("/").toString(), "test-only")
+            val archive = LuluAiServices.connectionStore.addArchive(config.id, "test")
+            // The queued item might already have been handed to respond before
+            // the source became unavailable. Recheck before a paid model call.
+            val stale = LuluDeviceToolBridge.respond(id, "", "", "电话回执",
+                archiveId = archive.id, sceneContext = "一对一电话仍然接通",
+                silenceObservationId = receiptId)
+            assertTrue(stale.exceptionOrNull()?.message.orEmpty().contains("关联证据已失效"))
+            assertEquals(0, server.requestCount)
+        }
+        assertEquals(receipt, SharedExperienceTimeline.eventsByIds(id, listOf(receiptId)).single())
+        assertFalse(PerceptionStimulusLedger.hasSeen(context, id, receipt.id, receipt.revision))
+    }
+
     @Test(timeout = 60_000) fun phoneObservationDiscardsDecisionWhenItsReceiptIsRevisedOrWithdrawn() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)

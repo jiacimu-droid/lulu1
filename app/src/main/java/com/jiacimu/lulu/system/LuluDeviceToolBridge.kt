@@ -205,6 +205,9 @@ object LuluDeviceToolBridge {
                 .firstOrNull { it.source == "tool-router" &&
                     it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.ToolResult }
         else null
+        if (externalCallResult != null && !com.jiacimu.lulu.CallExternalResultPolicy.hasLiveReceiptEvidence(externalCallResult)) {
+            return Result.failure(IllegalStateException("原工具回执的关联证据已失效，未发起通话观察"))
+        }
         // QQ group rounds are dispatched by runGroupReplies: one character owns
         // each model decision, and the next character sees only persisted turns.
         // Do not hand the whole group to GroupEnsembleReplyEngine's cached ensemble.
@@ -497,7 +500,8 @@ object LuluDeviceToolBridge {
         fun phoneReceiptChanged() = externalCallResult?.let { original ->
             com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(characterId, listOf(original.id))
                 .none { it.revision == original.revision && it.source == original.source &&
-                    it.evidenceKind == original.evidenceKind }
+                    it.evidenceKind == original.evidenceKind } ||
+                !com.jiacimu.lulu.CallExternalResultPolicy.hasLiveReceiptEvidence(original)
         } == true
         fun phoneDecisionInvalidated() = phoneReceiptChanged() ||
             phoneDecisionDefinition?.let { original ->

@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import android.content.Context
+import com.jiacimu.lulu.data.CharacterPerceptionContext
 import com.jiacimu.lulu.data.EventEvidenceKind
 import com.jiacimu.lulu.data.PerceptionStimulusLedger
 import com.jiacimu.lulu.data.SharedExperienceTimeline
@@ -14,9 +15,13 @@ internal object CallExternalResultPolicy {
             .firstOrNull() ?: return null
         val toolReceipt = event.source == "tool-router" && event.evidenceKind == EventEvidenceKind.ToolResult
         return event.takeUnless {
-            toolReceipt && PerceptionStimulusLedger.hasSeen(context, characterId, event.id, event.revision)
+            toolReceipt && (PerceptionStimulusLedger.hasSeen(context, characterId, event.id, event.revision) ||
+                !hasLiveReceiptEvidence(event))
         }
     }
+
+    fun hasLiveReceiptEvidence(event: SharedTimelineEvent): Boolean =
+        event.id in CharacterPerceptionContext.liveEvidenceIds(event.characterId, listOf(event.id))
 
     fun canDeliver(expectedRole: String, expectedCall: String, role: String, call: String,
         connected: Boolean, opening: Boolean, thinking: Boolean, speaking: Boolean,
