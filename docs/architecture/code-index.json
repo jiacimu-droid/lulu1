@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T07:48:31.425960+00:00",
-  "commit": "9a34615151d52ff24e7e771d051ccd219a158ded",
+  "generatedAt": "2026-11-17T08:15:53.482505+00:00",
+  "commit": "561aefb9dc81844bc4c32df54c7903fbdd207f5c",
   "branch": "main",
-  "sourceFingerprint": "d493302ce725ba8048517acd41c2c0056dc3077e4bce140a999466cc14d20af5",
+  "sourceFingerprint": "0a454c06c42e28349d631c6309f67981be3ff2e97046352789850fdff6214c19",
   "summary": {
     "files": 1396,
-    "lines": 299452,
-    "symbols": 4233
+    "lines": 299504,
+    "symbols": 4234
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18272,58 +18272,64 @@
         "line": 147
       }
     ],
+    "mayRecheckTextEditorAfterVoiceProbe": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 169
+      }
+    ],
     "composerInLowerHalf": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 161
-      }
-    ],
-    "isPressToTalk": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 168
-      }
-    ],
-    "ComposerBounds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
         "line": 174
       }
     ],
+    "isPressToTalk": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 181
+      }
+    ],
+    "ComposerBounds": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
+        "line": 187
+      }
+    ],
     "ComposerControl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 183
+        "line": 196
       }
     ],
     "uniqueVoiceComposer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 194
+        "line": 207
       }
     ],
     "isKeyboardControl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 213
+        "line": 226
       }
     ],
     "voiceToTextControl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 225
+        "line": 238
       }
     ],
     "wechatKeyboardSlot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 266
+        "line": 279
       }
     ],
     "sendButton": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-        "line": 278
+        "line": 291
       }
     ],
     "Line": [
@@ -23421,25 +23427,25 @@
     "b": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-        "line": 64
+        "line": 93
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-        "line": 77
+        "line": 106
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-        "line": 146
+        "line": 175
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-        "line": 157
+        "line": 186
       }
     ],
     "c": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-        "line": 79
+        "line": 108
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt",
@@ -41009,7 +41015,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
       "lines": 1770,
-      "sha256": "0a327675cf2b3b9a3c8dd5827e859e5d992848467a831fc4522c0375f172bf64",
+      "sha256": "3dc9753522854532c70a152cce260879ab934289115270c3f5a0da21c6d562d2",
       "symbols": [
         {
           "name": "LuluAccessibilityService",
@@ -41373,8 +41379,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 1606,
-      "sha256": "b1329aaef2c321b963f10cd6876c534b86460efa5de01cfebf91e9878befaa3f",
+      "lines": 1616,
+      "sha256": "83f12b7d0a4c181ff6ebcaf7a090d6b8466c4be30c57f9c5e3db72a2e67a3bcf",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -42073,8 +42079,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt",
-      "lines": 285,
-      "sha256": "51d69e943c64a771de3cc778b65ee6dae838fd77a4b188c849f9f1ee6d192af5",
+      "lines": 298,
+      "sha256": "40bab75eb6aa7c388e866c1bd52fb7b64e050b2f8e98b763717a7d0474b238db",
       "symbols": [
         {
           "name": "supports",
@@ -42141,40 +42147,44 @@
           "line": 147
         },
         {
+          "name": "mayRecheckTextEditorAfterVoiceProbe",
+          "line": 169
+        },
+        {
           "name": "composerInLowerHalf",
-          "line": 161
-        },
-        {
-          "name": "isPressToTalk",
-          "line": 168
-        },
-        {
-          "name": "ComposerBounds",
           "line": 174
         },
         {
+          "name": "isPressToTalk",
+          "line": 181
+        },
+        {
+          "name": "ComposerBounds",
+          "line": 187
+        },
+        {
           "name": "ComposerControl",
-          "line": 183
+          "line": 196
         },
         {
           "name": "uniqueVoiceComposer",
-          "line": 194
+          "line": 207
         },
         {
           "name": "isKeyboardControl",
-          "line": 213
+          "line": 226
         },
         {
           "name": "voiceToTextControl",
-          "line": 225
+          "line": 238
         },
         {
           "name": "wechatKeyboardSlot",
-          "line": 266
+          "line": 279
         },
         {
           "name": "sendButton",
-          "line": 278
+          "line": 291
         }
       ]
     },
@@ -49746,8 +49756,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt",
-      "lines": 185,
-      "sha256": "b47457bc204acac0ae9eb46d1ef69e1cd6e7f1ff2c6b671a532cb1fc53f9f1c0",
+      "lines": 214,
+      "sha256": "49af2460ee3982cf90dc910de7ad8a387206a57ef09d836129e23faaff2ce9f1",
       "symbols": [
         {
           "name": "LuluVirtualChatSendPolicyTest",
@@ -49755,23 +49765,23 @@
         },
         {
           "name": "b",
-          "line": 64
+          "line": 93
         },
         {
           "name": "b",
-          "line": 77
+          "line": 106
         },
         {
           "name": "c",
-          "line": 79
+          "line": 108
         },
         {
           "name": "b",
-          "line": 146
+          "line": 175
         },
         {
           "name": "b",
-          "line": 157
+          "line": 186
         }
       ]
     },
