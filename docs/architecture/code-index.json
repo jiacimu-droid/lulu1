@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:10:35.621985+00:00",
-  "commit": "1a7c46227142f3653a0c02b804ffb40abdc11eb6",
+  "generatedAt": "2026-11-17T16:12:02.222296+00:00",
+  "commit": "ec186eda344a051da6a1bd41ad028443810f2356",
   "branch": "main",
-  "sourceFingerprint": "0e6214032cc3b1376e93bd2ca870f94ea1b99fdd7536e032f9f0a6723b4438b1",
+  "sourceFingerprint": "22b0aa4cc81d9678a904e13bdd48d64d576a3442994054f22cb95e4b07637e56",
   "summary": {
     "files": 1417,
-    "lines": 299528,
+    "lines": 299526,
     "symbols": 4274
   },
   "symbolIndex": {
@@ -149,7 +149,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 280
+        "line": 277
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -4111,7 +4111,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 188
+        "line": 186
       }
     ],
     "errorNote": [
@@ -5507,7 +5507,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 299
+        "line": 295
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
@@ -7279,7 +7279,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 60
+        "line": 59
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -8339,7 +8339,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 309
+        "line": 305
       }
     ],
     "requestContext": [
@@ -18297,37 +18297,37 @@
     "ownerGranted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 54
+        "line": 53
       }
     ],
     "command": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 109
+        "line": 108
       }
     ],
     "onWindowChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 203
+        "line": 201
       }
     ],
     "LuluStrictModeReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 324
+        "line": 320
       }
     ],
     "LuluStrictReviewWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 338
+        "line": 334
       }
     ],
     "LuluStrictExpiryWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 366
+        "line": 364
       }
     ],
     "canObserve": [
@@ -42252,52 +42252,52 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-      "lines": 379,
-      "sha256": "e351ae744e99a85b9fda9b66bd4a15ccb3d5d54c23da3f4d82260ae20cecc23e",
+      "lines": 377,
+      "sha256": "afa073bb6ca90ba55f043cc162ccc78a176347a910da77e7314d20a5d154131a",
       "symbols": [
         {
           "name": "ownerGranted",
-          "line": 54
+          "line": 53
         },
         {
           "name": "active",
-          "line": 60
+          "line": 59
         },
         {
           "name": "command",
-          "line": 109
+          "line": 108
         },
         {
           "name": "status",
-          "line": 188
+          "line": 186
         },
         {
           "name": "onWindowChanged",
-          "line": 203
+          "line": 201
         },
         {
           "name": "stop",
-          "line": 280
+          "line": 277
         },
         {
           "name": "restore",
-          "line": 299
+          "line": 295
         },
         {
           "name": "modelContext",
-          "line": 309
+          "line": 305
         },
         {
           "name": "LuluStrictModeReceiver",
-          "line": 324
+          "line": 320
         },
         {
           "name": "LuluStrictReviewWorker",
-          "line": 338
+          "line": 334
         },
         {
           "name": "LuluStrictExpiryWorker",
-          "line": 366
+          "line": 364
         }
       ]
     },
