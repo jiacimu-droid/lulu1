@@ -202,6 +202,11 @@ class MigrationActivity : ComponentActivity() {
         DigitalWorldStore.initialize(appContext)
         MomentsStore.initialize(appContext)
         SharedExperienceTimeline.backfillChatHistory()
+        // Public digital-world ontology: convert prior unresolved/real-world identities
+        // only after history and world stores are ready; do not delete or recreate people.
+        DigitalLifeProfileStore.migrateExistingCharactersToDigitalLife(
+            creatorName = UserProfileContext.displayLabel(),
+        )
         CompanionPresenceStore.initialize(appContext)
         com.jiacimu.lulu.data.CharacterDevelopmentStore.initialize(appContext)
         com.jiacimu.lulu.data.CharacterLifeStore.initialize(appContext)
