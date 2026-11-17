@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T11:14:12.516249+00:00",
-  "commit": "4eee7affd046250773237d666901efda3553aeb8",
+  "generatedAt": "2026-11-17T11:15:09.835985+00:00",
+  "commit": "1fd25030f912b4377ec3ef37d8f1519c55c0d59c",
   "branch": "main",
-  "sourceFingerprint": "82b26da45deac6758176ed8ca9fcd2e832ff0978c4ebb2f0b2accb0ba24376d8",
+  "sourceFingerprint": "8c684769e0bb3e0b2317a0bd0df8f7124f1c8813ba888597974b550e7b857e95",
   "summary": {
-    "files": 1403,
-    "lines": 298519,
-    "symbols": 4234
+    "files": 1401,
+    "lines": 296554,
+    "symbols": 4214
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -373,7 +373,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 715
+        "line": 692
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
@@ -1223,7 +1223,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 695
+        "line": 672
       }
     ],
     "prepareVoiceNote": [
@@ -12741,23 +12741,23 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1298
+        "line": 1275
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1401
+        "line": 1378
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1529
+        "line": 1506
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1629
+        "line": 1606
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 2243
+        "line": 2220
       }
     ],
     "repliedByDecisionId": [
@@ -20138,24 +20138,6 @@
         "line": 17
       }
     ],
-    "BundledJiangDuImportTest": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-        "line": 14
-      }
-    ],
-    "replace": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-        "line": 95
-      }
-    ],
-    "seed": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-        "line": 722
-      }
-    ],
     "CallMediaSemanticBoundaryTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt",
@@ -20530,112 +20512,10 @@
         "line": 3113
       }
     ],
-    "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 284
-      }
-    ],
-    "jiangDuV30UpgradesApprovedContrastOnlyAndPreservesPersonalEdits": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 331
-      }
-    ],
-    "v20HarmlessImagePatchBecomesRelationalPrinciplesWithoutResettingOwnerEdits": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 373
-      }
-    ],
-    "v12DefaultsUpgradeButOwnerCustomizedWordsAndOtherRolesStayUnchanged": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 412
-      }
-    ],
-    "v22OwnerRespectUpgradePreservesHandwrittenViewsAndActualPlans": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 457
-      }
-    ],
-    "v12DefaultRelationshipUpdatesInPlaceWithoutAnotherRelationshipRegistry": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 497
-      }
-    ],
-    "relationshipContractAndChangingImpressionsShareOneGraphWithoutChangingPersona": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 527
-      }
-    ],
-    "v17ToV18GivesJiangDuSelectiveEverydaySpeechWithoutRewritingPersonalChoices": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 565
-      }
-    ],
-    "v16ToV17RestoresConversationalVoiceWithoutOverwritingEditedFieldsOrOtherRoles": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 618
-      }
-    ],
-    "v15ToV16PutsCharacterAxisFirstAndKeepsOtherRolesAndUserPersona": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 672
-      }
-    ],
-    "v14ToV15RestoresAiInterestsButNeverOverwritesPersonalEdits": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 722
-      }
-    ],
-    "v23ToV24OnlyUpgradesStockFacetsNotCustomIdentityOrCompanions": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 770
-      }
-    ],
-    "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 831
-      }
-    ],
-    "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 880
-      }
-    ],
-    "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 923
-      }
-    ],
-    "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 978
-      }
-    ],
-    "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 1006
-      }
-    ],
     "reload": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 1068
+        "line": 316
       }
     ],
     "CharacterLifeVisibilityTest": [
@@ -21083,127 +20963,127 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 505
+        "line": 482
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 578
+        "line": 555
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 616
+        "line": 593
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 647
+        "line": 624
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 784
+        "line": 761
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 860
+        "line": 837
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 946
+        "line": 923
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1034
+        "line": 1011
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1310
+        "line": 1287
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1414
+        "line": 1391
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1532
+        "line": 1509
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1632
+        "line": 1609
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1719
+        "line": 1696
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1801
+        "line": 1778
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1886
+        "line": 1863
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1973
+        "line": 1950
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 2057
+        "line": 2034
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 2221
+        "line": 2198
       }
     ],
     "bubbles": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 508
+        "line": 485
       }
     ],
     "requestBody": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 714
+        "line": 691
       }
     ],
     "mediaReply": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 788
+        "line": 765
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 864
+        "line": 841
       }
     ],
     "hasMediaReceipt": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 805
+        "line": 782
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 882
+        "line": 859
       }
     ],
     "systemPrompt": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 971
+        "line": 948
       }
     ],
     "posts": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1403
+        "line": 1380
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1531
+        "line": 1508
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1631
+        "line": 1608
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -21213,13 +21093,13 @@
     "concern": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1788
+        "line": 1765
       }
     ],
     "decision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1792
+        "line": 1769
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -21229,7 +21109,7 @@
     "reply": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 1890
+        "line": 1867
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt",
@@ -33328,12 +33208,6 @@
       ]
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyJiangDuProfileSchema.kt",
-      "lines": 21,
-      "sha256": "48eeaa39f5b38c6f1ef3ecc369516546a8e532add4cec4b446138aae7466bf57",
-      "symbols": []
-    },
-    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt",
       "lines": 548,
       "sha256": "368c9c12682e7aa0bcf70499744982f81e28d6157c66e92900fdbbefc4b6c1f3",
@@ -44912,25 +44786,6 @@
       ]
     },
     {
-      "path": "app/src/test/java/com/jiacimu/lulu/data/BundledJiangDuImportTest.kt",
-      "lines": 1078,
-      "sha256": "1150d2c7e913b9f7d821c852275070b4ea706fdca7eff965ed7ae5cadbb8e5b9",
-      "symbols": [
-        {
-          "name": "BundledJiangDuImportTest",
-          "line": 14
-        },
-        {
-          "name": "replace",
-          "line": 95
-        },
-        {
-          "name": "seed",
-          "line": 722
-        }
-      ]
-    },
-    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt",
       "lines": 45,
       "sha256": "5ae585c403b298efb25b6a42ff3a2020cbc038e4896126cf2f3b9bc00c839e7d",
@@ -44954,8 +44809,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
-      "lines": 117,
-      "sha256": "c5010cf387754353074a69aa4e4d9607dc8a36db7d6e9101ff85a203af23f30d",
+      "lines": 113,
+      "sha256": "d242c540b2facf558e57734475121f44e09bb1b10a0f2fb360ce70a036220e7c",
       "symbols": [
         {
           "name": "CharacterAccountabilityContextTest",
@@ -45494,8 +45349,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 1095,
-      "sha256": "c4a0d645797084d49029a872c83cfb1bbed2fa6a8d01c59bbe9162d9afdcebc9",
+      "lines": 343,
+      "sha256": "5db6881aad05f0cb9230823a0a2b6278e99eec57b58670c4dd47effe560655ae",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -45510,76 +45365,8 @@
           "line": 173
         },
         {
-          "name": "jiangDuPresetIsScopedBackedUpAndDoesNotOverwriteLaterEdits",
-          "line": 284
-        },
-        {
-          "name": "jiangDuV30UpgradesApprovedContrastOnlyAndPreservesPersonalEdits",
-          "line": 331
-        },
-        {
-          "name": "v20HarmlessImagePatchBecomesRelationalPrinciplesWithoutResettingOwnerEdits",
-          "line": 373
-        },
-        {
-          "name": "v12DefaultsUpgradeButOwnerCustomizedWordsAndOtherRolesStayUnchanged",
-          "line": 412
-        },
-        {
-          "name": "v22OwnerRespectUpgradePreservesHandwrittenViewsAndActualPlans",
-          "line": 457
-        },
-        {
-          "name": "v12DefaultRelationshipUpdatesInPlaceWithoutAnotherRelationshipRegistry",
-          "line": 497
-        },
-        {
-          "name": "relationshipContractAndChangingImpressionsShareOneGraphWithoutChangingPersona",
-          "line": 527
-        },
-        {
-          "name": "v17ToV18GivesJiangDuSelectiveEverydaySpeechWithoutRewritingPersonalChoices",
-          "line": 565
-        },
-        {
-          "name": "v16ToV17RestoresConversationalVoiceWithoutOverwritingEditedFieldsOrOtherRoles",
-          "line": 618
-        },
-        {
-          "name": "v15ToV16PutsCharacterAxisFirstAndKeepsOtherRolesAndUserPersona",
-          "line": 672
-        },
-        {
-          "name": "v14ToV15RestoresAiInterestsButNeverOverwritesPersonalEdits",
-          "line": 722
-        },
-        {
-          "name": "v23ToV24OnlyUpgradesStockFacetsNotCustomIdentityOrCompanions",
-          "line": 770
-        },
-        {
-          "name": "v13ToLatestKeepsHandwrittenFieldsBlankValuesAndCurrentRelationship",
-          "line": 831
-        },
-        {
-          "name": "legacyJiangDuRewritePreservesExactIdentityAndCurrentIntention",
-          "line": 880
-        },
-        {
-          "name": "renamedCompanionUpgradesOnLaunchAndLaterEditsSurviveAnotherRestart",
-          "line": 923
-        },
-        {
-          "name": "previousPresetFindsTheSameRoleAfterAnUnrelatedRenameButNeverChangesARealWorldRole",
-          "line": 978
-        },
-        {
-          "name": "interruptedRewriteRetriesWithoutReplacingTheOriginalBackupOrAuthorizingOldTraits",
-          "line": 1006
-        },
-        {
           "name": "reload",
-          "line": 1068
+          "line": 316
         }
       ]
     },
@@ -46219,8 +46006,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 2458,
-      "sha256": "f5eba2ce1b7118244348422039c7a1fd18c54438ad1998558518e078e28c79d0",
+      "lines": 2435,
+      "sha256": "019cdc7c7d4d6e65bf9f3d4adf597e5826aa63b91f1b8884f0730066a3df95a7",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",
@@ -46232,155 +46019,155 @@
         },
         {
           "name": "response",
-          "line": 505
+          "line": 482
         },
         {
           "name": "bubbles",
-          "line": 508
+          "line": 485
         },
         {
           "name": "response",
-          "line": 578
+          "line": 555
         },
         {
           "name": "response",
-          "line": 616
+          "line": 593
         },
         {
           "name": "response",
-          "line": 647
+          "line": 624
         },
         {
           "name": "enqueue",
-          "line": 695
+          "line": 672
         },
         {
           "name": "requestBody",
-          "line": 714
+          "line": 691
         },
         {
           "name": "prompt",
-          "line": 715
+          "line": 692
         },
         {
           "name": "response",
-          "line": 784
+          "line": 761
         },
         {
           "name": "mediaReply",
-          "line": 788
+          "line": 765
         },
         {
           "name": "hasMediaReceipt",
-          "line": 805
+          "line": 782
         },
         {
           "name": "response",
-          "line": 860
+          "line": 837
         },
         {
           "name": "mediaReply",
-          "line": 864
+          "line": 841
         },
         {
           "name": "hasMediaReceipt",
-          "line": 882
+          "line": 859
         },
         {
           "name": "response",
-          "line": 946
+          "line": 923
         },
         {
           "name": "systemPrompt",
-          "line": 971
+          "line": 948
         },
         {
           "name": "response",
-          "line": 1034
+          "line": 1011
         },
         {
           "name": "receipts",
-          "line": 1298
+          "line": 1275
         },
         {
           "name": "response",
-          "line": 1310
+          "line": 1287
         },
         {
           "name": "receipts",
-          "line": 1401
+          "line": 1378
         },
         {
           "name": "posts",
-          "line": 1403
+          "line": 1380
         },
         {
           "name": "response",
-          "line": 1414
+          "line": 1391
         },
         {
           "name": "receipts",
-          "line": 1529
+          "line": 1506
         },
         {
           "name": "posts",
-          "line": 1531
+          "line": 1508
         },
         {
           "name": "response",
-          "line": 1532
+          "line": 1509
         },
         {
           "name": "receipts",
-          "line": 1629
+          "line": 1606
         },
         {
           "name": "posts",
-          "line": 1631
+          "line": 1608
         },
         {
           "name": "response",
-          "line": 1632
+          "line": 1609
         },
         {
           "name": "response",
-          "line": 1719
+          "line": 1696
         },
         {
           "name": "concern",
-          "line": 1788
+          "line": 1765
         },
         {
           "name": "decision",
-          "line": 1792
+          "line": 1769
         },
         {
           "name": "response",
-          "line": 1801
+          "line": 1778
         },
         {
           "name": "response",
-          "line": 1886
+          "line": 1863
         },
         {
           "name": "reply",
-          "line": 1890
+          "line": 1867
         },
         {
           "name": "response",
-          "line": 1973
+          "line": 1950
         },
         {
           "name": "response",
-          "line": 2057
+          "line": 2034
         },
         {
           "name": "response",
-          "line": 2221
+          "line": 2198
         },
         {
           "name": "receipts",
-          "line": 2243
+          "line": 2220
         }
       ]
     },
@@ -47256,8 +47043,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-      "lines": 1256,
-      "sha256": "89c79c81757af786bf74cf6846fd9a27996d5fa29adff70e862cbae8dd03455d",
+      "lines": 1169,
+      "sha256": "e7aba0688df882505289ab903d9447d31a9b4c4be1648127dcc72fb994f133bf",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
