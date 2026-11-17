@@ -794,13 +794,26 @@ private fun loadDesktopSlots(context: Context): List<String?> {
     // 格子不够就加一页，绝不丢应用。位置以最远已有格子为准，避免后页应用被裁掉。
     val existing = saved.filterNotNull().toMutableSet()
     val missing = DesktopV2Launchers.filterNot { it.id in existing }
+    // An upgrade can add more apps after the owner installed widgets. New
+    // launchers must never silently spawn underneath those saved widgets.
+    val widgetCells = LuluDesktopWidgetStore.load(context).flatMap { widget ->
+        (widget.row until widget.row + widget.rows).flatMap { row ->
+            (widget.col until widget.col + widget.columns).map { col ->
+                widget.page * DESKTOP_SLOT_COUNT + row * DESKTOP_COLUMNS + col
+            }
+        }
+    }.toSet()
     val lastOccupied = saved.indexOfLast { it != null }
-    val totalNeeded = maxOf(existing.size + missing.size, DESKTOP_SLOT_COUNT, lastOccupied + 1)
+    val totalNeeded = maxOf(
+        existing.size + missing.size + widgetCells.size,
+        DESKTOP_SLOT_COUNT, lastOccupied + 1,
+        (widgetCells.maxOrNull() ?: -1) + 1,
+    )
     val pageCount = desktopAllocatedPageCount(totalNeeded)
     val sized = MutableList<String?>(pageCount * DESKTOP_SLOT_COUNT) { null }
     saved.take(sized.size).forEachIndexed { index, id -> sized[index] = id }
     missing.forEach { launcher ->
-        val empty = sized.indexOfFirst { it == null }
+        val empty = sized.indices.firstOrNull { sized[it] == null && it !in widgetCells } ?: -1
         if (empty >= 0) sized[empty] = launcher.id
     }
     // 不丢弃最后一张空白桌面；保存的历史位置仍保持不变。
