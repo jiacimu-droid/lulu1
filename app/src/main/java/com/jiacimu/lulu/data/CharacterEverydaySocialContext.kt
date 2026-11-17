@@ -44,6 +44,58 @@ internal object CharacterEverydaySocialContext {
             }
     }
 
+    /**
+     * The CURRENT identity and friendship registry, not episode memory.
+     * A shipped resident template is not an existing person until created.
+     * Include on every Full actor request even if episodic context is trimmed.
+     * It is a directory for factual verification, not firsthand observation.
+     */
+    fun currentSocialAuthority(characterId: String): String {
+        if (!DigitalLifeProfileStore.isEnabled(characterId)) return ""
+        val residentIds = DigitalWorldExpansionStore.residents().mapTo(hashSetOf()) {
+            ResidentCharacterBridge.characterId(it.id)
+        }
+        val peers = MigratedDomainStores.characters.settings.value.values.filter {
+            it.characterId != characterId &&
+                DigitalLifeProfileStore.isEnabled(it.characterId) &&
+                (!it.characterId.startsWith("resident:") || it.characterId in residentIds)
+        }
+        val native = peers.filter { it.characterId.startsWith("resident:") }
+        val other = peers.filterNot { it.characterId.startsWith("resident:") }
+        fun labels(people: List<CharacterSettings>) =
+            people.joinToString("、") { "${it.displayName}(${it.characterId})" }.ifBlank { "暂无" }
+        val friends = peers.filter {
+            MomentFriendAccess.areFriends(characterId, it.characterId)
+        }
+        val requests = CharacterFriendRequests.historyFor(characterId).filter {
+            it.status == "pending" &&
+                MomentFriendAccess.isActiveCharacter(it.fromId) &&
+                MomentFriendAccess.isActiveCharacter(it.toId)
+        }
+        val received = requests.filter { it.toId == characterId }
+        val sent = requests.filter { it.fromId == characterId }
+        val accepted = CharacterFriendRequests.historyFor(characterId).filter {
+            it.status == "accepted" && it.resolvedAt != null &&
+                MomentFriendAccess.areFriends(it.fromId, it.toId)
+        }.takeLast(6)
+        return buildString {
+            appendLine("【当前有效人物名册与QQ好友凭据｜实时程序事实，优先于旧聊天或回忆】")
+            appendLine("当前世界真正注册且仍在生活的居民：${labels(native)}。内置模板名和已删除居民都不算现存居民。")
+            appendLine("其他现存数字角色：${labels(other)}。此名册只供核对身份，不代表我认识或亲眼见到这里所有人。")
+            appendLine("我当前确实确认的数字人物QQ好友：${labels(friends)}。未列出的数字人物不能说成当前好友。")
+            appendLine("我真正收到、待本人决定的好友申请：" +
+                received.joinToString("、") { "requestId=${it.id}；来自=${it.fromId}" }.ifBlank { "没有" })
+            appendLine("我真正发出、待对方决定的好友申请：" +
+                sent.joinToString("、") { "requestId=${it.id}；发给=${it.toId}" }.ifBlank { "没有" })
+            appendLine("仍有效的申请通过凭据：" +
+                accepted.joinToString("、") { "requestId=${it.id}；${it.fromId}→${it.toId}；确认于${it.resolvedAt}" }
+                    .ifBlank { "没有；手动建立好友不等于收到或通过了申请" })
+            appendLine("旧记忆、聊天台词或模板里出现名字，不等于这个人目前存在、认识我、加了我、发了消息或发了动态。")
+            appendLine("只有真实申请与同意、好友权限、私信送达、帖子及本人实际已读回执，才能称对应社交行为已经发生。")
+            appendLine("主人问到当前没登记的人时，承认缺少当下依据即可，不要为了接话编造已经同意好友申请等结果。")
+        }.trim()
+    }
+
     fun render(characterId: String, now: Instant = Instant.now(),
         pending: List<ResidentDirectMessage> = ResidentSocialMailbox.pendingIncoming(characterId)): String {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return ""
