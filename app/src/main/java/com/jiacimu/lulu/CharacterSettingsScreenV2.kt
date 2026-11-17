@@ -607,7 +607,7 @@ internal fun CharacterV2Switch(
 }
 
 @Composable
-private fun CharacterV2Card(content: @Composable ColumnScope.() -> Unit) {
+internal fun CharacterV2Card(content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
