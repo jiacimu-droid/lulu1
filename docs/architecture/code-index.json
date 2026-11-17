@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T12:58:39.899084+00:00",
-  "commit": "2add22d025da9a446bef6a144b44bf51d154a4f6",
+  "generatedAt": "2026-11-17T12:59:31.794826+00:00",
+  "commit": "b156c4ab29d952a191abf69e1af2fd23f2cd4842",
   "branch": "main",
-  "sourceFingerprint": "509153de5f1b09f0764a442eb9db50826fef1c6da65fa191347f2d79c0b24294",
+  "sourceFingerprint": "2bc963c5d66d764c308ac4f4ae48bbea21bb32be290f40a879eb64948f83a4c2",
   "summary": {
     "files": 1408,
-    "lines": 297700,
+    "lines": 297734,
     "symbols": 4237
   },
   "symbolIndex": {
@@ -665,7 +665,7 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
-        "line": 75
+        "line": 85
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
@@ -5479,7 +5479,7 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
-        "line": 79
+        "line": 99
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt",
@@ -6925,7 +6925,7 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
-        "line": 68
+        "line": 70
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
@@ -42545,20 +42545,20 @@
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
-      "lines": 84,
-      "sha256": "16909857012ae5048a11e944c7ecc0f31eb7895fe6317199b3454562fd7c4623",
+      "lines": 113,
+      "sha256": "894ed2209063b9b35c1dcf235be11b133b8f04ef29f30101a9df13d1b39e0539",
       "symbols": [
         {
           "name": "snapshot",
-          "line": 68
+          "line": 70
         },
         {
           "name": "write",
-          "line": 75
+          "line": 85
         },
         {
           "name": "restore",
-          "line": 79
+          "line": 99
         }
       ]
     },
@@ -42579,8 +42579,8 @@
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt",
-      "lines": 121,
-      "sha256": "91ed82713cebc91a94a1af353f1aa939552c2ad172a3a40f28001c5a3f97fde8",
+      "lines": 126,
+      "sha256": "2d3d07923e7c6c44155906ebbc18eb2f6779e08bad7c33b64a42758771bb382a",
       "symbols": [
         {
           "name": "mayPaste",
