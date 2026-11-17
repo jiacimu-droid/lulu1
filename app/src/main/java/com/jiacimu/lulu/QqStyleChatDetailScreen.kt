@@ -944,8 +944,8 @@ fun QqStyleChatDetailScreen(
                 modifier = Modifier.fillMaxSize()
                     .then(if (LocalLuluAppearance.current.isJournal())
                         Modifier.journalLinen(LocalLuluAppearance.current) else Modifier),
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 14.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
+                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
             if (groupChat != null && groupChat.announcement.isNotBlank()) {
                 item(key = "group-announcement") {
