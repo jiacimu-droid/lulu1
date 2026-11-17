@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T06:02:06.730279+00:00",
-  "commit": "da5b14fc0ff03a0fa0a9d9ea1ac4fd013db2b020",
+  "generatedAt": "2026-11-17T06:02:54.814567+00:00",
+  "commit": "3eb8274d0f809c1f725e3533d31c4bf9569c6859",
   "branch": "main",
-  "sourceFingerprint": "01dfc05babb95c578a52861dea52504efec57d4e204e350768ca82d8f981b5a4",
+  "sourceFingerprint": "4710ad3c1136662ef0ea054e1ac57ab70e4aa962b0920d5efdbcdefb70a110f1",
   "summary": {
     "files": 1391,
-    "lines": 298018,
-    "symbols": 4203
+    "lines": 298038,
+    "symbols": 4204
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11700,10 +11700,16 @@
         "line": 29
       }
     ],
+    "trySelect": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
+        "line": 65
+      }
+    ],
     "actuallyInjectedIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
-        "line": 96
+        "line": 113
       }
     ],
     "LuluChatMessage": [
@@ -24463,7 +24469,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CompanionPresenceDialog.kt",
       "lines": 861,
-      "sha256": "bb1781ab80a02e1943e57cca32a37dd18172611173c5efe91a402ad9e2d6c28f",
+      "sha256": "79aada92e3f9eabe793533151192c6e94399ff81a2e767b974b916433f41e53d",
       "symbols": []
     },
     {
@@ -34132,8 +34138,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-      "lines": 135,
-      "sha256": "03acbb5658362a990ae559f55e9384f75ef71c64b13addbdeb700293e909c3b5",
+      "lines": 138,
+      "sha256": "52941f40f90a95e429271503cbd71ecb4b88afc25be72a129d19405e01cb592d",
       "symbols": [
         {
           "name": "assemble",
@@ -34147,8 +34153,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt",
-      "lines": 106,
-      "sha256": "b5f6310df651740b998e7b243e2dd83fb22ca9fc7a0646c2771b8ce80dc018d5",
+      "lines": 123,
+      "sha256": "59c23e8e680a1f9d2dd8c12f781378233f8bf7c4d25b2610da3403b676bda59b",
       "symbols": [
         {
           "name": "auxiliaryCandidates",
@@ -34163,8 +34169,12 @@
           "line": 49
         },
         {
+          "name": "trySelect",
+          "line": 65
+        },
+        {
           "name": "actuallyInjectedIds",
-          "line": 96
+          "line": 113
         }
       ]
     },

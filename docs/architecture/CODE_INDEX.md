@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`da5b14fc0ff03a0fa0a9d9ea1ac4fd013db2b020`
+- 基准提交：`3eb8274d0f809c1f725e3533d31c4bf9569c6859`
 - 分支：`main`
 - 已索引文件：1391
-- 已索引代码/文本行：298018
-- 已发现符号：4203
+- 已索引代码/文本行：298038
+- 已发现符号：4204
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -537,8 +537,8 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 235 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt` | 138 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 135 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 106 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 138 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 123 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1392 | 48 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 355 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 127 | 5 |
