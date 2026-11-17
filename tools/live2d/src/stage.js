@@ -2,6 +2,7 @@ import { installPhysicsFrameControl } from './physics-frame-control.mjs'
 import {
   kissCameraFrame, kissFaceFrame, kissNuzzleFrame, kissHandoffFrame,
   kissCameraHorizontalPosition, kissMouthLocalOffsetX,
+  kissCameraVerticalPosition, kissFaceLocalOffsetY,
   WOLF_KISS_MOTION_INDEX, KISS_CAMERA_DURATION_MS,
 } from './kiss-camera.mjs'
 // Render-only adapter. Character cognition, call control and audio remain in Android.
@@ -219,6 +220,7 @@ let faceRequestEndAt = 0
 let faceRequestStartedAt = 0
 let authoredMotion = null
 let kissCameraLease = null
+let pendingPostSpeechKiss = null
 let cameraBasePose = null
 // A model-authored sequence for the CURRENT audible TTS fragment only.
 // Never loop an arbitrary clip or manufacture another character gesture.
@@ -362,14 +364,15 @@ function applyKissCameraPose(now = performance.now()) {
   const zoom = frame.zoom
   // Zoom and slide around the lips, not the torso pivot. The anchor comes
   // from the model's calibrated mouth, or the wolf-specific visual fallback.
-  const focusY = base.height * 0.42
+  // Track the real face instead of zooming upward around the torso.
   model.scale.set(base.scale * zoom)
   const nuzzle = active && !active.handoff
     ? kissNuzzleFrame(now - active.startedAt) : null
   // Subtle screen-space contact comes from neck sway, not a sprite shake.
   const slideX = nuzzle ? base.width * nuzzle.yaw * .005 : 0
   model.position.set(kissCameraHorizontalPosition(base, zoom,
-    active?.mouthLocalX ?? 0) + slideX, focusY + (base.y - focusY) * zoom)
+    active?.mouthLocalX ?? 0) + slideX,
+    kissCameraVerticalPosition(base, zoom, active?.faceLocalY ?? 0))
 }
 function cancelKissCamera(soft = false) {
   const active = kissCameraLease
@@ -903,6 +906,7 @@ async function load(modelURL) {
       model.destroy({ texture: true, baseTexture: true })
       model = null
       kissCameraLease = null
+      pendingPostSpeechKiss = null
       cameraBasePose = null
     }
     // A new moc3 has different parameter indices and visual state.
@@ -1103,6 +1107,14 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segme
     performanceRuntime.stopSpeech()
     return
   }
+  // Hold one role-chosen kiss until the FINAL audible phrase in this score.
+  // Audio is authoritative: a failed/aborted speech must not trigger contact.
+  const postSpeechKiss = phase === 'finished' &&
+    pendingPostSpeechKiss?.sequence === eventVisualSequence &&
+    scoreVisualSequence === eventVisualSequence &&
+    segmentIndex >= scoredBeats.reduce((last, beat) =>
+      Math.max(last, Number(beat.segmentIndex) || 0), 0)
+    ? pendingPostSpeechKiss : null
   const nextCueWaiting = scoreVisualSequence > 0 &&
     scoreVisualSequence !== audioVisualSequence
   // A delayed older finish must never replace the newer hidden/cancelled
@@ -1156,7 +1168,16 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segme
   else lastSpeechSoundAt = Date.now()
   // Keep the mouth's short release tail on normal completion. Interruptions
   // should cancel immediately rather than make the role keep talking.
-  if (phase === 'interrupted') speechMouth.reset()
+  if (phase === 'interrupted') {
+    pendingPostSpeechKiss = null
+    speechMouth.reset()
+  } else if (postSpeechKiss) {
+    // Actual TTS finished; role-selected contact now owns the closed mouth.
+    pendingPostSpeechKiss = null
+    speechMouth.reset()
+    motion(postSpeechKiss.group, postSpeechKiss.index, true, 'character',
+      postSpeechKiss.options)
+  }
 }
 function audioPosition(sequence, segmentIndex, segmentId, elapsedMs) {
   if (sequence !== audioVisualSequence || segmentIndex !== audioSegmentIndex ||
@@ -1723,6 +1744,7 @@ function setPaused(value) {
     performanceRuntime.stopSpeech()
     // A score and its queued top-level Motion3/expression share one lease.
     // Cancel both before late coarse speaking snapshots can activate them.
+    pendingPostSpeechKiss = null
     pendingSpeechParts = null
     pendingExpressionName = null
     // Preserve the discarded turn's identity BEFORE clearing its state.
@@ -1890,6 +1912,7 @@ function expression(name, immediatePreview = false) {
 // loop or audio timers: segment boundaries come from actual TTS onStarted.
 let scoredBeats = []
 let scoreVisualSequence = 0
+let scoreIsPreview = false
 // One local playback owner, not a second character state: versioned TTS
 // callbacks outrank delayed coarse Compose snapshots until a new legacy cue.
 let preciseSpeechOwnership = false
@@ -1915,6 +1938,9 @@ function perform(cue, immediatePreview = false) {
   // Hidden-stage decisions cannot be replayed later without fresh audio.
   if (paused || !model || !cue || typeof cue !== 'object') return false
   performanceRuntime.clearScore()
+  // A new role decision supersedes any unfinished post-speech kiss.
+  pendingPostSpeechKiss = null
+  scoreIsPreview = !!immediatePreview
   scoreVisualSequence = Number.isSafeInteger(cue.visualSequence) && cue.visualSequence > 0
     ? cue.visualSequence : 0
   preciseSpeechOwnership = scoreVisualSequence > 0
@@ -1970,6 +1996,15 @@ function perform(cue, immediatePreview = false) {
 }
 function motion(group, index, immediatePreview = false, source = 'character', options = {}) {
   if (!model || !group || !Number.isInteger(index) || index < 0) return
+  // The selected kiss requires CLOSED lips. Save the role's choice and play
+  // it after this score's final real TTS segment, not while words are audible.
+  // Standalone previews and genuinely silent actions still start immediately.
+  if (wolfRigActive && source === 'character' && !scoreIsPreview &&
+      scoreVisualSequence > 0 && playing && group === 'LuluWolf' &&
+      index === WOLF_KISS_MOTION_INDEX) {
+    pendingPostSpeechKiss = { group, index, options, sequence: scoreVisualSequence }
+    return
+  }
   // Explicit new motions supersede a prior unplayed sequence. Only the
   // current model's bounded, validated Motion3 follow-ups are eligible.
   if (!options.fromFollowUp) {
@@ -2065,12 +2100,11 @@ function motion(group, index, immediatePreview = false, source = 'character', op
         const base = cameraBasePose
         const mouthCalibration = touchCalibration.mouth
         let bounds = null
-        if (mouthCalibration) {
-          try { bounds = target.getBounds() } catch (_) { /* use wolf fallback */ }
-        }
+        try { bounds = target.getBounds() } catch (_) { /* use face fallback */ }
         kissCameraLease = { model: target, revision,
           startedAt: performance.now(), faceIssuedAt: Date.now(),
-          mouthLocalX: kissMouthLocalOffsetX(base, bounds, mouthCalibration) }
+          mouthLocalX: kissMouthLocalOffsetX(base, bounds, mouthCalibration),
+          faceLocalY: kissFaceLocalOffsetY(base, bounds, touchCalibration) }
       }
       motionTransition.begin(options.motionParameterIds, options.motionFadeInMs)
       if (source === 'character') notify('motion-started', receipt)
