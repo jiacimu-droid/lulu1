@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T06:01:23.907749+00:00",
-  "commit": "a3cd82cd1ccc1ea3ffcef0684b7a3dceb2561f20",
+  "generatedAt": "2026-11-17T06:01:47.754803+00:00",
+  "commit": "ddf1871f403475f5e55c7a13224d5d039cb7d41c",
   "branch": "main",
-  "sourceFingerprint": "cab51efe764282a29342c3d143f3c316ea2248c1b5f24cd107e10e5bd0210e2b",
+  "sourceFingerprint": "e8cfd7a113a1678c4d9f9d8747a770b6f1ee22268c79e4b32de63b116661758a",
   "summary": {
     "files": 1391,
-    "lines": 297943,
+    "lines": 298015,
     "symbols": 4203
   },
   "symbolIndex": {
@@ -1121,7 +1121,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 214
+        "line": 223
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt",
@@ -12421,43 +12421,43 @@
     "ProactivePerceptionRuntime": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 109
+        "line": 118
       }
     ],
     "markConcernPromisePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 222
+        "line": 231
       }
     ],
     "wakePlanFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 230
+        "line": 239
       }
     ],
     "nextDueAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 239
+        "line": 248
       }
     ],
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 830
+        "line": 839
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 835
+        "line": 844
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3754
+        "line": 3782
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -34923,40 +34923,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3821,
-      "sha256": "41ed49c3151de9a887ea6472c179fbc28daf0c9290d9385c15d1549c066d681a",
+      "lines": 3849,
+      "sha256": "92dbc730f44793517ec5b53f5cd17371db269a80257eb449e0d8e67539bf5adb",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
-          "line": 109
+          "line": 118
         },
         {
           "name": "initialize",
-          "line": 214
+          "line": 223
         },
         {
           "name": "markConcernPromisePending",
-          "line": 222
+          "line": 231
         },
         {
           "name": "wakePlanFor",
-          "line": 230
-        },
-        {
-          "name": "nextDueAt",
           "line": 239
         },
         {
+          "name": "nextDueAt",
+          "line": 248
+        },
+        {
           "name": "batchSuperseded",
-          "line": 830
+          "line": 839
         },
         {
           "name": "deferSupersededDecision",
-          "line": 835
+          "line": 844
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3754
+          "line": 3782
         }
       ]
     },
@@ -48050,8 +48050,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt",
-      "lines": 496,
-      "sha256": "84f9861d0674b9403bb4eeeaf45f9c84e2613ea3fc70dc2d74801c26227694c5",
+      "lines": 540,
+      "sha256": "46cdc3fd9560d77d3eda9183463f511ed7796e7fe03a00afcf367e31fe462b2b",
       "symbols": [
         {
           "name": "UserMessageFavoritesTest",
