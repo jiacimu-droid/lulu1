@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7d4f01740b7096565aeba017e4085c83870a5fb0`
+- 基准提交：`6c26266d664809a255269c7b42c1169d01048b1c`
 - 分支：`main`
-- 已索引文件：1394
-- 已索引代码/文本行：299070
-- 已发现符号：4227
+- 已索引文件：1395
+- 已索引代码/文本行：299189
+- 已发现符号：4229
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -151,6 +151,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt` | 137 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldWalkableStreet.kt` | 513 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsDialogueStream.kt` | 112 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsDirectSinging.kt` | 119 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt` | 33 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt` | 265 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 368 | 14 |

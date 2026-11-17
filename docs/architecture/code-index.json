@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T06:56:40.687961+00:00",
-  "commit": "7d4f01740b7096565aeba017e4085c83870a5fb0",
+  "generatedAt": "2026-11-17T07:07:43.540948+00:00",
+  "commit": "6c26266d664809a255269c7b42c1169d01048b1c",
   "branch": "main",
-  "sourceFingerprint": "fb8a5fec02032c86268cf879304847bc02f4e9475e21748e174be1bf25bfd857",
+  "sourceFingerprint": "c9ca0b0ec144e305de35e4c4ddb1d44da3e84ca6379034d6d10ce62dcbd4458e",
   "summary": {
-    "files": 1394,
-    "lines": 299070,
-    "symbols": 4227
+    "files": 1395,
+    "lines": 299189,
+    "symbols": 4229
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1816,6 +1816,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldVisitorAwareness.kt",
         "line": 91
+      }
+    ],
+    "payload": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsDirectSinging.kt",
+        "line": 26
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
+        "line": 96
+      }
+    ],
+    "latest": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsDirectSinging.kt",
+        "line": 45
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
+        "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
+        "line": 294
       }
     ],
     "websocket": [
@@ -4366,12 +4390,6 @@
         "line": 488
       }
     ],
-    "payload": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-        "line": 96
-      }
-    ],
     "clearAttachment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
@@ -4976,16 +4994,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt",
         "line": 17
-      }
-    ],
-    "latest": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt",
-        "line": 58
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 294
       }
     ],
     "recordCurrent": [
@@ -24994,6 +25002,21 @@
       "lines": 112,
       "sha256": "f70bade6a51171fd3176bf53c70e6d5165d196ddbbad20b22394f8c4f2b1cba1",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsDirectSinging.kt",
+      "lines": 119,
+      "sha256": "9e8ec87f3bdccce04863d5f5069664f593afd39f244486904c670033ca662fa8",
+      "symbols": [
+        {
+          "name": "payload",
+          "line": 26
+        },
+        {
+          "name": "latest",
+          "line": 45
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsModels.kt",
