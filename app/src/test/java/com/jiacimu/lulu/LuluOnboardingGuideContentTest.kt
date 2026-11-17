@@ -37,7 +37,7 @@ class LuluOnboardingGuideContentTest {
 
     @Test fun everyFeatureHasUsefulContentAndARealDestination() {
         assertEquals(luluGuideFeatures.size, luluGuideFeatures.map { it.key }.distinct().size)
-        assertTrue(luluGuideFeatures.size >= 17)
+        assertTrue(luluGuideFeatures.size >= 18)
         assertTrue(luluGuideFeatures.all { it.highlights.isNotEmpty() })
         val byKey = luluGuideFeatures.associateBy { it.key }
         assertTrue(byKey.getValue("call").instructions.any { it.contains("30 分钟") })
@@ -47,6 +47,7 @@ class LuluOnboardingGuideContentTest {
         assertTrue(byKey.getValue("memory").instructions.any { it.contains("气泡") && it.contains("一轮") })
         assertTrue(byKey.getValue("phone").instructions.any { it.contains("小红书") && it.contains("微信") })
         assertTrue(byKey.getValue("phone").warning.contains("发送"))
+        assertTrue(byKey.getValue("mind").instructions.any { it.contains("关联") })
         assertTrue(luluGuideFeatures.none { it.warning.contains("内测提醒") })
         assertTrue(luluGuideFeatures.all {
             it.where.isNotBlank() && it.instructions.isNotEmpty() && it.warning.isNotBlank()
