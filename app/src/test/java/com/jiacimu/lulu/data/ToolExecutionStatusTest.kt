@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.data
 
+import com.jiacimu.lulu.system.LuluDeviceToolBridge
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlinx.coroutines.runBlocking
@@ -100,4 +101,38 @@ class ToolExecutionStatusTest {
         assertFalse(ToolExecutionStatus.completed(JSONObject()
             .put("success", false).put("status", "succeeded")))
     }
+    @Test fun historicalReplayIsExplicitAndDoesNotMutateTheStoredReceipt() {
+        val original = JSONObject().put("success", true).put("status", "observed")
+            .put("mode", "independent_virtual_display")
+            .put("screenSnapshotId", "old-screen")
+            .put("summary", "上一次微信页面")
+        val stored = original.toString()
+        val replayed = JSONObject(ToolExecutionStatus.recoveredReceipt(
+            stored, "2026-11-15T12:00:00Z", "reply-old-user-event"))
+        assertEquals(stored, original.toString())
+        assertTrue(replayed.optBoolean("replayedHistoricalReceipt"))
+        assertFalse(replayed.optBoolean("executedThisInvocation", true))
+        assertEquals("reply-old-user-event", replayed.getString("originalRequestId"))
+        assertEquals("2026-11-15T12:00:00Z", replayed.getString("originalFinishedAt"))
+        assertEquals("old-screen", replayed.getString("screenSnapshotId"))
+        // Historical success still exists; it simply is NOT fresh execution.
+        assertTrue(ToolExecutionStatus.completed(replayed))
+    }
+
+    @Test fun repeatedRequestWithNewUserEventCannotShareHistoricalToolId() {
+        val oldRequest = LuluDeviceToolBridge.currentChatToolRequestId(
+            listOf("user-event-old"), "invocation-a")
+        val newRequest = LuluDeviceToolBridge.currentChatToolRequestId(
+            listOf("user-event-old", "user-event-new"), "invocation-b")
+        assertEquals("reply-user-event-old", oldRequest)
+        assertEquals("reply-user-event-new", newRequest)
+        assertNotEquals(oldRequest, newRequest)
+        // Missing current user evidence MUST NOT fall back to the most recent
+        // user statement left in the global timeline.
+        assertEquals("reply-invocation-b",
+            LuluDeviceToolBridge.currentChatToolRequestId(emptyList(), "invocation-b"))
+        assertEquals("reply-user-event-new",
+            LuluDeviceToolBridge.currentChatToolRequestId(listOf("", "user-event-new"), "invocation-b"))
+    }
+
 }
