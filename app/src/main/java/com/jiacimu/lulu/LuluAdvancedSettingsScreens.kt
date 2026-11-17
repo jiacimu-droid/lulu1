@@ -105,6 +105,9 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var musicSaved by remember(selectedVoiceRole) {
         mutableStateOf(ElevenLabsMusic.latestSong(context, selectedVoiceRole) != null)
     }
+    var singingVoiceStyle by remember(selectedVoiceRole) {
+        mutableStateOf(ElevenLabsRoleSongPipeline.voiceStyle(context, selectedVoiceRole))
+    }
     var musicAdvancedOpen by remember { mutableStateOf(false) }
     var musicFinetune by remember(selectedVoiceRole) {
         mutableStateOf(ElevenLabsMusic.finetuneId(context, selectedVoiceRole))
@@ -381,6 +384,25 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                         else "音乐生成→人声分离→角色变声→本地混音；三种接口分别计费。"
                     } else "关闭时使用音乐模型生成的人声，不保证像角色本人。",
                     color = AdvancedMuted, fontSize = 12.sp)
+                if (musicUseRoleVoice) {
+                    AdvancedChoiceField(
+                        "角色歌声转换",
+                        singingVoiceStyle,
+                        listOf("原始转换" to ElevenLabsRoleSongPipeline.NATURAL,
+                            "更灵动（实验）" to ElevenLabsRoleSongPipeline.EXPRESSIVE),
+                        {
+                            singingVoiceStyle = it
+                            prefs.edit()
+                                .putString("eleven_music_voice_style:" + selectedVoiceRole.trim(), it)
+                                .apply()
+                        },
+                    )
+                    Text(
+                        "更灵动会尝试放宽歌声表现，但不保证修正音高，也不会改聊天/电话音色。" +
+                            "切换后可用「只重试换声」处理同一首歌；分轨与换声仍可能扣费。",
+                        color = AdvancedMuted, fontSize = 12.sp,
+                    )
+                }
                 TextButton(onClick = { musicAdvancedOpen = !musicAdvancedOpen }) {
                     Text(if (musicAdvancedOpen) "收起 Music Finetune" else "Music Finetune（可选，非修音）")
                 }
