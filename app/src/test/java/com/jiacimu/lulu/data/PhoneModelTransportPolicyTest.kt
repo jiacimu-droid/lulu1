@@ -13,8 +13,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
@@ -25,7 +27,9 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
@@ -152,11 +156,14 @@ class PhoneModelTransportPolicyTest {
             .put("message", JSONObject().put("content", JSONObject().put("action", "reply")
                 .put("text", speech).toString())).put("finish_reason", "stop")))
         MockWebServer().use { server ->
-            // Hold back the old decision over HTTP while leaving a separate
-            // connection free for the corrected utterance.
-            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
-                .setBody(response.toString()).setBodyDelay(10, TimeUnit.SECONDS))
-            server.enqueue(MockResponse().setHeader("Content-Type", "application/json").setBody(response.toString()))
+            val releaseOldResponse = CountDownLatch(1)
+            val firstRequest = AtomicBoolean(true)
+            server.dispatcher = object : Dispatcher() {
+                override fun dispatch(request: RecordedRequest): MockResponse {
+                    if (firstRequest.getAndSet(false)) releaseOldResponse.await(10, TimeUnit.SECONDS)
+                    return MockResponse().setHeader("Content-Type", "application/json").setBody(response.toString())
+                }
+            }
             server.start(java.net.InetAddress.getByName("127.0.0.1"), 0)
             val endpoint = server.url("/").newBuilder().host("127.0.0.1").build().toString()
             val config = LuluAiServices.connectionStore.saveConfiguration(
@@ -187,6 +194,7 @@ class PhoneModelTransportPolicyTest {
                 assertTrue(first.contains(original))
                 assertTrue(JSONObject(first).getBoolean("stream"))
                 withTimeout(5_000L) { pending.cancelAndJoin() }
+                releaseOldResponse.countDown()
                 assertFalse(published)
                 assertFalse(hangup)
                 assertEquals(1, server.requestCount)
@@ -200,6 +208,7 @@ class PhoneModelTransportPolicyTest {
                 assertEquals(2, server.requestCount)
             } finally {
                 pending.cancel()
+                releaseOldResponse.countDown()
             }
         }
     }
