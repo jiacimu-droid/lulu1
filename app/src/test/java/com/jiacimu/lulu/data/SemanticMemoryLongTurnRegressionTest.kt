@@ -143,4 +143,54 @@ class SemanticMemoryLongTurnRegressionTest {
         assertTrue(LuluRepositories.memory.snapshot(role).isEmpty())
     }
 
+    @Test(timeout = 60000) fun interruptedSplitBatchResumesRemainingTurnsAfterRepositoryReopen() = runBlocking {
+        val server = MockWebServer()
+        fun reply(text: String): MockResponse = MockResponse()
+            .setHeader("Content-Type", "application/json")
+            .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                .put("message", JSONObject().put("content", text))
+                .put("finish_reason", "stop"))).toString())
+        server.enqueue(reply("[]")) // First complete subset commits.
+        server.enqueue(reply("not-json")) // Second subset fails without checkpoint.
+        server.enqueue(reply("[]")) // Restart resumes the second subset only.
+        server.start()
+        try {
+            val app = RuntimeEnvironment.getApplication() as Context
+            app.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE).edit()
+                .putString("memory_extract_url", server.url("/").toString())
+                .putString("memory_extract_key", "test-only")
+                .putString("memory_extract_model", "test-memory").commit()
+            LuluRepositories.initialize(app)
+            SharedExperienceTimeline.initialize(app)
+            LuluAiServices.initialize(app)
+            repeat(20) { i ->
+                val raw = event(i, if (i < 15)
+                    "长语音第$i " + "有来源的叙述".repeat(900) + "句末信息-$i"
+                    else "最新五轮只保留原话-$i")
+                SharedExperienceTimeline.record(raw.id, role, raw.channel,
+                    raw.speaker, raw.content, raw.occurredAt,
+                    triggerExtraction = false, sessionId = raw.sessionId,
+                    source = raw.source, evidenceKind = raw.evidenceKind)
+            }
+            val pendingBefore = LuluRepositories.memory.pendingMessageCount(role)
+            assertEquals(15, pendingBefore)
+            assertTrue(runCatching { LuluRepositories.memory.summarizeNow(role) }.isFailure)
+            val remaining = LuluRepositories.memory.pendingMessageCount(role)
+            assertTrue("Only first complete subrequest should advance",
+                remaining in 1..14)
+            val prefs = app.getSharedPreferences("lulu_memory_store", Context.MODE_PRIVATE)
+            val disk = JSONObject(prefs.getString("state_v1", "{}")!!)
+            assertEquals(remaining,
+                disk.getJSONObject("extractionContinuationTurns").getInt(role))
+            val reloaded = LocalMemoryRepository().apply { initialize(app) }
+            assertEquals(remaining, reloaded.pendingMessageCount(role))
+            reloaded.summarizeNow(role)
+            assertEquals(0, reloaded.pendingMessageCount(role))
+            assertEquals(3, server.requestCount)
+            val after = JSONObject(prefs.getString("state_v1", "{}")!!)
+            assertFalse(after.getJSONObject("extractionContinuationTurns").has(role))
+            assertTrue(reloaded.hasUnprocessedEvents(role)) // Protected last five remain.
+        } finally { server.shutdown() }
+    }
+
 }
