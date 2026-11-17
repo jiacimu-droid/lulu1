@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T05:19:46.022371+00:00",
-  "commit": "1d8e824d8c63df43bd93b8a7028d6812c075e6a5",
+  "generatedAt": "2026-11-17T05:22:58.686146+00:00",
+  "commit": "9843c37e790e13d67bce800943697c4ef8c09a40",
   "branch": "main",
-  "sourceFingerprint": "444a88a608b9326bea2680e94c8f0d317748a38c0d4548201b620bc9dc837d4b",
+  "sourceFingerprint": "551a8bf519ecfda360511aee255c3eadea489553ac1bfa8e029e1e197498e09d",
   "summary": {
     "files": 1390,
-    "lines": 297300,
-    "symbols": 4196
+    "lines": 297319,
+    "symbols": 4198
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -97,7 +97,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 203
+        "line": 222
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
@@ -1850,16 +1850,28 @@
         "line": 41
       }
     ],
+    "latestOriginalSong": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
+        "line": 198
+      }
+    ],
+    "latestRoleVoiceSong": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
+        "line": 204
+      }
+    ],
     "latestSong": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 195
+        "line": 214
       }
     ],
     "play": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 212
+        "line": 231
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
@@ -24852,8 +24864,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-      "lines": 239,
-      "sha256": "954defc00243f6b57518b855efa455151cdfc5b4a8089527c3524b20bc618628",
+      "lines": 258,
+      "sha256": "efa28e35807bc7f3958ed342a50cab566e1f457a7a52c8d6b5e16576c3a33815",
       "symbols": [
         {
           "name": "Song",
@@ -24872,16 +24884,24 @@
           "line": 47
         },
         {
+          "name": "latestOriginalSong",
+          "line": 198
+        },
+        {
+          "name": "latestRoleVoiceSong",
+          "line": 204
+        },
+        {
           "name": "latestSong",
-          "line": 195
+          "line": 214
         },
         {
           "name": "stop",
-          "line": 203
+          "line": 222
         },
         {
           "name": "play",
-          "line": 212
+          "line": 231
         }
       ]
     },
