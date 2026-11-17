@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T13:21:18.037590+00:00",
-  "commit": "9d209a5b8143aaf6e2c93feb3559df67061fea30",
+  "generatedAt": "2026-11-17T13:22:21.580125+00:00",
+  "commit": "26fed8d46f0424a9b6ae2e699654317f9699ac24",
   "branch": "main",
-  "sourceFingerprint": "f1991b20fa722beb033d919db26b52fcd77a4f75475e44d04b1e9313bbb4f052",
+  "sourceFingerprint": "c4e4bedfd43476d21238706edc3af2cdcc98360d26df2eb733862e6c2c500117",
   "summary": {
-    "files": 1409,
-    "lines": 297935,
-    "symbols": 4245
+    "files": 1410,
+    "lines": 298012,
+    "symbols": 4247
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18506,6 +18506,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt",
         "line": 12
+      }
+    ],
+    "TextLine": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextReadbackOcr.kt",
+        "line": 17
+      }
+    ],
+    "exactNearField": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextReadbackOcr.kt",
+        "line": 23
       }
     ],
     "effectKind": [
@@ -42415,6 +42427,21 @@
         {
           "name": "stage",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextReadbackOcr.kt",
+      "lines": 77,
+      "sha256": "a1c5be42102cdfc58b0c1f214cdf41f7d01dc03012e6bcbe59099bf01a2dbb34",
+      "symbols": [
+        {
+          "name": "TextLine",
+          "line": 17
+        },
+        {
+          "name": "exactNearField",
+          "line": 23
         }
       ]
     },
