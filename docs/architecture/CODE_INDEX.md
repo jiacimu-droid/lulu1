@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`76cb54cc27ef569512cc745e1eb87ada84356a71`
+- 基准提交：`7cdd957bd1038d0876e8af361518f7b7e3ea61e5`
 - 分支：`main`
-- 已索引文件：1414
-- 已索引代码/文本行：298911
+- 已索引文件：1413
+- 已索引代码/文本行：298739
 - 已发现符号：4257
 
 | 文件 | 行数 | 符号数 |
@@ -64,7 +64,6 @@
 | `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
-| `app/src/main/assets/theater/wanxiang_mini_scenes.json` | 180 | 0 |
 | `app/src/main/assets/xhs-browser-route.js` | 92 | 0 |
 | `app/src/main/assets/xhs-reader.js` | 452 | 0 |
 | `app/src/main/cpp/cubism_native_probe.cpp` | 33 | 0 |
@@ -775,7 +774,7 @@
 | `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 187 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 197 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 405 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 413 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 231 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt` | 276 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 690 | 9 |

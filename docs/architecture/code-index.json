@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T15:42:46.722159+00:00",
-  "commit": "76cb54cc27ef569512cc745e1eb87ada84356a71",
+  "generatedAt": "2026-11-17T15:44:07.958889+00:00",
+  "commit": "7cdd957bd1038d0876e8af361518f7b7e3ea61e5",
   "branch": "main",
-  "sourceFingerprint": "bd5372db14e678eb252fb14fdbdb900276531759b36c7117a6e772ff5fc50fd5",
+  "sourceFingerprint": "989bf26d72d56bb2959c683c0eac89b9972198d45e9a73451658a630ee38932d",
   "summary": {
-    "files": 1414,
-    "lines": 298911,
+    "files": 1413,
+    "lines": 298739,
     "symbols": 4257
   },
   "symbolIndex": {
@@ -1229,7 +1229,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 280
+        "line": 288
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
@@ -6425,7 +6425,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 259
+        "line": 267
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
@@ -7603,7 +7603,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 248
+        "line": 256
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
@@ -24003,12 +24003,6 @@
       "symbols": []
     },
     {
-      "path": "app/src/main/assets/theater/wanxiang_mini_scenes.json",
-      "lines": 180,
-      "sha256": "a7c171eb97d3703ab60a22744d80d2814a1232aa998156699eac7c76643dff5a",
-      "symbols": []
-    },
-    {
       "path": "app/src/main/assets/xhs-browser-route.js",
       "lines": 92,
       "sha256": "d9ac3c8ade47959e8de0e5ba9a8a366a0fe54755f87b97a6671ef23200585f13",
@@ -40346,8 +40340,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-      "lines": 405,
-      "sha256": "0db301b84eb610cf6146263d7109d12f49246363b29a47ec726b4faf71435c55",
+      "lines": 413,
+      "sha256": "c727092be8ee931d5e21c9eace1a149f5c1d719920c121c425ec7737839e879f",
       "symbols": [
         {
           "name": "priorTextForPrompt",
@@ -40359,15 +40353,15 @@
         },
         {
           "name": "get",
-          "line": 248
+          "line": 256
         },
         {
           "name": "parse",
-          "line": 259
+          "line": 267
         },
         {
           "name": "enqueue",
-          "line": 280
+          "line": 288
         }
       ]
     },
