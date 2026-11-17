@@ -6,6 +6,13 @@
 - [b239286](https://github.com/jiacimu-droid/lulu1/commit/b2392865af0010f5a922657fc4319c642807ac31)、[8efc982](https://github.com/jiacimu-droid/lulu1/commit/8efc982a37a7cad6688b660b88aa761af480f193)：合场文学保留一次 Isolated 写作请求和各自角色章节；给每个角色带入本人的通知、原始会面及被该事件/前因锚定的已保存心声/选择，提示正文不能把另一个人的未说出的心声写成自己的或已公开的事实。写作仅产生非权威文学，不回填原世界事件、主人行为、关系或心理。证据 ID 按本人单独链接。
 - 回归源码 [e4710e4](https://github.com/jiacimu-droid/lulu1/commit/e4710e43623827ac59aa38b2b7ff7a2fc90d07f3)、[f991a19](https://github.com/jiacimu-droid/lulu1/commit/f991a194a2ad48d052454e4884ea7e970d646900)：覆盖到访→离场顺序、其他地点/未来/伪源隔离、没有通知不伪造在场、本人的证据心声能进入正文而他人的/未来的不能。**当前仅提交测试，未取得目标 SHA 的 JVM/APK 成功证明，且未在 Redmi 真机用两角色 + 真实模型重放。** 后续核 `WorldVisitorSceneContextTest`、`AutonomousEncounterCausalChapterTest`、`AutonomousEncounterPrivacyTest` 在当前 main push 的首错；真机还要验证从地点退出/强杀后离场通知是否真实到达、模型是否自主延续找人的目标、历史章节不应被静默重写。
 
+## 2026-11-17 · P-03.1 延迟交付的电话回执复核原证据
+
+- 已存在的 `ConversationExpressionGatewayTest.phoneStepsStopAfterCancellationButKeepCompletedToolReceipt` 覆盖首项真实完成、其余步骤停止、下一次输入承接回执，配对关系编辑反例也在[上轮 #44014223599](https://github.com/jiacimu-droid/lulu1/actions/runs/44014223599)通过，本轮不复制。
+- [8cc878c](https://github.com/jiacimu-droid/lulu1/commit/8cc878c6f0e918a2b297c176759a3af1af1b3830) 让电话回执出队、模型发出前与模型返回后都使用原 `CharacterPerceptionContext.liveEvidenceIds` 校验来源。首轮 [#44024693357](https://github.com/jiacimu-droid/lulu1/actions/runs/44024693357) 新测试超时，定位到删除证据会级联删回执，先前交给通话的正文仍可能通过普通静默入口发送。于是 [b08ecc3](https://github.com/jiacimu-droid/lulu1/commit/b08ecc373cd13e362c9a587e14955c473378990e) 用真实群聊撤回构造回执仍在的场景，[72aca84](https://github.com/jiacimu-droid/lulu1/commit/72aca84925fddfe607781181a5bac4d56cb45080) 让原 `LuluVoiceCallSession` 交接观察版本，电话入口遇到已消失或版本变化的原件时退出。未排队的普通静默观察沿原有入口。无额外付费请求。
+- `ConversationExpressionGatewayTest.expiredBackingEvidenceCannotDeliverAnIntactReceiptToPhone` 覆盖关联撤回但原回执仍可审计，及出队后回执也被删除两种情况，预期二者均不发送模型请求、不提前确认回执。精确 [#44026324815](https://github.com/jiacimu-droid/lulu1/actions/runs/44026324815) 与[索引 #44026324739](https://github.com/jiacimu-droid/lulu1/actions/runs/44026324739) 被后继取代，最终 JVM/APK 与索引待后继核验。真机电话/真实模型待验。
+- 下一步核回归日志。通过后打开 `LuluDeviceToolBridge.phoneReceiptChanged` 所在边界，区分针对原回执版本的校验与关联证据本身在模型等待期发生修订，确认是否还需固定来源版本；避免重复已测的撤回与收据版本变更。
+
 ## 2026-11-17 · P-03.1 通话取消与下一句纠正
 
 - [e89d250](https://github.com/jiacimu-droid/lulu1/commit/e89d250ccc5e03bf6426e954e46e8da75f0ff262) 增加 `PhoneModelTransportPolicyTest.interruptedPhoneRequestDoesNotCommitAndNextUtteranceCanRespond`。正式 `LuluDeviceToolBridge.respond` 发出第一条真实 HTTP 后暂停响应，取消电话决策协程，再交给同一角色一条明确修正的原话。检查旧轮未交付、无挂断、心声快照及本人发言/工具回执不变、没有额外 POST，下一轮能读取更正并正常返回。此工作包只改测试，真机从麦克风插话到取消协程的链路待验。
