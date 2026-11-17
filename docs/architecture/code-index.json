@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T15:50:19.102836+00:00",
-  "commit": "1277eea60196e4c59a3e0996eeee375dc4b27e4c",
+  "generatedAt": "2026-11-17T15:51:48.221466+00:00",
+  "commit": "c0ce1f5bbed49770bab59e339216b90bada36a25",
   "branch": "main",
-  "sourceFingerprint": "3356f8be1691ce17d16778ab2e3ae33c890403767d8a9a9fc6e62f31d0b5d99c",
+  "sourceFingerprint": "23c8d03f725095c19b4182b3d55d72403234296f83cd90f1e63083d5d7088679",
   "summary": {
     "files": 1413,
-    "lines": 298827,
+    "lines": 298868,
     "symbols": 4260
   },
   "symbolIndex": {
@@ -7161,7 +7161,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 123
+        "line": 142
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt",
@@ -7615,15 +7615,15 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 145
+        "line": 164
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 154
+        "line": 165
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 291
+        "line": 313
       }
     ],
     "set": [
@@ -7651,7 +7651,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 132
+        "line": 151
       }
     ],
     "detect": [
@@ -13539,7 +13539,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 110
+        "line": 129
       }
     ],
     "eventsByIds": [
@@ -17117,7 +17117,7 @@
     "hiddenTitles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 121
+        "line": 140
       }
     ],
     "generateNextChapter": [
@@ -17147,17 +17147,17 @@
     "saveProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 325
+        "line": 347
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 434
+        "line": 456
       }
     ],
     "checkpointDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 579
+        "line": 601
       }
     ],
     "usable": [
@@ -40791,8 +40791,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-      "lines": 185,
-      "sha256": "2c5a5d47d49adccc19b6f3a985a49a2e223cc378cf89adb460591c543e581e2a",
+      "lines": 204,
+      "sha256": "f66a9ac6af1e3208c37818a37c540e6f0af37505e29a7f351ed75bb6bc14af28",
       "symbols": [
         {
           "name": "storyGuide",
@@ -40812,23 +40812,23 @@
         },
         {
           "name": "all",
-          "line": 110
+          "line": 129
         },
         {
           "name": "hiddenTitles",
-          "line": 121
+          "line": 140
         },
         {
           "name": "add",
-          "line": 123
+          "line": 142
         },
         {
           "name": "delete",
-          "line": 132
+          "line": 151
         },
         {
           "name": "get",
-          "line": 145
+          "line": 164
         }
       ]
     },
@@ -40863,28 +40863,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-      "lines": 853,
-      "sha256": "2e0fd58676695f2032e7d4e5d8b3f19516bd2744eb7143bb4bc45feef23eb0e6",
+      "lines": 875,
+      "sha256": "4bc6f1ade369c7b13533c1bf0ad3c13e7fe0dff37975e9a519159bab48ba694a",
       "symbols": [
         {
           "name": "get",
-          "line": 154
+          "line": 165
         },
         {
           "name": "get",
-          "line": 291
+          "line": 313
         },
         {
           "name": "saveProgress",
-          "line": 325
+          "line": 347
         },
         {
           "name": "saveProgress",
-          "line": 434
+          "line": 456
         },
         {
           "name": "checkpointDraft",
-          "line": 579
+          "line": 601
         }
       ]
     },
@@ -50350,7 +50350,7 @@
     {
       "path": "preview/worlds.js",
       "lines": 73,
-      "sha256": "04fd6f29590a316f29e900c429292afbf18eb8b87626e51038934db85e9d697b",
+      "sha256": "5f659ce630f51db6eacdb212593def78ab44dbc153dca91a900d0a515bac4ce6",
       "symbols": []
     }
   ]
