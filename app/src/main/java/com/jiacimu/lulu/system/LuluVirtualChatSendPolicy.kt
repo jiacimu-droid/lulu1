@@ -30,6 +30,9 @@ internal object LuluVirtualChatSendPolicy {
     fun validMessage(message: String): Boolean =
         message.isNotBlank() && message.length <= 500
 
+    fun draftMatches(text: CharSequence?, showingHint: Boolean, message: String): Boolean =
+        !showingHint && text?.toString() == message
+
     private val nonChatEditor = Regex(
         "搜索|搜一搜|检索|search|query|password|passcode|captcha|验证码|口令|支付|payment|" +
             "评论|comment|朋友圈|moment|动态|post|用户名|昵称|account",
@@ -105,12 +108,36 @@ internal object LuluVirtualChatSendPolicy {
     fun sendControlNearEditor(
         control: ComposerBounds, editor: ComposerBounds,
         screenWidth: Int, screenHeight: Int,
-    ): Boolean = control.width > 0 && control.height > 0 &&
-        editor.width > 0 && editor.height > 0 && screenWidth > 0 &&
-        screenHeight > 0 && control.centerX >= screenWidth / 2 &&
-        control.centerX >= editor.centerX &&
-        kotlin.math.abs(control.centerY - editor.centerY) <=
-            maxOf(editor.height, screenHeight / 16)
+    ): Boolean = screenWidth > 0 && screenHeight > 0 &&
+        editor.width > 0 && editor.height > 0 &&
+        control.left >= 0 && control.right <= screenWidth &&
+        control.top >= 0 && control.bottom <= screenHeight &&
+        control.width in 1..(screenWidth / 4) && control.height in 1..(screenHeight / 8) &&
+        control.centerX >= screenWidth / 2 && control.centerX >= editor.right &&
+        control.centerY in editor.top until editor.bottom
+
+    /** A readable label and its clickable wrapper can describe one button.
+     * Choose a single input path. A second physical location is ambiguous. */
+    fun chooseSendControl(
+        controls: List<ComposerControl>, editor: ComposerBounds, width: Int, height: Int,
+    ): Int? {
+        val eligible = controls.withIndex().filter { (_, control) ->
+            sendButton(control.label, if (control.clickable) control.resourceId else null) &&
+                sendControlNearEditor(control.bounds, editor, width, height)
+        }
+        val index = uniqueSendTarget(eligible.map { it.value.bounds }, width, height) ?: return null
+        val smallest = eligible[index]
+        return eligible.filter { it.value.clickable }
+            .minByOrNull { it.value.bounds.width.toLong() * it.value.bounds.height }?.index
+            ?: smallest.index
+    }
+
+    fun outgoingBubbleInChat(
+        bounds: ComposerBounds, editor: ComposerBounds, width: Int, height: Int,
+    ): Boolean =
+        width > 0 && height > 0 && bounds.width > 0 && bounds.height > 0 &&
+            bounds.top >= height / 10 && bounds.bottom <= editor.top &&
+            bounds.centerX >= width / 2 && bounds.right in (width * 3 / 4)..width
 
     /** Only one writable non-search/non-password editor on a verified
      * WeChat conversation page may be used. Generic search stays unchanged. */

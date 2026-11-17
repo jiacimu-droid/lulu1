@@ -78,6 +78,39 @@ class LuluVirtualSocialActionsTest {
             ComposerBounds(86, 620, 560, 702), 720, 1200))
     }
 
+    @Test fun chatSendChoosesOnePhysicalControlAndSupportsAnExposedReadOnlyLabel() {
+        val editor = ComposerBounds(84, 1110, 562, 1174)
+        val label = LuluVirtualChatSendPolicy.ComposerControl(
+            ComposerBounds(602, 1126, 665, 1158), "发送", "", clickable = false)
+        val wrapper = LuluVirtualChatSendPolicy.ComposerControl(
+            ComposerBounds(575, 1114, 706, 1171), "发送", "", clickable = true)
+        fun choose(vararg controls: LuluVirtualChatSendPolicy.ComposerControl) =
+            LuluVirtualChatSendPolicy.chooseSendControl(controls.toList(), editor, 720, 1280)
+        assertEquals(0, choose(label))
+        assertEquals(1, choose(label, wrapper))
+        assertNull(choose(label, label.copy(bounds = ComposerBounds(568, 1122, 590, 1160))))
+        assertNull(choose(label.copy(label = "发送后通知我")))
+        assertNull(choose(label.copy(label = "", resourceId = "id/send")))
+        assertNull(choose(label.copy(bounds = ComposerBounds(602, 1050, 665, 1103))))
+        assertNull(choose(wrapper.copy(bounds = ComposerBounds(300, 1080, 706, 1210))))
+    }
+
+    @Test fun outgoingBubbleIsCheckedAgainstComposerInsteadOfFixedScreenPercentage() {
+        val editor = ComposerBounds(88, 1190, 563, 1258)
+        val bottomOutgoing = ComposerBounds(466, 1155, 630, 1184)
+        assertTrue(LuluVirtualChatSendPolicy.outgoingBubbleInChat(bottomOutgoing, editor, 720, 1280))
+        assertFalse(LuluVirtualChatSendPolicy.outgoingBubbleInChat(
+            ComposerBounds(84, 1155, 345, 1184), editor, 720, 1280))
+        assertFalse(LuluVirtualChatSendPolicy.outgoingBubbleInChat(
+            ComposerBounds(466, 1201, 630, 1240), editor, 720, 1280))
+    }
+
+    @Test fun existingExactDraftCanBeReadBackButAnIdenticalPlaceholderCannot() {
+        assertTrue(LuluVirtualChatSendPolicy.draftMatches("你好", false, "你好"))
+        assertFalse(LuluVirtualChatSendPolicy.draftMatches("你好", true, "你好"))
+        assertFalse(LuluVirtualChatSendPolicy.draftMatches("你好！", false, "你好"))
+    }
+
     @Test fun momentsActionsRequireTheCorrespondingLiveSnapshotAndExplicitInput() {
         val open = LuluWeChatMomentsPolicy.OPEN_COMPOSER
         val publish = LuluWeChatMomentsPolicy.PUBLISH

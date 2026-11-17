@@ -1123,22 +1123,61 @@ class LuluAccessibilityService : AccessibilityService() {
             val dimensions = virtualDimensions(service, displayId) ?: return -1
             if (!verifiedChatHeader(
                     service, displayId, packageName, recipient, dimensions.second, frameSource = frameSource)) return -1
-            val positions = mutableListOf<Rect>()
-            var scanned = 0
-            fun scan(node: AccessibilityNodeInfo, depth: Int) {
-                if (depth > 80 || scanned++ >= 1600 || node.isPassword) return
-                val rect = Rect().also(node::getBoundsInScreen)
-                if (node.isVisibleToUser && !node.isEditable && node.text?.toString() == message &&
-                    rect.top >= dimensions.second / 10 &&
-                    rect.bottom <= dimensions.second * 9 / 10 &&
-                    rect.right > dimensions.first * 3 / 5 &&
-                    rect.width() > 0 && rect.height() > 0) positions.add(rect)
-                for (i in 0 until node.childCount)
-                    node.getChild(i)?.let { scan(it, depth + 1) }
-            }
             val root = topVirtualAppWindow(service, displayId, packageName)?.root ?: return -1
-            scan(root, 0)
-            return positions.distinctBy { it.centerX() / 12 to it.centerY() / 12 }.size
+            val editor = visibleEditors(root)
+                .filter { virtualChatEditor(it, packageName, dimensions.second) }
+                .distinctBy(::composerBounds).singleOrNull() ?: return -1
+            if (!editor.isShowingHintText && !editor.text.isNullOrEmpty()) return -1
+            return outgoingTextCount(root, composerBounds(editor), dimensions, message)
+        }
+
+        private fun outgoingTextCount(
+            root: AccessibilityNodeInfo, composer: LuluVirtualChatSendPolicy.ComposerBounds,
+            dimensions: Pair<Int, Int>, message: String,
+        ): Int {
+            val positions = mutableSetOf<Pair<Int, Int>>()
+            val complete = forEachVirtualNode(root) { node ->
+                if (!node.isEditable && node.text?.toString() == message) {
+                    val bounds = composerBounds(node)
+                    if (LuluVirtualChatSendPolicy.outgoingBubbleInChat(
+                            bounds, composer, dimensions.first, dimensions.second))
+                        positions += bounds.centerX / 12 to bounds.centerY / 12
+                }
+            }
+            return if (complete) positions.size else -1
+        }
+
+        private fun findChatSendControl(
+            sendRoot: AccessibilityNodeInfo,
+            composer: LuluVirtualChatSendPolicy.ComposerBounds,
+            dimensions: Pair<Int, Int>,
+        ): Pair<AccessibilityNodeInfo, LuluVirtualChatSendPolicy.ComposerControl>? {
+            val buttons = mutableListOf<AccessibilityNodeInfo>()
+            val controls = mutableListOf<LuluVirtualChatSendPolicy.ComposerControl>()
+            val complete = forEachVirtualNode(sendRoot) { node ->
+                val bounds = composerBounds(node)
+                if (!node.isEditable && node.isEnabled &&
+                    LuluVirtualChatSendPolicy.sendControlNearEditor(
+                        bounds, composer, dimensions.first, dimensions.second)) {
+                    val candidates = listOf(
+                        node.contentDescription?.toString().orEmpty(),
+                        node.text?.toString().orEmpty(),
+                        if (node.isClickable) clickableDescendantLabel(node) else "",
+                    )
+                    val label = candidates.firstOrNull {
+                        LuluVirtualChatSendPolicy.sendButton(it, null)
+                    }.orEmpty()
+                    if (label.isNotBlank() || (node.isClickable &&
+                            LuluVirtualChatSendPolicy.sendButton(null, node.viewIdResourceName))) {
+                        buttons.add(node)
+                        controls.add(LuluVirtualChatSendPolicy.ComposerControl(
+                            bounds, label, node.viewIdResourceName.orEmpty(), node.isClickable))
+                    }
+                }
+            }
+            val sendTarget = if (complete) LuluVirtualChatSendPolicy.chooseSendControl(
+                controls, composer, dimensions.first, dimensions.second) else null
+            return sendTarget?.let { buttons[it] to controls[it] }
         }
 
         /** An explicit, owner-authorized WeChat send is a separate atomic
@@ -1191,15 +1230,17 @@ class LuluAccessibilityService : AccessibilityService() {
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
                 liveRoot()?.windowId != root.windowId)
                 return denied("chat_editor_unverified")
-            if (!beforeTextInput() || !stillAuthorized() ||
-                virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
-                !editor.refresh() || !virtualChatEditor(editor, packageName, dimensions.second))
-                return denied("chat_editor_unverified")
-            val input = Bundle().apply {
-                putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, message)
+            if (!LuluVirtualChatSendPolicy.draftMatches(editor.text, editor.isShowingHintText, message)) {
+                if (!beforeTextInput() || !stillAuthorized() ||
+                    virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
+                    !editor.refresh() || !virtualChatEditor(editor, packageName, dimensions.second))
+                    return denied("chat_editor_unverified")
+                val input = Bundle().apply {
+                    putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, message)
+                }
+                if (!editor.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, input))
+                    return denied("chat_input_rejected")
             }
-            if (!editor.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, input))
-                return denied("chat_input_rejected")
             // A failed readback leaves only an unsent draft; never click Send.
             val editorId = editor.viewIdResourceName
             fun liveDraftEditor(): AccessibilityNodeInfo? = liveRoot()
@@ -1207,7 +1248,9 @@ class LuluAccessibilityService : AccessibilityService() {
                 ?.filter {
                     it == editor || (!editorId.isNullOrBlank() && it.viewIdResourceName == editorId)
                 }?.distinctBy(::composerBounds)
-                ?.singleOrNull()?.takeIf { !it.isShowingHintText && it.text?.toString() == message }
+                ?.singleOrNull()?.takeIf {
+                    LuluVirtualChatSendPolicy.draftMatches(it.text, it.isShowingHintText, message)
+                }
             var draft = liveDraftEditor()
             for (attempt in 0 until 5) {
                 if (draft != null || !stillAuthorized()) break
@@ -1217,79 +1260,65 @@ class LuluAccessibilityService : AccessibilityService() {
             if (draft == null)
                 return denied("chat_input_unverified")
                     .put("messageInputReadbackVerified", false)
+            val composer = composerBounds(checkNotNull(draft))
+            fun sendTarget() = liveRoot()?.takeIf { it.windowId == root.windowId }
+                ?.let { findChatSendControl(it, composer, dimensions) }
+            var target = sendTarget()
+            // The application may update the actual Send control on a later
+            // layout pass after it exposes the new text in accessibility.
+            for (attempt in 0 until 4) {
+                if (target != null || !stillAuthorized() ||
+                    virtualWindowStatus(displayId, packageName).optString("kind") != "target") break
+                kotlinx.coroutines.delay(120)
+                target = sendTarget()
+            }
+            if (target == null)
+                return denied("chat_send_button_or_context_unverified")
+                    .put("messageInputReadbackVerified", true)
+            val sendRoot = liveRoot()?.takeIf { it.windowId == root.windowId }
+                ?: return denied("chat_changed_before_send").put("messageInputReadbackVerified", true)
             if (!stillAuthorized() ||
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
                 !uniqueRecipientInHeader(forceFresh = true))
-                return denied("chat_changed_before_send")
-                    .put("messageInputReadbackVerified", true)
-            // The Send control can appear only AFTER text was entered. Locate
-            // it again in the real app, not by stale reference or coordinate.
-            // The generic read-only UI inventory exposes at most 40 nodes.
-            // Long chat histories can fill that quota before the bottom send
-            // button, so inspect the live target tree directly here.
-            val composer = composerBounds(checkNotNull(draft))
-            val buttons = mutableListOf<AccessibilityNodeInfo>()
-            val buttonBounds = mutableListOf<LuluVirtualChatSendPolicy.ComposerBounds>()
-            var inspected = 0
-            fun locate(node: AccessibilityNodeInfo, depth: Int) {
-                if (depth > 80 || inspected++ >= 1600 || node.isPassword) return
-                val bounds = Rect().also(node::getBoundsInScreen)
-                if (node.isVisibleToUser && node.isEnabled &&
-                    node.isClickable && bounds.centerY() > dimensions.second / 2) {
-                    val candidates = listOf(
-                        node.contentDescription?.toString().orEmpty(),
-                        node.text?.toString().orEmpty(),
-                        clickableDescendantLabel(node),
-                    )
-                    val control = LuluVirtualChatSendPolicy.ComposerBounds(
-                        bounds.left, bounds.top, bounds.right, bounds.bottom)
-                    if (candidates.any {
-                            LuluVirtualChatSendPolicy.sendButton(it, node.viewIdResourceName)
-                        } &&
-                        LuluVirtualChatSendPolicy.sendControlNearEditor(
-                            control, composer, dimensions.first, dimensions.second)) {
-                        buttons.add(node)
-                        buttonBounds.add(control)
-                    }
-                }
-                for (i in 0 until node.childCount) {
-                    node.getChild(i)?.let { locate(it, depth + 1) }
-                }
-            }
-            liveRoot()?.let { locate(it, 0) }
-            if (inspected >= 1600) return denied("chat_send_button_or_context_unverified")
-                .put("messageInputReadbackVerified", true)
-            val sendTarget = LuluVirtualChatSendPolicy.uniqueSendTarget(
-                buttonBounds, dimensions.first, dimensions.second)
-            if (sendTarget == null || !stillAuthorized() ||
-                virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
-                !uniqueRecipientInHeader())
-                return denied("chat_send_button_or_context_unverified")
-                    .put("messageInputReadbackVerified", true)
-            val button = buttons[sendTarget]
-            if (!button.refresh() || !button.isClickable || !button.isEnabled ||
-                !button.isVisibleToUser)
-                return denied("chat_send_button_expired")
-                    .put("messageInputReadbackVerified", true)
-            // Measure the current outbox before the irreversible click. A
-            // newly visible bubble after the click is evidence of client UI
-            // submission, never proof of remote/server delivery.
-            val outgoingBefore = virtualChatOutgoingTextCount(
-                displayId, packageName, recipient, message, frameSource)
-            // One click only; never retry an uncertain external side effect.
-            if (!stillAuthorized() ||
-                virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
-                liveDraftEditor() == null || !button.refresh() || !button.isVisibleToUser ||
-                !button.isEnabled || !button.isClickable || composerBounds(button) != buttonBounds[sendTarget])
                 return denied("chat_changed_before_send").put("messageInputReadbackVerified", true)
-            val clicked = runCatching {
+
+            // The fresh identity check also covers this read-only comparison.
+            // Another OCR round before the click would wait for a new frame
+            // although the app has already settled and may produce none.
+            val outgoingBefore = outgoingTextCount(sendRoot, composer, dimensions, message)
+            val currentDraft = liveDraftEditor()
+            val (button, control) = sendTarget()
+                ?: return denied("chat_send_button_expired").put("messageInputReadbackVerified", true)
+            if (!stillAuthorized() || virtualDimensions(service, displayId) != dimensions ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
+                currentDraft == null || composerBounds(currentDraft) != composer ||
+                !button.refresh() || !button.isVisibleToUser || !button.isEnabled ||
+                button.isEditable || button.isClickable != control.clickable ||
+                composerBounds(button) != control.bounds)
+                return denied("chat_changed_before_send").put("messageInputReadbackVerified", true)
+            val liveLabel = listOf(button.text?.toString(), button.contentDescription?.toString(),
+                if (button.isClickable) clickableDescendantLabel(button) else null)
+                .firstOrNull { LuluVirtualChatSendPolicy.sendButton(it, null) }
+            if (!LuluVirtualChatSendPolicy.sendButton(
+                    liveLabel, if (control.clickable) button.viewIdResourceName else null))
+                return denied("chat_send_button_expired").put("messageInputReadbackVerified", true)
+
+            // Both paths are bound to the verified button and display. Choose
+            // once BEFORE dispatch: an Android rejection is still ambiguous
+            // and must never trigger an alternate-channel send.
+            val clicked = if (control.clickable) runCatching {
                 button.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-            }.getOrDefault(false)
+            }.getOrDefault(false) else tapVirtualDisplay(
+                displayId, packageName,
+                control.bounds.centerX * 1000 / (dimensions.first - 1).coerceAtLeast(1),
+                control.bounds.centerY * 1000 / (dimensions.second - 1).coerceAtLeast(1),
+            ).optBoolean("accepted")
             return JSONObject().put("accepted", clicked)
                 .put("messageInputReadbackVerified", true)
                 .put("chatRecipientVerified", true)
                 .put("messageSendAttempted", true)
                 .put("messageSendClicked", clicked)
+                .put("messageSendMethod", if (control.clickable) "accessibility" else "virtual_touch")
                 .put("outgoingVisibleBefore", outgoingBefore)
                 .put("messageDeliveryVerified", false)
                 .put("taskCompleted", false)

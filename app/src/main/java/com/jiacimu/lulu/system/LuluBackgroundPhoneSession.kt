@@ -1152,21 +1152,23 @@ internal object LuluBackgroundPhoneSession {
                 // WeChat redraws the chat asynchronously after accepting
                 // Send. Poll READ-ONLY local UI evidence, never click twice.
                 var appearedInChat = false
-                if (dispatched && outgoingBefore >= 0) {
-                    for (attempt in 0 until 7) {
-                        if (ownerHasPaused(context) ||
-                            !LuluRolePhoneAuthorization.isGranted(context, characterId) ||
-                            context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true)
-                            break
-                        val after = withContext(Dispatchers.Main) {
-                            LuluAccessibilityService.virtualChatOutgoingTextCount(
-                                id, activeApp, recipient, message, ::captureChatTitleFrame)
+                if (attempted && outgoingBefore >= 0) {
+                    kotlinx.coroutines.withTimeoutOrNull(5_000L) {
+                        for (attempt in 0 until 7) {
+                            if (ownerHasPaused(context) ||
+                                !LuluRolePhoneAuthorization.isGranted(context, characterId) ||
+                                context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true)
+                                break
+                            val after = withContext(Dispatchers.Main) {
+                                LuluAccessibilityService.virtualChatOutgoingTextCount(
+                                    id, activeApp, recipient, message, ::captureChatTitleFrame)
+                            }
+                            if (after > outgoingBefore) {
+                                appearedInChat = true
+                                break
+                            }
+                            if (attempt < 6) kotlinx.coroutines.delay(180)
                         }
-                        if (after > outgoingBefore) {
-                            appearedInChat = true
-                            break
-                        }
-                        if (attempt < 6) kotlinx.coroutines.delay(180)
                     }
                 }
                 val appName = LuluVirtualChatSendPolicy.appName(activeApp)
@@ -1181,7 +1183,7 @@ internal object LuluBackgroundPhoneSession {
                     else -> "conversation_check"
                 }
                 val receipt = JSONObject().put("success", appearedInChat)
-                    .put("accepted", dispatched)
+                    .put("accepted", dispatched || appearedInChat)
                     .put("status", when {
                         appearedInChat -> "client_message_visible"
                         dispatched -> "send_clicked_delivery_unverified"
@@ -1195,6 +1197,7 @@ internal object LuluBackgroundPhoneSession {
                         applied?.optBoolean("chatRecipientVerified") == true)
                     .put("messageSendAttempted", attempted)
                     .put("messageSendClicked", dispatched)
+                    .put("messageSendMethod", applied?.optString("messageSendMethod").orEmpty())
                     .put("messageAppearedInChat", appearedInChat)
                     .put("inputModeSwitchClicked",
                         applied?.optBoolean("inputModeSwitchClicked") == true)
