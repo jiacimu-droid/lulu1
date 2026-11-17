@@ -37,10 +37,10 @@ internal object ElevenLabsRoleSongPipeline {
         CharacterVoicePreferenceStore.initialize(context)
         val preferences = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
         val roleEleven = CharacterVoicePreferenceStore.realtimeVoiceId(characterId).orEmpty().trim()
-        val roleRegular = if (preferences.getString("tts_provider", "system") == "elevenlabs")
-            CharacterVoicePreferenceStore.voiceId(characterId).orEmpty().trim() else ""
         val globalEleven = preferences.getString("eleven_voice_id", "").orEmpty().trim()
-        return sequenceOf(roleEleven, roleRegular, globalEleven)
+        // Generic per-role voice_id may belong to MiniMax. Only use the
+        // ElevenLabs-specific voice setting or the saved global Eleven voice.
+        return sequenceOf(roleEleven, globalEleven)
             .firstOrNull { VOICE_ID_PATTERN.matches(it) }
     }
 
