@@ -93,7 +93,7 @@ fun LuluMigrationRootAppV2(
         navigationKeyboard?.hide()
     }
     var selectedConversationId by rememberSaveable(initialConversationId) {
-        mutableStateOf(initialConversationId?.takeIf(String::isNotBlank) ?: "lulu-main")
+        mutableStateOf(initialConversationId?.takeIf(String::isNotBlank).orEmpty())
     }
     var chatSessionStarted by rememberSaveable(initialConversationId) {
         mutableStateOf(!initialConversationId.isNullOrBlank())
@@ -104,7 +104,7 @@ fun LuluMigrationRootAppV2(
     // Keep a game's saveable route/UI state while the owner briefly opens chat.
     val gamesUiStateHolder = rememberSaveableStateHolder()
     var selectedCharacterId by rememberSaveable(initialTargetCharacterId) {
-        mutableStateOf(initialTargetCharacterId?.takeIf(String::isNotBlank) ?: "lulu")
+        mutableStateOf(initialTargetCharacterId?.takeIf(String::isNotBlank).orEmpty())
     }
     var personalMemory by rememberSaveable { mutableStateOf(false) }
     var lexiconInitialDiaryTitle by rememberSaveable(initialDiaryTitle) { mutableStateOf(initialDiaryTitle) }
@@ -151,7 +151,7 @@ fun LuluMigrationRootAppV2(
         MigratedDomainStores.chat.conversations.value
             .firstOrNull { conversation -> conversation.id == conversationId }
             ?.characterId
-            ?: "lulu"
+            .orEmpty()
 
     fun selectConversationCharacter() {
         selectedCharacterId = characterIdForConversation(selectedConversationId)
@@ -225,7 +225,7 @@ fun LuluMigrationRootAppV2(
                 listOf(MigrationRoute.Home.name, MigrationRoute.Chat.name, MigrationRoute.ChatDetail.name)
             }
         } else if (deepLinkRoute != null) {
-            selectedCharacterId = initialTargetCharacterId?.takeIf(String::isNotBlank) ?: "lulu"
+            selectedCharacterId = initialTargetCharacterId?.takeIf(String::isNotBlank).orEmpty()
             routeStack = listOf(MigrationRoute.Home.name, deepLinkRoute.name)
         }
         lexiconInitialDiaryTitle = initialDiaryTitle
@@ -323,7 +323,7 @@ fun LuluMigrationRootAppV2(
                                                 Intent(context, Live2DPreviewPlaygroundActivity::class.java)
                                             )
                                         } else {
-                                            if (target == MigrationRoute.WorldBook) selectedCharacterId = "lulu"
+                                            if (target == MigrationRoute.WorldBook) selectedCharacterId = MigratedDomainStores.characters.settings.value.keys.firstOrNull().orEmpty()
                                             if (target == MigrationRoute.Memory) personalMemory = false
                                             if (target == MigrationRoute.Lexicon) {
                                                 selectedCharacterId = "lulu"
