@@ -6,6 +6,13 @@
 - [b239286](https://github.com/jiacimu-droid/lulu1/commit/b2392865af0010f5a922657fc4319c642807ac31)、[8efc982](https://github.com/jiacimu-droid/lulu1/commit/8efc982a37a7cad6688b660b88aa761af480f193)：合场文学保留一次 Isolated 写作请求和各自角色章节；给每个角色带入本人的通知、原始会面及被该事件/前因锚定的已保存心声/选择，提示正文不能把另一个人的未说出的心声写成自己的或已公开的事实。写作仅产生非权威文学，不回填原世界事件、主人行为、关系或心理。证据 ID 按本人单独链接。
 - 回归源码 [e4710e4](https://github.com/jiacimu-droid/lulu1/commit/e4710e43623827ac59aa38b2b7ff7a2fc90d07f3)、[f991a19](https://github.com/jiacimu-droid/lulu1/commit/f991a194a2ad48d052454e4884ea7e970d646900)：覆盖到访→离场顺序、其他地点/未来/伪源隔离、没有通知不伪造在场、本人的证据心声能进入正文而他人的/未来的不能。**当前仅提交测试，未取得目标 SHA 的 JVM/APK 成功证明，且未在 Redmi 真机用两角色 + 真实模型重放。** 后续核 `WorldVisitorSceneContextTest`、`AutonomousEncounterCausalChapterTest`、`AutonomousEncounterPrivacyTest` 在当前 main push 的首错；真机还要验证从地点退出/强杀后离场通知是否真实到达、模型是否自主延续找人的目标、历史章节不应被静默重写。
 
+## 2026-11-17 · P-03.1 跨入口已处理的回执不再触发第二次电话决定
+
+- 原时间线 `SharedExperienceTimeline.record` 修订原证据时会撤下关联工具回执，电话已有回执版本与撤回检查。本轮实查另一条路径：`CallExternalResultPolicy.pendingEvidence` 取出回执时查了已感知账本，之后 `LuluDeviceToolBridge.respond` 只对比时间线版本和可见性。若私聊或后台在电话准备或等待模型时确认了同一回执，版本和可见性都不变，旧决定仍可能提交。
+- [216c7cb2](https://github.com/jiacimu-droid/lulu1/commit/216c7cb24edaa80c5a86e6e2b7dc2d5f8802419a) 在请求发出前、模型返回后和提交决定前复核角色、证据 ID 及版本的现有 `PerceptionStimulusLedger` 确认。已入账时停止该电话观察，原回执保留。电话自身提交感知之后沿原有版本与人物配置守卫。无新账本或模型请求。
+- `ConversationExpressionGatewayTest.queuedPhoneReceiptDoesNotDecideAgainAfterAnotherEntryAcknowledgesIt` 用 ToolRouter 实发动态，停住正式电话 HTTP 后经统一感知入口确认同一回执，再验证旧台词、发布副动作及挂断都不交付；把同一已确认回执再次交给电话时零新增请求。索引 [#44075865362](https://github.com/jiacimu-droid/lulu1/actions/runs/44075865362) 已通过。JVM/APK [#44075865436](https://github.com/jiacimu-droid/lulu1/actions/runs/44075865436) 等待结果。前轮 [#44026970608](https://github.com/jiacimu-droid/lulu1/actions/runs/44026970608) 目标测试通过，记忆项失败阻止 APK。真机电话与真实模型待验。
+- 下一步看 `LuluVoiceCallSession.handleUserSpeech` 的 `onFailure` 和 `CallSilencePolicy`，验证外部回执已经由另一轮处理时，只结束这次交付，不累加普通电话沉默感知失败计数或延后下一次真正观察。
+
 ## 2026-11-17 · P-03.1 延迟交付的电话回执复核原证据
 
 - 已存在的 `ConversationExpressionGatewayTest.phoneStepsStopAfterCancellationButKeepCompletedToolReceipt` 覆盖首项真实完成、其余步骤停止、下一次输入承接回执，配对关系编辑反例也在[上轮 #44014223599](https://github.com/jiacimu-droid/lulu1/actions/runs/44014223599)通过，本轮不复制。
