@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T12:59:31.794826+00:00",
-  "commit": "b156c4ab29d952a191abf69e1af2fd23f2cd4842",
+  "generatedAt": "2026-11-17T12:59:56.156296+00:00",
+  "commit": "a0e90f4b05533a7049a753b7a36329f6eee2cad7",
   "branch": "main",
-  "sourceFingerprint": "2bc963c5d66d764c308ac4f4ae48bbea21bb32be290f40a879eb64948f83a4c2",
+  "sourceFingerprint": "d2ad695453c8550d4b1899c4ff01d5eb1a6584a3c87e80811821736d92cdbdca",
   "summary": {
     "files": 1408,
-    "lines": 297734,
+    "lines": 297741,
     "symbols": 4237
   },
   "symbolIndex": {
@@ -665,7 +665,7 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
-        "line": 85
+        "line": 92
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
@@ -5479,7 +5479,7 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
-        "line": 99
+        "line": 106
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt",
@@ -6925,7 +6925,7 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
-        "line": 70
+        "line": 71
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
@@ -42545,20 +42545,20 @@
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
-      "lines": 113,
-      "sha256": "894ed2209063b9b35c1dcf235be11b133b8f04ef29f30101a9df13d1b39e0539",
+      "lines": 120,
+      "sha256": "88025b6eb6f720736f17701aafd45f405561b33dba60602cb7994be36a1da9df",
       "symbols": [
         {
           "name": "snapshot",
-          "line": 70
+          "line": 71
         },
         {
           "name": "write",
-          "line": 85
+          "line": 92
         },
         {
           "name": "restore",
-          "line": 99
+          "line": 106
         }
       ]
     },

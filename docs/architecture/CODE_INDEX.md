@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b156c4ab29d952a191abf69e1af2fd23f2cd4842`
+- 基准提交：`a0e90f4b05533a7049a753b7a36329f6eee2cad7`
 - 分支：`main`
 - 已索引文件：1408
-- 已索引代码/文本行：297734
+- 已索引代码/文本行：297741
 - 已发现符号：4237
 
 | 文件 | 行数 | 符号数 |
@@ -861,7 +861,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneSleepPromptMode.kt` | 12 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshness.kt` | 22 | 3 |
-| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt` | 113 | 3 |
+| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt` | 120 | 3 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 408 | 2 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt` | 126 | 4 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/ShellContext.kt` | 82 | 1 |
