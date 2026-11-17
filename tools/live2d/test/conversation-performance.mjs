@@ -9,15 +9,16 @@ import { createSpeechMouthRuntime } from '../src/speech-mouth.mjs'
 import {
   KISS_CAMERA_DURATION_MS, WOLF_KISS_MOTION_INDEX,
   WOLF_APPROACH_MOTION_INDEX, screenProximityDuration, screenProximityPeak,
-  isScreenProximityMotion, WOLF_APPROACH_MOTION_INDEX,
-  screenProximityDuration, screenProximityPeak, isScreenProximityMotion,
+  isScreenProximityMotion, screenProximityFrame,
 } from '../src/kiss-camera.mjs'
 import { touchExpressionCategory } from '../src/touch-reflex.mjs'
 
 // Execute the actual Android-facing stage functions, including replacement,
 // voice gating and authored motions. No mock reimplementation of the player.
 const source = readFileSync(new URL('../src/stage.js', import.meta.url), 'utf8')
-const entries = source.slice(source.indexOf('function applyPerformanceBeat('),
+const entries = source.slice(source.indexOf('function cancelProximityCamera('),
+  source.indexOf('function setFramingMode(')) +
+  source.slice(source.indexOf('function applyPerformanceBeat('),
   source.indexOf('function applyFinalParameters(')) +
   source.slice(source.indexOf('function applyFinalParameters('),
     source.indexOf('function installFinalParameterControl(')) +
@@ -51,11 +52,7 @@ const bridge = {
   // Renderer-only lease: the test still exercises the REAL stage cancellation.
   proximityCameraLease: null, pendingPostSpeechKiss: null,
   KISS_CAMERA_DURATION_MS, WOLF_KISS_MOTION_INDEX,
-  cancelProximityCamera: (soft = false) => {
-    if (soft && bridge.proximityCameraLease) {
-      bridge.proximityCameraLease.handoff ||= { at: clock, zoom: 2.1 }
-    } else bridge.proximityCameraLease = null
-  },
+  screenProximityFrame, applyProximityCameraPose: () => {},
   mouthExclusiveExpressions: new Set(['tongue']),
   playing: false, mouth: 0, pcmAvailable: false, listening: false, thinking: false,
   pendingExpressionName: null, pendingSpeechParts: null,
