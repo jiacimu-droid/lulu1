@@ -271,7 +271,15 @@ class LocalMemoryRepository : MemoryRepository {
             // Some rows might have been deleted between selection and lookup.
             // Do not certify a partly missing episode as fully processed.
             check(batchEvents.size == batchIds.size) { "原始事件在准备总结时改变；保留整批等待重试" }
-            val evidenceView = MemoryExtractionTurnView.build(batchTurns)
+            // The input and commit guard MUST use one identical snapshot:
+            // a source may be revised between selecting turns and fetching IDs.
+            val canonical = batchEvents.associateBy { it.id }
+            val canonicalTurns = batchTurns.map { turn ->
+                turn.copy(events = turn.events.map { event ->
+                    canonical.getValue(event.id)
+                })
+            }
+            val evidenceView = MemoryExtractionTurnView.build(canonicalTurns)
             check(evidenceView.visibleSources.isNotEmpty()) {
                 "完整轮次未能提供任何可引用的真实来源；整批保留等待重试"
             }
@@ -350,7 +358,7 @@ class LocalMemoryRepository : MemoryRepository {
                     characterId = characterId,
                     readableCount = readable.size,
                     pendingCount = pending.size,
-                    batchCount = batch.size,
+                    batchCount = batchTurns.size,
                     extracting = false,
                     lastError = error?.message,
                     lastExtractedCount = extractedThisRun,
