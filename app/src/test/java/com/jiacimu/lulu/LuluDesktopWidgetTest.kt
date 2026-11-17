@@ -8,6 +8,23 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LuluDesktopWidgetTest {
+    @Test fun desktopGridSizesUseWidthNotEntirePortraitHeight() {
+        // Redmi-like tall viewport: the old 4-row division gave 4×2 an almost square card.
+        val width = 360f
+        val tallPageHeight = 760f
+        val row = luluDesktopFullCellHeight(width, tallPageHeight)
+        assertEquals(93.6f, row, 0.1f)
+        val widget2x1Ratio = (2f * width / 4f) / row
+        val widget2x2Ratio = (2f * width / 4f) / (2 * row)
+        val widget4x2Ratio = width / (2 * row)
+        assertTrue("2×1 should be horizontal", widget2x1Ratio > 1.7f)
+        assertTrue("2×2 should be close to square", widget2x2Ratio in 0.85f..1.15f)
+        assertTrue("4×2 should be horizontal", widget4x2Ratio > 1.7f)
+        assertTrue("4 rows must stay within the page", row * 4 <= tallPageHeight)
+        // Landscape/small windows must not render card rows below the viewport.
+        assertEquals(65f, luluDesktopFullCellHeight(360f, 260f), 0.001f)
+    }
+
     @Test fun profileBirthdayMapsToExactSignsAndBadInputNeverGuesses() {
         assertEquals(0, luluSignFromBirthday("2001-01-19"))
         assertEquals(1, luluSignFromBirthday("2001-01-20"))
