@@ -586,7 +586,7 @@ class RelicEscapeRulesTest {
         val hard=RelicEscapeWorld.create(341,1,emptyList(),0,1,
             difficulty=RelicDifficulty.HARD)
         assertEquals(normal.mobs.size-1,easy.mobs.size)
-        assertEquals(normal.mobs.size+RelicDifficulty.HARD.extraMobs,hard.mobs.size)
+        assertEquals(3,hard.mobs.size)
         assertTrue(hard.mobs.first().hp>normal.mobs.first().hp)
         assertEquals(RelicDifficulty.HARD,
             RelicRun.read(JSONObject(hard.json().toString()))!!.difficulty)
@@ -614,6 +614,11 @@ class RelicEscapeRulesTest {
         }
         assertEquals(1,RelicThreatProgression.monsterCount(1,RelicDifficulty.EASY))
         assertEquals(2,RelicThreatProgression.monsterCount(1,RelicDifficulty.NORMAL))
+        assertEquals(3,RelicThreatProgression.monsterCount(1,RelicDifficulty.HARD))
+        assertEquals(4,RelicThreatProgression.monsterCount(2,RelicDifficulty.HARD))
+        assertEquals(6,RelicThreatProgression.monsterCount(3,RelicDifficulty.HARD))
+        assertFalse(RelicThreatProgression.eliteUnlocked(1,RelicDifficulty.HARD))
+        assertTrue(RelicThreatProgression.eliteUnlocked(2,RelicDifficulty.HARD))
         assertFalse(RelicThreatProgression.eliteUnlocked(1,RelicDifficulty.NORMAL))
         assertFalse(RelicThreatProgression.eliteUnlocked(2,RelicDifficulty.NORMAL))
         assertTrue(RelicThreatProgression.eliteUnlocked(3,RelicDifficulty.NORMAL))
