@@ -10,6 +10,35 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class TheaterPlanningPayloadTest {
+    @Test fun deletingLegacyTheatersRemovesEveryStoryComponentButKeepsUserStories() {
+        val legacy = "old bundled story"
+        val personal = "user authored story"
+        val oldChapter = StarWishTheaterChapter(theater = legacy, chapter = 1,
+            title = "旧章节", content = "旧正文", userInfluence = "")
+        val ownChapter = oldChapter.copy(theater = personal, title = "我的章节")
+        val state = StarWishState(
+            theaterChapters = mapOf(legacy to listOf(oldChapter), personal to listOf(ownChapter)),
+            theaterGuides = mapOf(legacy to "内置旧规则", personal to "原创规则"),
+            theaterPlans = mapOf(legacy to emptyList(), personal to emptyList()),
+            theaterLedgers = mapOf(legacy to StarWishStoryLedger(summary = "旧记录"),
+                personal to StarWishStoryLedger(summary = "个人记录")),
+            theaterBibles = mapOf(legacy to StarWishStoryBible(worldview = "旧世界"),
+                personal to StarWishStoryBible(worldview = "我的世界")),
+            theaterWorldBookIds = mapOf(legacy to setOf("old"), personal to setOf("mine"))
+        )
+        val cleaned = LegacyBuiltInTheaters.purge(state) { it == legacy }
+        assertEquals(setOf(personal), cleaned.theaterChapters.keys)
+        assertEquals(setOf(personal), cleaned.theaterGuides.keys)
+        assertEquals(setOf(personal), cleaned.theaterPlans.keys)
+        assertEquals(setOf(personal), cleaned.theaterLedgers.keys)
+        assertEquals(setOf(personal), cleaned.theaterBibles.keys)
+        assertEquals(setOf(personal), cleaned.theaterWorldBookIds.keys)
+        assertEquals(ownChapter, cleaned.theaterChapters[personal]?.single())
+        assertSame(cleaned, LegacyBuiltInTheaters.purge(cleaned) { it == legacy })
+        assertFalse(LegacyBuiltInTheaters.matches(personal))
+        assertTrue(StarWishRules.theaters.isEmpty())
+    }
+
     @Test fun wrappedChinesePlanningReflowsWithoutSplittingWordsOrLeavingPunctuationAlone() {
         val wrapped = "红雾感染肆虐的废土末世\n，秩序崩坏。幸存者在\n残垣断壁间苟延残\n喘。\n\n野犬般的少年把所有的温软与忠\n诚，毫无保留地献给他的庇护者\n。"
         val expected = "红雾感染肆虐的废土末世，秩序崩坏。幸存者在残垣断壁间苟延残喘。\n\n野犬般的少年把所有的温软与忠诚，毫无保留地献给他的庇护者。"
