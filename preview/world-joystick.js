@@ -8,6 +8,11 @@
     if(Math.max(Math.abs(dx),Math.abs(dy))<dead)return null;
     return Math.abs(dx)>=Math.abs(dy)?[dx>=0?1:-1,0]:[0,dy>=0?1:-1];
   }
+  // Portrait browsers rotate the entire immersive game. Restore local joystick axes.
+  function pointerLocal(clientX,clientY,bounds,rotated=false){
+    if(!bounds||![clientX,clientY,bounds.left,bounds.top,bounds.right].every(Number.isFinite))return [NaN,NaN];
+    return rotated?[clientY-bounds.top,bounds.right-clientX]:[clientX-bounds.left,clientY-bounds.top];
+  }
   function knobOffset(x,y,width,height){
     if(![x,y,width,height].every(Number.isFinite)||width<=0||height<=0)return [0,0];
     let dx=x-width/2,dy=y-height/2;
@@ -15,5 +20,5 @@
     if(dist>limit){dx*=limit/dist;dy*=limit/dist}
     return [dx,dy];
   }
-  return Object.freeze({direction,knobOffset});
+  return Object.freeze({direction,pointerLocal,knobOffset});
 });
