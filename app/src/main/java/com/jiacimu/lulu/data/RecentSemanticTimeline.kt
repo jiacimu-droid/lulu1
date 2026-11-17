@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.data
 
 import java.time.Instant
+import org.json.JSONObject
 
 /**
  * Read-only projection of the ONLY authoritative raw timeline.
@@ -17,8 +18,39 @@ object RecentSemanticTimeline {
         val lastAt: Instant get() = events.last().occurredAt
     }
 
-    /** No text/name interpretation: only producer-assigned IDs and evidence kinds. */
-    private fun experienceKey(event: SharedTimelineEvent, relicRuns: Set<String>): String? {
+    /**
+     * A ToolRouter execution and the DigitalWorldStore fact it verified are
+     * TWO legitimate raw witnesses to ONE physical action. Match only the
+     * result.evidenceId actually persisted by ToolRouter, never equal prose,
+     * close timestamps or a guess from "go_home". This also restores grouping
+     * for existing phones whose native world row has no taskId yet.
+     */
+    private fun worldResultEvidenceId(tool: SharedTimelineEvent): String? {
+        if (tool.source != "tool-router" || tool.taskId.isBlank()) return null
+        val receipt = runCatching { JSONObject(tool.content) }.getOrNull() ?: return null
+        if (receipt.optString("status") != "succeeded") return null
+        val result = receipt.optJSONObject("result") ?: runCatching {
+            JSONObject(receipt.optString("result"))
+        }.getOrNull() ?: return null
+        if (!result.optBoolean("success")) return null
+        return result.optString("evidenceId").takeIf {
+            it.startsWith("world-fact-") || it.startsWith("world-observe-")
+        }
+    }
+
+    /** No free-text identity guesses: group only actual provenance IDs. */
+    private fun experienceKey(
+        event: SharedTimelineEvent,
+        relicRuns: Set<String>,
+        verifiedWorldWitnesses: Map<String, String>,
+    ): String? {
+        if (event.channel == "数字世界" &&
+            event.source in setOf("legacy", "digital-world")) {
+            // Use the native event's durable task association when present;
+            // older persisted records can resolve the wrapper's evidenceId.
+            verifiedWorldWitnesses[event.id]?.let { return it }
+            if (event.taskId.isNotBlank()) return "tool:" + event.taskId
+        }
         if (event.source == "game-team-action" && event.sessionId.startsWith("game-session-")) {
             val session = event.sessionId.removePrefix("game-session-")
             // All relic witnesses (actor actions, the legacy ledger and replay)
@@ -84,6 +116,18 @@ object RecentSemanticTimeline {
                replyBatchId: (SharedTimelineEvent) -> String? = { null }): List<Turn> {
         if (maxTurns <= 0 || events.isEmpty()) return emptyList()
         val ordered = events.sortedWith(compareBy<SharedTimelineEvent> { it.occurredAt }.thenBy { it.id })
+        // Existing fact/receipt aliases are read-only. The underlying events
+        // stay visible, separately editable and deletable in the raw timeline.
+        val worldRows = ordered.filter { it.channel == "数字世界" &&
+            it.source in setOf("legacy", "digital-world") }
+            .associateBy { it.characterId to it.id }
+        val verifiedWorldWitnesses = ordered.mapNotNull { wrapper ->
+            val nativeId = worldResultEvidenceId(wrapper) ?: return@mapNotNull null
+            val native = worldRows[wrapper.characterId to nativeId]
+                ?: return@mapNotNull null
+            if (wrapper.occurredAt.isBefore(native.occurredAt)) return@mapNotNull null
+            nativeId to ("tool:" + wrapper.taskId)
+        }.toMap()
         val runIds = ordered.asSequence().filter { it.source == "game-relic" && it.id.startsWith("relic:") }
             .map { it.id.removePrefix("relic:").substringBefore(':') }
             .filter(String::isNotBlank).toSet()
@@ -104,6 +148,11 @@ object RecentSemanticTimeline {
             idToTurn[event.id] = key
         }
         for (event in ordered) {
+            // Scheduler/perception heartbeats are genuine diagnostics, but
+            // NOT a spoken turn or an independent lived experience. Real new
+            // chats, world observations and executed tools have separate IDs.
+            if (event.evidenceKind == EventEvidenceKind.Observation &&
+                event.source in setOf("online-awareness", "background-awareness")) continue
             if (event.source == "presence" && event.evidenceKind == EventEvidenceKind.Inference) {
                 unlinkedPresence.add(event)
                 continue
@@ -121,7 +170,7 @@ object RecentSemanticTimeline {
                 accept(key, Kind.SPEECH, event)
                 continue
             }
-            var key = experienceKey(event, runIds)
+            var key = experienceKey(event, runIds, verifiedWorldWitnesses)
             if (key != null && event.source == "game-team-action" &&
                 event.sessionId.startsWith("game-session-block_island-")) {
                 val last = islandLastAction[event.sessionId]
