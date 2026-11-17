@@ -76,6 +76,9 @@ internal data class LuluDesktopWidget(
     val dailyReadingEnabled: Boolean = true,
     val dailyNotifyEnabled: Boolean = false,
     val allowRoleStyle: Boolean = false,
+    val roleBackground: String = "",
+    val roleInk: String = "",
+    val roleCornerDp: Int = -1,
 )
 
 internal val luluZodiacNames = listOf(
@@ -215,6 +218,13 @@ internal object LuluDesktopWidgetStore {
                         dailyReadingEnabled = obj.optBoolean("dailyReadingEnabled", true),
                         dailyNotifyEnabled = obj.optBoolean("dailyNotifyEnabled", false),
                         allowRoleStyle = obj.optBoolean("allowRoleStyle", false),
+                        roleBackground = obj.optString("roleBackground").takeIf {
+                            LuluCssSheet.parseColor(it) != null
+                        }.orEmpty(),
+                        roleInk = obj.optString("roleInk").takeIf {
+                            LuluCssSheet.parseColor(it) != null
+                        }.orEmpty(),
+                        roleCornerDp = obj.optInt("roleCornerDp", -1).coerceIn(-1, 60),
                     )
                     if (value.page in 1..100 && luluWidgetFits(value, this, emptyList())) add(value)
                 }
@@ -242,6 +252,9 @@ internal object LuluDesktopWidgetStore {
                 put("dailyReadingEnabled", w.dailyReadingEnabled)
                 put("dailyNotifyEnabled", w.dailyNotifyEnabled)
                 put("allowRoleStyle", w.allowRoleStyle)
+                put("roleBackground", w.roleBackground)
+                put("roleInk", w.roleInk)
+                put("roleCornerDp", w.roleCornerDp)
             })
         }
         val ok = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -263,6 +276,31 @@ internal object LuluDesktopWidgetStore {
             if (target.skin == skin) return@synchronized true
             save(context, current.map { if (it.id == widgetId) target.copy(skin = skin) else it })
         }
+
+    fun roleApplyStyle(
+        context: Context, widgetId: String, characterId: String,
+        skin: Int?, background: String?, ink: String?, cornerDp: Int?,
+    ): Boolean = synchronized(mutex) {
+        val current = load(context)
+        val card = current.firstOrNull { it.id == widgetId &&
+            it.characterId == characterId && characterId.isNotBlank() &&
+            it.allowRoleStyle } ?: return@synchronized false
+        if (skin != null && skin !in 0..3) return@synchronized false
+        if (background != null && LuluCssSheet.parseColor(background) == null)
+            return@synchronized false
+        if (ink != null && LuluCssSheet.parseColor(ink) == null)
+            return@synchronized false
+        if (cornerDp != null && cornerDp !in 0..60) return@synchronized false
+        if (skin == null && background == null && ink == null && cornerDp == null)
+            return@synchronized false
+        val changed = card.copy(
+            skin = skin ?: card.skin,
+            roleBackground = background ?: card.roleBackground,
+            roleInk = ink ?: card.roleInk,
+            roleCornerDp = cornerDp ?: card.roleCornerDp,
+        )
+        save(context, current.map { if (it.id == widgetId) changed else it })
+    }
 
     fun setProfileSign(context: Context, sign: Int) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -320,9 +358,9 @@ internal fun LuluDesktopWidgetCard(
     val context = LocalContext.current
     val css = LocalLuluCssSheet.current.element("Home", "widget-" + widget.kind.code)
     val defaultDark = widget.skin == 0 || widget.skin == 3
-    val foreground = LuluCssSheet.parseColor(css["color"])?.let { Color(it.toInt()) }
+    val foreground = LuluCssSheet.parseColor(css["color"] ?: widget.roleInk)?.let { Color(it.toInt()) }
         ?: if (defaultDark) Color(0xFFF8F3E8) else Color(0xFF3D3836)
-    val backing = LuluCssSheet.parseColor(css["background-color"])?.let { Color(it.toInt()) }
+    val backing = LuluCssSheet.parseColor(css["background-color"] ?: widget.roleBackground)?.let { Color(it.toInt()) }
         ?: when (widget.skin) {
             0 -> Color(0xFF17223A)
             1 -> Color(0xFFF8F0E3)
@@ -338,7 +376,8 @@ internal fun LuluDesktopWidgetCard(
     val artImage = custom ?: art
     Surface(
         modifier = modifier.padding(4.dp).luluCssElement("widget-" + widget.kind.code),
-        shape = RoundedCornerShape((LuluCssSheet.dp(css["border-radius"]) ?: 19f).coerceIn(0f, 60f).dp),
+        shape = RoundedCornerShape((LuluCssSheet.dp(css["border-radius"]) ?:
+            widget.roleCornerDp.takeIf { it >= 0 }?.toFloat() ?: 19f).coerceIn(0f, 60f).dp),
         color = backing,
         border = BorderStroke(1.dp, foreground.copy(alpha = 0.15f)),
         shadowElevation = 1.dp,
@@ -594,7 +633,8 @@ internal fun LuluDesktopWidgetEditor(
                     luluWidgetSkins.forEachIndexed { index, name ->
                         FilterChip(
                             selected = draft.skin == index,
-                            onClick = { draft = draft.copy(skin = index) },
+                            onClick = { draft = draft.copy(skin = index, roleBackground = "",
+                                roleInk = "", roleCornerDp = -1) },
                             label = { Text(name, fontSize = 11.sp) },
                         )
                     }
