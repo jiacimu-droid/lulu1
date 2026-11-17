@@ -41,7 +41,7 @@ internal val luluGuideSteps = listOf(
         "api", MigrationRoute.Settings, "前往设置"),
     LuluGuideStep("创建自己的角色", "桌面 → 聊天 → 新建角色",
         listOf("填写名字和核心设定，再去角色设置补充性格、关系及头像。",
-            "首次创建时选「数字生命」或「现实角色」；创建后不能切换生命形态。",
+            "所有新角色都是数字生命，在同一个数字世界中生活；你可以自由设定人物的性格、职业和背景。",
             "全新安装没有预置私人角色和假聊天。"),
         "role", MigrationRoute.Chat, "去创建角色"),
     LuluGuideStep("为角色选择聊天模型", "角色私聊 → ＋ → 模型",
@@ -376,7 +376,7 @@ private fun GuideSafeScreen(kind: String) {
                 listOf("←  聊天                  ＋", "人物与原住民",
                     "○  创建自己的第一位角色", "＋  新建角色",
                     "角色名称 / 角色核心设定",
-                    "◉ 数字生命      ○ 现实角色").forEachIndexed { index, line ->
+                    "数字生命 · 在同一个世界中生活").forEachIndexed { index, line ->
                     Text(line, color = if (index == 0)
                         MaterialTheme.colorScheme.onSurface
                         else MaterialTheme.colorScheme.onSurfaceVariant,
