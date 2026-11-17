@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:44:58.516089+00:00",
-  "commit": "ff3444c1e490a5d990467c41b1c920ed193fba35",
+  "generatedAt": "2026-11-17T16:45:59.669322+00:00",
+  "commit": "c9f3e8e400aebce829588aebc14c336f81cfe19a",
   "branch": "main",
-  "sourceFingerprint": "9dcc48502b93a62900b7425084643623d7df6ae67e3e6ef617cdc1179f1dc553",
+  "sourceFingerprint": "8aa380ea904bf6362e4086a904fed6f92c5164d2dbde318ec994376d8e627802",
   "summary": {
     "files": 1423,
     "lines": 300164,
@@ -26550,7 +26550,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt",
       "lines": 405,
-      "sha256": "1815d8bbd775dc312ca3ff1d5873c35c4e597054afd0e75629f674f72991ad63",
+      "sha256": "35a93258ad2252e1c3a38715a1ac6924854da5e5ddb42263f39d957b763af20f",
       "symbols": []
     },
     {
@@ -27025,7 +27025,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
       "lines": 655,
-      "sha256": "80ab7c903254461ad192502a928fc39e02db0db848710497d7cc41e696ae1a0d",
+      "sha256": "7a7a2aff61d9aabf084073083417ba44ff8917479f59b06a555677e8a2211d62",
       "symbols": [
         {
           "name": "gridTop",
