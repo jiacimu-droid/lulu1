@@ -11,6 +11,33 @@ import org.json.JSONObject
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class LuluBackgroundPhoneContinuationYieldTest {
+    @Test fun visualWechatPreSendFailurePermitsOnlySafeReinspection() {
+        assertTrue(LuluBackgroundPhoneContinuation.mayRecoverUnsentChat(
+            JSONObject().put("errorCode", "visual_chat_draft_or_send_unverified")
+                .put("inputDispatched", true)))
+        assertTrue(LuluBackgroundPhoneContinuation.mayRecoverUnsentChat(
+            JSONObject().put("errorCode", "visual_chat_keyboard_not_on_display")))
+        assertFalse(LuluBackgroundPhoneContinuation.mayRecoverUnsentChat(
+            JSONObject().put("errorCode", "visual_chat_send_click_unverified")
+                .put("messageSendAttempted", true)))
+        assertFalse(LuluBackgroundPhoneContinuation.mayRecoverUnsentChat(
+            JSONObject().put("errorCode", "visual_chat_draft_or_send_unverified")
+                .put("messageSendClicked", true)))
+    }
+
+    @Test fun emptyAccessibilityControlsStillAdvertiseActualPictureNavigation() {
+        val receipt = JSONObject().put("screenSnapshotId", "picture-without-tree")
+            .put("interactiveElements", org.json.JSONArray())
+            .put("imageForwardedToRole", true).toString()
+        val method = LuluBackgroundPhoneContinuation::class.java
+            .getDeclaredMethod("uiReferenceSummary", String::class.java).apply { isAccessible = true }
+        val summary = method.invoke(LuluBackgroundPhoneContinuation, receipt) as String
+        assertTrue(summary.contains("picture-without-tree"))
+        assertTrue(summary.contains("无障碍控件树为空"))
+        assertTrue(summary.contains("tap/long_press"))
+        assertTrue(summary.contains("composerX/composerY"))
+    }
+
     @Test fun newMessageWhilePhoneModelWaitsYieldsBeforeAnyNextTool() {
         val frozen = setOf("old-user-message", "old-group-message")
         assertFalse(LuluBackgroundPhoneContinuation.hasNewUnreadInput(
