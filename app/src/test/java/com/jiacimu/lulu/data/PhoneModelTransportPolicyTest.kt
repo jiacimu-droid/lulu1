@@ -15,7 +15,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.SocketPolicy
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
@@ -153,11 +152,15 @@ class PhoneModelTransportPolicyTest {
             .put("message", JSONObject().put("content", JSONObject().put("action", "reply")
                 .put("text", speech).toString())).put("finish_reason", "stop")))
         MockWebServer().use { server ->
-            server.enqueue(MockResponse().setSocketPolicy(SocketPolicy.NO_RESPONSE))
+            // Hold back the old decision over HTTP while leaving a separate
+            // connection free for the corrected utterance.
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody(response.toString()).setBodyDelay(10, TimeUnit.SECONDS))
             server.enqueue(MockResponse().setHeader("Content-Type", "application/json").setBody(response.toString()))
-            server.start()
+            server.start(java.net.InetAddress.getByName("127.0.0.1"), 0)
+            val endpoint = server.url("/").newBuilder().host("127.0.0.1").build().toString()
             val config = LuluAiServices.connectionStore.saveConfiguration(
-                null, "phone-interruption", server.url("/").toString(), "test-only",
+                null, "phone-interruption", endpoint, "test-only",
             )
             val archive = LuluAiServices.connectionStore.addArchive(config.id, "test-model")
             var published = false
