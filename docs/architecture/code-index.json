@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T14:24:30.370123+00:00",
-  "commit": "1e1e18fc181da77abce0b75e9e0c810f538e2752",
+  "generatedAt": "2026-11-17T14:25:00.757812+00:00",
+  "commit": "942195bc9cfef932c41a7d5880a9d9d6996e21d4",
   "branch": "main",
-  "sourceFingerprint": "785fd2b4f99094100cf18d96fdaf2fc998f981d1a2848747713357089912ea27",
+  "sourceFingerprint": "6b83a2c84d1f593ef44bb0578e4843777967b458aef605d76ab1bdc0677bf7f1",
   "summary": {
     "files": 1414,
-    "lines": 298872,
+    "lines": 298792,
     "symbols": 4255
   },
   "symbolIndex": {
@@ -889,19 +889,19 @@
     "CharacterSettingsScreenV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 59
+        "line": 58
       }
     ],
     "persistDefinition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 141
+        "line": 139
       }
     ],
     "setPerceptionEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-        "line": 152
+        "line": 150
       }
     ],
     "CharacterWorldBookScreenV2": [
@@ -24532,20 +24532,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
-      "lines": 686,
-      "sha256": "70144617dd3845e4fc4d83ca8e4b8a84913549cf291db03a4aa9d08a88b7e4d0",
+      "lines": 643,
+      "sha256": "58ae479171363f192893a0567021409e49de1ddf5b2eba8caab1896c5da50949",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
-          "line": 59
+          "line": 58
         },
         {
           "name": "persistDefinition",
-          "line": 141
+          "line": 139
         },
         {
           "name": "setPerceptionEnabled",
-          "line": 152
+          "line": 150
         }
       ]
     },
@@ -26803,8 +26803,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt",
-      "lines": 710,
-      "sha256": "ddbdd93eadcca2a6dc984b0ec3b212c92a83766c6a70f93d02f2a247f210d37d",
+      "lines": 673,
+      "sha256": "0c79aa7e33c61fb76391009b95f5d361b2cb98f5748682b9600f09620ae919e5",
       "symbols": [
         {
           "name": "MigratedChatHubScreenV2",
