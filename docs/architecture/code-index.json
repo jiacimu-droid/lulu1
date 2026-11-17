@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:46:24.165652+00:00",
-  "commit": "1dfc8cb646e16f01166b8733b77d77cf721374bc",
+  "generatedAt": "2026-11-17T16:47:07.286191+00:00",
+  "commit": "52aebad0e3caa5cb731f0694f65465cd0c4c0419",
   "branch": "main",
-  "sourceFingerprint": "8aa380ea904bf6362e4086a904fed6f92c5164d2dbde318ec994376d8e627802",
+  "sourceFingerprint": "1d2e1a25cfa14ae3a772f64c8b1bc1de300bdc1f46f48e99474039219e28db9b",
   "summary": {
     "files": 1423,
     "lines": 300164,
-    "symbols": 4290
+    "symbols": 4291
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17058,6 +17058,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingStarterLibrary.kt",
         "line": 13
+      }
+    ],
+    "userBooks": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
+        "line": 33
       }
     ],
     "availableBooks": [
@@ -40597,7 +40603,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt",
       "lines": 399,
-      "sha256": "87ec0c982be3ba21ed340cc7cd405a24d21309e6478bdeecc5d6dfb2c63a6324",
+      "sha256": "df8fe15f5f6d0259a61b21538a0f9f991639df436eb01ffd54f8648e34bf17e8",
       "symbols": [
         {
           "name": "LuluReadingScreen",
@@ -40864,11 +40870,15 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
       "lines": 189,
-      "sha256": "899e3b1382b201b12fb4ea18cf2830fd4f6b19e1e1fef181f9f670041d2e61a5",
+      "sha256": "52146e030db5c188aa7a222b2a92fae9f057d7a657a46e75be13596b9a2c40ba",
       "symbols": [
         {
           "name": "books",
           "line": 28
+        },
+        {
+          "name": "userBooks",
+          "line": 33
         },
         {
           "name": "availableBooks",
