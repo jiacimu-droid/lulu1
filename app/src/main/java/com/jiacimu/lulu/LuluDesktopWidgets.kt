@@ -83,6 +83,30 @@ internal val luluZodiacNames = listOf(
     "巨蟹座", "狮子座", "处女座", "天秤座", "天蝎座", "射手座",
 )
 private val luluZodiacSymbols = listOf("♑", "♒", "♓", "♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐")
+
+/** Reads only a birthday's month/day, without sending the full birth date to any model. */
+internal fun luluSignFromBirthday(raw: String?): Int? {
+    val value = raw?.trim().orEmpty()
+    val match = Regex("""^(?:(?:\d{4})[-/.年])?(\d{1,2})[-/.月](\d{1,2})日?$""")
+        .matchEntire(value) ?: return null
+    val month = match.groupValues[1].toIntOrNull() ?: return null
+    val day = match.groupValues[2].toIntOrNull() ?: return null
+    if (runCatching { java.time.MonthDay.of(month, day) }.isFailure) return null
+    return when (month) {
+        1 -> if (day >= 20) 1 else 0
+        2 -> if (day >= 19) 2 else 1
+        3 -> if (day >= 21) 3 else 2
+        4 -> if (day >= 20) 4 else 3
+        5 -> if (day >= 21) 5 else 4
+        6 -> if (day >= 21) 6 else 5
+        7 -> if (day >= 23) 7 else 6
+        8 -> if (day >= 23) 8 else 7
+        9 -> if (day >= 23) 9 else 8
+        10 -> if (day >= 23) 10 else 9
+        11 -> if (day >= 22) 11 else 10
+        else -> if (day >= 22) 0 else 11
+    }
+}
 private val luluWidgetSkins = listOf("星夜", "植物信纸", "樱粉", "像素夜空")
 private val luluGoodAdvice = listOf(
     "整理思路", "主动交流", "阅读新东西", "认真推进一件事", "给自己一点休息",
@@ -157,8 +181,13 @@ internal object LuluDesktopWidgetStore {
     private val mutableRevision = MutableStateFlow(0L)
     val revision = mutableRevision.asStateFlow()
 
-    fun profileSign(context: Context): Int =
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt(SIGN, 0).coerceIn(0, 11)
+    fun profileSign(context: Context): Int {
+        val birthday = context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE)
+            .getString("birthday", null)
+        return luluSignFromBirthday(birthday)
+            ?: context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getInt(SIGN, 0).coerceIn(0, 11)
+    }
 
     fun load(context: Context): List<LuluDesktopWidget> {
         val raw = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -583,7 +612,16 @@ internal fun LuluDesktopWidgetEditor(
                 importError?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 11.sp) }
                 layoutError?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 11.sp) }
                 if (initial.kind == LuluWidgetKind.HOROSCOPE) {
-                    Text("个人资料 · 星座（仅保存在本机）", fontWeight = FontWeight.Medium)
+                    Text("星座 · 可直接选择，也可以使用现有个人资料里的生日",
+                        fontWeight = FontWeight.Medium)
+                    val profileSign = luluSignFromBirthday(
+                        context.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE)
+                            .getString("birthday", null))
+                    if (profileSign != null) {
+                        TextButton(onClick = { draft = draft.copy(sign = profileSign) }) {
+                            Text("按我的生日识别：" + luluZodiacNames[profileSign])
+                        }
+                    }
                     Box {
                         OutlinedButton(onClick = { openSigns = true }) {
                             Text(luluZodiacSymbols[draft.sign] + "  " + luluZodiacNames[draft.sign])
