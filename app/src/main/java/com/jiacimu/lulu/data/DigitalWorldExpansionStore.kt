@@ -76,6 +76,26 @@ internal object DigitalWorldExpansionStore {
         val storedResidents = prefs?.getString(KEY_RESIDENTS, null)
         residents = decodeResidents(storedResidents)
         retiredTemplates = prefs?.getStringSet(KEY_RETIRED_RESIDENTS, emptySet())?.toSet().orEmpty()
+        // Fresh installations have exactly one neutral shared-world inhabitant.
+        // Do not rewrite older saves, and never resurrect a removed barista.
+        // The cafe worker is a resident, NOT an owner companion/contact.
+        if (storedResidents == null && residents.isEmpty() && "岑灯" !in retiredTemplates) {
+            val barista = DigitalWorldResident(
+                name = "岑灯",
+                identity = "浮光咖啡角店员",
+                homeLocationCode = DigitalWorldPublicPlaces.CAFE,
+                neighborhoodCode = DigitalWorldPublicPlaces.CAFE,
+                temperament = "安静细心，重视手艺，有自己的边界",
+                preferences = "研究咖啡风味，记得真正聊过的客人",
+                gender = "女",
+                background = "在咖啡角工作，有自己的生活、交友和休息时间。",
+            )
+            residents = listOf(barista.copy(
+                homeLocationCode = residentHomeLocation(barista.id),
+                currentLocationCode = residentHomeLocation(barista.id),
+            ))
+            persist()
+        }
         // A one-time default-duty migration; never reset an owner-edited identity,
         // gender, name or any established encounter/social relationship.
         val revised = residents.map { resident ->
