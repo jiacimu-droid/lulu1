@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`7f1f7a07be393c2d71cfcec2567e3ebbeacda7b5`
+- 基准提交：`ea19c9651e8e831cc606142e0065cfb15552662d`
 - 分支：`main`
 - 已索引文件：1398
-- 已索引代码/文本行：299779
-- 已发现符号：4236
+- 已索引代码/文本行：299837
+- 已发现符号：4235
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -811,7 +811,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt` | 32 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1770 | 55 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1828 | 54 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 100 | 4 |
