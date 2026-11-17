@@ -67,7 +67,7 @@ private val DesktopV2Launchers = listOf(
     DesktopV2Launcher("performance", "性能监测", Icons.Outlined.MonitorHeart, MigrationRoute.Performance),
     DesktopV2Launcher("health", "健康", Icons.Outlined.FavoriteBorder, MigrationRoute.Health),
     DesktopV2Launcher("scroll", "画卷", Icons.Outlined.Collections, MigrationRoute.Scroll),
-    DesktopV2Launcher("theater", "剧场", Icons.Outlined.AutoStories, MigrationRoute.Theater),
+    DesktopV2Launcher("theater", "阅读", Icons.Outlined.AutoStories, MigrationRoute.Theater),
     DesktopV2Launcher("meeting", "见面", Icons.Outlined.Cloud, MigrationRoute.Meeting),
     DesktopV2Launcher("games", "游戏", Icons.Outlined.SportsEsports, MigrationRoute.Games),
     DesktopV2Launcher("apocalypse", "末世求生", Icons.Outlined.Map, MigrationRoute.ApocalypseSurvival),
