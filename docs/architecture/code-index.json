@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T11:21:10.695109+00:00",
-  "commit": "00d3344ceaf3b5de5e5569c46a07dbb6907ee593",
+  "generatedAt": "2026-11-17T11:22:06.061173+00:00",
+  "commit": "1dad2e22dd16fe051599b4e114be888a7340f4eb",
   "branch": "main",
-  "sourceFingerprint": "be49a9cbc420ce31e9041f6843049d4cc5145fcaad304914e8325fa4cc2a19a1",
+  "sourceFingerprint": "57f037d19766cc71490919ffe06491e9eac3c279fa7b30d1b71c6eb222f6172e",
   "summary": {
     "files": 1402,
     "lines": 296608,
@@ -29597,8 +29597,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 400,
-      "sha256": "cfc888774ce81a6b1b0358d7f7890c7ea5ddda43f2150979859ad10e969f4703",
+      "lines": 397,
+      "sha256": "9a2f8751718b7a2c3ef35a398d894918fb34513c4d751d96fe6d42c72e1e4e26",
       "symbols": [
         {
           "name": "currentSocialAuthority",
@@ -45611,8 +45611,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRelationshipAuthorityTest.kt",
-      "lines": 56,
-      "sha256": "ae2a4c4eb07717cbd53c050bcdbb1c2571ec031b035dad1686c497e8ebb8f6bc",
+      "lines": 59,
+      "sha256": "b55b60867c33a117ddeb37279aaf7830adaafab7032cf0bfb5d5fee85c91a1e3",
       "symbols": [
         {
           "name": "CharacterRelationshipAuthorityTest",
