@@ -175,6 +175,24 @@ internal object LuluVirtualChatSendPolicy {
     fun composerInLowerHalf(bounds: ComposerBounds, screenHeight: Int): Boolean =
         bounds.width > 0 && bounds.height > 0 && bounds.centerY in screenHeight / 2 until screenHeight
 
+    /** Bottom chat composer rows must be inspected before huge message lists.
+     * A screenshot visible at the bottom can be missed by a depth-first
+     * accessibility traversal that spends its 1600-node budget on history.
+     * Position is a read-order hint ONLY; never a substitute for verifying
+     * the editor's edit action, the recipient or the Send button. */
+    fun bottomComposerScanPriority(bounds: ComposerBounds, screenHeight: Int): Int =
+        if (screenHeight <= 0 || bounds.width <= 0 || bounds.height <= 0) 0
+        else bounds.top.coerceIn(0, screenHeight)
+
+    /** On a verified conversation, the scrollable transcript cannot be its
+     * input composer. Skip this enormous subtree, including inaccessible
+     * off-screen message items, without skipping invisible layout wrappers. */
+    fun isConversationTranscript(
+        scrollable: Boolean, visible: Boolean, bounds: ComposerBounds, height: Int,
+    ): Boolean = scrollable && visible && height > 0 &&
+        bounds.height > 0 && bounds.top >= height / 10 &&
+        bounds.bottom > height / 2
+
     /** The WeChat voice composer exposes a press-to-talk control instead of
      * an EditText. Only the model-selected switch_chat_input may switch modes.
      * Never mistake a chat-history quote for the current composer. */
