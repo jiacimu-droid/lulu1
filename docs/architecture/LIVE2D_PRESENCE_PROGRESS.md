@@ -1,5 +1,13 @@
 # Live2D 面对面表现专项进度（L1–L3）
 
+## 2026-11-18 主人反馈：亲吻镜头、视频重进与左右扇击轨迹
+
+- **亲吻镜头**：原始 stage 仅水平追嘴，纵向依靠屏幕固定 42% 放大，导致脸滑向顶部。现在按当前 bounds/已校准左右眼或嘴部定位模型局部脸锚点，临近时脸中心移动到屏高约 45%，按同一曲线回到初始取景。源码 kiss-camera.mjs / stage.js，数值回归 parameters.mjs。
+- **语音时序**：真实选择的 Wolf Motion3 #48 在当前 TTS 还发声时只排队，不会同时亲吻与讲话；实际最后一段 finished 后才执行。隐藏、打断、下一决策会撤销未发生的亲吻，新的真实 TTS 开声也会打断此前尚未结束的亲吻。conversation-performance.mjs 覆盖分段、打断和新句接管。
+- **视频重进**：最小化只是 stageDetached，取消旧屏幕实际可见回执但保留同一次通话角色刚选的 score；新 WebView 先恢复 score 后重放实际开声事件。挂断和切换模型依然 stageClosed 清理。Android 修复 Live2DVisualActionBus、Live2DFullscreenVideoCall、Live2DCallStage、LuluVoiceCallSession；Robolectric 补最小化与真正关闭语义。
+- **左右扇击**：先前左 33 / 右 09 是两条不同的真实 Motion3，视觉上下偏移不镜像，且 authored layer 将力度回弹降到 19%。扇击现在统一调用同一力度相关的头颈/身体受力曲线，yaw/roll 左右取反，pitch 相同；力度档 .25/.9 原样传输。普通抚摸及角色决定的 Motion3 保留。touch-hit.mjs 补镜像和轻重回归。
+- **提交与验收**：本轮代码 commit 251e867、27e7ae3、45ff28e、df81d62、2d5d3b2、6f0ac33、a6bfb0c。GitHub 返回提交确认；本轮未查到能证明成功的 APK/JVM CI，不能宣称构建或 Redmi 真机已经验通。真机还需检验脸部取景、两侧镜像实际画面、连续语音后亲吻和视频最小化再进入。
+
 更新：2026-11-14。仅负责真实 Motion 逐句编排、实际 TTS 同步、倾听/停顿/打断、触摸/表情/嘴型/物理协调、模型库校准复用与低帧率。遵守 `AGENTS.md`、统一人物契约及 2026-10-29 大纲；不另建人物状态或付费模型循环。
 
 ## 基线与分类
