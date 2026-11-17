@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.Density
 import com.jiacimu.lulu.data.LuluAppPreferencesStore
 import com.jiacimu.lulu.data.LuluAppearanceStore
 import com.jiacimu.lulu.design.LuluAppearanceTheme
+import com.jiacimu.lulu.design.LuluCssBackground
+import com.jiacimu.lulu.data.LuluAppearanceCatalog
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.CharacterRecordDestination
 import com.jiacimu.lulu.design.LuluColors
@@ -260,9 +262,10 @@ fun LuluMigrationRootAppV2(
             colorScheme = LuluLightColorScheme,
             typography = LuluTypography,
         ) {
-            LuluAppearanceTheme(appearanceLibrary.active(if (route == MigrationRoute.ChatDetail) "Chat" else route.name)) {
+            LuluAppearanceTheme(LuluAppearanceCatalog.builtIns.first(), scope = if (route == MigrationRoute.ChatDetail) "Chat" else route.name) {
             Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                 Box(Modifier.fillMaxSize()) {
+                    LuluCssBackground()
                     if (chatSessionStarted && route == MigrationRoute.ChatDetail) {
                         // Keep the navigator and global overlays at a stable size during IME animation.
                         // Only the chat Scaffold needs to avoid the keyboard; resizing this
@@ -457,13 +460,13 @@ fun LuluMigrationRootAppV2(
                     }
 
                     // Drawn above every route, including Theater, Games and Study.
-                    LuluAppearanceTheme(appearanceLibrary.active("Phone")) {
+                    LuluAppearanceTheme(LuluAppearanceCatalog.builtIns.first(), scope = "Phone") {
                         InAppCallRuntimeOverlay()
                     }
 
                     // Frequent timer ticks are scoped to the overlay itself,
                     // not to the root navigator or every visible scrolling screen.
-                    LuluAppearanceTheme(appearanceLibrary.active("Pomodoro")) {
+                    LuluAppearanceTheme(LuluAppearanceCatalog.builtIns.first(), scope = "Pomodoro") {
                         PomodoroRuntimeOverlay(
                             focusVisible = pomodoroFocusVisible,
                             onOpen = ::openActivePomodoro,
