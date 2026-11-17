@@ -24,6 +24,8 @@ object CapabilityRegistry {
         Capability("read_screen", "phone", "device_read", "fresh accessibility snapshot", true),
         Capability("capture_screen", "phone", "screen_vision", "owner-consented screenshot plus vision", false),
         Capability("summon_lulu", "phone", "screen_summon", "user-tappable notification", false),
+        Capability("bring_lulu_front", "phone", "screen_direct_return",
+            "owner-consented single activity launch with verified main-display foreground", false),
         Capability("click_text", "phone", "screen", "post-action screen observation", false),
         Capability("screen_action", "phone", "screen", "post-action screen observation", false),
         Capability("screen_sequence", "phone", "screen", "bounded fresh observations and expected text per step", false),
@@ -75,6 +77,8 @@ object CapabilityRegistry {
             com.jiacimu.lulu.system.LuluScreenAwareness.onDemandAllowed(context)
             else com.jiacimu.lulu.system.LuluScreenAwareness.autonomousAllowed(context)
         if (capability.name == "summon_lulu") return com.jiacimu.lulu.system.LuluScreenAwareness.summonAllowed(context)
+        if (capability.name == "bring_lulu_front") return
+            com.jiacimu.lulu.system.LuluScreenAwareness.directReturnAllowed(context)
         if (userRequested) return true
         val prefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
         // Media playback inspection belongs to the media grant, not virtual-screen access.
@@ -115,6 +119,7 @@ object CapabilityRegistry {
             appendLine("回应监督请求时先看这条当前设备状态，再决定并尝试真实行动；请自然说清楚已答应、正在申请、已启动或尚不能启动的实际阶段，别用口头答应替代回执。")
             appendLine("如果你本人决定现在开始持续监督，应在同轮选择 steps=[{tool:start_study_watch,args:{minutes:45}}] 真实申请限时许可；只说「我监督你」不会启动检查，不能把口头答应、申请中、主人同意和成功看到屏幕混为一谈。主人同意后显示可结束的悬浮窗（需悬浮窗权限）及持续通知，系统间歇截图，再交给你原有感知决定是否开口。用户停止时用 stop_study_watch；你也可以选择不申请或稍后安排，不要把监督变成固定口癖。")
             appendLine("summon_lulu 工具已注册=$summonRegistered；发送可点击的回到露露机通知获授权=${summonRegistered && screen.summonAllowed(context)}。已获授权时可用 action=tool,tool=summon_lulu,args={}，不是强制切回 App。")
+            appendLine("bring_lulu_front（直接切回露露机）工具已注册=${find("bring_lulu_front") != null}；主人单独授权=${screen.directReturnAllowed(context)}；需主屏无障碍已连接、主屏解锁、当前App可核实且非敏感页。只有你确实选择并执行 action=tool,tool=bring_lulu_front,args={} 才会尝试将主屏其他App切到后台、把露露机拉到前台；它不会强制停止其他App、不会持续封禁或锁住屏幕。可先按本人意愿用 get_current_app 查询最新状态，再自行决定是否执行，不能因主人说要睡就机械抢屏；未授权时只能请求开启，不得绕过。执行后的 success=true,status=observed 才是主屏已经真实切换的证据；仅 accepted 或旧回执都不代表本次已切回。")
             appendLine("以上是当前本机能力记录。不要声称自己查过『动作清单』、拿到了截图或真正打开某 App，除非本轮有相应执行回执。")
         }.trim()
     }
@@ -192,6 +197,7 @@ object CapabilityRegistry {
             else if (cap.name == "sing_song") "；args={prompt:原创歌曲的语言/歌词/曲风/唱法要求,durationSeconds:3..600}；不使用普通TTS Voice ID，需单独配置 Music Finetune ID 才有专属歌声；生成消耗Music额度"
             else if (cap.name == "play_saved_song") "；args={}；重播本角色最后一次成功保存的原创歌曲，不再消耗音乐生成额度"
             else if (cap.name == "stop_song") "；args={}；立即停止本机正在播放的生成歌曲"
+            else if (cap.name == "bring_lulu_front") "；args={}；仅在主人于权限与能力独立开启直接切回授权、无障碍连接、主屏解锁且当前非敏感应用时，可由角色选择一次真实切回露露机；只核实主屏前台，不强行停止第三方App，也不保证用户之后不会再次打开。"
             else if (cap.name == "screen_sequence") "；args={allowedPackages:[用户授权的应用包名],steps:[{text:点击文字,expectedText:动作后验证文字}]}；最多5步"
             else if (cap.name == "phone_ui") "；前台操作（不是后台屏）args={action:inspect|launch|tap|swipe|scroll|type,packageName:准确包名,x:0..1000,y:0..1000,inputX:仅type视觉输入时可选本次截图的文本框中心0..1000,inputY:与inputX配对且需screenSnapshotId,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,direction:forward|backward,text:输入文本,expectedText:可选验证文字}。先inspect确认当前包名/控件，操作后查真实回执，不把accepted当成功"
             else if (cap.name == "background_phone") "；后台独立屏幕：主人已配对本机无线调试并授权后可用。args={action:start|launch|observe|tap|tap_element|navigate|swipe|back|focus_search|type|submit|search|send_chat_message|stop|open_wechat_moments_composer|publish_wechat_moment,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),navigationLabels:launch可附或navigate必填的有序页面名称数组,screenSnapshotId:点击控件、发私信及发朋友圈所需当前快照编号,elementRef:点击控件或长按朋友圈相机所需真实控件ref,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type可填写任意已授权App当前聚焦普通编辑框,只写草稿；若无控件树可附当前截图inputX/inputY和screenSnapshotId;search才核实唯一搜索框并提交),expectedText:可选验证文字,recipient:send_chat_message必填的当前聊天对象准确标题,composerX/composerY:仅微信无障碍输入框为空但真实截图已有文字输入区时可选的0..1000输入区中心,text:send_chat_message或publish_wechat_moment所需全文(使用统一手机授权及最新screenSnapshotId),sendToChat:可选true发送真实后台截图到私聊,sendProductLinkToChat:仅在本人选中真实复制链接控件时设为true并核实新复制的对应商家HTTPS链接后发私聊商品卡片,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
