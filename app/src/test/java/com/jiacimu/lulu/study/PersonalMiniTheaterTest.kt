@@ -310,7 +310,11 @@ class PersonalMiniTheaterTest {
         val systemId = library.addPersonal(cast,
             PersonalMiniTheater.ideas.first { it.id == "tender-spell" })
         val system = library.items.value.first { it.id == systemId }
-        assertTrue(system.prompt.contains("温柔体贴"))
+        // Public presets describe a possible situation without assigning every role
+        // the same personality or romantic identity.
+        assertTrue(system.prompt.contains("原本已经具有的关怀或细腻一面"))
+        assertTrue(system.prompt.contains("具体表现取决于角色本人"))
+        assertTrue(system.prompt.contains("不是预设的恋爱身份"))
         assertEquals("", system.variationContext)
         assertThrows(IllegalArgumentException::class.java) { PersonalMiniTheater.customIdea("  ") }
     }
