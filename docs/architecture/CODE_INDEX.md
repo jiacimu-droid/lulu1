@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b79e753f721b10137d4e9bbd247e1229c7ec7879`
+- 基准提交：`7b03d39a87f8de8ef3844366329cc2101d76efce`
 - 分支：`main`
 - 已索引文件：1435
-- 已索引代码/文本行：301903
+- 已索引代码/文本行：301915
 - 已发现符号：4332
 
 | 文件 | 行数 | 符号数 |
@@ -215,7 +215,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 816 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2718 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2719 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 210 | 9 |
@@ -907,7 +907,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallAudioRecoveryPolicyTest.kt` | 16 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallCommitmentDecisionPolicyTest.kt` | 14 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 279 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt` | 28 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallResponsibilityContextTest.kt` | 40 | 1 |
