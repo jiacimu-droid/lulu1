@@ -49,6 +49,15 @@ internal fun shouldDeferSleepingLifeReview(
  * private afterthought. A timestamp scan can adopt a different concurrent turn
  * (and a takeLast limit silently drops the early bubbles of a long real turn).
  */
+/** A failed primary tool does not cancel an independently delivered chat reply. */
+internal fun shouldPersistProactivePresence(
+    readingUpdatedPresence: Boolean,
+    appearanceHasCause: Boolean,
+    novelPrivateIdeas: Boolean,
+    verifiedDeliveredMessageCount: Int,
+): Boolean = !readingUpdatedPresence &&
+    (appearanceHasCause || novelPrivateIdeas || verifiedDeliveredMessageCount > 0)
+
 internal fun verifiedRoleDeliveries(
     conversationId: String?,
     characterId: String,
@@ -2669,7 +2678,23 @@ object ProactivePerceptionRuntime {
         // existing presence projection, but does not execute that idea.
         val novelPrivateIdeas = privateDelta.appraisalChanged &&
             (decision.appraisal?.optJSONArray("privateIdeas")?.length() ?: 0) > 0
-        if (!readingUpdatedPresence && (appearanceHasCause || novelPrivateIdeas)) {
+        // Resolve only IDs returned by the actual sender. Side messages may
+        // succeed even when the primary phone/tool action fails, and still own
+        // their real psychological moment.
+        val deliveredRefs = (execution.deliveredMessageIds.mapNotNull { id ->
+            execution.conversationId?.let { DeliveredRoleMessageRef(it, id) }
+        } + execution.sideDeliveredMessages).distinct()
+        val verifiedDeliveries = deliveredRefs.groupBy(DeliveredRoleMessageRef::conversationId)
+            .flatMap { (conversationId, refs) ->
+                verifiedRoleDeliveries(conversationId, characterId,
+                    refs.map(DeliveredRoleMessageRef::messageId))
+            }
+        var committedMessageMoment: CompanionPresenceState? = null
+        if (shouldPersistProactivePresence(
+                readingUpdatedPresence, appearanceHasCause, novelPrivateIdeas,
+                verifiedDeliveries.size,
+            )) {
+            val momentWrittenAt = Instant.now()
             val physicalAction = decision.action in setOf(Action.DIGITAL_WORLD, Action.READING, Action.SOLO_GAME)
             val hasMeaningfulInnerUpdate = freshStimulus || previousEvidence.isNotBlank() ||
                 decision.action != Action.SILENT || canonicalInnerLife != null
@@ -2705,7 +2730,7 @@ object ProactivePerceptionRuntime {
                     awakeReflection -> "在线持续感知"
                     else -> "后台主动感知"
                 },
-                now = Instant.now(),
+                now = momentWrittenAt,
                 // Do not let independent online/group psychological snapshots
                 // become anonymous rows that survive clearing their source chat.
                 // Only verified group events can own this lifecycle.
@@ -2734,25 +2759,28 @@ object ProactivePerceptionRuntime {
                         innerThought = groundedInnerThought,
                     ) else "",
             )
+            // Capture only the snapshot written by this decision. A concurrent
+            // role turn must never be frozen as this message's private mind.
+            committedMessageMoment = CompanionPresenceStore.current(characterId)
+                ?.takeIf { it.updatedAt == momentWrittenAt }
         }
-        // Proactive messages are delivered *inside* the action executor, before
-        // the post-action private presence is saved. Rebind only bubbles
-        // actually delivered by THIS execution to the finalized mind snapshot.
-        // A partially sent turn is still real history; its explicit IDs are
-        // bindable even when the executor correctly reports that the whole
-        // action did not complete. No time-based inference or eight-bubble cap.
-        val deliveredRefs = (execution.deliveredMessageIds.mapNotNull { id ->
-            execution.conversationId?.let { DeliveredRoleMessageRef(it, id) }
-        } + execution.sideDeliveredMessages).distinct()
-        deliveredRefs.groupBy(DeliveredRoleMessageRef::conversationId)
-            .forEach { (conversationId, refs) ->
-                verifiedRoleDeliveries(conversationId, characterId,
-                    refs.map(DeliveredRoleMessageRef::messageId)).forEach { message ->
-                    CompanionPresenceStore.bindDeliveredMessage(
-                        characterId, message.id, message.createdAt, refreshAfterDelivery = true,
-                    )
-                }
+        // The verified delivery ID, not a 30-second timestamp guess, owns the
+        // final private snapshot. Long tool calls must not lose their heart voice.
+        verifiedDeliveries.forEach { message ->
+            val exact = committedMessageMoment
+            if (exact != null) {
+                CompanionPresenceStore.bindVerifiedDeliveredMessageMoment(
+                    characterId, message.id, exact,
+                )
+            } else {
+                // Preserve the existing compatibility path when reading already
+                // updated presence, or this turn authored no displayable moment.
+                CompanionPresenceStore.bindDeliveredMessage(
+                    characterId, message.id, message.createdAt,
+                    refreshAfterDelivery = true,
+                )
             }
+        }
         if (onlineExpiryAtMillis > 0L && decision.action != Action.SILENT &&
             !execution.success && CharacterInnerLifeStore.needsPostOnlineReflection(characterId, now)) {
             // The expiry decision preceded the executor receipt. A failed
