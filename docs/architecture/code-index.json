@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T07:08:35.364089+00:00",
-  "commit": "b3bd77f1337ed178efe7272f1cd24e04278756a1",
+  "generatedAt": "2026-11-17T07:09:57.069479+00:00",
+  "commit": "13c23dcd92911288d5fb2f5169e078800e3dd105",
   "branch": "main",
-  "sourceFingerprint": "cb52ea960ec47632bade2069475042a44f7c1858f2751b13bcb0940e86648eba",
+  "sourceFingerprint": "e8512ffbe12d0abd461bdaf05838552f9230e166f3982e4e61ab6259861ab5e8",
   "summary": {
     "files": 1396,
-    "lines": 299347,
+    "lines": 299394,
     "symbols": 4230
   },
   "symbolIndex": {
@@ -1595,7 +1595,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 712
+        "line": 759
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
@@ -3263,25 +3263,25 @@
     "LuluVoiceSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 57
+        "line": 62
       }
     ],
     "saveVoiceSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 147
+        "line": 174
       }
     ],
     "LuluMemorySettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 699
+        "line": 746
       }
     ],
     "LuluImageSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 792
+        "line": 839
       }
     ],
     "LuluAppearanceScreen": [
@@ -25961,28 +25961,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-      "lines": 984,
-      "sha256": "bd73975a71d27b98e52f1bdf8a560089d91107d6ec837eedeb36de5bfac40e43",
+      "lines": 1031,
+      "sha256": "10d5520a1a8dc1d3990b75a370ae3611563ee29dbb1092eab3f403f302a24738",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
-          "line": 57
+          "line": 62
         },
         {
           "name": "saveVoiceSettings",
-          "line": 147
+          "line": 174
         },
         {
           "name": "LuluMemorySettingsScreen",
-          "line": 699
+          "line": 746
         },
         {
           "name": "save",
-          "line": 712
+          "line": 759
         },
         {
           "name": "LuluImageSettingsScreen",
-          "line": 792
+          "line": 839
         }
       ]
     },
