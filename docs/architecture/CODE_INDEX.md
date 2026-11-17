@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`8358fec985b05c87a4be03a20c745d62469683f0`
+- 基准提交：`96c7241ab4d3575c6f643c078e8de23c56531e80`
 - 分支：`main`
 - 已索引文件：1379
-- 已索引代码/文本行：294696
+- 已索引代码/文本行：294699
 - 已发现符号：4146
 
 | 文件 | 行数 | 符号数 |
@@ -505,7 +505,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyJiangDuProfileSchema.kt` | 21 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt` | 51 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1298 | 16 |
+| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1301 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 610 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocationAddressCache.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
