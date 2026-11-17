@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T15:27:03.454797+00:00",
-  "commit": "a07f5daf3007283aba9ab583594dd2cdbab30724",
+  "generatedAt": "2026-11-17T15:27:39.396460+00:00",
+  "commit": "b6f2276a39a7a12e8b25088180102501676d2517",
   "branch": "main",
-  "sourceFingerprint": "dab7c04c206a1f0a2059585632c4cddaba16e197409afd01dae98109803756bf",
+  "sourceFingerprint": "2753405f93a4a4ce10815fd22f205c7b8f07cd8582cd06b22737952bfc27afeb",
   "summary": {
     "files": 1414,
-    "lines": 298854,
+    "lines": 298866,
     "symbols": 4255
   },
   "symbolIndex": {
@@ -43997,8 +43997,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt",
-      "lines": 36,
-      "sha256": "5815c56effd4466299b21d8276921b8f7f148d29eaa2f79294a928aead21928b",
+      "lines": 48,
+      "sha256": "156f38b55fb1e164e24fa157d66ac0cdf21ce3e12dbdb5bd6ef7027040c9512b",
       "symbols": [
         {
           "name": "LuluOnboardingGuideContentTest",
