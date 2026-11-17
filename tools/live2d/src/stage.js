@@ -3,7 +3,9 @@ import {
   kissCameraFrame, kissFaceFrame, kissNuzzleFrame, kissHandoffFrame,
   kissCameraHorizontalPosition, kissMouthLocalOffsetX,
   kissCameraVerticalPosition, kissFaceLocalOffsetY,
-  WOLF_KISS_MOTION_INDEX, KISS_CAMERA_DURATION_MS,
+  WOLF_KISS_MOTION_INDEX, WOLF_APPROACH_MOTION_INDEX,
+  KISS_CAMERA_DURATION_MS, screenProximityFrame, isScreenProximityMotion,
+  screenProximityDuration, screenProximityPeak,
 } from './kiss-camera.mjs'
 // Render-only adapter. Character cognition, call control and audio remain in Android.
 import * as PIXI from 'pixi.js'
@@ -219,7 +221,7 @@ let faceRequest = null
 let faceRequestEndAt = 0
 let faceRequestStartedAt = 0
 let authoredMotion = null
-let kissCameraLease = null
+let proximityCameraLease = null
 let pendingPostSpeechKiss = null
 let cameraBasePose = null
 // A model-authored sequence for the CURRENT audible TTS fragment only.
@@ -337,18 +339,19 @@ function fit() {
     model, width: viewWidth, height: viewHeight,
     scale: model.scale.x, x: model.position.x, y: model.position.y,
   }
-  applyKissCameraPose()
+  applyProximityCameraPose()
   drawCalibrationGuide()
 }
-// Keep the original camera framing as the sole baseline. A genuine Motion3
-// starts the close-up; neither a queued cue nor a rejected clip may zoom.
-function applyKissCameraPose(now = performance.now()) {
+// Screen proximity is one reusable physical presentation layer, not a mood:
+// both chosen close-up motions use the real calibrated face anchor. Only a
+// successfully started wolf Motion3 acquires the lease, never an unplayed cue.
+function applyProximityCameraPose(now = performance.now()) {
   const base = cameraBasePose
   if (!base || !model || base.model !== model) return
-  const active = kissCameraLease?.model === model ? kissCameraLease : null
+  const active = proximityCameraLease?.model === model ? proximityCameraLease : null
   const frame = active?.handoff
     ? kissHandoffFrame(active.handoff.zoom, now - active.handoff.at)
-    : active ? kissCameraFrame(now - active.startedAt) :
+    : active ? screenProximityFrame(active.index, now - active.startedAt) :
       { zoom: 1, finished: true }
   if (frame.finished) {
     // The renderer-only soft exit outlives the 3.35s authored Motion3.
@@ -356,41 +359,44 @@ function applyKissCameraPose(now = performance.now()) {
     // Complete only this exact clip's short facial lease.
     if (active && authoredMotion?.model === model &&
         authoredMotion.revision === active.revision &&
+        active.index === WOLF_KISS_MOTION_INDEX &&
         authoredMotion.index === WOLF_KISS_MOTION_INDEX &&
         faceRequestStartedAt <= active.faceIssuedAt)
       faceRequest = null
-    kissCameraLease = null
+    proximityCameraLease = null
   }
   const zoom = frame.zoom
   // Zoom and slide around the lips, not the torso pivot. The anchor comes
   // from the model's calibrated mouth, or the wolf-specific visual fallback.
   // Track the real face instead of zooming upward around the torso.
   model.scale.set(base.scale * zoom)
-  const nuzzle = active && !active.handoff
+  const nuzzle = active && !active.handoff &&
+    active.index === WOLF_KISS_MOTION_INDEX
     ? kissNuzzleFrame(now - active.startedAt) : null
   // Subtle screen-space contact comes from neck sway, not a sprite shake.
   const slideX = nuzzle ? base.width * nuzzle.yaw * .005 : 0
   model.position.set(kissCameraHorizontalPosition(base, zoom,
-    active?.mouthLocalX ?? 0) + slideX,
-    kissCameraVerticalPosition(base, zoom, active?.faceLocalY ?? 0))
+    active?.mouthLocalX ?? 0, active?.peakZoom) + slideX,
+    kissCameraVerticalPosition(base, zoom, active?.faceLocalY ?? 0,
+      active?.peakZoom))
 }
-function cancelKissCamera(soft = false) {
-  const active = kissCameraLease
+function cancelProximityCamera(soft = false) {
+  const active = proximityCameraLease
   if (!active) return
   if (soft && active.model === model) {
     // Next character-selected body motion may start immediately; the camera
     // must not teleport backwards just because another sentence has a Motion3.
     if (active.handoff) return
     const now = performance.now()
-    const atHandoff = kissCameraFrame(now - active.startedAt)
+    const atHandoff = screenProximityFrame(active.index, now - active.startedAt)
     if (!atHandoff.finished && atHandoff.zoom > 1.01) {
       active.handoff = { at: now, zoom: atHandoff.zoom }
-      applyKissCameraPose(now)
+      applyProximityCameraPose(now)
       return
     }
   }
-  kissCameraLease = null
-  applyKissCameraPose()
+  proximityCameraLease = null
+  applyProximityCameraPose()
 }
 function setFramingMode(nextMode) {
   framingMode = nextMode === 'portrait' ? 'portrait' : 'full'
@@ -618,14 +624,15 @@ function applyFinalParameters(core, deltaMs) {
   } : faceRequest
   // Only the verified wolf's actual kiss clip can acquire this temporary
   // physical close-eye/pursed-lip score. It shares the camera's real clock.
-  const kissFrame = wolfRigActive && kissCameraLease?.model === model &&
-    !kissCameraLease.handoff
-    ? kissFaceFrame(tactileNow - kissCameraLease.startedAt) : null
+  const kissFrame = wolfRigActive && proximityCameraLease?.model === model &&
+    proximityCameraLease.index === WOLF_KISS_MOTION_INDEX &&
+    !proximityCameraLease.handoff
+    ? kissFaceFrame(tactileNow - proximityCameraLease.startedAt) : null
   const stagedFace = kissFrame
     ? { ...(visibleFace || {}), ...kissFrame.face } : visibleFace
   // The nuzzle follows the kiss's clock, never a new TTS phrase clock.
   const kissNuzzle = kissFrame
-    ? kissNuzzleFrame(tactileNow - kissCameraLease.startedAt) : null
+    ? kissNuzzleFrame(tactileNow - proximityCameraLease.startedAt) : null
   // Keep an already-chosen sequence alive after its first clip naturally
   // finishes. The next Motion3 is NOT scheduled by guessed speech speed.
   advanceSpeechMotionIfFinished()
@@ -784,7 +791,7 @@ function ensureApp() {
   app.ticker.add(() => {
     const started = performance.now()
     try {
-      applyKissCameraPose(started)
+      applyProximityCameraPose(started)
       app.render()
       recordRenderTick(performance.now() - started, performance.now())
     } catch (error) {
@@ -905,7 +912,7 @@ async function load(modelURL) {
       app.stage.removeChild(model)
       model.destroy({ texture: true, baseTexture: true })
       model = null
-      kissCameraLease = null
+      proximityCameraLease = null
       pendingPostSpeechKiss = null
       cameraBasePose = null
     }
@@ -1072,9 +1079,10 @@ function onPlaybackEvent(phase, segmentIndex = 0, eventVisualSequence = 0, segme
     // If a NEW audible fragment really starts before the previous kiss has
     // finished retreating, release its camera and real Motion3 immediately.
     // Never let a still-zoomed/pursed face talk through the next TTS phrase.
-    if (newAudioFragment && kissCameraLease?.model === model) {
-      const finishedKiss = kissCameraLease
-      cancelKissCamera()
+    if (newAudioFragment && proximityCameraLease?.model === model &&
+        proximityCameraLease.index === WOLF_KISS_MOTION_INDEX) {
+      const finishedKiss = proximityCameraLease
+      cancelProximityCamera()
       if (authoredMotion?.model === model &&
           authoredMotion.revision === finishedKiss.revision &&
           authoredMotion.index === WOLF_KISS_MOTION_INDEX) {
@@ -1824,13 +1832,14 @@ function clearSpeechMoment({
   // An audible next phrase isn't a command to break an already-started kiss.
   // Hold the bounded physical lease through speech-only/expression-only cues;
   // explicit new Motion3, interruption, hide and disposal always release it.
-  const carryKiss = !cancelKiss && kissCameraLease?.model === model &&
-    authoredMotion?.started && authoredMotion?.revision === kissCameraLease.revision &&
-    performance.now() - kissCameraLease.startedAt < KISS_CAMERA_DURATION_MS
-  const carryMotion = (preserveCurrentMotion || carryKiss) && authoredMotion?.started &&
+  const carryProximity = !cancelKiss && proximityCameraLease?.model === model &&
+    authoredMotion?.started && authoredMotion?.revision === proximityCameraLease.revision &&
+    performance.now() - proximityCameraLease.startedAt <
+      screenProximityDuration(proximityCameraLease.index)
+  const carryMotion = (preserveCurrentMotion || carryProximity) && authoredMotion?.started &&
     authoredMotion.model === model && authoredMotion.source === 'character' &&
     model?.internalModel?.motionManager?.isFinished?.() !== true
-  if (cancelKiss) cancelKissCamera(softenKiss)
+  if (cancelKiss) cancelProximityCamera(softenKiss)
   motionTransition.cancel()
   resetSpeechExpression()
   mouthExpressionGate.reset()
@@ -2048,7 +2057,7 @@ function motion(group, index, immediatePreview = false, source = 'character', op
       authoredMotion.index === index &&
       (!authoredMotion.started ||
         target.internalModel?.motionManager?.isFinished?.() !== true)) return
-  cancelKissCamera(source === 'character')
+  cancelProximityCamera(source === 'character')
   const revision = ++motionRevision
   const chosen = { model: target, revision, group, index, started: false, source,
     visualSequence: scoreVisualSequence, segmentId: options.segmentId || '',
@@ -2075,7 +2084,7 @@ function motion(group, index, immediatePreview = false, source = 'character', op
         authoredMotion !== chosen) return
     stopRejectedHandoff()
     authoredMotion = null
-    cancelKissCamera(true)
+    cancelProximityCamera(true)
     speechMotionFollowUps = []
     if (source === 'character') notify('motion-failed', JSON.stringify({
       sequence: chosen.visualSequence, group, index,
@@ -2109,19 +2118,21 @@ function motion(group, index, immediatePreview = false, source = 'character', op
     if (ok === false) {
       stopRejectedHandoff()
       authoredMotion = null
-      cancelKissCamera(true)
+      cancelProximityCamera(true)
       speechMotionFollowUps = []
       if (source === 'character') notify('motion-failed', receipt)
       notify('diagnostic', 'Motion3 未启动：' + group + '#' + index + '（Cubism 播放器拒绝）')
     } else {
       chosen.started = true
-      if (wolfRigActive && group === 'LuluWolf' && index === WOLF_KISS_MOTION_INDEX) {
+      if (wolfRigActive && group === 'LuluWolf' &&
+          isScreenProximityMotion(index)) {
         const base = cameraBasePose
         const mouthCalibration = touchCalibration.mouth
         let bounds = null
         try { bounds = target.getBounds() } catch (_) { /* use face fallback */ }
-        kissCameraLease = { model: target, revision,
+        proximityCameraLease = { model: target, revision, index,
           startedAt: performance.now(), faceIssuedAt: Date.now(),
+          peakZoom: screenProximityPeak(index),
           mouthLocalX: kissMouthLocalOffsetX(base, bounds, mouthCalibration),
           faceLocalY: kissFaceLocalOffsetY(base, bounds, touchCalibration) }
       }
