@@ -115,6 +115,15 @@ class SemanticMemoryTurnPipelineTest {
             assertTrue(request.contains("同一经历"))
             assertFalse(request.contains("eventId=talk-18@")) // protected tail
             assertEquals(20, repository.contextTimelineTurns(role).size)
+            // A receipt omitted from the short game summary still exists and
+            // is searchable from the SAME canonical source after extraction.
+            val middle = RawTimelineMemoryRecall.find(role, "第60次动作实际完成")
+            assertTrue(middle.any { it.id == "relic:run:$role:60" })
+            val recalled = UnifiedMemoryOrchestrator.assemble(
+                role, UnifiedMemoryRequest(currentInput = "第60次动作实际完成"),
+                paidRanking = false, localOnly = false)
+            assertTrue(recalled.sourceEvents.any { it.id == "relic:run:$role:60" } ||
+                recalled.recentEvents.any { it.id == "relic:run:$role:60" })
             // The protected tail is not accidentally certified as processed.
             assertTrue(repository.hasUnprocessedEvents(role))
         } finally { server.shutdown() }
