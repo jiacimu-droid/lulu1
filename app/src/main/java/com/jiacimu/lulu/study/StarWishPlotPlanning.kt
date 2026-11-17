@@ -108,6 +108,25 @@ internal data class StarWishPlotCandidate(
 internal class StarWishCustomTheaterLibrary private constructor(context: Context) {
     private val prefs = context.applicationContext.getSharedPreferences("lulu_starwish_custom_theaters", Context.MODE_PRIVATE)
 
+    init {
+        // Remove obsolete private-author story titles from both saved shelves
+        // and the hidden-title registry; keep all unrelated user stories.
+        val existing = runCatching { JSONArray(prefs.getString("items", "[]")) }.getOrDefault(JSONArray())
+        val cleaned = JSONArray()
+        for (index in 0 until existing.length()) {
+            val item = existing.optJSONObject(index) ?: continue
+            if (!LegacyBuiltInTheaters.matches(item.optString("title").trim())) cleaned.put(item)
+        }
+        val hidden = prefs.getStringSet("hiddenTitles", emptySet()).orEmpty()
+        val keptHidden = hidden.filterNot(LegacyBuiltInTheaters::matches).toSet()
+        if (cleaned.length() != existing.length() || keptHidden.size != hidden.size) {
+            check(prefs.edit().putString("items", cleaned.toString())
+                .putStringSet("hiddenTitles", keptHidden).commit()) {
+                "旧内置剧场清理失败"
+            }
+        }
+    }
+
     fun all(): List<StarWishTheaterSeed> {
         val array = runCatching { JSONArray(prefs.getString("items", "[]")) }.getOrDefault(JSONArray())
         return buildList {
