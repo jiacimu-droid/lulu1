@@ -77,8 +77,8 @@ object CapabilityRegistry {
             com.jiacimu.lulu.system.LuluScreenAwareness.onDemandAllowed(context)
             else com.jiacimu.lulu.system.LuluScreenAwareness.autonomousAllowed(context)
         if (capability.name == "summon_lulu") return com.jiacimu.lulu.system.LuluScreenAwareness.summonAllowed(context)
-        if (capability.name == "bring_lulu_front") return
-            com.jiacimu.lulu.system.LuluScreenAwareness.directReturnAllowed(context)
+        if (capability.name == "bring_lulu_front")
+            return com.jiacimu.lulu.system.LuluScreenAwareness.directReturnAllowed(context)
         if (userRequested) return true
         val prefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
         // Media playback inspection belongs to the media grant, not virtual-screen access.
