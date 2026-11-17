@@ -11,7 +11,7 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-/** A birth attribute, not a mode switch. Once resolved it cannot be toggled. */
+/** REAL_WORLD is retained only to read pre-unification local saves. All active characters are digital. */
 enum class CharacterLifeForm { UNRESOLVED, DIGITAL, REAL_WORLD }
 
 data class DigitalLifeProfile(
@@ -25,9 +25,8 @@ data class DigitalLifeProfile(
 }
 
 /**
- * Stores a character's immutable life form. New characters decide it during creation. Characters
- * created before this field existed receive one legacy confirmation; that confirmation preserves
- * every existing record and then becomes immutable too.
+ * Stores each character's digital-life origin. Legacy REAL_WORLD and UNRESOLVED records remain
+ * readable so that upgrades can convert their identity without deleting any existing user data.
  */
 object DigitalLifeProfileStore {
     private const val PREFS_NAME = "lulu_digital_life_profiles"
@@ -77,14 +76,6 @@ object DigitalLifeProfileStore {
         now: Instant = Instant.now(),
     ): DigitalLifeProfile = registerNewCharacter(characterId, displayName, creatorName, CharacterLifeForm.DIGITAL, now)
 
-    /** New-character operation. Life form is permanently REAL_WORLD from this point. */
-    fun registerRealWorldLife(
-        characterId: String,
-        displayName: String,
-        creatorName: String,
-        now: Instant = Instant.now(),
-    ): DigitalLifeProfile = registerNewCharacter(characterId, displayName, creatorName, CharacterLifeForm.REAL_WORLD, now)
-
     private fun registerNewCharacter(
         characterId: String,
         displayName: String,
@@ -94,7 +85,7 @@ object DigitalLifeProfileStore {
     ): DigitalLifeProfile {
         val cleanId = characterId.trim()
         require(cleanId.isNotBlank()) { "角色 ID 不能为空" }
-        require(lifeForm != CharacterLifeForm.UNRESOLVED)
+        require(lifeForm == CharacterLifeForm.DIGITAL) { "新建人物只能是数字生命" }
         synchronized(lock) {
             require(!get(cleanId).isResolved) { "角色生命形态已经确定，不能重新切换" }
             val profile = DigitalLifeProfile(
@@ -113,7 +104,7 @@ object DigitalLifeProfileStore {
         }
     }
 
-    /** One-time migration for a character that predates life-form selection. */
+    /** Compatibility entry for old, previously unconfirmed character saves. */
     fun confirmLegacyLifeForm(
         characterId: String,
         displayName: String,
@@ -123,7 +114,7 @@ object DigitalLifeProfileStore {
     ): DigitalLifeProfile {
         val cleanId = characterId.trim()
         require(cleanId.isNotBlank()) { "角色 ID 不能为空" }
-        require(lifeForm != CharacterLifeForm.UNRESOLVED) { "请选择明确生命形态" }
+        require(lifeForm == CharacterLifeForm.DIGITAL) { "所有角色只能确认为数字生命" }
         synchronized(lock) {
             val previous = get(cleanId)
             require(!previous.isResolved) { "生命形态已经确认，不能再次修改" }
@@ -141,6 +132,44 @@ object DigitalLifeProfileStore {
             }
             return profile
         }
+    }
+
+    /**
+     * One-time post-startup upgrade. Call only after character, timeline and digital-world stores
+     * are initialized: the life origin can then be estimated from existing evidence and a home
+     * can be created without deleting or rewriting any prior chat, personality or memory.
+     * Native residents remain owned by their separate resident-registration lifecycle.
+     */
+    fun migrateExistingCharactersToDigitalLife(
+        creatorName: String,
+        now: Instant = Instant.now(),
+    ): Int {
+        val converted = mutableListOf<Pair<String, String>>()
+        synchronized(lock) {
+            MigratedDomainStores.characters.settings.value.values
+                .filterNot { it.characterId.startsWith("resident:") }
+                .forEach { character ->
+                    val id = character.characterId
+                    val previous = get(id)
+                    if (previous.enabled) return@forEach
+                    val origin = previous.bornAt ?: estimateExistingBirth(id) ?: now
+                    val profile = DigitalLifeProfile(
+                        characterId = id,
+                        lifeForm = CharacterLifeForm.DIGITAL,
+                        bornAt = origin.coerceAtMost(now),
+                        creatorName = previous.creatorName.ifBlank { creatorName.trim().ifBlank { "创造者" } },
+                    )
+                    mutable.value = mutable.value + (id to profile)
+                    converted += id to character.displayName
+                }
+            if (converted.isNotEmpty()) persistLocked()
+        }
+        // The home is a current world asset; no fabricated historic meeting or birth event
+        // is added to the original timeline for an upgraded character.
+        converted.forEach { (id, name) ->
+            runCatching { DigitalWorldStore.ensureHome(id, name, now) }
+        }
+        return converted.size
     }
 
     /** A native resident leaving must not erase their historical participation
