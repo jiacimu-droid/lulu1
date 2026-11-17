@@ -13,7 +13,12 @@ internal object RelicThreatProgression {
     fun monsterCount(level:Int, difficulty:RelicDifficulty):Int {
         val stage=level.coerceIn(1,5)
         val standard=if(stage<=2) 2 else stage
-        return (standard+difficulty.extraMobs).coerceAtLeast(1)
+        // Hard starts with a playable three-guard encounter, not five simultaneous
+        // threats before the player has learned turns, facing and blocking.
+        // Subsequent floors climb 3 -> 4 -> 6 -> 7 -> 8; normal/easy stay untouched.
+        val extra = if(difficulty==RelicDifficulty.HARD && stage<=2) stage
+            else difficulty.extraMobs
+        return (standard+extra).coerceAtLeast(1)
     }
     fun safeSpawnDistance(difficulty:RelicDifficulty):Int =
         if(difficulty==RelicDifficulty.HARD) 5 else 8
@@ -23,7 +28,7 @@ internal object RelicThreatProgression {
         when(difficulty) {
             RelicDifficulty.EASY -> level>=4
             RelicDifficulty.NORMAL -> level>=3
-            RelicDifficulty.HARD -> level>=1
+            RelicDifficulty.HARD -> level>=2
         }
 }
 
