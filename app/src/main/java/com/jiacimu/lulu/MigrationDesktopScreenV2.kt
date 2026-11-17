@@ -805,8 +805,8 @@ private fun loadDesktopSlots(context: Context): List<String?> {
     }.toSet()
     val lastOccupied = saved.indexOfLast { it != null }
     val totalNeeded = maxOf(
-        existing.size + missing.size + widgetCells.size,
-        DESKTOP_SLOT_COUNT, lastOccupied + 1,
+        maxOf(existing.size + missing.size + widgetCells.size,
+            DESKTOP_SLOT_COUNT, lastOccupied + 1),
         (widgetCells.maxOrNull() ?: -1) + 1,
     )
     val pageCount = desktopAllocatedPageCount(totalNeeded)
