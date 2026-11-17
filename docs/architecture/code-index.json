@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T19:23:45.484370+00:00",
-  "commit": "c3c4de015feb62f43c262d1578d3dfa934ea352b",
+  "generatedAt": "2026-11-17T19:25:15.215845+00:00",
+  "commit": "b9602de115b9b70a4d0cd7d9375775d3c46c3b8b",
   "branch": "main",
-  "sourceFingerprint": "3eaa11472a0106adec544dd0149687bf5e2748ccdca10294f438e03b1162c5e8",
+  "sourceFingerprint": "28289ec0bd232949305737ab92afbf572231dcd38ae653d6efdf0a512eb1c2bd",
   "summary": {
-    "files": 1442,
-    "lines": 303481,
-    "symbols": 4343
+    "files": 1443,
+    "lines": 303835,
+    "symbols": 4344
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -880,6 +880,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt",
         "line": 103
+      }
+    ],
+    "saveCharacter": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CharacterCreateScreen.kt",
+        "line": 61
       }
     ],
     "CharacterMemoryFeatureScreen": [
@@ -4169,7 +4175,7 @@
     "MigrationEmptyScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
-        "line": 51
+        "line": 52
       }
     ],
     "accept": [
@@ -7949,7 +7955,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-        "line": 337
+        "line": 363
       }
     ],
     "axis": [
@@ -22987,7 +22993,7 @@
     "savedPlan": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-        "line": 468
+        "line": 494
       }
     ],
     "ScheduledReminderDeliveryTest": [
@@ -24921,6 +24927,17 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/CharacterCreateScreen.kt",
+      "lines": 317,
+      "sha256": "72a4c11ded283cdb5025d23a0c97b4cceadc9337c14902d5203123bbdbfab1c0",
+      "symbols": [
+        {
+          "name": "saveCharacter",
+          "line": 61
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterDevelopmentSettings.kt",
       "lines": 66,
       "sha256": "dc7bf93c0f84b03f384497b1d1cb79284f51aa4cbc267395014982dbb4114858",
@@ -24993,7 +25010,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt",
       "lines": 643,
-      "sha256": "58ae479171363f192893a0567021409e49de1ddf5b2eba8caab1896c5da50949",
+      "sha256": "77dd4ec1f87ba437017e409579872948f74fbddbae65164ff16e824a0ef30f58",
       "symbols": [
         {
           "name": "CharacterSettingsScreenV2",
@@ -26827,8 +26844,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 603,
-      "sha256": "3e132d9be5e6fac2f84e75ccbdded1de28bc786ccde720ee30e807f414e66169",
+      "lines": 612,
+      "sha256": "1a5856fbe78f008923b83ac0c4a757ba947fb690f5e9e87c3c13188d483eb1d1",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -27340,8 +27357,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt",
-      "lines": 673,
-      "sha256": "0c79aa7e33c61fb76391009b95f5d361b2cb98f5748682b9600f09620ae919e5",
+      "lines": 630,
+      "sha256": "df4b099a98ca6f890bb73d622dfe0bf603e33518d9e1ed96852324131997ff7a",
       "symbols": [
         {
           "name": "MigratedChatHubScreenV2",
@@ -27406,8 +27423,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
-      "lines": 102,
-      "sha256": "1eddb1c84f0d704f7478ad075a0b7404ad14c10af51b73d4a5b87feddc8a9c03",
+      "lines": 103,
+      "sha256": "c74f47ee2b2ad1958a5696ee6712dc727b800cbdf5d3bdaf988d18c3ced1323f",
       "symbols": [
         {
           "name": "MigrationRoute",
@@ -27415,7 +27432,7 @@
         },
         {
           "name": "MigrationEmptyScreen",
-          "line": 51
+          "line": 52
         }
       ]
     },
@@ -48693,8 +48710,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt",
-      "lines": 335,
-      "sha256": "b83290a590e16f7d569508416b1a6cee5b1df7756ebe1f5d8ac87dbf0d88f1d4",
+      "lines": 379,
+      "sha256": "7a7368ee15c542022b57412eaa69fac651530ac9d0d277e6c8905fc039a30145",
       "symbols": [
         {
           "name": "ProactiveQuietDecisionTest",
@@ -49176,8 +49193,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-      "lines": 547,
-      "sha256": "553843044ea8ba1b7a0b39fe5fc99254c7a01fde9412bb63778a21f5c20bf002",
+      "lines": 573,
+      "sha256": "19ebd63bbf7f134db6b09a46c9b78db1258ff5d28a19b35c31b25507cb289609",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",
@@ -49185,11 +49202,11 @@
         },
         {
           "name": "completed",
-          "line": 337
+          "line": 363
         },
         {
           "name": "savedPlan",
-          "line": 468
+          "line": 494
         }
       ]
     },
