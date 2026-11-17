@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#121f1f"><title>露露机 · 统一世界素材试玩</title>
+<link rel="stylesheet" href="./worlds.css">
+</head>
+<body>
+<main class="shell">
+  <header class="header"><div class="wordmark"><small>LULU / SHARED WORLD</small><strong>露露机 · 统一世界</strong></div><a class="back" href="./index.html">退出试玩 ↗</a></header>
+  <nav class="scenes" aria-label="切换试玩世界"><button data-world="meet" class="active">☁ 见面小镇</button><button data-world="island">✿ 方块小岛</button><button data-world="relic">◇ 迷雾摸金</button></nav>
+  <div class="notice"><span class="dot"></span>统一素材场景预览 · 真实 Kenney CC0 图片 · <strong>尚非 App 原生同版</strong></div>
+  <section class="game" aria-label="游戏画面"><div class="game-head"><div><div class="chapter" id="chapter">MEETING / TOWN</div><h1 id="world-title">见面 · 南岸小镇</h1></div><div class="stats"><span id="stat-turn">探索 0</span><span id="stat-resource">牵手 · 否</span></div></div>
+    <div class="viewport" id="viewport"><canvas id="world-canvas" tabindex="0" aria-label="共享世界地图，方向键移动，点击地图走近目标"></canvas><span class="scene-corner">2D · TINY 16PX</span><div class="floating" id="floating">点击地图可自动走路</div></div>
+    <div class="toolbar"><div class="pad" aria-label="移动方向"><button data-step="0,-1" class="up" aria-label="上">↑</button><button data-step="-1,0" class="left" aria-label="左">←</button><button data-step="1,0" class="right" aria-label="右">→</button><button data-step="0,1" class="down" aria-label="下">↓</button></div><div class="action-panel"><div class="focus"><span id="focus-label">世界入口</span><small id="focus-hint">靠近物品或人物互动</small></div><button id="act" class="primary">互动</button><button id="reset" class="secondary">重开场景</button></div></div>
+  </section>
+  <section class="bottom"><div><strong>这次真正复用了素材图片，而不是代码临摹树和房子。</strong><p>三个场景使用同一套镜头、走路、碰撞、寻路和精灵绘制器；场景数据和玩法分别配置。角色 AI、正式存档以及 Kotlin 规则暂未接入，这是一份让你先看画风与操作的浏览器提案。</p></div><div class="origin"><span>ART SOURCE</span><a href="https://kenney.nl/assets/tiny-town" target="_blank" rel="noreferrer">Kenney Tiny Town</a><a href="https://kenney.nl/assets/tiny-dungeon" target="_blank" rel="noreferrer">Kenney Tiny Dungeon</a><small>CC0 · 作者 Kenney · 资产源文件见项目许可证记录</small></div></section>
+</main>
+<script src="./world-core.js"></script><script src="./worlds.js"></script>
+</body>
+</html>
