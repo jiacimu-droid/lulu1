@@ -34,6 +34,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -143,6 +145,10 @@ internal object SelfTodoStore {
     private const val PREF = "lulu_self_todo_v2"
     private const val TASKS = "tasks"
     private const val MIGRATED = "legacy_imported"
+    private val mutationLock = Any()
+    private val revisions = MutableStateFlow(0L)
+    /** Both the full 自序 list and dashboard widgets observe the same persisted version. */
+    val revision = revisions.asStateFlow()
 
     private fun preferences(context: Context) =
         context.applicationContext.getSharedPreferences(PREF, Context.MODE_PRIVATE)
@@ -205,8 +211,38 @@ internal object SelfTodoStore {
         return array.toString()
     }
 
-    fun save(context: Context, tasks: List<TodoTask>): Boolean =
-        preferences(context).edit().putString(TASKS, encode(tasks)).commit()
+    fun save(context: Context, tasks: List<TodoTask>): Boolean = synchronized(mutationLock) {
+        val committed = preferences(context).edit().putString(TASKS, encode(tasks)).commit()
+        if (committed) revisions.value += 1L
+        committed
+    }
+
+    /**
+     * A widget checkbox writes the exact dated occurrence into the SAME source of
+     * truth as 自序 → 所行. Reject stale IDs, already-checked rows and corrupt data.
+     * Legacy notes and the migration marker are committed in one transaction.
+     */
+    fun completeFromWidget(
+        context: Context, taskId: String, date: LocalDate, nowMillis: Long = System.currentTimeMillis(),
+    ): Boolean = synchronized(mutationLock) {
+        if (taskId.isBlank()) return@synchronized false
+        val current = readForRole(context) ?: return@synchronized false
+        val today = java.time.Instant.ofEpochMilli(nowMillis)
+            .atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+        val occurrence = SelfTodoCalendar.allPending(current, today)
+            .firstOrNull { it.task.id == taskId && it.date == date }
+            ?: return@synchronized false
+        if (occurrence.date != today) return@synchronized false
+        val updated = current.map { task ->
+            if (task.id == taskId) SelfTodoCalendar.complete(task, date, nowMillis) else task
+        }
+        val saved = preferences(context).edit()
+            .putString(TASKS, encode(updated))
+            .putBoolean(MIGRATED, true)
+            .commit()
+        if (saved) revisions.value += 1L
+        saved
+    }
 
     private fun legacyAdditions(legacy: List<LegacySelfTodo>, stored: List<TodoTask>): List<TodoTask> {
         val today = LocalDate.now()
@@ -267,14 +303,16 @@ internal object SelfTodoStore {
         return stored + legacyAdditions(legacy, stored)
     }
 
-    fun loadWithLegacy(context: Context, legacy: List<LegacySelfTodo>): List<TodoTask> {
+    fun loadWithLegacy(context: Context, legacy: List<LegacySelfTodo>): List<TodoTask> = synchronized(mutationLock) {
         val stored = read(context)
         val prefs = preferences(context)
         if (prefs.getBoolean(MIGRATED, false)) return stored
         val additions = legacyAdditions(legacy, stored)
         val merged = stored + additions
         // Mark the migration only together with its data. Failed commits can retry.
-        prefs.edit().putString(TASKS, encode(merged)).putBoolean(MIGRATED, true).commit()
+        val committed = prefs.edit().putString(TASKS, encode(merged))
+            .putBoolean(MIGRATED, true).commit()
+        if (committed) revisions.value += 1L
         return merged
     }
 }
@@ -302,6 +340,12 @@ internal fun SelfTodoScreen(
 ) {
     val context = LocalContext.current
     var tasks by remember { mutableStateOf(SelfTodoStore.loadWithLegacy(context, legacy)) }
+    val externalRevision by SelfTodoStore.revision.collectAsState()
+    LaunchedEffect(externalRevision) {
+        // A dashboard checkbox can be pressed while 自序 is in the back stack.
+        // Refresh before a stale full-list save can undo that real completion.
+        tasks = SelfTodoStore.readForRole(context) ?: tasks
+    }
     var today by remember { mutableStateOf(LocalDate.now()) }
     var nowMinutes by remember { mutableIntStateOf(LocalTime.now().toSecondOfDay() / 60) }
     var showingHistory by rememberSaveable { mutableStateOf(false) }
