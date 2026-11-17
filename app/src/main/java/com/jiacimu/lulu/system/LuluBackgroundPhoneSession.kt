@@ -465,9 +465,11 @@ internal object LuluBackgroundPhoneSession {
         composerX: Int, composerY: Int, authorized: () -> Boolean,
         frameSource: suspend () -> android.graphics.Bitmap?,
     ): JSONObject {
+        var titleVerified = false
         fun denied(code: String, explanation: String): JSONObject = JSONObject()
             .put("accepted", false).put("messageSendClicked", false)
             .put("messageSendAttempted", false)
+            .put("chatRecipientVerified", titleVerified)
             .put("taskCompleted", false).put("errorCode", code)
             .put("verification", explanation)
             .put("actionMethod", "visual_chat_targeted_unicode")
@@ -486,6 +488,7 @@ internal object LuluBackgroundPhoneSession {
             id, packageName, recipient, forceFresh = true, frameSource = frameSource)
         if (!title || !authorized()) return denied("chat_recipient_unverified",
             "没有从本次后台微信真实截图核实唯一收件人标题；未输入")
+        titleVerified = true
         if (!command(JSONObject().put("action", "prepare_type")).optBoolean("accepted"))
             return denied("visual_chat_frame_barrier_missing", "输入前的独立屏图像屏障失败")
         val tapped = withContext(Dispatchers.Main) {
