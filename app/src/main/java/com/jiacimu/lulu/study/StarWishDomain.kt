@@ -209,7 +209,7 @@ internal class StarWishStore private constructor(context: Context) {
                 LegacyBuiltInTheaters.matches(it.removePrefix("chapter:"))
         }
         if (staleDrafts.isNotEmpty()) {
-            chapterDraftPrefs.edit().apply { staleDrafts.forEach(::remove) }.apply()
+            chapterDraftPrefs.edit().apply { staleDrafts.forEach { key -> remove(key) } }.apply()
         }
     }
 
