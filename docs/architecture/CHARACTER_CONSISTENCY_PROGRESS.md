@@ -6,6 +6,13 @@
 - [b239286](https://github.com/jiacimu-droid/lulu1/commit/b2392865af0010f5a922657fc4319c642807ac31)、[8efc982](https://github.com/jiacimu-droid/lulu1/commit/8efc982a37a7cad6688b660b88aa761af480f193)：合场文学保留一次 Isolated 写作请求和各自角色章节；给每个角色带入本人的通知、原始会面及被该事件/前因锚定的已保存心声/选择，提示正文不能把另一个人的未说出的心声写成自己的或已公开的事实。写作仅产生非权威文学，不回填原世界事件、主人行为、关系或心理。证据 ID 按本人单独链接。
 - 回归源码 [e4710e4](https://github.com/jiacimu-droid/lulu1/commit/e4710e43623827ac59aa38b2b7ff7a2fc90d07f3)、[f991a19](https://github.com/jiacimu-droid/lulu1/commit/f991a194a2ad48d052454e4884ea7e970d646900)：覆盖到访→离场顺序、其他地点/未来/伪源隔离、没有通知不伪造在场、本人的证据心声能进入正文而他人的/未来的不能。**当前仅提交测试，未取得目标 SHA 的 JVM/APK 成功证明，且未在 Redmi 真机用两角色 + 真实模型重放。** 后续核 `WorldVisitorSceneContextTest`、`AutonomousEncounterCausalChapterTest`、`AutonomousEncounterPrivacyTest` 在当前 main push 的首错；真机还要验证从地点退出/强杀后离场通知是否真实到达、模型是否自主延续找人的目标、历史章节不应被静默重写。
 
+## 2026-11-17 · P-03.1 电话外部观察与定时沉默感知各自结算
+
+- `LuluVoiceCallSession.handleUserSpeech` 把外部回执交付和普通定时感知都以 `autonomousSilence=true` 进入。旧分支把跨入口已处理、过期等未交付也计作定时感知失败，第三次会从 2 分钟进入 10 分钟退避。成功交付外部回执也会清掉真正定时感知的既有失败。
+- [3d5a7c56](https://github.com/jiacimu-droid/lulu1/commit/3d5a7c56cb5a9931d3394c7bbb759646e6043f29) 在成功、失败、无可用归档三处由 `CallSilencePolicy.failureCountAfterTurn` 按触发来源结算。外部观察保留自己的诊断，不修改定时感知的计数。不添加调用，也不修改模型在有效回执下可选的表达和行动。
+- `CallSilencePolicyTest.externalObservationDoesNotDelayQuietReflectionOrClearItsBackoff` 从两次实际定时失败开始，检查外部未交付不推迟 2 分钟感知，真实第三次失败仍退避到 10 分钟，外部成功不清退避，真实成功会清退避。索引 [#44093791625](https://github.com/jiacimu-droid/lulu1/actions/runs/44093791625) 已成功；JVM/APK [#44093791671](https://github.com/jiacimu-droid/lulu1/actions/runs/44093791671) 待核。前轮 [#44076512770](https://github.com/jiacimu-droid/lulu1/actions/runs/44076512770) 已复核成功。
+- 真机接入和真实模型待验。下一步打开 `LuluVoiceCallSession.handleUserSpeech` 中 `sleepContinuationJob?.cancel()` 和 `scheduleSleepContinuation`，核外部观察被拒交或主动选沉默后，是否误停已明确开启的原通话继续任务。沿调用方与真实状态检查，保留模型原选择。
+
 ## 2026-11-17 · P-03.1 跨入口已处理的回执不再触发第二次电话决定
 
 - 原时间线 `SharedExperienceTimeline.record` 修订原证据时会撤下关联工具回执，电话已有回执版本与撤回检查。本轮实查另一条路径：`CallExternalResultPolicy.pendingEvidence` 取出回执时查了已感知账本，之后 `LuluDeviceToolBridge.respond` 只对比时间线版本和可见性。若私聊或后台在电话准备或等待模型时确认了同一回执，版本和可见性都不变，旧决定仍可能提交。
