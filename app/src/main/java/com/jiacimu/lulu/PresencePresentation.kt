@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.data.CompanionPresenceMood
 import com.jiacimu.lulu.data.CompanionPresenceState
 import com.jiacimu.lulu.data.PresenceFieldBoundary
 
@@ -30,7 +31,7 @@ internal object PresencePresentation {
     }
 
     fun uniqueMood(value: String): String =
-        clean(value).split(Regex("\\s*[·•；;]+\\s*"))
+        clean(CompanionPresenceMood.text(value)).split(Regex("\\s*[·•；;]+\\s*"))
             .map(String::trim).filter(String::isNotBlank)
             .distinctBy { it.replace(Regex("\\s+"), "") }
             .joinToString(" · ")
