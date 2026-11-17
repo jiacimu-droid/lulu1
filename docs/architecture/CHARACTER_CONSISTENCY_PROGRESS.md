@@ -1,5 +1,7 @@
 ## 2026-11-18 · PH-01 Mika 通用交互链路复核与错误禁点解除（待完整 APK / 真机）
 
+- 实际源码：[b79e753](https://github.com/jiacimu-droid/lulu1/commit/b79e753f721b10137d4e9bbd247e1229c7ec7879)，对应索引 [#44137166133](https://github.com/jiacimu-droid/lulu1/actions/runs/44137166133) 成功。原 [APK #44137166174](https://github.com/jiacimu-droid/lulu1/actions/runs/44137166174) 的首错仅为并行桌面组件拖拽覆盖层maxWidth/maxHeight越界；已在 [899429d](https://github.com/jiacimu-droid/lulu1/commit/899429dd1c92f38c2355995fda583afe3ef4bdb0) 将它移回原BoxWithConstraints，与图标拖拽共用测量及坐标原点。后续main已包含修复，等待最新APK/JVM，取消的旧运行不算通过。
+
 - 实际阅读 Mika `84cbb1d2e4b9793c8026b23c72cffda09d13e6aa` 的 `Tap.kt`、`TextTools.kt`、`AndroidScreen.tapRef/tapXY`、`ClickFallback`、`ShellService.injectTap/injectTo`、`Locator.LOCATE_SCREEN_CHANGE`。关键差异：Mika 的 outward 标记用于禁止不确定动作的自动补点，Lulu 却用同类判断禁止首次发送/发表/评论/点赞，另有专用微信/评论流程成为硬前置。本轮按主人明确授权修正这层权限/执行归属，不新造人物或模型。
 - 原手机总授权覆盖普通社交按钮；`tap_element` 可点真实发送/发表/关注等控件并支持 `longPress=true`。`tap/long_press` 绑定本人当前真实图像与快照，执行前比对目标区域新像素及独立窗口；不需要预写App路线、聊天标题或editorRef专用事务。输入仍复用原type与定向Unicode，角色根据真实画面选择随后按钮。专用工具继续兼容但不再是必经路线。
 - 新 `LuluShellTouchInput` 经原ADB shell helper向它自己创建的非零display及已核实App UID定向派发一组DOWN/UP，长按同一路径。失误或部分派发仅CANCEL释放指针，不自动换通道/补点，不调用不受控主屏input命令。原键盘注入共享同一个UID定向入口。控件与坐标通道在操作前选定，返回dispatchAttempted与业务效果未知，不伪报发表/送达。
