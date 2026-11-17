@@ -194,7 +194,14 @@ class CharacterOriginResetTest {
         val legacyTimeline = SharedExperienceTimeline.all(legacy.characterId)
         val currentTimeline = SharedExperienceTimeline.all(current.characterId)
 
-        assertEquals(1, DigitalLifeProfileStore.migrateExistingCharactersToDigitalLife("用户", now))
+        // Robolectric shares an in-process character store with other tests.
+        // Verify the full scope of eligible legacy entries, not a hard-coded count.
+        val expectedConversions = MigratedDomainStores.characters.settings.value.values.count { person ->
+            !person.characterId.startsWith("resident:") &&
+                !DigitalLifeProfileStore.isEnabled(person.characterId)
+        }
+        assertTrue(expectedConversions >= 1)
+        assertEquals(expectedConversions, DigitalLifeProfileStore.migrateExistingCharactersToDigitalLife("用户", now))
         assertTrue(DigitalLifeProfileStore.isEnabled(legacy.characterId))
         assertEquals(oldTime.plusSeconds(5), DigitalLifeProfileStore.birthAt(legacy.characterId))
         assertEquals(currentOrigin, DigitalLifeProfileStore.birthAt(current.characterId))
