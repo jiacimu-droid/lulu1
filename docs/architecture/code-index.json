@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:50:36.191287+00:00",
-  "commit": "89686f367c4ca500efa3f8630d4ce86c3fd7c5c9",
+  "generatedAt": "2026-11-17T17:51:53.019798+00:00",
+  "commit": "7e2a48e5a40ab6f0cee65fdf68bf2e374f3cdca3",
   "branch": "main",
-  "sourceFingerprint": "895acd10d5a4c4e6a2b0b58f21c486d5c9246d3c2140773e6185012b3ba42335",
+  "sourceFingerprint": "c1a1ac0080d0daad232b424812d45196e9c981c230f97f4b581052b1db037839",
   "summary": {
-    "files": 1439,
-    "lines": 302994,
+    "files": 1442,
+    "lines": 303153,
     "symbols": 4343
   },
   "symbolIndex": {
@@ -51249,6 +51249,12 @@
       "symbols": []
     },
     {
+      "path": "preview/WORLD_ASSETS.md",
+      "lines": 40,
+      "sha256": "b205fc6e7a703c056dd0c385959b560ba0829541cd619503b49dc122416644a3",
+      "symbols": []
+    },
+    {
       "path": "preview/app.js",
       "lines": 54,
       "sha256": "f1970a23411084fb2da03eef1f0f47a4bd105349f13f7444c66bd2f5c34e830d",
@@ -51279,27 +51285,39 @@
       "symbols": []
     },
     {
+      "path": "preview/world-art-catalog.js",
+      "lines": 10,
+      "sha256": "5d73773f28b869856bf51af3a3a9bb54a9380c7f0f70062685173a83b4e437cc",
+      "symbols": []
+    },
+    {
       "path": "preview/world-core.js",
       "lines": 82,
       "sha256": "533d27afac8f5c1abfc439165bfaf416c172cb6a0954e56d00e4e49316553f31",
       "symbols": []
     },
     {
+      "path": "preview/world-joystick.js",
+      "lines": 20,
+      "sha256": "c44f6fd4a924ecb54617f5a8a8ca4ccc61eab2615f1dcf19020fb942be520165",
+      "symbols": []
+    },
+    {
       "path": "preview/worlds.css",
-      "lines": 50,
-      "sha256": "cd74e2a26bf375917d054c2531267294035a930ec460c4c92648f5d551783c8a",
+      "lines": 68,
+      "sha256": "fce76389575d13a92493b9d352460faedbfc589b4fb2455b907040f5527b2212",
       "symbols": []
     },
     {
       "path": "preview/worlds.html",
       "lines": 22,
-      "sha256": "1694d287fbcc83db45df3dc293fe62aa6842bdfba26bbaf0d2e6a1d1230c72e5",
+      "sha256": "b6fc8aca7f3e90d54fa27eb52a22ae6f321ce04d3815d724cb2541fe046df759",
       "symbols": []
     },
     {
       "path": "preview/worlds.js",
-      "lines": 73,
-      "sha256": "1f5e0d32287b16fcff5f65c56a26326365a2b970bae34a333f5aa68125ea0260",
+      "lines": 144,
+      "sha256": "e2e12710fb6cf8714b01e58c768a59ce4bb61e225a6f0068c7ef59a09f32ce23",
       "symbols": []
     }
   ]

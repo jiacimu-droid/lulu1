@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`89686f367c4ca500efa3f8630d4ce86c3fd7c5c9`
+- 基准提交：`7e2a48e5a40ab6f0cee65fdf68bf2e374f3cdca3`
 - 分支：`main`
-- 已索引文件：1439
-- 已索引代码/文本行：302994
+- 已索引文件：1442
+- 已索引代码/文本行：303153
 - 已发现符号：4343
 
 | 文件 | 行数 | 符号数 |
@@ -1438,12 +1438,15 @@
 | `scripts/test_xhs_reader.js` | 744 | 1 |
 | `scripts/verify_phone_apk_bytecode.py` | 51 | 0 |
 | `preview/ASSET_ORIGINS.md` | 11 | 0 |
+| `preview/WORLD_ASSETS.md` | 40 | 0 |
 | `preview/app.js` | 54 | 0 |
 | `preview/compare.html` | 52 | 0 |
 | `preview/index.html` | 101 | 0 |
 | `preview/play.html` | 173 | 0 |
 | `preview/styles.css` | 2 | 0 |
+| `preview/world-art-catalog.js` | 10 | 0 |
 | `preview/world-core.js` | 82 | 0 |
-| `preview/worlds.css` | 50 | 0 |
+| `preview/world-joystick.js` | 20 | 0 |
+| `preview/worlds.css` | 68 | 0 |
 | `preview/worlds.html` | 22 | 0 |
-| `preview/worlds.js` | 73 | 0 |
+| `preview/worlds.js` | 144 | 0 |
