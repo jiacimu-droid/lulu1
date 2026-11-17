@@ -286,4 +286,52 @@ class IslandTargetActionTest {
             BlockIslandRules.act(stone, "gather", 5, 4).world.stone)
     }
 
+    @Test fun guardedLostPackRequiresRealCombatThenRecoversExactlyOnceAcrossReload() {
+        val base = scene()
+        val w = base.world
+        val location = w.index(3, 4)
+        val pack = IslandLostPack(5, 4, 3, 2)
+        val guarded = base.copy(
+            world = w.copy(
+                wood = 1, stone = 2,
+                mobs = listOf(ExpeditionMob(19, 3, 4, 2)),
+                friends = emptyList(),
+            ),
+            fruit = 1, crystals = 0,
+            lostPacks = mapOf(location to pack),
+        )
+        assertEquals("fight", islandTargetAction(guarded, 3 to 4).action)
+        assertNull(islandNearbyAction(guarded, -1 to 0,
+            setOf("recover_pack"), 3 to 4))
+        val denied = BlockIslandRules.act(guarded, "recover_pack", 3, 4)
+        assertEquals(guarded.world.wood, denied.world.wood)
+        assertEquals(guarded.crystals, denied.crystals)
+        assertEquals(pack, denied.lostPacks[location])
+
+        val fought = BlockIslandRules.act(guarded, "fight", 3, 4)
+        assertTrue(fought.world.mobs.none { it.hp > 0 && it.x == 3 && it.y == 4 })
+        val savedFight = BlockIslandState.fromJson(fought.toJson())!!
+        val target = islandTargetAction(savedFight, 3 to 4)
+        assertEquals("recover_pack", target.action)
+        assertTrue(target.enabled)
+        assertEquals("recover_pack", islandNearbyAction(savedFight, -1 to 0,
+            setOf("recover_pack"), 3 to 4)!!.action)
+
+        val recovered = BlockIslandRules.act(savedFight, target.action, 3, 4)
+        assertEquals(savedFight.world.wood + pack.wood, recovered.world.wood)
+        assertEquals(savedFight.world.stone + pack.stone, recovered.world.stone)
+        assertEquals(savedFight.fruit + pack.fruit, recovered.fruit)
+        assertEquals(savedFight.crystals + pack.crystals, recovered.crystals)
+        assertFalse(recovered.lostPacks.containsKey(location))
+
+        val reloaded = BlockIslandState.fromJson(recovered.toJson())!!
+        assertFalse(reloaded.lostPacks.containsKey(location))
+        assertNotEquals("recover_pack", islandTargetAction(reloaded, 3 to 4).action)
+        val repeated = BlockIslandRules.act(reloaded, "recover_pack", 3, 4)
+        assertEquals(reloaded.world.wood, repeated.world.wood)
+        assertEquals(reloaded.world.stone, repeated.world.stone)
+        assertEquals(reloaded.fruit, repeated.fruit)
+        assertEquals(reloaded.crystals, repeated.crystals)
+    }
+
 }
