@@ -135,7 +135,7 @@ internal fun MigrationHomeV2(
     } else {
         currentCharacter?.displayName?.take(1).orEmpty().ifBlank { "+" }
     }
-    val today = remember { LocalDate.now() }
+    val today = rememberLuluDesktopDate()
     val dateText = remember(today) {
         today.format(DateTimeFormatter.ofPattern("M月d日 EEEE", Locale.SIMPLIFIED_CHINESE))
     }
@@ -150,6 +150,11 @@ internal fun MigrationHomeV2(
         .getString("display_name", null)?.trim()?.takeUnless { it.isBlank() || it == "我" }
     val personalizedGreeting = ownerDisplayName?.let { "$greeting，$it" } ?: greeting
     var slots by remember { mutableStateOf(loadDesktopSlots(context)) }
+    var widgets by remember { mutableStateOf(LuluDesktopWidgetStore.load(context)) }
+    var showWidgetPicker by remember { mutableStateOf(false) }
+    var editingWidgetId by remember { mutableStateOf<String?>(null) }
+    val widgetCharacterNames = characters.mapValues { it.value.displayName }
+    val widgetConversationTexts = ownerChats.associate { it.characterId to it.lastMessage }
     val desktopPrefs = remember { context.getSharedPreferences("lulu_desktop_moment", Context.MODE_PRIVATE) }
     var momentPhotoUri by remember { mutableStateOf(desktopPrefs.getString("photo_uri", null)) }
     val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -160,10 +165,14 @@ internal fun MigrationHomeV2(
         }
     }
 
-    val pageCount = slots.size / DESKTOP_SLOT_COUNT
+    val pageCount = maxOf(
+        slots.size / DESKTOP_SLOT_COUNT,
+        (widgets.maxOfOrNull { it.page } ?: 0) + 2,
+    )
     val pagerState = rememberPagerState(pageCount = { pageCount })
     val dragScope = rememberCoroutineScope()
     var draggingSource by remember { mutableStateOf<Int?>(null) }
+    var draggingWidgetId by remember { mutableStateOf<String?>(null) }
     var dragPosition by remember { mutableStateOf(Offset.Zero) }
     var dragGrabOffset by remember { mutableStateOf(Offset.Zero) }
     var edgePageHandled by remember { mutableIntStateOf(-1) }
@@ -188,7 +197,7 @@ internal fun MigrationHomeV2(
                         .onGloballyPositioned {
                             viewportTopInWindow = it.positionInWindow().y
                         }
-                        .pointerInput(slots, homeGridTopInWindow, homeGridHeightPx, viewportTopInWindow) {
+                        .pointerInput(slots, widgets, homeGridTopInWindow, homeGridHeightPx, viewportTopInWindow) {
                             val cellWidth = size.width.toFloat() / DESKTOP_COLUMNS
                             if (cellWidth <= 0f) return@pointerInput
                             val edgePx = 32.dp.toPx()
@@ -225,10 +234,27 @@ internal fun MigrationHomeV2(
                                             )
                                             edgePageHandled = -1
                                         }
+                                    } else {
+                                        val x = (start.x / cellWidth).toInt().coerceIn(0, 3)
+                                        val y = ((start.y - gridTop(page)) /
+                                            (gridHeight(page) / DESKTOP_ROWS)).toInt().coerceIn(0, 3)
+                                        widgets.firstOrNull { w ->
+                                            w.page == page && x in w.col until w.col + w.columns &&
+                                                y in w.row until w.row + w.rows
+                                        }?.let { w ->
+                                            draggingWidgetId = w.id
+                                            dragPosition = start
+                                            dragGrabOffset = Offset(
+                                                start.x - w.col * cellWidth,
+                                                start.y - gridTop(page) -
+                                                    w.row * gridHeight(page) / DESKTOP_ROWS,
+                                            )
+                                            edgePageHandled = -1
+                                        }
                                     }
                                 },
                                 onDrag = { change, _ ->
-                                    if (draggingSource != null) {
+                                    if (draggingSource != null || draggingWidgetId != null) {
                                         change.consume()
                                         dragPosition = change.position
                                         val currentPage = pagerState.currentPage
@@ -248,7 +274,13 @@ internal fun MigrationHomeV2(
                                 onDragEnd = {
                                     draggingSource?.let { from ->
                                         val target = slotAt(dragPosition, pagerState.currentPage)
-                                        if (target != null) {
+                                        if (target != null && widgets.none { w ->
+                                            val x = target % DESKTOP_COLUMNS
+                                            val y = (target % DESKTOP_SLOT_COUNT) / DESKTOP_COLUMNS
+                                            w.page == target / DESKTOP_SLOT_COUNT &&
+                                                x in w.col until w.col + w.columns &&
+                                                y in w.row until w.row + w.rows
+                                        }) {
                                             val updated = desktopMoveLauncher(slots, from, target)
                                             if (updated != slots) {
                                                 slots = updated
@@ -256,11 +288,28 @@ internal fun MigrationHomeV2(
                                             }
                                         }
                                     }
+                                    draggingWidgetId?.let { id ->
+                                        val target = slotAt(dragPosition, pagerState.currentPage)
+                                        val original = widgets.firstOrNull { it.id == id }
+                                        if (target != null && original != null) {
+                                            val moved = original.copy(
+                                                page = target / DESKTOP_SLOT_COUNT,
+                                                col = target % DESKTOP_COLUMNS,
+                                                row = (target % DESKTOP_SLOT_COUNT) / DESKTOP_COLUMNS,
+                                            )
+                                            if (luluWidgetFits(moved, widgets, slots)) {
+                                                val updated = widgets.map { if (it.id == id) moved else it }
+                                                if (LuluDesktopWidgetStore.save(context, updated)) widgets = updated
+                                            }
+                                        }
+                                    }
                                     draggingSource = null
+                                    draggingWidgetId = null
                                     edgePageHandled = -1
                                 },
                                 onDragCancel = {
                                     draggingSource = null
+                                    draggingWidgetId = null
                                     edgePageHandled = -1
                                 },
                             )
@@ -274,7 +323,7 @@ internal fun MigrationHomeV2(
                         state = pagerState,
                         modifier = Modifier.fillMaxSize(),
                         reverseLayout = false,
-                        userScrollEnabled = draggingSource == null,
+                        userScrollEnabled = draggingSource == null && draggingWidgetId == null,
                     ) { page ->
                         if (page == 0) {
                             Column(Modifier.fillMaxSize()) {
@@ -303,6 +352,13 @@ internal fun MigrationHomeV2(
                         Text(if (journal) "HAND MADE" else "DAY MODE",
                             color = DesktopMuted, fontSize = 9.sp, letterSpacing = 1.5.sp)
                         if (journal) JournalPressedFlower(Modifier.size(30.dp))
+                        IconButton(
+                            onClick = { showWidgetPicker = true },
+                            modifier = Modifier.size(38.dp),
+                        ) {
+                            Icon(Icons.Outlined.AddCircleOutline, "添加桌面小组件",
+                                tint = DesktopInk, modifier = Modifier.size(23.dp))
+                        }
                     }
                 }
             }
@@ -368,12 +424,24 @@ internal fun MigrationHomeV2(
                                 }
                             }
                         } else {
-                            DesktopLauncherGrid(
-                                slots = slots.drop(page * DESKTOP_SLOT_COUNT).take(DESKTOP_SLOT_COUNT),
-                                modifier = Modifier.fillMaxSize(),
-                                draggedLauncherId = draggingSource?.let(slots::get),
-                                onOpen = onOpen,
-                            )
+                            Box(Modifier.fillMaxSize()) {
+                                DesktopLauncherGrid(
+                                    slots = slots.drop(page * DESKTOP_SLOT_COUNT).take(DESKTOP_SLOT_COUNT),
+                                    modifier = Modifier.fillMaxSize(),
+                                    draggedLauncherId = draggingSource?.let(slots::get),
+                                    onOpen = onOpen,
+                                )
+                                LuluDesktopWidgetCanvas(
+                                    page = page, widgets = widgets,
+                                    launcherSlots = slots,
+                                    today = today,
+                                    characterNames = widgetCharacterNames,
+                                    conversationTexts = widgetConversationTexts,
+                                    modifier = Modifier.fillMaxSize(),
+                                    onOpenWidget = { editingWidgetId = it.id },
+                                    onBlankLongPress = { showWidgetPicker = true },
+                                )
+                            }
                         }
                     }
                     draggingSource?.let { source ->
@@ -401,11 +469,81 @@ internal fun MigrationHomeV2(
                         )
                     }
                 }
+                draggingWidgetId?.let { id ->
+                    widgets.firstOrNull { it.id == id }?.let { w ->
+                        val cellWidth = maxWidth / DESKTOP_COLUMNS
+                        val cellHeight = if (pagerState.currentPage == 0) {
+                            with(LocalDensity.current) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
+                        } else maxHeight / DESKTOP_ROWS
+                        LuluDesktopWidgetCard(
+                            widget = w, today = today,
+                            characterName = widgetCharacterNames[w.characterId],
+                            lastConversationText = widgetConversationTexts[w.characterId],
+                            modifier = Modifier.width(cellWidth * w.columns).height(cellHeight * w.rows)
+                                .offset {
+                                    IntOffset(
+                                        (dragPosition.x - dragGrabOffset.x).roundToInt(),
+                                        (dragPosition.y - dragGrabOffset.y).roundToInt(),
+                                    )
+                                }.graphicsLayer { alpha = .93f; shadowElevation = 8f },
+                            onOpen = {},
+                        )
+                    }
+                }
                 // PagerState.currentPage changes during a swipe. The indicator must
                 // own that observation, not invalidate the entire desktop dashboard.
                 if (pageCount > 1) DesktopV2PageIndicator(pagerState, pageCount)
             }
         }
+    }
+    if (showWidgetPicker) LuluDesktopWidgetPicker(
+        onAdd = { kind ->
+            val fresh = luluPlaceWidget(
+                kind = kind, startPage = pagerState.currentPage,
+                widgets = widgets, launcherSlots = slots,
+                sign = LuluDesktopWidgetStore.profileSign(context),
+            )
+            if (fresh != null) {
+                val next = widgets + fresh
+                if (LuluDesktopWidgetStore.save(context, next)) {
+                    widgets = next
+                    // A widget page remains a first-class desktop page for later icon moves.
+                    if (slots.size < (fresh.page + 1) * DESKTOP_SLOT_COUNT) {
+                        slots = slots + List<String?>(
+                            (fresh.page + 1) * DESKTOP_SLOT_COUNT - slots.size,
+                        ) { null }
+                        saveDesktopSlots(context, slots)
+                    }
+                    dragScope.launch { pagerState.scrollToPage(fresh.page) }
+                    editingWidgetId = fresh.id
+                }
+            }
+            showWidgetPicker = false
+        },
+        onClose = { showWidgetPicker = false },
+    )
+    widgets.firstOrNull { it.id == editingWidgetId }?.let { selected ->
+        LuluDesktopWidgetEditor(
+            initial = selected, characters = widgetCharacterNames,
+            onSave = { next ->
+                val changed = widgets.map { if (it.id == next.id) next else it }
+                if (LuluDesktopWidgetStore.save(context, changed)) {
+                    widgets = changed
+                    if (next.kind == LuluWidgetKind.HOROSCOPE) {
+                        LuluDesktopWidgetStore.setProfileSign(context, next.sign)
+                    }
+                    editingWidgetId = null
+                }
+            },
+            onDelete = {
+                val changed = widgets.filterNot { it.id == selected.id }
+                if (LuluDesktopWidgetStore.save(context, changed)) {
+                    widgets = changed
+                    editingWidgetId = null
+                }
+            },
+            onClose = { editingWidgetId = null },
+        )
     }
 }
 
