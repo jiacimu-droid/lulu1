@@ -1046,20 +1046,28 @@ internal object LuluBackgroundPhoneSession {
                         }
                         toggleClicked = switched.optBoolean("inputModeSwitchClicked")
                         switchFailure = switched
-                        if (!switched.optBoolean("accepted") && !toggleClicked) {
-                            false
-                        } else if (switched.optBoolean("inputModeTextVerified")) true else {
+                        if (switched.optBoolean("inputModeTextVerified")) true else if (
+                            switched.optBoolean("accepted") ||
+                            // The app can finish its transition between the
+                            // first editor scan and the voice-bar scan. A
+                            // missing voice bar is not proof that it is still
+                            // in voice mode; recheck for a REAL editable node,
+                            // without tapping a second time or guessing a slot.
+                            switched.optString("errorCode") in setOf(
+                                "chat_voice_composer_unverified",
+                                "chat_keyboard_toggle_unverified",
+                            )
+                        ) {
                             var ready = false
                             for (attempt in 0 until 8) {
                                 ready = withContext(Dispatchers.Main) {
                                     LuluAccessibilityService.virtualChatTextInputVisible(id, activeApp)
                                 }
-                                if (ready) break
-                                if (!stillAuthorized()) break
+                                if (ready || !stillAuthorized()) break
                                 if (attempt < 7) kotlinx.coroutines.delay(180)
                             }
                             ready
-                        }
+                        } else false
                     }
                     if (!editorReady) {
                         val failure = switchFailure ?: JSONObject()
@@ -1068,10 +1076,15 @@ internal object LuluBackgroundPhoneSession {
                         failure.put("accepted", false).put("messageSendClicked", false)
                             .put("inputModeSwitchClicked", toggleClicked)
                     } else {
-                        if (toggleClicked) fingerprint = withContext(Dispatchers.Main) {
-                            LuluAccessibilityService.virtualUiSnapshot(
-                                id, activeApp).optString("fingerprint")
-                        }
+                        // Even when the toggle was not accepted, a late
+                        // editor can appear after the failed voice-bar probe.
+                        // Bind any text write to the NOW-current screen and
+                        // reverify recipient before sending, never an old ref.
+                        if (activeApp == LuluVirtualChatSendPolicy.WECHAT) fingerprint =
+                            withContext(Dispatchers.Main) {
+                                LuluAccessibilityService.virtualUiSnapshot(
+                                    id, activeApp).optString("fingerprint")
+                            }
                         if (fingerprint.isBlank()) {
                             JSONObject().put("accepted", false)
                                 .put("messageSendClicked", false)
