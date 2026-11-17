@@ -543,6 +543,10 @@ class LuluAccessibilityService : AccessibilityService() {
                 .put("fingerprint", fingerprint)
                 .put("elements", elements)
                 .put("chatHeaderTexts", virtualChatHeaderTexts(service, displayId, packageName))
+                .apply {
+                    if (packageName == LuluVirtualChatSendPolicy.WECHAT && nodes.isEmpty())
+                        put("chatInputDiagnostics", virtualChatInputDiagnostics(displayId, packageName))
+                }
         }
 
         /** Mika ClickFallback.pickTarget adapted for a single safe FIRST tap.
@@ -1070,6 +1074,77 @@ class LuluAccessibilityService : AccessibilityService() {
                 clicked = dispatched,
             ).put("chatRecipientVerified", true).put("actionMethod", if (viaTouch != null) "wechat_voice_to_text_virtual_touch"
                 else "wechat_voice_to_text_accessibility_node")
+        }
+
+        /** Evidence for OEMs where a virtual display has real pixels but
+         * Android exposes no useful accessibility children. Counts and flags
+         * only: never serialize message text, private editor content, or nodes
+         * from the owner's display 0. A screenshot is not proof of an editor. */
+        fun virtualChatInputDiagnostics(displayId: Int, packageName: String): JSONObject {
+            val result = JSONObject().put("displayId", displayId)
+                .put("packageName", packageName)
+            val service = instance ?: return result.put("reason", "accessibility_disconnected")
+            if (!LuluVirtualChatSendPolicy.supports(packageName) || displayId <= 0)
+                return result.put("reason", "invalid_chat_display")
+            val flags = service.serviceInfo?.flags ?: 0
+            val expected = AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS or
+                AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS or
+                AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS
+            result.put("serviceFlagsReady", flags and expected == expected)
+            val windows = service.windowsOnAllDisplays.get(displayId).orEmpty()
+            result.put("windowCount", windows.size)
+                .put("imeWindowCount", windows.count {
+                    it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD
+                })
+            val gate = virtualWindowStatus(displayId, packageName)
+            result.put("windowKind", gate.optString("kind"))
+                .put("windowDiagnostic", gate.optString("windowDiagnostic"))
+            if (gate.optString("kind") != "target")
+                return result.put("reason", "app_window_unverified")
+            val root = topVirtualAppWindow(service, displayId, packageName)?.root
+                ?: return result.put("reason", "app_root_missing")
+            val height = virtualDimensions(service, displayId)?.second
+                ?: return result.put("reason", "display_dimensions_missing")
+            result.put("rootChildCount", root.childCount)
+            var visible = 0
+            var writable = 0
+            var voice = 0
+            var clickable = 0
+            val complete = LuluVirtualA11yTraversal.forEachVisible(
+                roots = listOf(root),
+                childCount = { it.childCount },
+                childAt = { node, index -> node.getChild(index) },
+                isProtected = { node ->
+                    node.isPassword || (packageName == LuluVirtualChatSendPolicy.WECHAT &&
+                        LuluVirtualChatSendPolicy.isConversationTranscript(
+                            node.isScrollable, node.isVisibleToUser,
+                            composerBounds(node), height))
+                },
+                isVisible = { it.isVisibleToUser },
+                priority = { node ->
+                    LuluVirtualChatSendPolicy.bottomComposerScanPriority(
+                        composerBounds(node), height)
+                },
+            ) { node ->
+                visible++
+                if (node.isClickable && node.isEnabled) clickable++
+                if (virtualChatEditor(node, packageName, height)) writable++
+                if (LuluVirtualChatSendPolicy.isPressToTalk(node.text?.toString()) ||
+                    LuluVirtualChatSendPolicy.isPressToTalk(node.contentDescription?.toString()))
+                    voice++
+            }
+            result.put("traversalComplete", complete)
+                .put("visibleNodeCount", visible)
+                .put("chatEditorCount", writable)
+                .put("voiceComposerLabelCount", voice)
+                .put("clickableNodeCount", clickable)
+            return result.put("reason", when {
+                !complete -> "a11y_tree_incomplete"
+                visible <= 1 && root.childCount == 0 -> "app_root_empty"
+                writable == 0 && voice == 0 -> "chat_composer_not_exposed"
+                writable == 0 -> "chat_text_editor_not_exposed"
+                else -> "chat_composer_exposed"
+            })
         }
 
         /** Inspect the composer before attempting WeChat's voice switch. */
