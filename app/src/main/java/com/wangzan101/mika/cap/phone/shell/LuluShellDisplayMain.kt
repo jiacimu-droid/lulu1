@@ -44,6 +44,7 @@ object LuluShellDisplayMain {
 
     private var virtual: VirtualDisplay? = null
     private var reader: ImageReader? = null
+    private val frameBuffer = LuluDisplayFrameBuffer<android.media.Image>()
     private var targetPackage = ""
     // Mika sets DISPLAY_IME_POLICY_LOCAL when the separate display is born.
     // Without this, the keyboard may appear on the owner's screen instead
@@ -190,7 +191,7 @@ object LuluShellDisplayMain {
         }
         val id = virtual?.display?.displayId ?: error("start virtual display first")
         check(id > 0) { "cannot inject into main display" }
-        if (action == "observe") return screenFrame(id)
+        if (action == "observe") return screenFrame(id, cmd.optBoolean("fullResolution"))
         // ACTION_SET_TEXT happens in Lulu's accessibility process, not this
         // shell helper. Mark its frame barrier BEFORE dispatch so a buffered
         // pre-type page cannot be returned as evidence that input succeeded.
@@ -215,6 +216,8 @@ object LuluShellDisplayMain {
                 cmd.optString("launchComponent")) ?: error("missing explicit launcher component")
             check(component.packageName == pkg) { "launcher package mismatch" }
             val frameBarrier = discardPreActionFrames()
+            // A frame belonging to a previous app must never survive a launch.
+            if (pkg != targetPackage) frameBuffer.close()
             val launchResult = run(listOf("am", "start", "--display", id.toString(),
                 "-n", component.flattenToString(),
                 "-a", "android.intent.action.MAIN",
@@ -293,51 +296,45 @@ object LuluShellDisplayMain {
     }
 
     /**
-     * Discard queued frames BEFORE an input command, keeping only the producer
-     * timestamp. No saved image crosses the display or role boundary.
+     * Drain queued frames BEFORE input and retain the last rendered page.
+     * Its producer timestamp is the barrier, never proof of post-input change.
      */
     private fun discardPreActionFrames(): Long {
-        val queued = reader?.acquireLatestImage()
-        val timestamp = try { queued?.timestamp ?: 0L }
-            finally { queued?.close() }
+        // Establish the barrier without consuming the only rendered page.
+        val timestamp = frameBuffer.latest { reader?.acquireLatestImage() }?.timestamp ?: 0L
         return LuluDisplayFrameFreshness.barrier(lastDeliveredFrameNanos, timestamp)
     }
 
-    private fun screenFrame(displayId: Int): JSONObject {
+    private fun screenFrame(displayId: Int, fullResolution: Boolean = false): JSONObject {
         val r = reader ?: error("display buffer missing")
         val barrier = pendingActionFrameBarrierNanos
         val afterAction = pendingActionNeedsFrame
         val deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(FRAME_WAIT_MS)
         var acquired: android.media.Image? = null
         while (System.nanoTime() < deadline) {
-            val next = r.acquireLatestImage()
+            val next = frameBuffer.latest { r.acquireLatestImage() }
             if (next != null) {
                 if (LuluDisplayFrameFreshness.accepts(next.timestamp, barrier)) {
                     acquired = next
                     break
                 }
-                // The frame was buffered before this action; showing it could
-                // make a failed swipe appear successful. Wait for new pixels.
-                next.close()
+                // Keep the current rendered page for observers, while waiting
+                // for a genuinely post-action producer timestamp.
             }
             Thread.sleep(FRAME_POLL_MS)
         }
-        val pixels = acquired ?: run {
-            // A failed/no-op text input may never produce a new frame. Do not
-            // keep the old barrier armed indefinitely: a later explicit observe
-            // must be allowed to check the display again. Never reuse an old
-            // frame as proof that this action happened.
-            pendingActionFrameBarrierNanos = 0L
-            pendingActionNeedsFrame = false
+        val pixels = acquired ?: frameBuffer.latest { null } ?: run {
             return JSONObject().put("success", false)
                 .put("status", "unverified").put("displayId", displayId)
                 .put("frameFreshAfterAction", false)
                 .put("verification", if (barrier > 0L)
-                    "动作后没有新帧，已解除本次等待屏障；可安全重新观察，旧截图不代表执行成功"
+                    "动作后尚无可读取帧；保持图像屏障，不能以旧截图证明执行成功"
                     else "独立虚拟屏尚未产生可读取的图像")
         }
-        try {
+        run {
             val timestamp = pixels.timestamp
+            val freshAfterAction = afterAction &&
+                LuluDisplayFrameFreshness.accepts(timestamp, barrier)
             val newerThanLast = LuluDisplayFrameFreshness.isNewer(
                 timestamp, lastDeliveredFrameNanos)
             val plane = pixels.planes[0]
@@ -346,7 +343,10 @@ object LuluShellDisplayMain {
             try {
                 plane.buffer.rewind()
                 full.copyPixelsFromBuffer(plane.buffer)
-                val (captureWidth, captureHeight) = captureSize(frameGeometry)
+                // Offline OCR needs the actual glyph pixels, not the 720px
+                // model preview recompressed at low quality.
+                val (captureWidth, captureHeight) = if (fullResolution)
+                    WIDTH to HEIGHT else captureSize(frameGeometry)
                 val scaled = Bitmap.createBitmap(captureWidth, captureHeight, Bitmap.Config.ARGB_8888)
                 try {
                     Canvas(scaled).drawBitmap(full, Rect(0, 0, WIDTH, HEIGHT),
@@ -366,30 +366,37 @@ object LuluShellDisplayMain {
                             .put("status", "unverified").put("displayId", displayId)
                             .put("frameBlack", true).put("frameValidated", false)
                             .put("frameTimestampNanos", timestamp)
-                            .put("frameFreshAfterAction", afterAction)
+                            .put("frameFreshAfterAction", freshAfterAction)
                             .put("verification", "后台独立屏产生了全黑新帧，无法当作可读画面；仍可仅使用目标App控件树的安全证据")
                     }
                     val bytes = ByteArrayOutputStream().use { buffer ->
-                        check(scaled.compress(Bitmap.CompressFormat.JPEG, 65, buffer))
+                        check(scaled.compress(Bitmap.CompressFormat.JPEG,
+                            if (fullResolution) 95 else 65, buffer))
                         buffer.toByteArray()
                     }
-                    check(bytes.size <= 700_000) { "image buffer too large" }
+                    check(bytes.size <= if (fullResolution) 4_000_000 else 700_000) { "image buffer too large" }
                     lastDeliveredFrameNanos = timestamp
-                    pendingActionFrameBarrierNanos = 0L
-                    pendingActionNeedsFrame = false
+                    if (!afterAction || freshAfterAction) {
+                        pendingActionFrameBarrierNanos = 0L
+                        pendingActionNeedsFrame = false
+                    }
                     return JSONObject().put("success", true).put("status", "captured")
                         .put("displayId", displayId).put("targetPackage", targetPackage)
                         .put("frameTimestampNanos", timestamp)
                         .put("frameValidated", true)
                         .put("displayWidth", WIDTH).put("displayHeight", HEIGHT)
                         .put("captureWidth", captureWidth).put("captureHeight", captureHeight)
-                        .put("frameFreshAfterAction", afterAction)
+                        .put("frameFreshAfterAction", freshAfterAction)
+                        .put("actionFrameUnverified", afterAction && !freshAfterAction)
+                        .put("verification", if (afterAction && !freshAfterAction)
+                            "当前仅有动作前的最后渲染画面；可查看，不能证明动作生效或用于发送核验"
+                            else "已取得独立屏当前渲染画面；重复读取不等于页面变化")
                         .put("newerThanPreviousCapture", newerThanLast)
                         .put("imageDataUrl", "data:image/jpeg;base64," +
                             Base64.getEncoder().encodeToString(bytes))
                 } finally { scaled.recycle() }
             } finally { full.recycle() }
-        } finally { pixels.close() }
+        }
     }
 
     private fun release() {
@@ -398,6 +405,7 @@ object LuluShellDisplayMain {
         pendingActionFrameBarrierNanos = 0L
         pendingActionNeedsFrame = false
         lastDeliveredFrameNanos = 0L
+        runCatching { frameBuffer.close() }
         runCatching { virtual?.release() }
         runCatching { reader?.close() }
         virtual = null

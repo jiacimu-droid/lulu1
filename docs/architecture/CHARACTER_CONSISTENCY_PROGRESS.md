@@ -1,3 +1,10 @@
+## 2026-11-17 · PH-01 后台静止画面多次读取与微信核验修复
+
+- 当前 `LuluShellDisplayMain.screenFrame` 每次读图后关闭唯一 Image，`discardPreActionFrames` 也丢弃已渲染图；微信截图→标题 OCR→草稿 OCR 的连续消费者在静止页上会读空。对照 Mika `AgentDisplay.latestFrameBitmap` 的非消耗读取原则，新增单帧所有权缓冲，保留真实生产时间戳；新帧替换才关闭旧帧，跨 App 启动和 STOP 清理。三槽 ImageReader 留两槽供 acquireLatestImage 排空。
+- 无动作后新帧时仅允许查看最后渲染页，`actionFrameUnverified=true`；不能作为动作成功或发送 OCR 证据。新黑帧替换旧可读图并拒绝转发，禁止回退主屏。微信本机 OCR 单独读取原尺寸 JPEG 95，模型仍用原有 720px 预览。点击前发送被拒后回传实际页面和新快照，同一角色可据此纠正名称/探索入口；保留单次发送与结果不明不重发。
+- 补充原人物续接中的看图探索说明：理解可见图标、单步操作、核对结果、返回换入口，不预设抖音/微信坐标。没有新人物、模型或记忆中心。
+- 本地 Kotlin 2.0.21 编译实际 shell helper 及其生产依赖通过（Android 15 API jar），`LuluDisplayFrameBufferTest` 5 项与原 `LuluDisplayFrameFreshnessTest` 4 项 JUnit 全通过；不是全工程 Gradle/APK 验收。正式 main APK/JVM 待本提交 CI，Redmi 微信发送、HyperOS 图像缓冲及抖音真实模型导航待真机验证。下一入口：上述 shell helper、`captureChatTitleFrame` 与发送失败画面回流；不能据此声明外部消息已发送。
+
 ## 2026-11-17 · S-02/P-08b 数字世界主人来去通知 → 双角色相遇 → 生活小剧场因果修复（待 CI/真机）
 
 - 用户实际反馈：主人到地点后两位角色接到通知、前去寻找，彼此相遇后谈话和小剧场却忘记找主人的原目的，主人离开也没有合理衔接。源码实查 `DigitalWorldVisitorAwareness` 原本写了到访/离场 Observation，但缺对应的地点 ID 与进入/离开结构标记；`AutonomousSocialRuntime` 无条件告诉相遇人物「主人不在现场」；`AutonomousEncounterChapters` 合场文学使用 Isolated 请求，未输入两位角色本人的来源关联心声与各自收到的通知。原世界模型能读取 Full 自己的心境，但不能凭这一点说文学作者已收到。

@@ -1032,7 +1032,7 @@ internal object LuluBackgroundPhoneSession {
                 if (!stillAuthorized() || windowGate(id, activeApp).optString("kind") != "target")
                     return null
                 val shot = try {
-                    command(JSONObject().put("action", "observe"))
+                    command(JSONObject().put("action", "observe").put("fullResolution", true))
                 } catch (cancelled: kotlinx.coroutines.CancellationException) {
                     throw cancelled
                 } catch (_: Exception) {
@@ -1040,6 +1040,7 @@ internal object LuluBackgroundPhoneSession {
                 }
                 val pixels = shot.optString("imageDataUrl")
                 if (!shot.optBoolean("success") || shot.optInt("displayId") != id ||
+                    shot.optBoolean("actionFrameUnverified") ||
                     shot.optString("targetPackage") != activeApp || !stillAuthorized() ||
                     !LuluVirtualFrameSafety.canSendToRole(shot.optBoolean("frameValidated"),
                         shot.optLong("frameTimestampNanos"), pixels, shot.optBoolean("frameBlack")) ||
@@ -1484,6 +1485,25 @@ internal object LuluBackgroundPhoneSession {
                         if (textMode && stage == "recipient_check") receipt.put("verification",
                             "当前已出现文字输入框，发送停在收件人标题核实；尚未点发送")
                     }
+                    // Return the actual page with a pre-click rejection, so
+                    // the same role can choose a different visible entry or
+                    // correct the recipient without a paid observe-only turn.
+                    val page = command(JSONObject().put("action", "observe"))
+                    val pagePixels = page.optString("imageDataUrl")
+                    if (page.optInt("displayId") == id &&
+                        page.optString("targetPackage") == activeApp && stillAuthorized() &&
+                        windowGate(id, activeApp).optString("kind") == "target" &&
+                        LuluVirtualFrameSafety.canSendToRole(page.optBoolean("frameValidated"),
+                            page.optLong("frameTimestampNanos"), pagePixels, page.optBoolean("frameBlack"))) {
+                        LuluScreenFrameHandoff.put(characterId, requestId, pagePixels)
+                        receipt.put("imageForwardedToRole", true)
+                            .put("frameValidated", true)
+                            .put("frameTimestampNanos", page.optLong("frameTimestampNanos"))
+                            .put("frameFreshAfterAction", page.optBoolean("frameFreshAfterAction"))
+                            .put("actionFrameUnverified", page.optBoolean("actionFrameUnverified"))
+                            .put("newerThanPreviousCapture", page.optBoolean("newerThanPreviousCapture"))
+                            .put("screenSource", "virtual_display")
+                    }
                     attachUiEvidence(receipt, characterId, id, activeApp)
                 }
                 return receipt.toString()
@@ -1749,6 +1769,9 @@ internal object LuluBackgroundPhoneSession {
             // Previously a swipe without expectedText was always "unverified",
             // so continuous browsing stopped after just one swipe.
             val observed = hasFrame && (actionConditionVerified || expected.isBlank()) &&
+                // A retained static page remains viewable, but cannot verify
+                // the preceding gesture/input when no post-action frame exists.
+                (action == "observe" || !frame.optBoolean("actionFrameUnverified")) &&
                 // A fresh pixel frame is NOT proof that BACK navigated; the
                 // verified app UI must actually change before we report success.
                 (action != "back" || uiSettled) &&
@@ -1811,6 +1834,7 @@ internal object LuluBackgroundPhoneSession {
                 .put("screenRecordError", screenArchive?.exceptionOrNull()?.message.orEmpty().take(100))
                 .put("imageForwardedToRole", hasFrame)
                 .put("frameFreshAfterAction", frameFresh)
+                .put("actionFrameUnverified", frame.optBoolean("actionFrameUnverified"))
                 .put("frameValidated", hasFrame)
                 .put("frameBlack", frame.optBoolean("frameBlack", false))
                 .put("frameTimestampNanos", frame.optLong("frameTimestampNanos", 0L))
@@ -1823,7 +1847,9 @@ internal object LuluBackgroundPhoneSession {
                 .put("sentToChat", sharedReceipt.optBoolean("sentToChat"))
                 .put("shareSummary", sharedReceipt.optString("shareSummary"))
                 .put("shareError", sharedReceipt.optString("shareError"))
-                .put("verification", if (action == "back")
+                .put("verification", if (frame.optBoolean("actionFrameUnverified"))
+                    frame.optString("verification")
+                    else if (action == "back")
                     (applied?.optString("verification").orEmpty() + "；" +
                         if (uiSettled) "后台App控件树已确认发生变化，实际目标页面仍需核对"
                         else "未确认页面发生变化，不能声称返回成功；可重新观察并针对可见的App返回箭头选择新操作")

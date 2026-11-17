@@ -1,3 +1,8 @@
+## 2026-11-17：后台静止页非消耗读取
+
+- ORIGINAL：`LuluDisplayFrameBuffer` 及回归为独立实现，对原 Mika 改编 helper 作局部修复。参考 Mika `AgentDisplay.kt` 的保留最新渲染图及原始生产时间戳原则，来源：https://github.com/wangzan101/Mika/blob/71e00f50adea9c87243958d7486112ae6a5d764a/app/src/main/java/com/wangzan101/mika/cap/phone/display/AgentDisplay.kt （Apache-2.0）。未复制其完整后台线程、StateFlow 或 agent 调度。
+- 原有 Mika/scrcpy 的署名与许可继续保留；原尺寸本机 OCR 不添加服务或收费模型。静止页可重复读不等于动作已发生，跨应用、黑帧、停止与发送新帧验证继续隔离。
+
 ## 2026-11-17：Kenney Tiny 统一风格游戏素材（CC0 / THIRD_PARTY）
 
 - 官方：[Tiny Town](https://kenney.nl/assets/tiny-town)、[Tiny Dungeon](https://kenney.nl/assets/tiny-dungeon)，作者 Kenney；CC0 1.0 Universal。原始图集来自仓库 `Two-Weeks-Team/openClawWorld`、`giobi/sgravoquest-assets` 的 Kenney CC0 分发版；具体路径与映射见 `preview/ASSET_ORIGINS.md`。
