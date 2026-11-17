@@ -43,6 +43,8 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
@@ -52,6 +54,12 @@ import org.json.JSONObject
  * In-app Lulu desktop widgets. These are not Android launcher AppWidgetProvider widgets.
  * All data stays in this installation; no character profiles or fortunes are pre-created.
  */
+/** Full desktop pages use near-square cells rather than stretching four rows over a tall screen. */
+internal const val LULU_DESKTOP_CELL_ASPECT = 1.04f
+internal fun luluDesktopFullCellHeight(viewportWidth: Float, viewportHeight: Float): Float =
+    minOf(viewportHeight / 4f, viewportWidth / 4f * LULU_DESKTOP_CELL_ASPECT)
+        .coerceAtLeast(0f)
+
 internal enum class LuluWidgetKind(val code: String, val title: String, val columns: Int, val rows: Int) {
     HOROSCOPE("horoscope", "每日星座", 4, 2),
     NOTE("note", "角色便签", 2, 2),
@@ -376,7 +384,8 @@ internal fun LuluDesktopWidgetCard(
     }
     val artImage = custom ?: art
     Surface(
-        modifier = modifier.padding(4.dp).luluCssElement("widget-" + widget.kind.code),
+        modifier = modifier.padding(horizontal = 6.dp, vertical = 10.dp)
+            .luluCssElement("widget-" + widget.kind.code),
         shape = RoundedCornerShape((LuluCssSheet.dp(css["border-radius"]) ?:
             widget.roleCornerDp.takeIf { it >= 0 }?.toFloat() ?: 19f).coerceIn(0f, 60f).dp),
         color = backing,
@@ -532,7 +541,14 @@ internal fun LuluDesktopWidgetCanvas(
     BoxWithConstraints(modifier.pointerInput(page, widgets, launcherSlots) {
         detectTapGestures(onLongPress = { p ->
             val x = (p.x / (size.width / 4f)).toInt().coerceIn(0, 3)
-            val y = (p.y / (size.height / 4f)).toInt().coerceIn(0, 3)
+            val rowHeight = luluDesktopFullCellHeight(size.width.toFloat(), size.height.toFloat())
+            val y = if (rowHeight > 0f) (p.y / rowHeight).toInt() else 4
+            // Empty space below the four-row grid is still desktop; long-press
+            // opens the picker without falsely selecting a clamped last-row icon.
+            if (y !in 0..3) {
+                onBlankLongPress()
+                return@detectTapGestures
+            }
             val occupiedByIcon = launcherSlots.getOrNull(page * 16 + y * 4 + x) != null
             val occupiedByWidget = widgets.any {
                 it.page == page && x in it.col until it.col + it.columns &&
@@ -542,7 +558,7 @@ internal fun LuluDesktopWidgetCanvas(
         })
     }) {
         val cellWidth = maxWidth / 4
-        val cellHeight = maxHeight / 4
+        val cellHeight = minOf(maxHeight / 4, cellWidth * LULU_DESKTOP_CELL_ASPECT)
         widgets.filter { it.page == page }.forEach { widget ->
             key(widget.id) {
                 LuluDesktopWidgetCard(
