@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ef77aabb85769ce6d27a085156cbc692f3caa782`
+- 基准提交：`6339789354a619c2ec4e2d4b48c2c6111b1f2277`
 - 分支：`main`
 - 已索引文件：1442
-- 已索引代码/文本行：303405
+- 已索引代码/文本行：303422
 - 已发现符号：4343
 
 | 文件 | 行数 | 符号数 |
@@ -962,7 +962,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 355 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LocalWhisperScriptTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/LuluDesktopWidgetTest.kt` | 65 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/LuluDesktopWidgetTest.kt` | 82 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluVoiceCallReplyActivityTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluWidgetLiveIntegrationTest.kt` | 134 | 1 |

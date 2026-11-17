@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T19:20:03.385515+00:00",
-  "commit": "ef77aabb85769ce6d27a085156cbc692f3caa782",
+  "generatedAt": "2026-11-17T19:20:51.701713+00:00",
+  "commit": "6339789354a619c2ec4e2d4b48c2c6111b1f2277",
   "branch": "main",
-  "sourceFingerprint": "b510456dd3833cefa0b956e27b0713f018d688b086df82e6d5a7f95627ea309f",
+  "sourceFingerprint": "07e963ed4aaf272629b0b986426fcdd9e6bfbdde6ece67878fe3686ba3ce4dad",
   "summary": {
     "files": 1442,
-    "lines": 303405,
+    "lines": 303422,
     "symbols": 4343
   },
   "symbolIndex": {
@@ -26776,7 +26776,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
       "lines": 963,
-      "sha256": "de248dfa5f14631c6f21f82f2673a98c3b1a8fdb186959932f67456238e81b00",
+      "sha256": "4bd7f70a5c190f3beffe4570df2a9265d631882511958c25462054e5278bff33",
       "symbols": [
         {
           "name": "profileSign",
@@ -44879,8 +44879,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/LuluDesktopWidgetTest.kt",
-      "lines": 65,
-      "sha256": "e72d2c6d91c818f05d49ee946ff8c737832701b1991c119eea68dc9a8ee61be0",
+      "lines": 82,
+      "sha256": "b5f69be6e44b121243aa6534ec44bde2c2ecd1d990c7df930a21df772d7e4e9b",
       "symbols": [
         {
           "name": "LuluDesktopWidgetTest",
