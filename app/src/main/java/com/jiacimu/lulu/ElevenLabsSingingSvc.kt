@@ -37,10 +37,12 @@ internal object ElevenLabsSingingSvc {
         "你好呀。今天风很轻，我有些话想慢慢告诉你。" +
             "你看，阳光正好，远处的云也漂亮。嗯，听到你声音我就开心。"
 
+    // An ElevenLabs-only installation is the default. Self-hosted SVC is
+    // strictly opt-in: never break an existing subscription-only workflow.
     fun engine(context: Context): String =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getString(KEY_ENGINE, ENGINE_SVC)
-            .takeIf { it == ENGINE_LEGACY } ?: ENGINE_SVC
+            .getString(KEY_ENGINE, ENGINE_LEGACY)
+            .takeIf { it == ENGINE_SVC } ?: ENGINE_LEGACY
 
     /** HTTPS only; a publicly exposed GPU backend handles potentially private voice audio. */
     internal fun endpointIsSafe(raw: String): Boolean {
