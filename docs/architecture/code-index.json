@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T06:52:23.030056+00:00",
-  "commit": "7c0162de7d48b2c935f6591449cc08db2eba72d2",
+  "generatedAt": "2026-11-17T06:55:26.347494+00:00",
+  "commit": "2fcf8170c7ab122c937a6f94d6ebc186d339d2e9",
   "branch": "main",
-  "sourceFingerprint": "33cf7921b050dcc77fba0fe06f5f6f70f5c6f68f5188aac79ea4bfbfab09fe97",
+  "sourceFingerprint": "d610f960da2600252d30240f3b1bf2f8249f05cac51f746339056e989bad410c",
   "summary": {
     "files": 1394,
-    "lines": 299035,
+    "lines": 299047,
     "symbols": 4226
   },
   "symbolIndex": {
@@ -653,7 +653,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
-        "line": 140
+        "line": 142
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt",
@@ -1595,7 +1595,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 622
+        "line": 632
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
@@ -2047,7 +2047,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
-        "line": 119
+        "line": 121
       }
     ],
     "part": [
@@ -2063,13 +2063,13 @@
     "engine": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
-        "line": 39
+        "line": 42
       }
     ],
     "isReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
-        "line": 58
+        "line": 60
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
@@ -2079,19 +2079,19 @@
     "requireReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
-        "line": 65
+        "line": 67
       }
     ],
     "ensureReference": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
-        "line": 81
+        "line": 83
       }
     ],
     "filePart": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
-        "line": 141
+        "line": 143
       }
     ],
     "render": [
@@ -3239,19 +3239,19 @@
     "saveVoiceSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 141
+        "line": 142
       }
     ],
     "LuluMemorySettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 609
+        "line": 619
       }
     ],
     "LuluImageSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 702
+        "line": 712
       }
     ],
     "LuluAppearanceScreen": [
@@ -25151,36 +25151,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt",
-      "lines": 202,
-      "sha256": "767146615a01307bd66ccda9212b6d429dde938eff1ec2351f816ae28a4d3656",
+      "lines": 204,
+      "sha256": "6387b168b8b9b8437b94e1a907c11a02f19032857e3dc5e6d96fa447c3c0e3d3",
       "symbols": [
         {
           "name": "engine",
-          "line": 39
+          "line": 42
         },
         {
           "name": "isReady",
-          "line": 58
+          "line": 60
         },
         {
           "name": "requireReady",
-          "line": 65
+          "line": 67
         },
         {
           "name": "ensureReference",
-          "line": 81
+          "line": 83
         },
         {
           "name": "convert",
-          "line": 119
+          "line": 121
         },
         {
           "name": "write",
-          "line": 140
+          "line": 142
         },
         {
           "name": "filePart",
-          "line": 141
+          "line": 143
         }
       ]
     },
@@ -25922,8 +25922,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-      "lines": 894,
-      "sha256": "e6fe12d1186854f459d11b402f35de44619e1feac5ff0d8e5dc46e784772a951",
+      "lines": 904,
+      "sha256": "42c09faaa1232ddbfe9a4418e389407a1158d0af9dc11e3aea96f3310fc0f161",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
@@ -25931,19 +25931,19 @@
         },
         {
           "name": "saveVoiceSettings",
-          "line": 141
+          "line": 142
         },
         {
           "name": "LuluMemorySettingsScreen",
-          "line": 609
+          "line": 619
         },
         {
           "name": "save",
-          "line": 622
+          "line": 632
         },
         {
           "name": "LuluImageSettingsScreen",
-          "line": 702
+          "line": 712
         }
       ]
     },

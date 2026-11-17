@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`7c0162de7d48b2c935f6591449cc08db2eba72d2`
+- 基准提交：`2fcf8170c7ab122c937a6f94d6ebc186d339d2e9`
 - 分支：`main`
 - 已索引文件：1394
-- 已索引代码/文本行：299035
+- 已索引代码/文本行：299047
 - 已发现符号：4226
 
 | 文件 | 行数 | 符号数 |
@@ -155,7 +155,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt` | 265 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 368 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt` | 310 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt` | 202 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt` | 204 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSongAudioMix.kt` | 203 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 305 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
@@ -191,7 +191,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 539 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 894 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 904 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 432 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt` | 364 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt` | 279 | 9 |
