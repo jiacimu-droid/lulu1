@@ -1306,6 +1306,19 @@ internal object LuluBackgroundPhoneSession {
                         }
                     }
                 }
+                // Screenshot-only recovery has no accessible message list.
+                // Check for a NEW right-side client bubble after the ONE click,
+                // against the OCR count captured immediately before sending.
+                // Never replay a click if the receipt/pixels remain ambiguous.
+                if (!appearedInChat && attempted &&
+                    (applied?.optInt("visualOutgoingBefore", -1) ?: -1) >= 0 &&
+                    stillAuthorized()) {
+                    appearedInChat = LuluVirtualChatTitleOcr.outgoingAppearedVisually(
+                        id, activeApp, recipient, message,
+                        applied?.optInt("visualOutgoingBefore", -1) ?: -1,
+                        ::captureChatTitleFrame,
+                    )
+                }
                 val appName = LuluVirtualChatSendPolicy.appName(activeApp)
                 val inputVerified = applied?.optBoolean("messageInputReadbackVerified") == true
                 val stage = when {
