@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T13:22:51.330361+00:00",
-  "commit": "a387a95d67cfdb0fea97f72533ee895a2dc1e32f",
+  "generatedAt": "2026-11-17T13:23:33.963363+00:00",
+  "commit": "41b586edd71647c37691858ef30c3f7f4446753e",
   "branch": "main",
-  "sourceFingerprint": "7c0d329bb2cdeb95247e5442539f74bd98f7626dffee6a0f376efc3ead6248bd",
+  "sourceFingerprint": "6cd121c19e052fa0fc788d11d7ab3df85a7a909668bd49a4bf0b1557d52e4d86",
   "summary": {
     "files": 1410,
     "lines": 298034,
@@ -29184,7 +29184,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 202,
-      "sha256": "8aa90969167956f0acd478c90b0e72d98bf17d532402279fe90dbea1318f6d6c",
+      "sha256": "4fb7f65d563385f0ddf512eb1bcf605ec48882c0d4f996b73fb153d37405bd27",
       "symbols": [
         {
           "name": "Capability",
