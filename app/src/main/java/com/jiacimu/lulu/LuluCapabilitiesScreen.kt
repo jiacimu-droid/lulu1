@@ -45,6 +45,7 @@ import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.health.GadgetbridgeHealthStore
 import com.jiacimu.lulu.system.LuluAccessibilityService
 import com.jiacimu.lulu.system.LuluScreenAwareness
+import com.jiacimu.lulu.system.LuluStrictMode
 import com.jiacimu.lulu.system.LuluLocationProvider
 import com.jiacimu.lulu.system.LuluMediaPlayback
 import com.jiacimu.lulu.system.LuluNotificationListenerService
@@ -544,6 +545,7 @@ private fun LuluScreenAwarenessSettings() {
     var autonomy by remember { mutableStateOf(prefs.getBoolean(LuluScreenAwareness.AUTONOMOUS, true)) }
     var summon by remember { mutableStateOf(prefs.getBoolean(LuluScreenAwareness.SUMMON, true)) }
     var directReturn by remember { mutableStateOf(prefs.getBoolean(LuluScreenAwareness.DIRECT_RETURN, false)) }
+    var strictGrant by remember { mutableStateOf(prefs.getBoolean(LuluStrictMode.GRANT, false)) }
     var excluded by remember { mutableStateOf(prefs.getString(LuluScreenAwareness.EXCLUDED, "").orEmpty()) }
     var showConsent by remember { mutableStateOf(false) }
     var diagnostic by remember { mutableStateOf(LuluScreenAwareness.diagnostics(context)) }
@@ -584,6 +586,25 @@ private fun LuluScreenAwarenessSettings() {
                     enabled = consent,
                 )
             }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("允许角色临时开启强制模式", color = CapabilityInk)
+                    Text("默认关闭。角色可临时只观察或按已选规则即时切回；最多120分钟。通知栏始终提供「立即结束」，系统及敏感应用不会被拦截。",
+                        fontSize = 11.sp, lineHeight = 15.sp, color = CapabilityMuted)
+                }
+                Switch(checked = consent && strictGrant, onCheckedChange = {
+                    if (!it) LuluStrictMode.stop(context, reason = "主人关闭强制模式授权")
+                    strictGrant = it
+                    prefs.edit().putBoolean(LuluStrictMode.GRANT, it).commit()
+                }, enabled = consent)
+            }
+            if (LuluStrictMode.active(context) != null) {
+                OutlinedButton(onClick = {
+                    LuluStrictMode.stop(context, reason = "主人手动结束临时监督")
+                    strictGrant = false
+                    prefs.edit().putBoolean(LuluStrictMode.GRANT, false).commit()
+                }) { Text("立即结束强制监督") }
+            }
             OutlinedTextField(value = excluded, onValueChange = {
                 excluded = it
                 prefs.edit().putString(LuluScreenAwareness.EXCLUDED, it).commit()
@@ -595,11 +616,14 @@ private fun LuluScreenAwarenessSettings() {
                     color = CapabilityInk, modifier = Modifier.weight(1f), fontSize = 13.sp)
                 OutlinedButton(onClick = {
                     if (consent) {
+                        LuluStrictMode.stop(context, reason = "主人撤销屏幕授权")
                         prefs.edit()
+                            .putBoolean(LuluStrictMode.GRANT, false)
                             .putBoolean(LuluScreenAwareness.CONSENT, false)
                             .putBoolean(LuluScreenAwareness.DIRECT_RETURN, false).commit()
                         consent = false
                         directReturn = false
+                        strictGrant = false
                     } else showConsent = true
                 }) { Text(if (consent) "立即撤销" else "阅读并授权") }
             }
