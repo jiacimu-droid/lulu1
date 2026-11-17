@@ -38,7 +38,7 @@ if(k==='camp'){at(80,64,16,16);return}
 if(k==='ore'){at(32,16,16,16,x,y,t,t,'dungeon');return}
 if(k==='well'){at(64,80,32,32,x-t*.5,y-t*1.4,t*2,t*2);return}
 }
-function drawPerson(x,y,kind,t,time){const dy=Math.sin(time/190)*t*.027;const src=kind==='hero'?[32,96]:[16,96];sprite('dungeon',src[0],src[1],16,16,x,y+dy,t,t);if(kind==='hero'){ctx.strokeStyle='#f8eabb';ctx.lineWidth=1.8;ctx.strokeRect(Math.round(x),Math.round(y),Math.round(t),Math.round(t))}}
+function drawPerson(x,y,kind,t,time){const dy=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:Math.sin(time/190)*t*.027;const src=kind==='hero'?[32,96]:[16,96];sprite('dungeon',src[0],src[1],16,16,x,y+dy,t,t);if(kind==='hero'){ctx.strokeStyle='#f8eabb';ctx.lineWidth=1.8;ctx.strokeRect(Math.round(x),Math.round(y),Math.round(t),Math.round(t))}}
 function draw(time=0){if(!s)return;const {w,h}=resize(),t=Math.max(25,Math.min(54,Math.floor(w/(w>620?15:9.5))));view.tile=t;view.ox=Math.floor(w/2-(s.player.x+.5)*t);view.oy=Math.floor(h/2-(s.player.y+.5)*t);ctx.fillStyle=s.kind==='relic'?'#212830':'#2d6354';ctx.fillRect(0,0,w,h);
   const left=Math.max(0,Math.floor(-view.ox/t)-1),right=Math.min(s.width-1,Math.ceil((w-view.ox)/t)+1),top=Math.max(0,Math.floor(-view.oy/t)-1),bottom=Math.min(s.height-1,Math.ceil((h-view.oy)/t)+1);
   for(let y=top;y<=bottom;y++)for(let x=left;x<=right;x++)tileSprite(s.terrain[y*s.width+x],view.ox+x*t,view.oy+y*t,t);
