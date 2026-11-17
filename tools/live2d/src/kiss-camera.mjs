@@ -40,6 +40,28 @@ export function kissMouthLocalOffsetX(base, bounds, calibratedMouth) {
 }
 
 /**
+ * Center the FACE for a neutral look-in; a kiss instead centers the lips.
+ * Use the actual calibrated eye centers when available, not an assumed
+ * smiling or leaning expression. Uncalibrated rigs keep the old safe
+ * horizontal offset and can still show their own unmodified facial pose.
+ */
+export function screenFaceLocalOffsetX(base, bounds, calibration = {}) {
+  const eyes = [calibration['eye-left'], calibration['eye-right']]
+    .filter(zone => Number.isFinite(zone?.u) && zone.u >= 0 && zone.u <= 1)
+    .map(zone => zone.u)
+  if (eyes.length && bounds && Number.isFinite(bounds.x) &&
+      Number.isFinite(bounds.width) && bounds.width > 0 &&
+      base && Number.isFinite(base.x) && Number.isFinite(base.width) &&
+      Number.isFinite(base.scale) && base.scale > 0 && base.width > 0) {
+    const u = eyes.reduce((a, b) => a + b, 0) / eyes.length
+    const difference = bounds.x + bounds.width * u - base.x
+    if (Number.isFinite(difference) && Math.abs(difference) < base.width * .6)
+      return difference / base.scale
+  }
+  return kissMouthLocalOffsetX(base, bounds, calibration.mouth)
+}
+
+/**
  * Center the lips as the wolf approaches the glass instead of magnifying
  * their offset from the torso pivot. At zoom=1 the ordinary framing stays
  * unchanged; the exact same curve reverses smoothly during withdrawal.
