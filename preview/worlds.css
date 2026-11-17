@@ -47,3 +47,21 @@ body.world-immersive .floating{top:6px;left:50%;transform:translateX(-50%);max-w
  body.world-immersive .pad button{min-height:37px}
  body.world-immersive .toolbar{padding-top:25px;padding-bottom:7px}
 }
+
+
+/* Native-layout thumb controller instead of four discrete D-pad buttons. */
+.joystick{position:relative;width:144px;height:144px;min-width:144px;flex:0 0 144px;border-radius:50%;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;outline-offset:4px;display:grid;place-items:center;background:#172f35d9;border:2px solid #86bbab9b;box-shadow:0 5px 20px #081a1a80,inset 0 0 0 10px #2e53533d}
+.joystick-ring{position:absolute;inset:17px;border-radius:50%;border:1px solid #abd7c055;display:grid;place-items:center;pointer-events:none}
+.joystick-ring::before,.joystick-ring::after{content:'';position:absolute;background:#c7ecd042;pointer-events:none}.joystick-ring::before{width:1px;height:94%;left:50%;top:3%}.joystick-ring::after{height:1px;width:94%;top:50%;left:3%}
+.joystick-knob{position:relative;z-index:2;width:62px;height:62px;border-radius:50%;border:2px solid #bdedcfcb;background:linear-gradient(145deg,#528e7e,#244b48);box-shadow:0 4px 11px #0b1a1d8a,inset 0 2px 5px #c7f1c138;display:grid;place-items:center;transition:transform 55ms linear;pointer-events:none}
+.joystick-core{width:17px;height:17px;background:#e4ffdb88;border-radius:50%;box-shadow:0 0 0 5px #ffffff17}
+.joystick.is-moving .joystick-knob{background:linear-gradient(145deg,#80b7a0,#2d786c);box-shadow:0 4px 13px #0009,0 0 13px #b9ecc447}
+.joystick-label{position:absolute;bottom:5px;font-size:9px;letter-spacing:.08em;color:#daeee0a8;pointer-events:none}
+.art-gallery[hidden]{display:none}.art-gallery{position:absolute;inset:4px 7px 7px;z-index:8;overflow:auto;overscroll-behavior:contain;background:#142521f5;border:1px solid #9bc7b366;border-radius:14px;padding:13px 14px;color:#dceee1;box-shadow:0 8px 36px #0009;touch-action:pan-y}
+.art-gallery header{display:flex;justify-content:space-between;align-items:center;gap:12px}.art-gallery header strong{font-size:15px}.art-gallery header button{font-size:24px;background:#314a40;color:white;width:35px;height:35px;border-radius:10px}
+.art-gallery>p{font-size:11px;color:#b4c9bb;margin:6px 0 13px;line-height:1.4}.art-gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px}.art-shelf h3{font-size:12px;color:#d8eddf;margin:0 0 8px}.art-shelf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:5px}.art-sample{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;padding:4px;background:#273f37c8;border-radius:8px;min-width:0}.art-sample canvas{height:44px;width:44px;image-rendering:pixelated;background:#4252494d}.art-sample span{font-size:9px;line-height:1.25;text-align:center;color:#e2eee3;overflow-wrap:anywhere}
+@media(max-width:640px){.joystick{width:120px;height:120px;min-width:120px;flex-basis:120px}.joystick-ring{inset:13px}.joystick-knob{width:54px;height:54px}}
+body.world-immersive .joystick{pointer-events:auto;width:128px;height:128px;min-width:128px;flex-basis:128px;border-color:#9ecfb8b5;background:#17322fba;box-shadow:0 2px 10px #000a}
+body.world-immersive .toolbar .joystick{pointer-events:auto}
+@media(max-height:430px) and (orientation:landscape){body.world-immersive .joystick{width:114px;height:114px;min-width:114px;flex-basis:114px}.joystick-knob{width:53px;height:53px}}
+@media(max-width:700px) and (orientation:portrait){body.world-immersive .joystick{width:114px;height:114px;min-width:114px;flex-basis:114px}}
