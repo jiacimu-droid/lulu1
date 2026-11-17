@@ -277,15 +277,19 @@ object ToolRouter {
                             .put("model", song.model).put("songId", song.songId)
                             .put("fileName", song.file.name)
                             .put("usedFinetune", song.usedFinetune)
+                            .put("usedRoleVoice", song.usedRoleVoice)
                             .put("playbackStarted", played.getOrDefault(false))
                             .put("summary", if (played.getOrDefault(false))
-                                "原创歌曲已真正生成并保存，已启动本机音乐播放；不代表播放到结尾"
+                                if (song.usedRoleVoice) "原创歌曲已换成角色音色并启动播放，实际声音相似度需试听" else
+                                    "原创歌曲已保存并开始播放，使用音乐模型人声"
                             else "原创歌曲已生成并保存，但手机未能启动播放：" +
                                 played.exceptionOrNull()?.message.orEmpty().take(120))
                             .toString()
                     } else if (name == "play_saved_song") {
                         val song = com.jiacimu.lulu.ElevenLabsMusic.latestSong(context, characterId)
                             ?: error("本角色没有已生成的歌曲；不会自动重新付费生成")
+                        if (com.jiacimu.lulu.ElevenLabsRoleSongPipeline.enabled(context) && !song.usedRoleVoice)
+                            error("已保存的歌曲还不是角色原声；请到语音设置中只重试换声")
                         val played = withContext(kotlinx.coroutines.Dispatchers.IO) {
                             com.jiacimu.lulu.ElevenLabsMusic.play(song)
                         }
@@ -293,6 +297,7 @@ object ToolRouter {
                             .put("status", if (played) "succeeded" else "failed")
                             .put("playbackStarted", played)
                             .put("fileName", song.file.name)
+                            .put("usedRoleVoice", song.usedRoleVoice)
                             .put("summary", if (played) "已经开始重播本人之前保存的歌曲，没有产生新的 Music API 调用"
                                 else "本机未能重播已保存的歌曲").toString()
                     } else if (name == "stop_song") {
