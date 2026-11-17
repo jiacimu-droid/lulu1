@@ -147,7 +147,7 @@ internal object AutonomousEncounterChapters {
                     ?: return@filter false
                 if (time.isAfter(endedAt)) return@filter false
                 val linked = entry.optString("causalEvidenceId") in ownedEvidenceIds
-                val preceding = !time.isAfter(startedAt) &&
+                val preceding = time.isBefore(startedAt) &&
                     !time.isBefore(startedAt.minusSeconds(900)) &&
                     entry.optString("selected") != "silent"
                 linked || preceding
