@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`77b3bf6c94246705a46bee9c6d9eb4c72228a4f7`
+- 基准提交：`568a2e736c5e0fadf1a5fc373324f69d81877496`
 - 分支：`main`
 - 已索引文件：1443
-- 已索引代码/文本行：304319
-- 已发现符号：4345
+- 已索引代码/文本行：304401
+- 已发现符号：4348
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -78,7 +78,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRoute.kt` | 156 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/CallAutonomousHangupGate.kt` | 74 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/CallCommitmentDecisionPolicy.kt` | 8 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/CallExternalResultPolicy.kt` | 32 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CallExternalResultPolicy.kt` | 44 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/CallHangupGracePolicy.kt` | 20 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallMemoryPolicy.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CallOpeningTurn.kt` | 32 | 4 |
@@ -911,7 +911,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallAudioRecoveryPolicyTest.kt` | 16 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallCommitmentDecisionPolicyTest.kt` | 14 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 279 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt` | 39 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt` | 109 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallResponsibilityContextTest.kt` | 40 | 1 |

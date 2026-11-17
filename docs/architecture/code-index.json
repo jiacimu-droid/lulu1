@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T22:53:06.378050+00:00",
-  "commit": "77b3bf6c94246705a46bee9c6d9eb4c72228a4f7",
+  "generatedAt": "2026-11-17T23:35:20.666749+00:00",
+  "commit": "568a2e736c5e0fadf1a5fc373324f69d81877496",
   "branch": "main",
-  "sourceFingerprint": "b9ccbffaa0500185f03eab31a9a0011960ecd413e9105ed1a14db6a232f56acb",
+  "sourceFingerprint": "e11e73915b622328b4a654a8b6c6e3e72ae888c32865bfb36fff2b05b6284db9",
   "summary": {
     "files": 1443,
-    "lines": 304319,
-    "symbols": 4345
+    "lines": 304401,
+    "symbols": 4348
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -298,16 +298,54 @@
         "line": 13
       }
     ],
+    "enqueue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/CallExternalResultPolicy.kt",
+        "line": 24
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
+        "line": 194
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
+        "line": 64
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
+        "line": 34
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
+        "line": 47
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
+        "line": 72
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt",
+        "line": 15
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
+        "line": 286
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
+        "line": 672
+      }
+    ],
     "hasLiveReceiptEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallExternalResultPolicy.kt",
-        "line": 22
+        "line": 34
       }
     ],
     "canDeliver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallExternalResultPolicy.kt",
-        "line": 25
+        "line": 37
       }
     ],
     "shouldWait": [
@@ -692,6 +730,10 @@
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
         "line": 185
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt",
+        "line": 33
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterCausalTraceTest.kt",
@@ -1218,40 +1260,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
         "line": 165
-      }
-    ],
-    "enqueue": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt",
-        "line": 194
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt",
-        "line": 64
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterChapters.kt",
-        "line": 34
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
-        "line": 47
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
-        "line": 72
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTeamInbox.kt",
-        "line": 15
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 286
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-        "line": 672
       }
     ],
     "prepareVoiceNote": [
@@ -8684,6 +8692,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
         "line": 169
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt",
+        "line": 42
       }
     ],
     "latestConsideration": [
@@ -19669,7 +19681,7 @@
     "CallExternalResultPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt",
-        "line": 5
+        "line": 22
       }
     ],
     "CallHangupGracePolicyTest": [
@@ -24632,20 +24644,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallExternalResultPolicy.kt",
-      "lines": 32,
-      "sha256": "5273940482d52e82b54240d719610328fb227669a088e66310c6663682c424db",
+      "lines": 44,
+      "sha256": "2972e005e68b0756861a2204a37eec4a03549d84d634dcd592c921a0d78a340f",
       "symbols": [
         {
           "name": "pendingEvidence",
           "line": 13
         },
         {
+          "name": "enqueue",
+          "line": 24
+        },
+        {
           "name": "hasLiveReceiptEvidence",
-          "line": 22
+          "line": 34
         },
         {
           "name": "canDeliver",
-          "line": 25
+          "line": 37
         }
       ]
     },
@@ -27015,7 +27031,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt",
       "lines": 2719,
-      "sha256": "90ce9970bde5820337737055fdb57197f5efb70f2b9ae269721447abda0e8625",
+      "sha256": "e8ba7192c41d0ca4b9ea693e9bf0faa72e28422675d990f53ebf4089acbded30",
       "symbols": [
         {
           "name": "scheduleDeferredMedia",
@@ -44310,12 +44326,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt",
-      "lines": 39,
-      "sha256": "6f221d33da3dddf409d0786b0baa14bf30e6eee9ab58fe77d3c79518280eccaa",
+      "lines": 109,
+      "sha256": "e453d4122f86b0d58f1d443a4e9f4553d99fa470b50c87d008d4afeaf26b0d2a",
       "symbols": [
         {
           "name": "CallExternalResultPolicyTest",
-          "line": 5
+          "line": 22
+        },
+        {
+          "name": "write",
+          "line": 33
+        },
+        {
+          "name": "offer",
+          "line": 42
         }
       ]
     },
