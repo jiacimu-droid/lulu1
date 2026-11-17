@@ -3,6 +3,7 @@ package com.jiacimu.lulu.data
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.Data
@@ -350,6 +351,11 @@ object ProactivePerceptionScheduler {
         // actual persisted overdue evidence before making this one decision.
         if (characterId.isBlank()) return
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            // Wait briefly for a just-saving chat turn to release the role
+            // mutex, and retry locally rather than losing the duty to that
+            // normal conversation's eight-second input quiet window.
+            .setInitialDelay(8_000L, TimeUnit.MILLISECONDS)
+            .setBackoffCriteria(BackoffPolicy.LINEAR, 10L, TimeUnit.SECONDS)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .setInputData(Data.Builder()
                 .putString("characterId", characterId)
@@ -931,6 +937,15 @@ class ProactivePerceptionWorker(
         val trigger = inputData.getString("trigger").orEmpty().ifBlank { "角色时间间隔" }
         val characterId = inputData.getString("characterId")?.takeIf(String::isNotBlank)
         val force = inputData.getBoolean("force", false)
+        // An accepted missed alarm must not silently consume its only
+        // recovery chance while the owner's primary chat/call is still busy.
+        // No model request occurs on these bounded local retry attempts.
+        if (characterId != null &&
+            trigger.startsWith("重要事件：系统恢复时发现本人正式约定") &&
+            (OnlineChatBatchStore.shouldDeferBackgroundWake(applicationContext, characterId) ||
+                CompanionPresenceStore.isInCall(characterId))) {
+            return@runCatching if (runAttemptCount < 3) Result.retry() else Result.success()
+        }
         val requireOnline = inputData.getBoolean("requireOnline", false)
         val preserveOffline = inputData.getBoolean("preserveOffline", false)
         val onlineExpiryAtMillis = inputData.getLong("onlineExpiryAtMillis", 0L)
