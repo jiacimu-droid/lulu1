@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`dbd3d651340a3636e00413dcafa84b6c50408836`
+- 基准提交：`a24b249623593e61aa61c7edcf19c349c7877a75`
 - 分支：`main`
 - 已索引文件：1414
-- 已索引代码/文本行：299228
+- 已索引代码/文本行：299263
 - 已发现符号：4270
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 236 | 0 |
-| `app/src/main/AndroidManifest.xml` | 196 | 0 |
+| `app/src/main/AndroidManifest.xml` | 201 | 0 |
 | `app/src/main/assets/live2d/bootstrap.js` | 33 | 0 |
 | `app/src/main/assets/live2d/stage.html` | 17 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/00_nod.motion3.json` | 142 | 0 |
@@ -198,7 +198,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 145 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 120 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 231 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 621 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 645 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 35 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 483 | 2 |
@@ -356,7 +356,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 209 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt` | 71 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 208 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 209 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 132 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 66 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
@@ -595,7 +595,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 92 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 176 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 712 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 714 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 377 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
@@ -810,7 +810,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt` | 32 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 2047 | 64 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 2050 | 64 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 116 | 4 |
