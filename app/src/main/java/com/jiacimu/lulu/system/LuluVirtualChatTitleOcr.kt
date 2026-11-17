@@ -121,6 +121,12 @@ internal object LuluVirtualChatTitleOcr {
                 LuluAccessibilityService.virtualChatWindowIdentity(displayId, packageName)
             }
             if (before.isBlank()) return@withLock null
+            // The exact IME rectangle is a different Android window on the
+            // SAME display. A "发送" label inside that keyboard cannot prove
+            // the app's own irreversible Send button.
+            val imeTop = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualChatImeTopPermille(displayId, packageName)
+            } ?: return@withLock null
             val image = frameSource() ?: return@withLock null
             val width = image.width
             val height = image.height
@@ -128,8 +134,14 @@ internal object LuluVirtualChatTitleOcr {
             val after = withContext(Dispatchers.Main) {
                 LuluAccessibilityService.virtualChatWindowIdentity(displayId, packageName)
             }
-            if (before != after || after.isBlank()) return@withLock null
-            LuluVisualChatDraftPolicy.verifiedDraft(lines, recipient, message, width, height)
+            val imeAfter = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.virtualChatImeTopPermille(displayId, packageName)
+            }
+            if (before != after || after.isBlank() || imeAfter == null ||
+                kotlin.math.abs(imeAfter - imeTop) > 30) return@withLock null
+            val boundary = height * minOf(imeTop, imeAfter) / 1000
+            LuluVisualChatDraftPolicy.verifiedDraft(
+                lines, recipient, message, width, height, boundary)
         }
     }
 
