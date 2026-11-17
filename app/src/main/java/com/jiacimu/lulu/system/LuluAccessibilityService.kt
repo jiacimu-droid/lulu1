@@ -1107,9 +1107,18 @@ class LuluAccessibilityService : AccessibilityService() {
             if (packageName != LuluVirtualChatSendPolicy.WECHAT ||
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target")
                 return false
-            return service.windowsOnAllDisplays.get(displayId).orEmpty().any {
-                it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD &&
-                    it.root != null
+            val height = virtualDimensions(service, displayId)?.second ?: return false
+            return service.windowsOnAllDisplays.get(displayId).orEmpty().any { window ->
+                if (window.type != android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD)
+                    false
+                else Rect().also(window::getBoundsInScreen).let {
+                    // OEM IMEs may expose a window with no node children.
+                    // The actual nonempty, lower-screen IME rectangle is
+                    // independent evidence of keyboard presence.
+                    it.width() > 0 && it.height() > 0 &&
+                        it.top > 0 && it.top < height &&
+                        it.bottom <= height
+                }
             }
         }
 
