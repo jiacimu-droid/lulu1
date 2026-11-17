@@ -45,6 +45,10 @@ object LuluShellDisplayMain {
     private var virtual: VirtualDisplay? = null
     private var reader: ImageReader? = null
     private var targetPackage = ""
+    // Mika sets DISPLAY_IME_POLICY_LOCAL when the separate display is born.
+    // Without this, the keyboard may appear on the owner's screen instead
+    // of the virtual one even though FLAG_OWN_FOCUS was granted.
+    private var localImeConfigured = false
     // Never feed a pre-action ImageReader buffer back to the character as
     // proof that a just-sent gesture changed the background display.
     private var pendingActionFrameBarrierNanos = 0L
@@ -111,6 +115,16 @@ object LuluShellDisplayMain {
     private fun flags(): Int = PUBLIC or OWN_CONTENT or TOUCH or ROTATE or DESTROY or
         NO_TOUCH_FEEDBACK or TRUSTED or OWN_GROUP or ALWAYS_UNLOCKED or OWN_FOCUS or NO_FOCUS_STEAL
 
+    @SuppressLint("PrivateApi")
+    private fun setLocalImePolicy(displayId: Int): Boolean = runCatching {
+        val wm = Class.forName("android.view.WindowManagerGlobal")
+            .getMethod("getWindowManagerService").invoke(null)!!
+        // WindowManager.DISPLAY_IME_POLICY_LOCAL = 0.
+        wm.javaClass.getMethod("setDisplayImePolicy", Int::class.java, Int::class.java)
+            .invoke(wm, displayId, 0)
+        true
+    }.getOrDefault(false)
+
     private fun execute(dm: DisplayManager, cmd: JSONObject): JSONObject {
         val action = cmd.optString("action")
         if (action == "stop") {
@@ -156,6 +170,10 @@ object LuluShellDisplayMain {
                     img.close()
                     error("系统未授予后台屏独立焦点（displayFlags=$observedFlags）；拒绝抢占主人主屏")
                 }
+                // Equivalent to Mika ShellService.createVirtualDisplay().
+                // The virtual phone owns its IME; keyboard/focus must never
+                // spill onto the owner's physical display.
+                localImeConfigured = setLocalImePolicy(disp.display.displayId)
                 frameGeometry = geometry
                 virtual = disp
                 reader = img
@@ -168,6 +186,7 @@ object LuluShellDisplayMain {
                 .put("captureHeight", captureSize(frameGeometry).second)
                 .put("ownFocus", true)
                 .put("ownFocusVerifiedByDisplayFlags", true)
+                .put("localImePolicyRequested", localImeConfigured)
         }
         val id = virtual?.display?.displayId ?: error("start virtual display first")
         check(id > 0) { "cannot inject into main display" }
@@ -374,6 +393,7 @@ object LuluShellDisplayMain {
     }
 
     private fun release() {
+        localImeConfigured = false
         targetPackage = ""
         pendingActionFrameBarrierNanos = 0L
         pendingActionNeedsFrame = false
