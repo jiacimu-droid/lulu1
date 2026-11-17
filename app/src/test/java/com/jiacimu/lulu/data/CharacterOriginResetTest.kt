@@ -170,4 +170,42 @@ class CharacterOriginResetTest {
         assertEquals(Instant.ofEpochMilli(again.toEpochMilli()), SharedExperienceTimeline.all(first.characterId).single().occurredAt)
         assertEquals(otherEvents, SharedExperienceTimeline.all(other.characterId))
     }
+
+    @Test fun digitalOnlyUpgradePreservesExistingPeopleOriginsAndMemories() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        MigratedDomainStores.characters.initialize(context)
+        DigitalLifeProfileStore.initialize(context)
+        CharacterIdentityStore.initialize(context)
+        CharacterLifeStore.initialize(context)
+        DigitalWorldStore.initialize(context)
+
+        val current = MigratedDomainStores.characters.create("已有数字生命", "用户自己编辑的人格")
+        val legacy = MigratedDomainStores.characters.create("早期未选择形态的角色", "原本的人设")
+        CharacterIdentityStore.set(legacy.characterId, "已保存的私人身份")
+        val oldTime = Instant.parse("2026-07-01T00:00:00Z")
+        val now = Instant.parse("2026-11-17T14:00:00Z")
+        DigitalLifeProfileStore.registerNewLife(current.characterId, current.displayName, "用户", oldTime)
+        val currentOrigin = DigitalLifeProfileStore.birthAt(current.characterId)
+        val priorEvent = "legacy-before-unification-${legacy.characterId}"
+        SharedExperienceTimeline.record(priorEvent, legacy.characterId, "私聊", "用户",
+            "已经发生的历史对话", oldTime.plusSeconds(5), false)
+        val legacyTimeline = SharedExperienceTimeline.all(legacy.characterId)
+        val currentTimeline = SharedExperienceTimeline.all(current.characterId)
+
+        assertEquals(1, DigitalLifeProfileStore.migrateExistingCharactersToDigitalLife("用户", now))
+        assertTrue(DigitalLifeProfileStore.isEnabled(legacy.characterId))
+        assertEquals(oldTime.plusSeconds(5), DigitalLifeProfileStore.birthAt(legacy.characterId))
+        assertEquals(currentOrigin, DigitalLifeProfileStore.birthAt(current.characterId))
+        assertEquals("原本的人设", MigratedDomainStores.characters.get(legacy.characterId).persona)
+        assertEquals("已保存的私人身份", CharacterIdentityStore.identities.value[legacy.characterId])
+        assertEquals(legacyTimeline, SharedExperienceTimeline.all(legacy.characterId))
+        assertEquals(currentTimeline, SharedExperienceTimeline.all(current.characterId))
+        assertNotNull(DigitalWorldStore.state.value.homes[legacy.characterId])
+
+        assertEquals(0, DigitalLifeProfileStore.migrateExistingCharactersToDigitalLife("用户", now.plusSeconds(120)))
+        assertEquals(legacyTimeline, SharedExperienceTimeline.all(legacy.characterId))
+        assertEquals(currentTimeline, SharedExperienceTimeline.all(current.characterId))
+    }
 }
