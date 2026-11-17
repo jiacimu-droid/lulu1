@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9a0e91b0ece4e4774042a9a267198f0fa591955f`
+- 基准提交：`899429dd1c92f38c2355995fda583afe3ef4bdb0`
 - 分支：`main`
 - 已索引文件：1436
-- 已索引代码/文本行：302115
-- 已发现符号：4332
+- 已索引代码/文本行：302159
+- 已发现符号：4333
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -300,7 +300,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 339 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt` | 290 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt` | 147 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 607 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 651 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolderUi.kt` | 177 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt` | 103 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/SettingsHomeSearch.kt` | 81 | 0 |

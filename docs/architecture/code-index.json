@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:34:36.054415+00:00",
-  "commit": "9a0e91b0ece4e4774042a9a267198f0fa591955f",
+  "generatedAt": "2026-11-17T17:35:45.950095+00:00",
+  "commit": "899429dd1c92f38c2355995fda583afe3ef4bdb0",
   "branch": "main",
-  "sourceFingerprint": "f1215ab8f4eed988358716212f6a90a1fd3f2a386fce5d433e5f2bdd32f6269b",
+  "sourceFingerprint": "d2fa1701bf8e5dd1f8276c726d615f476f2eb44c689040f702691e15b3a30266",
   "summary": {
     "files": 1436,
-    "lines": 302115,
-    "symbols": 4332
+    "lines": 302159,
+    "symbols": 4333
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1629,11 +1629,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 207
+        "line": 213
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 328
+        "line": 372
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt",
@@ -2845,7 +2845,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 149
+        "line": 155
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt",
@@ -4865,7 +4865,7 @@
     "pending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 81
+        "line": 83
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
@@ -4887,13 +4887,13 @@
     "section": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 102
+        "line": 104
       }
     ],
     "order": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 110
+        "line": 112
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterScript.kt",
@@ -4907,13 +4907,13 @@
     "allPending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 118
+        "line": 120
       }
     ],
     "complete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 121
+        "line": 123
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -4931,13 +4931,19 @@
     "undo": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 128
+        "line": 130
+      }
+    ],
+    "completeFromWidget": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
+        "line": 225
       }
     ],
     "loadWithLegacy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-        "line": 269
+        "line": 305
       }
     ],
     "create": [
@@ -27280,7 +27286,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
       "lines": 829,
-      "sha256": "c7434b4c2b29af7ff0e49aa3dc73e7c5104fb5fb91cd5baa3bcf0178bae08262",
+      "sha256": "28892357be57d484708ef46d81751142239c6119be1be37faac6e0d17cf37233",
       "symbols": [
         {
           "name": "gridTop",
@@ -28217,48 +28223,52 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
-      "lines": 607,
-      "sha256": "408c2f053e509643f4c64d4b498a015f088e014a0560ae7d3a0d54ac17a6e77b",
+      "lines": 651,
+      "sha256": "b9458a05909daebe102a7d0fbc8566ae834634220607231a12a258459e87f005",
       "symbols": [
         {
           "name": "pending",
-          "line": 81
+          "line": 83
         },
         {
           "name": "section",
-          "line": 102
+          "line": 104
         },
         {
           "name": "order",
-          "line": 110
+          "line": 112
         },
         {
           "name": "allPending",
-          "line": 118
+          "line": 120
         },
         {
           "name": "complete",
-          "line": 121
+          "line": 123
         },
         {
           "name": "undo",
-          "line": 128
+          "line": 130
         },
         {
           "name": "read",
-          "line": 149
+          "line": 155
         },
         {
           "name": "save",
-          "line": 207
+          "line": 213
+        },
+        {
+          "name": "completeFromWidget",
+          "line": 225
         },
         {
           "name": "loadWithLegacy",
-          "line": 269
+          "line": 305
         },
         {
           "name": "save",
-          "line": 328
+          "line": 372
         }
       ]
     },
