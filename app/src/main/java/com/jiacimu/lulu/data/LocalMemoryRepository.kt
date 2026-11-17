@@ -256,10 +256,16 @@ class LocalMemoryRepository : MemoryRepository {
             val pending = readable.filter { turn ->
                 turn.events.any { it.id !in processed }
             }
-            val batchTurns = pending.take(threshold)
+            // A ready 15-turn batch may need to be split at a real turn
+            // boundary to fit the extraction request's evidence-character
+            // budget. Do not mistake that smaller physical sub-batch for a
+            // shortage of eligible semantic turns or stop without processing.
+            val ready = flushTail || pending.size >= threshold
+            val batchTurns = if (ready) MemoryExtractionTurnView.fit(pending.take(threshold))
+                else pending.take(threshold)
             val batch = batchTurns.flatMap { it.events }
 
-            if (batchTurns.isEmpty() || (!flushTail && batchTurns.size < threshold)) {
+            if (pending.isEmpty() || !ready) {
                 if (processedThisRun > 0) maintain(characterId, silent = true)
                 refreshDebug(
                     message = if (processedThisRun == 0) {
