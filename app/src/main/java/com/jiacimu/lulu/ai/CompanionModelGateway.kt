@@ -848,6 +848,14 @@ class CompanionModelGateway(
                 !facts.contains("【自己的数字世界来往｜真实事件与可选的下一步】"))
                 com.jiacimu.lulu.data.CharacterEverydaySocialContext.render(characterId)
             else ""
+            // A small untrimmed authority register guards against old episodes
+            // and unused NPC templates being mistaken for currently living
+            // people or confirmed QQ friendships. Shared by ALL Full scenes;
+            // never a separate decision, memory ledger, or paid model request.
+            val liveSocialAuthority = if (fullContext &&
+                com.jiacimu.lulu.data.DigitalLifeProfileStore.isEnabled(characterId))
+                com.jiacimu.lulu.data.CharacterEverydaySocialContext.currentSocialAuthority(characterId)
+            else ""
             val developmentSection = when {
                 fullContext -> com.jiacimu.lulu.data.CharacterRuntime.developmentContext(
                     characterId, compact = !budget.richInnerLife,
@@ -916,7 +924,8 @@ class CompanionModelGateway(
                 normalWorldBooks = middleWorldBooks,
                 memorySections = memorySections,
                 liveScene = listOf("角色视频能力和通话实况" to live2dCapabilitySection,
-                    "数字世界权威状态" to currentWorld),
+                    "数字世界权威状态" to currentWorld,
+                    "当前数字人物与QQ好友权威登记" to liveSocialAuthority),
                 dynamicTail = listOf("本轮表达证据" to speechIdentitySection) +
                     conversationMaterials +
                     listOf("本轮任务指令" to "本次任务：$instruction",
