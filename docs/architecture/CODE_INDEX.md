@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d42d781547f7b4fab876ddfec1d9ff51c9c5ffa6`
+- 基准提交：`462323b5bc69eed734fb42c7cb7a224facc2a8ab`
 - 分支：`main`
 - 已索引文件：1439
-- 已索引代码/文本行：302896
-- 已发现符号：4342
+- 已索引代码/文本行：302945
+- 已发现符号：4343
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -202,7 +202,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 645 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 35 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt` | 765 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt` | 805 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 483 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 299 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 603 | 9 |
@@ -219,7 +219,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2719 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt` | 238 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/LuluWidgetRoleActions.kt` | 96 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluWidgetRoleActions.kt` | 105 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 210 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt` | 57 | 4 |
