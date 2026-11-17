@@ -393,10 +393,12 @@ export function touchMotionFor(region, gesture, state = {}) {
     gesture?.endsWith('-right') ? 1 : side
   let index = null
   if (isImpact(gesture)) {
-    // Paired positive/negative head-and-torso recovery clips. Chest/arms
-    // instead retain the directional torso recoil without a face dodge.
-    if (['cheek', 'mouth', 'ear', 'beast-ear'].includes(family) && force >= .48)
-      index = (travel || -1) < 0 ? 33 : 9
+    // 09/33 are different authored motions, NOT a mirrored pair. Choosing
+    // them by direction tilted one cheek up and the other down, while their
+    // Motion3 ownership attenuated the user's selected heavy force to 19%.
+    // Use the shared signed neck/torso impact reflex for BOTH directions.
+    // It stays genuinely mirrored and directly respects light/heavy force.
+    return null
   } else if (gesture === 'kiss') {
     if (['cheek', 'mouth', 'ear', 'beast-ear', 'neck'].includes(family)) index = 36
     else if (['forehead', 'hair'].includes(family)) index = 32
