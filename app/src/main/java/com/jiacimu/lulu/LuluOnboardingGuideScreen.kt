@@ -96,6 +96,13 @@ internal val luluGuideFeatures = listOf(
         listOf("核对通知、后台运行、无障碍、闹钟以及锁屏来电权限。", "分别允许角色的后台虚拟屏、设备状态、闹钟、媒体控制等能力。", "监督学习或睡觉时，要看实际安排与执行证据；没回复、息屏都不能独立证明完成。"),
         "打开功能开关不保证 Android 已授权，也不保证工具成功；角色决策、真正执行、通知送达、用户完成是不同事实。", MigrationRoute.Settings, "设置权限",
         highlights = listOf("角色可自主选择是否提醒、打电话或重新核对，但不能把承诺当作完成。", "精确闹钟、通知和锁屏来电可能受手机厂商后台策略影响。")),
+    LuluGuideFeature("continuity", "同一个角色 · 全场景连贯", Icons.Outlined.AutoAwesome,
+        "角色私聊 / 电话 / Live2D 视频 / 群聊 / 游戏 / 见面 / 后台生活",
+        "从聊天到电话，再去游戏或数字世界，角色尽量延续同一份人设、记忆、关系与未完成的事。",
+        listOf("先创建并保存角色人设；不同场景使用这位角色已有的身份、长期记忆与近期真实经历。", "不必每次切场景重新自我介绍：私聊中的约定、电话里的互动、游戏中的真实对话都能成为后续相处的线索。", "角色的后台生活、想法、日程与工具结果会回到同一段人物时间线；你可以通过此刻、记忆和生活记录追溯。"),
+        "连贯不等于模型永不遗忘：长对话依赖记忆提取、召回和现场信息。没有证据的事情不能被凭空补写。",
+        MigrationRoute.Chat, "去聊天",
+        highlights = listOf("换一个场景，不换一套人格", "同一份记忆和真实经历，让互动自然接续")),
     LuluGuideFeature("groups", "群聊 · 多人也不失忆", Icons.Outlined.PeopleOutline, "聊天 → 群聊",
         "多个角色一起说话，仍各有性格、关系和自己的记忆。",
         listOf("创建群聊并邀请成员，角色可以回复你，也可以回应群里的其他人。", "群聊与私聊尽量共享同一角色的长期状态与经历，而非切到另一个人格。"),
@@ -174,7 +181,7 @@ internal data class LuluGuideHeroHighlight(
 )
 internal val luluGuideHeroHighlights = listOf(
     LuluGuideHeroHighlight("自动记忆整理", "适合懒人，不用天天维护", Icons.Outlined.Psychology, "memory"),
-    LuluGuideHeroHighlight("全场景连贯", "同一个角色，同一段人生", Icons.Outlined.AutoAwesome, "groups"),
+    LuluGuideHeroHighlight("全场景连贯", "同一个角色，同一段人生", Icons.Outlined.AutoAwesome, "continuity"),
     LuluGuideHeroHighlight("连麦一起玩", "边说边玩，合作或对战", Icons.Outlined.SportsEsports, "games"),
     LuluGuideHeroHighlight("自主使用手机", "刷视频、逛商品、分享链接", Icons.Outlined.Smartphone, "phone"),
 )
