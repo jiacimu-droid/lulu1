@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:40:50.082842+00:00",
-  "commit": "fb6e3695aa061b2c53e12b80536fe62f33ab8380",
+  "generatedAt": "2026-11-17T17:42:26.881538+00:00",
+  "commit": "95c9a0d226f4e34be6cc51e45cc53ac2805994d4",
   "branch": "main",
-  "sourceFingerprint": "2c50f95a1f5a388f12a9d52e1106b787a2dbf53a112d9c820227f67c408ef122",
+  "sourceFingerprint": "3e22f2485e950f2d7b0654e906185f2a87f5440229709b8047e6410dec41a9e2",
   "summary": {
-    "files": 1437,
-    "lines": 302624,
-    "symbols": 4337
+    "files": 1438,
+    "lines": 302736,
+    "symbols": 4341
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3285,7 +3285,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1569
+        "line": 1571
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -3900,6 +3900,38 @@
         "line": 220
       }
     ],
+    "AuthoredNote": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetRoleActions.kt",
+        "line": 16
+      }
+    ],
+    "readNote": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetRoleActions.kt",
+        "line": 22
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
+        "line": 160
+      }
+    ],
+    "characterContext": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetRoleActions.kt",
+        "line": 37
+      }
+    ],
+    "execute": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetRoleActions.kt",
+        "line": 54
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
+        "line": 14
+      }
+    ],
     "failure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
@@ -3910,12 +3942,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
         "line": 122
-      }
-    ],
-    "readNote": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
-        "line": 160
       }
     ],
     "browserNavigation": [
@@ -4868,12 +4894,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt",
         "line": 117
-      }
-    ],
-    "execute": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
-        "line": 14
       }
     ],
     "opportunity": [
@@ -5855,7 +5875,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 595
+        "line": 599
       }
     ],
     "asUserMessages": [
@@ -9361,49 +9381,49 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1462
+        "line": 1464
       }
     ],
     "requestsPrivateReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1520
+        "line": 1522
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1531
+        "line": 1533
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1538
+        "line": 1540
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1552
+        "line": 1554
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1562
+        "line": 1564
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1616
+        "line": 1618
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1992
+        "line": 1994
       }
     ],
     "age": [
@@ -12843,7 +12863,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3791
+        "line": 3793
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -26743,8 +26763,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-      "lines": 722,
-      "sha256": "e03406463d47eb629f4af5fd3bc6a322490c60fd463cc324a6a9c34e374aa97d",
+      "lines": 727,
+      "sha256": "1187c0c5a1d7e07af63e1e6895d9dd3b7ff29aa12fdd807b1ab02943e9f8a154",
       "symbols": [
         {
           "name": "profileSign",
@@ -27091,6 +27111,29 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetRoleActions.kt",
+      "lines": 96,
+      "sha256": "fce396bcdbe96a5da293e02f77c0526e84503a2aab6fe4ae199a8a5ebbf904e9",
+      "symbols": [
+        {
+          "name": "AuthoredNote",
+          "line": 16
+        },
+        {
+          "name": "readNote",
+          "line": 22
+        },
+        {
+          "name": "characterContext",
+          "line": 37
+        },
+        {
+          "name": "execute",
+          "line": 54
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt",
       "lines": 844,
       "sha256": "89e7ffa2fe58565f87cf1c0a1619bac19e17d7b7b0cbddf9a96701eee0dc9b9c",
@@ -27328,8 +27371,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 874,
-      "sha256": "96dcddcd68483bb7310f749fa0968159d3778b3d2997c19cba1f6929344131db",
+      "lines": 877,
+      "sha256": "63192553911490ed91c08f9105e0c6d7e4f02777488aa87f1828fd11b51e21eb",
       "symbols": [
         {
           "name": "gridTop",
@@ -29728,7 +29771,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 192,
-      "sha256": "8e83dc1316d0ae3c23b304dc0227cea8f2cb33e7375031582ee3e5643f847792",
+      "sha256": "be6042c8b5c08a4e21c93371d02e126097ccfa0dce17048dd198036b2d15199b",
       "symbols": [
         {
           "name": "Capability",
@@ -32258,8 +32301,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 2040,
-      "sha256": "1d713ad509d639047c9fe1f3045b5e37b5c3379a7ecdf0f89628cba79481cf78",
+      "lines": 2042,
+      "sha256": "88aa2d9801a17f242f989983cc0f11059b81ba6c7a5ea0e9d114fe084db9bf68",
       "symbols": [
         {
           "name": "asJson",
@@ -32275,39 +32318,39 @@
         },
         {
           "name": "world",
-          "line": 1462
+          "line": 1464
         },
         {
           "name": "requestsPrivateReply",
-          "line": 1520
+          "line": 1522
         },
         {
           "name": "recordedReceiptId",
-          "line": 1531
+          "line": 1533
         },
         {
           "name": "completedEvidence",
-          "line": 1538
+          "line": 1540
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1552
+          "line": 1554
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1562
+          "line": 1564
         },
         {
           "name": "from",
-          "line": 1569
+          "line": 1571
         },
         {
           "name": "requiresCompletion",
-          "line": 1616
+          "line": 1618
         },
         {
           "name": "availableContext",
-          "line": 1992
+          "line": 1994
         }
       ]
     },
@@ -35809,8 +35852,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3858,
-      "sha256": "d8a246430fe56565fb031b629d056515a4283d1e7064f1f64f8e3c993235c7fd",
+      "lines": 3860,
+      "sha256": "87275b234952955ddd8c5268e1dc23bd5fb16a5f40678f280ce9117bac8a07ac",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -35842,7 +35885,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3791
+          "line": 3793
         }
       ]
     },
@@ -36905,8 +36948,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 714,
-      "sha256": "e4efcfd0e4e23f907233906e212c9e5b704b08fca3e1f8fa05415c80c3531015",
+      "lines": 718,
+      "sha256": "695d20b27bf2423f7a9c55aa952355042fa91878b6af33d02970f0ce9e3360ad",
       "symbols": [
         {
           "name": "completed",
@@ -36938,7 +36981,7 @@
         },
         {
           "name": "project",
-          "line": 595
+          "line": 599
         }
       ]
     },
