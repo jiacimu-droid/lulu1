@@ -43,6 +43,8 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -71,6 +73,9 @@ internal data class LuluDesktopWidget(
     val title: String = "",
     val targetDate: String = "",
     val imageToken: String = "",
+    val dailyReadingEnabled: Boolean = true,
+    val dailyNotifyEnabled: Boolean = false,
+    val allowRoleStyle: Boolean = false,
 )
 
 internal val luluZodiacNames = listOf(
@@ -148,6 +153,9 @@ internal object LuluDesktopWidgetStore {
     private const val PREFS = "lulu_desktop_widgets_v1"
     private const val KEY = "cards"
     private const val SIGN = "profile_sign"
+    private val mutex = Any()
+    private val mutableRevision = MutableStateFlow(0L)
+    val revision = mutableRevision.asStateFlow()
 
     fun profileSign(context: Context): Int =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt(SIGN, 0).coerceIn(0, 11)
@@ -175,6 +183,9 @@ internal object LuluDesktopWidgetStore {
                         title = obj.optString("title").take(70),
                         targetDate = obj.optString("targetDate").take(10),
                         imageToken = obj.optString("imageToken"),
+                        dailyReadingEnabled = obj.optBoolean("dailyReadingEnabled", true),
+                        dailyNotifyEnabled = obj.optBoolean("dailyNotifyEnabled", false),
+                        allowRoleStyle = obj.optBoolean("allowRoleStyle", false),
                     )
                     if (value.page in 1..100 && luluWidgetFits(value, this, emptyList())) add(value)
                 }
@@ -182,7 +193,7 @@ internal object LuluDesktopWidgetStore {
         }.getOrDefault(emptyList())
     }
 
-    fun save(context: Context, widgets: List<LuluDesktopWidget>): Boolean {
+    fun save(context: Context, widgets: List<LuluDesktopWidget>): Boolean = synchronized(mutex) {
         val arr = JSONArray()
         widgets.take(100).forEach { w ->
             arr.put(JSONObject().apply {
@@ -199,11 +210,30 @@ internal object LuluDesktopWidgetStore {
                 put("title", w.title)
                 put("targetDate", w.targetDate)
                 put("imageToken", w.imageToken)
+                put("dailyReadingEnabled", w.dailyReadingEnabled)
+                put("dailyNotifyEnabled", w.dailyNotifyEnabled)
+                put("allowRoleStyle", w.allowRoleStyle)
             })
         }
-        return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+        val ok = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
             .putString(KEY, arr.toString()).commit()
+        if (ok) {
+            mutableRevision.value += 1L
+            runCatching { LuluWidgetDailyRole.schedule(context, widgets) }
+        }
+        ok
     }
+
+    /** A model may touch ONLY its bound, explicitly unlocked widgets. */
+    fun roleApplySkin(context: Context, widgetId: String, characterId: String, skin: Int): Boolean =
+        synchronized(mutex) {
+            if (skin !in 0..3 || characterId.isBlank()) return@synchronized false
+            val current = load(context)
+            val target = current.firstOrNull { it.id == widgetId &&
+                it.characterId == characterId && it.allowRoleStyle } ?: return@synchronized false
+            if (target.skin == skin) return@synchronized true
+            save(context, current.map { if (it.id == widgetId) target.copy(skin = skin) else it })
+        }
 
     fun setProfileSign(context: Context, sign: Int) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
@@ -571,6 +601,26 @@ internal fun LuluDesktopWidgetEditor(
                         isError = draft.targetDate.isNotBlank() &&
                             runCatching { LocalDate.parse(draft.targetDate) }.isFailure,
                     )
+                }
+                if (initial.kind == LuluWidgetKind.HOROSCOPE) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = draft.dailyReadingEnabled,
+                            onCheckedChange = { draft = draft.copy(dailyReadingEnabled = it) })
+                        Text("每天使用绑定角色的聊天模型解读今日运势",
+                            style = MaterialTheme.typography.bodySmall)
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(checked = draft.dailyNotifyEnabled,
+                            onCheckedChange = { draft = draft.copy(dailyNotifyEnabled = it) })
+                        Text("允许角色决定是否发送当天的通知提醒",
+                            style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = draft.allowRoleStyle,
+                        onCheckedChange = { draft = draft.copy(allowRoleStyle = it) })
+                    Text("授权绑定角色自由选择这张组件的内置皮肤",
+                        style = MaterialTheme.typography.bodySmall)
                 }
                 if (initial.kind == LuluWidgetKind.NOTE || initial.kind == LuluWidgetKind.HOROSCOPE ||
                     initial.kind == LuluWidgetKind.COUNTDOWN) {
