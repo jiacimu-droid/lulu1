@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`493a7016875f059a020d3955f7b5f17ba75ec92a`
+- 基准提交：`474dcec96ad1b1ec803df3bbaca12d2fee0b5cf3`
 - 分支：`main`
 - 已索引文件：1407
-- 已索引代码/文本行：297574
-- 已发现符号：4235
+- 已索引代码/文本行：297615
+- 已发现符号：4236
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -810,7 +810,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt` | 32 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1940 | 57 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 1965 | 58 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 104 | 4 |
@@ -845,7 +845,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversal.kt` | 66 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicy.kt` | 316 | 28 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcr.kt` | 239 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcr.kt` | 251 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualFrameSafety.kt` | 12 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualHumanGate.kt` | 33 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNavigation.kt` | 75 | 6 |
@@ -854,7 +854,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 36 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 144 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 45 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt` | 82 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt` | 86 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWeChatMomentsPolicy.kt` | 49 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt` | 135 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/PhoneModelTransportPolicy.kt` | 21 | 1 |
