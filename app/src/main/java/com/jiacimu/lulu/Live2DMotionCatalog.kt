@@ -2,7 +2,7 @@ package com.jiacimu.lulu
 
 /**
  * Names, fits, suggested expression pairings and default face presets for
- * the shipped wolf motion pack (LuluWolf group, indices 00..48).
+ * the shipped wolf motion pack (LuluWolf group, indices 00..49).
  *
  * Every fits text first says when the clip fits, then, after
  * “；动作是”, exactly what the body does, so two clips sharing one
@@ -235,6 +235,10 @@ internal object Live2DMotionCatalog {
             ),
             faceNote = "轻闭眼、嘟嘴、脸红，镜头贴近后自然退开",
         ),
+        49 to Entry(
+            "靠近屏幕",
+            "想靠近镜头打量、观察、逗弄、质问或安静注视对方时；动作是头和身体实际向屏幕靠近，脸留在画面中央，停留一会儿后自然退开；动作本身没有预设情绪，可自己搭配笑、冷脸、皱眉、眼神或已导入的真实表情，不是亲吻",
+        ),
     )
 
     /**
@@ -255,6 +259,7 @@ internal object Live2DMotionCatalog {
 
     private val everydayIntents = linkedMapOf(
         "情绪·开心与亲近" to listOf(17, 19, 28, 42, 48),
+        "交互·距离与注视" to listOf(49),
         "情绪·害羞、失落与担忧" to listOf(12, 20, 36, 41, 45, 46),
         "情绪·受惊与抗拒" to listOf(9, 23, 40, 43),
         "交流·倾听与回应" to listOf(0, 8, 26, 29, 34, 38),
