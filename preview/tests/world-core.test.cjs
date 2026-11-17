@@ -85,3 +85,35 @@ test('persisted worlds reject blocked player spawns and occupied solid props bef
   assert.equal(Core.valid(base),true,'unmodified world still resumes');
  }
 });
+
+test('town buildings block their entire visible footprint, not just the anchor',()=>{
+ const scene=Core.createWorld('meet',813);
+ const house=scene.props.find(p=>p.id==='cafe');
+ assert.deepEqual(Core.footprint(house),{left:10,right:12,top:2,bottom:4});
+ for(let y=2;y<=4;y++)for(let x=10;x<=12;x++)
+   assert.equal(Core.blocked(scene,x,y),true,'building footprint '+x+','+y);
+ assert.equal(Core.blocked(scene,11,5),false,'front-door approach stays open');
+ assert.equal(Core.at(scene,10,3)?.id,'cafe');
+ const route=Core.route(scene,11,5);
+ assert.ok(route.length>0,'door remains reachable');
+ assert.ok(route.every(p=>!Core.blocked(scene,p.x,p.y)),'route never cuts a house');
+ scene.player={x:11,y:5};
+ assert.equal(Core.nearest(scene,1)?.id,'cafe');
+ assert.equal(Core.use(scene,'cafe').ok,true,'interaction is from outside');
+ scene.player={x:10,y:3};
+ assert.equal(Core.valid(scene),false,'old saved state inside house is rejected');
+});
+test('building a shelter cannot trap player or companion inside its new footprint',()=>{
+ const scene=Core.createWorld('island',813);
+ scene.inventory.wood=2;
+ scene.player={x:3,y:11};
+ assert.equal(Core.use(scene,'bench').ok,false);
+ assert.equal(scene.inventory.wood,2);
+ assert.equal(scene.props.find(p=>p.id==='bench').kind,'workbench');
+ scene.player={x:4,y:12};
+ assert.equal(Core.use(scene,'bench').ok,true);
+ assert.equal(scene.inventory.wood,0);
+ assert.equal(Core.blocked(scene,4,10),true);
+ assert.equal(Core.blocked(scene,4,12),false);
+ assert.equal(Core.valid(scene),true,'constructed house preserves valid save');
+});
