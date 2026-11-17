@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T03:37:57.281245+00:00",
-  "commit": "0dda6eccd5bc90cadb70335d1d81dcb8e56a9397",
+  "generatedAt": "2026-11-17T03:39:44.843559+00:00",
+  "commit": "2d748ed47d589889658547bd05c81f4f9614be93",
   "branch": "main",
-  "sourceFingerprint": "efba51791c8b09935ac6d4758c47d871430508637c9b33aaf08139b32b86467f",
+  "sourceFingerprint": "ae8fe0cdc76e2ec5e4409caf07565d62098e63c46115fd2e5e8ad09b316ea5f5",
   "summary": {
     "files": 1384,
-    "lines": 296218,
-    "symbols": 4181
+    "lines": 296284,
+    "symbols": 4183
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -94,6 +94,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ChatReplyTaskManager.kt",
         "line": 101
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
+        "line": 127
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
@@ -489,7 +493,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 177
+        "line": 179
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -1577,7 +1581,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 441
+        "line": 469
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
@@ -1846,10 +1850,16 @@
         "line": 35
       }
     ],
+    "latestSong": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
+        "line": 120
+      }
+    ],
     "play": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 119
+        "line": 136
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
@@ -2973,7 +2983,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1568
+        "line": 1569
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -3017,19 +3027,19 @@
     "saveVoiceSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 114
+        "line": 117
       }
     ],
     "LuluMemorySettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 428
+        "line": 456
       }
     ],
     "LuluImageSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 521
+        "line": 549
       }
     ],
     "LuluAppearanceScreen": [
@@ -5553,7 +5563,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 523
+        "line": 539
       }
     ],
     "asUserMessages": [
@@ -6349,7 +6359,7 @@
     "find": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 39
+        "line": 41
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
@@ -6383,31 +6393,31 @@
     "canChoose": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 40
+        "line": 42
       }
     ],
     "scheduledActionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 48
+        "line": 50
       }
     ],
     "allows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 59
+        "line": 61
       }
     ],
     "screenVisionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 89
+        "line": 91
       }
     ],
     "phoneOperationContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 126
+        "line": 128
       }
     ],
     "isWakeExplanation": [
@@ -8989,49 +8999,49 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1461
+        "line": 1462
       }
     ],
     "requestsPrivateReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1519
+        "line": 1520
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1530
+        "line": 1531
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1537
+        "line": 1538
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1551
+        "line": 1552
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1561
+        "line": 1562
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1615
+        "line": 1616
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1991
+        "line": 1992
       }
     ],
     "age": [
@@ -24774,8 +24784,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-      "lines": 146,
-      "sha256": "27a5c579f66273e53aac08aa989628dc443b1eb8a95c22e87fc919be65a6b4ae",
+      "lines": 163,
+      "sha256": "ac7ea2fe69644366b5bc87748370c74a63741627fe341a22fb35537f771803a3",
       "symbols": [
         {
           "name": "Song",
@@ -24794,8 +24804,16 @@
           "line": 41
         },
         {
+          "name": "latestSong",
+          "line": 120
+        },
+        {
+          "name": "stop",
+          "line": 127
+        },
+        {
           "name": "play",
-          "line": 119
+          "line": 136
         }
       ]
     },
@@ -25589,8 +25607,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-      "lines": 713,
-      "sha256": "ab0851f725c2b8e8e35fe1393435238cb6cf095176abe2e6fe661d776aa3ce81",
+      "lines": 741,
+      "sha256": "c35ef8473513318ddc9eb047c7eec927f2974ea1b554555d84ab70e1e1667491",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
@@ -25598,19 +25616,19 @@
         },
         {
           "name": "saveVoiceSettings",
-          "line": 114
+          "line": 117
         },
         {
           "name": "LuluMemorySettingsScreen",
-          "line": 428
+          "line": 456
         },
         {
           "name": "save",
-          "line": 441
+          "line": 469
         },
         {
           "name": "LuluImageSettingsScreen",
-          "line": 521
+          "line": 549
         }
       ]
     },
@@ -28727,8 +28745,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 192,
-      "sha256": "6ba8bb373e56bda3b71ccd569a8690fafeead9731a1038b555c5655e63033e00",
+      "lines": 196,
+      "sha256": "b6dac42af48a9953c213d5ab50ca8650eb48296aa4ccc085d8c575bd7ce527bc",
       "symbols": [
         {
           "name": "Capability",
@@ -28740,31 +28758,31 @@
         },
         {
           "name": "find",
-          "line": 39
+          "line": 41
         },
         {
           "name": "canChoose",
-          "line": 40
+          "line": 42
         },
         {
           "name": "scheduledActionName",
-          "line": 48
+          "line": 50
         },
         {
           "name": "allows",
-          "line": 59
+          "line": 61
         },
         {
           "name": "screenVisionContext",
-          "line": 89
+          "line": 91
         },
         {
           "name": "phoneOperationContext",
-          "line": 126
+          "line": 128
         },
         {
           "name": "context",
-          "line": 177
+          "line": 179
         }
       ]
     },
@@ -31254,8 +31272,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 2039,
-      "sha256": "f04890d98d86c9a378cc878621b1a738adb856319914d6cf7ca42dcdb179ae6a",
+      "lines": 2040,
+      "sha256": "1d713ad509d639047c9fe1f3045b5e37b5c3379a7ecdf0f89628cba79481cf78",
       "symbols": [
         {
           "name": "asJson",
@@ -31271,39 +31289,39 @@
         },
         {
           "name": "world",
-          "line": 1461
+          "line": 1462
         },
         {
           "name": "requestsPrivateReply",
-          "line": 1519
+          "line": 1520
         },
         {
           "name": "recordedReceiptId",
-          "line": 1530
+          "line": 1531
         },
         {
           "name": "completedEvidence",
-          "line": 1537
+          "line": 1538
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1551
+          "line": 1552
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1561
+          "line": 1562
         },
         {
           "name": "from",
-          "line": 1568
+          "line": 1569
         },
         {
           "name": "requiresCompletion",
-          "line": 1615
+          "line": 1616
         },
         {
           "name": "availableContext",
-          "line": 1991
+          "line": 1992
         }
       ]
     },
@@ -35833,8 +35851,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 642,
-      "sha256": "a3c7df14d418e115f5b386a742b7a51b140fed68ea6907c0042f46c1ab5617fb",
+      "lines": 658,
+      "sha256": "aacce115d6cec4125b1937cc2b61229be7c59ddeddb7f5db6f6aea8eec312fdc",
       "symbols": [
         {
           "name": "completed",
@@ -35862,7 +35880,7 @@
         },
         {
           "name": "project",
-          "line": 523
+          "line": 539
         }
       ]
     },
