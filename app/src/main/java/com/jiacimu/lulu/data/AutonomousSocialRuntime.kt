@@ -157,8 +157,8 @@ internal object AutonomousSocialRuntime {
                 suffix = "autonomous-start",
                 speaker = "数字世界",
                 content = if (previousLocation != null)
-                    "${names.joinToString("、")}因为各自真实的移动在“$location”碰面了；主人不在这次现场。"
-                else "${names.joinToString("、")}在已经同处的“$location”开始交谈；本次主动互动=$encounterIntent，主人不在场。",
+                    "${names.joinToString("、")}因为各自真实的移动在“$location”碰面了；主人未自动参与这次角色交谈；主人是否仍在地点须依到访与离场记录判断。"
+                else "${names.joinToString("、")}在已经同处的“$location”开始交谈；本次主动互动=$encounterIntent；主人未自动参与角色交谈，不据此判断主人在场或缺席。",
                 occurredAt = now,
                 triggerExtraction = false,
             )
@@ -443,12 +443,16 @@ internal object AutonomousSocialRuntime {
         val sharedPast = witnessedSharedEncounterContext(
             participantIds, DigitalWorldStore.state.value.meetings)
         val socialHistory = CharacterSocialRelationship.contextForGroup(participantIds)
+        val visitorNotices = participantIds.joinToString("\n") { id ->
+            "${characters.getValue(id).displayName}确实收到的地图通知：\n" +
+                WorldVisitorSceneContext.forCharacter(id, currentLocationCode, now)
+        }
 
         // One director schedules actual turn opportunities. Each scheduled
         // response sees earlier actor-owned public choices, not imagined replies.
         // A single final literary pass later renders the committed experience.
         val scenePlan = suggestEncounterPossibilities(
-            participantIds, characters, authority, sharedPast, socialHistory, worldTick, now)
+            participantIds, characters, authority, sharedPast, socialHistory, visitorNotices, worldTick, now)
         // Only a concrete supported tiny incident can enter the world, AFTER
         // director planning but BEFORE the characters independently react.
         // An unresolved world incident takes precedence over a surprise beat.
@@ -484,8 +488,12 @@ internal object AutonomousSocialRuntime {
             }
             val roleModel = selectedModel.getOrNull()
             val sceneFacts = buildString {
-                    appendLine("【你本人在数字世界的真实相遇；主人不在现场】")
-                    appendLine("当前时间=$now；$authority")
+                    appendLine("【你本人在数字世界的真实相遇；主人未自动加入角色对话，不能预设在场或缺席】")
+                    appendLine("当前时间=${Instant.now()}；$authority")
+                    appendLine("【你本人获知的主人到访或离场事实｜不是已见到主人的证明】")
+                    appendLine(WorldVisitorSceneContext.forCharacter(
+                        speakerId, currentLocationCode, Instant.now()))
+                    appendLine("如你之前决定来找主人，依你本人的真实目标和新事实选择寻找、等待、询问、转做其他事情或安静；别因角色相遇而忘记原本目的，也别把到访通知当成亲眼见到。")
                     appendLine(DigitalWorldEnvironment.snapshot(now).context())
                     if (currentTick == null) {
                         appendLine("本轮没有新环境事件；不得创造天气、事故、道具或故障。")
@@ -631,6 +639,7 @@ internal object AutonomousSocialRuntime {
         locationFacts: String,
         sharedPast: String,
         publicRelations: String,
+        visitorNotices: String,
         tick: DigitalWorldLifeTick?,
         at: Instant,
     ): AutonomousEncounterDirector.Plan {
@@ -654,13 +663,15 @@ internal object AutonomousSocialRuntime {
                 }
                 appendLine("所有人曾共同见到的公开事实：${sharedPast.ifBlank { "暂无" }}")
                 appendLine("共同可核验关系：$publicRelations")
+                appendLine("【各人在这个地点实际收到的主人来去通知｜只供导演判断场面，不是角色彼此知道的私人消息】")
+                appendLine(visitorNotices)
             }
         val directorInstruction = """
                 你是生活小剧场导演，必须尊重人物既有性格和真实关系，而非机械安排寒暄。你的职责是编排已经在同一真实地点碰面的人如何获得交流机会；不能为了剧情热闹安排他们改变地点，更不能让所有人都聚到咖啡馆。
                 陌生、尴尬、亲密、互相戒备或熟络的人，其停顿、玩笑、试探和边界完全不同。
                 有趣来自两个人真实性格的碰撞，也可以来自尴尬的安静；不必每次搞笑、跌倒或恋爱。
                 已有世界事件若确实发生，可以围绕它编排交流；没有新事件，也完全可以凭双方真实兴趣、关系和正在做的事形成完整互动。创意策划不能制造实际事故、拍照、物品或对方行为。
-                先从各人完整稳定人设、实际关系与现场用途里选一件这几个人碰在一起才有趣的事：具体的兴趣差异、想试探又拿不准的邀请、已有话题上的不同意见，或你选择的小插曲。给出场面与行动机会，不能只写“开场、推进、余味”标签；不套统一客气、温柔或尴尬模板。
+                优先承接人物这次移动的原有目的及主人到访／离场记录：有人为找主人而来时，不要硬改写成互不相干的闲聊；可安排询问、寻找或等待的互动机会，但不能宣称已经见到主人。再从各人完整稳定人设、实际关系与现场用途里选一件这几个人碰在一起才有趣的事：具体的兴趣差异、想试探又拿不准的邀请、已有话题上的不同意见，或你选择的小插曲。给出场面与行动机会，不能只写“开场、推进、余味”标签；不套统一客气、温柔或尴尬模板。
                 只返回 JSON：{"angle":"这几个人为什么会在此事上产生有趣反应","options":["具体互动机会"],"turns":[{"speakerId":"本轮出场者真实ID","phase":1,"direction":"他此刻面对的具体话题或处境，不代写台词、情绪和选择"},{"speakerId":"另一位真实ID","phase":1,"direction":"读到前一人本人选择的言行后回应"},{"speakerId":"第一人真实ID","phase":2,"direction":"根据刚收到的回应继续或调整"}]}。
                 turns 是真实执行顺序：每项会调用该角色自己的模型，读取前面已由本人选择的公开内容后再决定这一段。按情节需要选择出场者和段数，通常4至8段足以展开一件小事；阶段为1至5且按顺序前进，同一人同一阶段最多一段，整场最多20段。没有必要的轮次不要排，人物仍可选择不参与。
                 导演安排的只是角色会面对什么，不能强迫其接受邀请、说指定台词、产生指定心情或完成一项未执行的活动。避免提前把后面的结局塞给前面的人；稳定人设只用于策划，个人没有公开过的设定不可成为别人的知识。
@@ -720,6 +731,9 @@ internal object AutonomousSocialRuntime {
                 appendLine("incidentId=${tick.incidentId}；status=${tick.status}；stage=${tick.stage}；anchorItemId=${tick.anchorItemId}；anchorItemName=${tick.anchorItemName}")
                 if (tick.status == "active") appendLine(DigitalWorldLifeEventStore.contextFor(characterId))
                 appendLine("角色：${character.displayName}")
+                appendLine("本人的主人到访与离场记录：")
+                appendLine(WorldVisitorSceneContext.forCharacter(
+                    characterId, DigitalWorldStore.locationOf(characterId), Instant.now()))
                 val readable = com.jiacimu.lulu.study.ReadingBackgroundBridge
                     .availableBooks(context, characterId).take(5)
                 if (readable.isNotEmpty()) {
@@ -742,7 +756,7 @@ internal object AutonomousSocialRuntime {
                 {"statusText":"事件发生后仍持续的处境（若无独立信息留空）","gesture":"仅此刻可见但不冒充世界工具结果的小动作","innerThought":"第一人称未说出口的念头","mood":"简短心情","shareChannel":"none|private|moment|group","shareText":"真正发布或发送的自然内容","groupId":"真实群ID或空字符串","reason":"为什么此刻本人想分享或想保持沉默，允许非常简单的念头"}
 
                 规则：
-                1. 主人不在现场，不能让主人说话、行动、被看见或默认参与。
+                1. 角色独立处理世界事件，不代表主人自动参与；根据真实到访、离场或目击证据判断主人是否在场，不得凭空让主人说话或行动。
                 2. 只能引用给出的准确地点、事件和真实家具。不得添加其他物品、食物、天气、声响、小生物、故障或后续结果。
                 3. status=active 时事件尚未解决；角色的文字和动作不能擅自把它抓住、清除、修好或解释清楚。若角色此刻真正决定自己观察、寻找、避让或处理已存在的事件，可以在 appraisal.ownActivity 填 {"stage":"decided","action":"digital_world","worldAction":"handle_incident","incidentId":"上面的真实ID","approach":"当前权威状态允许的真实操作","whyNow":"角色自己选择这一步的原因"}；程序再次验证事件仍在现场，交给同一个执行器处理，失败也保留。也可以先好奇、害怕、分享或暂时不管，不能强制每次立即处理。
                 4. 分享仍要来自本人心理反应：先理解所见、产生具体想分享给谁的兴致，再选 shareChannel 并用 reason 留一句当时真正的想法。没有那股意愿不要为了发朋友圈而发，程序也会在无动机时拒绝真正发布。角色的分享欲是自己的生活动机，不是只在重大事故时才允许：想单独告诉用户可选 private，想给大家看自己的趣事、得意、感动、吐槽、意外发现可选 moment（公开朋友圈），想和实际群友聊天可选 group。公开朋友圈可以只是随手记录一次真实的小情绪或发现，绝非只能用于大事；也不要机械每个事件必发。没有分享欲选 none，可以让真实经历保留在后续记忆和好奇心中。
