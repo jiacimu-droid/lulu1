@@ -45,6 +45,12 @@ object LuluDeviceToolBridge {
         else -> verifiedUserEvidenceId
     }
 
+    /** A new owner message is a NEW tool request even when its wording and args
+     * equal yesterday's. Do not query the global recent timeline for a request
+     * key: that can pick an unrelated/older user event when delivery is delayed. */
+    internal fun currentChatToolRequestId(currentUserEvidenceIds: List<String>, turnTraceId: String): String =
+        "reply-" + (currentUserEvidenceIds.lastOrNull { it.isNotBlank() } ?: turnTraceId)
+
     // The same verified event keeps one idempotency key across retries. When no
     // event identity exists, a unique invocation trace prevents identical text
     // from collapsing independent user turns into one cached tool result.
@@ -1700,11 +1706,9 @@ object LuluDeviceToolBridge {
             IllegalStateException("决策没有有效的可执行动作，未发送消息也未调用工具")
         )
 
-        val lastUserEvent = com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 20)
-            .lastOrNull { it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement }?.id
         val explicitUserToolRequest = com.jiacimu.lulu.data.CharacterInitiativeRuntime
             .isExplicitUserToolRequest(userText, plan.tool)
-        val requestId = "reply-${lastUserEvent ?: java.util.UUID.randomUUID().toString()}"
+        val requestId = currentChatToolRequestId(userEvidenceIds, turnTraceId)
         val toolDecisionId = "chat-tool:$requestId:${plan.tool}:" +
             plan.args.toString().hashCode().toUInt().toString(16)
         // A precomputed XHS read has already executed on its own request ID;
@@ -1742,6 +1746,7 @@ object LuluDeviceToolBridge {
             experienceId = plan.experienceId)
         val actual = runCatching { JSONObject(toolResult) }.getOrNull()
         val actionReceipt = "tool-$characterId-$requestId"
+        val recoveredHistoricalReceipt = actual?.optBoolean("replayedHistoricalReceipt") == true
         val executedSuccess = actual?.optBoolean("success") == true
         val executedSummary = actual?.optString("summary").orEmpty().ifBlank { toolResult.take(220) }
         if (trackToolChoice) {
@@ -1764,6 +1769,7 @@ object LuluDeviceToolBridge {
         // with fresh pixels + accessibility text, choosing 0/1/N more steps.
         // No second agent/persona and no automatic extra calls on ordinary chat.
         val phoneContinuation = if (plan.tool == "background_phone" &&
+            !recoveredHistoricalReceipt &&
             actual?.optString("mode") == "independent_virtual_display" &&
             actual.optString("status") != "denied" &&
             // Even an unverified input/no-frame receipt must reach the same
@@ -1790,7 +1796,13 @@ object LuluDeviceToolBridge {
                 if (plan.statusText.isNotBlank() || plan.gesture.isNotBlank() || plan.mood.isNotBlank() || plan.innerThought.isNotBlank()) {
                     appendLine("动作前一瞬的角色状态：${plan.statusText}；动作：${plan.gesture}；心情：${plan.mood}；没说出口：${plan.innerThought}")
                 }
-                appendLine("这个动作刚刚产生的真实新结果：$toolResult")
+                if (recoveredHistoricalReceipt) {
+                    appendLine("【本次没有重新执行工具】下文只是同一执行ID恢复的历史回执；原执行时间=" +
+                        actual?.optString("originalFinishedAt").orEmpty() +
+                        "，原执行ID=" + actual?.optString("originalRequestId").orEmpty() +
+                        "。绝不能把旧画面、旧控件或旧操作称为本次刚刚完成。")
+                    appendLine("历史回执：$toolResult")
+                } else appendLine("本次工具调用实际返回的新回执：$toolResult")
                 if (phoneContinuation != null) {
                     appendLine("【同一角色在后台手机上真实继续的后续动作与回执】")
                     appendLine(phoneContinuation.notes)
@@ -1812,6 +1824,7 @@ object LuluDeviceToolBridge {
                 根据工具真实结果，以角色本人符合人设的方式自然接下去。成功时可以确认，失败时必须如实说明；除此之外只说此刻真正会新增的话。
                 日常私聊里优先一两句真实的反应：比如“我试了，搜索又卡在首页了……烦。”就已经表达了结果和情绪。不要堆“经过我在后台确认、不是你的错、我的权限不足、让你担心了、下次我会……”之类未经证实的技术推论和连续检讨；只有用户追问细节时才解释流程。
                 必须继续保持当前真实互动场景，电话里用自然口语，群聊里知道其他成员在场。
+                如果本次返回replayedHistoricalReceipt=true，这是旧请求回执恢复：没有新打开、新读屏或新发送。只能说原来曾经做过，不能使用“刚才重新”“这次又打开了”等完成描述；主人要重新操作时须在新请求下实际调用工具。
                 如果后台手机只有打开应用的回执，就只汇报到打开应用。只有实际点击或发送回执能证明尝试过进聊天、发消息或发朋友圈。
                 对位置结果只能使用 readableAddress；地址为空、定位过旧或精度差时，必须明确说是大概位置，不得根据经纬度猜具体店铺、学校或建筑。
                 只返回一个 JSON 对象，不要代码块；action 最先，紧接 text，不重复字段：
