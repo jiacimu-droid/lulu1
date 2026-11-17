@@ -965,11 +965,7 @@ class LocalMemoryRepository : MemoryRepository {
                     val item = policiesObject.optJSONObject(characterId) ?: continue
                     put(
                         characterId,
-                        MemoryPolicy(
-                            excludedRecentMessages = item.optInt("excludedRecentMessages", 10).coerceAtLeast(0),
-                            readableThreshold = item.optInt("readableThreshold", 20).coerceAtLeast(1),
-                            autoSummarize = item.optBoolean("autoSummarize", true),
-                        ),
+                        decodePolicy(item),
                     )
                 }
             }
@@ -1038,12 +1034,23 @@ class LocalMemoryRepository : MemoryRepository {
         .put("excludedRecentMessages", policy.excludedRecentMessages)
         .put("readableThreshold", policy.readableThreshold)
         .put("autoSummarize", policy.autoSummarize)
+        .put("semanticTurnPolicyVersion", 1)
 
-    private fun decodePolicy(item: JSONObject): MemoryPolicy = MemoryPolicy(
-        excludedRecentMessages = item.optInt("excludedRecentMessages", 25).coerceAtLeast(0),
-        readableThreshold = item.optInt("readableThreshold", 20).coerceAtLeast(1),
-        autoSummarize = item.optBoolean("autoSummarize", true),
-    )
+    /** Old numbers counted raw events, so silently reusing them after the
+     * semantic-turn migration would preserve a 25/20 configuration with a
+     * completely different meaning. One-time migration uses the owner's
+     * requested 5 protected + 15 extraction turns. Explicit future custom
+     * settings are versioned and remain unchanged on app restart/import. */
+    private fun decodePolicy(item: JSONObject): MemoryPolicy {
+        val semantic = item.optInt("semanticTurnPolicyVersion", 0) >= 1
+        return MemoryPolicy(
+            excludedRecentMessages = if (semantic) item.optInt("excludedRecentMessages", 5)
+                .coerceAtLeast(0) else 5,
+            readableThreshold = if (semantic) item.optInt("readableThreshold", 15)
+                .coerceAtLeast(1) else 15,
+            autoSummarize = item.optBoolean("autoSummarize", true),
+        )
+    }
 
     private fun encodeEntry(entry: MemoryEntry): JSONObject = JSONObject()
         .put("id", entry.id)
