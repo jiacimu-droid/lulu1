@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T02:15:18.509836+00:00",
-  "commit": "96c7241ab4d3575c6f643c078e8de23c56531e80",
+  "generatedAt": "2026-11-17T02:16:19.904977+00:00",
+  "commit": "74272b791647f0ac774fe5d1beed154cf2652955",
   "branch": "main",
-  "sourceFingerprint": "7e1833ecd65668df7194067886b64cb4caf40fb4dd197985d92e4c2860ed606d",
+  "sourceFingerprint": "d91289873a019ea99a18c43755b79b19fcfe3a29789a93c9da528be6b21e7c54",
   "summary": {
     "files": 1379,
-    "lines": 294699,
+    "lines": 294745,
     "symbols": 4146
   },
   "symbolIndex": {
@@ -3731,7 +3731,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 84
+        "line": 94
       }
     ],
     "Loading": [
@@ -4231,7 +4231,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 146
+        "line": 156
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
@@ -4465,7 +4465,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 67
+        "line": 77
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -34837,8 +34837,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-      "lines": 219,
-      "sha256": "75f71ec522659ea816de2a52675b1ed233dbf6bc25fa90149eb1dd81acf9c7d5",
+      "lines": 229,
+      "sha256": "874e4844332fd93ca846fe95e427859eead9edf51994a3e3b12bb32def00b386",
       "symbols": [
         {
           "name": "RecentSemanticTimeline",
@@ -34854,15 +34854,15 @@
         },
         {
           "name": "select",
-          "line": 67
+          "line": 77
         },
         {
           "name": "accept",
-          "line": 84
+          "line": 94
         },
         {
           "name": "render",
-          "line": 146
+          "line": 156
         }
       ]
     },
@@ -46843,8 +46843,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt",
-      "lines": 144,
-      "sha256": "7deb0fc6c7bbc6a3320e315c93ba9c38687764624393e27c3b288944dc236fdc",
+      "lines": 171,
+      "sha256": "74e7287bd8510477773c01a8ffc4f16159c887b5ed95f0004db4c8dc32be33b9",
       "symbols": [
         {
           "name": "RecentSemanticTimelineTest",
@@ -47258,8 +47258,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryTurnPipelineTest.kt",
-      "lines": 137,
-      "sha256": "fefd771733575fac4d2e1bea7c049bf8064d13648f792bd3825cd79c0ab4abe0",
+      "lines": 146,
+      "sha256": "c921838f8a4724ac079e2658c0023ea13549c08b03d2e7ef85d2a1b3a5117772",
       "symbols": [
         {
           "name": "SemanticMemoryTurnPipelineTest",
