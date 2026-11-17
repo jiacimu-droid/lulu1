@@ -134,12 +134,16 @@ object CommitmentTaskStore {
                     task.linkedAlarmId?.let(LuluAlarmSystem::cancel)
                     changed = true
                     task.copy(
-                        status = CommitmentTaskStatus.Expired,
+                        // A one-shot missed duty remains actionable via its
+                        // original taskId. Daily history is rolled separately.
+                        status = if (task.repeat == "daily") CommitmentTaskStatus.Expired
+                            else CommitmentTaskStatus.Blocked,
                         nextCheckAt = null,
                         linkedAlarmId = null,
                         revision = task.revision + 1L,
                         updatedAt = now,
-                        lastActionResult = "恢复时已超出定时执行窗口，未收到本次到点执行回执；未补拨，也未记作履约",
+                        lastActionResult = "恢复时发现原定执行窗口已错过；未收到实际执行回执，" +
+                            "未自动重播旧动作，须由本人根据当前时刻决定补救；目标未证实",
                     )
                 }
                 task.status == CommitmentTaskStatus.WaitingForFeedback &&
@@ -313,12 +317,16 @@ object CommitmentTaskStore {
                     ) }
                     appContext?.let { ensureNextDailyOccurrence(it, current.id, receivedAt) }
                 } else update(current.id) { old -> old.copy(
-                    status = if (old.followUpKind == "verification")
-                        CommitmentTaskStatus.WaitingForFeedback else CommitmentTaskStatus.Expired,
+                    status = when {
+                        old.followUpKind == "verification" -> CommitmentTaskStatus.WaitingForFeedback
+                        old.repeat == "daily" -> CommitmentTaskStatus.Expired
+                        else -> CommitmentTaskStatus.Blocked
+                    },
                     linkedAlarmId = null, nextCheckAt = null, followUpKind = "",
                     lastAlarmScheduledAt = deadline, lastAlarmReceivedAt = receivedAt,
                     lastAlarmDeliverySource = deliverySource,
-                    lastActionResult = "系统回调迟于约定超过两分钟；未补拨，目标完成情况仍未知，需另行安排",
+                    lastActionResult = "系统回调晚于原定执行窗口；没有擅自重拨，" +
+                        "现交由本人依据当前时间、原责任与真实状态决定补救；目标仍未知",
                 ) }
                 // The missed native broadcast must still enter the existing
                 // role-owned recovery decision. App restart already does this,
@@ -552,6 +560,20 @@ object CommitmentTaskStore {
             } else {
                 cancel(task.id, "重复定时约定已整理：保留原约定 ${original.id}；" +
                     "旧任务回执：${task.readableLastResult().take(130)}")
+            }
+        }
+    }
+
+    /** A genuine missed, accepted task gets one same-role recovery opportunity.
+     * App/boot callback paths share this bridge; no second model lane is added. */
+    internal fun handoffMissedCommitment(characterId: String, originalDueAt: Instant) {
+        appContext?.let { context ->
+            runCatching {
+                ProactivePerceptionScheduler.scheduleMissedCommitmentReview(
+                    context, characterId, originalDueAt)
+            }.onFailure { error ->
+                android.util.Log.w("LuluCommitment",
+                    "Missed commitment decision handoff failed for $characterId", error)
             }
         }
     }
