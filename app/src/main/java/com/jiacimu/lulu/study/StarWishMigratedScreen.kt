@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,19 +30,25 @@ internal fun StarWishScrollApp(onBack: () -> Unit, characterId: String = "lulu")
 
 @Composable
 internal fun StarWishTheaterApp(onBack: () -> Unit, initialReadingTarget: String? = null, characterId: String = "lulu") {
-    val store = remember { StarWishStores.main }
-    val state by store.state.collectAsState()
-
-    Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
-            StarWishTheaterContentV2(
-                state = state,
-                characterId = characterId,
-                store = store,
-                onExit = onBack,
-                initialReadingTarget = initialReadingTarget,
-            )
-        }
+    // The original entry is now a reading app. Keep the user's story studio
+    // reachable without dropping saved chapters, custom stories or old links.
+    var storyStudio by rememberSaveable { mutableStateOf(false) }
+    if (storyStudio) {
+        val store = remember { StarWishStores.main }
+        val state by store.state.collectAsState()
+        StarWishTheaterContentV2(
+            state = state,
+            characterId = characterId,
+            store = store,
+            onExit = { storyStudio = false },
+            initialReadingTarget = null,
+        )
+    } else {
+        LuluReadingScreen(
+            onBack = onBack,
+            initialBookTitle = initialReadingTarget,
+            onOpenStoryStudio = { storyStudio = true },
+        )
     }
 }
 
