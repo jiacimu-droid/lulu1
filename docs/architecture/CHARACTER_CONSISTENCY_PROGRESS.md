@@ -33,6 +33,13 @@
 - [b239286](https://github.com/jiacimu-droid/lulu1/commit/b2392865af0010f5a922657fc4319c642807ac31)、[8efc982](https://github.com/jiacimu-droid/lulu1/commit/8efc982a37a7cad6688b660b88aa761af480f193)：合场文学保留一次 Isolated 写作请求和各自角色章节；给每个角色带入本人的通知、原始会面及被该事件/前因锚定的已保存心声/选择，提示正文不能把另一个人的未说出的心声写成自己的或已公开的事实。写作仅产生非权威文学，不回填原世界事件、主人行为、关系或心理。证据 ID 按本人单独链接。
 - 回归源码 [e4710e4](https://github.com/jiacimu-droid/lulu1/commit/e4710e43623827ac59aa38b2b7ff7a2fc90d07f3)、[f991a19](https://github.com/jiacimu-droid/lulu1/commit/f991a194a2ad48d052454e4884ea7e970d646900)：覆盖到访→离场顺序、其他地点/未来/伪源隔离、没有通知不伪造在场、本人的证据心声能进入正文而他人的/未来的不能。**当前仅提交测试，未取得目标 SHA 的 JVM/APK 成功证明，且未在 Redmi 真机用两角色 + 真实模型重放。** 后续核 `WorldVisitorSceneContextTest`、`AutonomousEncounterCausalChapterTest`、`AutonomousEncounterPrivacyTest` 在当前 main push 的首错；真机还要验证从地点退出/强杀后离场通知是否真实到达、模型是否自主延续找人的目标、历史章节不应被静默重写。
 
+## 2026-11-18 · P-03.1 已送达告别的等待窗口不被外部观察抢占
+
+- 正式电话的告别台词实际送达后，`startCharacterHangupGrace` 给予用户回应时间。此时 thinking/speaking/audioPending 都为 false，原 `CallExternalResultPolicy.canDeliver` 允许工具回执出队。`handleUserSpeech` 随即增加 replyGeneration 并取消原挂断决定，即使该回执已经失效也会影响原决定。
+- [7b03d39a](https://github.com/jiacimu-droid/lulu1/commit/7b03d39a87f8de8ef3844366329cc2101d76efce) 用已有 `pendingCharacterHangupJob.isActive` 守住出队边界，回执保留排队；用户确认语音或打字仍经原路径取消告别，完成用户轮次后再交付回执。没有新增人格、来源账本或模型调用。
+- `CallExternalResultPolicyTest.receiptWaitsThroughFarewellGraceAndCanProceedAfterUserCancelsIt` 覆盖告别等待、通话结束、用户叫住、用户新轮次忙碌及再次空闲的准入边界。既有 `CallHangupGracePolicyTest` 覆盖语音识别等待。差异检查通过，[索引 #44138248534](https://github.com/jiacimu-droid/lulu1/actions/runs/44138248534) 与 [JVM/APK #44138248156](https://github.com/jiacimu-droid/lulu1/actions/runs/44138248156) 待核。前轮三个文件在 `52aebad0` blob 相同，[#44129639436/job 134202871844](https://github.com/jiacimu-droid/lulu1/actions/runs/44129639436/job/134202871844) 新增续接回归、全量 JVM、APK 成功。最新基线的桌面编译错误由桌面任务处理。
+- 真机与实际模型仍待验。下一步看 `LuluVoiceCallSession.externalResultSeen` 和 `CallExternalResultPolicy.pendingEvidence`，核同一事件 ID 更新版本后能否重新进入原队列，已经处理的旧版本不应吞掉新版本，也不应重复交付原版本。
+
 ## 2026-11-17 · P-03.1 独立通话观察保留已排续接
 
 - `LuluVoiceCallSession.handleUserSpeech` 的外部观察复用电话轮次入口，原来无条件取消 `sleepContinuationJob`。外部回执如果已失效或本人决定沉默，会从各自分支直接结束，旧续接任务已被取消。现场观察和已开启模式的原续接任务因此相互干扰。
