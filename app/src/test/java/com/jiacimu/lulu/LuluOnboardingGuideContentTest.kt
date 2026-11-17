@@ -21,10 +21,13 @@ class LuluOnboardingGuideContentTest {
     @Test fun onboardingRunsFromApiToOwnRoleToModelToChat() {
         assertEquals(listOf("api", "role", "model", "chat"), luluGuideSteps.map { it.screen })
         assertEquals(
-            listOf(MigrationRoute.Settings, MigrationRoute.Chat, MigrationRoute.Chat, MigrationRoute.Chat),
+            listOf(MigrationRoute.Settings, MigrationRoute.CharacterCreate, MigrationRoute.Chat, MigrationRoute.Chat),
             luluGuideSteps.map { it.destination },
         )
         assertTrue(luluGuideSteps.all { it.tips.isNotEmpty() && it.location.isNotBlank() })
+        assertTrue(luluGuideSteps[1].tips.any { it.contains("保存并创建角色") })
+        assertTrue(guideScreenRows("role").any { it.contains("资料") && it.contains("人格") })
+        assertFalse(luluGuideSteps[0].tips.any { it.contains("使用第三方 API 可能收费") })
     }
 
     @Test fun everyFeatureHasUsefulContentAndARealDestination() {
