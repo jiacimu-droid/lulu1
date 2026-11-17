@@ -282,7 +282,7 @@ internal fun RelicEscapeLobby(
                         Text(when(difficulty) {
                             RelicDifficulty.EASY->"入门探索 · 第一层1只守卫，精英怪晚出现，适合轻松收宝"
                             RelicDifficulty.NORMAL->"循序渐进 · 第一层2只分散守卫，第三层起逐渐加强"
-                            RelicDifficulty.HARD->"险境挑战 · 第一层5只守卫，精英怪直接登场"
+                            RelicDifficulty.HARD->"险境挑战 · 首层3只守卫，第二层4只并出现精英，此后逐层加强"
                         }+" · 越深入层数，危险越高",
                             color=campMuted,fontSize=11.sp,lineHeight=16.sp)
                     }
