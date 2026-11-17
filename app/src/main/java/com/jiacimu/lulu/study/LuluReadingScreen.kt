@@ -156,7 +156,7 @@ fun LuluReadingScreen(
             notice = ""
             scope.launch {
                 val result = withContext(Dispatchers.IO) {
-                    runCatching { ReadingTxtLibrary.import(context, uri) }
+                    runCatching { ReadingTxtLibrary.importBook(context, uri) }
                 }
                 importing = false
                 result.onSuccess { book ->
