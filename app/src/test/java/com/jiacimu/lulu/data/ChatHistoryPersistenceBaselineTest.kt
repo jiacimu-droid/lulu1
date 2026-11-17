@@ -1002,11 +1002,11 @@ class ChatHistoryPersistenceBaselineTest {
                 val store = InMemoryLuluChatStore()
                 store.initialize(app)
                 assertTrue(runCatching {
-                    // The damaged snapshot is not loaded as a normal conversation.
-                    // Exercise an actual default-conversation metadata write instead
-                    // of a missing-ID no-op (which only returns false).
-                    val fallback = store.conversations.value.first { !it.pinned }
-                    store.setConversationPinned(fallback.id, true)
+                    // A malformed snapshot must NOT invent a fallback persona/chat.
+                    // Try creating a real user-owned conversation; the unreadable
+                    // historical authority must reject it without persisting.
+                    assertTrue(store.conversations.value.isEmpty())
+                    store.ensureConversation("ui02-new-person", "新联系人")
                 }.exceptionOrNull() is IllegalStateException)
                 assertEquals(snapshot, prefs.getString(key, null))
             }
