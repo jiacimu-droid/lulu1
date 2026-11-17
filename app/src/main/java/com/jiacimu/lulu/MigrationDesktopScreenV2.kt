@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluAppearancePattern
+import com.jiacimu.lulu.design.luluCssElement
 import com.jiacimu.lulu.design.LocalLuluAppearance
 import com.jiacimu.lulu.design.JournalPatchIcon
 import com.jiacimu.lulu.design.JournalPressedFlower
@@ -170,7 +171,7 @@ internal fun MigrationHomeV2(
     var homeGridTopInWindow by remember { mutableFloatStateOf(0f) }
     var homeGridHeightPx by remember { mutableFloatStateOf(0f) }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = DesktopPaper) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Box(Modifier.fillMaxSize()) {
             if (!journal) LuluAppearancePattern(Modifier.fillMaxSize())
             Column(
@@ -438,8 +439,8 @@ private fun DesktopCompanionCard(
     val journal = LocalLuluAppearance.current.isJournal()
     val appearance = LocalLuluAppearance.current
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = DesktopCard,
+        modifier = Modifier.fillMaxWidth().luluCssElement("companion"),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
         border = BorderStroke(1.dp, DesktopLine),
         shadowElevation = 2.dp,
@@ -584,11 +585,11 @@ private fun DesktopV2LauncherItem(
     onClick: () -> Unit,
 ) {
     if (LocalLuluAppearance.current.isJournal()) {
-        JournalPatchIcon(launcher.title, launcher.icon, modifier, onClick)
+        JournalPatchIcon(launcher.title, launcher.icon, modifier.luluCssElement("launcher"), onClick)
         return
     }
     Column(
-        modifier = modifier,
+        modifier = modifier.luluCssElement("launcher"),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
