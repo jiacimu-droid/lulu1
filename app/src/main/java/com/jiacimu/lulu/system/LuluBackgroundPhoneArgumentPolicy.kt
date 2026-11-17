@@ -71,7 +71,18 @@ internal object LuluBackgroundPhoneArgumentPolicy {
             ?: if (args.has("durationMs") &&
                 (integer(args, "durationMs")?.let { it > 0 } != true))
                     "durationMs 必须是正整数" else null
-        "type", "search" -> args.optString("text").let {
+        "type" -> when {
+            args.optString("text").isBlank() || args.optString("text").length > 500 ->
+                "text 必须是1到500个字符"
+            args.has("inputX") != args.has("inputY") ->
+                "视觉文字输入必须同时提供inputX/inputY，不能猜测另一个坐标"
+            args.has("inputX") && coordinateError(args, listOf("inputX", "inputY")) != null ->
+                coordinateError(args, listOf("inputX", "inputY"))
+            args.has("inputX") && args.optString("screenSnapshotId").isBlank() ->
+                "视觉文字输入必须绑定当前后台屏的screenSnapshotId，拒绝旧截图坐标"
+            else -> null
+        }
+        "search" -> args.optString("text").let {
             if (it.isBlank() || it.length > 500) "text 必须是1到500个字符" else null
         }
         "send_chat_message" -> when {
