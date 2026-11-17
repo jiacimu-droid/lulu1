@@ -250,6 +250,8 @@ internal fun LuluDesktopWidgetCard(
     today: LocalDate,
     characterName: String?,
     lastConversationText: String?,
+    plannerTasks: List<TodoOccurrence> = emptyList(),
+    onCompleteTask: (TodoOccurrence) -> Unit = {},
     modifier: Modifier = Modifier,
     onOpen: () -> Unit,
     onEdit: () -> Unit = onOpen,
@@ -357,12 +359,25 @@ internal fun LuluDesktopWidgetCard(
                             color = foreground.copy(alpha = .80f), fontSize = 10.sp)
                     }
                     LuluWidgetKind.PLANNER -> {
-                        Text("把今天，留给重要的事。", color = foreground,
-                            fontSize = if (compact) 14.sp else 20.sp, fontWeight = FontWeight.Medium)
-                        if (!compact) Text("打开「自序」查看和勾选真实待办，不会生成虚假的完成记录。",
-                            color = foreground, fontSize = 12.sp, maxLines = 2)
-                        Text("今日计划  ·  点击进入自序",
-                            color = foreground.copy(alpha = .82f), fontSize = 10.sp)
+                        if (plannerTasks.isEmpty()) {
+                            Text("今天没有待勾选的计划", color = foreground,
+                                fontSize = if (compact) 13.sp else 17.sp)
+                        } else {
+                            plannerTasks.take(if (compact) 1 else 3).forEach { occurrence ->
+                                Row(verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth()) {
+                                    IconButton(onClick = { onCompleteTask(occurrence) },
+                                        modifier = Modifier.size(29.dp)) {
+                                        Icon(Icons.Outlined.RadioButtonUnchecked, "完成" + occurrence.task.title,
+                                            tint = foreground, modifier = Modifier.size(19.dp))
+                                    }
+                                    Text(occurrence.task.title, color = foreground, fontSize = 11.sp,
+                                        maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                }
+                            }
+                        }
+                        Text("待办 " + plannerTasks.size + " 项 · 点击展开全部",
+                            color = foreground.copy(alpha = .85f), fontSize = 10.sp)
                     }
                 }
             }
@@ -378,6 +393,8 @@ internal fun LuluDesktopWidgetCanvas(
     today: LocalDate,
     characterNames: Map<String, String>,
     conversationTexts: Map<String, String>,
+    plannerTasks: List<TodoOccurrence> = emptyList(),
+    onCompleteTask: (TodoOccurrence) -> Unit = {},
     modifier: Modifier = Modifier,
     onOpenWidget: (LuluDesktopWidget) -> Unit,
     onEditWidget: (LuluDesktopWidget) -> Unit,
@@ -403,6 +420,7 @@ internal fun LuluDesktopWidgetCanvas(
                     widget = widget, today = today,
                     characterName = characterNames[widget.characterId],
                     lastConversationText = conversationTexts[widget.characterId],
+                    plannerTasks = plannerTasks, onCompleteTask = onCompleteTask,
                     modifier = Modifier.width(cellWidth * widget.columns)
                         .height(cellHeight * widget.rows)
                         .offset(
@@ -590,5 +608,57 @@ internal fun LuluDesktopWidgetEditor(
             }) { Text("保存") }
         },
         dismissButton = { TextButton(onClick = onClose) { Text("取消") } },
+    )
+}
+
+
+/** Full today list stays checkable without opening another app or truncating tasks. */
+@Composable
+internal fun LuluDesktopPlannerDialog(
+    tasks: List<TodoOccurrence>,
+    onCheck: (TodoOccurrence) -> Unit,
+    onOpenSelfPreface: () -> Unit,
+    onClose: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onClose,
+        title = { Text("今日计划 · " + tasks.size + " 项待办") },
+        text = {
+            Column(
+                Modifier.fillMaxWidth().heightIn(max = 430.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(5.dp),
+            ) {
+                if (tasks.isEmpty()) {
+                    Text("今天没有待办啦，可以在自序添加下一项。",
+                        style = MaterialTheme.typography.bodyMedium)
+                }
+                tasks.forEach { occurrence ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().clickable { onCheck(occurrence) }
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Outlined.RadioButtonUnchecked, contentDescription = "完成",
+                            modifier = Modifier.size(22.dp),
+                            tint = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.width(12.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(occurrence.task.title, style = MaterialTheme.typography.bodyMedium)
+                            occurrence.task.minutes?.let { minutes ->
+                                Text("%02d:%02d".format(minutes / 60, minutes % 60),
+                                    style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                    }
+                    HorizontalDivider()
+                }
+                Text("勾选后立即写入「自序·所行」的真实完成记录；非学习或睡眠行为的独立证明。",
+                    style = MaterialTheme.typography.labelSmall)
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onOpenSelfPreface) { Text("打开自序") }
+        },
+        dismissButton = { TextButton(onClick = onClose) { Text("关闭") } },
     )
 }
