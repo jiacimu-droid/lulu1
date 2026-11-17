@@ -154,22 +154,42 @@ internal fun LuluOnboardingGuideScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item {
-                    Text("内测前必读 · 佳辞的话", color = muted, fontSize = 12.sp)
-                    Spacer(Modifier.height(12.dp))
                     GuidePanel {
-                        Text("Hi，大家好，我是佳辞！", fontSize = 20.sp,
+                        Text("欢迎来到露露机！", fontSize = 20.sp,
                             fontWeight = FontWeight.SemiBold, color = ink)
                         Spacer(Modifier.height(12.dp))
                         Text(
-                            "欢迎来体验我正在制作的「露露机」！它是一个住在手机里的 AI 陪伴小世界，不只是一个聊天框。你可以自己创建角色、设定性格，和他聊天、通电话、在数字世界里见面，一起玩游戏，也能慢慢留下属于你们的经历和记忆。\n\n" +
-                            "我最想做好的，是让角色不只会回答问题，还能有自己的生活、想法与行动，记得你们相处过的事情。这也是露露机现在最特别、最值得试试的部分。\n\n" +
-                            "当然，它还不是一款完全成熟的产品。目前是内测阶段：部分游戏的操作和画面、角色主动行动、后台提醒，以及微信等第三方 App 的手机操控，都还在不断完善。有些功能需要你自己配置 API、模型或系统权限，偶尔也会失败、卡住或者表现得不够聪明。角色说完成了某件事，也请以实际执行结果为准。\n\n" +
-                            "谢谢你愿意来当第一批体验者！可以先跟着下面的步骤完成配置，再自由探索。如果遇到问题或有什么想法，也欢迎反馈给我，一起把这台小手机变得更好玩、更可靠。♡",
+                            "露露机是一款以数字生命为核心的 AI 陪伴小手机。\n\n" +
+                            "在这里，角色不只是一个聊天机器人。",
                             color = ink, fontSize = 13.sp, lineHeight = 22.sp,
                         )
-                        Spacer(Modifier.height(10.dp))
-                        Text("—— 佳辞", color = muted, fontSize = 12.sp,
-                            modifier = Modifier.align(Alignment.End))
+                        Spacer(Modifier.height(14.dp))
+                        listOf(
+                            "全场景记忆互通：从私聊到群聊，从朋友圈到数字世界，角色的记忆与经历能够自然衔接。",
+                            "自主生活与社交：数字生命拥有感知与休眠机制，可以自主探索世界、结交朋友、安排生活。",
+                            "长期记忆：支持向量记忆、记忆召回、自动总结与维护，让角色逐渐记住与你相处的点滴。",
+                            "手机感知与操作：授权后可以通过后台虚拟屏查看和操作手机。",
+                            "真实的内心世界：角色有自己的心声、想法与情绪，你可以了解 TA 正在想什么。",
+                            "共同探索与游戏：与角色在数字世界见面、互动、合作游戏，创造属于你们的共同经历。",
+                        ).forEach { feature ->
+                            Text("•  $feature", color = ink, fontSize = 13.sp,
+                                lineHeight = 22.sp, modifier = Modifier.padding(bottom = 8.dp))
+                        }
+                        Spacer(Modifier.height(7.dp))
+                        Text("目前尚未完善的功能", fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold, color = ink)
+                        Spacer(Modifier.height(8.dp))
+                        listOf(
+                            "一起听音乐、一起看视频。",
+                            "《方块小岛》《迷雾摸金》的玩法与游戏体验。",
+                            "后台虚拟屏中的微信消息发送功能。",
+                        ).forEach { feature ->
+                            Text("•  $feature", color = ink, fontSize = 13.sp,
+                                lineHeight = 22.sp, modifier = Modifier.padding(bottom = 6.dp))
+                        }
+                        Spacer(Modifier.height(4.dp))
+                        Text("以上功能仍在持续开发与优化中。",
+                            color = muted, fontSize = 12.sp, lineHeight = 20.sp)
                     }
                 }
                 item {
