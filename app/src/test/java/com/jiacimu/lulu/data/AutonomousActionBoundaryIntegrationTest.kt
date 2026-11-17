@@ -250,8 +250,11 @@ class AutonomousActionBoundaryIntegrationTest {
         assertEquals(3, CharacterLifeStore.state(actor).getJSONObject("intention").getInt("unansweredContactAttempts"))
         val before = MigratedDomainStores.chat.conversations.value.filter { it.characterId == actor }
             .sumOf { MigratedDomainStores.chat.messages(it.id).value.size }
-        assertEquals(first, ToolRouter.execute(app, actor, "send_private_message", firstArgs,
+        val restored = JSONObject(ToolRouter.execute(app, actor, "send_private_message", firstArgs,
             requestId = firstId, intentionId = goalId, autonomousLifeTurn = true))
+        assertTrue(restored.optBoolean("replayedHistoricalReceipt"))
+        assertFalse(restored.optBoolean("executedThisInvocation", true))
+        assertEquals(JSONObject(first).optString("summary"), restored.optString("summary"))
         assertEquals(before, MigratedDomainStores.chat.conversations.value.filter { it.characterId == actor }
             .sumOf { MigratedDomainStores.chat.messages(it.id).value.size })
         // A fresh user-driven turn uses the ordinary reply path; this pacing
