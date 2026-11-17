@@ -6,6 +6,13 @@
 - [b239286](https://github.com/jiacimu-droid/lulu1/commit/b2392865af0010f5a922657fc4319c642807ac31)、[8efc982](https://github.com/jiacimu-droid/lulu1/commit/8efc982a37a7cad6688b660b88aa761af480f193)：合场文学保留一次 Isolated 写作请求和各自角色章节；给每个角色带入本人的通知、原始会面及被该事件/前因锚定的已保存心声/选择，提示正文不能把另一个人的未说出的心声写成自己的或已公开的事实。写作仅产生非权威文学，不回填原世界事件、主人行为、关系或心理。证据 ID 按本人单独链接。
 - 回归源码 [e4710e4](https://github.com/jiacimu-droid/lulu1/commit/e4710e43623827ac59aa38b2b7ff7a2fc90d07f3)、[f991a19](https://github.com/jiacimu-droid/lulu1/commit/f991a194a2ad48d052454e4884ea7e970d646900)：覆盖到访→离场顺序、其他地点/未来/伪源隔离、没有通知不伪造在场、本人的证据心声能进入正文而他人的/未来的不能。**当前仅提交测试，未取得目标 SHA 的 JVM/APK 成功证明，且未在 Redmi 真机用两角色 + 真实模型重放。** 后续核 `WorldVisitorSceneContextTest`、`AutonomousEncounterCausalChapterTest`、`AutonomousEncounterPrivacyTest` 在当前 main push 的首错；真机还要验证从地点退出/强杀后离场通知是否真实到达、模型是否自主延续找人的目标、历史章节不应被静默重写。
 
+## 2026-11-17 · P-03.1 独立通话观察保留已排续接
+
+- `LuluVoiceCallSession.handleUserSpeech` 的外部观察复用电话轮次入口，原来无条件取消 `sleepContinuationJob`。外部回执如果已失效或本人决定沉默，会从各自分支直接结束，旧续接任务已被取消。现场观察和已开启模式的原续接任务因此相互干扰。
+- [2d9453b7](https://github.com/jiacimu-droid/lulu1/commit/2d9453b7f1debc9e990d7d73ac46d27a569dd0d5) 让回执或真实触摸保留原任务，由现有 busy gate 等待模型、语音和音频队列空闲。普通电话轮次仍按既有规则取消自己的待续接任务。角色可以沉默，不添加模型调用或新排程，也不改变通话的绝对期限。
+- `SleepCallContinuationPolicyTest.externalObservationKeepsTheOriginalContinuationPendingUntilCallIsFree` 使用实际协程 Job，验证外部观察保留任务、生成或播放期间不准入、空闲后准入、普通轮次仍取消。差异空白检查通过，本地同源 JUnit 10 项通过。[索引 #44115177293](https://github.com/jiacimu-droid/lulu1/actions/runs/44115177293) 成功，[JVM/APK #44115177291](https://github.com/jiacimu-droid/lulu1/actions/runs/44115177291) 待核。前轮 `3d5a7c56` 三个文件在 `5c5d004b` 中 blob 一致，[构建 #44113042324](https://github.com/jiacimu-droid/lulu1/actions/runs/44113042324/job/134143523341) 的回归、全量 JVM 与 APK 成功，[索引 #44113042216](https://github.com/jiacimu-droid/lulu1/actions/runs/44113042216) 成功。
+- 真机和真实模型待验。下一步打开 `CallExternalResultPolicy.canDeliver`、`LuluVoiceCallSession.startCharacterHangupGrace` 与 `CallAutonomousHangupGateTest`，查有真实语音送达的告别决定进入等待窗口后，独立工具回执是否会抢占并错误清除；先核已覆盖的用户叫住反例。
+
 ## 2026-11-17 · P-03.1 电话外部观察与定时沉默感知各自结算
 
 - `LuluVoiceCallSession.handleUserSpeech` 把外部回执交付和普通定时感知都以 `autonomousSilence=true` 进入。旧分支把跨入口已处理、过期等未交付也计作定时感知失败，第三次会从 2 分钟进入 10 分钟退避。成功交付外部回执也会清掉真正定时感知的既有失败。
