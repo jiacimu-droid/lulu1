@@ -1,5 +1,13 @@
 # 自主社交专项进度
 
+## 2026-11-17 S-01.1 / S-02.2 · 未注册居民与好友/已读幻觉（源码、回归已提交；CI/真机待验）
+
+- **截图事实**：手机当前居民管理只见闻澜、岑灯、言溪，聊天人物却说“洛芽加了好友，刚才通过，还看了江渡朋友圈”。洛芽确实出现在内置居民模板，但模板不是已注册的世界人物；口头叙述不等于申请/同意/已读/相遇真实回执。
+- **执行层修复**：`MomentFriendAccess` 将原住民是否仍注册、仍有数字生命身份作为好友权限门禁；`CharacterFriendRequests` 拒绝已移除双方的待处理通知、申请或同意，但保留历史原件。生产 `4e0b956`、`2395625`、`6f9295c`。
+- **共同模型输入修复**：`CharacterEverydaySocialContext.currentSocialAuthority` 只从本人已认识/联系过、且仍有效的居民和数字角色投影联系人、好友申请、申请通过回执、本人真正已读且当前可见的朋友圈、本人送达的私信；不泄露世界未认识的陌生居民名单，不把旧台词、模板、意愿当事实。经 `CompanionModelGateway` 所有 Full 场景的统一权威现场栏目注入，不再依赖可能因记忆预算而丢失的社交摘要，不额外调用模型。提交 `01ed678`、`cfaa1e2`、`2947b78`、`90706d3`、`c7879e6`、`17bb31a`。
+- **回归与边界**：新增 `MomentFriendAccessTest.retiredResidentCannotRemainLiveBecauseOfAnOldLink`、`ResidentPhoneWakeIntegrationTest.liveSocialDirectoryExcludesUncreatedResidentsAndRetiredFriends`、`currentSocialEvidenceOnlyClaimsActualAndStillVisiblePhoneReads`。测试提交 `fa0334e`、`7379557`、`782c49d`、`55d5b0e`；未在本地执行 Gradle，GitHub workflow 工具未返回 main push APK/JVM 终态，不能称已测通过。下一轮查最新包含 `17bb31a` 和 `55d5b0e` 的 Actions 首错、真实 HTTP 人物栏目；再在 Android 真机追问未出现角色、申请、朋友圈已读，核 trace 并观察实际模型不再无依据叙述。旧聊天保留历史，不篡改。
+
+
 ## 2026-11-15 S-01 / P-08b · 江渡朋友圈生活表达、真实分享欲回落（源码/回归已提交，CI/真机待验）
 
 - **主人反馈**：江渡有持续兴趣，但近期朋友圈像 AI / 人形机器人行业研报，没有落在他作为数字生命的自身能力、亲密关系与生活体验；十几分钟接连多篇。明明真正发布了多条，本人生活面板的分享欲仍能维持 100。
