@@ -73,6 +73,7 @@ private val DesktopV2Launchers = listOf(
     DesktopV2Launcher("settings", "设置", Icons.Outlined.Settings, MigrationRoute.Settings),
     DesktopV2Launcher("appearance", "美化", Icons.Outlined.Palette, MigrationRoute.Appearance),
     DesktopV2Launcher("playground", "Live2D", Icons.Outlined.Face, MigrationRoute.Playground),
+    DesktopV2Launcher("guide", "指南", Icons.Outlined.MenuBook, MigrationRoute.Guide),
 )
 
 private const val DESKTOP_COLUMNS = 4
