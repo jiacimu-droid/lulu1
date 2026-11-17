@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T04:11:13.834606+00:00",
-  "commit": "2e6cc092cf41f2a61055b070001bf4c3e54f5f98",
+  "generatedAt": "2026-11-17T04:12:15.701226+00:00",
+  "commit": "2bf1d2a06c3df5e72f19c9c5d6ebd41a39a0ee92",
   "branch": "main",
-  "sourceFingerprint": "088e0f0960f1956a2ee9cf9dc952b9ea094335423a66bbabc8bfc03e20762742",
+  "sourceFingerprint": "34980492c97bf7637cd4e0d27d6b0310d2ca7103042fede9788bf9f26dd5a425",
   "summary": {
-    "files": 1385,
-    "lines": 296553,
-    "symbols": 4184
+    "files": 1386,
+    "lines": 296812,
+    "symbols": 4189
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -97,7 +97,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 127
+        "line": 167
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
@@ -1829,7 +1829,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 41
+        "line": 47
       }
     ],
     "Song": [
@@ -1841,25 +1841,25 @@
     "isEnabledAndConfigured": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 28
+        "line": 34
       }
     ],
     "finetuneId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 35
+        "line": 41
       }
     ],
     "latestSong": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 120
+        "line": 159
       }
     ],
     "play": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-        "line": 136
+        "line": 176
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt",
@@ -1972,6 +1972,56 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
         "line": 365
+      }
+    ],
+    "enabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
+        "line": 30
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt",
+        "line": 28
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
+        "line": 14
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt",
+        "line": 41
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
+        "line": 47
+      }
+    ],
+    "roleVoiceId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
+        "line": 36
+      }
+    ],
+    "convertedFile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
+        "line": 46
+      }
+    ],
+    "convert": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
+        "line": 54
+      }
+    ],
+    "part": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
+        "line": 178
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
+        "line": 174
       }
     ],
     "render": [
@@ -2404,12 +2454,6 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
         "line": 1618
-      }
-    ],
-    "part": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt",
-        "line": 174
       }
     ],
     "FollowUp": [
@@ -3236,24 +3280,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt",
         "line": 62
-      }
-    ],
-    "enabled": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt",
-        "line": 28
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt",
-        "line": 14
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt",
-        "line": 41
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
-        "line": 47
       }
     ],
     "shutdown": [
@@ -24788,8 +24814,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsMusic.kt",
-      "lines": 163,
-      "sha256": "ac7ea2fe69644366b5bc87748370c74a63741627fe341a22fb35537f771803a3",
+      "lines": 203,
+      "sha256": "e027767b7a960fd891f4640204ab639b60e699d8e5abb185924494c266607d8e",
       "symbols": [
         {
           "name": "Song",
@@ -24797,27 +24823,27 @@
         },
         {
           "name": "isEnabledAndConfigured",
-          "line": 28
+          "line": 34
         },
         {
           "name": "finetuneId",
-          "line": 35
-        },
-        {
-          "name": "body",
           "line": 41
         },
         {
+          "name": "body",
+          "line": 47
+        },
+        {
           "name": "latestSong",
-          "line": 120
+          "line": 159
         },
         {
           "name": "stop",
-          "line": 127
+          "line": 167
         },
         {
           "name": "play",
-          "line": 136
+          "line": 176
         }
       ]
     },
@@ -24881,6 +24907,33 @@
         {
           "name": "takeFinal",
           "line": 365
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt",
+      "lines": 219,
+      "sha256": "5f4b71183b65c49c15dc81b17be24d8891c3cc90de82a9db0655ea81158d6205",
+      "symbols": [
+        {
+          "name": "enabled",
+          "line": 30
+        },
+        {
+          "name": "roleVoiceId",
+          "line": 36
+        },
+        {
+          "name": "convertedFile",
+          "line": 46
+        },
+        {
+          "name": "convert",
+          "line": 54
+        },
+        {
+          "name": "part",
+          "line": 178
         }
       ]
     },
