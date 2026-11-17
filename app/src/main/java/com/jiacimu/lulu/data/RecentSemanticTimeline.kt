@@ -166,7 +166,8 @@ object RecentSemanticTimeline {
         val b = StringBuilder(heading)
         val room = budget - heading.length
         if (room <= 50) return ""
-        val perEvent = (room / moments.size.coerceAtLeast(1)).coerceAtMost(650).coerceAtLeast(50)
+        val perEvent = (room / moments.size.coerceAtLeast(1))
+            .coerceAtMost(if (turn.kind == Kind.SPEECH) 2_100 else 650).coerceAtLeast(50)
         var written = 0
         for (event in moments) {
             // Very old previews are intentionally compact. The unabridged
@@ -204,7 +205,8 @@ object RecentSemanticTimeline {
                 it.evidenceKind == EventEvidenceKind.Inference }
             val snapshot = snapshots.lastOrNull()
             if (snapshot != null) {
-                val prefix = "\n- 【本人当时未公开的主观状态/心声，非对外发言或当前事实】"
+                val prefix = "\n- 【本人当时未公开的主观状态/心声，非对外发言或当前事实】" +
+                    " eventId=${snapshot.id}@${snapshot.revision}："
                 val left = budget - b.length - prefix.length
                 if (left >= 32) {
                     b.append(prefix).append(snapshot.evidenceContent.take(left))
