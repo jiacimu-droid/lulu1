@@ -45,10 +45,10 @@ internal object CharacterEverydaySocialContext {
     }
 
     /**
-     * The CURRENT identity and friendship registry, not episode memory.
-     * A shipped resident template is not an existing person until created.
-     * Include on every Full actor request even if episodic context is trimmed.
-     * It is a directory for factual verification, not firsthand observation.
+     * The actor's CURRENT, evidence-backed contacts and friendship register.
+     * Validate against the real resident registry without broadcasting all
+     * residents/roles: knowing somebody exists is also knowledge with scope.
+     * Include on every Full actor call even if episodic recall is trimmed.
      */
     fun currentSocialAuthority(characterId: String): String {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return ""
@@ -60,11 +60,20 @@ internal object CharacterEverydaySocialContext {
                 DigitalLifeProfileStore.isEnabled(it.characterId) &&
                 (!it.characterId.startsWith("resident:") || it.characterId in residentIds)
         }
-        val native = peers.filter { it.characterId.startsWith("resident:") }
-        val other = peers.filterNot { it.characterId.startsWith("resident:") }
+        // A registered stranger is NOT automatically someone this actor knows.
+        // Look up the authoritative roster only to validate people with an
+        // actor-owned contact, meeting, group or friend-request provenance.
+        val personalContacts = peers.filter {
+            CharacterSocialRelationship.knowsEachOther(characterId, it.characterId) ||
+                CharacterFriendRequests.historyFor(characterId).any { request ->
+                    request.fromId == it.characterId || request.toId == it.characterId
+                }
+        }
+        val native = personalContacts.filter { it.characterId.startsWith("resident:") }
+        val other = personalContacts.filterNot { it.characterId.startsWith("resident:") }
         fun labels(people: List<CharacterSettings>) =
             people.joinToString("、") { "${it.displayName}(${it.characterId})" }.ifBlank { "暂无" }
-        val friends = peers.filter {
+        val friends = personalContacts.filter {
             MomentFriendAccess.areFriends(characterId, it.characterId)
         }
         val requests = CharacterFriendRequests.historyFor(characterId).filter {
@@ -89,9 +98,9 @@ internal object CharacterEverydaySocialContext {
         val recentSent = ResidentSocialMailbox.inbox(characterId, 12)
             .filter { it.fromId == characterId }.takeLast(3)
         return buildString {
-            appendLine("【当前有效人物名册与QQ好友凭据｜实时程序事实，优先于旧聊天或回忆】")
-            appendLine("当前世界真正注册且仍在生活的居民：${labels(native)}。内置模板名和已删除居民都不算现存居民。")
-            appendLine("其他现存数字角色：${labels(other)}。此名册只供核对身份，不代表我认识或亲眼见到这里所有人。")
+            appendLine("【本人有效熟人与QQ好友凭据｜身份和关系均有本人可见来源】")
+            appendLine("我有实际认识或联系依据、且目前仍在世界生活的居民：${labels(native)}。注册模板、已删除居民不算现存联系人。")
+            appendLine("我有实际认识或联系依据的其他数字角色：${labels(other)}。这是我的已知范围，不是全世界的居民名册；没列出不表示某个人不存在。")
             appendLine("我当前确实确认的数字人物QQ好友：${labels(friends)}。未列出的数字人物不能说成当前好友。")
             appendLine("我真正收到、待本人决定的好友申请：" +
                 received.joinToString("、") { "requestId=${it.id}；来自=${it.fromId}" }.ifBlank { "没有" })
@@ -110,7 +119,7 @@ internal object CharacterEverydaySocialContext {
                 }.ifBlank { "当前信箱没有可核验的本人发出私信" })
             appendLine("旧记忆、聊天台词或模板里出现名字，不等于这个人目前存在、认识我、加了我、发了消息或发了动态。")
             appendLine("只有真实申请与同意、好友权限、私信送达、帖子及本人实际已读回执，才能称对应社交行为已经发生。")
-            appendLine("主人问到当前没登记的人时，承认缺少当下依据即可，不要为了接话编造已经同意好友申请等结果。")
+            appendLine("主人问到自己没有可见来源的人时，承认暂时不了解或需要查证即可，不要把未知说成不存在，更不能编造同意好友申请等结果。")
         }.trim()
     }
 
