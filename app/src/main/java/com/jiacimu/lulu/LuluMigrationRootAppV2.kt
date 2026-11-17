@@ -349,11 +349,20 @@ fun LuluMigrationRootAppV2(
                                         selectedCharacterId = characterId
                                         pushRoute(MigrationRoute.CharacterSettings)
                                     },
+                                    onCreateCharacter = { pushRoute(MigrationRoute.CharacterCreate) },
                                     onWorldBook = { characterId ->
                                         selectedCharacterId = characterId
                                         pushRoute(MigrationRoute.WorldBook)
                                     },
                                     onOpenSettings = { pushRoute(MigrationRoute.Settings) },
+                                )
+
+                                MigrationRoute.CharacterCreate -> CharacterCreateScreen(
+                                    onBack = ::popRoute,
+                                    onCreated = { characterId ->
+                                        selectedCharacterId = characterId
+                                        replaceTop(MigrationRoute.CharacterSettings)
+                                    },
                                 )
 
                                 MigrationRoute.CharacterSettings -> CharacterSettingsScreenV2(
