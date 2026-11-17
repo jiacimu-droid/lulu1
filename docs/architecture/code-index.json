@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T12:42:09.496982+00:00",
-  "commit": "dd8b8bee85658c1a00a6239dd19c051694e3bbd1",
+  "generatedAt": "2026-11-17T12:43:31.334768+00:00",
+  "commit": "19dcbf7a3c5ab3ce94953841cc3e4d73ea729dab",
   "branch": "main",
-  "sourceFingerprint": "89ce093b99979a187202e04334bec5da708addb94f6da7b6c0325f8261891ee8",
+  "sourceFingerprint": "d23a3f68ea0d76040c3243d67c61bd551289286d92eb4f3fbf2f45a0c7950e95",
   "summary": {
-    "files": 1403,
-    "lines": 296904,
-    "symbols": 4219
+    "files": 1404,
+    "lines": 296988,
+    "symbols": 4222
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -662,6 +662,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
         "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
+        "line": 75
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
@@ -5474,6 +5478,10 @@
         "line": 16
       },
       {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
+        "line": 79
+      },
+      {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt",
         "line": 76
       }
@@ -6914,6 +6922,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldSceneParticipantProfile.kt",
         "line": 7
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
+        "line": 68
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
@@ -42401,6 +42413,25 @@
         {
           "name": "barrier",
           "line": 18
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
+      "lines": 84,
+      "sha256": "16909857012ae5048a11e944c7ecc0f31eb7895fe6317199b3454562fd7c4623",
+      "symbols": [
+        {
+          "name": "snapshot",
+          "line": 68
+        },
+        {
+          "name": "write",
+          "line": 75
+        },
+        {
+          "name": "restore",
+          "line": 79
         }
       ]
     },
