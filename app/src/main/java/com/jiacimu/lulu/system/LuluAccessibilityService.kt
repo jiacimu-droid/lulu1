@@ -283,6 +283,7 @@ class LuluAccessibilityService : AccessibilityService() {
          */
         fun isSensitiveVirtualTap(
             displayId: Int, packageName: String, x: Int, y: Int,
+            ordinaryInteractionAllowed: Boolean = false,
         ): Boolean {
             val service = instance ?: return true
             val dimensions = virtualDimensions(service, displayId) ?: return true
@@ -313,7 +314,14 @@ class LuluAccessibilityService : AccessibilityService() {
                         .ifBlank { node.text?.toString().orEmpty() }
                     val commentEntry = LuluVirtualCommentPolicy.isReadOnlyEntry(ownLabel,
                         visibleEditors(root).any { !searchEditor(it) })
-                    if (!commentEntry && (risky.containsMatchIn(label) ||
+                    if (ordinaryInteractionAllowed) {
+                        // Actual actionable labels, not article prose or the
+                        // old ban on send/post/comment/like buttons.
+                        if ((node.isClickable || node.isLongClickable || node.isEditable || node.childCount == 0) &&
+                            LuluPhoneInteractionPolicy.hardBlocked(
+                                if (safeEditable(node)) node.hintText?.toString().orEmpty() else ownLabel,
+                                node.viewIdResourceName.orEmpty())) blocked = true
+                    } else if (!commentEntry && (risky.containsMatchIn(label) ||
                             LuluVirtualCommentPolicy.isSubmitLabel(ownLabel))) blocked = true
                     for (i in 0 until node.childCount) checkNode(node.getChild(i), depth + 1)
                 }
@@ -474,7 +482,7 @@ class LuluAccessibilityService : AccessibilityService() {
                     rect.right > 0 && rect.bottom > 0 &&
                     rect.left < width && rect.top < height
                 val editable = safeEditable(node)
-                val longClickable = packageName == LuluVirtualChatSendPolicy.WECHAT && node.isLongClickable
+                val longClickable = node.isLongClickable
                 val interactive = node.isClickable || longClickable || node.isScrollable || editable
                 if (node.isVisibleToUser && node.isEnabled &&
                     usable && interactive && (collected.size < 64 || editable ||
@@ -632,6 +640,7 @@ class LuluAccessibilityService : AccessibilityService() {
         fun tapVirtualUiElement(
             displayId: Int, packageName: String, expectedFingerprint: String,
             elementRef: String, shoppingAllowed: Boolean = false,
+            ordinaryInteractionAllowed: Boolean = false, longPress: Boolean = false,
         ): Boolean {
             val service = instance ?: return false
             val nodes = virtualUiNodes(service, displayId, packageName)
@@ -641,7 +650,7 @@ class LuluAccessibilityService : AccessibilityService() {
             val chosen = nodes.singleOrNull { it.ref == elementRef } ?: return false
             val node = chosen.node
             if (!node.refresh() || !node.isVisibleToUser || !node.isEnabled ||
-                !node.isClickable || node.isPassword) return false
+                (if (longPress) !node.isLongClickable else !node.isClickable) || node.isPassword) return false
             // A clickable container may have an empty name but dangerous child
             // labels; inspect its descendants before any irreversible tap.
             val content = StringBuilder()
@@ -649,6 +658,10 @@ class LuluAccessibilityService : AccessibilityService() {
             fun labels(n: AccessibilityNodeInfo, depth: Int) {
                 if (visited++ >= 55 || depth > 7) return
                 if (n.isPassword) { content.append(" password "); return }
+                if (safeEditable(n)) {
+                    content.append('\n').append(n.hintText?.toString().orEmpty().take(100))
+                    return // entered draft prose is not a permission command
+                }
                 content.append('\n').append(n.text?.toString().orEmpty().take(100))
                 content.append('\n').append(n.contentDescription?.toString().orEmpty().take(100))
                 for (i in 0 until n.childCount) n.getChild(i)?.let { labels(it, depth + 1) }
@@ -675,8 +688,10 @@ class LuluAccessibilityService : AccessibilityService() {
             if (!namedNavigation && !LuluVirtualUiPolicy.mayClick(
                     chosen.label, chosen.resourceId, content.toString(),
                     shoppingAllowed = shoppingAllowed,
+                    ordinaryInteractionAllowed = ordinaryInteractionAllowed,
                 )) return false
-            return node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+            return node.performAction(if (longPress) AccessibilityNodeInfo.ACTION_LONG_CLICK
+                else AccessibilityNodeInfo.ACTION_CLICK)
         }
 
         /** Already typed draft + explicit live editor/button refs. No generic

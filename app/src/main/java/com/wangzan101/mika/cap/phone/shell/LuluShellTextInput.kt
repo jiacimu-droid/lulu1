@@ -37,7 +37,7 @@ internal object LuluShellTextInput {
         text.isNotBlank() && text.length <= LuluVirtualTextInputPolicy.MAX_TEXT_CHARS && Build.VERSION.SDK_INT >= 34
 
     @SuppressLint("PrivateApi")
-    private fun injectTargeted(event: KeyEvent, displayId: Int, targetUid: Int): Boolean = try {
+    internal fun injectTargeted(event: InputEvent, displayId: Int, targetUid: Int): Boolean = try {
         event.javaClass.getMethod("setDisplayId", Int::class.java).invoke(event, displayId)
         val manager = runCatching {
             Class.forName("android.hardware.input.InputManagerGlobal").getMethod("getInstance").invoke(null)

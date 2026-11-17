@@ -1,3 +1,9 @@
+## 2026-11-18：Mika 通用首次点击与独立屏定向触摸
+
+- 实际参照 `wangzan101/Mika` 快照 `84cbb1d2e4b9793c8026b23c72cffda09d13e6aa`，Apache-2.0。核心文件：`core/.../uistate/tools/Tap.kt`、`TextTools.kt`、`app/.../a11y/AndroidScreen.kt`、`ClickFallback.kt` 和 `app/.../shell/ShellService.kt` 的injectTap/injectTo。outward用于限制重复通道，不是一律禁止首次普通社交点击。
+- **THIRD_PARTY_MODIFIED**：`LuluShellTouchInput.kt` 的MotionEvent与目标UID注入基于上述ShellService；保留作者、原始链接及既有Apache LICENSE/NOTICE。Lulu只接受自身创建的独立display与当前核实目标UID；一次DOWN/UP或取消，不使用主屏/任意shell命令fallback。原 `LuluShellTextInput.injectTargeted` 由KeyEvent参数泛化为InputEvent供同一受限通道复用。
+- **ORIGINAL**：`LuluPhoneInteractionPolicy`、`LuluVisualTargetFrame`、同一人物原执行器/事实输入/快照衔接及其测试为本仓独立实现；视觉aHash容差参考Mika Locator的64位/8位变更阈值，额外比对亮度并聚焦目标区域。没有复制Mika独立AgentLoop/人格、提示词或新增独立视觉模型；不以编译代替真机验收。
+
 ## 2026-11-17：后台静止页非消耗读取
 
 - ORIGINAL：`LuluDisplayFrameBuffer` 及回归为独立实现，对原 Mika 改编 helper 作局部修复。参考 Mika `AgentDisplay.kt` 的保留最新渲染图及原始生产时间戳原则，来源：https://github.com/wangzan101/Mika/blob/71e00f50adea9c87243958d7486112ae6a5d764a/app/src/main/java/com/wangzan101/mika/cap/phone/display/AgentDisplay.kt （Apache-2.0）。未复制其完整后台线程、StateFlow 或 agent 调度。

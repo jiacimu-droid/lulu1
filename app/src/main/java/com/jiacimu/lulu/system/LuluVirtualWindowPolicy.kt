@@ -23,6 +23,12 @@ internal object LuluVirtualWindowPolicy {
             ) != null) Kind.OTHER_APP else Kind.UNKNOWN
     }
 
+    /** Model-selected handoff to a window ALREADY on this owned display.
+     * This does not launch/move tasks or grant control over system dialogs. */
+    fun canAdoptExistingWindow(displayId: Int, requested: String, actual: String,
+        kind: String, excluded: Boolean): Boolean = displayId > 0 && !excluded &&
+        requested.isNotBlank() && requested == actual && kind == "target"
+
     /** Only a temporarily missing target window may get a bounded, read-only
      * local observation retry. System dialogs and other apps require a stop. */
     fun canRetryReadOnly(kind: String, diagnostic: String): Boolean =

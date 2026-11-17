@@ -77,6 +77,10 @@ class BackgroundPhoneCapabilityContextTest {
             assertTrue(status.contains("tap_element"))
             assertTrue(status.contains("screenSnapshotId"))
             assertTrue(status.contains("elementRef"))
+            assertTrue(status.contains("普通浏览、输入和社交互动"))
+            assertTrue(status.contains("long_press"))
+            assertTrue(status.contains("不是使用这些App的必经路线"))
+            assertFalse(status.contains("控件树缺失时可填草稿但不能盲点发表"))
             assertTrue(status.contains("任何已安装App"))
             assertTrue(status.contains("小红书、抖音、网易云音乐、购物App"))
             // A device affordance isn't a script: both role-owned wishes and
@@ -93,7 +97,7 @@ class BackgroundPhoneCapabilityContextTest {
             assertFalse(status.contains("read_xiaohongshu"))
             val capability = CapabilityRegistry.context(context, characterId)
             assertTrue("background search requires an explicit submit",
-                capability.contains("type|submit|search|send_chat_message|stop"))
+                capability.contains("type|submit|search|send_chat_message|publish_comment|stop"))
             // Type drafts do not submit. Search is a separately verified action,
             // and submit must not be mistaken for a chat-message send.
             // The short tool schema is in context(); detailed action semantics

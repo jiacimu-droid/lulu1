@@ -13,7 +13,7 @@ internal object LuluBackgroundPhoneArgumentPolicy {
     // continuation loop. Unknown actions are rejected as model arguments,
     // never as broken shell transport (which would discard a valid display).
     private val supportedActions = setOf(
-        "start", "launch", "tap", "tap_element", "swipe", "back",
+        "start", "launch", "adopt_app", "tap", "long_press", "tap_element", "swipe", "back",
         "type", "focus_search", "submit", "search", "send_chat_message",
         "observe", "stop", LuluVirtualCommentPolicy.ACTION, LuluVirtualNavigation.ACTION, LuluWeChatMomentsPolicy.OPEN_COMPOSER, LuluWeChatMomentsPolicy.PUBLISH,
     )
@@ -21,7 +21,7 @@ internal object LuluBackgroundPhoneArgumentPolicy {
     fun isSupportedAction(action: String): Boolean = action in supportedActions
 
     fun needsSnapshot(action: String): Boolean =
-        action == "tap_element" || action == "send_chat_message" || action == LuluVirtualCommentPolicy.ACTION ||
+        action in setOf("tap", "long_press", "tap_element", "send_chat_message") || action == LuluVirtualCommentPolicy.ACTION ||
             action == LuluWeChatMomentsPolicy.OPEN_COMPOSER || action == LuluWeChatMomentsPolicy.PUBLISH
 
     fun needsElement(action: String): Boolean =
@@ -32,7 +32,7 @@ internal object LuluBackgroundPhoneArgumentPolicy {
             "要打开微信等已安装App，请明确选择 " +
             "args={\"action\":\"launch\",\"appName\":\"微信\"}；" +
             "只创建虚拟屏用start，读取已有页面用observe；" +
-            "其他可选操作为tap/tap_element/navigate/swipe/back/type/focus_search/submit/search/" +
+            "其他可选操作为tap/long_press/tap_element/navigate/swipe/back/type/focus_search/submit/search/" +
             "send_chat_message/publish_comment/open_wechat_moments_composer/publish_wechat_moment/stop。动作不合法时没有操作手机，保留已有会话。"
 
     private fun integer(args: JSONObject, key: String): Int? {
@@ -66,7 +66,14 @@ internal object LuluBackgroundPhoneArgumentPolicy {
             LuluVirtualNavigation.labels(args) == null)
             return "navigationLabels 需要按顺序提供1到4个页面上准确可见的导航名称"
         return when (action) {
-        "tap" -> coordinateError(args, listOf("x", "y"))
+        "tap", "long_press" -> coordinateError(args, listOf("x", "y")) ?: when {
+            args.optString("screenSnapshotId").isBlank() -> "看图点击或长按必须绑定当前screenSnapshotId"
+            args.optString("target").trim().length !in 1..120 -> "target需要说明本次真实画面中要点击或长按的对象"
+            action == "long_press" && args.has("durationMs") &&
+                integer(args, "durationMs")?.let { it in 1..LuluPhoneInteractionPolicy.MAX_HOLD_MS } != true ->
+                "长按durationMs必须为1到${LuluPhoneInteractionPolicy.MAX_HOLD_MS}毫秒"
+            else -> null
+        }
         "swipe" -> coordinateError(args, listOf("startX", "startY", "endX", "endY"))
             ?: if (args.has("durationMs") &&
                 (integer(args, "durationMs")?.let { it > 0 } != true))
@@ -117,6 +124,8 @@ internal object LuluBackgroundPhoneArgumentPolicy {
             args.optString("screenSnapshotId").isBlank() ||
             !LuluVirtualChatSendPolicy.validMessage(args.optString("text")))
             "发表微信朋友圈需要最新编辑页screenSnapshotId和1到500字符正文" else null
+        "adopt_app" -> if (!args.optString("packageName").matches(Regex("[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)+")))
+            "adopt_app需要回执actualPackage中已在本独立屏出现的准确包名" else null
         "launch" -> if (args.optString("packageName").isBlank() &&
             args.optString("appName").isBlank())
             "launch 必须提供已安装应用的准确 packageName 或 appName" else null

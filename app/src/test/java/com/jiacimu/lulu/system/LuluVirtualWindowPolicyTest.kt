@@ -71,4 +71,13 @@ class LuluVirtualWindowPolicyTest {
         assertEquals(null,LuluMikaAppSwitch.switchedTo(target,"android",
             sameTask = { false }, partOfTask = setOf("android"), settingsPage = { false }))
     }
+    @Test fun modelCanAdoptOnlyTheActualNonExcludedAppOnItsOwnedDisplay() {
+        val app = "com.android.documentsui"
+        assertTrue(LuluVirtualWindowPolicy.canAdoptExistingWindow(4, app, app, "target", false))
+        assertFalse(LuluVirtualWindowPolicy.canAdoptExistingWindow(0, app, app, "target", false))
+        assertFalse(LuluVirtualWindowPolicy.canAdoptExistingWindow(4, app, "other.app", "target", false))
+        assertFalse(LuluVirtualWindowPolicy.canAdoptExistingWindow(4, app, app, "system_dialog", false))
+        assertFalse(LuluVirtualWindowPolicy.canAdoptExistingWindow(4, app, app, "target", true))
+    }
+
 }

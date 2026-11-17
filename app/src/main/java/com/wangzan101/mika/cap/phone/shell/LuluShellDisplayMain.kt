@@ -191,6 +191,15 @@ object LuluShellDisplayMain {
         }
         val id = virtual?.display?.displayId ?: error("start virtual display first")
         check(id > 0) { "cannot inject into main display" }
+        if (action == "adopt_app") {
+            val pkg = cmd.getString("packageName")
+            check(pkg.matches(Regex("[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)+"))) { "invalid adopted package" }
+            // No launch, task migration or input. The app adapter separately
+            // proves this package is already topmost on this owned display.
+            targetPackage = pkg
+            return JSONObject().put("accepted", true).put("displayId", id)
+                .put("targetPackage", pkg).put("actionMethod", "adopt_existing_virtual_window")
+        }
         if (action == "observe") return screenFrame(id, cmd.optBoolean("fullResolution"))
         // ACTION_SET_TEXT happens in Lulu's accessibility process, not this
         // shell helper. Mark its frame barrier BEFORE dispatch so a buffered
@@ -236,6 +245,14 @@ object LuluShellDisplayMain {
                     else "虚拟屏启动应用被系统拒绝：${launchResult.failure}")
         }
         check(targetPackage.isNotEmpty()) { "no target app on virtual screen" }
+        if (action == "tap" || action == "long_press") {
+            check(cmd.optString("packageName") == targetPackage) { "touch target package changed" }
+            pendingActionFrameBarrierNanos = discardPreActionFrames()
+            pendingActionNeedsFrame = true
+            return LuluShellTouchInput.touch(ShellContext.create(), id, targetPackage, targetPackage,
+                cmd.getInt("x"), cmd.getInt("y"), WIDTH, HEIGHT,
+                if (action == "long_press") cmd.optInt("durationMs", android.view.ViewConfiguration.getLongPressTimeout() + 100) else 180)
+        }
         if (action == "paste_text") {
             // Narrowly scoped internal channel: caller proves the exact
             // recipient using the independent display's pixels, taps a
@@ -250,8 +267,8 @@ object LuluShellDisplayMain {
             return LuluShellTextInput.paste(ShellContext.create(), id,
                 cmd.optString("packageName"), targetPackage, cmd.optString("text"))
         }
-        // Only app launching, frames and this scoped Unicode transport belong
-        // to shell; every other operation remains accessibility-controlled.
+        // Only this helper-owned display, UID-targeted touch/Unicode and frames
+        // belong to shell. No generic keyevents or main-display fallback.
         // Shell input -d is not portable: on some Android builds it requires
         // INJECT_EVENTS, which cannot be granted through the app UI. The
         // session now dispatches all input to the owned display via

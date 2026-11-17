@@ -148,25 +148,8 @@ object CapabilityRegistry {
             appendLine("主人全局按需屏幕授权=$screenConsent；本角色自主操作屏幕授权=$roleScreenGrant；" +
                 "本机无线调试已保存配对密钥=$adbPaired；主人已暂停后台操作=$stopped；" +
                 "当前系统支持独立焦点屏的版本要求=$supported。")
-            appendLine("主人统一手机操作授权涵盖微信与抖音私信、微信朋友圈文字发表=" +
-                com.jiacimu.lulu.system.LuluVirtualChatSendPolicy.isEnabled(context, characterId) +
-                "；若已开启，可由本人自主选择是否在微信或抖音给谁发什么消息；必须先真实导航至唯一聊天对象，" +
-                "观察结果中的chatHeaderTexts是后台会话标题区的真实可见文字候选；" +
-                "recipient必须与当前真正要发的聊天标题完全一致（例如页面是文件传输助手，就不能把recipient写成主人的昵称）；" +
-                "如果尚未进入想联系的聊天对象，先自行导航到正确会话并重新observe获取新screenSnapshotId，不能在错误会话强行发。" +
-                "用最新screenSnapshotId调用send_chat_message并提供recipient和整段text。" +
-                "微信若是按住说话模式，本机会核对左下键盘图标并一次切换文字模式，再整段输入并读回，" +
-                "无需逐字模型调用；只有核实聊天标题、实际输入正文和发送按钮后才单次派发，点击不等于送达。" +
-                "当真实微信截图里能看见文字输入区、但后台无障碍控件树为空时，" +
-                "可以在send_chat_message附composerX/composerY（0..1000，必须来自这次真实截图中输入区中心，不可猜），" +
-                "系统会核实收件人像素、独立屏键盘焦点、定向Unicode输入、OCR读回正文及发送按钮，再仅尝试一次发送。" +
-                "若截图仍是按住说话，先据真实画面tap键盘切换图标并重新observe，不能把语音栏当文字框；" +
-                "任何OCR、焦点或输入验证失败都如实报告，不能宣称已发送。" +
-                "总授权未开启时请提出开启虚拟屏幕总授权，不要把一刀切禁发当成人物性格。")
-            appendLine("微信朋友圈用真实界面导航，可经发现进入动态列表，也可打开联系人的资料页看对方的朋友圈。" +
-                "要发文字动态，在动态列表选相机的最新elementRef与screenSnapshotId调用open_wechat_moments_composer；" +
-                "确认文字编辑页后，把新screenSnapshotId和完整正文text交给publish_wechat_moment。点击回执只代表尝试发表，随后只读核对。")
-            appendLine("通用评论：浏览评论区与查看回复属于导航。准备发表评论时先type填写草稿，再observe，选择publish_comment并提供最新screenSnapshotId、editorRef（评论输入框）、elementRef（发表按钮）、完整text和contextText（目标帖子或被回复内容的真实原文片段，2到160字符）。执行器核对评论框、草稿全文及当前目标后只尝试一次发表；commentPublishAttempted代表尝试，commentAppeared仅代表客户端看到新增评论，未证实服务器送达。按钮或输入框不暴露时不得盲点发表。长任务可在原续接中由本人用defer选择时间并保存原日程，未完成不冒充完成。")
+            appendLine("主人统一手机操作授权涵盖普通浏览与社交互动=" + roleScreenGrant)
+            appendLine(com.jiacimu.lulu.system.LuluPhoneInteractionPolicy.modelGuide)
             appendLine("主人统一手机操作授权涵盖购物导航=" +
                 com.jiacimu.lulu.system.LuluShoppingAssistPolicy.isEnabled(context, characterId) +
                 "；开启时可依据真实商品与后台控件，自主挑选、加购、选规格、点击进入结算；" +
@@ -183,10 +166,9 @@ object CapabilityRegistry {
                 "即使工具可用，也由本人根据用户真实请求或兴趣选择是否使用。普通公开资料查询可直接选web_search；指定App或需要操作App时再选后台屏。")
             appendLine("浏览器、帖子或视频中的阅读证据只覆盖当前真正可见的文字与图像：长文需按本人意愿分屏滑动继续核实；屏幕截图不等于网页全文、评论全量、原始图片文件或视频声音。需要明确来源网址与可摘录正文的公开资料，可以在已配置时另用 web_search(read/search_read)；需要真正下载发送原图或 GIF，才选 image_search。是否使用由本人决定，不因平台名称硬编码选择。")
             appendLine("已知应该点的可见名字时，launch可附navigationLabels一次打开并逐个导航，也可在已打开的App用navigate。每个名字必须在当时页面上完整匹配。例如微信看朋友圈可launch并传navigationLabels=[\"发现\",\"朋友圈\"]；已知联系人名字也可直接尝试打开。按navigationSteps核对真实变化；名字未出现时先观察或搜索，发送和发表仍选择独立动作。")
-            appendLine("实际决定操作某个App时：action=tool,tool=background_phone," +
-                "args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏，通常不需要单独start；如果只想建屏才选start。" +
-                "有真实App窗口回执之后再选择observe/tap/tap_element/swipe/search/focus_search/type/submit/send_chat_message/publish_comment/open_wechat_moments_composer/publish_wechat_moment/back/stop；找不到或重名就报告，不能猜包名。微信已到真实收件人会话时，若后台真实无障碍编辑节点存在，可选择send_chat_message一次写入并单次发送；若真实截图已有文字输入区但控件树为空，可附从同一截图所见输入区中心判断的composerX/composerY(0..1000)让系统走定向Unicode+截图OCR核验；若页面仍是按住说话，先tap真实键盘切换图标后observe，不得猜输入位置。" +
-                "所有已授权App共享同一套通用文字输入：先打开目标App并observe；如果文字框已经真实聚焦，type(text)即可填写，不限搜索框或微信；如果无障碍树不给出输入节点，但本次真实后台截图能看到文字输入区域，则type(text,inputX,inputY,screenSnapshotId)可将截图上的输入框中心以0..1000坐标交给执行器，让独立屏定向输入中文并用下一帧读回验证。inputX/Y必须来自当前真实图片，不可猜位置，任何平台输入失败都应如实报告。type只输入草稿，绝不自动搜索/发送/发布。目标App有唯一可核实的搜索框时，也可以一次选择search(text)，系统自动聚焦、读回并提交搜索；找不到框就先打开搜索入口。普通浏览按可见文字navigate，按刚观察的控件编号tap_element；也可根据真实图片tap。submit仍只针对可确认的搜索框，不能拿回车替代发送消息。若自己确实看到了有意思、值得和主人分享的图文，可以按本人兴趣和分享欲决定发真实截图，不强制每次都发。若想把选中的商品链接发给主人，先在真实商家页面找到分享/复制链接按钮，看到新的复制链接控件后选择tap_element并附sendProductLinkToChat=true、caption=本人配文；收到productLinkSent=true才算商品卡片送达，不能用商品名搜索页冒充链接。若要把后台那块屏的真实画面作为图片发给主人，在核实目标 App 后可选择 background_phone,args={\"action\":\"observe\",\"sendToChat\":true,\"caption\":\"可选说明\"}；这不是capture_screen，也绝不会把主屏截图当后台图。每一步凭真实回执继续，不能承诺尚未完成的操作；不会自动跳到主屏。")
+            appendLine("实际决定操作某个App时：action=tool,tool=background_phone,args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏。")
+            appendLine("目标App有唯一真实搜索框时可用search(text)，系统自动聚焦、读回并提交搜索；submit仍只针对可确认的搜索框，不能拿回车替代发送消息。普通社交发表使用真实按钮的tap或tap_element。")
+            appendLine("后台画面是独立屏，这不是capture_screen；绝不会把主屏截图当后台图。想分享当前真实后台画面才附sendToChat=true。长任务未做完时，可在原续接中自行选择defer和未来时刻，实际保存原个人日程后再继续，不假装已完成。")
         }.trim()
     }
 
@@ -202,7 +184,7 @@ object CapabilityRegistry {
             else if (cap.name == "bring_lulu_front") "；args={}；仅在主人于权限与能力独立开启直接切回授权、无障碍连接、主屏解锁且当前非敏感应用时，可由角色选择一次真实切回露露机；只核实主屏前台，不强行停止第三方App，也不保证用户之后不会再次打开。"
             else if (cap.name == "screen_sequence") "；args={allowedPackages:[用户授权的应用包名],steps:[{text:点击文字,expectedText:动作后验证文字}]}；最多5步"
             else if (cap.name == "phone_ui") "；前台操作（不是后台屏）args={action:inspect|launch|tap|swipe|scroll|type,packageName:准确包名,x:0..1000,y:0..1000,inputX:仅type视觉输入时可选本次截图的文本框中心0..1000,inputY:与inputX配对且需screenSnapshotId,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,direction:forward|backward,text:输入文本,expectedText:可选验证文字}。先inspect确认当前包名/控件，操作后查真实回执，不把accepted当成功"
-            else if (cap.name == "background_phone") "；后台独立屏幕：主人已配对本机无线调试并授权后可用。args={action:start|launch|observe|tap|tap_element|navigate|swipe|back|focus_search|type|submit|search|send_chat_message|publish_comment|stop|open_wechat_moments_composer|publish_wechat_moment,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),navigationLabels:launch可附或navigate必填的有序页面名称数组,screenSnapshotId:点击控件、发私信及发朋友圈所需当前快照编号,elementRef:点击控件或发表评论的提交按钮所需真实控件ref,editorRef:publish_comment的当前评论输入框ref,contextText:publish_comment目标帖子的真实原文片段,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type可填写任意已授权App当前聚焦普通编辑框,只写草稿；若无控件树可附当前截图inputX/inputY和screenSnapshotId;search才核实唯一搜索框并提交),expectedText:可选验证文字,recipient:send_chat_message必填的当前聊天对象准确标题,composerX/composerY:仅微信无障碍输入框为空但真实截图已有文字输入区时可选的0..1000输入区中心,text:send_chat_message或publish_wechat_moment所需全文(使用统一手机授权及最新screenSnapshotId),sendToChat:可选true发送真实后台截图到私聊,sendProductLinkToChat:仅在本人选中真实复制链接控件时设为true并核实新复制的对应商家HTTPS链接后发私聊商品卡片,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
+            else if (cap.name == "background_phone") "；后台独立屏幕：主人已配对本机无线调试并授权后可用。args={action:start|launch|adopt_app|observe|tap|long_press|tap_element|navigate|swipe|back|focus_search|type|submit|search|send_chat_message|publish_comment|stop|open_wechat_moments_composer|publish_wechat_moment,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),navigationLabels:launch可附或navigate必填的有序页面名称数组,screenSnapshotId:点击控件、发私信及发朋友圈所需当前快照编号,elementRef:点击控件或发表评论的提交按钮所需真实控件ref,editorRef:publish_comment的当前评论输入框ref,contextText:publish_comment目标帖子的真实原文片段,target:看图点击或长按的真实对象,screenSnapshotId:看图点击和控件操作必填最新编号,longPress:tap_element可选true长按,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type可填写任意已授权App当前聚焦普通编辑框,只写草稿；若无控件树可附当前截图inputX/inputY和screenSnapshotId;search才核实唯一搜索框并提交),expectedText:可选验证文字,recipient:send_chat_message必填的当前聊天对象准确标题,composerX/composerY:仅微信无障碍输入框为空但真实截图已有文字输入区时可选的0..1000输入区中心,text:send_chat_message或publish_wechat_moment所需全文(使用统一手机授权及最新screenSnapshotId),sendToChat:可选true发送真实后台截图到私聊,sendProductLinkToChat:仅在本人选中真实复制链接控件时设为true并核实新复制的对应商家HTTPS链接后发私聊商品卡片,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
             else ""
         }
     }

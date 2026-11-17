@@ -123,10 +123,12 @@ internal object LuluVirtualUiPolicy {
      * actions must fail closed, never perform a second click automatically. */
     fun mayClick(
         label: String?, resourceId: String?, descendantText: String,
-        shoppingAllowed: Boolean = false,
+        shoppingAllowed: Boolean = false, ordinaryInteractionAllowed: Boolean = false,
     ): Boolean {
         val title = label.orEmpty().trim()
         val id = resourceId.orEmpty().trim()
+        if (ordinaryInteractionAllowed) return LuluPhoneInteractionPolicy.mayInteract(
+            title, id, descendantText, shoppingAllowed)
         if (title.isEmpty() && id.isEmpty()) return false
         // Shopping is a narrow, owner-controlled exception for named, verified
         // controls. It cannot authorize generic confirm/order submission,

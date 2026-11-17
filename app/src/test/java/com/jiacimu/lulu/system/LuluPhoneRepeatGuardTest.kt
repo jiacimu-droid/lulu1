@@ -69,4 +69,10 @@ class LuluPhoneRepeatGuardTest {
             LuluPhoneRepeatGuard.Attempt("tap_element", a, true, "tree_unchanged"),
             "tap_element", a))
     }
+    @Test fun zeroNodeFingerprintDoesNotFreezeVisuallyDifferentPages() {
+        val before = LuluPhoneRepeatGuard.Screen("2:app", "empty-root", "", "first-real-frame")
+        assertEquals(true, LuluPhoneRepeatGuard.changed(before, before.copy(image = "second-real-frame")))
+        assertEquals(false, LuluPhoneRepeatGuard.changed(before, before.copy()))
+    }
+
 }

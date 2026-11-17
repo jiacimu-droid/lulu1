@@ -35,7 +35,8 @@ class LuluBackgroundPhoneArgumentPolicyTest {
         assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("tap",
             JSONObject().put("x", 200)))
         assertNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("tap",
-            JSONObject().put("x", 200).put("y", 700)))
+            JSONObject().put("x", 200).put("y", 700)
+                .put("target", "当前图片中的评论按钮").put("screenSnapshotId", "current")))
         assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("swipe",
             JSONObject().put("startX", 500).put("startY", 800)
                 .put("endX", 500).put("endY", 200).put("durationMs", "fast")))
@@ -91,6 +92,17 @@ class LuluBackgroundPhoneArgumentPolicyTest {
         assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("publish_comment", JSONObject(args.toString()).put("editorRef", "e2")))
         assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("publish_comment", JSONObject(args.toString()).put("contextText", "这是我的评论")))
         assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("publish_comment", JSONObject(args.toString()).put("screenSnapshotId", "")))
+    }
+
+    @Test fun visualTapAndLongPressRequireCurrentPictureAndAnAuthoredTarget() {
+        val point = JSONObject().put("x", 500).put("y", 400)
+        assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("tap", point))
+        point.put("screenSnapshotId", "picture").put("target", "相机按钮")
+        assertNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("tap", point))
+        assertNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("long_press", point))
+        assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("long_press", point.put("durationMs", 5001)))
+        assertNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("adopt_app", JSONObject().put("packageName", "com.android.documentsui")))
+        assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("adopt_app", JSONObject().put("packageName", "guessed")))
     }
 
 }

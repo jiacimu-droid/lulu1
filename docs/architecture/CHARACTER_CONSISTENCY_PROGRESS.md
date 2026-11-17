@@ -1,3 +1,13 @@
+## 2026-11-18 · PH-01 Mika 通用交互链路复核与错误禁点解除（待完整 APK / 真机）
+
+- 实际阅读 Mika `84cbb1d2e4b9793c8026b23c72cffda09d13e6aa` 的 `Tap.kt`、`TextTools.kt`、`AndroidScreen.tapRef/tapXY`、`ClickFallback`、`ShellService.injectTap/injectTo`、`Locator.LOCATE_SCREEN_CHANGE`。关键差异：Mika 的 outward 标记用于禁止不确定动作的自动补点，Lulu 却用同类判断禁止首次发送/发表/评论/点赞，另有专用微信/评论流程成为硬前置。本轮按主人明确授权修正这层权限/执行归属，不新造人物或模型。
+- 原手机总授权覆盖普通社交按钮；`tap_element` 可点真实发送/发表/关注等控件并支持 `longPress=true`。`tap/long_press` 绑定本人当前真实图像与快照，执行前比对目标区域新像素及独立窗口；不需要预写App路线、聊天标题或editorRef专用事务。输入仍复用原type与定向Unicode，角色根据真实画面选择随后按钮。专用工具继续兼容但不再是必经路线。
+- 新 `LuluShellTouchInput` 经原ADB shell helper向它自己创建的非零display及已核实App UID定向派发一组DOWN/UP，长按同一路径。失误或部分派发仅CANCEL释放指针，不自动换通道/补点，不调用不受控主屏input命令。原键盘注入共享同一个UID定向入口。控件与坐标通道在操作前选定，返回dispatchAttempted与业务效果未知，不伪报发表/送达。
+- `adopt_app` 允许原角色明确接续已经在同一独立屏真实出现的普通App/相册/文件选择器；核实actualPackage、窗口类型、排除名单与安全页后才绑定，绝不迁移到主屏。系统权限弹窗仍需主人；不自动猜第三方任务归属。零节点根指纹不再屏蔽真实像素变化；旧专用外发后仍可只读核实或返回/换App，而非直接结束整项任务。
+- 本地37项JUnit（新普通交互/视觉目标/定向触摸及原UI、重复保护、窗口、评论回归）通过；额外实际参数检查通过（当前图片/target、长按预算、合法/非法adopt包名）。实际AccessibilityService、原续接与策略生产文件用Kotlin2.0.21/API35聚焦编译通过，未变的App/网关边界为编译桩；实际shell helper及触摸/键盘依赖同编译通过。完整Gradle/APK、HyperOS触摸与真实模型仍独立待验。
+- 同步修复整包现有首错：`202e3c0` 的真实JVM记录3421项仅旧能力清单断言失败，现断言匹配实际动作契约；随后主线 `5f0849c` 的Live2D测试夹具缺生产常量及viewport height，并保留了与新“说话前退出亲吻”冲突的旧断言。只补真实导入/夹具和相同新规则的强断言，不改动画生产代码；`parameters.mjs`、`touch-hit.mjs`完整入口本地通过。
+- 剩余验收：当前提交完整main APK；Redmi连续完成启动→自行导航→中文输入→单次评论/私信/朋友圈→读结果→继续其他页面，以及纯图片按钮、相册接续、锁屏/撤权/新消息停止。目标区域图像比对是粗变更检测，不能冒充业务正确性或覆盖全部第三方动态页面；未验证部分不标已通。
+
 ## 2026-11-18 · PH-01 通用评论事务与原人物任务延期续接（待完整 CI / 真机）
 
 - 实际主线提交：[202e3c0](https://github.com/jiacimu-droid/lulu1/commit/202e3c0a4fa94e6b865b53e61bb253f42347db18)。对应 [Lulu APK/JVM #44131240250](https://github.com/jiacimu-droid/lulu1/actions/runs/44131240250) 当前 pending，[索引 #44131240099](https://github.com/jiacimu-droid/lulu1/actions/runs/44131240099) 已启动；不标完整工程通过。40个前置回复控件之后的无标签编辑框与相邻发表按钮，已对实际续接摘要方法本地实跑，两个真实ref均保留；该补充不是真机操作证明。

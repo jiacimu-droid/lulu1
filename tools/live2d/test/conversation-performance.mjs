@@ -6,7 +6,7 @@ import { createPerformanceRuntime } from '../src/speech-performance.mjs'
 import { createMotionTransition } from '../src/motion-transition.mjs'
 import { createSpeechExpressionGate } from '../src/speech-expression-gate.mjs'
 import { createSpeechMouthRuntime } from '../src/speech-mouth.mjs'
-import { KISS_CAMERA_DURATION_MS } from '../src/kiss-camera.mjs'
+import { KISS_CAMERA_DURATION_MS, WOLF_KISS_MOTION_INDEX } from '../src/kiss-camera.mjs'
 import { touchExpressionCategory } from '../src/touch-reflex.mjs'
 
 // Execute the actual Android-facing stage functions, including replacement,
@@ -45,7 +45,7 @@ const bridge = {
   notify: () => {}, clearTouchCompanion: () => {}, setPaused: () => {},
   // Renderer-only lease: the test still exercises the REAL stage cancellation.
   kissCameraLease: null, pendingPostSpeechKiss: null,
-  KISS_CAMERA_DURATION_MS,
+  KISS_CAMERA_DURATION_MS, WOLF_KISS_MOTION_INDEX,
   cancelKissCamera: (soft = false) => {
     if (soft && bridge.kissCameraLease) {
       bridge.kissCameraLease.handoff ||= { at: clock, zoom: 2.1 }
@@ -1000,8 +1000,8 @@ assert.equal(bridge.playing, false,
 }
 
 // Regression: a selected kiss has its own bounded camera/face lease. The
-// following spoken phrase (even a new visualSequence) cannot yank it back to
-// normal framing; a genuinely selected replacement or interruption still can.
+// merely queued phrase cannot yank it back before audio starts. Real audible
+// speech must release mouth contact; a later Motion3 beat cannot extend it.
 {
   bridge.playing = true
   bridge.kissCameraLease = { model: bridge.model, revision: 555,
@@ -1024,12 +1024,12 @@ assert.equal(bridge.playing, false,
   assert.equal(bridge.pendingSpeechParts?.motion?.index, 12,
     'next chosen Motion3 remains queued for its own audible fragment')
   bridge.onPlaybackEvent('playing', 0, 94003)
-  assert.equal(bridge.kissCameraLease?.handoff?.zoom, 2.1,
-    'the next audible Motion3 eases the camera away instead of snapping')
+  assert.equal(bridge.kissCameraLease, null,
+    'the next audible phrase releases lip contact before speaking')
   await Promise.resolve()
 
   // A timed Motion3 beat does not occur at the first syllable. Let the
-  // previous kiss remain until the character's actual beat fires.
+  // camera remain while queued, then release contact at real audible start.
   bridge.kissCameraLease = { model: bridge.model, revision: 556,
     startedAt: clock - 1400 }
   bridge.authoredMotion = { model: bridge.model, revision: 556,
@@ -1040,13 +1040,13 @@ assert.equal(bridge.playing, false,
   assert.equal(bridge.kissCameraLease?.handoff, undefined,
     'a deferred score beat must not withdraw the kiss while TTS is queued')
   bridge.onPlaybackEvent('playing', 0, 94004)
-  assert.equal(bridge.kissCameraLease?.handoff, undefined,
-    'first syllable must not preempt a later authored Motion3 beat')
+  assert.equal(bridge.kissCameraLease, null,
+    'first audible syllable releases lip contact even when the next beat is later')
   clock += 1220
   assert.equal(bridge.performanceRuntime.tick(bridge.applyPerformanceBeat), 1,
     'scheduled beat runs against real audio time')
-  assert.equal(bridge.kissCameraLease?.handoff?.zoom, 2.1,
-    'actual Motion3 beat takes the kiss camera with a soft handoff')
+  assert.equal(bridge.kissCameraLease, null,
+    'the later Motion3 beat must not revive an already released kiss camera')
   await Promise.resolve()
 
   bridge.kissCameraLease = { model: bridge.model, revision: 557,

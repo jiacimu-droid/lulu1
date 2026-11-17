@@ -188,7 +188,7 @@ assert.ok(Math.abs(kissCameraFrame(4449).zoom - 1) < .005,
 // The wolf's screen-space lips are slightly right of the model pivot. When
 // zoomed 2.26x, the lip center must end up at viewport X=50%, not farther
 // right. On withdrawal the exact same transform returns to baseline.
-const cameraBase = { x: 350, y: 600, width: 700, scale: 2 }
+const cameraBase = { x: 350, y: 600, width: 700, height: 700, scale: 2 }
 const mouthOffset = kissMouthLocalOffsetX(cameraBase, null, null)
 assert.ok(mouthOffset > 0, 'lips are not assumed to equal the torso pivot')
 const projectedLipX = (base, zoom, localOffset) =>
