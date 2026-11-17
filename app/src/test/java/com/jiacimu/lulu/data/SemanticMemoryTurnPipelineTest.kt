@@ -66,6 +66,28 @@ class SemanticMemoryTurnPipelineTest {
         }
     }
 
+    @Test fun sceneQuoteCannotSilentlyRemoveOneOfOwnersConfiguredRecentTurns() = runBlocking {
+        initialize()
+        val verbatim = "我明确要求你记住这个完整句子：这只是一次情境观察，不代表我同意自动删除旧的计划。"
+        SharedExperienceTimeline.record(
+            "quoted-owner-turn", role, "私聊", "用户", verbatim,
+            Instant.parse("2026-11-17T02:00:00Z"), false,
+            sessionId = "owner-session", source = "message",
+            evidenceKind = EventEvidenceKind.UserStatement)
+        val context = UnifiedMemoryOrchestrator.assemble(role, UnifiedMemoryRequest(
+            currentInput = "接着刚才那句话",
+            recentContext = verbatim,
+            alreadyPresentedEvidence = "场景同时引用：" + verbatim,
+        ), paidRanking = false)
+        assertTrue(context.recentTurns.any { turn ->
+            turn.events.any { event -> event.id == "quoted-owner-turn" }
+        })
+        val full = MemoryWorkingSet.assemble(context, emptyList(), emptyList(),
+            PromptContextBudget(40, 10_000, 5_500, 5_900,
+                false, true, 3_300, false, workingSetCharacters = 28_000), "")
+        assertTrue(full.sections[MemoryWorkingSet.RECENT].orEmpty().contains(verbatim))
+    }
+
     @Test fun sameTwentyTurnWindowControlsRecallProtectionAndPendingExtraction() {
         initialize()
         record20TurnsWith120GameActions()
