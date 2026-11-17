@@ -177,11 +177,11 @@ internal object LegacyBuiltInTheaters {
         return digest in legacyTitleDigests
     }
 
-    fun purge(state: StarWishState): StarWishState {
+    fun purge(state: StarWishState, isLegacy: (String) -> Boolean = ::matches): StarWishState {
         val titles = (state.theaterChapters.keys + state.theaterGuides.keys +
             state.theaterPlans.keys + state.theaterLedgers.keys +
             state.theaterBibles.keys + state.theaterWorldBookIds.keys)
-            .filter(::matches).toSet()
+            .filter(isLegacy).toSet()
         if (titles.isEmpty()) return state
         return state.copy(
             theaterChapters = state.theaterChapters - titles,
@@ -200,6 +200,18 @@ internal class StarWishStore private constructor(context: Context) {
     private val chapterDraftPrefs = context.applicationContext.getSharedPreferences("lulu_theater_chapter_drafts_v1", Context.MODE_PRIVATE)
     private val mutable = MutableStateFlow(load())
     val state: StateFlow<StarWishState> = mutable.asStateFlow()
+
+    init {
+        // Cleanup is one-way: do not retain pending draft fragments or
+        // WorkManager jobs for the removed private-author built-ins.
+        val staleDrafts = chapterDraftPrefs.all.keys.filter {
+            it.startsWith("chapter:") &&
+                LegacyBuiltInTheaters.matches(it.removePrefix("chapter:"))
+        }
+        if (staleDrafts.isNotEmpty()) {
+            chapterDraftPrefs.edit().apply { staleDrafts.forEach(::remove) }.apply()
+        }
+    }
 
     fun savePrompts(outfit: String, prompts: StarWishOutfitPrompts) = update { current ->
         current.copy(customPrompts = current.customPrompts + (outfit to prompts))
