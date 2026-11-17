@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T19:55:41.909246+00:00",
-  "commit": "de34ad9e30679a0675c0753fd583b2e17eb184d8",
+  "generatedAt": "2026-11-17T19:56:37.485950+00:00",
+  "commit": "c4ca69cf0841b3628b9605fabe510d51e7250484",
   "branch": "main",
-  "sourceFingerprint": "50bf5a8b3606ad4235532a056bb861e07b14cd1be240a68c15974091b250f213",
+  "sourceFingerprint": "ce53c4a95428f1f2a439c2989883010df4914a10743e4e536049a3dd575654d6",
   "summary": {
     "files": 1443,
-    "lines": 304141,
-    "symbols": 4344
+    "lines": 304153,
+    "symbols": 4345
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18972,28 +18972,34 @@
         "line": 38
       }
     ],
+    "sameObservedPicture": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
+        "line": 52
+      }
+    ],
     "AppBarControl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
-        "line": 50
+        "line": 62
       }
     ],
     "isNamedAppBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
-        "line": 69
+        "line": 81
       }
     ],
     "appBackControlIndex": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
-        "line": 79
+        "line": 91
       }
     ],
     "mayClick": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
-        "line": 124
+        "line": 136
       }
     ],
     "canAdoptExistingWindow": [
@@ -43347,8 +43353,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt",
-      "lines": 146,
-      "sha256": "4b11a6126b4ffed6641e52ee5464840455a879ba79b3480fe02469076a2c9f74",
+      "lines": 158,
+      "sha256": "a4aa1d0b2caa82b47645fabbc93913f28090551ce91e0a8ba86a38399beb2245",
       "symbols": [
         {
           "name": "fingerprint",
@@ -43363,20 +43369,24 @@
           "line": 38
         },
         {
+          "name": "sameObservedPicture",
+          "line": 52
+        },
+        {
           "name": "AppBarControl",
-          "line": 50
+          "line": 62
         },
         {
           "name": "isNamedAppBack",
-          "line": 69
+          "line": 81
         },
         {
           "name": "appBackControlIndex",
-          "line": 79
+          "line": 91
         },
         {
           "name": "mayClick",
-          "line": 124
+          "line": 136
         }
       ]
     },

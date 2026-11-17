@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`de34ad9e30679a0675c0753fd583b2e17eb184d8`
+- 基准提交：`c4ca69cf0841b3628b9605fabe510d51e7250484`
 - 分支：`main`
 - 已索引文件：1443
-- 已索引代码/文本行：304141
-- 已发现符号：4344
+- 已索引代码/文本行：304153
+- 已发现符号：4345
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -867,7 +867,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 36 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt` | 26 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextReadbackOcr.kt` | 77 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 146 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 51 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt` | 86 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVisualTargetFrame.kt` | 59 | 5 |
