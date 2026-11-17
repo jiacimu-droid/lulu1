@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fbfa905a6e237356ef4c344c555ff0d48aba7680`
+- 基准提交：`75dc651158b9ac9e1260b2205ef2bffd8f1dcd7a`
 - 分支：`main`
 - 已索引文件：1403
-- 已索引代码/文本行：296722
+- 已索引代码/文本行：296741
 - 已发现符号：4216
 
 | 文件 | 行数 | 符号数 |
@@ -255,7 +255,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 255 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 557 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt` | 43 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 397 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 416 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 77 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 92 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 165 | 0 |
