@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`fc1f402f6e55adc261f92db24a5628959018b411`
+- 基准提交：`0dda6eccd5bc90cadb70335d1d81dcb8e56a9397`
 - 分支：`main`
-- 已索引文件：1383
-- 已索引代码/文本行：296157
-- 已发现符号：4180
+- 已索引文件：1384
+- 已索引代码/文本行：296218
+- 已发现符号：4181
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -911,6 +911,7 @@
 | `app/src/test/java/com/jiacimu/lulu/DigitalStreetJourneyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsBatchLatencyPolicyTest.kt` | 19 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ElevenLabsMusicTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 308 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |

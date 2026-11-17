@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T03:37:33.687007+00:00",
-  "commit": "fc1f402f6e55adc261f92db24a5628959018b411",
+  "generatedAt": "2026-11-17T03:37:57.281245+00:00",
+  "commit": "0dda6eccd5bc90cadb70335d1d81dcb8e56a9397",
   "branch": "main",
-  "sourceFingerprint": "cd55a7b61a87c8fbb1b38efb2a4065b009cff4b484687aa3edd8fe6e23be69c1",
+  "sourceFingerprint": "efba51791c8b09935ac6d4758c47d871430508637c9b33aaf08139b32b86467f",
   "summary": {
-    "files": 1383,
-    "lines": 296157,
-    "symbols": 4180
+    "files": 1384,
+    "lines": 296218,
+    "symbols": 4181
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18974,6 +18974,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsBatchLatencyPolicyTest.kt",
         "line": 5
+      }
+    ],
+    "ElevenLabsMusicTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsMusicTest.kt",
+        "line": 14
       }
     ],
     "GameInviteMessageParserTest": [
@@ -42919,6 +42925,17 @@
         {
           "name": "ElevenLabsBatchLatencyPolicyTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsMusicTest.kt",
+      "lines": 61,
+      "sha256": "40b7e2c6ab0d0bc10d55dbd7cf3d5ead5840faa12ff21f5ec56e355b4645f14e",
+      "symbols": [
+        {
+          "name": "ElevenLabsMusicTest",
+          "line": 14
         }
       ]
     },
