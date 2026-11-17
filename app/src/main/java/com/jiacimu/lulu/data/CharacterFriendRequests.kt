@@ -61,7 +61,9 @@ internal object CharacterFriendRequests {
     }
 
     @Synchronized fun pendingFor(characterId: String): List<CharacterFriendRequest> =
-        all().filter { it.toId == characterId && it.status == "pending" }
+        all().filter { it.toId == characterId && it.status == "pending" &&
+            MomentFriendAccess.isActiveCharacter(it.fromId) &&
+            MomentFriendAccess.isActiveCharacter(it.toId) }
 
     @Synchronized fun historyFor(characterId: String): List<CharacterFriendRequest> =
         all().filter { it.fromId == characterId || it.toId == characterId }
@@ -76,7 +78,9 @@ internal object CharacterFriendRequests {
     /** Resolve only notices concerning this role's actual stored request. */
     @Synchronized fun counterpartForNotice(characterId: String, evidenceId: String): String? =
         historyFor(characterId).firstOrNull { request ->
-            listOf("requested", "accepted", "declined").any { kind ->
+            MomentFriendAccess.isActiveCharacter(request.fromId) &&
+                MomentFriendAccess.isActiveCharacter(request.toId) &&
+                listOf("requested", "accepted", "declined").any { kind ->
                 evidenceId == "friend-request-${request.id}-$kind-$characterId"
             }
         }?.let { request -> if (request.fromId == characterId) request.toId else request.fromId }
@@ -110,8 +114,8 @@ internal object CharacterFriendRequests {
     @Synchronized fun send(from: String, to: String, greeting: String = "",
         at: Instant = Instant.now()): CharacterFriendRequest {
         require(from.isNotBlank() && to.isNotBlank() && from != to &&
-            to in MigratedDomainStores.characters.settings.value &&
-            from in MigratedDomainStores.characters.settings.value &&
+            MomentFriendAccess.isActiveCharacter(to) &&
+            MomentFriendAccess.isActiveCharacter(from) &&
             ResidentSocialMailbox.canContact(from, to)) {
             "只允许向真正认识或同场相遇的数字人物申请好友"
         }
@@ -134,6 +138,10 @@ internal object CharacterFriendRequests {
         val original = current.firstOrNull {
             it.id == requestId && it.toId == receiver && it.status == "pending"
         } ?: error("没有发给当前角色的待处理申请")
+        require(MomentFriendAccess.isActiveCharacter(original.fromId) &&
+            MomentFriendAccess.isActiveCharacter(original.toId)) {
+            "申请涉及已移除的数字人物，只能保留历史，不能建立新好友"
+        }
         val resolved = original.copy(status = if (accept) "accepted" else "declined", resolvedAt = at)
         if (accept) check(MomentFriendAccess.setFriends(original.fromId, original.toId, true)) {
             "好友关系没有确认，申请未完成"
