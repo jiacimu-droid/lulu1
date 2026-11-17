@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T04:01:33.183942+00:00",
-  "commit": "53b1a11e21c41be6be3382f48da20038b6c1b035",
+  "generatedAt": "2026-11-17T04:11:13.834606+00:00",
+  "commit": "2e6cc092cf41f2a61055b070001bf4c3e54f5f98",
   "branch": "main",
-  "sourceFingerprint": "f501b6ccc8c8b8e2082c8118bcbc2e448973bed64173eace6a2edb1806a27380",
+  "sourceFingerprint": "088e0f0960f1956a2ee9cf9dc952b9ea094335423a66bbabc8bfc03e20762742",
   "summary": {
-    "files": 1384,
-    "lines": 296351,
-    "symbols": 4183
+    "files": 1385,
+    "lines": 296553,
+    "symbols": 4184
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1972,6 +1972,92 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt",
         "line": 365
+      }
+    ],
+    "render": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSongAudioMix.kt",
+        "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
+        "line": 927
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt",
+        "line": 12
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
+        "line": 86
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
+        "line": 54
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
+        "line": 147
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
+        "line": 132
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
+        "line": 318
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
+        "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
+        "line": 124
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
+        "line": 183
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
+        "line": 242
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
+        "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DriveState.kt",
+        "line": 131
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt",
+        "line": 10
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
+        "line": 82
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWork.kt",
+        "line": 18
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContext.kt",
+        "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt",
+        "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
+        "line": 174
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
+        "line": 9
       }
     ],
     "close": [
@@ -4212,88 +4298,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
         "line": 658
-      }
-    ],
-    "render": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt",
-        "line": 927
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt",
-        "line": 12
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt",
-        "line": 86
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
-        "line": 54
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt",
-        "line": 147
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-        "line": 132
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 318
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 11
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
-        "line": 124
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 183
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 242
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
-        "line": 16
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DriveState.kt",
-        "line": 131
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt",
-        "line": 10
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
-        "line": 82
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWork.kt",
-        "line": 18
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContext.kt",
-        "line": 11
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/PromptMemoryRenderer.kt",
-        "line": 9
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 174
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
-        "line": 9
       }
     ],
     "Result": [
@@ -24877,6 +24881,17 @@
         {
           "name": "takeFinal",
           "line": 365
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSongAudioMix.kt",
+      "lines": 202,
+      "sha256": "0572d14039e1f094413df6e9f0bfaa039c57461afa1521ca5876972bb0a1821f",
+      "symbols": [
+        {
+          "name": "render",
+          "line": 25
         }
       ]
     },
