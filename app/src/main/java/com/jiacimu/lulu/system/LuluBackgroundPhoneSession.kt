@@ -1152,6 +1152,14 @@ internal object LuluBackgroundPhoneSession {
                     val alreadyText = withContext(Dispatchers.Main) {
                         LuluAccessibilityService.virtualChatTextInputVisible(id, activeApp)
                     }
+                    if (!alreadyText && activeApp == LuluVirtualChatSendPolicy.WECHAT &&
+                        args.has("composerX") && args.has("composerY")) {
+                        visualWeChatSend(
+                            id, activeApp, recipient, message,
+                            args.getInt("composerX"), args.getInt("composerY"),
+                            ::stillAuthorized, ::captureChatTitleFrame,
+                        )
+                    } else {
                     var toggleClicked = false
                     var switchFailure: JSONObject? = null
                     val editorReady = if (alreadyText || activeApp != LuluVirtualChatSendPolicy.WECHAT) true else {
@@ -1216,6 +1224,7 @@ internal object LuluBackgroundPhoneSession {
                                 )
                             }.put("inputModeSwitchClicked", toggleClicked)
                         }
+                    }
                     }
                 }
                 "search" -> search(context, id, activeApp, characterId, unreadAtStart, args.getString("text"))
