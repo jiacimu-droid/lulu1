@@ -55,6 +55,40 @@ internal object ElevenLabsMusic {
             .apply { if (finetuneId.isNotEmpty()) put("finetune_id", finetuneId) }
     }
 
+    /** Vendor permissions are account-side; explain missing scopes instead of dumping raw JSON. */
+    internal fun explainHttpError(status: Int, response: String): String {
+        val detail = runCatching { JSONObject(response).optJSONObject("detail") }.getOrNull()
+        val vendorCode = detail?.optString("code").orEmpty()
+        val vendorMessage = detail?.optString("message").orEmpty()
+        if (status == 401 && (
+                response.contains("music_generation", ignoreCase = true) ||
+                vendorMessage.contains("music generation", ignoreCase = true)
+            )
+        ) {
+            return "Eleven Music 权限不足：当前 API Key 没有 Music Generation（music_generation）权限。" +
+                "请在 ElevenLabs 网站的 Developers → API Keys 编辑正在使用的密钥，允许 Music Generation 后再试听。" +
+                "如果编辑的是原密钥，不必重新填写；无需反复生成歌曲。"
+        }
+        if (status == 401 && vendorCode == "invalid_api_key") {
+            return "Eleven Music 认证失败：当前 ElevenLabs API Key 无效。请检查语音设置中已保存的密钥。"
+        }
+        if (status == 401) {
+            return "Eleven Music 认证或权限不足（HTTP 401）。请检查 API Key、Music 权限和订阅。"
+        }
+        if (status == 402 || vendorCode == "payment_required" ||
+            vendorCode == "subscription_required" || vendorCode == "feature_not_available") {
+            return "Eleven Music 当前订阅或额度不能调用音乐 API（HTTP $status）。" +
+                "网页能生成歌曲不代表此密钥已开通 Music API，请检查套餐和剩余额度。"
+        }
+        if (status == 403) {
+            return "Eleven Music 调用被拒绝（HTTP 403），请检查 API Key 权限与 Music Finetune 访问资格。"
+        }
+        if (status == 429) return "Eleven Music 调用过于频繁或达到当前额度限制（HTTP 429），请稍后重试。"
+        return "Eleven Music HTTP $status：" +
+            (vendorMessage.ifBlank { detail?.optString("type").orEmpty() }
+                .ifBlank { response.take(160) }).take(180)
+    }
+
     /** Persist charged output before attempting playback; never pay a second time on speaker failure. */
     suspend fun generate(context: Context, characterId: String, prompt: String, durationSeconds: Int): Song =
         withContext(Dispatchers.IO) {
@@ -91,8 +125,7 @@ internal object ElevenLabsMusic {
                     val explanation = runCatching {
                         connection.errorStream?.bufferedReader()?.use { it.readText().take(500) }.orEmpty()
                     }.getOrDefault("")
-                    error("Eleven Music HTTP " + status + "；" +
-                        if (status == 403) "请检查 Music API 或 Finetune 权限" else explanation.take(250))
+                    error(explainHttpError(status, explanation))
                 }
                 val folder = roleFolder(application, characterId)
                 check(folder.isDirectory || folder.mkdirs()) { "无法创建角色歌曲目录" }
