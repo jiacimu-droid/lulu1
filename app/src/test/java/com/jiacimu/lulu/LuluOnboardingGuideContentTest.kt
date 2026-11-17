@@ -35,9 +35,22 @@ class LuluOnboardingGuideContentTest {
         assertFalse(luluGuideSteps[0].tips.any { it.contains("使用第三方 API 可能收费") })
     }
 
+    @Test fun heroFocusesOnFourDistinctStrengths() {
+        assertEquals(4, luluGuideHeroHighlights.size)
+        assertEquals(
+            listOf("memory", "groups", "games", "phone"),
+            luluGuideHeroHighlights.map { it.featureKey },
+        )
+        assertTrue(luluGuideHeroHighlights.all { point ->
+            point.title.isNotBlank() && point.subtitle.isNotBlank() &&
+                luluGuideFeatures.any { it.key == point.featureKey }
+        })
+        assertTrue(luluGuideHeroHighlights.first().title.contains("自动记忆"))
+    }
+
     @Test fun everyFeatureHasUsefulContentAndARealDestination() {
         assertEquals(luluGuideFeatures.size, luluGuideFeatures.map { it.key }.distinct().size)
-        assertTrue(luluGuideFeatures.size >= 18)
+        assertTrue(luluGuideFeatures.size >= 21)
         assertTrue(luluGuideFeatures.all { it.highlights.isNotEmpty() })
         val byKey = luluGuideFeatures.associateBy { it.key }
         assertTrue(byKey.getValue("call").instructions.any { it.contains("30 分钟") })
@@ -47,7 +60,15 @@ class LuluOnboardingGuideContentTest {
         assertTrue(byKey.getValue("memory").instructions.any { it.contains("气泡") && it.contains("一轮") })
         assertTrue(byKey.getValue("phone").instructions.any { it.contains("小红书") && it.contains("微信") })
         assertTrue(byKey.getValue("phone").warning.contains("发送"))
-        assertTrue(byKey.getValue("mind").instructions.any { it.contains("关联") })
+        assertTrue(byKey.getValue("mind").instructions.any { it.contains("顶部") || it.contains("最上方") })
+        assertTrue(byKey.getValue("mind").instructions.any { it.contains("左侧") && it.contains("头像") })
+        assertTrue(byKey.getValue("phone").instructions.any { it.contains("拼多多") && it.contains("浏览器") })
+        assertTrue(byKey.getValue("appearance").instructions.any { it.contains(".css") })
+        assertTrue(byKey.getValue("widgets").instructions.any { it.contains("星座") })
+        assertTrue(byKey.getValue("meet").warning.contains("大世界"))
+        assertTrue(byKey.getValue("games").description.contains("连麦"))
+        assertTrue(byKey.getValue("live2d").warning.contains("不兼容"))
+        assertTrue(byKey.getValue("memory").description.contains("自动"))
         assertTrue(luluGuideFeatures.none { it.warning.contains("内测提醒") })
         assertTrue(luluGuideFeatures.all {
             it.where.isNotBlank() && it.instructions.isNotEmpty() && it.warning.isNotBlank()
