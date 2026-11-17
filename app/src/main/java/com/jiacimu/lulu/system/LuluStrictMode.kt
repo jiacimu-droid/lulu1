@@ -140,9 +140,10 @@ internal object LuluStrictMode {
         if (duration !in 5..120)
             return response(false, "invalid", "强制模式时长应为5至120分钟")
         val exceptions = mutableSetOf<String>()
-        val chosen = if (args.has("exceptPackages")) args.optJSONArray("exceptPackages")
-            ?: return response(false, "invalid", "exceptPackages 需要应用包名数组")
-            else previous?.optJSONArray("exceptPackages") ?: JSONArray()
+        val chosen: JSONArray = if (args.has("exceptPackages")) {
+            args.optJSONArray("exceptPackages")
+                ?: return response(false, "invalid", "exceptPackages 需要应用包名数组")
+        } else previous?.optJSONArray("exceptPackages") ?: JSONArray()
         if (chosen.length() > 32) return response(false, "invalid", "临时例外应用不能超过32个")
         for (index in 0 until chosen.length()) {
             val pkg = chosen.optString(index)
@@ -163,6 +164,13 @@ internal object LuluStrictMode {
         lastAt = 0L
         if (previous == null) prefs(context).edit().putLong("lastReview", 0L).apply()
         showNotice(context, session)
+        // Expiry is a local time limit, not a character decision to continue watching.
+        val expiry = OneTimeWorkRequestBuilder<LuluStrictExpiryWorker>()
+            .setInitialDelay(duration.toLong(), TimeUnit.MINUTES)
+            .setInputData(Data.Builder().putString("sessionId", session.optString("id")).build())
+            .build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            "lulu-strict-expiry-" + session.optString("id"), ExistingWorkPolicy.REPLACE, expiry)
         writer.execute {
             record(role, "strict-mode-" + session.optString("id") + "-" + now,
                 "角色选定监督方式=" + mode + "；到期=" +
@@ -196,6 +204,11 @@ internal object LuluStrictMode {
             event.eventType != AccessibilityEvent.TYPE_WINDOWS_CHANGED) return
         if (Build.VERSION.SDK_INT >= 30 && event.displayId > Display.DEFAULT_DISPLAY) return
         val session = active(context) ?: return
+        if (session.optString("mode") == "return" &&
+            !LuluScreenAwareness.directReturnAllowed(context)) {
+            stop(context, session.optString("id"), "切回授权已撤销")
+            return
+        }
         if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) {
             stop(context, session.optString("id"), "监督通知已关闭")
             return
@@ -271,6 +284,8 @@ internal object LuluStrictMode {
         context.getSystemService(NotificationManager::class.java).cancel(NOTICE_ID)
         WorkManager.getInstance(context.applicationContext)
             .cancelUniqueWork("lulu-strict-review-" + sessionId)
+        WorkManager.getInstance(context.applicationContext)
+            .cancelUniqueWork("lulu-strict-expiry-" + sessionId)
         writer.execute {
             record(current.optString("characterId"), "strict-ended-" + sessionId,
                 reason, EventEvidenceKind.Observation)
@@ -305,9 +320,15 @@ internal object LuluStrictMode {
 
 class LuluStrictModeReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == "lulu.strict.STOP")
-            LuluStrictMode.stop(context, intent.getStringExtra("sessionId").orEmpty(),
-                "主人从通知栏主动停止")
+        if (intent.action == "lulu.strict.STOP") {
+            val id = intent.getStringExtra("sessionId").orEmpty()
+            if (id.isNotBlank() && LuluStrictMode.active(context)?.optString("id") == id) {
+                LuluStrictMode.stop(context, id, "主人从通知栏主动停止")
+                // An explicit STOP also revokes future auto-restarts by the role.
+                LuluScreenAwareness.preferences(context).edit()
+                    .putBoolean(LuluStrictMode.GRANT, false).commit()
+            }
+        }
     }
 }
 
@@ -318,7 +339,7 @@ class LuluStrictReviewWorker(context: Context, params: WorkerParameters) :
         val id = inputData.getString("sessionId").orEmpty()
         val current = LuluStrictMode.active(applicationContext)
         if (id.isBlank() || current?.optString("id") != id ||
-            current.optString("characterId") != role) return Result.success()
+            current?.optString("characterId") != role) return Result.success()
         return runCatching {
             initializeBackgroundRuntime(applicationContext)
             ProactivePerceptionRuntime.runDueCycle(applicationContext,
@@ -326,5 +347,20 @@ class LuluStrictReviewWorker(context: Context, params: WorkerParameters) :
                 targetCharacterId = role, force = true)
             Result.success()
         }.getOrElse { Result.retry() }
+    }
+}
+
+/** Backup expiry even when there are no later app-switch accessibility events. */
+class LuluStrictExpiryWorker(context: Context, params: WorkerParameters) :
+    CoroutineWorker(context, params) {
+    override suspend fun doWork(): Result {
+        val id = inputData.getString("sessionId").orEmpty()
+        val session = LuluStrictMode.active(applicationContext)
+        if (id.isNotBlank() && session?.optString("id") == id) {
+            // An adjusted session will have replaced this worker with its new deadline.
+            return Result.success()
+        }
+        if (id.isNotBlank()) LuluStrictMode.stop(applicationContext, id, "限时监督到期")
+        return Result.success()
     }
 }
