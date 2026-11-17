@@ -149,7 +149,18 @@ internal fun Live2DFullscreenVideoCall(
     }
     val cue = cues[characterId]?.takeIf { it.callId == state.callExperienceId }
     DisposableEffect(characterId, state.callExperienceId) {
-        onDispose { Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId) }
+        onDispose {
+            val current = LuluVoiceCallSession.state.value
+            if (current.connected && current.characterId == characterId &&
+                current.callExperienceId == state.callExperienceId &&
+                LuluCallWindowController.videoRequested.value) {
+                // This is only a minimized video panel; audio and the model's
+                // authored cue belong to the existing phone session.
+                Live2DVisualActionBus.stageDetached(characterId, state.callExperienceId)
+            } else {
+                Live2DVisualActionBus.stageClosed(characterId, state.callExperienceId)
+            }
+        }
     }
     // Familiar face-first framing for calls; the user can pull back to a full
     // body without reloading the model or interrupting the call audio.
