@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`3eb8274d0f809c1f725e3533d31c4bf9569c6859`
+- 基准提交：`1e42057f2ec4e29b72da3ad89417eca9ab7e5d2d`
 - 分支：`main`
 - 已索引文件：1391
-- 已索引代码/文本行：298038
+- 已索引代码/文本行：298057
 - 已发现符号：4204
 
 | 文件 | 行数 | 符号数 |
@@ -1206,7 +1206,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 335 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt` | 327 | 11 |
-| `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 205 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 224 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 76 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicyTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt` | 49 | 1 |
