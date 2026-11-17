@@ -136,10 +136,8 @@ fun LuluReadingScreen(
             val storedIndex = prefs.getInt("position:${selected.id}", 0)
             listState.scrollToItem((targetIndex ?: storedIndex)
                 .coerceIn(0, passages.size))
-        }
-    }
-    LaunchedEffect(selected?.id) {
-        if (selected != null) {
+            // Restore before observing, otherwise an initial index=0 write may
+            // erase the previously saved position as the screen is composed.
             snapshotFlow { listState.firstVisibleItemIndex }.collect { index ->
                 prefs.edit().putInt("position:${selected.id}", index).apply()
             }
