@@ -41,6 +41,51 @@ export function kissCameraHorizontalPosition(base, zoom, mouthLocalX) {
   return base.x + (1 - zoom) * (mouthX - base.x) +
     closeness * (base.width * .5 - mouthX)
 }
+
+/**
+ * The zoom pivot for a kiss is the character's FACE, not the middle of
+ * their full-body sprite. Prefer the user's calibrated eye centers. The
+ * fallback is a proportion of the actual model bounds, so portraits and
+ * resizes use the same model-local point without looking at TTS timing.
+ */
+export function kissFaceLocalOffsetY(base, bounds, calibration = {}) {
+  if (!base || !Number.isFinite(base.y) || !Number.isFinite(base.scale) ||
+      base.scale <= 0 || !Number.isFinite(base.height) || base.height <= 0) return 0
+  const validBounds = bounds && Number.isFinite(bounds.y) &&
+    Number.isFinite(bounds.height) && bounds.height > 0
+  const validV = zone => Number.isFinite(zone?.v) &&
+    zone.v >= 0 && zone.v <= 1
+  const eyes = [calibration['eye-left'], calibration['eye-right']]
+    .filter(validV).map(zone => zone.v)
+  let y
+  if (validBounds && eyes.length)
+    y = bounds.y + eyes.reduce((a, b) => a + b, 0) / eyes.length * bounds.height
+  else if (validBounds && validV(calibration.mouth))
+    y = bounds.y + Math.max(0, calibration.mouth.v - .075) * bounds.height
+  else if (validBounds)
+    y = bounds.y + .18 * bounds.height
+  else y = base.height * .30
+  return (y - base.y) / base.scale
+}
+
+/**
+ * Keep eyes/face in the central portrait as the character leans toward the
+ * glass. A fixed 42%-of-screen zoom pivot pushed the eyes OUT of the frame
+ * because this portrait's actual face starts much higher than its torso.
+ * Zoom=1 always restores the exact original fit without a vertical jump.
+ */
+export function kissCameraVerticalPosition(base, zoom, faceLocalY) {
+  if (!base || ![base.y, base.height, base.scale, zoom, faceLocalY]
+      .every(Number.isFinite) || base.height <= 0 || base.scale <= 0 ||
+      zoom < 1) return base?.y ?? 0
+  const faceY = base.y + faceLocalY * base.scale
+  const closeness = Math.max(0, Math.min(1,
+    (zoom - 1) / (KISS_CAMERA_PEAK_ZOOM - 1)))
+  const desiredFaceY = base.height * .45
+  return base.y + (1 - zoom) * (faceY - base.y) +
+    closeness * (desiredFaceY - faceY)
+}
+
 const smooth = value => {
   const t = Math.max(0, Math.min(1, value))
   return t * t * (3 - 2 * t)
