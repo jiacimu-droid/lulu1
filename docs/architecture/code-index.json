@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T11:15:52.466122+00:00",
-  "commit": "393cbd4b83b090828d91bb9380e13eef60905463",
+  "generatedAt": "2026-11-17T11:18:30.196134+00:00",
+  "commit": "50a9d7669921147c1aa14191372d7d2b94de530b",
   "branch": "main",
-  "sourceFingerprint": "a7ff4974a589730e0a3f77909d9b1683e444b512c87fe676531735430919d8c1",
+  "sourceFingerprint": "06bffbca813e35f2b4635e0bcfb92e7d51916c359a4c6cdb54721db2ada44f47",
   "summary": {
     "files": 1402,
     "lines": 296608,
@@ -539,7 +539,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 639
+        "line": 635
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -3983,19 +3983,19 @@
     "gridTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 190
+        "line": 194
       }
     ],
     "gridHeight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 193
+        "line": 197
       }
     ],
     "slotAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 195
+        "line": 199
       }
     ],
     "MigrationRoute": [
@@ -7737,7 +7737,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 599
+        "line": 595
       }
     ],
     "cue": [
@@ -7909,7 +7909,7 @@
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 570
+        "line": 566
       }
     ],
     "current": [
@@ -26618,20 +26618,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 649,
-      "sha256": "5f6af835048aaf58b393845083920963ef2271a020cebef3a126125dabf58ded",
+      "lines": 653,
+      "sha256": "8e180897408ec4c4ec5e0c114f24b42fca3837072862d00164263a82ffff1fd6",
       "symbols": [
         {
           "name": "gridTop",
-          "line": 190
+          "line": 194
         },
         {
           "name": "gridHeight",
-          "line": 193
+          "line": 197
         },
         {
           "name": "slotAt",
-          "line": 195
+          "line": 199
         }
       ]
     },
@@ -30105,8 +30105,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 688,
-      "sha256": "e7c1b806549e862500c04de9468ed94283e7443f21aef320f6df394253a2a89b",
+      "lines": 684,
+      "sha256": "defa037135816bba413fd4a982d6fe6faaf6868043c06aed62afc45c1023ad00",
       "symbols": [
         {
           "name": "CharacterLifeStore",
@@ -30138,15 +30138,15 @@
         },
         {
           "name": "profileContext",
-          "line": 570
+          "line": 566
         },
         {
           "name": "compactContext",
-          "line": 599
+          "line": 595
         },
         {
           "name": "context",
-          "line": 639
+          "line": 635
         }
       ]
     },
@@ -36950,7 +36950,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseAbilityProgressionV5.kt",
       "lines": 307,
-      "sha256": "e933a7fa6797581ccf0545b83a74627b60a68e658d2558ae321ac2a4d67d3fd1",
+      "sha256": "c65344f229255d7b6c1e2a47d8d1dcc0f29ee3adde9c79318edec190e7711b20",
       "symbols": []
     },
     {
