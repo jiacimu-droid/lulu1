@@ -163,15 +163,38 @@ class LocalMemoryRepository : MemoryRepository {
             if (targets.isEmpty()) return
             deferPausedResidentMemory(characterId, targets.size)
             val targetIds = targets.mapTo(mutableSetOf(), SharedTimelineEvent::id)
-            // Include neighbours of each target, not an unrelated newest conversation.
-            val contextIds = events.indices.filter { events[it].id in targetIds }.flatMap { index ->
-                ((index - 5).coerceAtLeast(0)..(index + 3).coerceAtMost(events.lastIndex)).toList()
-            }.toSet()
-            val context = events.filterIndexed { index, _ -> index in contextIds }
-            val prior = currentUnderstandingCandidates(characterId, context.joinToString(" ") { it.content })
+            // The immediate path must use the SAME semantic turns as regular
+            // extraction: a hundred game moves cannot replace the preceding
+            // five real exchanges in a user's important correction context.
+            val turns = semanticTimelineTurns(characterId, events)
+            val targetTurnIndices = turns.indices.filter { index ->
+                turns[index].events.any { it.id in targetIds }
+            }
+            val nearby = turns.filterIndexed { index, _ ->
+                targetTurnIndices.any { selected -> index in
+                    ((selected - 5).coerceAtLeast(0)..(selected + 3).coerceAtMost(turns.lastIndex)) }
+            }
+            val view = MemoryExtractionTurnView.build(nearby)
+            // Always preserve the explicitly targeted original statement.
+            // The compact episode view is background, not permission to cite
+            // game steps that were never presented to this model request.
+            val targetFacts = targets.joinToString("\n") { event ->
+                "[eventId=${event.id}@${event.revision}] [${event.occurredAt}]" +
+                    " ${event.speaker}：${event.evidenceContent.take(2_400)}"
+            }
+            val selected = (view.visibleSources + targets).distinctBy { it.id }
+            val canonical = SharedExperienceTimeline.eventsByIds(
+                characterId, selected.mapTo(mutableSetOf(), SharedTimelineEvent::id))
+                .associateBy { it.id }
+            check(selected.all { canonical[it.id] == it }) {
+                "即时记忆来源在准备期间改变；保留原话等待重试"
+            }
+            val context = selected
+            val facts = view.text + "\n【需要立即理解的主人原话】\n" + targetFacts
+            val prior = currentUnderstandingCandidates(characterId, facts)
             val result = LuluAiServices.gateway.generate(
                 characterId = characterId,
-                facts = context.joinToString("\n") { "[事件ID=${it.id}] [${it.occurredAt}] ${it.speaker}：${it.evidenceContent}" } + renderPriorUnderstanding(prior),
+                facts = facts + renderPriorUnderstanding(prior),
                 instruction = """
                     判断目标用户事件 ${targetIds.joinToString("|")} 是否包含应立即保存的稳定事实、明确偏好、边界或重要长期安排。
                     信号词只用于筛选：必须结合上下文理解，反问、假设、引用、角色台词、虚构故事、临时状态都不能当成长期事实。
@@ -746,8 +769,10 @@ class LocalMemoryRepository : MemoryRepository {
 
     /** Exactly the same grouping for the reader, extraction queue and recap.
      * Never reinterpret already saved message IDs or raw tool receipts. */
-    private fun semanticTimelineTurns(characterId: String): List<RecentSemanticTimeline.Turn> {
-        val eligible = memoryEligibleTimelineEvents(characterId)
+    private fun semanticTimelineTurns(
+        characterId: String,
+        eligible: List<SharedTimelineEvent> = memoryEligibleTimelineEvents(characterId),
+    ): List<RecentSemanticTimeline.Turn> {
         val cachedBatches = mutableMapOf<String, String?>()
         return RecentSemanticTimeline.select(eligible, Int.MAX_VALUE) { event ->
             if (event.source != "message" || event.sessionId.isBlank()) null
