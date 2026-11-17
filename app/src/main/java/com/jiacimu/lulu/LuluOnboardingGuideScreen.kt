@@ -33,14 +33,13 @@ internal data class LuluGuideStep(
 internal val luluGuideSteps = listOf(
     LuluGuideStep("连接聊天模型", "桌面 → 设置 → API 与模型",
         listOf("填写配置名称、API 地址、API 密钥，先点「保存配置」。",
-            "点「获取模型」，选中可用模型后「加入存档」。",
-            "使用第三方 API 可能收费；密钥不能分享给其他内测玩家。"),
+            "点「获取模型」，选中可用模型后「加入存档」。"),
         "api", MigrationRoute.Settings, "前往设置"),
-    LuluGuideStep("创建自己的角色", "桌面 → 聊天 → 新建角色",
-        listOf("填写名字和核心设定，再去角色设置补充性格、关系及头像。",
-            "所有新角色都是数字生命，在同一个数字世界中生活；你可以自由设定人物的性格、职业和背景。",
-            "全新安装没有预置私人角色和假聊天。"),
-        "role", MigrationRoute.Chat, "去创建角色"),
+    LuluGuideStep("创建自己的角色", "聊天 → 角色 → ＋ 新建角色",
+        listOf("在「资料」填写名字、头像与背景。",
+            "切换「人格」「陪伴」设置人物性格与陪伴方式。",
+            "全部填好后点「保存并创建角色」；返回不会创建角色。"),
+        "role", MigrationRoute.CharacterCreate, "去创建角色"),
     LuluGuideStep("为角色选择聊天模型", "角色私聊 → ＋ → 模型",
         listOf("点输入框旁的「＋」，在「模型」中选择当前角色真正使用的模型。",
             "保存 API 或加入模型存档，不等于已经给角色启用聊天模型。"),
@@ -367,8 +366,9 @@ internal fun guideScreenRows(kind: String): List<String> = when (kind) {
     "api" -> listOf("←  API 设置", "新配置         ＋ 新建",
         "配置名称", "API 地址", "API 密钥  ••••••••",
         "▣  保存配置", "☁  获取模型", "已配置模型")
-    "role" -> listOf("←  聊天                  ＋", "人物与原住民",
-        "新建数字生命", "角色名称", "角色核心设定", "创建角色")
+    "role" -> listOf("←  新建数字生命       保存角色",
+        "资料    人格    陪伴", "角色头像", "角色名称", "身份与背景事实",
+        "保存并创建角色")
     "model" -> listOf("当前角色聊天模型", "○  模型 A", "◉  模型 B",
         "提示：这里只修改当前角色")
     "chat" -> listOf("←  角色昵称               ···",
