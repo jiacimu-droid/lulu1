@@ -54,6 +54,20 @@ class LuluVisualChatDraftPolicyTest {
             "文件传输助手", "你好佳辞", 720, 1280))
     }
 
+    @Test fun keyboardSendActionCanNeverBeMistakenForAppSendButton() {
+        val header = line("文件传输助手", 288, 58, 438, 99)
+        val draft = line("你好佳辞", 112, 905, 324, 950)
+        val imeSend = line("发送", 631, 913, 692, 965)
+        assertNotNull(LuluVisualChatDraftPolicy.verifiedDraft(
+            listOf(header, draft, imeSend), "文件传输助手", "你好佳辞",
+            720, 1280))
+        // If the IME starts at y=850, that Send belongs to the keyboard
+        // and must NOT authorize an irreversible app-send gesture.
+        assertNull(LuluVisualChatDraftPolicy.verifiedDraft(
+            listOf(header, draft, imeSend), "文件传输助手", "你好佳辞",
+            720, 1280, imeTopY = 850))
+    }
+
     @Test fun composerPointRequiresActualBottomLeftAreaAndBothCoordinates() {
         assertTrue(LuluVisualChatDraftPolicy.composerPointSafe(480, 900))
         assertFalse(LuluVisualChatDraftPolicy.composerPointSafe(960, 900))
