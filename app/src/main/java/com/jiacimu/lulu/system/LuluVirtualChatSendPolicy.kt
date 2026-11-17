@@ -149,6 +149,10 @@ internal object LuluVirtualChatSendPolicy {
         className: String?, hint: String?, resourceId: String?, packageName: String = WECHAT,
         hasEditableAction: Boolean = false,
     ): Boolean {
+        // Some WeChat builds expose their real message editor as a custom
+        // accessibility View with ACTION_SET_TEXT but without the EditText
+        // class or isEditable flag. The caller still verifies the live chat
+        // header, bottom composer geometry, enabled state and readback.
         if (!supports(packageName) || (!className.orEmpty().contains("EditText", true) &&
                 !(packageName == WECHAT && hasEditableAction))) return false
         val fieldHint = hint.orEmpty().trim().trimEnd('…', '.', '。', ' ', '～', '~')
