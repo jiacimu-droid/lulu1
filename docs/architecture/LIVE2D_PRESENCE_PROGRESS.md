@@ -1,5 +1,12 @@
 # Live2D 面对面表现专项进度（L1–L3）
 
+## 2026-11-18 · 中性「靠近屏幕」及模型自选身体/脸部搭配（已入 main；CI/真机待验）
+
+- **主人纠正**：「靠近」不是特定的温柔/撒娇情绪。新增 LuluWolf Motion3 **#49 靠近屏幕**（真实原生头/身体参数曲线，而不只是放大贴图），和 #48「贴屏亲亲」明确分离，#49 无默认 smile/face/脸红/闭眼；角色可自主以好奇、审视、调皮、严肃等语义选用，不因动作编号代决定性格或情绪。新增 Motion3 安装沿用 `Live2DAssets.ensureWolfMotionPack` 及既有 `Live2DModelManifestAdapter.normalizedSettings`，仍仅适用于真实识别出的小狼 rig，其他模型不能伪造可用片段。
+- **真实接近镜头**：`kiss-camera.mjs` 新增独立 `approachCameraFrame`（峰值 1.82×，平缓入场/眼神停留/退场），共用可验真的镜头租约与人脸校准，但 #49 水平追踪**眼睛中心**，#48 继续追踪嘴唇。画布纵向锚保持脸在中部；只有 Motion3 真正启动后才靠近。#49 不注入亲吻的闭眼/嘟嘴/蹭屏姿态，能正常边说话边靠近；#48 的后置 TTS 亲吻时序不变，语音中绝不强制闭嘴。
+- **分层组合入口**：`Live2DDialoguePlan.Part` 及 `beats` 保留角色在同一句 `speech` 自选的 `face` 数值，交给现有 `Live2DVisualActionBus` 的真实 Cubism 参数集合验证；`expression` 继续只从该模型已导入的 exp3 里挑。语义/动作/脸部可由同一个模型决策组合，程序不自动根据「靠近」搭配温柔脸；原生 Motion3 负责主躯干，不让另一层 head/body 数值争抢。耳朵等物理由原 Physics3 实际驱动，尚无独立可用的非物理输出字段时**不谎称可由模型随意扭耳朵**。
+- **测试/界限**：`tools/live2d/test/parameters.mjs` 断言 0..49 真实 Motion3 文件、轨迹/速度/头身弯曲、1.82× 平缓停留、眼部标定取景；`conversation-performance.mjs` 走真实 stage 方法确认 #49 TTS 期间启动、#48 发声后才亲、跨台词与新动作交接；`Live2DMotionCatalogTest` 校验 50 条索引与中性无脸预设，`Live2DDialoguePlanTest` 校验每个 TTS 片段携带可选自选脸部、Bus 拒绝不存在的参数。另为视频通话手动动作清单补真实名称。代码提交 `9a0e91b`、`460f5ea`、`be86ad2`、`67972a4`、`84bf764`、`e68c45a`、`3cfd7cf`、`fd2d818` 等。已对实际 main 的相机函数做独立 JS 数值调用及 stage.js 语法检查；**未得到可证明成功的 Android APK/JVM CI，也未做 Redmi 动态观感验收**。后续核包含此批 commit 的 APK/JVM 首错、真机目视脸中心/嘴型/神态/镜头放大有无裁边，若模型新增独立耳输入参数再纳入可验证模块化动作层。
+
 ## 2026-11-18 主人反馈：亲吻镜头、视频重进与左右扇击轨迹
 
 - **亲吻镜头**：原始 stage 仅水平追嘴，纵向依靠屏幕固定 42% 放大，导致脸滑向顶部。现在按当前 bounds/已校准左右眼或嘴部定位模型局部脸锚点，临近时脸中心移动到屏高约 45%，按同一曲线回到初始取景。源码 kiss-camera.mjs / stage.js，数值回归 parameters.mjs。
