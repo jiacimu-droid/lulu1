@@ -268,7 +268,7 @@ internal object CompanionActionRuntime {
         appendLine("- send_private_message，args={\"text\":\"私聊内容\"}：一对一找用户说话。适合明确有一件事想对用户本人说、继续两人的话题或关系，不是公开生活播报。")
         if (com.jiacimu.lulu.ElevenLabsMusic.isEnabledAndConfigured(context, characterId)) {
             val vocal = com.jiacimu.lulu.ElevenLabsMusic.finetuneId(context, characterId)
-            appendLine("- sing_song，args={\\"prompt\\":\\"本人想创作的原创歌曲，注明语言、曲风、歌词方向\\",\\"durationSeconds\\":30}：自主选择为主人唱原创歌，真实调用 Eleven Music，生成成功保存到本机再开始播放；可3～600秒，会消耗 Music API 额度。" +
+            appendLine("- sing_song，args={\"prompt\":\"本人想创作的原创歌曲，注明语言、曲风、歌词方向\",\"durationSeconds\":30}：自主选择为主人唱原创歌，真实调用 Eleven Music，生成成功保存到本机再开始播放；可3～600秒，会消耗 Music API 额度。" +
                 if (vocal.isNotBlank()) "当前角色已配置独立 Music Finetune，可尝试自己的固定歌声；不能把普通TTS Voice ID当歌声。" else "尚未配置角色 Music Finetune，生成的是模型歌声，不得声称用了本人现有的TTS音色。")
             appendLine("不能保证复现现成热门歌曲的原版旋律或原唱；如无合法使用权，请创作新歌，而不是假装生成了某歌曲翻唱。")
         }
