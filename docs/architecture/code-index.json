@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T11:30:06.647291+00:00",
-  "commit": "75dc651158b9ac9e1260b2205ef2bffd8f1dcd7a",
+  "generatedAt": "2026-11-17T11:33:12.254574+00:00",
+  "commit": "094e68403481e61ca4e62144b5377bf5847ff113",
   "branch": "main",
-  "sourceFingerprint": "5978d3ebd988ac5781b354e13ce6de9638a627bcce2410c0a9cc16948e63d217",
+  "sourceFingerprint": "a37bfc13efe10000a54e2b48868724bfcc8b3d5ae36ab66f54c5f96de8204ca6",
   "summary": {
     "files": 1403,
-    "lines": 296741,
+    "lines": 296748,
     "symbols": 4216
   },
   "symbolIndex": {
@@ -12347,7 +12347,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt",
-        "line": 536
+        "line": 542
       }
     ],
     "rendered": [
@@ -20875,7 +20875,7 @@
     "message": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt",
-        "line": 539
+        "line": 545
       }
     ],
     "ChatHistoryPersistenceBaselineTest": [
@@ -45209,8 +45209,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionContinuityTest.kt",
-      "lines": 77,
-      "sha256": "e503a84cae0110b88c3258e0b40ffccb93b97d2e649d85f75ea07812130ed05f",
+      "lines": 78,
+      "sha256": "b9e945bed6c7826c729f7d148a1361866146b887d8f9e57e20e9cbd609319abe",
       "symbols": [
         {
           "name": "CharacterExpressionContinuityTest",
@@ -45870,8 +45870,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryLegacyCompatibilityTest.kt",
-      "lines": 578,
-      "sha256": "56f6571c4879c8291b1da8e62783499d1ba281de146aef9be7f14a8f69ddcf43",
+      "lines": 584,
+      "sha256": "c520ba55d41e25f77eb92fa47849175a2f107ec6779389e7028b86d1ec3563e8",
       "symbols": [
         {
           "name": "ChatHistoryLegacyCompatibilityTest",
@@ -45879,18 +45879,18 @@
         },
         {
           "name": "conversation",
-          "line": 536
+          "line": 542
         },
         {
           "name": "message",
-          "line": 539
+          "line": 545
         }
       ]
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ChatHistoryPersistenceBaselineTest.kt",
       "lines": 1117,
-      "sha256": "be647400d6e4ef28e0cd2221517668a3b23c58300d3be881675221cea2974ba3",
+      "sha256": "4f28f3448a5829a3670a7e61114f0728689d83cad115fd376824d316babdf297",
       "symbols": [
         {
           "name": "ChatHistoryPersistenceBaselineTest",
