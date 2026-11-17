@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d50fb21d5c7bb6661605f936338654ec0f0a24de`
+- 基准提交：`a8deee507d0ad5d6978e90e57232af59722fa014`
 - 分支：`main`
 - 已索引文件：1443
-- 已索引代码/文本行：304000
+- 已索引代码/文本行：304018
 - 已发现符号：4344
 
 | 文件 | 行数 | 符号数 |
@@ -1450,4 +1450,4 @@
 | `preview/world-joystick.js` | 25 | 0 |
 | `preview/worlds.css` | 72 | 0 |
 | `preview/worlds.html` | 22 | 0 |
-| `preview/worlds.js` | 160 | 0 |
+| `preview/worlds.js` | 178 | 0 |
