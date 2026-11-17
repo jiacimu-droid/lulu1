@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T16:10:00.526776+00:00",
-  "commit": "1c54c5e2f2fa6dba44e759c42ba6acd476d5a41e",
+  "generatedAt": "2026-11-17T16:10:35.621985+00:00",
+  "commit": "1a7c46227142f3653a0c02b804ffb40abdc11eb6",
   "branch": "main",
-  "sourceFingerprint": "f39f2cf2bea98b8c0f0b28370e6e554301b9d60b3dfd52855cc361ff6fd751ff",
+  "sourceFingerprint": "0e6214032cc3b1376e93bd2ca870f94ea1b99fdd7536e032f9f0a6723b4438b1",
   "summary": {
     "files": 1417,
-    "lines": 299518,
+    "lines": 299528,
     "symbols": 4274
   },
   "symbolIndex": {
@@ -149,7 +149,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 278
+        "line": 280
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -5507,7 +5507,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 297
+        "line": 299
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
@@ -8339,7 +8339,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 307
+        "line": 309
       }
     ],
     "requestContext": [
@@ -18315,19 +18315,19 @@
     "LuluStrictModeReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 322
+        "line": 324
       }
     ],
     "LuluStrictReviewWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 336
+        "line": 338
       }
     ],
     "LuluStrictExpiryWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 356
+        "line": 366
       }
     ],
     "canObserve": [
@@ -42252,8 +42252,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-      "lines": 369,
-      "sha256": "3d0470a0ab2fc4cb939ce0630f46c6e7fa6819dd01baff7512094394aa8f9491",
+      "lines": 379,
+      "sha256": "e351ae744e99a85b9fda9b66bd4a15ccb3d5d54c23da3f4d82260ae20cecc23e",
       "symbols": [
         {
           "name": "ownerGranted",
@@ -42277,27 +42277,27 @@
         },
         {
           "name": "stop",
-          "line": 278
+          "line": 280
         },
         {
           "name": "restore",
-          "line": 297
+          "line": 299
         },
         {
           "name": "modelContext",
-          "line": 307
+          "line": 309
         },
         {
           "name": "LuluStrictModeReceiver",
-          "line": 322
+          "line": 324
         },
         {
           "name": "LuluStrictReviewWorker",
-          "line": 336
+          "line": 338
         },
         {
           "name": "LuluStrictExpiryWorker",
-          "line": 356
+          "line": 366
         }
       ]
     },
