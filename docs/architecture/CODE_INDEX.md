@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6bc22c1195993bc915e3938201dc9c5199387314`
+- 基准提交：`8c8f12bfc0d162494380774ade0f5722de190660`
 - 分支：`main`
 - 已索引文件：1414
-- 已索引代码/文本行：298847
+- 已索引代码/文本行：298859
 - 已发现符号：4255
 
 | 文件 | 行数 | 符号数 |
@@ -491,7 +491,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldReadingRoute.kt` | 16 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentEpisodeStore.kt` | 183 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldResidentInteractionRuntime.kt` | 270 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1266 | 41 |
+| `app/src/main/java/com/jiacimu/lulu/data/DigitalWorldStore.kt` | 1267 | 41 |
 | `app/src/main/java/com/jiacimu/lulu/data/DriveState.kt` | 147 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmbodiedBodyRuntime.kt` | 341 | 20 |
 | `app/src/main/java/com/jiacimu/lulu/data/EmotionFollowThroughCoordinator.kt` | 48 | 2 |
@@ -1045,7 +1045,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundMessageDeliveryTest.kt` | 257 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundModelRequestBudgetTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BackgroundPerceptionRecoveryTest.kt` | 125 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt` | 120 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/BackgroundPhoneCapabilityContextTest.kt` | 122 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/BedtimeTimelineBoundaryTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CallMediaSemanticBoundaryTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CapabilityRegistryRetirementTest.kt` | 25 | 1 |
@@ -1098,7 +1098,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveReviewTest.kt` | 114 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotiveStateTest.kt` | 144 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntimeTest.kt` | 391 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 212 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterOriginResetTest.kt` | 219 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterOwnedSceneGatewayTest.kt` | 130 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt` | 829 | 11 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterPhoneCoverTest.kt` | 59 | 1 |
@@ -1238,7 +1238,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 3165 | 26 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 200 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt` | 333 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt` | 335 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentManualRecoveryTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt` | 455 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPlanRevisionTest.kt` | 78 | 1 |
