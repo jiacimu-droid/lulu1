@@ -466,18 +466,21 @@ class InMemoryLuluChatStore : LuluChatStore {
             val conversation = conversationState.value.firstOrNull { it.id == conversationId } ?: return false
             val state = messageStates[conversationId] ?: return false
             val messages = state.value
-            val previousConversations = conversationState.value
-            state.value = emptyList()
-            conversationState.value = previousConversations.map { current ->
+            val updatedConversations = conversationState.value.map { current ->
                 if (current.id == conversationId) current.copy(lastMessage = "", unreadCount = 0, updatedAt = Instant.now()) else current
             }.sortedWith(conversationOrdering())
-            try {
-                persistLocked(durable = true)
-            } catch (failure: Throwable) {
-                state.value = messages
-                conversationState.value = previousConversations
-                throw failure
-            }
+            // Persist the candidate snapshot before publishing either Flow. A
+            // collector must never observe cleared messages while the disk still
+            // contains the original conversation (including a rejected write).
+            persistLocked(
+                durable = true,
+                conversations = updatedConversations,
+                messages = messageStates.mapValues { (id, flow) ->
+                    if (id == conversationId) emptyList() else flow.value
+                },
+            )
+            state.value = emptyList()
+            conversationState.value = updatedConversations
             conversation to messages
         }
         SharedExperienceTimeline.deleteConversationData(cleared.first, cleared.second)
@@ -962,11 +965,15 @@ class InMemoryLuluChatStore : LuluChatStore {
         }.sortedWith(conversationOrdering())
     }
 
-    private fun persistLocked(durable: Boolean = false, conversations: List<LuluConversation> = conversationState.value) {
+    private fun persistLocked(
+        durable: Boolean = false,
+        conversations: List<LuluConversation> = conversationState.value,
+        messages: Map<String, List<LuluChatMessage>> = messageStates.mapValues { (_, state) -> state.value },
+    ) {
         check(!unreadableChatSnapshot) { "聊天历史无法读取，已保护原始数据，禁止覆盖" }
         val editor = prefs?.edit()?.putString(
             CHAT_STATE,
-            encode(conversations, messageStates.mapValues { (_, state) -> state.value }).toString(),
+            encode(conversations, messages).toString(),
         ) ?: return
         if (durable) check(editor.commit()) { "消息未能保存到手机" } else editor.apply()
     }
