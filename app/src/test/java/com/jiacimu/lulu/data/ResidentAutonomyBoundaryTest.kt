@@ -217,9 +217,28 @@ class ResidentAutonomyBoundaryTest {
             characterId = residentId, displayName = "岑灯", persona = "女性咖啡店员"))
         DigitalLifeProfileStore.registerNewLife(role.characterId, role.displayName, "数字生命")
         DigitalLifeProfileStore.registerNewLife(residentId, "岑灯", "数字世界原住民")
+        DigitalWorldExpansionStore.initialize(context)
 
+        // A character row or life profile alone does NOT create a native citizen.
+        // Keep this fixture in the authoritative resident registry for the
+        // duration of the social test; never weaken the live-endpoint ACL to
+        // make an invented resident contactable.
         assertFalse(ResidentSocialMailbox.canContact(role.characterId, residentId))
+        assertFalse(MomentFriendAccess.setFriends(role.characterId, residentId, true))
+        val residentsField = DigitalWorldExpansionStore::class.java
+            .getDeclaredField("residents").apply { isAccessible = true }
+        val originalResidents = residentsField.get(DigitalWorldExpansionStore)
+        val cafeResident = DigitalWorldResident(
+            id = residentId.removePrefix("resident:"),
+            name = "岑灯", identity = "咖啡店员",
+            homeLocationCode = DigitalWorldExpansionStore.residentHomeLocation(
+                residentId.removePrefix("resident:")),
+            gender = "女",
+        )
         try {
+            residentsField.set(DigitalWorldExpansionStore,
+                DigitalWorldExpansionStore.residents() + cafeResident)
+            assertTrue(MomentFriendAccess.isActiveCharacter(residentId))
             assertTrue(MomentFriendAccess.setFriends(role.characterId, residentId, true))
             assertTrue(ResidentSocialMailbox.canContact(role.characterId, residentId))
             assertTrue(ResidentSocialMailbox.canContact(residentId, role.characterId))
@@ -238,6 +257,7 @@ class ResidentAutonomyBoundaryTest {
                     .filter { it.id == hello.id || it.id == reply.id }.map { it.id })
         } finally {
             MomentFriendAccess.setFriends(role.characterId, residentId, false)
+            residentsField.set(DigitalWorldExpansionStore, originalResidents)
         }
     }
 
