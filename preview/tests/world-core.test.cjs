@@ -51,3 +51,23 @@ test('corrupt persisted island/relic snapshots are rejected before any render or
   assert.equal(Core.valid(JSON.parse(JSON.stringify(original))),true);
  }
 });
+
+test('relic extraction seals the authoritative preview snapshot against direct actions and reload exploits',()=>{
+ const s=Core.createWorld('relic',42);
+ s.player={x:11,y:6};
+ assert.equal(Core.use(s,'chest-a').ok,true);
+ s.player={x:4,y:12};
+ assert.equal(Core.use(s,'exit').ok,true);
+ const restored=JSON.parse(JSON.stringify(s));
+ assert.equal(Core.valid(restored),true);
+ const before=JSON.stringify(restored);
+ assert.equal(Core.walk(restored,0,1).ok,false);
+ restored.player={x:19,y:9};
+ const beforeInteraction=JSON.stringify(restored);
+ assert.equal(Core.use(restored,'chest-b').ok,false);
+ assert.equal(JSON.stringify(restored),beforeInteraction);
+ assert.equal(restored.inventory.relic,1);
+ assert.equal(restored.finished,true);
+ assert.equal(s.finished,true);
+ assert.equal(before.includes('"finished":true'),true);
+});
