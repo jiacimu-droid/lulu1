@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2fcf8170c7ab122c937a6f94d6ebc186d339d2e9`
+- 基准提交：`7d4f01740b7096565aeba017e4085c83870a5fb0`
 - 分支：`main`
 - 已索引文件：1394
-- 已索引代码/文本行：299047
-- 已发现符号：4226
+- 已索引代码/文本行：299070
+- 已发现符号：4227
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -156,7 +156,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRealtimeStt.kt` | 368 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsRoleSongPipeline.kt` | 310 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSingingSvc.kt` | 204 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSongAudioMix.kt` | 203 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ElevenLabsSongAudioMix.kt` | 223 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeech.kt` | 305 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ElevenLabsSpeechSegments.kt` | 51 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/GroupChatRoundCoordinator.kt` | 52 | 1 |
@@ -917,7 +917,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsAudioContractsTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsBatchLatencyPolicyTest.kt` | 19 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsMusicTest.kt` | 151 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ElevenLabsRoleSongPipelineTest.kt` | 144 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ElevenLabsRoleSongPipelineTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 308 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |

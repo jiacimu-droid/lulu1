@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T06:55:26.347494+00:00",
-  "commit": "2fcf8170c7ab122c937a6f94d6ebc186d339d2e9",
+  "generatedAt": "2026-11-17T06:56:40.687961+00:00",
+  "commit": "7d4f01740b7096565aeba017e4085c83870a5fb0",
   "branch": "main",
-  "sourceFingerprint": "d610f960da2600252d30240f3b1bf2f8249f05cac51f746339056e989bad410c",
+  "sourceFingerprint": "fb8a5fec02032c86268cf879304847bc02f4e9475e21748e174be1bf25bfd857",
   "summary": {
     "files": 1394,
-    "lines": 299047,
-    "symbols": 4226
+    "lines": 299070,
+    "symbols": 4227
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2178,6 +2178,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
         "line": 9
+      }
+    ],
+    "sample": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSongAudioMix.kt",
+        "line": 53
       }
     ],
     "close": [
@@ -25186,12 +25192,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ElevenLabsSongAudioMix.kt",
-      "lines": 203,
-      "sha256": "ae259c4e119834626ad264e753ffbd1296d56bb2515f6273a8497de275768475",
+      "lines": 223,
+      "sha256": "0065e63243b8f70d55eddd503efffa3c7daf07502993f79b2b30372f561d2ef8",
       "symbols": [
         {
           "name": "render",
           "line": 25
+        },
+        {
+          "name": "sample",
+          "line": 53
         }
       ]
     },
@@ -43364,8 +43374,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ElevenLabsRoleSongPipelineTest.kt",
-      "lines": 144,
-      "sha256": "1af652cec82b27e79d76bacdd67d61ac8e4d4f6712112ba6e889b5d1ab56dead",
+      "lines": 147,
+      "sha256": "a8bbea477ab774ea1b338d9b1ab82350ba4d359f8468c0e3ef6ca28c6d0bae72",
       "symbols": [
         {
           "name": "ElevenLabsRoleSongPipelineTest",
