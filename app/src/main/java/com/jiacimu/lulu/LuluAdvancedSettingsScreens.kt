@@ -1,11 +1,6 @@
 package com.jiacimu.lulu
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import java.io.File
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -109,28 +104,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     }
     var directSingingBusy by remember { mutableStateOf(false) }
     var directSingingNotice by remember { mutableStateOf("") }
-    var pendingDirectSingingExport by remember { mutableStateOf<File?>(null) }
-    val directSingingExportLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("audio/mpeg"),
-    ) { uri ->
-        val file = pendingDirectSingingExport
-        pendingDirectSingingExport = null
-        if (uri != null && file != null) {
-            scope.launch {
-                runCatching {
-                    withContext(Dispatchers.IO) {
-                        check(file.isFile && file.length() > 1024) { "已保存的试唱音频不存在" }
-                        context.contentResolver.openOutputStream(uri)?.use { output ->
-                            file.inputStream().use { input -> input.copyTo(output) }
-                        } ?: error("无法打开所选保存位置")
-                    }
-                }.onSuccess {
-                    directSingingNotice = "短句试唱已导出。可打开 ElevenMusic 的 Voice to Song 上传它试做完整歌曲。" +
-                        "这是网页工具，能否保留角色声线需听实际效果。"
-                }.onFailure { directSingingNotice = it.message ?: "试唱音频导出失败" }
-            }
-        }
-    }
     var musicSeconds by remember { mutableFloatStateOf(30f) }
     var generatingMusic by remember { mutableStateOf(false) }
     var musicNotice by remember { mutableStateOf("") }
@@ -405,8 +378,9 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         }
         item {
             SettingsSectionCard("角色直接试唱 · ElevenLabs v4") {
-                Text("真正使用角色已有的 ElevenLabs Voice ID 直接唱几句，不经过其他歌手、音乐生成、分轨和换声。" +
-                    "目前是无伴奏的短句实验：音准、旋律及是否像唱歌，需要听效果确认。",
+                Text("直接用角色自己已有的 ElevenLabs Voice ID 试唱，音频在露露机内生成、播放和保存；" +
+                    "不用网页、不用 GPU、不把陌生歌手的声音硬换过来。" +
+                    "这是无伴奏短句实验，不代表已经支持指定旋律的完整歌曲。",
                     color = AdvancedMuted, fontSize = 12.sp)
                 AdvancedChoiceField("试唱角色", selectedVoiceRole, voiceRoleOptions) {
                     selectedVoiceRole = it
@@ -474,26 +448,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                         }
                     },
                 ) { Text("重听上次试唱（免费）") }
-                OutlinedButton(
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !directSingingBusy &&
-                        ElevenLabsDirectSinging.latest(context, selectedVoiceRole) != null,
-                    onClick = {
-                        pendingDirectSingingExport =
-                            ElevenLabsDirectSinging.latest(context, selectedVoiceRole)
-                        directSingingExportLauncher.launch("角色短句试唱.mp3")
-                    },
-                ) { Text("导出试唱 MP3（上传网页做完整歌曲）") }
-                TextButton(onClick = {
-                    runCatching {
-                        context.startActivity(Intent(Intent.ACTION_VIEW,
-                            Uri.parse("https://elevenmusic.io/tools/voice-studio")))
-                    }.onFailure {
-                        directSingingNotice = "无法打开网页，可用浏览器访问 elevenmusic.io/tools/voice-studio"
-                    }
-                }) {
-                    Text("打开 ElevenMusic · Voice to Song 网页")
-                }
                 if (directSingingNotice.isNotBlank())
                     Text(directSingingNotice, color = AdvancedMuted, fontSize = 12.sp)
             }
