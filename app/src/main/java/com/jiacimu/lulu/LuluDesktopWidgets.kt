@@ -354,6 +354,7 @@ internal fun LuluDesktopWidgetCard(
     modifier: Modifier = Modifier,
     onOpen: () -> Unit,
     onEdit: () -> Unit = onOpen,
+    onAskHoroscope: () -> Unit = onOpen,
 ) {
     val context = LocalContext.current
     val css = LocalLuluCssSheet.current.element("Home", "widget-" + widget.kind.code)
@@ -425,15 +426,34 @@ internal fun LuluDesktopWidgetCard(
                         if (!compact) Text("宜 · " + good + "      忌 · " + caution,
                             color = foreground, fontSize = 12.sp, maxLines = 2,
                             overflow = TextOverflow.Ellipsis)
-                        Text(if (roleReading != null) roleReading.message
-                            else if (compact) "宜 · " + good
-                            else if (characterName == null) "每日灵感 · 娱乐参考"
-                            else characterName + " · 今日解读尚未生成",
-                            color = foreground.copy(alpha = .92f),
-                            fontSize = if (compact) 9.sp else 11.sp,
-                            lineHeight = if (compact) 12.sp else 15.sp,
-                            maxLines = if (compact) 1 else 2,
-                            overflow = TextOverflow.Ellipsis)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        ) {
+                            if (!compact) Text(
+                                roleReading?.message
+                                    ?: if (characterName == null) "绑定角色，听听TA的看法"
+                                    else "今天的角色解读",
+                                color = foreground.copy(alpha = .92f),
+                                fontSize = 10.sp, lineHeight = 13.sp,
+                                maxLines = 1, overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f),
+                            )
+                            Surface(
+                                onClick = onAskHoroscope,
+                                color = foreground.copy(alpha = 0.17f),
+                                shape = RoundedCornerShape(99.dp),
+                                modifier = Modifier.heightIn(min = 28.dp),
+                            ) {
+                                Text(
+                                    if (roleReading == null) "请角色解读 ✦" else "查看解读 ✦",
+                                    color = foreground, fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                                )
+                            }
+                        }
                     }
                     LuluWidgetKind.NOTE -> {
                         Text(characterName ?: "一封等待署名的信",
@@ -506,6 +526,7 @@ internal fun LuluDesktopWidgetCanvas(
     modifier: Modifier = Modifier,
     onOpenWidget: (LuluDesktopWidget) -> Unit,
     onEditWidget: (LuluDesktopWidget) -> Unit,
+    onAskHoroscope: (LuluDesktopWidget) -> Unit,
     onBlankLongPress: () -> Unit,
 ) {
     BoxWithConstraints(modifier.pointerInput(page, widgets, launcherSlots) {
@@ -539,6 +560,7 @@ internal fun LuluDesktopWidgetCanvas(
                         ),
                     onOpen = { onOpenWidget(widget) },
                     onEdit = { onEditWidget(widget) },
+                    onAskHoroscope = { onAskHoroscope(widget) },
                 )
             }
         }
@@ -814,5 +836,111 @@ internal fun LuluDesktopPlannerDialog(
             TextButton(onClick = onOpenSelfPreface) { Text("打开自序") }
         },
         dismissButton = { TextButton(onClick = onClose) { Text("关闭") } },
+    )
+}
+
+
+/**
+ * Explicit one-tap role-reading entry: opens the FULL text instead of trimming it
+ * to the card; generates only when the current day has no saved real model answer.
+ */
+@Composable
+internal fun LuluDesktopHoroscopeDialog(
+    widget: LuluDesktopWidget,
+    date: LocalDate,
+    characterName: String?,
+    reading: LuluWidgetDailyReading?,
+    onOpenEditor: () -> Unit,
+    onClose: () -> Unit,
+) {
+    val context = LocalContext.current
+    var generating by remember(widget.id, widget.sign, widget.characterId, date) {
+        mutableStateOf(false)
+    }
+    var generationError by remember(widget.id, widget.sign, widget.characterId, date) {
+        mutableStateOf<String?>(null)
+    }
+    LaunchedEffect(widget.id, widget.sign, widget.characterId, date) {
+        if (reading == null && widget.dailyReadingEnabled && widget.characterId.isNotBlank()) {
+            generating = true
+            generationError = null
+            try {
+                withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    LuluWidgetDailyRole.refresh(context, widget, date, manual = true)
+                }
+                if (LuluWidgetDailyRole.read(context, widget, date) == null) {
+                    generationError = "暂时没能获得今天的真实角色解读。请检查角色聊天模型和网络，稍后可以再试。"
+                }
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                generationError = "生成未完成，请检查模型连接或网络。"
+            } finally {
+                generating = false
+            }
+        }
+    }
+    val (good, caution) = luluDailyFortune(date, widget.sign)
+    AlertDialog(
+        onDismissRequest = onClose,
+        title = { Text(luluZodiacNames[widget.sign] + " · 今日解读") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("宜 · " + good + "\n忌 · " + caution,
+                    style = MaterialTheme.typography.bodyMedium)
+                Text("以上是娱乐参考，不代表对未来的真实预测。",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                when {
+                    widget.characterId.isBlank() -> Text("还没有绑定角色，先选一位角色吧。")
+                    !widget.dailyReadingEnabled -> Text("当前未开启每日角色解读，可以在组件设置里开启。")
+                    reading != null -> {
+                        Text(characterName ?: "绑定的角色",
+                            style = MaterialTheme.typography.titleSmall)
+                        Text(reading.message, style = MaterialTheme.typography.bodyLarge)
+                        Text("当天已保存 · 再次打开不会重复调用模型",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    generating -> Row(verticalAlignment = Alignment.CenterVertically) {
+                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(10.dp))
+                        Text("正在请求角色今天的解读…")
+                    }
+                    else -> Text(generationError ?: "今天还没有获得角色解读。",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onClose) { Text("完成") }
+        },
+        dismissButton = {
+            if (widget.characterId.isBlank() || !widget.dailyReadingEnabled) {
+                TextButton(onClick = onOpenEditor) { Text("去绑定 / 开启") }
+            } else if (reading == null && !generating) {
+                val scope = rememberCoroutineScope()
+                TextButton(onClick = {
+                    scope.launch {
+                        generating = true
+                        generationError = null
+                        try {
+                            withContext(kotlinx.coroutines.Dispatchers.IO) {
+                                LuluWidgetDailyRole.refresh(context, widget, date, manual = true)
+                            }
+                            if (LuluWidgetDailyRole.read(context, widget, date) == null) {
+                                generationError = "尚未生成，可能需要检查聊天模型或稍后再试。"
+                            }
+                        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                            throw cancelled
+                        } catch (_: Exception) {
+                            generationError = "请求失败，请检查模型连接。"
+                        } finally {
+                            generating = false
+                        }
+                    }
+                }) { Text("重试解读") }
+            }
+        },
     )
 }
