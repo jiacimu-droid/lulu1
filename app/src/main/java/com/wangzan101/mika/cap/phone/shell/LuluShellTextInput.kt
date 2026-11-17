@@ -96,23 +96,28 @@ internal object LuluShellTextInput {
         var code = ""
         try {
             // If the original clipboard cannot be read, paste never starts.
-            clipboard.write(text)
-            val selected = combo(displayId, uid, KeyEvent.KEYCODE_A)
-            if (!selected.first) {
-                code = if (selected.second) "visual_input_selection_ambiguous"
-                    else "visual_input_target_focus_rejected"
+            if (!clipboard.write(text)) {
+                // Never paste the owner's old clipboard when Android ignored
+                // our request to install the role's chosen Unicode draft.
+                code = "visual_input_clipboard_write_unverified"
             } else {
-                val pasted = combo(displayId, uid, KeyEvent.KEYCODE_V)
-                pressed = pasted.second
-                if (!pasted.first) code = if (pasted.second)
-                    "visual_input_paste_ambiguous" else "visual_input_paste_rejected"
-                // Apps sometimes consume clipboard asynchronously.
-                SystemClock.sleep(380)
+                val selected = combo(displayId, uid, KeyEvent.KEYCODE_A)
+                if (!selected.first) {
+                    code = if (selected.second) "visual_input_selection_ambiguous"
+                        else "visual_input_target_focus_rejected"
+                } else {
+                    val pasted = combo(displayId, uid, KeyEvent.KEYCODE_V)
+                    pressed = pasted.second
+                    if (!pasted.first) code = if (pasted.second)
+                        "visual_input_paste_ambiguous" else "visual_input_paste_rejected"
+                    // Apps sometimes consume clipboard asynchronously.
+                    SystemClock.sleep(380)
+                }
             }
         } catch (_: Throwable) {
             code = "visual_input_key_dispatch_failed"
         } finally {
-            restored = runCatching { clipboard.restore(saved); true }.getOrDefault(false)
+            restored = runCatching { clipboard.restore(saved, text) }.getOrDefault(false)
         }
         return result(if (!restored) "visual_input_clipboard_restore_failed" else code,
             pressed, restored)
