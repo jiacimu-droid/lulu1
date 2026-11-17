@@ -109,7 +109,8 @@ class ResidentPhoneWakeIntegrationTest {
         val before = CharacterEverydaySocialContext.currentSocialAuthority(actor)
         assertFalse(before, before.contains(ghostName))
         assertFalse(before, before.contains(ghostId))
-        assertTrue(before, before.contains(friend))
+        assertFalse("A newly created stranger is not automatically known to this actor",
+            before.contains(friend))
         assertTrue(before.contains("没有申请通过记录") ||
             before.contains("没有；手动建立好友不等于收到或通过了申请"))
 
