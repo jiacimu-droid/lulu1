@@ -58,6 +58,7 @@ internal data class LuluGuideFeature(
     val where: String, val description: String,
     val instructions: List<String>, val warning: String,
     val destination: MigrationRoute, val button: String,
+    val highlights: List<String> = emptyList(),
 )
 internal val luluGuideFeatures = listOf(
     LuluGuideFeature("call","电话",Icons.Outlined.Call,"角色私聊 → ＋ → 电话",
@@ -199,7 +200,7 @@ internal fun LuluOnboardingGuideScreen(
                     Spacer(Modifier.height(5.dp))
                     Text("第一次使用", color = ink, fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold)
-                    Text("完成以下四步，就能开始自己的第一段聊天。", color = muted, fontSize = 12.sp)
+                    Text("先把模型、声音、记忆和授权准备好，再开始体验；语音和手机操控可按需开启。", color = muted, fontSize = 12.sp)
                 }
                 items(luluGuideSteps.size) { index ->
                     val step = luluGuideSteps[index]
@@ -236,7 +237,7 @@ internal fun LuluOnboardingGuideScreen(
                     Spacer(Modifier.height(5.dp))
                     Text("和角色还能一起做什么？", color = ink, fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold)
-                    Text("点开一项，会进入独立的使用说明。", color = muted, fontSize = 12.sp)
+                    Text("不仅告诉你入口，也讲清楚能做什么、背后怎样运作。", color = muted, fontSize = 12.sp)
                 }
                 items(luluGuideFeatures.chunked(2)) { pair ->
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -284,10 +285,21 @@ internal fun LuluOnboardingGuideScreen(
                     Spacer(Modifier.height(15.dp))
                     Text(selected.description, color = ink, fontSize = 16.sp, lineHeight = 25.sp)
                 }
-                if (selected.key == "call" || selected.key == "watch" || selected.key == "music") {
+                if (selected.key == "call" || selected.key == "live2d" || selected.key == "watch" || selected.key == "music") {
                     item {
-                        Text("入口截图", color = ink, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        Text("操作示意", color = ink, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                         GuideSafeScreen("chat")
+                    }
+                }
+                item {
+                    GuidePanel {
+                        Text("有什么特别的？", color = ink, fontWeight = FontWeight.SemiBold,
+                            fontSize = 16.sp)
+                        Spacer(Modifier.height(10.dp))
+                        selected.highlights.forEach { highlight ->
+                            Text("•  " + highlight, color = ink, fontSize = 13.sp, lineHeight = 21.sp,
+                                modifier = Modifier.padding(bottom = 10.dp))
+                        }
                     }
                 }
                 item {
@@ -324,7 +336,7 @@ internal fun LuluOnboardingGuideScreen(
                 }
                 item {
                     GuidePanel {
-                        GuideNote(Icons.Outlined.Info, "内测提醒", selected.warning)
+                        GuideNote(Icons.Outlined.Info, "使用规则与边界", selected.warning)
                     }
                 }
                 item {
@@ -375,6 +387,9 @@ internal fun guideScreenRows(kind: String): List<String> = when (kind) {
         "保存并创建角色")
     "model" -> listOf("当前角色聊天模型", "○  模型 A", "◉  模型 B",
         "提示：这里只修改当前角色")
+    "voice" -> listOf("←  语音与音色", "语音合成服务 / 角色音色", "试听声音", "语音识别方式"),
+    "memory" -> listOf("←  记忆与检索", "记忆抽取模型", "向量记忆：可选 Embedding", "Rerank 重排：可选"),
+    "permissions" -> listOf("←  权限与能力", "Android 系统权限", "角色操作授权", "后台虚拟屏 / 闹钟 / 媒体"),
     "chat" -> listOf("←  角色昵称               ···",
         "你好，很高兴认识你。", "               我也很高兴！",
         "🎙   发消息…           ☺    ＋",
