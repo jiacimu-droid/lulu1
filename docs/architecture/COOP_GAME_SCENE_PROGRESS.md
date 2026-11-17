@@ -653,3 +653,6 @@
 - **根因**：`preview/worlds.js` 地图点击只有成功找到新路径才覆盖旧 `path`；新目标不可达时，旧路径继续驱动角色移动。走路途中点近身目标直接互动，旧路径也会在下一帧继续移动，导致玩家已改意图仍走向旧目标。
 - **生产**：`baa98183be5ce7688ab9fc61f5ea5d3f3481ba9c`，`preview/worlds.js` blob `c980615e742f248b37688e10869e2c171472dd3a`。地图每次新点击先取消旧路线，按钮互动先取消旧路线；新路径可达才重新排队，不改变 `LuluWorldCore` 权威背包、战斗、撤离或存档。此修复只针对网页试玩，不冒充 Android 正式游戏修复。
 - **验证边界**：本轮未执行浏览器触控/Node 测试；最新 main push 对应 JVM/APK/index 未确认成功，Redmi 横屏与帧率另验。下一实际入口 `preview/worlds.js` 与 `preview/tests/world-core.test.cjs`：长路径行走中点不可达地面/邻近实体，确认立即停步；随后检查 Android `RelicEscapeScreen.kt` 是否存在同类过期目标问题。
+
+### 2026-11-18 G-03.5 · 网页试玩损坏存档的物理出生点拒载
+- `preview/world-core.js` 原 `valid` 仅检查玩家/同伴坐标在地图范围内，允许载入角色站在墙、水域或尚未采集的实体树上，导致刷新后无法正常行动。生产 `59ccab6c1b05e483b52daa041362c3e15eac65f5`（blob `35fc87aa358ed29f1220626b60a26491edf6836b`）在试玩存档恢复前拒绝阻挡地形上的玩家/同伴及活实体重叠的玩家；由既有 `loadWorld` 重新生成试玩世界，不改正式 Android 存档。测试 `767b3b74a7fc6cf1c576faca7988d97a91355380`（blob `45974a4e75c0f051815a19e4dc514f79c7eebf5e`）覆盖两款游戏的墙/水/实体占位及正常档。尚未实际运行 Node 回归；对应 main SHA 查询 Actions 0 条，JVM/APK/index 均未验，真机/FPS/角色模型待验。下一入口 `preview/tests/world-core.test.cjs` 实跑及 `preview/worlds.js` 恢复反馈，随后回正式 Android `RelicEscapeScreen.kt`。
