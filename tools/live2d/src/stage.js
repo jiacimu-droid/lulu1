@@ -1732,6 +1732,10 @@ function touch(normalizedX, normalizedY, gesture = 'tap', options = {}) {
     start: contactStart, pressed: !completed, downPoint,
     lastPoint: { x, y }, lastMovementAt, motionPlayed: priorMotionPlayed,
     poseCommit, poseGesture, poseRegion }
+  // A fresh slap owns the full mirrored neck actuator. A previous petting
+  // Motion3 must not remain the joint owner and reduce a heavy strike to the
+  // small scriptedTouch detail blend.
+  if (completed && isImpact(kind)) cancelTactileMotion()
   if (!starting && wolfRigActive && tactileMotionIndices.size)
     tactileContact.motionPlayed = maybePlayTactileMotion(
       poseRegion, poseGesture, state, completed, priorMotionPlayed) || priorMotionPlayed
