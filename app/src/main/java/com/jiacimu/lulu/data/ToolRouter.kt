@@ -15,7 +15,7 @@ import java.util.UUID
 internal object ToolExecutionStatus {
     private val completedStates = setOf(
         "succeeded", "observed", "notification_posted", "popup_requested",
-        "verified", "already_at_target", "unchanged", "capped", "at_safe_limit",
+        "verified", "already_at_target", "unchanged", "capped", "at_safe_limit", "active", "stopped",
     )
 
     fun completed(result: JSONObject): Boolean {
@@ -354,6 +354,8 @@ object ToolRouter {
                             chatCaption = args.optString("caption"))
                     } else if (name == "read_self_todo") {
                         com.jiacimu.lulu.SelfTodoRoleRead.execute(context, args).toString()
+                    } else if (name == "strict_supervision") {
+                        com.jiacimu.lulu.system.LuluStrictMode.command(context, characterId, args)
                     } else if (name == "start_study_watch") {
                         com.jiacimu.lulu.system.LuluStudyWatch.request(
                             context, characterId, args.optInt("minutes", 45))
