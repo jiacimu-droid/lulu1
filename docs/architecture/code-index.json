@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T15:38:36.266850+00:00",
-  "commit": "0fecfac7e6ada76c18611130161e6827ad2f7012",
+  "generatedAt": "2026-11-17T15:42:26.196785+00:00",
+  "commit": "e942dc979e1b306769a0b039c3c5b2ba95f9b582",
   "branch": "main",
-  "sourceFingerprint": "b7603e8e0c3c7552bf3c7be4301d817d9bd64e0677f220e970d32d5ea316e637",
+  "sourceFingerprint": "6cfab92b892e70ce582e0a6513be5faf0053dfb59f1783e79bae3823d208740e",
   "summary": {
     "files": 1414,
-    "lines": 298918,
+    "lines": 298903,
     "symbols": 4257
   },
   "symbolIndex": {
@@ -4863,7 +4863,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 459
+        "line": 444
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -17005,79 +17005,79 @@
     "defaultPrompts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 153
+        "line": 138
       }
     ],
     "savePrompts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 170
+        "line": 155
       }
     ],
     "addImage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 174
+        "line": 159
       }
     ],
     "deleteImage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 178
+        "line": 163
       }
     ],
     "setGuide": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 183
+        "line": 168
       }
     ],
     "setStoryPlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 187
+        "line": 172
       }
     ],
     "setLedger": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 196
+        "line": 181
       }
     ],
     "setBible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 200
+        "line": 185
       }
     ],
     "setTheaterWorldBookIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 204
+        "line": 189
       }
     ],
     "addChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 208
+        "line": 193
       }
     ],
     "updateChapter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 246
+        "line": 231
       }
     ],
     "deleteChaptersFrom": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 255
+        "line": 240
       }
     ],
     "deleteTheater": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-        "line": 266
+        "line": 251
       }
     ],
     "storyGuide": [
@@ -40702,8 +40702,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
-      "lines": 575,
-      "sha256": "0dcb9d1370d298e61536af517f714ff720cf9b0af34dfc084a4430ec007696a6",
+      "lines": 560,
+      "sha256": "0db0c8397db1ca1635ad905884d79217e532753e3e141e25922c156c1cf933d1",
       "symbols": [
         {
           "name": "promptText",
@@ -40711,59 +40711,59 @@
         },
         {
           "name": "defaultPrompts",
-          "line": 153
+          "line": 138
         },
         {
           "name": "savePrompts",
-          "line": 170
+          "line": 155
         },
         {
           "name": "addImage",
-          "line": 174
+          "line": 159
         },
         {
           "name": "deleteImage",
-          "line": 178
+          "line": 163
         },
         {
           "name": "setGuide",
-          "line": 183
+          "line": 168
         },
         {
           "name": "setStoryPlan",
-          "line": 187
+          "line": 172
         },
         {
           "name": "setLedger",
-          "line": 196
+          "line": 181
         },
         {
           "name": "setBible",
-          "line": 200
+          "line": 185
         },
         {
           "name": "setTheaterWorldBookIds",
-          "line": 204
+          "line": 189
         },
         {
           "name": "addChapter",
-          "line": 208
+          "line": 193
         },
         {
           "name": "updateChapter",
-          "line": 246
+          "line": 231
         },
         {
           "name": "deleteChaptersFrom",
-          "line": 255
+          "line": 240
         },
         {
           "name": "deleteTheater",
-          "line": 266
+          "line": 251
         },
         {
           "name": "create",
-          "line": 459
+          "line": 444
         }
       ]
     },
