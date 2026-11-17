@@ -44,19 +44,9 @@ object CharacterLifeStore {
             }.toMap()
         }
         appContext = application
-        // 预设补跑不能只在第一次启动做一次：重装后主角可能先叫默认名、
-        // 或之后才被改名叫江渡，错过那一次就永远装不上。补跑本身是幂等的
-        // （普通预设保留手改；主人明确批准的替换另有一次性标记），每次启动都跑才安全。
-        // 恢复仓库内建的人设为独立联系人；仅首次升级导入。
-        // 导入标记独立保存，之后用户删除/编辑角色都不会在启动时被反复逆转。
-        ensureBundledJiangDu()
-        migrateLegacyLuluToXingHe()
-        MigratedDomainStores.characters.settings.value.values.toList()
-            .forEach { applyJiangDuPreset(it.characterId) }
-        applyOwnerApprovedJiangDuProfileOnce()
-        applyOwnerClarifiedJiangDuAiMotivationOnce()
-        syncBundledExpressionPresets()
-        unlockBundledAutonomousContactOnce()
+        // Profile and relationships are owned by each local install.
+        // Never import or rewrite the developer's historical personal contacts.
+
     }
 
     /**
