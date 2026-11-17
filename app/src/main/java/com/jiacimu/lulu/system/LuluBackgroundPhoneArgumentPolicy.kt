@@ -15,13 +15,13 @@ internal object LuluBackgroundPhoneArgumentPolicy {
     private val supportedActions = setOf(
         "start", "launch", "tap", "tap_element", "swipe", "back",
         "type", "focus_search", "submit", "search", "send_chat_message",
-        "observe", "stop", LuluVirtualNavigation.ACTION, LuluWeChatMomentsPolicy.OPEN_COMPOSER, LuluWeChatMomentsPolicy.PUBLISH,
+        "observe", "stop", LuluVirtualCommentPolicy.ACTION, LuluVirtualNavigation.ACTION, LuluWeChatMomentsPolicy.OPEN_COMPOSER, LuluWeChatMomentsPolicy.PUBLISH,
     )
 
     fun isSupportedAction(action: String): Boolean = action in supportedActions
 
     fun needsSnapshot(action: String): Boolean =
-        action == "tap_element" || action == "send_chat_message" ||
+        action == "tap_element" || action == "send_chat_message" || action == LuluVirtualCommentPolicy.ACTION ||
             action == LuluWeChatMomentsPolicy.OPEN_COMPOSER || action == LuluWeChatMomentsPolicy.PUBLISH
 
     fun needsElement(action: String): Boolean =
@@ -33,7 +33,7 @@ internal object LuluBackgroundPhoneArgumentPolicy {
             "args={\"action\":\"launch\",\"appName\":\"微信\"}；" +
             "只创建虚拟屏用start，读取已有页面用observe；" +
             "其他可选操作为tap/tap_element/navigate/swipe/back/type/focus_search/submit/search/" +
-            "send_chat_message/open_wechat_moments_composer/publish_wechat_moment/stop。动作不合法时没有操作手机，保留已有会话。"
+            "send_chat_message/publish_comment/open_wechat_moments_composer/publish_wechat_moment/stop。动作不合法时没有操作手机，保留已有会话。"
 
     private fun integer(args: JSONObject, key: String): Int? {
         val raw = args.opt(key)
@@ -97,6 +97,17 @@ internal object LuluBackgroundPhoneArgumentPolicy {
                 "视觉输入回退需要同时提供composerX和composerY；不能猜测坐标"
             args.has("composerX") && coordinateError(args, listOf("composerX", "composerY")) != null ->
                 coordinateError(args, listOf("composerX", "composerY"))
+            else -> null
+        }
+        LuluVirtualCommentPolicy.ACTION -> when {
+            args.optString("screenSnapshotId").isBlank() || args.optString("editorRef").isBlank() ||
+                args.optString("elementRef").isBlank() || args.optString("editorRef") == args.optString("elementRef") ->
+                "发表评论需要当前screenSnapshotId、评论输入框editorRef和发表按钮elementRef"
+            args.optString("text").isBlank() || args.optString("text").length > LuluVirtualTextInputPolicy.MAX_TEXT_CHARS ->
+                "评论正文必须为1到${LuluVirtualTextInputPolicy.MAX_TEXT_CHARS}个字符，且与已读回草稿完全一致"
+            args.optString("contextText").trim().length !in 2..160 ||
+                args.optString("contextText").trim() == args.optString("text") ->
+                "contextText必须为当前帖子或被回复内容中2到160字符的真实原文，不能用自己的草稿代替"
             else -> null
         }
         LuluWeChatMomentsPolicy.OPEN_COMPOSER -> if (

@@ -309,7 +309,12 @@ class LuluAccessibilityService : AccessibilityService() {
                     val label = node.text?.toString().orEmpty() + " " +
                         node.contentDescription?.toString().orEmpty() + " " +
                         node.viewIdResourceName.orEmpty()
-                    if (risky.containsMatchIn(label)) blocked = true
+                    val ownLabel = node.contentDescription?.toString().orEmpty()
+                        .ifBlank { node.text?.toString().orEmpty() }
+                    val commentEntry = LuluVirtualCommentPolicy.isReadOnlyEntry(ownLabel,
+                        visibleEditors(root).any { !searchEditor(it) })
+                    if (!commentEntry && (risky.containsMatchIn(label) ||
+                            LuluVirtualCommentPolicy.isSubmitLabel(ownLabel))) blocked = true
                     for (i in 0 until node.childCount) checkNode(node.getChild(i), depth + 1)
                 }
             }
@@ -472,7 +477,9 @@ class LuluAccessibilityService : AccessibilityService() {
                 val longClickable = packageName == LuluVirtualChatSendPolicy.WECHAT && node.isLongClickable
                 val interactive = node.isClickable || longClickable || node.isScrollable || editable
                 if (node.isVisibleToUser && node.isEnabled &&
-                    usable && interactive && collected.size < 64) {
+                    usable && interactive && (collected.size < 64 || editable ||
+                        (node.isClickable && (LuluVirtualCommentPolicy.isSubmitLabel(node.text?.toString().orEmpty()) ||
+                            LuluVirtualCommentPolicy.isSubmitLabel(node.contentDescription?.toString().orEmpty()))))) {
                     // Never emit a search box's typed content as a control label.
                     val ownLabel = (if (editable) node.hintText?.toString()
                         ?: node.contentDescription?.toString()
@@ -655,19 +662,137 @@ class LuluAccessibilityService : AccessibilityService() {
                 .ifBlank { node.text?.toString().orEmpty() }.ifBlank { chosen.label }.trim()
             // "发消息" on a profile opens a conversation. A live composer on
             // the same page means the label can instead be a submit button.
-            val namedNavigation = when (packageName) {
+            val commentEntry = LuluVirtualCommentPolicy.isReadOnlyEntry(exactLabel,
+                visibleEditors(root).any { !searchEditor(it) })
+            val namedNavigation = (commentEntry || when (packageName) {
                 LuluVirtualChatSendPolicy.DOUYIN ->
                     LuluVirtualChatSendPolicy.isDouyinChatEntry(exactLabel)
                 LuluVirtualChatSendPolicy.WECHAT ->
                     LuluWeChatMomentsPolicy.isNavigation(exactLabel)
                 else -> false
-            } && visibleEditors(root).isEmpty() &&
+            } && visibleEditors(root).isEmpty()) &&
                 content.lineSequence().none { it.trim() in setOf("password", "支付", "付款", "转账", "删除") }
             if (!namedNavigation && !LuluVirtualUiPolicy.mayClick(
                     chosen.label, chosen.resourceId, content.toString(),
                     shoppingAllowed = shoppingAllowed,
                 )) return false
             return node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        }
+
+        /** Already typed draft + explicit live editor/button refs. No generic
+         * coordinate submission, IME click, automatic retype or second send. */
+        suspend fun publishVirtualComment(
+            displayId: Int, packageName: String, expectedFingerprint: String,
+            editorRef: String, buttonRef: String, text: String, contextText: String,
+            stillAuthorized: () -> Boolean, onDispatch: () -> Unit,
+        ): JSONObject {
+            fun denied(code: String) = JSONObject().put("accepted", false)
+                .put("commentPublishAttempted", false).put("commentAppeared", false)
+                .put("commentDeliveryVerified", false).put("errorCode", code)
+            val service = instance ?: return denied("accessibility_disconnected")
+            if (displayId <= 0 || packageName.isBlank() || !stillAuthorized() ||
+                contextText.isBlank() || contextText == text)
+                return denied("comment_window_unverified")
+            val dimensions = virtualDimensions(service, displayId)
+                ?: return denied("comment_display_unverified")
+            fun box(node: AccessibilityNodeInfo) = composerBounds(node).let {
+                LuluVirtualCommentPolicy.Box(it.left, it.top, it.right, it.bottom)
+            }
+            val originalWindow = topVirtualAppWindow(service, displayId, packageName)?.id
+                ?: return denied("comment_window_unverified")
+            data class Page(val root: AccessibilityNodeInfo, val nodes: List<VirtualUiNode>,
+                val complete: Boolean, val contextMatches: Boolean, val occurrences: Int)
+            fun page(): Page? {
+                if (!stillAuthorized() ||
+                    virtualWindowStatus(displayId, packageName).optString("kind") != "target") return null
+                val window = topVirtualAppWindow(service, displayId, packageName)
+                    ?.takeIf { it.id == originalWindow } ?: return null
+                val root = window.root ?: return null
+                var contextMatches = false
+                val occurrences = mutableSetOf<String>()
+                val complete = LuluVirtualA11yTraversal.forEachVisible(
+                    roots = listOf(root), childCount = { it.childCount },
+                    childAt = { node, i -> node.getChild(i) }, isProtected = { it.isPassword },
+                    isVisible = { it.isVisibleToUser },
+                ) { node ->
+                    // The draft cannot prove the target post or its own publication.
+                    var ancestor: AccessibilityNodeInfo? = node
+                    var insideEditor = false
+                    for (level in 0..80) {
+                        val current = ancestor ?: break
+                        if (safeEditable(current)) { insideEditor = true; break }
+                        ancestor = current.parent
+                    }
+                    if (!insideEditor && !node.isShowingHintText) {
+                        val label = node.text?.toString().orEmpty().trim()
+                        if (label.contains(contextText)) contextMatches = true
+                        if (label == text) occurrences += composerBounds(node).toString()
+                    }
+                }
+                return Page(root, virtualUiNodes(service, displayId, packageName),
+                    complete, contextMatches, occurrences.size)
+            }
+            var lastError = "comment_target_unverified"
+            fun resolve(p: Page): Pair<AccessibilityNodeInfo, AccessibilityNodeInfo>? {
+                val editor = p.nodes.singleOrNull { it.ref == editorRef }?.node
+                val button = p.nodes.singleOrNull { it.ref == buttonRef }?.node
+                val label = button?.contentDescription?.toString().orEmpty()
+                    .ifBlank { button?.text?.toString().orEmpty() }
+                    .ifBlank { button?.let(::clickableDescendantLabel).orEmpty() }
+                val error = LuluVirtualCommentPolicy.rejection(LuluVirtualCommentPolicy.Evidence(
+                    snapshotCurrent = virtualUiFingerprint(displayId, packageName, p.nodes) == expectedFingerprint,
+                    ownedWindow = p.root.windowId == originalWindow && stillAuthorized(),
+                    scanComplete = p.complete, contextMatches = p.contextMatches,
+                    editorVerified = editor != null && safeEditable(editor) && editor.windowId == originalWindow &&
+                        LuluVirtualCommentPolicy.isCommentEditor(editor.hintText?.toString()
+                            ?: editor.contentDescription?.toString(), editor.viewIdResourceName),
+                    draftMatches = editor != null && !editor.isShowingHintText && editor.text?.toString() == text,
+                    buttonVerified = button != null && button != editor && button.windowId == originalWindow &&
+                        button.isVisibleToUser && button.isEnabled && button.isClickable &&
+                        !button.isPassword && !safeEditable(button) && LuluVirtualCommentPolicy.isSubmitLabel(label) &&
+                        editor != null && LuluVirtualCommentPolicy.besideEditor(
+                            box(editor), box(button), dimensions.first, dimensions.second),
+                ))
+                if (error != null) { lastError = error; return null }
+                return checkNotNull(editor) to checkNotNull(button)
+            }
+            val before = page() ?: return denied("comment_window_unverified")
+            val target = resolve(before) ?: return denied(lastError)
+            // Refresh and resolve once more before crossing the outward boundary.
+            if (!target.first.refresh() || !target.second.refresh()) return denied("comment_target_changed")
+            val dispatchPage = page() ?: return denied("comment_window_unverified")
+            val (_, button) = resolve(dispatchPage) ?: return denied(lastError)
+            if (!stillAuthorized()) return denied("comment_authorization_revoked")
+            // Even false/throw may have crossed the dispatch boundary. Never retry.
+            val dispatch = LuluVirtualCommentPolicy.dispatchOnce(
+                recheck = {
+                    if (!stillAuthorized() || virtualDimensions(service, displayId) != dimensions ||
+                        virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
+                        topVirtualAppWindow(service, displayId, packageName)?.id != originalWindow)
+                        "comment_window_changed" else null
+                }, markAttempt = onDispatch,
+                click = { button.performAction(AccessibilityNodeInfo.ACTION_CLICK) },
+            )
+            if (!dispatch.attempted) return denied(dispatch.error)
+            val clicked = dispatch.clicked
+            var appeared = false
+            repeat(5) {
+                if (!appeared) {
+                    kotlinx.coroutines.delay(120)
+                    val after = page()
+                    if (after != null && after.complete) {
+                        val draftStillPresent = after.nodes.any { safeEditable(it.node) &&
+                            !it.node.isShowingHintText && it.node.text?.toString() == text }
+                        appeared = LuluVirtualCommentPolicy.appeared(dispatchPage.occurrences,
+                            after.occurrences, after.contextMatches, !draftStillPresent)
+                    }
+                }
+            }
+            return JSONObject().put("accepted", clicked).put("commentPublishAttempted", true)
+                .put("commentPublishClicked", clicked).put("commentDraftVerified", true)
+                .put("commentAppeared", appeared).put("commentDeliveryVerified", false)
+                .put("taskCompleted", false).put("actionMethod", "verified_comment_accessibility_click")
+                .put("errorCode", if (appeared) "" else "comment_result_unverified")
         }
 
         /**
@@ -726,7 +851,9 @@ class LuluAccessibilityService : AccessibilityService() {
                 LuluVirtualChatSendPolicy.isDouyinChatEntry(targetLabel) && visibleEditors(root).isEmpty()
             val momentsEntry = packageName == LuluVirtualChatSendPolicy.WECHAT &&
                 LuluWeChatMomentsPolicy.isNavigation(targetLabel)
-            val namedEntry = douyinEntry || momentsEntry
+            val commentEntry = LuluVirtualCommentPolicy.isReadOnlyEntry(targetLabel,
+                visibleEditors(root).any { !searchEditor(it) })
+            val namedEntry = douyinEntry || momentsEntry || commentEntry
             if (!namedEntry && LuluMikaClickFallback.mayBeOutward(targetLabel, null))
                 return true to emptyList()
             val complete = forEachVirtualNode(root) { label ->
@@ -1711,7 +1838,7 @@ class LuluAccessibilityService : AccessibilityService() {
                     .put("taskCompleted", false)
             val service = instance ?: return result(false, false, "accessibility_disconnected")
             if (displayId <= 0 || packageName.isBlank() || text.isBlank() ||
-                text.length > 500 ||
+                text.length > LuluVirtualTextInputPolicy.MAX_TEXT_CHARS ||
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target")
                 return result(false, false, "virtual_input_target_unverified")
             val fields = ownedVirtualRoots(service, displayId, packageName)

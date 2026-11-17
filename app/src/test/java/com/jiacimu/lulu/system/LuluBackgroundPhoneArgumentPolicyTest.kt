@@ -83,4 +83,14 @@ class LuluBackgroundPhoneArgumentPolicyTest {
         assertNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("focus_search", JSONObject()))
         assertEquals(null, LuluBackgroundPhoneArgumentPolicy.invalidReason("stop", JSONObject()))
     }
+    @Test fun publicCommentMustNameDifferentLiveEditorAndSubmitControlAndTargetPost() {
+        val args = JSONObject().put("screenSnapshotId", "current").put("editorRef", "e1")
+            .put("elementRef", "e2").put("text", "这是我的评论").put("contextText", "视频标题原文")
+        assertTrue(LuluBackgroundPhoneArgumentPolicy.isSupportedAction("publish_comment"))
+        assertNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("publish_comment", args))
+        assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("publish_comment", JSONObject(args.toString()).put("editorRef", "e2")))
+        assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("publish_comment", JSONObject(args.toString()).put("contextText", "这是我的评论")))
+        assertNotNull(LuluBackgroundPhoneArgumentPolicy.invalidReason("publish_comment", JSONObject(args.toString()).put("screenSnapshotId", "")))
+    }
+
 }

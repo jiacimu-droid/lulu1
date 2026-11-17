@@ -56,4 +56,22 @@ class LuluBackgroundPhoneContinuationYieldTest {
         assertTrue(LuluBackgroundPhoneContinuation.shouldYieldToOwner(
             unread, unread + "new-chat-message", voiceTurnInvalidated = false))
     }
+    @Test fun longCommentListDoesNotHideUnnamedDraftFieldOrItsSubmitButton() {
+        val elements = org.json.JSONArray()
+        repeat(40) { index -> elements.put(JSONObject().put("ref", "e$index")
+            .put("name", "回复").put("clickable", true).put("y", 200)) }
+        elements.put(JSONObject().put("ref", "draft").put("name", "")
+            .put("editable", true).put("y", 850).put("x", 400))
+        elements.put(JSONObject().put("ref", "publish").put("name", "发布")
+            .put("clickable", true).put("y", 850).put("x", 930))
+        val receipt = JSONObject().put("screenSnapshotId", "current-comment-page")
+            .put("interactiveElements", elements).toString()
+        val method = LuluBackgroundPhoneContinuation::class.java
+            .getDeclaredMethod("uiReferenceSummary", String::class.java).apply { isAccessible = true }
+        val summary = method.invoke(LuluBackgroundPhoneContinuation, receipt) as String
+        assertTrue(summary.contains("draft=文字输入框"))
+        assertTrue(summary.contains("publish=发布"))
+        assertTrue(summary.contains("current-comment-page"))
+    }
+
 }
