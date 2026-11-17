@@ -458,9 +458,9 @@ internal fun guideScreenRows(kind: String): List<String> = when (kind) {
         "保存并创建角色")
     "model" -> listOf("当前角色聊天模型", "○  模型 A", "◉  模型 B",
         "提示：这里只修改当前角色")
-    "voice" -> listOf("←  语音与音色", "语音合成服务 / 角色音色", "试听声音", "语音识别方式"),
-    "memory" -> listOf("←  记忆与检索", "记忆抽取模型", "向量记忆：可选 Embedding", "Rerank 重排：可选"),
-    "permissions" -> listOf("←  权限与能力", "Android 系统权限", "角色操作授权", "后台虚拟屏 / 闹钟 / 媒体"),
+    "voice" -> listOf("←  语音与音色", "语音合成服务 / 角色音色", "试听声音", "语音识别方式")
+    "memory" -> listOf("←  记忆与检索", "记忆抽取模型", "向量记忆：可选 Embedding", "Rerank 重排：可选")
+    "permissions" -> listOf("←  权限与能力", "Android 系统权限", "角色操作授权", "后台虚拟屏 / 闹钟 / 媒体")
     "chat" -> listOf("←  角色昵称               ···",
         "你好，很高兴认识你。", "               我也很高兴！",
         "🎙   发消息…           ☺    ＋",
