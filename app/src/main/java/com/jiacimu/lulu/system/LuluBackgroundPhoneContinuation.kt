@@ -491,6 +491,15 @@ internal object LuluBackgroundPhoneContinuation {
                 }
                 continue
             }
+            // Owner STOP or a newer turn must win at the final dispatch boundary.
+            currentCoroutineContext().ensureActive()
+            if (mustAbortAfterModel(
+                    LuluBackgroundPhoneSession.ownerHasPaused(context),
+                    LuluRolePhoneAuthorization.isGranted(context, characterId)) ||
+                ownerHasNewInput()) {
+                history.appendLine("工具派发前主人已停止、撤权或更新指令；本步未执行，之前的真实回执保留")
+                return Outcome(history.toString().takeLast(5_000), image, false, count)
+            }
             val nextId = requestId + "-phone-" + index
             val receipt = ToolRouter.execute(
                 context = context,
