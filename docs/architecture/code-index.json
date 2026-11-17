@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T19:58:59.664119+00:00",
-  "commit": "c7d8ca514934e261bfaa365ecea8884dbbb5074b",
+  "generatedAt": "2026-11-17T20:01:21.860819+00:00",
+  "commit": "1a021d3e3989c48f23ef521b2fa69ba3720c6eb5",
   "branch": "main",
-  "sourceFingerprint": "6add2a53aa0e48f7ff1f948d7e96d1f965614c0a766193018c7a75c557971dc2",
+  "sourceFingerprint": "0835a050475d079901360c806db42f4fe857a2e0d7c753c804cc0591af9d63a4",
   "summary": {
     "files": 1443,
-    "lines": 304255,
+    "lines": 304264,
     "symbols": 4345
   },
   "symbolIndex": {
@@ -40431,8 +40431,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1359,
-      "sha256": "c20b3c782e30d9a9386324c89249848cee64a1e9d371059c4700d5bf303723e2",
+      "lines": 1363,
+      "sha256": "a1c9dd772cab9c828016e75b5613af886590740083c0f78e25b04637a7410d9e",
       "symbols": [
         {
           "name": "change",
@@ -42227,8 +42227,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 2014,
-      "sha256": "3d0b530418605f2105ee941100260b770e46c7438b8e8eee80bd7f94c695cadf",
+      "lines": 2019,
+      "sha256": "020d1cd99e34c7a62c78ee54f3217ab13e709c31c6fcdcc033aecc90fbc16fd5",
       "symbols": [
         {
           "name": "resumeByOwner",
