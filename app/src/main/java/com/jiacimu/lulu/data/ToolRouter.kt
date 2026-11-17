@@ -52,6 +52,19 @@ internal object ToolExecutionStatus {
     fun terminalRejection(result: JSONObject, hasDurableReceipt: Boolean): Boolean =
         hasDurableReceipt && !result.optBoolean("success") &&
             result.optString("status").trim().lowercase() in setOf("", "failed", "denied")
+
+    /** Mark an idempotency recovery on the RETURNED value only. Never rewrite
+     * the persisted receipt or make a historical effect look newly executed.
+     * Its success remains historical truth for same-request crash recovery. */
+    fun recoveredReceipt(saved: String, finishedAt: String, requestId: String): String {
+        val original = runCatching { JSONObject(saved) }.getOrNull() ?: return saved
+        return JSONObject(original.toString())
+            .put("replayedHistoricalReceipt", true)
+            .put("executedThisInvocation", false)
+            .put("originalFinishedAt", finishedAt)
+            .put("originalRequestId", requestId)
+            .toString()
+    }
 }
 
 /** The same persisted routing and evidence path is used by foreground, voice and background. */
@@ -194,9 +207,9 @@ object ToolRouter {
                             }
                         }
                     }
-                    return@withLock saved.ifBlank {
-                        failure("上次执行中断，结果未知；为避免重复动作，需要核实", "waiting_user")
-                    }
+                    return@withLock if (saved.isNotBlank())
+                        ToolExecutionStatus.recoveredReceipt(saved, old.optString("finishedAt"), requestId)
+                    else failure("上次执行中断，结果未知；为避免重复动作，需要核实", "waiting_user")
                 }
             }
             // Only a genuinely new request (or a retry-safe unfinished one)
