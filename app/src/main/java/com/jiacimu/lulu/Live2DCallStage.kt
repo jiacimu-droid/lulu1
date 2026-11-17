@@ -135,6 +135,12 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             statusReceiver.value(phase, detail)
         }
     }
+    // On a new WebView, restore its authored score BEFORE replaying the
+    // current audio start. Otherwise the playback event may run against an
+    // empty score, leaving only coarse lip-sync after video re-entry.
+    val appliedCueRevision = remember(stage) {
+        androidx.compose.runtime.mutableIntStateOf(0)
+    }
     val stageAlive = remember(stage) { java.util.concurrent.atomic.AtomicBoolean(true) }
     LaunchedEffect(stage) { webViewReceiver.value?.invoke(stage) }
     // Keep one stable AndroidView parent. VirtualDisplay presentation temporarily
@@ -420,10 +426,14 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             null,
         )
     }
-    LaunchedEffect(stage, callId, playbackEvent.revision, rendererReady.value) {
-        // WebView can finish loading after the first audio callback. Replay
-        // only the CURRENT event when ready, not an already-ended older turn.
-        if (rendererReady.value && callId.isNotBlank() && playbackEvent.callId == callId &&
+    LaunchedEffect(stage, callId, playbackEvent.revision, rendererReady.value,
+        previewRevision, appliedCueRevision.intValue) {
+        // A rebuilt renderer must apply this call's chosen score before
+        // replaying the still-audible TTS fragment. It is NOT another call.
+        // Both JavaScript evaluations queue on this same WebView main thread.
+        if (rendererReady.value &&
+            (previewRevision <= 0 || appliedCueRevision.intValue == previewRevision) &&
+            callId.isNotBlank() && playbackEvent.callId == callId &&
             playbackEvent.characterId == characterId) {
             val phase = playbackEvent.phase.name.lowercase(java.util.Locale.ROOT)
             stage.evaluateJavascript(
@@ -510,9 +520,14 @@ internal fun Live2DCallStage(characterId: String, modelUrl: String, speaking: Bo
             }
             // One decision crosses the bridge atomically. Starting a new cue
             // also cancels old, unplayed beats, including an expression-only turn.
-            if (cue.length() > 0) stage.evaluateJavascript(
-                "window.LuluLive2D && window.LuluLive2D.perform($cue, $previewImmediate)", null,
-            )
+            if (cue.length() > 0) {
+                stage.evaluateJavascript(
+                    "window.LuluLive2D && window.LuluLive2D.perform($cue, $previewImmediate)", null,
+                )
+                // Unblock the real audio event only once this exact score has
+                // been dispatched to the re-created JavaScript stage.
+                appliedCueRevision.intValue = previewRevision
+            }
         }
     }
     // Do not saturate WebView's main thread with high-frequency audio
