@@ -7,6 +7,9 @@ import {
   kissFaceLocalOffsetY,
   kissMouthLocalOffsetX, KISS_CAMERA_DURATION_MS,
   KISS_CAMERA_PEAK_ZOOM, WOLF_KISS_MOTION_INDEX,
+  WOLF_APPROACH_MOTION_INDEX, APPROACH_CAMERA_DURATION_MS,
+  APPROACH_CAMERA_PEAK_ZOOM, approachCameraFrame, screenProximityFrame,
+  screenProximityDuration, screenProximityPeak, isScreenProximityMotion,
 } from '../src/kiss-camera.mjs'
 import { createVisualLayerRuntime } from '../src/visual-layers.mjs'
 import { createPerformanceRuntime } from '../src/speech-performance.mjs'
@@ -28,7 +31,7 @@ const wolfMotionDir = new URL('../../../app/src/main/assets/live2d/wolf-motions/
 const wolfMotionFiles = readdirSync(wolfMotionDir).filter(name =>
   /^[0-9]{2}_[a-z_]+\.motion3\.json$/.test(name)).sort()
 assert.deepEqual(wolfMotionFiles.map(name => name.slice(0, 2)),
-  Array.from({ length: 49 }, (_, index) => String(index).padStart(2, '0')),
+  Array.from({ length: 50 }, (_, index) => String(index).padStart(2, '0')),
   'wolf motion indices are stable and contiguous across releases')
 const approvedAxes = new Set(['ParamAngleX', 'ParamAngleY', 'ParamAngleZ',
   'ParamBodyAngleX', 'ParamBodyAngleY', 'ParamBodyAngleZ'])
@@ -105,9 +108,8 @@ assert.notDeepEqual(keyValues(giggleHead), keyValues(giggleTorso),
 assert.ok(keyValues(giggleHead).slice(0, -1).some(v => v < -2),
   'the visible movement is a small chin dip, not a frozen torso')
 
-// The emotional choreography must be physically different, not just
-// five different names for the same six-axis head wobble.
-// Preserve all 49 authored indices for saved speeches and manual preview.
+// Distinct body motions are real Cubism resources, not renamed head wobble.
+// Preserve older indices for saved speeches and manual preview.
 const readWolf = name => JSON.parse(readFileSync(new URL(name, wolfMotionDir), 'utf8'))
 const valuesOf = (motion, axis) => {
   const curve = motion.Curves.find(c => c.Id === axis)
@@ -133,9 +135,33 @@ assert.ok(Math.max(...valuesOf(readWolf('35_bright_ear_bounce.motion3.json'),
   'ParamBodyAngleY')),
   'a small playful nod must not duplicate the bigger celebratory motion')
 
-// The same action must be available in the standalone playground and real
-// character video decisions, with a pronounced close-up and neutral release.
+// Kiss and a neutral approach are separate real motion assets, sharing only
+// calibrated screen-space positioning and leaving facial choice independent.
 assert.equal(WOLF_KISS_MOTION_INDEX, 48)
+assert.equal(WOLF_APPROACH_MOTION_INDEX, 49)
+assert.equal(isScreenProximityMotion(48), true)
+assert.equal(isScreenProximityMotion(49), true)
+assert.equal(isScreenProximityMotion(28), false)
+assert.equal(screenProximityDuration(49), APPROACH_CAMERA_DURATION_MS)
+assert.equal(screenProximityPeak(49), APPROACH_CAMERA_PEAK_ZOOM)
+const approachMotion = readWolf('49_look_close.motion3.json')
+assert.ok(approachMotion.Curves.some(c => c.Id === 'ParamBodyAngleY'))
+assert.ok(approachMotion.Curves.some(c => c.Id === 'ParamAngleY'))
+assert.ok(Math.min(...valuesOf(approachMotion, 'ParamBodyAngleY')) < -6,
+  'neutral screen approach includes real body movement not just camera zoom')
+assert.ok(APPROACH_CAMERA_DURATION_MS > approachMotion.Meta.Duration * 1000,
+  'camera releases gently after the authored close-up settles')
+assert.equal(approachCameraFrame(0).zoom, 1)
+assert.ok(approachCameraFrame(1500).zoom > 1.75)
+assert.ok(approachCameraFrame(2550).zoom > 1.75,
+  'neutral approach holds eye contact instead of instantly retreating')
+assert.ok(approachCameraFrame(3400).zoom < 1.65,
+  'neutral approach eases away naturally')
+assert.deepEqual(approachCameraFrame(APPROACH_CAMERA_DURATION_MS),
+  { zoom: 1, finished: true })
+assert.deepEqual(screenProximityFrame(49, 1500), approachCameraFrame(1500))
+assert.equal(screenProximityFrame(48, 1500).zoom, kissCameraFrame(1500).zoom)
+assert.equal(screenProximityFrame(28, 1500).finished, true)
 const kissMotion = JSON.parse(readFileSync(
   new URL('48_kiss_close.motion3.json', wolfMotionDir), 'utf8'))
 assert.ok(KISS_CAMERA_DURATION_MS - kissMotion.Meta.Duration * 1000 >= 750 &&
