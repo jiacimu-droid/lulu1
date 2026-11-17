@@ -543,6 +543,7 @@ private fun LuluScreenAwarenessSettings() {
     var onDemand by remember { mutableStateOf(prefs.getBoolean(LuluScreenAwareness.ON_DEMAND, true)) }
     var autonomy by remember { mutableStateOf(prefs.getBoolean(LuluScreenAwareness.AUTONOMOUS, true)) }
     var summon by remember { mutableStateOf(prefs.getBoolean(LuluScreenAwareness.SUMMON, true)) }
+    var directReturn by remember { mutableStateOf(prefs.getBoolean(LuluScreenAwareness.DIRECT_RETURN, false)) }
     var excluded by remember { mutableStateOf(prefs.getString(LuluScreenAwareness.EXCLUDED, "").orEmpty()) }
     var showConsent by remember { mutableStateOf(false) }
     var diagnostic by remember { mutableStateOf(LuluScreenAwareness.diagnostics(context)) }
@@ -568,6 +569,21 @@ private fun LuluScreenAwarenessSettings() {
                 Text("允许邀请返回露露机", Modifier.weight(1f), color = CapabilityInk)
                 Switch(summon, { summon = it; prefs.edit().putBoolean(LuluScreenAwareness.SUMMON, it).commit() })
             }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("允许角色直接切回露露机", color = CapabilityInk)
+                    Text("默认关闭。角色可在你使用其他 App 时主动把露露机切到前台；不会结束其他 App。需要无障碍、解锁状态及本项单独授权。",
+                        fontSize = 11.sp, lineHeight = 15.sp, color = CapabilityMuted)
+                }
+                Switch(
+                    checked = consent && directReturn,
+                    onCheckedChange = {
+                        directReturn = it
+                        prefs.edit().putBoolean(LuluScreenAwareness.DIRECT_RETURN, it).commit()
+                    },
+                    enabled = consent,
+                )
+            }
             OutlinedTextField(value = excluded, onValueChange = {
                 excluded = it
                 prefs.edit().putString(LuluScreenAwareness.EXCLUDED, it).commit()
@@ -579,8 +595,11 @@ private fun LuluScreenAwarenessSettings() {
                     color = CapabilityInk, modifier = Modifier.weight(1f), fontSize = 13.sp)
                 OutlinedButton(onClick = {
                     if (consent) {
-                        prefs.edit().putBoolean(LuluScreenAwareness.CONSENT, false).commit()
+                        prefs.edit()
+                            .putBoolean(LuluScreenAwareness.CONSENT, false)
+                            .putBoolean(LuluScreenAwareness.DIRECT_RETURN, false).commit()
                         consent = false
+                        directReturn = false
                     } else showConsent = true
                 }) { Text(if (consent) "立即撤销" else "阅读并授权") }
             }
@@ -590,7 +609,7 @@ private fun LuluScreenAwarenessSettings() {
     }
     if (showConsent) {
         AlertDialog(onDismissRequest = { showConsent = false }, title = { Text("允许角色看见手机屏幕？") },
-            text = { Text("同意后，若启用自主观察，角色可以自行获取当前单帧屏幕，无需逐次确认，也不会持续录像。画面可能包含个人信息，获准后会发送给你选择的识图模型；锁屏、敏感页和排除的 App 无法读取。每次查看时会显示系统通知或状态提示，关闭自主观察或撤销授权后不再读取。返回邀请也不会强制切换 App，只有你点击才会打开。") },
+            text = { Text("同意后，若启用自主观察，角色可以自行获取当前单帧屏幕，无需逐次确认，也不会持续录像。画面可能包含个人信息，获准后会发送给你选择的识图模型；锁屏、敏感页和排除的 App 无法读取。每次查看时会显示系统通知或状态提示，关闭自主观察或撤销授权后不再读取。返回邀请默认只等你点击；只有再单独开启「允许角色直接切回露露机」，角色才能主动将露露机带到前台，这会打断正在使用的 App，可随时关闭。") },
             confirmButton = { TextButton(onClick = {
                 prefs.edit().putBoolean(LuluScreenAwareness.CONSENT, true).commit()
                 consent = true
