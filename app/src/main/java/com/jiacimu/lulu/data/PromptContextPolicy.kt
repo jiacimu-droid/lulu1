@@ -50,8 +50,8 @@ internal object PromptContextPolicy {
         // A live DM, an independent life decision, and in-game choices belong
         // to the SAME PERSON. They cannot silently select different memory and
         // mental-life tiers merely because the owner just sent a message.
-        // Context scope varies with the actual evidence/tool need, not with
-        // the presence of a chat bubble. The DM gets slightly MORE recall room.
+        // Context scope varies with real evidence/tool needs, not with
+        // whether the owner sent a chat bubble. Full actor modes share one tier.
         // Neither tier deletes stored memories or disables autonomous steps.
         // Full-mode actor decisions share a single memory and mental-life
         // budget regardless of whether the surface is phone, QQ, meeting,
