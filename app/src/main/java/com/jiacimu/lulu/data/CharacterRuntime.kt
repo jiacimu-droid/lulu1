@@ -97,7 +97,10 @@ object CharacterRuntime {
             evidenceLimit = if (budget.evidenceCharacters > 0) 22 else 8,
             evidenceCharacterBudget = budget.evidenceCharacters,
             recentCharacterBudget = budget.recentCharacters,
-            memoryCharacterBudget = budget.memoryCharacters,
+            // Recall a larger source-candidate pool first. The working set
+            // applies each category's initial target and then can borrow free
+            // space; pre-cutting the candidate pool to 12k would defeat that.
+            memoryCharacterBudget = budget.workingSetCharacters,
             paidRanking = paidRanking,
         )
     }
