@@ -39,6 +39,7 @@ enum class MigrationRoute {
     // Director-driven long-form story game is a desktop app, not a sub-page of the games hub.
     ApocalypseSurvival,
     Settings,
+    Guide,
     Appearance,
     // The motion/expression playground is an Activity opened from the
     // in-app desktop, not a Compose screen and not a phone launcher icon.
