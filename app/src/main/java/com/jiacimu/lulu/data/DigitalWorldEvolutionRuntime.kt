@@ -118,63 +118,14 @@ internal object DigitalWorldEvolutionRuntime {
         if (appContext?.let(ResidentDailyPolicy::allowNewResidents) == true)
             scheduleValidatedModelProposal(characterId, now)
         val results = mutableListOf<String>()
-        // A brand-new persistent world with literally ZERO residents has no
-        // possible social encounter. The old 30% daily spawn probability could
-        // leave it empty for days. Bootstrap one real stored local resident;
-        // meeting her still requires the character to walk to her location and
-        // choose an actual interaction through the executor.
-        if (DigitalWorldExpansionStore.residents().isEmpty() &&
-            appContext?.let { ResidentDailyPolicy.mayAddResident(it, 0) } == true &&
-            !DigitalWorldExpansionStore.isRetiredTemplate(residentTemplates.first().name)) {
-            val initial = residentTemplates.first()
-            val resident = runCatching {
-                DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
-                    name = initial.name,
-                    identity = initial.identity,
-                    homeLocationCode = DigitalWorldPublicPlaces.CAFE,
-                    currentLocationCode = DigitalWorldPublicPlaces.CAFE,
-                    createdAt = now,
-                    temperament = npcQualities[initial.name]?.first.orEmpty(),
-                    preferences = npcQualities[initial.name]?.second.orEmpty(),
-                    gender = initial.gender,
-                    background = initial.background,
-                ))
-            }.getOrNull()
-            if (resident != null) {
-                val summary = "数字世界已经登记第一位持久居民“${resident.name}”，她在浮光咖啡角附近拥有自己的家，并在那里值守。角色可以自行决定要不要去遇见她。"
-                results += summary
-                recordEvolution(characterId, "first-resident-${resident.id}", summary, now)
-            }
-        }
+        // The first cafe worker is seeded once by the persistent world store.
+        // Other inhabitants appear only when the owner explicitly enables expansion.
         DigitalWorldExpansionStore.residents().forEach { resident ->
             npcQualities[resident.templateName]?.let { (temperament, preferences) ->
                 val template = residentTemplates.firstOrNull { it.name == resident.templateName }
                 DigitalWorldExpansionStore.fillResidentTraitsIfBlank(
                     resident.id, temperament, preferences,
                     gender = template?.gender.orEmpty(), background = template?.background.orEmpty())
-            }
-        }
-        // Cafe employee is a world resident with an actual registered home.
-        var barista = DigitalWorldExpansionStore.residents().firstOrNull { it.isCafeBarista }
-        if (barista == null &&
-            appContext?.let { ResidentDailyPolicy.mayAddResident(it, DigitalWorldExpansionStore.residents().size) } == true &&
-            !DigitalWorldExpansionStore.isRetiredTemplate("岑灯")) {
-            barista = runCatching {
-                DigitalWorldExpansionStore.registerResident(DigitalWorldResident(
-                    name = "岑灯",
-                    identity = "浮光咖啡角店员",
-                    homeLocationCode = DigitalWorldPublicPlaces.CAFE,
-                    createdAt = now,
-                    temperament = "安静细心，重视手艺，有自己的边界",
-                    preferences = "研究咖啡风味，记得真实聊过的顾客",
-                    gender = "女",
-                    background = "以前在流动小摊学做饮品，攒钱在浮光咖啡角开店；最近苦恼如何维持店铺与自己的休息时间，也有不想迎合客人的口味。",
-                ))
-            }.getOrNull()
-            if (barista != null) {
-                val summary = "浮光咖啡角登记了店员“${barista.name}”，她有自己的住处和轮班。"
-                results += summary
-                recordEvolution(characterId, "cafe-barista-${barista.id}", summary, now)
             }
         }
         // Only ResidentDailyRoutine may settle an on-duty shift. The removed
