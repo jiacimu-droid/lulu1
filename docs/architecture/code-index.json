@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T12:53:25.708494+00:00",
-  "commit": "474dcec96ad1b1ec803df3bbaca12d2fee0b5cf3",
+  "generatedAt": "2026-11-17T12:54:03.322669+00:00",
+  "commit": "b97d09422b4fc0416d6bd37d73f603c16d6562aa",
   "branch": "main",
-  "sourceFingerprint": "b61e73b55e30cd9b695997734e2d097a9222245972021aef1672a14fa439ad43",
+  "sourceFingerprint": "f301025031ae9a6827029144abbaf08182595f1f668b711abacbd165568e7604",
   "summary": {
     "files": 1407,
-    "lines": 297615,
+    "lines": 297629,
     "symbols": 4236
   },
   "symbolIndex": {
@@ -49935,8 +49935,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicyTest.kt",
-      "lines": 85,
-      "sha256": "5b29aa3fa565ae480e6b9e1618011177b31410ad7f11882192563259094934a2",
+      "lines": 99,
+      "sha256": "dbe50d784192d3b52da62ae9a9af3bb8577d134c5e41b57b41f9669ec8771e2a",
       "symbols": [
         {
           "name": "LuluVisualChatDraftPolicyTest",
