@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T19:41:45.130438+00:00",
-  "commit": "1351f78aae531ee228a606ed2784423e94424b10",
+  "generatedAt": "2026-11-17T19:42:34.294260+00:00",
+  "commit": "d12aca79c6150052a9226476b2cbc36777d95028",
   "branch": "main",
-  "sourceFingerprint": "28ff8528a1cbb86852fae0db24aa6b6d901e3547b5efa71158bf035c2f806521",
+  "sourceFingerprint": "3b0875a56e5fdee2185f221f804d294c15e8be8d50ac75792a22537337326c4c",
   "summary": {
     "files": 1443,
-    "lines": 303993,
+    "lines": 303995,
     "symbols": 4344
   },
   "symbolIndex": {
@@ -51321,8 +51321,8 @@
     },
     {
       "path": "preview/worlds.css",
-      "lines": 70,
-      "sha256": "d273c8abc50cda659da179e0d83f249eee15b075e750f897c67f2278acabaefa",
+      "lines": 72,
+      "sha256": "f87d60caf46dd1faca2621777ec733cd78ca74ec810ad72a0a39cda115b8f0b3",
       "symbols": []
     },
     {
