@@ -9,6 +9,30 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class MiniTheaterLibraryTest {
+    @Test fun publicInstallHasNoBundledScenesAndUpgradeKeepsOnlyUserWork() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
+        val prefs = context.getSharedPreferences("lulu_mini_theaters_v1", android.content.Context.MODE_PRIVATE)
+        prefs.edit().clear().commit()
+        assertTrue(MiniTheaterLibrary(context).items.value.isEmpty())
+
+        fun item(id: String, builtIn: Boolean, status: String, text: String = "") =
+            org.json.JSONObject()
+                .put("id", id).put("title", id).put("prompt", "故事内容")
+                .put("builtIn", builtIn).put("status", status).put("text", text)
+        val stored = org.json.JSONArray()
+            .put(item("untouched-auto-preset", true, "new"))
+            .put(item("saved-user-import", false, "new"))
+            .put(item("started-old-preset", true, "running"))
+            .put(item("written-old-preset", true, "complete", "用户生成的正文"))
+        assertTrue(prefs.edit().putString("items", stored.toString()).commit())
+        val reopened = MiniTheaterLibrary(context)
+        assertEquals(setOf("saved-user-import", "started-old-preset", "written-old-preset"),
+            reopened.items.value.mapTo(mutableSetOf()) { it.id })
+        assertEquals("用户生成的正文",
+            MiniTheaterLibrary(context).items.value.first { it.id == "written-old-preset" }.text)
+        prefs.edit().clear().commit()
+    }
+
     @Test fun backgroundFanficModelChoiceSurvivesReloadAndOnlyChangesOnNextEnqueue() {
         val context = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
         val library = MiniTheaterLibrary(context, emptyList())
