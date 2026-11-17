@@ -194,6 +194,15 @@ internal object LuluBackgroundPhoneSession {
                 },
                 beforeFrame = null,
             )
+            // The wait may have seen a transient transition that subsequently
+            // returned to the original page. Only the final owned UI counts.
+            val finalWindow = LuluAccessibilityService.observeDisplay(displayId)
+            val finalFingerprint = if (finalWindow.connected &&
+                finalWindow.packageName == packageName) {
+                LuluAccessibilityService.virtualUiSnapshot(displayId, packageName)
+                    .optString("fingerprint")
+            } else ""
+            finalFingerprint.isNotBlank() && finalFingerprint != beforeFingerprint
         }
     }
 
