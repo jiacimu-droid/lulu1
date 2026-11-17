@@ -1102,9 +1102,11 @@ class LuluAccessibilityService : AccessibilityService() {
         /** A system keyboard on THIS independent display is the minimum
          * focus evidence for zero-tree visual text entry. IME on the owner's
          * display 0 does not count; a system dialog blocks the window gate. */
-        fun virtualChatKeyboardVisible(displayId: Int, packageName: String): Boolean {
+        /** All third-party apps use the same independent-display keyboard.
+         * This validates the IME window, not its (often missing) node tree. */
+        fun virtualInputKeyboardVisible(displayId: Int, packageName: String): Boolean {
             val service = instance ?: return false
-            if (packageName != LuluVirtualChatSendPolicy.WECHAT ||
+            if (displayId <= 0 || packageName.isBlank() ||
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target")
                 return false
             val height = virtualDimensions(service, displayId)?.second ?: return false
@@ -1112,22 +1114,25 @@ class LuluAccessibilityService : AccessibilityService() {
                 if (window.type != android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD)
                     false
                 else Rect().also(window::getBoundsInScreen).let {
-                    // OEM IMEs may expose a window with no node children.
-                    // The actual nonempty, lower-screen IME rectangle is
-                    // independent evidence of keyboard presence.
                     it.width() > 0 && it.height() > 0 &&
-                        it.top > 0 && it.top < height &&
-                        it.bottom <= height
+                        it.top > 0 && it.top < height && it.bottom <= height
                 }
             }
         }
 
+        fun virtualChatKeyboardVisible(displayId: Int, packageName: String): Boolean =
+            packageName == LuluVirtualChatSendPolicy.WECHAT &&
+                virtualInputKeyboardVisible(displayId, packageName)
+
         /** Upper boundary of the ACTUAL virtual-display IME, in permille.
          * The visual Send button must belong to WeChat ABOVE this boundary,
          * never a keyboard action key such as Next / Search / Send. */
-        fun virtualChatImeTopPermille(displayId: Int, packageName: String): Int? {
+        /** Generic IME top edge for screenshot-coordinate taps in any app.
+         * The chat-specific method below remains a compatibility delegate. */
+        fun virtualInputImeTopPermille(displayId: Int, packageName: String): Int? {
             val service = instance ?: return null
-            if (virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+            if (displayId <= 0 || packageName.isBlank() ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target")
                 return null
             val height = virtualDimensions(service, displayId)?.second ?: return null
             val ime = service.windowsOnAllDisplays.get(displayId).orEmpty()
@@ -1137,6 +1142,10 @@ class LuluAccessibilityService : AccessibilityService() {
             if (rect.top <= 0 || rect.top >= height) return null
             return (rect.top * 1000L / height).toInt()
         }
+
+        fun virtualChatImeTopPermille(displayId: Int, packageName: String): Int? =
+            if (packageName == LuluVirtualChatSendPolicy.WECHAT)
+                virtualInputImeTopPermille(displayId, packageName) else null
 
         /** Evidence for OEMs where a virtual display has real pixels but
          * Android exposes no useful accessibility children. Counts and flags
@@ -1648,6 +1657,46 @@ class LuluAccessibilityService : AccessibilityService() {
                 putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
             }
             return field.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments)
+        }
+
+        /** Type into the ACTUALLY focused editor of any owned app. This
+         * does not submit a form, send a message, or invent a focus target.
+         * For custom WebViews/ROMs with no accessible editor, the session may
+         * switch to the same display's visual input + targeted shell route. */
+        fun typeFocusedVirtualEditor(
+            displayId: Int, packageName: String, text: String,
+        ): JSONObject {
+            fun result(accepted: Boolean, verified: Boolean, code: String) =
+                JSONObject().put("accepted", accepted)
+                    .put("inputTextReadbackVerified", verified)
+                    .put("inputVerification", if (verified) "match" else "unverified")
+                    .put("actionMethod", "accessibility_focused_editor_set_text")
+                    .put("errorCode", code).put("displayId", displayId)
+                    .put("taskCompleted", false)
+            val service = instance ?: return result(false, false, "accessibility_disconnected")
+            if (displayId <= 0 || packageName.isBlank() || text.isBlank() ||
+                text.length > 500 ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+                return result(false, false, "virtual_input_target_unverified")
+            val fields = ownedVirtualRoots(service, displayId, packageName)
+                .mapNotNull { it.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) }
+                .filter(::safeEditable)
+                .distinctBy { composerBounds(it) }
+            val field = fields.singleOrNull()
+                ?: return result(false, false, "virtual_input_focused_editor_missing")
+            if (!field.refresh() || !field.isFocused || !safeEditable(field))
+                return result(false, false, "virtual_input_focus_changed")
+            val arguments = Bundle().apply {
+                putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
+            }
+            if (!field.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments))
+                return result(false, false, "virtual_input_set_text_rejected")
+            // The platform dispatch acknowledgement is weaker than reading
+            // the exact text back from the same currently focused field.
+            val exact = field.refresh() && field.isFocused &&
+                field.text?.toString() == text &&
+                virtualWindowStatus(displayId, packageName).optString("kind") == "target"
+            return result(true, exact, if (exact) "" else "virtual_input_readback_unverified")
         }
 
         /** Readback is from that verified search field, not an unrelated
