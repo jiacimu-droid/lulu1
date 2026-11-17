@@ -50,9 +50,10 @@ internal object ElevenLabsSongAudioMix {
             extractor.selectTrack(track)
             val format = extractor.getTrackFormat(track)
             val mime = format.getString(MediaFormat.KEY_MIME) ?: error("音频格式未知")
-            decoder = MediaCodec.createDecoderByType(mime)
-            decoder.configure(format, null, null, 0)
-            decoder.start()
+            val codec = MediaCodec.createDecoderByType(mime)
+            decoder = codec
+            codec.configure(format, null, null, 0)
+            codec.start()
 
             var inputEnd = false
             var outputEnd = false
@@ -64,27 +65,27 @@ internal object ElevenLabsSongAudioMix {
                 while (!outputEnd) {
                     var progressed = false
                     if (!inputEnd) {
-                        val inputIndex = decoder.dequeueInputBuffer(10_000)
+                        val inputIndex = codec.dequeueInputBuffer(10_000)
                         if (inputIndex >= 0) {
-                            val buffer = decoder.getInputBuffer(inputIndex)
+                            val buffer = codec.getInputBuffer(inputIndex)
                                 ?: error("音频解码缓冲区不可用")
                             buffer.clear()
                             val bytes = extractor.readSampleData(buffer, 0)
                             if (bytes < 0) {
-                                decoder.queueInputBuffer(inputIndex, 0, 0, 0,
+                                codec.queueInputBuffer(inputIndex, 0, 0, 0,
                                     MediaCodec.BUFFER_FLAG_END_OF_STREAM)
                                 inputEnd = true
                             } else {
-                                decoder.queueInputBuffer(inputIndex, 0, bytes,
+                                codec.queueInputBuffer(inputIndex, 0, bytes,
                                     extractor.sampleTime.coerceAtLeast(0), 0)
                                 extractor.advance()
                             }
                             progressed = true
                         }
                     }
-                    when (val outputIndex = decoder.dequeueOutputBuffer(info, 10_000)) {
+                    when (val outputIndex = codec.dequeueOutputBuffer(info, 10_000)) {
                         MediaCodec.INFO_OUTPUT_FORMAT_CHANGED -> {
-                            val decodedFormat = decoder.outputFormat
+                            val decodedFormat = codec.outputFormat
                             check(decodedFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE) == SAMPLE_RATE) {
                                 "转换后的歌曲不是44.1kHz，不能安全混音"
                             }
@@ -101,12 +102,12 @@ internal object ElevenLabsSongAudioMix {
                         in 0..Int.MAX_VALUE -> {
                             if (info.size > 0 && info.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG == 0) {
                                 if (channelCount == 0) {
-                                    val decodedFormat = decoder.outputFormat
+                                    val decodedFormat = codec.outputFormat
                                     check(decodedFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE) == SAMPLE_RATE)
                                     channelCount = decodedFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
                                 }
                                 check(channelCount in 1..2) { "分轨音频的声道数不可用" }
-                                val buffer = decoder.getOutputBuffer(outputIndex)
+                                val buffer = codec.getOutputBuffer(outputIndex)
                                     ?: error("没有收到解码后的音频")
                                 buffer.position(info.offset)
                                 buffer.limit(info.offset + info.size)
@@ -128,7 +129,7 @@ internal object ElevenLabsSongAudioMix {
                                 check(written <= MAX_AUDIO_BYTES) { "角色歌声超过本地混音时长上限" }
                             }
                             outputEnd = info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0
-                            decoder.releaseOutputBuffer(outputIndex, false)
+                            codec.releaseOutputBuffer(outputIndex, false)
                             progressed = true
                         }
                     }
