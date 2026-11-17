@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T19:53:13.643368+00:00",
-  "commit": "e602f4c871d1c73c455072d01699608fa65364ad",
+  "generatedAt": "2026-11-17T19:53:57.943229+00:00",
+  "commit": "26f00a499fba74c74ee83f92d574f9e11cf665ec",
   "branch": "main",
-  "sourceFingerprint": "5535fb3eeedc9ec980609cd262ba496c79c4d279cf58eb121100239baa7f4c57",
+  "sourceFingerprint": "c17a25c3d9f6d699fda3470aa86d3f7546c8189a5c1afc52bdf558680f772d38",
   "summary": {
     "files": 1443,
-    "lines": 304086,
+    "lines": 304127,
     "symbols": 4344
   },
   "symbolIndex": {
@@ -15621,7 +15621,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 136
+        "line": 137
       }
     ],
     "canInteract": [
@@ -16549,13 +16549,13 @@
     "change": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 129
+        "line": 130
       }
     ],
     "interact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 257
+        "line": 258
       }
     ],
     "monsterCount": [
@@ -40425,20 +40425,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1339,
-      "sha256": "a7a53bada9a832211bdd5e3697b9711ecdf4cb03d1188bdc7117aa118ecfbfe6",
+      "lines": 1359,
+      "sha256": "c20b3c782e30d9a9386324c89249848cee64a1e9d371059c4700d5bf303723e2",
       "symbols": [
         {
           "name": "change",
-          "line": 129
+          "line": 130
         },
         {
           "name": "action",
-          "line": 136
+          "line": 137
         },
         {
           "name": "interact",
-          "line": 257
+          "line": 258
         }
       ]
     },
@@ -44907,8 +44907,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt",
-      "lines": 67,
-      "sha256": "536a052192360c478c17d52a45ecb18ed664315d93e2a38f6b0b1061059fb08f",
+      "lines": 88,
+      "sha256": "e83d04b234eae2751eecbefdb02ac430fe861855a7a0f6fa45d8b87a22578631",
       "symbols": [
         {
           "name": "LuluOnboardingGuideContentTest",
