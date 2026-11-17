@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b0de20d623646793d77f137240761f488f9d0155`
+- 基准提交：`493a7016875f059a020d3955f7b5f17ba75ec92a`
 - 分支：`main`
-- 已索引文件：1406
-- 已索引代码/文本行：297489
-- 已发现符号：4234
+- 已索引文件：1407
+- 已索引代码/文本行：297574
+- 已发现符号：4235
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1395,6 +1395,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSocialActionsTest.kt` | 126 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt` | 96 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicyTest.kt` | 75 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicyTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluWirelessDebuggingHostTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/PhoneSleepPromptModeTest.kt` | 20 | 1 |
 | `app/src/test/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshnessTest.kt` | 39 | 1 |
