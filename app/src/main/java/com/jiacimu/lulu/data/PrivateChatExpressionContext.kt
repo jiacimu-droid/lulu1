@@ -41,8 +41,9 @@ internal object PrivateChatExpressionContext {
         messages: List<LuluChatMessage>,
         currentUserMessageIds: Set<String>,
         currentInput: String,
-        maxMessages: Int = 30,
+        maxMessages: Int = Int.MAX_VALUE,
         maxCharacters: Int = 12_000,
+        maxTurns: Int = 35,
     ): List<ModelConversationMessage> {
         val firstCurrent = messages.indexOfFirst {
             it.sender == LuluChatMessage.Sender.User && it.id in currentUserMessageIds
@@ -61,7 +62,7 @@ internal object PrivateChatExpressionContext {
             return if (quote.isBlank()) text else "$quote\n$text"
         }
         val chosen = ConversationHistoryWindow.select(
-            eligible, maxMessages, maxCharacters,
+            eligible, maxMessages, maxCharacters, maxTurns = maxTurns,
         ) { rendered(it).length }
         // These are real role turns, not one assistant API message per visual
         // bubble. The provider's transport compaction must not cut a reply
