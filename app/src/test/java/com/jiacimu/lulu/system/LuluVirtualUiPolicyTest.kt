@@ -7,6 +7,21 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LuluVirtualUiPolicyTest {
+    @Test fun snapshotOnlyVirtualPictureCanAuthorizeOneVisualActionWithoutPretendingTreeExists() {
+        val roleWindow = LuluVirtualUiPolicy.fingerprint(listOf("display:7", "wechat-window:19"))
+        // An otherwise verified app can expose zero nodes on Redmi/HyperOS.
+        assertTrue(LuluVirtualUiPolicy.sameObservedPicture(
+            "frame-9", "frame-9", pictureDelivered = true, ownedWindowIdentity = roleWindow))
+        assertFalse(LuluVirtualUiPolicy.sameSnapshot("frame-9", "frame-9", "", ""))
+        // An absent picture, wrong frame, or unknown window is never a tap authority.
+        assertFalse(LuluVirtualUiPolicy.sameObservedPicture(
+            "frame-9", "frame-9", pictureDelivered = false, ownedWindowIdentity = roleWindow))
+        assertFalse(LuluVirtualUiPolicy.sameObservedPicture(
+            "frame-old", "frame-9", pictureDelivered = true, ownedWindowIdentity = roleWindow))
+        assertFalse(LuluVirtualUiPolicy.sameObservedPicture(
+            "frame-9", "frame-9", pictureDelivered = true, ownedWindowIdentity = ""))
+    }
+
     @Test fun onlyTheCurrentSnapshotCanAuthorizeAnElementRef() {
         val tree = LuluVirtualUiPolicy.fingerprint(listOf("e1|search", "e2|笔记"))
         assertTrue(LuluVirtualUiPolicy.sameSnapshot("screen-01", "screen-01", tree, tree))
