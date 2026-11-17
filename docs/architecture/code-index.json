@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:04:08.849220+00:00",
-  "commit": "b4ec411fd30032e65495128a1a50e5130a9a86ef",
+  "generatedAt": "2026-11-17T17:05:56.833576+00:00",
+  "commit": "b3ac90180848f4390476a419955bc6fc96d7fa68",
   "branch": "main",
-  "sourceFingerprint": "b613937034ba50ae4736f087637271278cc0da502d694718de7523f8f3111827",
+  "sourceFingerprint": "4b4fe180a83b461a4a163f9ddbe504ca5231d3301cb6cdbcdf01d5fead15247a",
   "summary": {
-    "files": 1428,
-    "lines": 301338,
-    "symbols": 4313
+    "files": 1429,
+    "lines": 301392,
+    "symbols": 4314
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -19900,6 +19900,12 @@
         "line": 5
       }
     ],
+    "LuluDesktopWidgetTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/LuluDesktopWidgetTest.kt",
+        "line": 9
+      }
+    ],
     "LuluOnboardingGuideContentTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt",
@@ -26610,7 +26616,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
       "lines": 562,
-      "sha256": "24c4beae0c63829af940a7e9680cec2bdb5c0f2b6f33b7848a63723f25acb488",
+      "sha256": "105295c1db443813c23579c6d33b39f97efda2d21bd628547b5ca52ef7c63870",
       "symbols": [
         {
           "name": "profileSign",
@@ -44577,6 +44583,17 @@
         {
           "name": "LuluCallFloatingWindowTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/LuluDesktopWidgetTest.kt",
+      "lines": 54,
+      "sha256": "6e631b988bc0be7fcf3eb623940c9f1e326a17f8579e0215b2fd2547edc322c0",
+      "symbols": [
+        {
+          "name": "LuluDesktopWidgetTest",
+          "line": 9
         }
       ]
     },
