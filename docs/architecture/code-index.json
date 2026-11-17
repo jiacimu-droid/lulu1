@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T04:19:46.580961+00:00",
-  "commit": "9992e1520639d9a557993626dcae41c3526bd58c",
+  "generatedAt": "2026-11-17T04:38:13.010636+00:00",
+  "commit": "09e871937b105540bc76fbeac8e6aabf68c2f3f5",
   "branch": "main",
-  "sourceFingerprint": "6fd901cab90d03cd45df3c95ad5484eb423fc6984b50c11b7d2160a435e4cbb3",
+  "sourceFingerprint": "ad26516aed136888cb74eb45744340d5f42a70eed4e6c691692eab0881c13df2",
   "summary": {
     "files": 1387,
-    "lines": 296971,
+    "lines": 297009,
     "symbols": 4190
   },
   "symbolIndex": {
@@ -47410,8 +47410,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt",
-      "lines": 279,
-      "sha256": "1e1240d99dc3e1493e55310b9525c74a4892f6c0a3a4f5536bda496eb4f89b89",
+      "lines": 299,
+      "sha256": "750a2e85140d3f7c0bf179ea4d6934ab8dbfdae5fa23e13e0409bff52760580f",
       "symbols": [
         {
           "name": "ResidentAutonomyBoundaryTest",
@@ -47710,8 +47710,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt",
-      "lines": 197,
-      "sha256": "2218565f59a97ab587a5ba9e716263893d1efc66d53bead4077a6a0b436c8c98",
+      "lines": 215,
+      "sha256": "d76e5d056e31f72775b053e80e2ae792930aa60cddd538d026df1f7110818eba",
       "symbols": [
         {
           "name": "SemanticMemoryLongTurnRegressionTest",

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9992e1520639d9a557993626dcae41c3526bd58c`
+- 基准提交：`09e871937b105540bc76fbeac8e6aabf68c2f3f5`
 - 分支：`main`
 - 已索引文件：1387
-- 已索引代码/文本行：296971
+- 已索引代码/文本行：297009
 - 已发现符号：4190
 
 | 文件 | 行数 | 符号数 |
@@ -1221,7 +1221,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeContactCommitmentParserTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParserTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 89 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 279 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 299 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 3165 | 26 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 200 | 1 |
@@ -1237,7 +1237,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 100 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 239 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt` | 197 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt` | 215 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryTurnPipelineTest.kt` | 184 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt` | 262 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SoloGameSystemNoticeTest.kt` | 56 | 1 |
