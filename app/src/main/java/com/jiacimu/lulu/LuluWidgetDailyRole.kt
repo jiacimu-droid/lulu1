@@ -173,6 +173,7 @@ notify是布尔值，skin只能是-1或0/1/2/3。生成文字不代表通知已�
         if (Build.VERSION.SDK_INT >= 33 &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
                 PackageManager.PERMISSION_GRANTED) return
+        if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return
         val current = LuluDesktopWidgetStore.load(context)
             .firstOrNull { it.id == widget.id } ?: return
         if (current.characterId != reading.characterId || current.sign != reading.sign ||
