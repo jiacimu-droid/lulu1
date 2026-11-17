@@ -30,6 +30,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -471,38 +472,57 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         run.phase!=RelicPhase.DOWNED && hero.kits>0 && hero.hp<10,
                         Modifier.weight(1f)) { action("heal") }
                 }
-                // Normal attack is ONE press; skills are explicit, separate and
-                // bound to the current weapon/profession, never the map cursor.
-                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(3.dp)) {
+                // The permanent thumb controls must be readable on 360–412dp
+                // landscape phones. Two short lines carry skill and cooldown;
+                // do not hide key actions inside the scrollable intel panel.
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(4.dp)) {
+                    val weaponCooldown=(run.sweepReadyTurn-run.turns).coerceAtLeast(0)
+                    val weaponReady=RelicCombatSkills.canWeaponSkill(run,facing)
                     TextButton(onClick={
-                        if(RelicCombatSkills.canWeaponSkill(run,facing))
-                            action("weapon_skill",facing.first,facing.second)
+                        if(weaponReady) action("weapon_skill",facing.first,facing.second)
                         else combatPrompt=RelicCombatSkills.weaponSkillHint(run,facing)
                     },enabled=run.phase!=RelicPhase.DOWNED,
-                        modifier=Modifier.weight(1.15f).height(34.dp),
-                        contentPadding=PaddingValues(horizontal=2.dp)) {
-                        val cd=(run.sweepReadyTurn-run.turns).coerceAtLeast(0)
-                        Text(RelicCombatSkills.weaponSkillName(run)+if(cd>0)" · 冷${cd}回合" else " · 可用",
-                            color=relicGold,fontSize=10.sp,maxLines=1)
+                        modifier=Modifier.weight(1.15f).height(46.dp),
+                        shape=RoundedCornerShape(10.dp),
+                        contentPadding=PaddingValues(horizontal=2.dp,vertical=2.dp),
+                        colors=ButtonDefaults.textButtonColors(
+                            containerColor=Color(0xD0233644))) {
+                        Text(RelicCombatSkills.weaponSkillName(run)+"\n"+
+                            (if(weaponCooldown>0)"冷却 ${weaponCooldown} 回合"
+                             else if(weaponReady)"可出招" else "查看条件"),
+                            color=if(weaponReady)relicGold else relicMuted,
+                            fontSize=10.sp,lineHeight=13.sp,maxLines=2,
+                            fontWeight=FontWeight.SemiBold,textAlign=TextAlign.Center)
                     }
+                    val professionCooldown=(run.professionReadyTurn-run.turns).coerceAtLeast(0)
+                    val professionReady=RelicCombatSkills.professionAvailable(run)
                     TextButton(onClick={
-                        if(RelicCombatSkills.professionAvailable(run))
-                            action("profession_skill")
+                        if(professionReady) action("profession_skill")
                         else combatPrompt=RelicCombatSkills.professionHint(run)
                     },enabled=run.phase!=RelicPhase.DOWNED,
-                        modifier=Modifier.weight(1.05f).height(34.dp),
-                        contentPadding=PaddingValues(horizontal=2.dp)) {
-                        val cd=(run.professionReadyTurn-run.turns).coerceAtLeast(0)
-                        Text(run.profession.skill+" "+run.professionCharges+"次"+if(cd>0)" · 冷${cd}回合" else "",
-                            color=relicGreen,fontSize=10.sp,maxLines=1)
+                        modifier=Modifier.weight(1.05f).height(46.dp),
+                        shape=RoundedCornerShape(10.dp),
+                        contentPadding=PaddingValues(horizontal=2.dp,vertical=2.dp),
+                        colors=ButtonDefaults.textButtonColors(
+                            containerColor=Color(0xD0233644))) {
+                        Text(run.profession.skill+"\n"+
+                            (if(professionCooldown>0)"冷却 ${professionCooldown} 回合"
+                             else "${run.professionCharges} 次可用"),
+                            color=if(professionReady)relicGreen else relicMuted,
+                            fontSize=10.sp,lineHeight=13.sp,maxLines=2,
+                            fontWeight=FontWeight.SemiBold,textAlign=TextAlign.Center)
                     }
                     TextButton(onClick={aimOnly=!aimOnly; joystickHeld=false},
                         enabled=run.phase!=RelicPhase.DOWNED,
-                        modifier=Modifier.weight(.95f).height(34.dp),
-                        contentPadding=PaddingValues(horizontal=1.dp)) {
-                        Text(if(aimOnly)"仅转向" else "转向",
+                        modifier=Modifier.weight(.95f).height(46.dp),
+                        shape=RoundedCornerShape(10.dp),
+                        contentPadding=PaddingValues(horizontal=2.dp,vertical=2.dp),
+                        colors=ButtonDefaults.textButtonColors(
+                            containerColor=if(aimOnly)Color(0xB55D5034) else Color(0xD0233644))) {
+                        Text(if(aimOnly)"仅转向\n再点可行走" else "转向模式\n点击开启",
                             color=if(aimOnly)relicGold else relicMuted,
-                            fontSize=10.sp,maxLines=1)
+                            fontSize=10.sp,lineHeight=13.sp,maxLines=2,
+                            fontWeight=FontWeight.SemiBold,textAlign=TextAlign.Center)
                     }
                 }
                 if (aimOnly) Text("仅转向 " + relicDirection(facing.first, facing.second),
