@@ -48,7 +48,7 @@ internal object LuluWidgetRoleActions {
             }
             appendLine("- write_desktop_widget_note，args={\"widgetId\":\"已绑定你本人且类型为note的ID\",\"text\":\"你本人想留的话\"}：留一条真实桌面便签；不会自动发QQ，不得宣称已通知主人。")
             append("- decorate_desktop_widget，args={\"widgetId\":\"已绑定你本人且开放装修授权的ID\",")
-            appendLine("\"skin\":0到3}：按你自己的审美更换单张组件内置插画，不覆盖主人导入的图片或其他组件；无需为展示活跃而强制更换。")
+            appendLine("\"skin\":0到3,\"backgroundColor\":\"#RRGGBB\",\"textColor\":\"#RRGGBB\",\"cornerDp\":20}：可独立选择皮肤、字体色、卡片底色和圆角；属性可省略，不会覆盖主人导入的图片或其他组件。没有真实授权时执行器拒绝。")
         }.trim()
     }
 
@@ -78,10 +78,19 @@ internal object LuluWidgetRoleActions {
                         .put("summary", if (committed) "本人桌面便签已保存" else "便签写盘失败，未更新桌面")
                 }
                 "decorate_desktop_widget" -> {
-                    val raw = args.opt("skin")
-                    val skin = if (raw is Number) raw.toInt() else -1
-                    val ok = raw is Number && raw.toDouble() == skin.toDouble() &&
-                        LuluDesktopWidgetStore.roleApplySkin(context, id, characterId, skin)
+                    val skinValue = args.opt("skin")
+                    val cornerValue = args.opt("cornerDp")
+                    val skin = (skinValue as? Number)?.toInt()
+                    val corner = (cornerValue as? Number)?.toInt()
+                    val typed = (skinValue == null ||
+                            (skinValue is Number && skinValue.toDouble() == skin?.toDouble())) &&
+                        (cornerValue == null ||
+                            (cornerValue is Number && cornerValue.toDouble() == corner?.toDouble()))
+                    val background = args.optString("backgroundColor")
+                        .takeIf(String::isNotBlank)
+                    val ink = args.optString("textColor").takeIf(String::isNotBlank)
+                    val ok = typed && LuluDesktopWidgetStore.roleApplyStyle(
+                        context, id, characterId, skin, background, ink, corner)
                     JSONObject().put("success", ok)
                         .put("status", if (ok) "succeeded" else "failed")
                         .put("widgetId", current.id)
