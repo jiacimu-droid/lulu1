@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0ec3c56aa3427008a3d634cbee0fc0c86f9f2c4f`
+- 基准提交：`c02de7976694136ba2fe59dd5f4a37385dde77e0`
 - 分支：`main`
 - 已索引文件：1376
-- 已索引代码/文本行：293922
+- 已索引代码/文本行：293971
 - 已发现符号：4141
 
 | 文件 | 行数 | 符号数 |
@@ -320,7 +320,7 @@
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 114 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt` | 48 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt` | 19 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1663 | 30 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1664 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
@@ -1183,7 +1183,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 156 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 111 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 159 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContextTest.kt` | 68 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 218 | 1 |
