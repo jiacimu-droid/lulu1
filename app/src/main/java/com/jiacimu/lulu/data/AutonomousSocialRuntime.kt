@@ -216,7 +216,9 @@ internal object AutonomousSocialRuntime {
             // character's emotional state into several personal minds.
         }
 
-        val finishedAt = now.plusMillis((generated.turns.size + 2L) * 900L)
+        // A paid multi-actor scene can take much longer than its fictional dialogue spacing.
+        // A departure observed while the models were speaking must not look like a future event.
+        val finishedAt = maxOf(Instant.now(), now.plusMillis((generated.turns.size + 2L) * 900L))
         val summary = generated.summary.ifBlank {
             "${names.joinToString("、")}在${location}自然碰面，一起度过了一小段属于他们自己的时间。"
         }
@@ -524,7 +526,7 @@ internal object AutonomousSocialRuntime {
                     appendLine("先前在场人物已自己选择的分阶段公开台词与动作草案（尚未提交）：")
                     appendLine(previous.ifBlank { "当前无人说话" })
                     appendLine("你本人的当下心理与持续目标，仅供你自己选择如何回应：")
-                    appendLine(CharacterInnerLifeStore.compactContext(speakerId, now).take(1300))
+                    appendLine(CharacterInnerLifeStore.compactContext(speakerId, Instant.now()).take(1300))
                 }
             val sceneOutputShape = if (directed) """{"choice":"engage|quiet","reason":"本人为何这样回应","segments":[{"type":"dialogue|action","text":"现在本人选择的公开言语或可见小动作"}],"steps":[],"innerThought":"本人未出口的念头，可省略","innerLife":{}}"""
                 else """{"choice":"engage|quiet","reason":"本人为何参与","beats":[{"phase":1,"segments":[{"type":"dialogue|action","text":"开场阶段本人真正愿意说的台词或可见小动作"}]},{"phase":2,"segments":[{"type":"dialogue|action","text":"第二阶段本人想说或做的事"}]}],"steps":[{"tool":"send_friend_request|send_character_message|create_group_chat|send_group_message|plan_personal_activity","args":{"targetCharacterId":"已认识对象ID","text":"本人真实想发送的内容"},"requiresPreviousSuccess":false}],"innerThought":"本人未出口的念头","innerLife":{"emotion":{"feeling":"真实感受","cause":"已有依据"},"social":{"targetId":"在场人物ID","interpretation":"个人理解","reason":"已有证据"},"motives":[{"op":"start","aim":"未来想做的事","why":"缘由","reason":"依据"}]}}"""
