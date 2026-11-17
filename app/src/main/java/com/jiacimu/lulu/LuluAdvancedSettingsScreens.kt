@@ -91,6 +91,9 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var musicSeconds by remember { mutableFloatStateOf(30f) }
     var generatingMusic by remember { mutableStateOf(false) }
     var musicNotice by remember { mutableStateOf("") }
+    var musicSaved by remember(selectedVoiceRole) {
+        mutableStateOf(ElevenLabsMusic.latestSong(context, selectedVoiceRole) != null)
+    }
     var musicFinetune by remember(selectedVoiceRole) {
         mutableStateOf(ElevenLabsMusic.finetuneId(context, selectedVoiceRole))
     }
@@ -366,6 +369,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                             runCatching {
                                 val song = ElevenLabsMusic.generate(
                                     context, requestedRole, requestedPrompt, requestedSeconds)
+                                musicSaved = true
                                 val played = withContext(Dispatchers.IO) { ElevenLabsMusic.play(song) }
                                 if (played) "歌曲已保存，开始播放；没有配置专属 Finetune 时不是角色原 TTS 音色。"
                                 else "歌曲已保存，但本机未能开始播放。"
@@ -380,6 +384,30 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                         Spacer(Modifier.width(8.dp))
                     }
                     Text(if (generatingMusic) "歌曲生成中" else "生成并试听原创歌曲（消耗额度）")
+                }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(
+                        modifier = Modifier.weight(1f),
+                        enabled = musicSaved && !generatingMusic,
+                        onClick = {
+                            val role = selectedVoiceRole
+                            scope.launch {
+                                runCatching {
+                                    val lastSong = ElevenLabsMusic.latestSong(context, role)
+                                        ?: error("该角色没有已保存的歌曲")
+                                    withContext(Dispatchers.IO) { ElevenLabsMusic.play(lastSong) }
+                                }.onSuccess { musicNotice = "正在重播上次生成的歌曲，不会再次扣生成额度。" }
+                                    .onFailure { musicNotice = it.message ?: "重播失败" }
+                            }
+                        },
+                    ) { Text("重播上一首") }
+                    OutlinedButton(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            ElevenLabsMusic.stop()
+                            musicNotice = "已停止播放"
+                        },
+                    ) { Text("停止歌曲") }
                 }
                 if (musicNotice.isNotBlank()) Text(musicNotice, color = AdvancedMuted, fontSize = 12.sp)
                 Text("现成热门歌曲翻唱不属于此生成接口；请使用原创或确有授权的歌词与素材。",
