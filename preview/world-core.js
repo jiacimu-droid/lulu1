@@ -58,9 +58,9 @@
   function inBounds(s,x,y){return x>0&&y>0&&x<s.width-1&&y<s.height-1}
   function blocked(s,x,y){if(!inBounds(s,x,y))return true;const t=s.terrain[y*s.width+x];return ['border','water','wall'].includes(t)||s.props.some(p=>p.solid&&!p.used&&p.x===x&&p.y===y)}
   function nearest(s,range=1){return s.props.filter(p=>!p.used&&Math.abs(p.x-s.player.x)+Math.abs(p.y-s.player.y)<=range).sort((a,b)=>Math.abs(a.x-s.player.x)+Math.abs(a.y-s.player.y)-Math.abs(b.x-s.player.x)-Math.abs(b.y-s.player.y))[0]||null}
-  function walk(s,dx,dy){if(!Number.isInteger(dx)||!Number.isInteger(dy)||Math.abs(dx)+Math.abs(dy)!==1)return {ok:false,message:'无效方向'};const x=s.player.x+dx,y=s.player.y+dy;if(blocked(s,x,y))return {ok:false,message:'前面有障碍，试试绕开'};const old={...s.player};s.player={x,y};s.turns++;if(s.companion.following)s.companion={...old,following:true};return {ok:true,message:''}}
+  function walk(s,dx,dy){if(s.finished)return {ok:false,message:'本局已结算，请重新开始'};if(!Number.isInteger(dx)||!Number.isInteger(dy)||Math.abs(dx)+Math.abs(dy)!==1)return {ok:false,message:'无效方向'};const x=s.player.x+dx,y=s.player.y+dy;if(blocked(s,x,y))return {ok:false,message:'前面有障碍，试试绕开'};const old={...s.player};s.player={x,y};s.turns++;if(s.companion.following)s.companion={...old,following:true};return {ok:true,message:''}}
   function record(s,message){s.notes=[message,...s.notes].slice(0,8);return {ok:true,message}}
-  function use(s,id){const p=s.props.find(o=>o.id===id&&!o.used);if(!p)return {ok:false,message:'这里没有可互动目标'};if(Math.abs(p.x-s.player.x)+Math.abs(p.y-s.player.y)>1)return {ok:false,message:'先走近目标，再互动'};
+  function use(s,id){if(s.finished)return {ok:false,message:'本局已结算，请重新开始'};const p=s.props.find(o=>o.id===id&&!o.used);if(!p)return {ok:false,message:'这里没有可互动目标'};if(Math.abs(p.x-s.player.x)+Math.abs(p.y-s.player.y)>1)return {ok:false,message:'先走近目标，再互动'};
     if(p.kind==='friend'){s.holding=!s.holding;s.companion={x:p.x,y:p.y,following:s.holding};return record(s,s.holding?'牵手成功 · 演示同伴会跟着走':'已松开手 · 你可以独自探索')}
     if(s.kind==='meet'){if(p.kind==='house'||p.kind==='shop')return record(s,`来到了${p.kind==='house'?'咖啡店':'书店'}门口；内部地图仍在制作`);return record(s,'看见了街边的小景物')}
     if(s.kind==='island'){
