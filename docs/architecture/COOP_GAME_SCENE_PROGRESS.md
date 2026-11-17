@@ -619,3 +619,8 @@
 ## 2026-11-17 G-02.6 · 工作台真实升级到晶矿的跨存档根因回归
 - 原 `IslandWorkbenchRecipesTest.woodenPickaxeIsPersistedAndDoesNotMineCrystalVeins` 最后直接向 tools 注入 `pickaxe`，没有证明玩家实际工作台制作石镐、扣木石、保存重进后再采晶矿。现测试改为走 `BlockIslandRules.act(craft_pickaxe)`，断言真实扣料，序列化重进后开采蓝晶、再重进保留晶石、已采矿格与工具；保留木镐拒绝晶矿的前半段。测试提交 `02389bf33969cfc1c210b8d087901baa4f886951`，blob `a39cfbf9fb3a6b2cbfdfaed46ac4c607ddd6846d`；生产规则未变（`BlockIslandRules.kt` blob `ed89c1148e64d84a47e2471a9fae3d90dd063e30`）。
 - CI：最近可核 main push `d51e440` 的 APK/JVM #43940227387 completed/failure（3307 测试，2 失败：MemoryEvidenceCommitIntegrationTest、RecentSemanticTimelineTest，均非本 G 测试），索引 #43940227396 success；本测试新 SHA 的 APK/JVM/index 尚未取得终态，不称通过。下一实际入口 `IslandWorkbenchRecipesTest.kt` 新增真实升级链的 JVM 执行、`BlockIslandScreen.kt` 工作台触控及 Redmi 横屏采晶视觉/帧时间。无新增美术与真机验收。
+
+
+## 2026-11-17 G-02.6 · 怪物占据遗失背包的真实战斗/找回/重进回归（CI 待验）
+- `IslandTargetActionTest.guardedLostPackRequiresRealCombatThenRecoversExactlyOnceAcrossReload` 通过正式 `islandTargetAction`、`islandNearbyAction` 和 `BlockIslandRules.act` 验证：活怪占据掉包格时 HUD 优先攻击，直接取包不增加物资；真实击败怪物后存档重载才开放拾取，木/石/野果/晶石按原包精确转回，再重载后不可重复领取。测试提交 `5788abe9dac27f2ec59fcaef4fad556c5889c430`，测试 blob `72e8edbc1837d32217b47a2b0bb4ee9c5b17dd7d`；权威生产规则 `BlockIslandRules.kt` blob `ed89c1148e64d84a47e2471a9fae3d90dd063e30` 未改，不重复造掉包账本。
+- 本次测试尚无实际 JVM 通过证据；main push JVM/APK/index 必须以对应 SHA 工作流核查，Redmi 横屏地图目标切换、掉包视觉、帧时间和真实伙伴行动仍待验。下一入口：`IslandTargetActionTest` JVM 首错及 `BlockIslandScreen.kt` 目标切换/按钮点击，继续真机掉包取回后重新进入。
