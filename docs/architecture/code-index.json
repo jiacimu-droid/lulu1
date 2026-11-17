@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T14:16:41.597810+00:00",
-  "commit": "76bfbd5bbacd502650fd14911d9358a38132aa60",
+  "generatedAt": "2026-11-17T14:24:30.370123+00:00",
+  "commit": "1e1e18fc181da77abce0b75e9e0c810f538e2752",
   "branch": "main",
-  "sourceFingerprint": "98f268c4a706e780c51ee330cf29ec80e4452cfc82e63f9b43d594a904e2f70c",
+  "sourceFingerprint": "785fd2b4f99094100cf18d96fdaf2fc998f981d1a2848747713357089912ea27",
   "summary": {
     "files": 1414,
-    "lines": 298838,
+    "lines": 298872,
     "symbols": 4255
   },
   "symbolIndex": {
@@ -1023,7 +1023,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 42
+        "line": 41
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
@@ -1277,7 +1277,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 157
+        "line": 186
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
@@ -6743,7 +6743,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 184
+        "line": 213
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
@@ -7577,7 +7577,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 56
+        "line": 55
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
@@ -8679,7 +8679,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 61
+        "line": 60
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -9737,61 +9737,61 @@
     "DigitalLifeProfileStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 32
+        "line": 31
       }
     ],
     "lifeForm": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 59
+        "line": 58
       }
     ],
     "isResolved": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 62
+        "line": 61
       }
     ],
     "birthAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 63
+        "line": 62
       }
     ],
     "allowsTimestamp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 65
+        "line": 64
       }
     ],
     "registerNewLife": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 73
-      }
-    ],
-    "registerRealWorldLife": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 81
+        "line": 72
       }
     ],
     "confirmLegacyLifeForm": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 117
+        "line": 108
+      }
+    ],
+    "migrateExistingCharactersToDigitalLife": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 143
       }
     ],
     "retireResident": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 148
+        "line": 177
       }
     ],
     "restartOrigin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 170
+        "line": 199
       }
     ],
     "optionsFor": [
@@ -26839,8 +26839,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 299,
-      "sha256": "94afd7796d6903b1d850565acb3758390fa8c3dfb70883ddf556c9f480d80d11",
+      "lines": 304,
+      "sha256": "ad2c9b3fa2e7de2c5895231e7352a3ef3f507b95c8523f8fa3959f7c0b142ad8",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -32327,8 +32327,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-      "lines": 261,
-      "sha256": "20d452883b8bea22355ae3b7e03cba910e3022b8f5fa24bea851b15a9e3d1024",
+      "lines": 290,
+      "sha256": "7520f7be905f52b50e283a6a3f4a76011ea132f6e5eec1a21b17a7adddc49e75",
       "symbols": [
         {
           "name": "CharacterLifeForm",
@@ -32340,63 +32340,63 @@
         },
         {
           "name": "DigitalLifeProfileStore",
-          "line": 32
+          "line": 31
         },
         {
           "name": "initialize",
-          "line": 42
+          "line": 41
         },
         {
           "name": "get",
-          "line": 56
+          "line": 55
         },
         {
           "name": "lifeForm",
-          "line": 59
+          "line": 58
         },
         {
           "name": "isEnabled",
-          "line": 61
+          "line": 60
         },
         {
           "name": "isResolved",
-          "line": 62
+          "line": 61
         },
         {
           "name": "birthAt",
-          "line": 63
+          "line": 62
         },
         {
           "name": "allowsTimestamp",
-          "line": 65
+          "line": 64
         },
         {
           "name": "registerNewLife",
-          "line": 73
-        },
-        {
-          "name": "registerRealWorldLife",
-          "line": 81
+          "line": 72
         },
         {
           "name": "confirmLegacyLifeForm",
-          "line": 117
+          "line": 108
+        },
+        {
+          "name": "migrateExistingCharactersToDigitalLife",
+          "line": 143
         },
         {
           "name": "retireResident",
-          "line": 148
+          "line": 177
         },
         {
           "name": "remove",
-          "line": 157
+          "line": 186
         },
         {
           "name": "restartOrigin",
-          "line": 170
+          "line": 199
         },
         {
           "name": "promptSection",
-          "line": 184
+          "line": 213
         }
       ]
     },
