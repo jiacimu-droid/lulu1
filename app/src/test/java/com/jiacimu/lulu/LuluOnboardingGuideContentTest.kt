@@ -38,7 +38,7 @@ class LuluOnboardingGuideContentTest {
     @Test fun heroFocusesOnFourDistinctStrengths() {
         assertEquals(4, luluGuideHeroHighlights.size)
         assertEquals(
-            listOf("memory", "groups", "games", "phone"),
+            listOf("memory", "continuity", "games", "phone"),
             luluGuideHeroHighlights.map { it.featureKey },
         )
         assertTrue(luluGuideHeroHighlights.all { point ->
@@ -50,7 +50,7 @@ class LuluOnboardingGuideContentTest {
 
     @Test fun everyFeatureHasUsefulContentAndARealDestination() {
         assertEquals(luluGuideFeatures.size, luluGuideFeatures.map { it.key }.distinct().size)
-        assertTrue(luluGuideFeatures.size >= 21)
+        assertTrue(luluGuideFeatures.size >= 22)
         assertTrue(luluGuideFeatures.all { it.highlights.isNotEmpty() })
         val byKey = luluGuideFeatures.associateBy { it.key }
         assertTrue(byKey.getValue("call").instructions.any { it.contains("30 分钟") })
@@ -67,6 +67,7 @@ class LuluOnboardingGuideContentTest {
         assertTrue(byKey.getValue("widgets").instructions.any { it.contains("星座") })
         assertTrue(byKey.getValue("meet").warning.contains("大世界"))
         assertTrue(byKey.getValue("games").description.contains("连麦"))
+        assertTrue(byKey.getValue("continuity").instructions.any { it.contains("私聊") && it.contains("电话") })
         assertTrue(byKey.getValue("live2d").warning.contains("不兼容"))
         assertTrue(byKey.getValue("memory").description.contains("自动"))
         assertTrue(luluGuideFeatures.none { it.warning.contains("内测提醒") })
