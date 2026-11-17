@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T19:20:51.701713+00:00",
-  "commit": "6339789354a619c2ec4e2d4b48c2c6111b1f2277",
+  "generatedAt": "2026-11-17T19:23:20.187320+00:00",
+  "commit": "040779ea237debe9fc360195a7765c980a73bb92",
   "branch": "main",
-  "sourceFingerprint": "07e963ed4aaf272629b0b986426fcdd9e6bfbdde6ece67878fe3686ba3ce4dad",
+  "sourceFingerprint": "4e253ed551c6f9349b89465c6b78722b920946b10b904e7101a1c4b6d9b6680d",
   "summary": {
     "files": 1442,
-    "lines": 303422,
+    "lines": 303457,
     "symbols": 4343
   },
   "symbolIndex": {
@@ -2195,11 +2195,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 183
+        "line": 201
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 242
+        "line": 268
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
@@ -4801,7 +4801,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 221
+        "line": 239
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
@@ -9297,7 +9297,7 @@
     "local": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 185
+        "line": 203
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
@@ -9307,13 +9307,13 @@
     "elapsed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 186
+        "line": 204
       }
     ],
     "clock": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 188
+        "line": 206
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
@@ -32153,8 +32153,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 291,
-      "sha256": "5496a19c652c66b27f09bfce5ef4aec4bfa4f385a4b20d6dd7c2e3a8804b1ec3",
+      "lines": 326,
+      "sha256": "ee2466ad226bfa7017a21276a0dd98e360680349506e6ac426e0e65e09a63834",
       "symbols": [
         {
           "name": "DailyCommitmentAttempt",
@@ -32166,27 +32166,27 @@
         },
         {
           "name": "render",
-          "line": 183
+          "line": 201
         },
         {
           "name": "local",
-          "line": 185
+          "line": 203
         },
         {
           "name": "elapsed",
-          "line": 186
+          "line": 204
         },
         {
           "name": "clock",
-          "line": 188
+          "line": 206
         },
         {
           "name": "select",
-          "line": 221
+          "line": 239
         },
         {
           "name": "render",
-          "line": 242
+          "line": 268
         }
       ]
     },
