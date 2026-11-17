@@ -71,23 +71,33 @@ internal object ElevenLabsRoleSongPipeline {
             .firstOrNull { VOICE_ID_PATTERN.matches(it) }
     }
 
-    fun convertedFile(original: File, voiceId: String, style: String = NATURAL): File {
+    fun convertedFile(original: File, voiceId: String, style: String = NATURAL,
+                      engine: String = ElevenLabsSingingSvc.ENGINE_LEGACY): File {
         require(VOICE_ID_PATTERN.matches(voiceId)) { "角色 ElevenLabs Voice ID 无效" }
         require(style == NATURAL || style == EXPRESSIVE) { "未知的歌声转换模式" }
+        require(engine in setOf(ElevenLabsSingingSvc.ENGINE_LEGACY,
+            ElevenLabsSingingSvc.ENGINE_SVC)) { "未知的歌声转换引擎" }
         val hash = MessageDigest.getInstance("SHA-256")
             .digest(voiceId.toByteArray(Charsets.UTF_8))
             .take(6).joinToString("") { "%02x".format(it) }
         // Keep the original natural cache filename unchanged for existing users.
-        val suffix = if (style == EXPRESSIVE) "_expressive" else ""
+        val suffix = when {
+            engine == ElevenLabsSingingSvc.ENGINE_SVC -> "_seedvc_v1"
+            style == EXPRESSIVE -> "_expressive"
+            else -> ""
+        }
         return File(original.parentFile, original.nameWithoutExtension + "_role_" + hash + suffix + ".wav")
     }
 
-    fun convert(context: Context, original: File, voiceId: String, style: String = NATURAL): File {
+    fun convert(context: Context, original: File, voiceId: String,
+                style: String = NATURAL,
+                engine: String = ElevenLabsSingingSvc.engine(context)): File {
         require(original.isFile && original.length() in 1025..MAX_UPLOAD) {
             "原始歌曲文件不可用或过大"
         }
-        val target = convertedFile(original, voiceId, style)
+        val target = convertedFile(original, voiceId, style, engine)
         if (target.isFile && target.length() > 44L) return target
+        if (engine == ElevenLabsSingingSvc.ENGINE_SVC) ElevenLabsSingingSvc.requireReady(context)
         // Check duration BEFORE paying for separation or voice conversion.
         val durationMs = runCatching {
             val metadata = MediaMetadataRetriever()
@@ -109,27 +119,25 @@ internal object ElevenLabsRoleSongPipeline {
         check(temp.mkdirs()) { "手机存储空间不足，无法建立歌曲转换临时目录" }
         val outputPart = File(original.parentFile, target.name + ".part")
         try {
-            val zip = File(temp, "stems.zip")
-            upload(
-                url = "$ROOT/music/stem-separation?output_format=mp3_44100_128",
-                apiKey = apiKey,
-                file = original,
-                fileField = "file",
-                fields = mapOf("stem_variation_id" to "two_stems_v1"),
-                accept = "application/zip",
-                output = zip,
-            )
-            val (vocals, instrumental) = extractTwoStems(zip, temp)
+            val (vocals, instrumental) = cachedStems(original, temp, apiKey)
             val convertedVoice = File(temp, "role-vocals.mp3")
-            upload(
-                url = "$ROOT/voice-changer/$voiceId?output_format=mp3_44100_128",
-                apiKey = apiKey,
-                file = vocals,
-                fileField = "audio",
-                fields = changerFields(style),
-                accept = "audio/mpeg",
-                output = convertedVoice,
-            )
+            if (engine == ElevenLabsSingingSvc.ENGINE_SVC) {
+                // Existing role Voice ID / existing Eleven key. Never ask the owner
+                // to provide another TTS voice ID or train a new singer first.
+                val reference = ElevenLabsSingingSvc.ensureReference(context, voiceId, apiKey)
+                ElevenLabsSingingSvc.convert(context, vocals, reference, convertedVoice)
+            } else {
+                // The speech changer is explicitly legacy/experimental.
+                upload(
+                    url = "$ROOT/voice-changer/$voiceId?output_format=mp3_44100_128",
+                    apiKey = apiKey,
+                    file = vocals,
+                    fileField = "audio",
+                    fields = changerFields(style),
+                    accept = "audio/mpeg",
+                    output = convertedVoice,
+                )
+            }
             check(convertedVoice.length() > 1024L) { "变声接口没有返回有效的人声" }
             outputPart.delete()
             ElevenLabsSongAudioMix.render(instrumental, convertedVoice, outputPart)
@@ -140,6 +148,46 @@ internal object ElevenLabsRoleSongPipeline {
             outputPart.delete()
             temp.deleteRecursively()
         }
+    }
+
+    /**
+     * Separation is separately billed. Keep validated stems in the role's private
+     * storage so changing the singing engine does not pay to split the same song
+     * again. A partial or invalid cache is re-created, not reported as success.
+     * Store stems BELOW a subfolder so latestOriginalSong still sees original MP3.
+     */
+    private fun cachedStems(original: File, temp: File, apiKey: String): Pair<File, File> {
+        val folder = File(original.parentFile,
+            "music_stems/" + original.nameWithoutExtension)
+        val vocals = File(folder, "vocals.mp3")
+        val instrumental = File(folder, "instrumental.mp3")
+        if (vocals.length() > 1024 && instrumental.length() > 1024)
+            return vocals to instrumental
+        val zip = File(temp, "stems.zip")
+        upload(
+            url = "$ROOT/music/stem-separation?output_format=mp3_44100_128",
+            apiKey = apiKey,
+            file = original,
+            fileField = "file",
+            fields = mapOf("stem_variation_id" to "two_stems_v1"),
+            accept = "application/zip",
+            output = zip,
+        )
+        val (freshVoice, freshBacking) = extractTwoStems(zip, temp)
+        check(folder.isDirectory || folder.mkdirs()) { "无法缓存已经付费的人声分轨" }
+        for ((source, destination) in listOf(freshVoice to vocals,
+                freshBacking to instrumental)) {
+            val partial = File(folder, destination.name + ".part")
+            try {
+                source.copyTo(partial, overwrite = true)
+                check(partial.length() > 1024L)
+                if (destination.exists()) destination.delete()
+                check(partial.renameTo(destination)) { "分轨无法写入持久缓存" }
+            } finally {
+                partial.delete()
+            }
+        }
+        return vocals to instrumental
     }
 
     /**
