@@ -8,6 +8,17 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LuluDesktopWidgetTest {
+    @Test fun profileBirthdayMapsToExactSignsAndBadInputNeverGuesses() {
+        assertEquals(0, luluSignFromBirthday("2001-01-19"))
+        assertEquals(1, luluSignFromBirthday("2001-01-20"))
+        assertEquals(2, luluSignFromBirthday("2月19日"))
+        assertEquals(5, luluSignFromBirthday("06/04"))
+        assertEquals(11, luluSignFromBirthday("12月21日"))
+        assertEquals(0, luluSignFromBirthday("12月22日"))
+        assertEquals(null, luluSignFromBirthday("2月30日"))
+        assertEquals(null, luluSignFromBirthday("没有写日期"))
+    }
+
     @Test fun aFortuneIsStableForOneLocalDayAndSign() {
         val day = LocalDate.of(2026, 11, 18)
         val value = luluDailyFortune(day, 2)
