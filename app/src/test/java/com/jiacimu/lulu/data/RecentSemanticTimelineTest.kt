@@ -168,4 +168,41 @@ class RecentSemanticTimelineTest {
         assertNotEquals(turns[0].key, turns[1].key)
     }
 
+    @Test fun independentPresenceSurvivesAsCitableSubjectiveEpisodeButDoesNotFloodTurns() {
+        val spoken = row("source", 0, "message", EventEvidenceKind.UserStatement, "dm",
+            content = "今晚想吃火锅")
+        val feelings = (1..80).map { i ->
+            row("self-$i", i.toLong(), "presence", EventEvidenceKind.Inference,
+                content = if (i == 80) "刚才真的觉得这件小事很温暖" else "当时的私人感受 $i",
+                channel = "此刻")
+        }
+        val turns = RecentSemanticTimeline.select(listOf(spoken) + feelings, 20)
+        assertEquals(2, turns.size)
+        val subjective = turns.single { it.key.startsWith("presence-experience:") }
+        assertEquals(RecentSemanticTimeline.Kind.EXPERIENCE, subjective.kind)
+        assertEquals(80, subjective.events.size)
+        val excerpt = RecentSemanticTimeline.render(subjective, 1_600)
+        assertTrue(excerpt.contains("当时独立的主观记录"))
+        assertTrue(excerpt.contains("不是客观亲历"))
+        assertTrue(excerpt.contains("self-80"))
+        val extraction = MemoryExtractionTurnView.build(turns)
+        assertTrue(extraction.visibleSources.any { it.id == "self-80" })
+        assertTrue(extraction.text.contains("eventId=self-80@"))
+        assertTrue(extraction.text.contains("当时本人的主观心声"))
+        assertEquals(1, turns.count { it.kind == RecentSemanticTimeline.Kind.SPEECH })
+    }
+
+    @Test fun linkedPresenceIsNotDoubleCountedAsIndependentEpisode() {
+        val speech = row("role-reply", 1, "message",
+            EventEvidenceKind.CharacterStatement, "dm", content = "好，我知道了")
+        val thought = row("presence-role-reply-role", 2, "presence",
+            EventEvidenceKind.Inference, "dm", content = "当时心里很在意")
+        val turns = RecentSemanticTimeline.select(listOf(speech, thought), 20)
+        assertEquals(1, turns.size)
+        assertEquals(listOf("role-reply", "presence-role-reply-role"),
+            turns.single().events.map { it.id })
+        assertTrue(RecentSemanticTimeline.render(turns.single(), 800)
+            .contains("当时心里很在意"))
+    }
+
 }
