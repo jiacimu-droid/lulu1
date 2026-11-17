@@ -1229,10 +1229,12 @@ class ConversationExpressionGatewayTest {
         LuluDeviceToolBridge.initialize(context)
         val role = MigratedDomainStores.characters.create("通话待交付证据样本")
         val id = role.characterId
-        val backing = "phone-search-source-$id"
+        val peer = MigratedDomainStores.characters.create("通话证据来源")
+        val chat = MigratedDomainStores.chat
+        val group = chat.createGroupConversation("地址线索", listOf(id, peer.characterId))
+        val bubble = chat.appendCharacterMessage(group.id, "可核实的地址", authorCharacterId = peer.characterId)
+        val backing = "${bubble.id}:group:$id"
         val receiptId = "phone-search-receipt-$id"
-        SharedExperienceTimeline.record(backing, id, "已读资料", "执行器", "可核实的地址",
-            triggerExtraction = false, source = "digital-world", evidenceKind = EventEvidenceKind.Observation)
         val result = JSONObject().put("success", true)
             .put("summary", "已核实地址").put("evidenceId", backing)
         SharedExperienceTimeline.record(receiptId, id, "实际工具执行", "执行器",
@@ -1242,10 +1244,12 @@ class ConversationExpressionGatewayTest {
         val receipt = SharedExperienceTimeline.eventsByIds(id, listOf(receiptId)).single()
         val queue = com.jiacimu.lulu.CallExternalResultPolicy
         assertEquals(receipt, queue.pendingEvidence(context, id, receiptId))
-        SharedExperienceTimeline.deleteEvent(backing)
+        assertTrue(chat.retractCharacterMessage(bubble.id, peer.displayName))
+        assertEquals(receipt, SharedExperienceTimeline.eventsByIds(id, listOf(receiptId)).single())
         assertNull(queue.pendingEvidence(context, id, receiptId))
 
         MockWebServer().use { server ->
+            server.enqueue(MockResponse().setResponseCode(400).setBody("unexpected request"))
             server.start()
             val config = LuluAiServices.connectionStore.saveConfiguration(null, "test",
                 server.url("/").toString(), "test-only")
