@@ -237,6 +237,7 @@ internal object LuluStrictMode {
             if (active(context)?.optString("id") != id) return@postDelayed
             val after = LuluAccessibilityService.ownerForegroundPackage().orEmpty()
             val confirmed = doReturn && accepted && after == context.packageName
+            if (confirmed && lastPackage == foreground) lastPackage = ""
             val detail = "前台应用=" + foreground + "；监督=" +
                 session.optString("mode") + "；尝试切回=" + accepted +
                 "；切回后核实=" + after + "；成功=" + confirmed
@@ -254,7 +255,8 @@ internal object LuluStrictMode {
         for (index in (old.length() - 9).coerceAtLeast(0) until old.length()) next.put(old.opt(index))
         next.put(JSONObject().put("at", now).put("detail", detail))
         p.edit().putString(key, next.toString()).apply()
-        record(role, "strict-window-" + id + "-" + now, detail, EventEvidenceKind.Observation)
+        // Per-switch evidence stays in the bounded session log. Only a single
+        // batch enters the raw character timeline when a paid review is due.
         val lastReview = p.getLong("lastReview", 0L)
         if (now - lastReview >= REVIEW_GAP &&
             p.edit().putLong("lastReview", now).commit()) {
@@ -344,6 +346,14 @@ class LuluStrictReviewWorker(context: Context, params: WorkerParameters) :
             current?.optString("characterId") != role) return Result.success()
         return runCatching {
             initializeBackgroundRuntime(applicationContext)
+            val fresh = LuluStrictMode.status(applicationContext, role)
+            val snapshot = JSONObject(fresh).optString("recent").take(4500)
+            SharedExperienceTimeline.record(
+                "strict-review-" + id + "-" + System.currentTimeMillis(),
+                role, "临时强制监督", "手机",
+                "本段监督最近的真实应用变化与切回核验：" + snapshot,
+                source = "strict-mode", evidenceKind = EventEvidenceKind.Observation,
+                triggerExtraction = false)
             ProactivePerceptionRuntime.runDueCycle(applicationContext,
                 "强制模式有新的真实前台应用记录与切回结果，请由本人决定是否联系主人、继续观察、调整监督或沉默",
                 targetCharacterId = role, force = true)
