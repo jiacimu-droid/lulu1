@@ -170,6 +170,10 @@ object CommitmentTaskStore {
             }
         }
         if (changed) persist(next)
+        // Older extractors could register the same wake-up twice when one goal
+        // contained a parenthetical date. Keep the authoritative attempt and
+        // all stored receipts, but retire the extra armed callback.
+        mergeDuplicateTimedCommitments()
         // One-time migration of unequivocal duplicate daily self-plan/call tasks.
         // No chat events or independent commitments are deleted.
         appContext?.let {
@@ -316,6 +320,19 @@ object CommitmentTaskStore {
                     lastAlarmDeliverySource = deliverySource,
                     lastActionResult = "系统回调迟于约定超过两分钟；未补拨，目标完成情况仍未知，需另行安排",
                 ) }
+                // The missed native broadcast must still enter the existing
+                // role-owned recovery decision. App restart already does this,
+                // but that recovery path is not guaranteed to run before a
+                // WorkManager backup callback consumes the late alarm.
+                appContext?.let { context ->
+                    runCatching {
+                        ProactivePerceptionScheduler.scheduleMissedCommitmentReview(
+                            context, current.characterId, deadline)
+                    }.onFailure { error ->
+                        android.util.Log.w("LuluCommitment",
+                            "Could not hand off missed alarm for ${current.id}", error)
+                    }
+                }
             }
             return null
         }
@@ -504,8 +521,44 @@ object CommitmentTaskStore {
         }
     }
 
+    /**
+     * Existing stored appointments are reconciled without erasing real attempts.
+     * A second date-annotated copy of exactly the same action/time/goal must
+     * not leave a second wake-up or calendar card. Distinct goals and executed
+     * occurrences remain independent.
+     */
+    @Synchronized
+    internal fun mergeDuplicateTimedCommitments() {
+        val candidates = mutableTasks.value.filter {
+            it.dueAt != null && it.status in setOf(
+                CommitmentTaskStatus.Scheduled, CommitmentTaskStatus.WaitingForFeedback,
+                CommitmentTaskStatus.Blocked, CommitmentTaskStatus.Expired,
+                CommitmentTaskStatus.Completed)
+        }.sortedWith(compareByDescending<CommitmentTask> {
+            it.status == CommitmentTaskStatus.Completed
+        }.thenByDescending { it.lastAlarmReceivedAt != null }
+            .thenByDescending { it.attemptCount }
+            .thenBy { it.createdAt })
+        val kept = mutableListOf<CommitmentTask>()
+        candidates.forEach { task ->
+            val original = kept.firstOrNull { sameRecordedTimedCommitment(it, task) }
+            if (original == null) {
+                kept.add(task)
+            } else if (task.status == CommitmentTaskStatus.Completed ||
+                (task.lastAlarmReceivedAt != null && original.lastAlarmReceivedAt != null)) {
+                // Two independently executed calls must retain their separate
+                // factual results; de-duplication cannot rewrite real history.
+                kept.add(task)
+            } else {
+                cancel(task.id, "重复定时约定已整理：保留原约定 ${original.id}；" +
+                    "旧任务回执：${task.readableLastResult().take(130)}")
+            }
+        }
+    }
+
     /** Keep the daily self-plan and clock reminder stores from double-firing. */
     internal fun mergeDailyDuplicates() {
+        mergeDuplicateTimedCommitments()
         appContext?.let(RoleDayScheduleStore::mergeMatchingDailyCallPlans)
     }
 
