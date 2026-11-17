@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T18:14:14.698920+00:00",
-  "commit": "e059869a6e39de4f6ca0ad939797172f41e0f7fd",
+  "generatedAt": "2026-11-17T18:47:54.329504+00:00",
+  "commit": "e723e547c4269316000549ecb79dadf62ddc84de",
   "branch": "main",
-  "sourceFingerprint": "0e4107026eaa53f1af4858abeada1ed3b93f89506f30ec2f390578de7c51f96a",
+  "sourceFingerprint": "0d776cf233f1bbbd39b731bf9dd0e3b8700fd5a38a03e477a95696a64c239cec",
   "summary": {
     "files": 1442,
-    "lines": 303185,
+    "lines": 303194,
     "symbols": 4343
   },
   "symbolIndex": {
@@ -2603,7 +2603,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1631
+        "line": 1640
       }
     ],
     "FollowUp": [
@@ -4837,15 +4837,15 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1947
+        "line": 1956
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1999
+        "line": 2008
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2046
+        "line": 2055
       }
     ],
     "todoId": [
@@ -21149,7 +21149,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 3126
+        "line": 3135
       }
     ],
     "reload": [
@@ -21727,7 +21727,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2508
+        "line": 2517
       }
     ],
     "concern": [
@@ -21743,7 +21743,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1671
+        "line": 1680
       }
     ],
     "reply": [
@@ -22853,7 +22853,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2900
+        "line": 2909
       }
     ],
     "modelAnswer": [
@@ -22865,69 +22865,69 @@
     "resident": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1185
+        "line": 1194
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1471
+        "line": 1480
       }
     ],
     "row": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1398
+        "line": 1407
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1484
+        "line": 1493
       }
     ],
     "rejectedAgendaNeverBecomesExecutableAfterContactRestoredOrReceiptWithdrawn": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1465
+        "line": 1474
       }
     ],
     "invalid": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 1725
+        "line": 1734
       }
     ],
     "changedResidentPlanCanResumeOnlyIndependentStepsOnce": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2550
+        "line": 2559
       }
     ],
     "interruptedCalendarMutationRestoresOnlySideReceiptsFromAtomicProvenance": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2612
+        "line": 2621
       }
     ],
     "changedCalendarOrWithdrawnDecisionRevokesOldIndependentGrant": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2677
+        "line": 2686
       }
     ],
     "removedResidentPlanRetainsItsOwnUnknownChargeHistoryWithoutReplay": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 2839
+        "line": 2848
       }
     ],
     "withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 3021
+        "line": 3030
       }
     ],
     "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-        "line": 3103
+        "line": 3112
       }
     ],
     "ResidentDailyPolicyTest": [
@@ -48977,8 +48977,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
-      "lines": 3178,
-      "sha256": "0c3a01846ceceac48af0a417751e06099afab9cf3430b63762c5fa8f555b85cf",
+      "lines": 3187,
+      "sha256": "613b3ec3bcf9ec36a5dedffbf5967faed0988277a65e0cf8fe38b153c1dc57f9",
       "symbols": [
         {
           "name": "ResidentDailyContinuityTest",
@@ -49006,83 +49006,83 @@
         },
         {
           "name": "resident",
-          "line": 1185
+          "line": 1194
         },
         {
           "name": "row",
-          "line": 1398
+          "line": 1407
         },
         {
           "name": "rejectedAgendaNeverBecomesExecutableAfterContactRestoredOrReceiptWithdrawn",
-          "line": 1465
+          "line": 1474
         },
         {
           "name": "resident",
-          "line": 1471
+          "line": 1480
         },
         {
           "name": "row",
-          "line": 1484
+          "line": 1493
         },
         {
           "name": "choice",
-          "line": 1631
+          "line": 1640
         },
         {
           "name": "decision",
-          "line": 1671
+          "line": 1680
         },
         {
           "name": "invalid",
-          "line": 1725
+          "line": 1734
         },
         {
           "name": "select",
-          "line": 1947
+          "line": 1956
         },
         {
           "name": "select",
-          "line": 1999
+          "line": 2008
         },
         {
           "name": "select",
-          "line": 2046
+          "line": 2055
         },
         {
           "name": "posts",
-          "line": 2508
+          "line": 2517
         },
         {
           "name": "changedResidentPlanCanResumeOnlyIndependentStepsOnce",
-          "line": 2550
+          "line": 2559
         },
         {
           "name": "interruptedCalendarMutationRestoresOnlySideReceiptsFromAtomicProvenance",
-          "line": 2612
+          "line": 2621
         },
         {
           "name": "changedCalendarOrWithdrawnDecisionRevokesOldIndependentGrant",
-          "line": 2677
+          "line": 2686
         },
         {
           "name": "removedResidentPlanRetainsItsOwnUnknownChargeHistoryWithoutReplay",
-          "line": 2839
+          "line": 2848
         },
         {
           "name": "citizen",
-          "line": 2900
+          "line": 2909
         },
         {
           "name": "withdrawnOrEditedResidentDecisionCannotResumeUnsentEffects",
-          "line": 3021
+          "line": 3030
         },
         {
           "name": "residentAgendaCannotWriteUnderEditedWithdrawnOrForeignDecisionSource",
-          "line": 3103
+          "line": 3112
         },
         {
           "name": "proposal",
-          "line": 3126
+          "line": 3135
         }
       ]
     },
