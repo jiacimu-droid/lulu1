@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T19:25:15.215845+00:00",
-  "commit": "b9602de115b9b70a4d0cd7d9375775d3c46c3b8b",
+  "generatedAt": "2026-11-17T19:26:03.871286+00:00",
+  "commit": "66e0f01931194847060a31ef45f0cc826c745c13",
   "branch": "main",
-  "sourceFingerprint": "28289ec0bd232949305737ab92afbf572231dcd38ae653d6efdf0a512eb1c2bd",
+  "sourceFingerprint": "406c328f9f3d4fa2a33fbbadf86b3d520a7209f2738ae9df1e288913d878b30b",
   "summary": {
     "files": 1443,
-    "lines": 303835,
+    "lines": 303836,
     "symbols": 4344
   },
   "symbolIndex": {
@@ -569,7 +569,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-        "line": 38
+        "line": 39
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt",
@@ -9261,7 +9261,7 @@
     "drafts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-        "line": 58
+        "line": 59
       }
     ],
     "handled": [
@@ -26888,7 +26888,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt",
       "lines": 405,
-      "sha256": "35a93258ad2252e1c3a38715a1ac6924854da5e5ddb42263f39d957b763af20f",
+      "sha256": "55f0b89d3dc23d765b961595164f385967353bffa43a91af67d3f573b57e4c9c",
       "symbols": []
     },
     {
@@ -32092,16 +32092,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-      "lines": 80,
-      "sha256": "28fb328867b9ed527a1d71778d9344b0af53973d8ebd7ab8f3c3b616d22aeaa3",
+      "lines": 81,
+      "sha256": "580dae0656462eedbbd1873110b4631f94165edcd4b8b5f59ce11710b5ce2d45",
       "symbols": [
         {
           "name": "context",
-          "line": 38
+          "line": 39
         },
         {
           "name": "drafts",
-          "line": 58
+          "line": 59
         }
       ]
     },
