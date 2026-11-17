@@ -344,6 +344,10 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                 label = { Text("最近 N 轮暂不总结（推荐 5）") }, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(threshold, { threshold = it.filter(Char::isDigit) }, singleLine = true,
                 label = { Text("每 N 轮提取一次（推荐 15）") }, modifier = Modifier.fillMaxWidth())
+            val plannedProtection = excluded.toIntOrNull()?.coerceAtLeast(0) ?: policy.excludedRecentMessages
+            val plannedBatch = threshold.toIntOrNull()?.coerceAtLeast(1) ?: policy.readableThreshold
+            Text("近期共享原始时间线约 ${plannedProtection.toLong() + plannedBatch.toLong()} 轮；一局游戏的动作算一次经历，局内实际对话各算一轮。原始事件不会因总结被删除。",
+                fontSize = 12.sp, lineHeight = 18.sp, color = FeatureBlueGray)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("自动提取 + 每日／每周维护", Modifier.weight(1f))
                 Switch(checked = automatic, onCheckedChange = { enabled ->
