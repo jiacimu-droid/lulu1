@@ -339,11 +339,11 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
             }
             Text(latestHabits.ifBlank { "习惯学习 · 暂无记录" },
                 fontSize = 12.sp, color = FeatureBlueGray)
-            Text("自动记忆规则", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Text("自动记忆规则 · 按完整交流／经历计轮", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
             OutlinedTextField(excluded, { excluded = it.filter(Char::isDigit) }, singleLine = true,
-                label = { Text("最近 N 条暂不总结") }, modifier = Modifier.fillMaxWidth())
+                label = { Text("最近 N 轮暂不总结（推荐 5）") }, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(threshold, { threshold = it.filter(Char::isDigit) }, singleLine = true,
-                label = { Text("每 N 条总结一次") }, modifier = Modifier.fillMaxWidth())
+                label = { Text("每 N 轮提取一次（推荐 15）") }, modifier = Modifier.fillMaxWidth())
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("自动提取 + 每日／每周维护", Modifier.weight(1f))
                 Switch(checked = automatic, onCheckedChange = { enabled ->
@@ -385,7 +385,7 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                 } catch (error: Exception) { onNotice(error.message ?: "整理失败") }
                 finally { busy = false }
             } }, modifier = Modifier.fillMaxWidth()) { Text(if (busy) "正在整理…" else "整理当前角色记忆") }
-            Text("待提取的原始消息：${repository.pendingMessageCount(characterId)} 条", fontSize = 12.sp, color = FeatureBlueGray)
+            Text("待提取的完整轮次：${repository.pendingMessageCount(characterId)} 条", fontSize = 12.sp, color = FeatureBlueGray)
             debug.lastError?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
             TextButton(onClick = { audit = !audit }) { Text(if (audit) "收起下发记录" else "查看置顶记忆下发记录") }
             if (audit) CoreMemoryInjectionCard(characterId, memories)
