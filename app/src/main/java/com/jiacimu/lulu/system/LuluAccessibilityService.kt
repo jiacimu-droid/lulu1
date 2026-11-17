@@ -512,7 +512,7 @@ class LuluAccessibilityService : AccessibilityService() {
             val px = ((dimensions.first - 1L) * x / 1000L).toInt()
             val py = ((dimensions.second - 1L) * y / 1000L).toInt()
             val candidate = LuluMikaClickFallback.pickTarget(
-                px, py, dimensions.first, dimensions.second, nodes.map { node ->
+                px, py, dimensions.first, dimensions.second, nodes.filter { it.node.isClickable }.map { node ->
                     LuluMikaClickFallback.Candidate(
                         item = node.ref,
                         left = node.bounds.left.coerceAtLeast(0),
@@ -580,6 +580,134 @@ class LuluAccessibilityService : AccessibilityService() {
                     shoppingAllowed = shoppingAllowed,
                 )) return false
             return node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+        }
+
+        /** Read structural evidence without conversation previews, tickers or
+         * other changing page prose that could look like successful navigation. */
+        fun virtualNavigationFingerprint(displayId: Int, packageName: String): String {
+            val service = instance ?: return ""
+            if (virtualWindowStatus(displayId, packageName).optString("kind") != "target") return ""
+            val window = topVirtualAppWindow(service, displayId, packageName) ?: return ""
+            val root = window.root ?: return ""
+            val parts = mutableListOf(window.id.toString(), window.title?.toString().orEmpty())
+            if (!forEachVirtualNode(root) { node ->
+                    if (node.isClickable || node.isSelected || node.isEditable) {
+                        val r = Rect().also(node::getBoundsInScreen)
+                        parts += listOf(node.className, node.viewIdResourceName, r.flattenToString(),
+                            node.isSelected, node.isChecked, node.isEditable).joinToString("|")
+                    }
+                }) return ""
+            return LuluVirtualUiPolicy.fingerprint(parts)
+        }
+
+        private data class VisibleNavigationTarget(
+            val label: AccessibilityNodeInfo, val node: AccessibilityNodeInfo?,
+            val hit: Rect, val bounds: Rect, val allowTouch: Boolean,
+        )
+
+        // A row's displayed name may be a non-clickable TextView. Walk to its
+        // nearest clickable ancestor, preserving the actual name and hit point.
+        private fun visibleNavigationTargets(
+            root: AccessibilityNodeInfo, packageName: String, targetLabel: String, width: Int, height: Int,
+        ): Pair<Boolean, List<VisibleNavigationTarget>> {
+            val matches = linkedMapOf<Any, VisibleNavigationTarget>()
+            val douyinEntry = packageName == LuluVirtualChatSendPolicy.DOUYIN &&
+                LuluVirtualChatSendPolicy.isDouyinChatEntry(targetLabel) && visibleEditors(root).isEmpty()
+            val momentsEntry = packageName == LuluVirtualChatSendPolicy.WECHAT &&
+                LuluWeChatMomentsPolicy.isNavigation(targetLabel)
+            val namedEntry = douyinEntry || momentsEntry
+            if (!namedEntry && LuluMikaClickFallback.mayBeOutward(targetLabel, null))
+                return true to emptyList()
+            val complete = forEachVirtualNode(root) { label ->
+                if (label.isEditable || label.isPassword || !label.isEnabled ||
+                    listOf(label.text, label.contentDescription).none {
+                        LuluVirtualNavigation.label(it?.toString()) == targetLabel
+                    }) return@forEachVirtualNode
+                val hit = Rect().also(label::getBoundsInScreen)
+                if (hit.width() <= 0 || hit.height() !in 1..(height / 6) ||
+                    hit.centerX() !in 0 until width || hit.centerY() !in 0 until height) return@forEachVirtualNode
+                var current: AccessibilityNodeInfo? = label
+                var foundClickable = false
+                for (level in 0..12) {
+                    val node = current ?: break
+                    if (node == root) break
+                    if (node.windowId != root.windowId || node.isPassword) return@forEachVirtualNode
+                    if (node.isClickable && node.isVisibleToUser && node.isEnabled) {
+                        foundClickable = true
+                        val bounds = Rect().also(node::getBoundsInScreen)
+                        val ownLabel = node.contentDescription?.toString().orEmpty()
+                            .ifBlank { node.text?.toString().orEmpty() }
+                        val safe = !LuluMikaClickFallback.mayBeOutward(ownLabel, node.viewIdResourceName)
+                        val namedControl = namedEntry && (ownLabel.isBlank() ||
+                            LuluVirtualNavigation.label(ownLabel) == targetLabel)
+                        if (!node.isCheckable && !node.isEditable && !node.isScrollable &&
+                            bounds.width() > 0 && bounds.height() in 1..(height / 4) &&
+                            bounds.contains(hit.centerX(), hit.centerY()) && (safe || namedControl)) {
+                            matches.putIfAbsent(node, VisibleNavigationTarget(
+                                label, node, hit, bounds, allowTouch = safe && !douyinEntry))
+                        }
+                        break
+                    }
+                    current = node.parent
+                }
+                if (!foundClickable && (current == root || current == null) && !douyinEntry &&
+                    !LuluMikaClickFallback.mayBeOutward(targetLabel, label.viewIdResourceName)) {
+                    matches.putIfAbsent(hit, VisibleNavigationTarget(label, null, hit, hit, allowTouch = true))
+                }
+            }
+            return complete to matches.values.toList()
+        }
+
+        suspend fun navigateVirtualVisibleLabel(
+            displayId: Int, packageName: String, label: String, stillAuthorized: () -> Boolean,
+        ): JSONObject {
+            fun receipt(code: String) = JSONObject().put("accepted", false).put("errorCode", code)
+            val service = instance ?: return receipt("accessibility_disconnected")
+            val (width, height) = virtualDimensions(service, displayId)
+                ?: return receipt("navigation_display_unavailable")
+            fun resolve(): Pair<String, VisibleNavigationTarget?> {
+                if (virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+                    return "navigation_window_unverified" to null
+                val root = topVirtualAppWindow(service, displayId, packageName)?.root
+                    ?: return "navigation_window_unverified" to null
+                val (complete, candidates) = visibleNavigationTargets(root, packageName, label, width, height)
+                if (!complete) return "navigation_tree_incomplete" to null
+                return LuluVirtualNavigation.resolution(candidates.size).code to candidates.singleOrNull()
+            }
+            val (error, found) = resolve()
+            val target = found ?: return receipt(error)
+            if (!stillAuthorized() || !target.label.refresh() || !target.label.isVisibleToUser ||
+                Rect().also(target.label::getBoundsInScreen) != target.hit ||
+                listOf(target.label.text, target.label.contentDescription).none {
+                    LuluVirtualNavigation.label(it?.toString()) == label
+                } || virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+                return receipt("navigation_target_changed")
+            val node = target.node
+            if (node != null) {
+                if (!node.refresh() || !node.isVisibleToUser || !node.isEnabled || !node.isClickable ||
+                    Rect().also(node::getBoundsInScreen) != target.bounds)
+                    return receipt("navigation_target_changed")
+                if (node.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return JSONObject()
+                    .put("accepted", true).put("actionMethod", "visible_label_accessibility_click")
+            }
+            // Recheck the exact hit for custom-drawn labels, or once after a
+            // rejected node click. Never repeat a platform-accepted click.
+            val (_, fresh) = resolve()
+            val sameTarget = fresh != null && fresh.node == node && fresh.label == target.label &&
+                fresh.bounds == target.bounds && fresh.hit == target.hit
+            if (!stillAuthorized() ||
+                !LuluVirtualNavigation.allowsTouchFallback(
+                    nodeRejectedOrUnavailable = true, sameTarget = sameTarget, navigationOnly = target.allowTouch) ||
+                isSensitiveVirtualTap(displayId, packageName,
+                    target.hit.centerX() * 1000 / (width - 1).coerceAtLeast(1),
+                    target.hit.centerY() * 1000 / (height - 1).coerceAtLeast(1)))
+                return receipt("navigation_click_rejected")
+                    .put("actionMethod", if (node == null) "visible_label_virtual_touch"
+                        else "visible_label_accessibility_click")
+            return tapVirtualDisplay(displayId, packageName,
+                target.hit.centerX() * 1000 / (width - 1).coerceAtLeast(1),
+                target.hit.centerY() * 1000 / (height - 1).coerceAtLeast(1),
+            ).put("actionMethod", "visible_label_virtual_touch")
         }
 
         private fun snapshotRoot(

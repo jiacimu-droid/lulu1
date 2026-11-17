@@ -1494,7 +1494,7 @@ object ProactivePerceptionRuntime {
                     只返回一个短而完整的顶层 JSON 对象，第一项必须是 action，随后是对应的实际参数。
                     如果上一轮已决定 build_home_item，只补齐参数，不改动原来的行为意愿与其他动作。建设必须提供 name=家具名称、appearance=具体材质/颜色/外形（非空），以及本人选定的 itemType 和 position；例如 {"action":"digital_world","worldAction":"build_home_item","itemType":"lamp","name":"窗边小灯","appearance":"木质底座与乳白色玻璃灯罩","position":"窗台边"}，也可以 action=tool、tool=digital_world_action、args 内写这些字段。不要编造已建好，不能用心声替代参数。
                     如果上一轮已决定 plan_personal_activity，必须保持 action=tool、tool=plan_personal_activity，只补齐原 args 中缺失/无效的 title(2-100字)、intent(3-300字)、dueAt(本人真正选择的未来ISO8601含时区时间)。返回完整顶层 JSON，原本有效的标题、意愿、时间和任何其他行动都不许改。不要把计划已经安排好当成事实；必须取得执行回执。
-                    如果上一轮已决定 background_phone，只补全原有的 args.action（start/launch/tap/tap_element/swipe/back/type/focus_search/submit/search/send_chat_message/open_wechat_moments_composer/publish_wechat_moment/observe/stop），不要自行猜测成功或改掉目标App。要打开已安装的微信，例如返回 {"action":"tool","tool":"background_phone","args":{"action":"launch","appName":"微信"}}；要读取已有页面则由你本人明确选择 observe。此处是动作选择示例，不强制选择 launch。
+                    如果上一轮已决定 background_phone，只补全原有的 args.action（start/launch/tap/tap_element/navigate/swipe/back/type/focus_search/submit/search/send_chat_message/open_wechat_moments_composer/publish_wechat_moment/observe/stop），不要自行猜测成功或改掉目标App。要打开已安装的微信，例如返回 {"action":"tool","tool":"background_phone","args":{"action":"launch","appName":"微信"}}；要读取已有页面则由你本人明确选择 observe。此处是动作选择示例，不强制选择 launch。
                     如果确实想回应当前消息：{"action":"message","text":"自然完整的实际回复","reason":"你的真实理由"}。
                     如果想先保持安静：{"action":"silent","reason":"你确实选择安静的本人理由"}。
                     如果真正要操作获授权的设备或生活能力：{"action":"tool","tool":"实际注册的工具名","args":{},"reason":"真实缘由"}，参数按能力说明填写。
@@ -1904,7 +1904,7 @@ object ProactivePerceptionRuntime {
                     instruction = """
                         只修正你原本已选择的 background_phone 步骤里缺失或不支持的
                         args.action，不重写原消息、人物态度、已有其他动作和执行顺序。
-                        可选择 start/launch/tap/tap_element/swipe/back/type/focus_search/
+                        可选择 start/launch/tap/tap_element/navigate/swipe/back/type/focus_search/
                         submit/search/send_chat_message/open_wechat_moments_composer/publish_wechat_moment/observe/stop。打开已安装微信用
                         action=launch 且保留 appName=微信；读取已有页面用 observe。
                         由你本人依据原目标选择，不要仅因为存在 appName 就猜要 launch。
@@ -3065,7 +3065,15 @@ object ProactivePerceptionRuntime {
                     userText, "background_phone"),
             )
             phoneOutcomes += outcome
-            if (includeInPrivateReport) reportablePhoneOutcomes += outcome
+            if (includeInPrivateReport) {
+                reportablePhoneOutcomes += outcome
+                if (hasFreshUserMessage && outcome.actions == 0 && !outcome.finishedByRole) {
+                    val stage = if (actual.optBoolean("targetWindowVerified"))
+                        "应用已打开，尚无下一步实际动作回执"
+                    else "没有取得下一步可操作页面"
+                    phoneUnverifiedFacts += stage
+                }
+            }
             return "已按同一角色决定进一步执行${outcome.actions}步；" +
                 "本人主动结束=${outcome.finishedByRole}；" + outcome.notes.takeLast(450)
         }
@@ -3331,6 +3339,7 @@ object ProactivePerceptionRuntime {
                             虚拟屏创建成功不等于刷完视频。没有本轮真实后台图片，就绝不能
                             用主人正在聊微信/ChatGPT的主屏内容当作后台画面来描述。
                             ${if (hasFreshUserMessage) "主人仍在等待本次请求的结果；请真实说明。" else "这是你自己的主动探索；请自己决定是否自然分享这次发现或故障，若不想说可返回 silent。"}
+                            只核实打开应用时，明确说操作停在打开页面，不能说找了一圈、点不动或已尝试发送。只有实际点击或发送回执能证明执行过对应操作。
                             若第一次尝试就失败，也要根据实际回执自然说明；
                             如果已经亲自尝试了替代步骤，也说明新的真实结果。不要只重复“我再去看看”，
                             更不能把模型后续尝试失败说成已经解决。下线前不留下一句空头保证。

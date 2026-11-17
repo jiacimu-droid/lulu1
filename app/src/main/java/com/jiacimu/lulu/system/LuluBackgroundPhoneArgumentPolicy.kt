@@ -15,7 +15,7 @@ internal object LuluBackgroundPhoneArgumentPolicy {
     private val supportedActions = setOf(
         "start", "launch", "tap", "tap_element", "swipe", "back",
         "type", "focus_search", "submit", "search", "send_chat_message",
-        "observe", "stop", LuluWeChatMomentsPolicy.OPEN_COMPOSER, LuluWeChatMomentsPolicy.PUBLISH,
+        "observe", "stop", LuluVirtualNavigation.ACTION, LuluWeChatMomentsPolicy.OPEN_COMPOSER, LuluWeChatMomentsPolicy.PUBLISH,
     )
 
     fun isSupportedAction(action: String): Boolean = action in supportedActions
@@ -32,7 +32,7 @@ internal object LuluBackgroundPhoneArgumentPolicy {
             "要打开微信等已安装App，请明确选择 " +
             "args={\"action\":\"launch\",\"appName\":\"微信\"}；" +
             "只创建虚拟屏用start，读取已有页面用observe；" +
-            "其他可选操作为tap/tap_element/swipe/back/type/focus_search/submit/search/" +
+            "其他可选操作为tap/tap_element/navigate/swipe/back/type/focus_search/submit/search/" +
             "send_chat_message/open_wechat_moments_composer/publish_wechat_moment/stop。动作不合法时没有操作手机，保留已有会话。"
 
     private fun integer(args: JSONObject, key: String): Int? {
@@ -61,6 +61,10 @@ internal object LuluBackgroundPhoneArgumentPolicy {
 
     fun invalidReason(action: String, args: JSONObject): String? {
         if (!isSupportedAction(action)) return unsupportedActionReason(action)
+        if ((action == LuluVirtualNavigation.ACTION ||
+                (action == "launch" && args.has(LuluVirtualNavigation.LABELS))) &&
+            LuluVirtualNavigation.labels(args) == null)
+            return "navigationLabels 需要按顺序提供1到4个页面上准确可见的导航名称"
         return when (action) {
         "tap" -> coordinateError(args, listOf("x", "y"))
         "swipe" -> coordinateError(args, listOf("startX", "startY", "endX", "endY"))
