@@ -52,6 +52,7 @@ const bridge = {
   // Renderer-only lease: the test still exercises the REAL stage cancellation.
   proximityCameraLease: null, pendingPostSpeechKiss: null,
   KISS_CAMERA_DURATION_MS, WOLF_KISS_MOTION_INDEX,
+  screenProximityDuration, screenProximityPeak, isScreenProximityMotion,
   screenProximityFrame, applyProximityCameraPose: () => {},
   mouthExclusiveExpressions: new Set(['tongue']),
   playing: false, mouth: 0, pcmAvailable: false, listening: false, thinking: false,
