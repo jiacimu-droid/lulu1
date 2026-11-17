@@ -38,6 +38,19 @@ class LuluBackgroundPhoneContinuationYieldTest {
         assertTrue(summary.contains("composerX/composerY"))
     }
 
+    @Test fun ownerStopOrRevocationDuringPaidModelWaitBlocksStaleNextGesture() {
+        assertFalse(LuluBackgroundPhoneContinuation.mustAbortAfterModel(
+            ownerPaused = false, authorized = true))
+        assertTrue("STOP must invalidate the already generated click",
+            LuluBackgroundPhoneContinuation.mustAbortAfterModel(
+                ownerPaused = true, authorized = true))
+        assertTrue("Revoked role consent must invalidate the already generated click",
+            LuluBackgroundPhoneContinuation.mustAbortAfterModel(
+                ownerPaused = false, authorized = false))
+        assertTrue(LuluBackgroundPhoneContinuation.mustAbortAfterModel(
+            ownerPaused = true, authorized = false))
+    }
+
     @Test fun newMessageWhilePhoneModelWaitsYieldsBeforeAnyNextTool() {
         val frozen = setOf("old-user-message", "old-group-message")
         assertFalse(LuluBackgroundPhoneContinuation.hasNewUnreadInput(
