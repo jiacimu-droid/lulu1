@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T08:15:53.482505+00:00",
-  "commit": "561aefb9dc81844bc4c32df54c7903fbdd207f5c",
+  "generatedAt": "2026-11-17T08:44:06.054127+00:00",
+  "commit": "aec63331d5fa8abb050bc7136aeb0ee717cc62c8",
   "branch": "main",
-  "sourceFingerprint": "0a454c06c42e28349d631c6309f67981be3ff2e97046352789850fdff6214c19",
+  "sourceFingerprint": "a82751dbb3fb664a5d13f4678a6c2b00cfa7b11759f8e1bdc49af2e2396d0b86",
   "summary": {
     "files": 1396,
-    "lines": 299504,
+    "lines": 299514,
     "symbols": 4234
   },
   "symbolIndex": {
@@ -27277,8 +27277,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt",
-      "lines": 659,
-      "sha256": "9d3ced0283d72bb03e327302ff31c734f8f3e9d7eac955c88f6407d5f159227d",
+      "lines": 669,
+      "sha256": "fdf861048910cbbbbc0102c47c8c98871d2b0259a82bef8cdaee1a0a33f1b3cc",
       "symbols": []
     },
     {
