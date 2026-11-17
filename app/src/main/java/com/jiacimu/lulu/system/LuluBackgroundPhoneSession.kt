@@ -92,25 +92,31 @@ internal object LuluBackgroundPhoneSession {
         }
         val fingerprint = inventory.optString("fingerprint")
         val elements = inventory.optJSONArray("elements")
-        if (fingerprint.isBlank() || elements == null) {
-            lastObservedUi = null
-            return output
-        }
-        val token = java.util.UUID.randomUUID().toString().substring(0, 12)
-        val pictureObserved = frameImage != null && output.optBoolean("imageForwardedToRole") &&
+        val pictureObserved = !frameImage.isNullOrBlank() &&
+            output.optBoolean("imageForwardedToRole") &&
             output.optBoolean("frameValidated")
         val windowIdentity = withContext(Dispatchers.Main) {
             LuluAccessibilityService.virtualChatWindowIdentity(id, packageName)
         }
-        lastObservedUi = ObservedUi(token, fingerprint, characterId, id, packageName,
+        // Some OEMs render a complete app screenshot while exposing no
+        // accessibility tree at all. Do not throw away the role's ONE-SHOT
+        // visual action token in that case. Never manufacture a fake tree.
+        val semanticObserved = fingerprint.isNotBlank() && elements != null
+        if (!semanticObserved && !(pictureObserved && windowIdentity.isNotBlank())) {
+            lastObservedUi = null
+            return output.put("uiEvidenceSource", "unavailable")
+        }
+        val token = java.util.UUID.randomUUID().toString().substring(0, 12)
+        lastObservedUi = ObservedUi(token, if (semanticObserved) fingerprint else "",
+            characterId, id, packageName,
             pictureObserved, if (pictureObserved) frameImage.orEmpty() else "", windowIdentity)
         if (openedMomentsComposer && packageName == LuluVirtualChatSendPolicy.WECHAT)
             output.put("momentComposerVerified", withContext(Dispatchers.Main) {
                 LuluAccessibilityService.virtualWeChatMomentsComposerVisible(id)
             })
         return output.put("screenSnapshotId", token)
-            .put("uiTreeFingerprint", fingerprint)
-            .put("interactiveElements", elements)
+            .put("uiTreeFingerprint", if (semanticObserved) fingerprint else "")
+            .put("interactiveElements", if (semanticObserved) elements else org.json.JSONArray())
             .put("chatHeaderTexts", inventory.optJSONArray("chatHeaderTexts") ?: org.json.JSONArray())
             .apply {
                 // The screenshot can be valid while HyperOS exposes zero
@@ -120,8 +126,11 @@ internal object LuluBackgroundPhoneSession {
                     put("chatInputDiagnostics", it)
                 }
             }
-            .put("uiEvidenceSource", if (elements.length() == 0)
-                "virtual_accessibility_tree_empty" else "virtual_accessibility_tree")
+            .put("uiEvidenceSource", when {
+                !semanticObserved -> "virtual_picture_only"
+                elements!!.length() == 0 -> "virtual_accessibility_tree_empty"
+                else -> "virtual_accessibility_tree"
+            })
     }
 
     fun connected(): Boolean = stream != null && displayId > 0 && adb?.isClosed == false
@@ -978,10 +987,25 @@ internal object LuluBackgroundPhoneSession {
                 val requestedElement = args.optString("elementRef")
                 val owned = snapshot != null && snapshot.characterId == characterId &&
                     snapshot.displayId == id && snapshot.packageName == activeApp
+                // Semantic refs demand a real tree; visual taps, visual typing
+                // and screenshot-guided chat instead demand the SAME actually
+                // delivered picture and verified window. A zero-node tree
+                // must never make visible search icons untouchable.
+                val pictureAction = when (action) {
+                    "tap", "long_press" -> true
+                    "type" -> args.has("inputX") && args.has("inputY")
+                    "send_chat_message" -> args.has("composerX") && args.has("composerY")
+                    else -> false
+                }
+                val semanticValid = LuluVirtualUiPolicy.sameSnapshot(
+                    requestedSnapshot, snapshot?.token.orEmpty(),
+                    snapshot?.fingerprint.orEmpty(), snapshot?.fingerprint.orEmpty())
+                val pictureValid = pictureAction && LuluVirtualUiPolicy.sameObservedPicture(
+                    requestedSnapshot, snapshot?.token.orEmpty(),
+                    snapshot?.visualFrameObserved == true,
+                    snapshot?.windowIdentity.orEmpty())
                 if (!owned || (LuluBackgroundPhoneArgumentPolicy.needsElement(action) && requestedElement.isBlank()) ||
-                    !LuluVirtualUiPolicy.sameSnapshot(
-                        requestedSnapshot, snapshot?.token.orEmpty(),
-                        snapshot?.fingerprint.orEmpty(), snapshot?.fingerprint.orEmpty())) {
+                    !(semanticValid || pictureValid)) {
                     return JSONObject().put("success", false).put("accepted", false)
                         .put("status", "unverified").put("taskCompleted", false)
                         .put("mode", "independent_virtual_display").put("displayId", id)
