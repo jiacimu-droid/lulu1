@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6cdccf8253a7ee4483d2dd63b72efb8d39447a39`
+- 基准提交：`2add22d025da9a446bef6a144b44bf51d154a4f6`
 - 分支：`main`
 - 已索引文件：1408
-- 已索引代码/文本行：297680
+- 已索引代码/文本行：297700
 - 已发现符号：4237
 
 | 文件 | 行数 | 符号数 |
@@ -862,7 +862,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshness.kt` | 22 | 3 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt` | 84 | 3 |
-| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 388 | 2 |
+| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 408 | 2 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt` | 121 | 4 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/ShellContext.kt` | 82 | 1 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/adb/AndroidAdb.kt` | 76 | 6 |

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T12:56:02.305214+00:00",
-  "commit": "6cdccf8253a7ee4483d2dd63b72efb8d39447a39",
+  "generatedAt": "2026-11-17T12:58:39.899084+00:00",
+  "commit": "2add22d025da9a446bef6a144b44bf51d154a4f6",
   "branch": "main",
-  "sourceFingerprint": "4f90112817d5c169121a0075d82073e286b5d6cfa2f0ef2ec703304cc08ec20a",
+  "sourceFingerprint": "509153de5f1b09f0764a442eb9db50826fef1c6da65fa191347f2d79c0b24294",
   "summary": {
     "files": 1408,
-    "lines": 297680,
+    "lines": 297700,
     "symbols": 4237
   },
   "symbolIndex": {
@@ -18669,7 +18669,7 @@
     "main": [
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-        "line": 77
+        "line": 81
       }
     ],
     "mayPaste": [
@@ -42564,8 +42564,8 @@
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-      "lines": 388,
-      "sha256": "ed34f335a7ed7af023f81da6ce2fdc52d1cee11e29e25333850daf6c2d4caae5",
+      "lines": 408,
+      "sha256": "fa76e1463504e1989d723a3af5624e4b64ebdb8fbea0b90254a160a29356b5e8",
       "symbols": [
         {
           "name": "LuluShellDisplayMain",
@@ -42573,7 +42573,7 @@
         },
         {
           "name": "main",
-          "line": 77
+          "line": 81
         }
       ]
     },
