@@ -160,15 +160,27 @@ class MemoryEvidenceCommitIntegrationTest {
             recentCharacterBudget = 0, evidenceCharacterBudget = 0, localOnly = false)
         assertTrue(assembled.memories.any { it.id == "cat" })
         assertTrue(assembled.sourceEvidence.isBlank())
-        // A recalled source is not the same as an injected source. With both
-        // original-evidence channels closed, the live derived memory must still
-        // reach the prompt instead of disappearing solely because it was recalled.
+        // Full-mode owner-configured recent turns are intentionally delivered
+        // intact OUTSIDE the 33k working-set budget. Disabling the old compact
+        // recent character cap must not delete the owner's recent originals.
+        // A remembered fact must ALSO remain injectable even if the separate
+        // recalled-evidence channel is disabled by an explicit zero limit.
         val full = UnifiedMemoryOrchestrator.assemble(role, UnifiedMemoryRequest(currentInput = "橘猫在桥西"),
             recentCharacterBudget = 0, evidenceCharacterBudget = 0, localOnly = false)
-        val working = MemoryWorkingSet.assemble(full, emptyList(), emptyList(),
-            PromptContextBudget(18, 4000, 0, 0, false, false, 0, false), "")
+        val disabledEvidence = PromptContextBudget(18, 4000, 0, 0, false, false, 0, false)
+        val working = MemoryWorkingSet.assemble(full, emptyList(), emptyList(), disabledEvidence, "")
         assertTrue("memory:cat" in working.selected)
-        assertFalse(working.selected.any { it.startsWith("recent:") || it.startsWith("event:") })
-        assertTrue(working.sections.values.any { it.contains("橘猫在桥西等我") })
+        assertTrue(working.selected.any { it.startsWith("recent:target") })
+        assertFalse(working.selected.any { it.startsWith("event:") })
+        assertTrue(working.sections[MemoryWorkingSet.RECENT].orEmpty()
+            .contains("一段当时的原话"))
+        // The same source after it falls outside the configured recent turns
+        // must not sneak back through a zero-budget recalled-evidence channel.
+        val older = full.copy(recentEvents = emptyList(), recentTurns = emptyList())
+        val withoutRecent = MemoryWorkingSet.assemble(older, emptyList(), emptyList(),
+            disabledEvidence, "")
+        assertTrue("memory:cat" in withoutRecent.selected)
+        assertFalse(withoutRecent.selected.any { it.startsWith("recent:") || it.startsWith("event:") })
+        assertTrue(withoutRecent.sections.values.any { it.contains("橘猫在桥西等我") })
     }
 }
