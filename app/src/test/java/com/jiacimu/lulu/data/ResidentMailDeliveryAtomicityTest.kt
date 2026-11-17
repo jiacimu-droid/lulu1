@@ -313,11 +313,13 @@ class ResidentMailDeliveryAtomicityTest {
         }
     }
 
-    @Test fun unknownSendersAndUnresolvedRealityLabelsCannotCreateAFirstContact() {
+    @Test fun unknownSendersAndUnresolvedLocationsCannotCreateAFirstContact() {
+        // In the digital-only world, old unconfirmed profiles have no verified
+        // home/location. A placeholder must never imply that two people met.
         val first = person(digital = false)
         val second = person(digital = false)
-        assertEquals("现实世界", DigitalWorldStore.locationOf(first))
-        assertEquals("现实世界", DigitalWorldStore.locationOf(second))
+        assertEquals("未确认数字世界位置", DigitalWorldStore.locationOf(first))
+        assertEquals("未确认数字世界位置", DigitalWorldStore.locationOf(second))
         assertFalse(ResidentSocialMailbox.canContact(first, second))
         assertFalse(ResidentSocialMailbox.canContact("missing-${UUID.randomUUID()}", second))
         val before = actualPrefs.getString("messages", "[]")
