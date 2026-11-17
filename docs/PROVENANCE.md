@@ -1,3 +1,14 @@
+## 2026-11-18：统一网页世界新增 Kenney 美术图库（CC0 / THIRD_PARTY）
+
+- 本轮仅用于 `preview/worlds.html` 预览阶段。正式 Android 原生场景、角色/武器/珍宝规则与正式存档 **未**因本轮替换。代码 `world-joystick.js`、`world-art-catalog.js`、`worlds.js` 的场景接线为 Lulu 原创，第三方 PNG 仍归 Kenney CC0。
+- 大图集 `preview/assets/kenney-roguelike-rpg.png`：Kenney Roguelike/RPG Pack（官方 https://kenney.nl/assets/roguelike-rpg-pack），从 `superdevgit/MobileRPG/roguelikeSheet_transparent.png` 未改字节迁入，SHA-1 `79b13326ceb8557a98b2b78aa5e8e7b9269f6693`。
+- 模块化角色 `preview/assets/kenney-roguelike-characters.png`：Kenney Roguelike Characters（官方 https://kenney.nl/assets/roguelike-characters），从 `Two-Weeks-Team/openClawWorld` 的 `characters/characters_spritesheet_rgba.png` 原图迁入，SHA-1 `d610bbc5a252ae6974b304d6adbbb236f6f8efcc`。
+- 室内 `preview/assets/kenney-roguelike-interior.png`：Kenney Roguelike Indoors（官方 https://kenney.nl/assets/roguelike-indoors），从同一源仓 `interior/interior_tilemap.png` 原图迁入，SHA-1 `af5bd7f5dc6894f844b29092ec826ce4ffd9b055`。
+- 城市 `preview/assets/kenney-roguelike-city.png`：Kenney Roguelike Modern City（官方 https://kenney.nl/assets/roguelike-modern-city），从同一源仓 `tiles/city_tilemap.png` 原图迁入，SHA-1 `38df8833fcbf919435cb82b4da441ea0d210ecc4`。
+- 上游索引 `Two-Weeks-Team/openClawWorld/packages/client/public/assets/kenney/ASSET_MAP.md` 明示这些图集来自 Kenney All-in-1 3.3.0、CC0、16px 主网格；Roguelike 图集采用 1px 贴图间距。每张实际图片使用时按图集像素矩形切分，不从外站运行时抓取用户不可核对的素材。
+- 配套 UI 验收：原有四方向点击按钮已替换为圆形可拖动触控摇杆；死区与主轴判定参考正式 `GameSceneDeck.kt::gameJoystickDirection`，网页独立夹具验证而非 Android 已验。已索引的 40 个 sprite 样本供视觉选材；七档独立珍宝美术与大量动作帧尚未齐，不能算完整游戏美术完成。
+- 详表见 `preview/WORLD_ASSETS.md`，保留原始 Kenney CC0 权利声明，不把第三方图像标作原创。
+
 ## 2026-11-18：Mika 通用首次点击与独立屏定向触摸
 
 - 实际参照 `wangzan101/Mika` 快照 `84cbb1d2e4b9793c8026b23c72cffda09d13e6aa`，Apache-2.0。核心文件：`core/.../uistate/tools/Tap.kt`、`TextTools.kt`、`app/.../a11y/AndroidScreen.kt`、`ClickFallback.kt` 和 `app/.../shell/ShellService.kt` 的injectTap/injectTo。outward用于限制重复通道，不是一律禁止首次普通社交点击。
