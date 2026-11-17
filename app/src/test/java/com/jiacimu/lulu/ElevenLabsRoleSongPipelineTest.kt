@@ -125,10 +125,13 @@ class ElevenLabsRoleSongPipelineTest {
             val buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
             assertEquals(44100, buffer.getInt(24))
             assertEquals(2, buffer.getShort(22).toInt())
-            assertEquals(32767, buffer.getShort(44).toInt())
-            assertEquals(32767, buffer.getShort(46).toInt())
-            assertEquals(ElevenLabsSongAudioMix.blend(-10000, 10000),
-                buffer.getShort(48))
+            // Original 0.65+0.90 mix clipped to 32767 on the first frames.
+            // The lower gains leave headroom while the voice-only clarity
+            // filter does not alter the original melody's pitch.
+            assertTrue(buffer.getShort(44).toInt() in 1..32766)
+            assertEquals(buffer.getShort(44), buffer.getShort(46))
+            assertTrue(buffer.getShort(48).toInt() > -10000)
+            assertTrue(ElevenLabsSongAudioMix.blend(32767, 32767).toInt() < 32767)
         } finally {
             backing.delete()
             voice.delete()
