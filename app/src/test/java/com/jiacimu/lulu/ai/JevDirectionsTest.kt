@@ -156,7 +156,9 @@ class JevDirectionsTest {
             val role = MigratedDomainStores.characters.create("思路参考测试人", "保留自己的判断")
             val first = ToolRouter.execute(context, role.characterId, JevDirections.TOOL, args(), requestId = "once")
             val replay = ToolRouter.execute(context, role.characterId, JevDirections.TOOL, args(), requestId = "once")
-            assertEquals(first, replay)
+            assertEquals(JSONObject(first).optString("summary"), JSONObject(replay).optString("summary"))
+            assertTrue(JSONObject(replay).optBoolean("replayedHistoricalReceipt"))
+            assertFalse(JSONObject(replay).optBoolean("executedThisInvocation", true))
             assertTrue(JSONObject(first).getBoolean("success"))
             assertEquals(1, server.requestCount)
             val evidence = SharedExperienceTimeline.eventsByIds(role.characterId,
