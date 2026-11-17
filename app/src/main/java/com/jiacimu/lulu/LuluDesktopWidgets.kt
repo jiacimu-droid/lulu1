@@ -252,6 +252,7 @@ internal fun LuluDesktopWidgetCard(
     lastConversationText: String?,
     modifier: Modifier = Modifier,
     onOpen: () -> Unit,
+    onEdit: () -> Unit = onOpen,
 ) {
     val context = LocalContext.current
     val css = LocalLuluCssSheet.current.element("Home", "widget-" + widget.kind.code)
@@ -300,9 +301,16 @@ internal fun LuluDesktopWidgetCard(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(widget.kind.title, color = foreground.copy(alpha = .85f),
                         fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-                    Text(today.monthValue.toString().padStart(2, '0') + "." +
-                        today.dayOfMonth.toString().padStart(2, '0'),
-                        color = foreground.copy(alpha = .70f), fontSize = 10.sp)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(today.monthValue.toString().padStart(2, '0') + "." +
+                            today.dayOfMonth.toString().padStart(2, '0'),
+                            color = foreground.copy(alpha = .70f), fontSize = 10.sp)
+                        Spacer(Modifier.width(5.dp))
+                        IconButton(onClick = onEdit, modifier = Modifier.size(27.dp)) {
+                            Icon(Icons.Outlined.Tune, contentDescription = "装修小组件",
+                                modifier = Modifier.size(17.dp), tint = foreground)
+                        }
+                    }
                 }
                 when (widget.kind) {
                     LuluWidgetKind.HOROSCOPE -> {
@@ -365,6 +373,7 @@ internal fun LuluDesktopWidgetCanvas(
     conversationTexts: Map<String, String>,
     modifier: Modifier = Modifier,
     onOpenWidget: (LuluDesktopWidget) -> Unit,
+    onEditWidget: (LuluDesktopWidget) -> Unit,
     onBlankLongPress: () -> Unit,
 ) {
     BoxWithConstraints(modifier.pointerInput(page, widgets, launcherSlots) {
@@ -394,6 +403,7 @@ internal fun LuluDesktopWidgetCanvas(
                             y = cellHeight * widget.row,
                         ),
                     onOpen = { onOpenWidget(widget) },
+                    onEdit = { onEditWidget(widget) },
                 )
             }
         }
