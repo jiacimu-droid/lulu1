@@ -117,7 +117,9 @@ class LocalMemoryRepository : MemoryRepository {
         require(characterId.isNotBlank()) { "角色不能为空" }
         withCharacterMemoryLock(characterId) {
             extractImmediateMemories(characterId)
-            summarizeContinuously(characterId, flushTail = shouldFlushPendingTail(characterId))
+            // The last N COMPLETE turns are protected even after an idle period.
+            // Only an explicit flushNow may deliberately include that tail.
+            summarizeContinuously(characterId, flushTail = false)
         }
     }
 
@@ -214,29 +216,36 @@ class LocalMemoryRepository : MemoryRepository {
         val policy = state.value.resolvedPolicy(characterId)
         val threshold = policy.readableThreshold.coerceAtLeast(1)
         var processedThisRun = 0
+        var processedTurnsThisRun = 0
         var extractedThisRun = 0
 
         while (true) {
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
             // Re-read every loop. A source event may be deleted while the model request is in flight;
             // a frozen readable list would otherwise keep retrying a no-longer-existing event.
-            val readable = readableMessages(characterId, policy, flushTail)
+            val readable = extractableTurns(characterId, policy, flushTail)
             val processed = state.value.processedMessageIds[characterId].orEmpty()
-            val pending = readable.filterNot { message -> message.id in processed }
-            val batch = pending.take(threshold)
+            // A group is pending if ANY of its original facts is unprocessed.
+            // Old raw-message checkpoints survive the migration unchanged.
+            val pending = readable.mapNotNull { turn ->
+                val unprocessed = turn.events.filterNot { it.id in processed }
+                if (unprocessed.isEmpty()) null else turn.copy(events = unprocessed)
+            }
+            val batchTurns = pending.take(threshold)
+            val batch = batchTurns.flatMap { it.events }
 
-            if (batch.isEmpty() || (!flushTail && batch.size < threshold)) {
+            if (batchTurns.isEmpty() || (!flushTail && batchTurns.size < threshold)) {
                 if (processedThisRun > 0) maintain(characterId, silent = true)
                 refreshDebug(
                     message = if (processedThisRun == 0) {
-                        "可整理消息 ${batch.size}/$threshold，尚未达到阈值"
+                        "可整理语义轮次 ${batchTurns.size}/$threshold，尚未达到阈值"
                     } else {
-                        "连续整理完成：本次处理 $processedThisRun 条消息，新增 $extractedThisRun 条记忆；剩余 ${batch.size}/$threshold 条等待下一批"
+                        "连续整理完成：本次处理 $processedTurnsThisRun 轮（$processedThisRun 条原始事件），新增 $extractedThisRun 条记忆；剩余 ${batchTurns.size}/$threshold 轮等待下一批"
                     },
                     characterId = characterId,
                     readableCount = readable.size,
                     pendingCount = pending.size,
-                    batchCount = batch.size,
+                    batchCount = batchTurns.size,
                     extracting = false,
                     lastExtractedCount = extractedThisRun,
                 )
@@ -244,24 +253,29 @@ class LocalMemoryRepository : MemoryRepository {
             }
 
             deferPausedResidentMemory(characterId, pending.size)
-            val batchStart = processed.size + 1
-            val batchEnd = processed.size + batch.size
+            val batchStart = processedTurnsThisRun + 1
+            val batchEnd = processedTurnsThisRun + batchTurns.size
             refreshDebug(
-                message = "正在整理第 $batchStart-$batchEnd 条可读消息",
+                message = "正在整理第 $batchStart-$batchEnd 轮真实交流与经历",
                 characterId = characterId,
                 readableCount = readable.size,
                 pendingCount = pending.size,
-                batchCount = batch.size,
+                batchCount = batchTurns.size,
                 extracting = true,
                 lastExtractedCount = extractedThisRun,
             )
 
-            val batchIds = batch.mapTo(mutableSetOf()) { message -> message.id }
+            val batchIds = batch.mapTo(mutableSetOf(), SharedTimelineEvent::id)
             val batchEvents = SharedExperienceTimeline.eventsByIds(characterId, batchIds)
             val expectedRevisions = batchEvents.associate { it.id to it.revision }
-            val facts = batchEvents.joinToString("\n") { event ->
-                "[事件ID=${event.id}] [版本=${event.revision}] [${event.occurredAt}] ${event.speaker}：${event.evidenceContent}"
+            // Some rows might have been deleted between selection and lookup.
+            // Do not certify a partly missing episode as fully processed.
+            check(batchEvents.size == batchIds.size) { "原始事件在准备总结时改变；保留整批等待重试" }
+            val evidenceView = MemoryExtractionTurnView.build(batchTurns)
+            check(evidenceView.visibleSources.isNotEmpty()) {
+                "完整轮次未能提供任何可引用的真实来源；整批保留等待重试"
             }
+            val facts = evidenceView.text
             val prior = currentUnderstandingCandidates(characterId, facts)
             val result = LuluAiServices.gateway.generate(
                 characterId = characterId,
@@ -285,7 +299,7 @@ class LocalMemoryRepository : MemoryRepository {
                     5. Timeline 保存有具体人物、对象或辨识细节的真实经历，也包括普通日常小事；发生时间可直接使用原始事件时间，不必达到里程碑才记。只有寒暄或没有具体内容的通话/打开页面，不自动制造重要经历。日常小事通常strength=2—4，明显影响后续的经历5—7，用户明确重要或强烈触动才8—10；高分经历仍是Episode，不自动升级Core。
                     6. 角色已承担的约定、提醒、责任和监督由任务与日程系统保存执行，不要重复放进记忆；未解决的个人顾虑进入心事，真实生活近况进入生活记录。
                     7. 输入中的 [私聊]、[电话]、[群聊]、[朋友圈]、[收藏]、[此刻] 等方括号内容只是原始事件来源标签，不是用户说的话，也不是需要记住的提示词。
-                    8. 每条记忆必须给出1—6个直接支持它的 sourceEventIds，只能复制输入中真实存在的事件ID；不要把整批ID都塞进去。
+                    8. 本批按完整的主人/角色发言或一次游戏、见面、工具任务经历分轮；重复游戏感知和步骤不能当成独立交流轮。每条记忆必须给出1—6个直接支持它的 sourceEventIds，只能引用上文**实际展示的 eventId**，不能引用未展开的步骤，更不能把整批ID都塞进去。
                     9. 记忆必须保留将来理解同义改写所需的人物、对象、原因、结果和必要语境，避免只写模糊关键词；但不要复制无关寒暄。
                     10. 日常寒暄、同义重复不要重复写入；电话和哄睡的普通陪伴、气音、反复夸奖、呼吸与全身放松引导、虚构睡前故事、角色单方面续讲，都不自动转为长期记忆。若用户在通话中明确透露真实重要事实、长期偏好、关系变化，仍按事实证据选择性提取；故事情节仅属于故事而非两人的现实经历。没有值得保存的内容时返回 []。
                     11. Core 用于用户明确要求持续遵守或长期牢记的重要稳定事实、边界、关系、安排及偏好；普通偏好用 Stable，经历与情绪用 Episode。临时情况不能覆盖长期偏好。
@@ -302,7 +316,7 @@ class LocalMemoryRepository : MemoryRepository {
                 title = "连续记忆提取",
                 // Receive progress through the same gateway; only the final validated JSON is committed.
                 streamResponse = true,
-                maxTokens = (800 + batch.size.coerceAtMost(40) * 180).coerceIn(3_200, 8_000),
+                maxTokens = (1_200 + batchTurns.size.coerceAtMost(20) * 270).coerceIn(3_200, 8_000),
                 contextMode = CompanionContextMode.Isolated,
                 readTimeoutMillis = 180_000,
                 connectionOverride = extractionConnection(),
@@ -315,7 +329,7 @@ class LocalMemoryRepository : MemoryRepository {
                     characterId = characterId,
                     readableCount = readable.size,
                     pendingCount = pending.size,
-                    batchCount = batch.size,
+                    batchCount = batchTurns.size,
                     extracting = false,
                     lastError = error?.message,
                     lastExtractedCount = extractedThisRun,
@@ -324,7 +338,11 @@ class LocalMemoryRepository : MemoryRepository {
             }
 
             val reply = result.getOrThrow()
-            val parsed = runCatching { parseMemoryArray(reply.text, characterId, batchEvents) }
+            // A generated source ID must have appeared in the bounded input,
+            // not merely somewhere among the game's hidden 200 action receipts.
+            val parsed = runCatching {
+                parseMemoryArray(reply.text, characterId, evidenceView.visibleSources)
+            }
             if (parsed.isFailure) {
                 val error = parsed.exceptionOrNull()
                 refreshDebug(
@@ -360,20 +378,23 @@ class LocalMemoryRepository : MemoryRepository {
 
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
             processedThisRun += liveBatchIds.size
+            processedTurnsThisRun += batchTurns.size
             extractedThisRun += added
-            val freshReadable = readableMessages(characterId, policy, flushTail)
+            val freshReadable = extractableTurns(characterId, policy, flushTail)
             val freshProcessed = state.value.processedMessageIds[characterId].orEmpty()
-            val remaining = freshReadable.count { it.id !in freshProcessed }
+            val remaining = freshReadable.count { turn ->
+                turn.events.any { it.id !in freshProcessed }
+            }
             refreshDebug(
                 message = if (remaining >= threshold) {
-                    "第 $batchStart-$batchEnd 条整理完成，新增 ${added} 条记忆；继续下一批"
+                    "第 $batchStart-$batchEnd 轮整理完成，新增 ${added} 条记忆；继续下一批"
                 } else {
-                    "本批读取 ${liveBatchIds.size} 条仍有效消息，新增 ${added} 条记忆"
+                    "本批处理 ${batchTurns.size} 轮 / ${liveBatchIds.size} 条原始事件，新增 ${added} 条记忆"
                 },
                 characterId = characterId,
                 readableCount = freshReadable.size,
                 pendingCount = remaining,
-                batchCount = liveBatchIds.size,
+                batchCount = batchTurns.size,
                 extracting = remaining >= threshold,
                 lastExtractedCount = extractedThisRun,
             )
