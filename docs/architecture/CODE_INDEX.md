@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`58bbc8e606f35816915b6bfd941161ff9f16a431`
+- 基准提交：`06a76f60fe3ea88ff3eec3c07cd9e950001ad0f7`
 - 分支：`main`
 - 已索引文件：1429
-- 已索引代码/文本行：301444
+- 已索引代码/文本行：301482
 - 已发现符号：4315
 
 | 文件 | 行数 | 符号数 |
@@ -166,7 +166,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 713 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 313 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 962 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 977 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 80 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DConversationPerformance.kt` | 197 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCreatorPreview.kt` | 69 | 0 |
@@ -201,7 +201,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 645 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 35 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt` | 578 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt` | 588 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 483 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 299 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 603 | 9 |
@@ -229,7 +229,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 305 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 803 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 816 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 102 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 123 | 1 |

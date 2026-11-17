@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-17T17:08:22.759247+00:00",
-  "commit": "58bbc8e606f35816915b6bfd941161ff9f16a431",
+  "generatedAt": "2026-11-17T17:09:14.268150+00:00",
+  "commit": "06a76f60fe3ea88ff3eec3c07cd9e950001ad0f7",
   "branch": "main",
-  "sourceFingerprint": "feeb8886d670a35bb120e960d1e6775f639fd7d8ef7ae4c53857533e475101b0",
+  "sourceFingerprint": "f73e4b2d923a8df495cdcf1453093d5c0d201406abb5a5b2e0879f51fca07431",
   "summary": {
     "files": 1429,
-    "lines": 301444,
+    "lines": 301482,
     "symbols": 4315
   },
   "symbolIndex": {
@@ -2499,7 +2499,7 @@
     "send": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 208
+        "line": 214
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
@@ -2517,13 +2517,13 @@
     "angles": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 450
+        "line": 460
       }
     ],
     "faceValues": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-        "line": 455
+        "line": 465
       }
     ],
     "Capture": [
@@ -25888,20 +25888,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt",
-      "lines": 962,
-      "sha256": "2706d9888f4fd10aa3c6e8901823bdaba21d0dc632c6d2435ca52c34d95cefb2",
+      "lines": 977,
+      "sha256": "656302468e0ab0d8f6cc55c3f61501adb7b10c36d7cfca3887f189bb9bdd6a64",
       "symbols": [
         {
           "name": "send",
-          "line": 208
+          "line": 214
         },
         {
           "name": "angles",
-          "line": 450
+          "line": 460
         },
         {
           "name": "faceValues",
-          "line": 455
+          "line": 465
         }
       ]
     },
@@ -26625,8 +26625,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-      "lines": 578,
-      "sha256": "e1c5277005dd6021813e5f9073f58000fcb34435ab33cbc0c7be314bf69f273e",
+      "lines": 588,
+      "sha256": "598ffdac6d696ab157ebaba0d8c35221d7ebb673f06371f5ad211c281430727d",
       "symbols": [
         {
           "name": "profileSign",
@@ -27187,8 +27187,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 803,
-      "sha256": "2a112a45eb2d0e2a0dd440561c4034b356d5cda3063e65736ab95f2417770637",
+      "lines": 816,
+      "sha256": "72122b001521eeda97962b8f71ca5ccbb7be1c2b3e5bbadce11f8e880c1ebe32",
       "symbols": [
         {
           "name": "gridTop",
