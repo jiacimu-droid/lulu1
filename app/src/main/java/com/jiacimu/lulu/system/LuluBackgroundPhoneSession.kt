@@ -567,6 +567,18 @@ internal object LuluBackgroundPhoneSession {
         val tap = pressVisualTarget(id, packageName, x, y, holdMs = null, authorized = authorized)
         if (!tap.optBoolean("accepted")) return stopped("visual_input_focus_tap_unverified",
             "目标输入位置的单次聚焦手势未完成，没有粘贴文字")
+        // An exact, uniquely focused node at the role-selected point is
+        // stronger evidence than an IME window that some ROMs do not expose
+        // on an independent display. This direct path never also shell-pastes.
+        for (attempt in 0 until 3) {
+            if (!authorized() || windowGate(id, packageName).optString("kind") != "target") break
+            val focused = withContext(Dispatchers.Main) {
+                LuluAccessibilityService.typeFocusedVirtualEditorAtPoint(
+                    id, packageName, x, y, text)
+            }
+            if (focused != null) return focused
+            if (attempt < 2) kotlinx.coroutines.delay(120)
+        }
         var imeVisible = false
         for (attempt in 0 until 8) {
             if (!authorized() || windowGate(id, packageName).optString("kind") != "target")
