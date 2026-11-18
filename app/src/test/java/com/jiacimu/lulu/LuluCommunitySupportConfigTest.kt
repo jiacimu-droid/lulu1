@@ -15,6 +15,10 @@ class LuluCommunitySupportConfigTest {
         val title = URLDecoder.decode(link.substringAfter("title=").substringBefore("&body="), "UTF-8")
         val body = URLDecoder.decode(link.substringAfter("&body="), "UTF-8")
         assertEquals("[许愿] 加个日程搜索", title)
+        assertTrue(LuluCommunitySupportConfig.wishesListUrl().startsWith(
+            "https://github.com/jiacimu-droid/lulu1/issues?q="))
+        assertTrue(URLDecoder.decode(LuluCommunitySupportConfig.wishesListUrl()
+            .substringAfter("?q="), "UTF-8").contains("in:title"))
         assertTrue(body.contains("功能许愿"))
         assertTrue(body.contains("希望角色可以自己查日程"))
         assertFalse(body.contains("API Key: hidden_secret"))
