@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:51:52.133258+00:00",
-  "commit": "698d5f2bf4e4b48271a5d8097ffe96314706e20d",
+  "generatedAt": "2026-11-18T07:53:40.362335+00:00",
+  "commit": "b64d42dc9e287d17e5dd260fc60ac84c0a9b2fc4",
   "branch": "main",
-  "sourceFingerprint": "0baa5d047260170d40d309b7b289608f45017a18eb6d134454c3e4e40d431d0c",
+  "sourceFingerprint": "84488228d0cff241f43030ea9faa11a16ca1a4044e39f3805c2b03b2bb2eebea",
   "summary": {
     "files": 1461,
-    "lines": 308820,
+    "lines": 308825,
     "symbols": 4401
   },
   "symbolIndex": {
@@ -2269,7 +2269,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 81
+        "line": 82
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
@@ -15525,31 +15525,31 @@
     "selectVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 47
+        "line": 48
       }
     ],
     "receiveOwner": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 55
+        "line": 56
       }
     ],
     "companionSaid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 64
+        "line": 65
       }
     ],
     "fixedHostSaid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 75
+        "line": 76
       }
     ],
     "connectAudio": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 86
+        "line": 87
       }
     ],
     "attach": [
@@ -39431,32 +39431,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-      "lines": 176,
-      "sha256": "2080283c768e331bfffa9eb33f4c6ac4770f36a0535712e170a433b083a09b96",
+      "lines": 181,
+      "sha256": "047e5cbeb0c3ec0ab092baab4aab2799645453e697c40353d1bc001913bf3a2f",
       "symbols": [
         {
           "name": "selectVoice",
-          "line": 47
+          "line": 48
         },
         {
           "name": "receiveOwner",
-          "line": 55
+          "line": 56
         },
         {
           "name": "companionSaid",
-          "line": 64
+          "line": 65
         },
         {
           "name": "fixedHostSaid",
-          "line": 75
+          "line": 76
         },
         {
           "name": "close",
-          "line": 81
+          "line": 82
         },
         {
           "name": "connectAudio",
-          "line": 86
+          "line": 87
         }
       ]
     },
@@ -41214,7 +41214,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
       "lines": 786,
-      "sha256": "e2eca8c35d06ac8c397b2d7b6f69fb4b8a7e2ce6cd54bb808eb5fc18f38067b6",
+      "sha256": "2d711a6c6141b46deb2ad8b83dbd86b2e7d91b90f501680dffbbc5446dc61730",
       "symbols": [
         {
           "name": "name",
