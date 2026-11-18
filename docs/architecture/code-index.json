@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T08:29:34.049148+00:00",
-  "commit": "74ad31894760c9e8d51464d5204da336adb685db",
+  "generatedAt": "2026-11-18T08:30:28.043365+00:00",
+  "commit": "c6ab80a9cb1772537bd0ec2a5efa39be9bbb1e23",
   "branch": "main",
-  "sourceFingerprint": "eede15511bb44041367a3d2cb98255140c968c92d5cfa91a7c065a3ffa3c55d7",
+  "sourceFingerprint": "e3860b0d5162bfb01d7d50897a69e347583f166e2c908b69fbf0d246ca731134",
   "summary": {
     "files": 1461,
-    "lines": 308990,
+    "lines": 309016,
     "symbols": 4399
   },
   "symbolIndex": {
@@ -18189,7 +18189,7 @@
     "stillAuthorized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 1169
+        "line": 1195
       }
     ],
     "LuluDeviceToolBridge": [
@@ -42691,8 +42691,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 2227,
-      "sha256": "e22595a9728404373ca64e5e828e284dbc44e9818a97401487f467cf4184f48c",
+      "lines": 2253,
+      "sha256": "c36e627caeb04d35a1f03010a6cf0cc0dce9bc985f37e5559b50c9022b97a1a0",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -42728,7 +42728,7 @@
         },
         {
           "name": "stillAuthorized",
-          "line": 1169
+          "line": 1195
         }
       ]
     },
