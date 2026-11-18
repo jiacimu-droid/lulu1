@@ -1,11 +1,17 @@
 package com.jiacimu.lulu.games
 
+import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /** A route hint may only depend on actually discovered, safe world tiles. */
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class RelicObjectiveRouteTest {
     private fun corridor():RelicRun {
         val base=RelicEscapeWorld.create(915,2,emptyList(),1,1)
@@ -242,19 +248,19 @@ class RelicObjectiveRouteTest {
             allies=listOf(RelicActor("friend",3,2,kits=1))
         )
         val chest=RelicObjectiveTarget(6,2,"已发现的宝箱")
-        val savedDowned=RelicRun.read(discovered.json())!!
+        val savedDowned=RelicRun.read(JSONObject(discovered.json().toString()))!!
         assertNull(RelicObjectiveGuide.knownRouteTiles(savedDowned,chest))
         assertEquals(1,savedDowned.allies.single().kits)
         val rescued=RelicEscapeRules.act(savedDowned,"wait")
         assertEquals(RelicPhase.EXPLORE,rescued.phase)
-        val restored=RelicRun.read(rescued.json())!!
+        val restored=RelicRun.read(JSONObject(rescued.json().toString()))!!
         assertEquals(4,restored.hero.hp)
         assertEquals(0,restored.allies.single().kits)
         assertEquals(1,restored.allies.single().rescues)
         assertEquals(3,RelicObjectiveGuide.knownRouteSteps(restored,chest))
         assertTrue(restored.chests.none { it.opened })
         // Reloading the receipt must not replay the rescue or mint another kit.
-        val reloaded=RelicRun.read(restored.json())!!
+        val reloaded=RelicRun.read(JSONObject(restored.json().toString()))!!
         assertEquals(0,reloaded.allies.single().kits)
         assertEquals(1,reloaded.allies.single().rescues)
         assertEquals(restored.hero.hp,reloaded.hero.hp)

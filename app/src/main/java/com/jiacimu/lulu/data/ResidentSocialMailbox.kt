@@ -38,7 +38,7 @@ internal object ResidentMessageBubbles {
         val result = (0 until array.length()).map { index ->
             val raw = array.opt(index)
             require(raw is String && raw.trim().isNotBlank()) {
-                "bubbles[$index] 必须是非空的本人台词"
+                "bubbles[$index] 必须是本人写下的非空字符串"
             }
             raw.trim()
         }
