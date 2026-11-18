@@ -90,6 +90,26 @@ class LuluStrictModeTest {
             emptySet(), false, blocked))
     }
 
+    @Test fun fullLockdownBlocksAllOrdinaryAppsButNotLuluOrProtectedSystem() {
+        val lulu = "com.jiacimu.lulu"
+        val ordinaryVideo = "com.ss.android.ugc.aweme"
+        val ordinaryReader = "com.reader.books"
+        // Explicit lockdown overrides ordinary per-app exceptions, but NEVER
+        // overrides the Android/system/privacy protection boundary.
+        assertTrue(LuluStrictMode.shouldReturn("lockdown", ordinaryVideo, lulu,
+            setOf(ordinaryVideo), false, setOf(ordinaryReader)))
+        assertTrue(LuluStrictMode.shouldReturn("lockdown", ordinaryReader, lulu,
+            emptySet(), false, emptySet()))
+        assertFalse(LuluStrictMode.shouldReturn("lockdown", lulu, lulu,
+            emptySet(), false))
+        assertFalse(LuluStrictMode.shouldReturn("lockdown", "com.android.settings", lulu,
+            emptySet(), true))
+        assertFalse(LuluStrictMode.shouldReturn("lockdown", "", lulu,
+            emptySet(), false))
+        assertFalse(LuluStrictMode.shouldReturn("invalid", ordinaryVideo, lulu,
+            emptySet(), false))
+    }
+
     @Test fun expiredRevokedAndOtherRolesCannotAdoptStoredSession() {
         val context = app
         val settings = LuluScreenAwareness.preferences(context)
