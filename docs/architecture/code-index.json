@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T02:54:20.825391+00:00",
-  "commit": "ffc02749c725892d99a038042958972048b7c4ee",
+  "generatedAt": "2026-11-18T02:55:38.174309+00:00",
+  "commit": "fa6faeb6e0d2a5762671c651fa492860efc3ae1b",
   "branch": "main",
-  "sourceFingerprint": "03c6d8bc594981294704be69c57bff234f95cbc43a110a67b16a418c3a6392ed",
+  "sourceFingerprint": "75c057aa2a6de745eca3d62f47a54d1bb9f3c0218f8ea4b4fce7de17e1640c83",
   "summary": {
     "files": 1444,
-    "lines": 304710,
+    "lines": 304719,
     "symbols": 4359
   },
   "symbolIndex": {
@@ -2297,7 +2297,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2450
+        "line": 2459
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -13559,19 +13559,19 @@
     "allowedLeisureLocation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 1625
+        "line": 1634
       }
     ],
     "errorOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2304
+        "line": 2313
       }
     ],
     "refreshAfterActivityChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2444
+        "line": 2453
       }
     ],
     "maxResidents": [
@@ -36502,8 +36502,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2516,
-      "sha256": "c876c5469ace9c134143e5709254185ba7e6d6f28167767173bff70c7e5645d6",
+      "lines": 2525,
+      "sha256": "9f8940e026cb69c0adbf58b7ad8aaf1555428f9198d34ee564c671023c8a615d",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -36575,19 +36575,19 @@
         },
         {
           "name": "allowedLeisureLocation",
-          "line": 1625
+          "line": 1634
         },
         {
           "name": "errorOf",
-          "line": 2304
+          "line": 2313
         },
         {
           "name": "refreshAfterActivityChange",
-          "line": 2444
+          "line": 2453
         },
         {
           "name": "schedule",
-          "line": 2450
+          "line": 2459
         }
       ]
     },
