@@ -1,6 +1,8 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import kotlinx.coroutines.asContextElement
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -79,6 +81,10 @@ object CompanionPresenceStore {
     // Reduce repeated UI-snapshot serialization; exact message anchors are separate.
     private const val RECENT_HISTORY_COUNT = 50
     private const val KEY_MESSAGE_MOMENTS = "message_moments_v1"
+    // A message can arrive while its parent phone/tool action is still running.
+    // Capture that decision's own private words at delivery, not a later tool result.
+    internal const val DELIVERY_MOMENT_SOURCE = "本轮消息发送时"
+    private val decisionDeliveryMoment = ThreadLocal<CompanionPresenceState?>()
     // Separate diagnostic metadata, NOT an alternate source of character memory.
     // A recovery "started" note must never overwrite evidence of what last failed.
     private const val KEY_LAST_PERCEPTION_FAILURE = "last_perception_failure_v1"
@@ -152,6 +158,23 @@ object CompanionPresenceStore {
     }
 
     fun current(characterId: String): CompanionPresenceState? = states.value[characterId]
+
+    /** Coroutine-scoped: one executed decision owns its messages even through
+     * suspension, nested tools, and another role's concurrent model turn.
+     * Nothing is written until a message really reaches the chat store. */
+    internal suspend fun <T> withDecisionDeliveryMoment(
+        moment: CompanionPresenceState?, block: suspend () -> T,
+    ): T = withContext(decisionDeliveryMoment.asContextElement(moment)) { block() }
+
+    @Synchronized internal fun deliveryMomentFor(characterId: String): CompanionPresenceState? =
+        decisionDeliveryMoment.get()?.takeIf {
+            it.characterId == characterId && it.source == DELIVERY_MOMENT_SOURCE
+        }
+
+    @Synchronized internal fun isFrozenDecisionDelivery(characterId: String, messageId: String): Boolean =
+        messageMoments[messageId]?.let {
+            it.characterId == characterId && it.source == DELIVERY_MOMENT_SOURCE
+        } == true
 
     @Synchronized
     fun isInCall(characterId: String): Boolean = characterId in activeCalls
