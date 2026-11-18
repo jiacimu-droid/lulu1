@@ -111,6 +111,14 @@ internal object CharacterPhoneInbox {
         val currentId = prefs?.getString(cursorIdKey(characterId), "").orEmpty()
         if (!afterCursor(observed.lastActivityAt, observed.id, current, currentId)) return true
         val delivered = presented.filter { afterCursor(it.lastActivityAt, it.id, current, currentId) }
+        // Never publish a witnessed observation when the read cursor could not
+        // be durably saved. Otherwise a rejected commit leaves a ghost memory
+        // even though the same post is still unread after process restart.
+        val saved = prefs?.edit()
+            ?.putString(cursorKey(characterId), observed.lastActivityAt.toString())
+            ?.putString(cursorIdKey(characterId), observed.id)
+            ?.commit() == true
+        if (!saved) return false
         // Only AFTER the successful model decision has looked at this inbox
         // do these posts enter the viewer's actual lived observations.
         delivered.forEach { post ->
@@ -137,10 +145,7 @@ internal object CharacterPhoneInbox {
                 triggerExtraction = false,
             )
         }
-        return prefs?.edit()
-            ?.putString(cursorKey(characterId), observed.lastActivityAt.toString())
-            ?.putString(cursorIdKey(characterId), observed.id)
-            ?.commit() == true
+        return true
     }
 
     fun modelContext(characterId: String, posts: List<MomentPost>): String = buildString {
