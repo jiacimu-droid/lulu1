@@ -12,6 +12,22 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest=Config.NONE,sdk=[28])
 class RelicEscapeRulesTest {
+    @Test fun restoredExpeditionRejectsActorsEmbeddedInWallsWithoutChangingValidSave() {
+        val run=RelicEscapeWorld.create(816,2,listOf("ally"),0,1)
+        assertEquals(run,RelicRun.read(run.json()))
+        val wall=run.tiles.indexOfFirst { it==1 }
+        assertTrue("World must contain solid stone",wall>=0)
+        val x=wall%run.w
+        val y=wall/run.w
+        val blockedHero=run.copy(hero=run.hero.copy(x=x,y=y))
+        assertNull(RelicRun.read(blockedHero.json()))
+        val blockedAlly=run.copy(allies=run.allies.mapIndexed { i,actor ->
+            if(i==0)actor.copy(x=x,y=y) else actor
+        })
+        assertNull(RelicRun.read(blockedAlly.json()))
+        assertNull(RelicRun.read(run.copy(exitX=x,exitY=y).json()))
+    }
+
 
     @Test fun newExpeditionsUseSevenPhysicalRanksWithDistinctRealPriceBands() {
         val base=RelicEscapeWorld.create(816,3,emptyList(),0,1)
