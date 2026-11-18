@@ -142,6 +142,7 @@ private fun CommunityNote(message: String) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LuluWishCommunityScreen(onBack: () -> Unit) {
     val context = LocalContext.current
