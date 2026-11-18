@@ -880,12 +880,8 @@ internal object LuluBackgroundPhoneSession {
         val unreadAtStart = if (action == "search" || navigationLabels != null)
             CompanionOnlineStore.unreadChatSnapshot(characterId).messageIds.toSet() else emptySet()
         mutex.lock()
-        var searchReceipt: JSONObject? = null
-        var momentReceipt: JSONObject? = null
-        var commentReceipt: JSONObject? = null
+        val receipts = OwnedActionReceipts()
         var adoptedApp: JSONObject? = null
-        var navigationReceipt: JSONObject? = null
-        var failureStage = "owner_authorization"
         try {
             check(!ownerHasPaused(context)) {
                 "主人已停止后台手机操作；必须由主人在设置中重新允许"
@@ -930,7 +926,7 @@ internal object LuluBackgroundPhoneSession {
                     .put("verification", "请先开启本角色的虚拟屏幕总授权，尚未发送任何消息")
                     .toString()
             }
-            failureStage = "app_resolution"
+            receipts.failureStage = "app_resolution"
             val requestedPackage = if (action == "launch" &&
                 args.optString("packageName").isBlank()) {
                 // A model can choose the actual installed app by its visible name;
@@ -970,9 +966,9 @@ internal object LuluBackgroundPhoneSession {
                         .put("sessionPreserved", connected()).put("taskCompleted", false)
                         .put("verification", "主人正在主屏使用这个App，未尝试移动到后台屏幕").toString()
             }
-            failureStage = "display_start"
+            receipts.failureStage = "display_start"
             val id = ensureStarted(context)
-            failureStage = "window_and_action"
+            receipts.failureStage = "window_and_action"
             if (ownerCharacterId.isBlank()) ownerCharacterId = characterId
             appContext = context.applicationContext
             LuluBackgroundPhoneNotice.show(context)
@@ -1263,7 +1259,7 @@ internal object LuluBackgroundPhoneSession {
                 }
                 if (visualPress) beforeTouchPixels = freshPixels
             }
-            failureStage = "command_" + action
+            receipts.failureStage = "command_" + action
             val applied = when (action) {
                 "adopt_app" -> checkNotNull(adoptedApp)
                 "observe", LuluVirtualNavigation.ACTION -> null
@@ -1388,21 +1384,21 @@ internal object LuluBackgroundPhoneSession {
                     val fingerprint = checkNotNull(lastObservedUi).fingerprint
                     lastObservedUi = null
                     val prepared = command(JSONObject().put("action", "prepare_type")).optBoolean("accepted")
-                    commentReceipt = JSONObject().put("commentPublishAttempted", false)
+                    receipts.commentReceipt = JSONObject().put("commentPublishAttempted", false)
                         .put("errorCode", "comment_frame_barrier_unverified")
                     if (prepared) {
-                        commentReceipt = withContext(Dispatchers.Main) {
+                        receipts.commentReceipt = withContext(Dispatchers.Main) {
                             LuluAccessibilityService.publishVirtualComment(id, activeApp, fingerprint,
                                 args.getString("editorRef"), args.getString("elementRef"),
                                 args.getString("text"), args.getString("contextText").trim(), ::stillAuthorized,
                                 onDispatch = {
-                                    commentReceipt = JSONObject().put("commentPublishAttempted", true)
+                                    receipts.commentReceipt = JSONObject().put("commentPublishAttempted", true)
                                         .put("commentDraftVerified", true)
                                         .put("errorCode", "comment_dispatch_result_unknown")
                                 })
                         }
                     }
-                    checkNotNull(commentReceipt)
+                    checkNotNull(receipts.commentReceipt)
                 }
                 LuluWeChatMomentsPolicy.OPEN_COMPOSER -> {
                     val fingerprint = checkNotNull(lastObservedUi).fingerprint
@@ -1429,7 +1425,7 @@ internal object LuluBackgroundPhoneSession {
                     } else JSONObject().put("accepted", false)
                         .put("errorCode", "moments_open_composer_first")
                     if (result.optBoolean("momentPublishAttempted")) openedMomentsComposer = false
-                    momentReceipt = result
+                    receipts.momentReceipt = result
                     result
                 }
                 "send_chat_message" -> {
@@ -1612,6 +1608,74 @@ internal object LuluBackgroundPhoneSession {
                     else "已获取本次有效商家链接，但私聊卡片未确认送达；未声称发送成功")
                     .toString()
             }
+            return completeOwnedAction(
+                context = context, characterId = characterId, requestId = requestId,
+                args = args, action = action, id = id, requestedPackage = requestedPackage,
+                unreadAtStart = unreadAtStart, applied = applied,
+                beforeUiFingerprint = beforeUiFingerprint,
+                beforeScrollFrameImage = beforeScrollFrame?.visualImage,
+                beforeScrollFrameWindow = beforeScrollFrame?.windowIdentity,
+                beforeScrollText = beforeScrollText, visualPress = visualPress,
+                beforeTouchPixels = beforeTouchPixels, receipts = receipts,
+                stillAuthorized = ::stillAuthorized,
+                captureChatTitleFrame = ::captureChatTitleFrame,
+            )
+        } catch (error: Throwable) {
+            if (error is kotlinx.coroutines.CancellationException) {
+                forgetTransport()
+                throw error
+            }
+            // An unknown transport/display state must never be retried with
+            // an old action ID; release before the next request.
+            forgetTransport()
+            val detail = error.message?.takeIf(String::isNotBlank)
+                ?: error::class.java.simpleName
+            val outcome = commandFailureStatus(error)
+            return JSONObject().put("success", false).put("status", outcome)
+                .put("taskCompleted", false)
+                .put("effectKind", if (outcome == "unverified") "unknown" else "none")
+                .put("retrySafe", false)
+                .put("mode", "independent_virtual_display")
+                .put("errorCode", "virtual_phone_" + receipts.failureStage)
+                .put("diagnosticStage", receipts.failureStage)
+                .put("error", detail.take(220))
+                .put("accepted", receipts.searchReceipt?.optBoolean("searchSubmitted") == true)
+                .attachSearchReceipt(receipts.searchReceipt).attachMomentReceipt(receipts.momentReceipt).attachCommentReceipt(receipts.commentReceipt).attachNavigationReceipt(receipts.navigationReceipt).toString()
+        } finally { mutex.unlock() }
+    }
+
+    // ART rejected the monolithic executeOwned coroutine's merged DEX registers.
+    // Keep the post-action verification in a separate coroutine state machine.
+    private class OwnedActionReceipts {
+        var searchReceipt: JSONObject? = null
+        var momentReceipt: JSONObject? = null
+        var commentReceipt: JSONObject? = null
+        var navigationReceipt: JSONObject? = null
+        var failureStage: String = "owner_authorization"
+    }
+
+    private suspend fun completeOwnedAction(
+        context: Context,
+        characterId: String,
+        requestId: String,
+        args: JSONObject,
+        action: String,
+        id: Int,
+        requestedPackage: String,
+        unreadAtStart: Set<String>,
+        applied: JSONObject?,
+        beforeUiFingerprint: String,
+        beforeScrollFrameImage: String?,
+        beforeScrollFrameWindow: String?,
+        beforeScrollText: String,
+        visualPress: Boolean,
+        beforeTouchPixels: String,
+        receipts: OwnedActionReceipts,
+        stillAuthorized: () -> Boolean,
+        captureChatTitleFrame: suspend () -> android.graphics.Bitmap?,
+    ): String {
+        val navigationLabels = if (action == "launch" || action == LuluVirtualNavigation.ACTION)
+            LuluVirtualNavigation.labels(args) else null
             if (action == "send_chat_message") {
                 // The sole irreversible click was already attempted inside
                 // the verified accessibility flow. Do not automatically
@@ -1634,7 +1698,7 @@ internal object LuluBackgroundPhoneSession {
                                 break
                             val after = withContext(Dispatchers.Main) {
                                 LuluAccessibilityService.virtualChatOutgoingTextCount(
-                                    id, activeApp, recipient, message, ::captureChatTitleFrame)
+                                    id, activeApp, recipient, message, captureChatTitleFrame)
                             }
                             if (after > outgoingBefore) {
                                 appearedInChat = true
@@ -1654,7 +1718,7 @@ internal object LuluBackgroundPhoneSession {
                     appearedInChat = LuluVirtualChatTitleOcr.outgoingAppearedVisually(
                         id, activeApp, recipient, message,
                         applied?.optInt("visualOutgoingBefore", -1) ?: -1,
-                        ::captureChatTitleFrame,
+                        captureChatTitleFrame,
                     )
                 }
                 val appName = LuluVirtualChatSendPolicy.appName(activeApp)
@@ -1749,7 +1813,7 @@ internal object LuluBackgroundPhoneSession {
                 }
                 return receipt.toString()
             }
-            if (action == "search") searchReceipt = applied
+            if (action == "search") receipts.searchReceipt = applied
             if (action == "search" && applied?.optString("status").orEmpty().isNotBlank()) {
                 lastObservedUi = null
                 return checkNotNull(applied).put("success", false).put("accepted", false)
@@ -1785,8 +1849,8 @@ internal object LuluBackgroundPhoneSession {
                 }
             }
             if (navigationLabels != null) {
-                failureStage = "navigate_visible_labels"
-                navigationReceipt = LuluVirtualNavigation.run(
+                receipts.failureStage = "navigate_visible_labels"
+                receipts.navigationReceipt = LuluVirtualNavigation.run(
                     navigationLabels,
                     pauseReason = {
                         when {
@@ -1812,7 +1876,7 @@ internal object LuluBackgroundPhoneSession {
                                 .put("errorCode", "navigation_observation_unavailable")
                         else withContext(Dispatchers.Main) {
                             LuluAccessibilityService.navigateVirtualVisibleLabel(
-                                id, activeApp, label, ::stillAuthorized)
+                                id, activeApp, label, stillAuthorized)
                         }.put("navigationBaseline", baseline)
                     },
                     changed = { outcome ->
@@ -1822,7 +1886,7 @@ internal object LuluBackgroundPhoneSession {
             }
             // A new frame is observed after the action. A successful dispatch
             // is never mistaken for a finished user task.
-            val uiSettled = if (navigationReceipt?.optBoolean("navigationCompleted") == true) true
+            val uiSettled = if (receipts.navigationReceipt?.optBoolean("navigationCompleted") == true) true
             else if (applied?.optBoolean("accepted") == true &&
                 action in setOf("tap", "long_press", "tap_element", "swipe", "submit", "search", "back",
                     LuluWeChatMomentsPolicy.OPEN_COMPOSER, LuluWeChatMomentsPolicy.PUBLISH))
@@ -1833,13 +1897,13 @@ internal object LuluBackgroundPhoneSession {
                     beforeUiFingerprint.isBlank() -> "no_prior_ui_evidence"
                     else -> "no_change_verified"
                 } else if (action == "back") "not_accepted" else ""
-            failureStage = "read_virtual_frame"
+            receipts.failureStage = "read_virtual_frame"
             val frame = command(JSONObject().put("action", "observe"))
             if (!frame.optBoolean("success")) {
                 val top = windowGate(id, activeApp)
                 if (top.optString("kind") != "target") {
                     lastObservedUi = null
-                    return JSONObject(pausedWindowReceipt(id, top)).attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).attachCommentReceipt(commentReceipt).attachNavigationReceipt(navigationReceipt).toString()
+                    return JSONObject(pausedWindowReceipt(id, top)).attachSearchReceipt(applied).attachMomentReceipt(receipts.momentReceipt).attachCommentReceipt(receipts.commentReceipt).attachNavigationReceipt(receipts.navigationReceipt).toString()
                 }
                 // Mika can still verify a UI tree when ImageReader has no new
                 // frame. Preserve accessibility facts without fabricating pixels.
@@ -1851,13 +1915,13 @@ internal object LuluBackgroundPhoneSession {
                 if (observed.connected && observed.packageName != activeApp) {
                     lastObservedUi = null
                     return JSONObject(humanOnlyReceipt(id, observed.packageName, "window_changed"))
-                        .attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).attachCommentReceipt(commentReceipt).attachNavigationReceipt(navigationReceipt).toString()
+                        .attachSearchReceipt(applied).attachMomentReceipt(receipts.momentReceipt).attachCommentReceipt(receipts.commentReceipt).attachNavigationReceipt(receipts.navigationReceipt).toString()
                 }
                 if (owned) {
                     val human = humanOnlyPage(id, activeApp)
                     if (human != null) {
                         lastObservedUi = null
-                        return JSONObject(humanOnlyReceipt(id, activeApp, human)).attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).attachCommentReceipt(commentReceipt).attachNavigationReceipt(navigationReceipt).toString()
+                        return JSONObject(humanOnlyReceipt(id, activeApp, human)).attachSearchReceipt(applied).attachMomentReceipt(receipts.momentReceipt).attachCommentReceipt(receipts.commentReceipt).attachNavigationReceipt(receipts.navigationReceipt).toString()
                     }
                 }
                 val search = if (owned) withContext(Dispatchers.Main) {
@@ -1899,7 +1963,7 @@ internal object LuluBackgroundPhoneSession {
                         applied?.optString("verification")?.takeIf(String::isNotBlank),
                         frame.optString("verification", "后台屏幕暂无可确认画面"),
                     ).joinToString("；"))
-                    .attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).attachCommentReceipt(commentReceipt).attachNavigationReceipt(navigationReceipt)
+                    .attachSearchReceipt(applied).attachMomentReceipt(receipts.momentReceipt).attachCommentReceipt(receipts.commentReceipt).attachNavigationReceipt(receipts.navigationReceipt)
                 if (!owned) {
                     lastObservedUi = null
                     return unverified.put("effectKind", "unknown").toString()
@@ -1920,7 +1984,7 @@ internal object LuluBackgroundPhoneSession {
             val top = windowGate(id, activeApp)
             if (top.optString("kind") != "target") {
                 lastObservedUi = null
-                return JSONObject(pausedWindowReceipt(id, top)).attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).attachCommentReceipt(commentReceipt).attachNavigationReceipt(navigationReceipt).toString()
+                return JSONObject(pausedWindowReceipt(id, top)).attachSearchReceipt(applied).attachMomentReceipt(receipts.momentReceipt).attachCommentReceipt(receipts.commentReceipt).attachNavigationReceipt(receipts.navigationReceipt).toString()
             }
             val visible = withContext(Dispatchers.Main) {
                 LuluAccessibilityService.observeDisplay(id)
@@ -1931,7 +1995,7 @@ internal object LuluBackgroundPhoneSession {
             if (visible.connected && visible.packageName != activeApp) {
                 lastObservedUi = null
                 return JSONObject(humanOnlyReceipt(id, visible.packageName, "window_changed"))
-                    .attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).attachCommentReceipt(commentReceipt).attachNavigationReceipt(navigationReceipt).toString()
+                    .attachSearchReceipt(applied).attachMomentReceipt(receipts.momentReceipt).attachCommentReceipt(receipts.commentReceipt).attachNavigationReceipt(receipts.navigationReceipt).toString()
             }
             if (!visible.connected || visible.packageName != activeApp ||
                 LuluScreenAwareness.isExcluded(context, visible.packageName)) {
@@ -1939,12 +2003,12 @@ internal object LuluBackgroundPhoneSession {
                     .put("accepted", applied?.optBoolean("accepted") ?: true)
                     .put("mode", "independent_virtual_display").put("displayId", id)
                     .put("verification", "无法核实独立屏幕的前台窗口属于已授权目标应用；已丢弃截图")
-                    .also { lastObservedUi = null }.attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).attachCommentReceipt(commentReceipt).attachNavigationReceipt(navigationReceipt).toString()
+                    .also { lastObservedUi = null }.attachSearchReceipt(applied).attachMomentReceipt(receipts.momentReceipt).attachCommentReceipt(receipts.commentReceipt).attachNavigationReceipt(receipts.navigationReceipt).toString()
             }
             val human = humanOnlyPage(id, activeApp)
             if (human != null) {
                 lastObservedUi = null
-                return JSONObject(humanOnlyReceipt(id, activeApp, human)).attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).attachCommentReceipt(commentReceipt).attachNavigationReceipt(navigationReceipt).toString()
+                return JSONObject(humanOnlyReceipt(id, activeApp, human)).attachSearchReceipt(applied).attachMomentReceipt(receipts.momentReceipt).attachCommentReceipt(receipts.commentReceipt).attachNavigationReceipt(receipts.navigationReceipt).toString()
             }
             val pixels = frame.optString("imageDataUrl")
             val frameFresh = frame.optBoolean("frameFreshAfterAction", false)
@@ -2121,16 +2185,16 @@ internal object LuluBackgroundPhoneSession {
                     else if (observed)
                         "只确认输入已派发且取得后台虚拟屏新画面，未证明画面发生变化或业务目标完成"
                     else "未观察到预期文字，动作结果仍未核实；不得称任务完成")
-                .attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).attachCommentReceipt(commentReceipt).attachNavigationReceipt(navigationReceipt)
+                .attachSearchReceipt(applied).attachMomentReceipt(receipts.momentReceipt).attachCommentReceipt(receipts.commentReceipt).attachNavigationReceipt(receipts.navigationReceipt)
             attachUiEvidence(finalReceipt, characterId, id, activeApp, if (hasFrame) pixels else null)
             if (action == "swipe") {
                 finalReceipt.put("scrollOutcome", LuluVirtualScrollOutcome.classify(
                     applied?.optBoolean("accepted") != false, true,
                     beforeUiFingerprint, lastObservedUi?.fingerprint,
                     beforeScrollText, visible.visibleText,
-                    freshPixelsChanged = hasFrame && frameFresh && beforeScrollFrame != null &&
-                        beforeScrollFrame.windowIdentity == lastObservedUi?.windowIdentity &&
-                        beforeScrollFrame.visualImage != pixels).wire)
+                    freshPixelsChanged = hasFrame && frameFresh && beforeScrollFrameImage != null &&
+                        beforeScrollFrameWindow == lastObservedUi?.windowIdentity &&
+                        beforeScrollFrameImage != pixels).wire)
                 finalReceipt.put("scrollVerification", when (finalReceipt.optString("scrollOutcome")) {
                     "content_changed" -> "后台可读内容或控件树发生变化；仍需核对是否到达预期内容"
                     "frame_changed" -> "后台画面像素有变化；请核对是滑到了新内容还是原视频仍在播放"
@@ -2142,27 +2206,6 @@ internal object LuluBackgroundPhoneSession {
                 action, applied?.optBoolean("accepted") != false,
                 beforeUiFingerprint, lastObservedUi?.fingerprint,
                 textReadbackVerified)).toString()
-        } catch (error: Throwable) {
-            if (error is kotlinx.coroutines.CancellationException) {
-                forgetTransport()
-                throw error
-            }
-            // An unknown transport/display state must never be retried with
-            // an old action ID; release before the next request.
-            forgetTransport()
-            val detail = error.message?.takeIf(String::isNotBlank)
-                ?: error::class.java.simpleName
-            val outcome = commandFailureStatus(error)
-            return JSONObject().put("success", false).put("status", outcome)
-                .put("taskCompleted", false)
-                .put("effectKind", if (outcome == "unverified") "unknown" else "none")
-                .put("retrySafe", false)
-                .put("mode", "independent_virtual_display")
-                .put("errorCode", "virtual_phone_" + failureStage)
-                .put("diagnosticStage", failureStage)
-                .put("error", detail.take(220))
-                .put("accepted", searchReceipt?.optBoolean("searchSubmitted") == true)
-                .attachSearchReceipt(searchReceipt).attachMomentReceipt(momentReceipt).attachCommentReceipt(commentReceipt).attachNavigationReceipt(navigationReceipt).toString()
-        } finally { mutex.unlock() }
     }
+
 }
