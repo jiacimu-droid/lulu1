@@ -2,6 +2,8 @@ package com.jiacimu.lulu.data
 
 import com.jiacimu.lulu.LuluRepositories
 import com.jiacimu.lulu.games.LuluGames
+import com.jiacimu.lulu.games.LuluGameEdition
+import com.jiacimu.lulu.games.LuluGameType
 import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.junit.Assert.*
@@ -16,7 +18,7 @@ import java.util.UUID
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class SoloGameSystemNoticeTest {
-    @Test fun autonomousRelicSendsOneIndependentSystemReceiptFromSavedPhysicalRun() = runBlocking {
+    @Test fun autonomousGameSendsOneIndependentSystemReceiptFromSavedPhysicalRun() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as android.content.Context
         LuluRepositories.initialize(app)
         MigratedDomainStores.initialize(app)
@@ -24,13 +26,23 @@ class SoloGameSystemNoticeTest {
         LuluGames.initialize(app)
         val actor = MigratedDomainStores.characters.create("独玩回执验收-${UUID.randomUUID().toString().take(8)}")
         val id = actor.characterId
+        val gameId = if (LuluGameEdition.worldGamesEnabled) "relic_escape" else "memory_match"
+        val arguments = JSONObject().put("gameId", gameId).apply {
+            if (gameId == "relic_escape") {
+                put("focus", "safe")
+                put("turns", 128)
+            }
+        }
         val result = CompanionActionRuntime.execute(app, id, "play_solo_game",
-            JSONObject().put("gameId", "relic_escape").put("focus", "safe").put("turns", 128),
-            Instant.parse("2026-11-15T09:00:00Z"))
+            arguments, Instant.parse("2026-11-15T09:00:00Z"))
         assertTrue(result.summary, result.success)
         val record = LuluGames.store.state.value.records.first { it.id == result.evidenceId.removePrefix("game-solo-") }
         assertTrue(record.characterSolo)
         assertFalse(record.playedWithCharacter)
+        assertEquals(
+            if (LuluGameEdition.worldGamesEnabled) LuluGameType.RelicEscape else LuluGameType.MemoryMatch,
+            record.type,
+        )
         assertEquals(id, record.characterId)
         val conversation = MigratedDomainStores.chat.conversations.value.first {
             it.characterId == id && it.groupChat == null
@@ -49,7 +61,11 @@ class SoloGameSystemNoticeTest {
             it.sender == LuluChatMessage.Sender.System &&
                 it.content.startsWith("[游戏记录] [游戏事件|solo-game-${record.id}]")
         })
-        val phase = JSONObject(record.detailsJson).getString("phase")
-        if (phase != "SUCCESS") assertEquals(0, record.score)
+        if (LuluGameEdition.worldGamesEnabled) {
+            val phase = JSONObject(record.detailsJson).getString("phase")
+            if (phase != "SUCCESS") assertEquals(0, record.score)
+        } else {
+            assertEquals("memory_match", JSONObject(record.detailsJson).getString("game"))
+        }
     }
 }
