@@ -609,7 +609,7 @@ private fun LuluScreenAwarenessSettings() {
                 excluded = it
                 prefs.edit().putString(LuluScreenAwareness.EXCLUDED, it).commit()
             }, label = { Text("禁止查看的 App 包名") },
-                supportingText = { Text("多个包名用逗号或换行分隔；支付、密码、系统授权页另有默认保护") },
+                supportingText = { Text("这里默认是空的：只有你亲自填写的包名才禁止主屏截图。Android 自带的受保护画面可能拒绝截图；密码、验证码和付款操作仍有独立安全校验。") },
                 modifier = Modifier.fillMaxWidth(), minLines = 2, maxLines = 4)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(if (consent) "屏幕视觉已授权" else "尚未授权屏幕视觉",
@@ -633,7 +633,7 @@ private fun LuluScreenAwarenessSettings() {
     }
     if (showConsent) {
         AlertDialog(onDismissRequest = { showConsent = false }, title = { Text("允许角色看见手机屏幕？") },
-            text = { Text("同意后，若启用自主观察，角色可以自行获取当前单帧屏幕，无需逐次确认，也不会持续录像。画面可能包含个人信息，获准后会发送给你选择的识图模型；锁屏、敏感页和排除的 App 无法读取。每次查看时会显示系统通知或状态提示，关闭自主观察或撤销授权后不再读取。返回邀请默认只等你点击；只有再单独开启「允许角色直接切回露露机」，角色才能主动将露露机带到前台，这会打断正在使用的 App，可随时关闭。") },
+            text = { Text("同意后，若启用自主观察，角色可以自行获取当前单帧屏幕，无需逐次确认，也不会持续录像。画面可能包含个人信息，获准后会发送给你选择的识图模型，并非全程只在本机处理；锁屏、Android 自身保护的画面和你亲自排除的 App 可能无法截图。每次查看时会显示通知或状态提示，关闭自主观察或撤销授权后不再读取。返回邀请默认只等你点击；只有再单独开启「允许角色直接切回露露机」，角色才能主动把露露机带到前台，可随时关闭。") },
             confirmButton = { TextButton(onClick = {
                 prefs.edit().putBoolean(LuluScreenAwareness.CONSENT, true).commit()
                 consent = true
