@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a9d77adfd037230797133fb624a4a22879696a3c`
+- 基准提交：`62902195e3b5af2f29453d54696ef6f652465ee8`
 - 分支：`main`
 - 已索引文件：1468
-- 已索引代码/文本行：309956
+- 已索引代码/文本行：309984
 - 已发现符号：4434
 
 | 文件 | 行数 | 符号数 |
@@ -874,7 +874,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcome.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 37 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt` | 59 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextReadbackOcr.kt` | 87 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextReadbackOcr.kt` | 102 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 51 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt` | 86 | 5 |
@@ -1440,7 +1440,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcomeTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicyTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSocialActionsTest.kt` | 126 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt` | 168 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt` | 181 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt` | 111 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicyTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicyTest.kt` | 99 | 1 |
