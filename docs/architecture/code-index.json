@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T16:24:51.750070+00:00",
-  "commit": "7437466498f31f6b6e8eb76e69c9a091e66d363f",
+  "generatedAt": "2026-11-18T16:26:16.527657+00:00",
+  "commit": "795d984d6a2ebb38660f67b729d6cac9f6756481",
   "branch": "main",
-  "sourceFingerprint": "7c3581d7258c8c9fa4191e2e46baa6247b2666574a71720e4234f5bd894104f4",
+  "sourceFingerprint": "4e0d6c536b5107d12c8fc650c9622b3e1495347e451167c6631339e8bc7cbb43",
   "summary": {
-    "files": 1475,
-    "lines": 312128,
-    "symbols": 4452
+    "files": 1476,
+    "lines": 312323,
+    "symbols": 4453
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -122,6 +122,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt",
         "line": 22
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MossSpeech.kt",
+        "line": 27
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
@@ -28223,6 +28227,17 @@
         {
           "name": "MomentsScreen",
           "line": 38
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/MossSpeech.kt",
+      "lines": 195,
+      "sha256": "272ebaa38499f6464e73a5a0120d7d5bd3826cbffdf4dbfa8a4a140eddd3e1c8",
+      "symbols": [
+        {
+          "name": "stop",
+          "line": 27
         }
       ]
     },
