@@ -48,6 +48,13 @@
 - [b239286](https://github.com/jiacimu-droid/lulu1/commit/b2392865af0010f5a922657fc4319c642807ac31)、[8efc982](https://github.com/jiacimu-droid/lulu1/commit/8efc982a37a7cad6688b660b88aa761af480f193)：合场文学保留一次 Isolated 写作请求和各自角色章节；给每个角色带入本人的通知、原始会面及被该事件/前因锚定的已保存心声/选择，提示正文不能把另一个人的未说出的心声写成自己的或已公开的事实。写作仅产生非权威文学，不回填原世界事件、主人行为、关系或心理。证据 ID 按本人单独链接。
 - 回归源码 [e4710e4](https://github.com/jiacimu-droid/lulu1/commit/e4710e43623827ac59aa38b2b7ff7a2fc90d07f3)、[f991a19](https://github.com/jiacimu-droid/lulu1/commit/f991a194a2ad48d052454e4884ea7e970d646900)：覆盖到访→离场顺序、其他地点/未来/伪源隔离、没有通知不伪造在场、本人的证据心声能进入正文而他人的/未来的不能。**当前仅提交测试，未取得目标 SHA 的 JVM/APK 成功证明，且未在 Redmi 真机用两角色 + 真实模型重放。** 后续核 `WorldVisitorSceneContextTest`、`AutonomousEncounterCausalChapterTest`、`AutonomousEncounterPrivacyTest` 在当前 main push 的首错；真机还要验证从地点退出/强杀后离场通知是否真实到达、模型是否自主延续找人的目标、历史章节不应被静默重写。
 
+## 2026-11-18 · P-08b.1 失败请求后手改人格与关系的跨场景投影
+
+- 现有 `currentAuthoredRelationshipReachesRealWorldModesWithoutKeywordRoleOverlay` 与 `crossWorldKeepsEditedTemperamentWithoutOriginalWorldDialogueScenes` 已覆盖正常请求后的编辑及原世界/独立场景投影。本轮只补前轮指定的失败分界，未证实生产缓存冻结，无生产补丁。
+- [54c5b42f](https://github.com/jiacimu-droid/lulu1/commit/54c5b42fa223f9bf0427e86a086b91ba2510ed82) 的 `RelationshipPreferenceGatewayTest.failedRequestDoesNotFreezeEditedPersonaOrLeakRelationshipIntoNextScene` 使用正式 Gateway 和 MockWebServer：Full 发出旧定义收到 HTTP 401→原 Store 手改本人长人格和长关系（尾部含条件/否定）→另一人物 Full 请求→本人 PersonaAndScenario→本人 Full。比较每个实际 HTTP system，要求同人新值完整、另一人没有串线、独立场景无原世界关系，失败请求没有自动重发，最终 Store 仍保留手改。模拟台词只作传输占位，不能证明真实模型的人设表现。
+- [精确 JVM/APK #44231563553](https://github.com/jiacimu-droid/lulu1/actions/runs/44231563553) 与 [原索引 #44231563552](https://github.com/jiacimu-droid/lulu1/actions/runs/44231563552) 待核。前轮拒收回归在 [#44217167149/job 134509776129](https://github.com/jiacimu-droid/lulu1/actions/runs/44217167149/job/134509776129) 已通过，整体仍由指南单项失败阻断 APK。
+- 真机和真实模型待验。下一步打开同一 `RelationshipPreferenceGatewayTest` 与 `CompanionModelGateway.generate` 的 CharacterAndScenario，核失败后用户清空某个关系字段，下一电话表达请求是否仍残留旧约定。已有成功后清空用例时只补失败跨轮边界，不能恢复人物私有预设。
+
 ## 2026-11-18 · P-03.1 拒收通知不抢占后续原件的资格
 
 - 接续上轮候选实查：电话队列在 Main.immediate 中检查可交付状态、取原件与调用 handleUserSpeech 之间没有 suspend 点，未发现该局部存在用户回调穿插的证据。因此不为假定竞态增重试。当前缺少的回归是：先到的空通知或误投通知被拒时，去重映射不能记成已经提供。
