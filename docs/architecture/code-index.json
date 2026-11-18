@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T09:52:19.750073+00:00",
-  "commit": "e98158acd4d81c6e130e1bf2b9522b4e7b2a883b",
+  "generatedAt": "2026-11-18T10:06:32.566784+00:00",
+  "commit": "724b0a23d92901079740ca31ba73436d8519a5e1",
   "branch": "main",
-  "sourceFingerprint": "95635efc6a984560749877ddb58a1edd17f54edb50237542b13b2dcf6f7a1205",
+  "sourceFingerprint": "d99a4fe1d85317afeca22b0df586aaef6791ae2ecf34be217b111a1a353e0df6",
   "summary": {
     "files": 1461,
-    "lines": 309520,
+    "lines": 309521,
     "symbols": 4405
   },
   "symbolIndex": {
@@ -18137,13 +18137,13 @@
     "ownerHasNewInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 284
+        "line": 285
       }
     ],
     "rememberGesture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 308
+        "line": 309
       }
     ],
     "showPaymentHandoff": [
@@ -30224,7 +30224,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 192,
-      "sha256": "7fae3332d10fc6aaad17d306963b9fabff77d8042b4e7e0ec77b64859a635855",
+      "sha256": "a8404fccffafd3678ee3e17930a82ff413001931b60768b0b7a237910c5287ad",
       "symbols": [
         {
           "name": "Capability",
@@ -42684,8 +42684,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 811,
-      "sha256": "63cd29b15d863ef3fc09def7c7c9433ae9560f5245526451aace855037e9002d",
+      "lines": 812,
+      "sha256": "5a2b3706fb00770b60f80581a9b90dace2506435ac581c78b66fd60c9fe68d01",
       "symbols": [
         {
           "name": "Outcome",
@@ -42697,11 +42697,11 @@
         },
         {
           "name": "ownerHasNewInput",
-          "line": 284
+          "line": 285
         },
         {
           "name": "rememberGesture",
-          "line": 308
+          "line": 309
         }
       ]
     },
