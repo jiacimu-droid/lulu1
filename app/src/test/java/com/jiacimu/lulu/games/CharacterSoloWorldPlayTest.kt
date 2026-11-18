@@ -13,6 +13,10 @@ import java.util.UUID
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterSoloWorldPlayTest {
+    @org.junit.Before fun onlyRunInGameEdition() {
+        org.junit.Assume.assumeTrue(LuluGameEdition.worldGamesEnabled)
+    }
+
     private val context get() = RuntimeEnvironment.getApplication() as android.content.Context
     private val now = Instant.parse("2026-11-13T12:00:00Z")
 
