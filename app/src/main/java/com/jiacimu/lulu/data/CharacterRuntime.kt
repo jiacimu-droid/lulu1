@@ -232,6 +232,9 @@ object CharacterRuntime {
     ): String = buildString {
         if (!freshAnswer) CharacterRelationalInitiative.expressionHandoff(characterId)
             .takeIf(String::isNotBlank)?.let(::appendLine)
+        // This lightweight second pass still authors real words: carry the same
+        // evidence-led self-review, not an ad-hoc list of forbidden phrases.
+        appendLine(CharacterAccountabilityContext.reflectionGuidance(characterId))
         val known = CharacterDevelopmentRecall.select(
             CharacterDevelopmentStore.active(characterId).filter {
                 it.kind == DevelopmentKind.UserPreference || it.kind == DevelopmentKind.UserHabit
