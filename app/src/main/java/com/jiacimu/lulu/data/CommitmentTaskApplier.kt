@@ -177,7 +177,7 @@ internal fun isUpcomingDailyOccurrenceCorrection(
         original.dueAt.atZone(zone).toLocalDate() != nextDate
 }
 
-private fun reviseNextDailyOccurrence(
+private suspend fun reviseNextDailyOccurrence(
     oldTask: CommitmentTask, draft: CommitmentTaskDraft,
     evidenceIds: List<String>, delivery: String,
 ): CommitmentDraftOutcome {
