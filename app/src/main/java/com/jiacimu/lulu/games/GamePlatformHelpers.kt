@@ -42,7 +42,9 @@ internal fun requestGameRoleResponse(
     characterIdOverride: String? = null,
 ) {
     val snapshot = store.state.value
-    if (!snapshot.playWithCharacter) return
+    // A joined game room has explicit participant identity even when the lobby's
+    // old playWithCharacter flag is stale (e.g. a resumed invite).
+    if (!snapshot.playWithCharacter && characterIdOverride.isNullOrBlank()) return
     onState(GameRoleResponse(loading = true))
     scope.launch {
         val connection = runCatching {

@@ -1,14 +1,19 @@
 package com.jiacimu.lulu.games
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CallEnd
+import androidx.compose.material.icons.outlined.Mic
+import androidx.compose.material.icons.outlined.MicOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
@@ -16,8 +21,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import android.content.Context
@@ -44,6 +52,7 @@ internal class GameLiveSession(
         private set
     var lastCompanionLine by mutableStateOf("")
         private set
+    var conversationStatus by mutableStateOf("")
     var companionSpeaking by mutableStateOf(false)
         private set
     var playbackError by mutableStateOf("")
@@ -135,57 +144,93 @@ internal fun GameTalkBar(
     showComposer: Boolean = true,
 ) {
     if (session.participantIds.isEmpty() && !session.allowSoloHost) return
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(
-                selected = !session.voiceMode,
-                onClick = { session.selectVoice(false) },
-                label = { Text("文字") },
-            )
-            FilterChip(
-                selected = session.voiceMode,
-                onClick = { session.selectVoice(true) },
-                label = { Text("连麦") },
-            )
-        }
-        if (session.voiceMode) {
-            Text(session.mic.status.ifBlank { "连麦中" }, color = Color(0xFFB8CFE1))
-            if (session.mic.partial.isNotBlank()) {
-                Text("你：${session.mic.partial}", color = Color(0xFFB8CFE1))
-            }
-            Button(onClick = {
-                if (session.mic.active) session.mic.mute() else session.selectVoice(true)
-            }) { Text(if (session.mic.active) "关闭麦克风" else "重新开启麦克风") }
-        } else if (showComposer) {
-            Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                OutlinedTextField(
-                    value = session.draft,
-                    onValueChange = { session.draft = it },
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text("和伙伴说句话") },
-                    maxLines = 2,
-                )
-                Button(
+    val mint = Color(0xFF9BE6D8)
+    var textExpanded by remember(session) { mutableStateOf(false) }
+    val microphoneOn = session.voiceMode && session.mic.active
+    val status = when {
+        session.voiceMode && session.conversationStatus.isNotBlank() -> session.conversationStatus
+        session.voiceMode && !session.mic.active -> session.mic.status.ifBlank { "已静音 · 字幕仍会保留" }
+        session.voiceMode -> session.mic.status.ifBlank { "连麦中 · 直接说话" }
+        else -> "点麦克风接通，随时边玩边聊"
+    }
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = Color(0xFF152B39),
+        shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = .12f)),
+    ) {
+        Column(
+            Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        if (session.voiceMode) "同桌通话" else "和伙伴说话",
+                        color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 14.sp,
+                    )
+                    Text(status, color = Color(0xFFABC4D0), fontSize = 11.sp, maxLines = 2)
+                }
+                IconButton(
                     onClick = {
-                        val message = session.draft.trim()
-                        if (message.isNotEmpty()) {
-                            session.receiveOwner(message, fromSpeech = false)
-                            session.draft = ""
-                        }
+                        if (microphoneOn) session.mic.stop()
+                        else session.selectVoice(true)
                     },
-                    enabled = session.draft.isNotBlank(),
-                ) { Text("发送") }
+                ) {
+                    Icon(
+                        if (microphoneOn) Icons.Outlined.Mic else Icons.Outlined.MicOff,
+                        contentDescription = if (microphoneOn) "关闭麦克风" else "接通或开启麦克风",
+                        tint = if (microphoneOn) mint else Color.White,
+                    )
+                }
+                if (session.voiceMode) {
+                    IconButton(onClick = { session.selectVoice(false) }) {
+                        Icon(Icons.Outlined.CallEnd, contentDescription = "挂断连麦",
+                            tint = Color(0xFFF4B9BD))
+                    }
+                }
+                if (showComposer) {
+                    TextButton(onClick = { textExpanded = !textExpanded }) {
+                        Text(if (textExpanded) "收起" else "打字", color = mint, fontSize = 12.sp)
+                    }
+                }
             }
-        }
-        if (session.lastOwnerLine.isNotBlank()) {
-            Text("你：${session.lastOwnerLine}", color = Color(0xFFB8CFE1))
-        }
-        if (session.lastCompanionLine.isNotBlank()) {
-            Text(
-                if (session.lastCompanionLine.startsWith("主持：")) session.lastCompanionLine
-                else "伙伴：${session.lastCompanionLine}",
-                color = Color(0xFFD8E8F2),
-            )
+            // Transcript belongs to the conversation, not to the microphone switch.
+            val ownerCaption = session.mic.partial.ifBlank { session.lastOwnerLine }
+            if (ownerCaption.isNotBlank()) {
+                Text("你：$ownerCaption", color = Color(0xFFD4E8EE),
+                    fontSize = 12.sp, maxLines = 2, lineHeight = 17.sp)
+            }
+            if (session.lastCompanionLine.isNotBlank()) {
+                Text(
+                    if (session.lastCompanionLine.startsWith("主持：")) session.lastCompanionLine
+                    else "伙伴：${session.lastCompanionLine}",
+                    color = mint, fontSize = 12.sp, maxLines = 2, lineHeight = 17.sp,
+                )
+            }
+            if (showComposer && (!session.voiceMode || textExpanded)) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    OutlinedTextField(
+                        value = session.draft,
+                        onValueChange = { session.draft = it },
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text("说点什么…", fontSize = 12.sp) },
+                        maxLines = 2,
+                        singleLine = false,
+                    )
+                    Button(
+                        enabled = session.draft.isNotBlank(),
+                        onClick = {
+                            val message = session.draft.trim()
+                            if (message.isNotEmpty()) {
+                                session.receiveOwner(message, fromSpeech = false)
+                                session.draft = ""
+                            }
+                        },
+                    ) { Text("发送") }
+                }
+            }
         }
     }
 }
