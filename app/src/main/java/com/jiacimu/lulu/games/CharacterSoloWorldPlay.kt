@@ -194,6 +194,20 @@ internal class CharacterSoloWorldPlay(context: Context) {
             }
         }
 
+        // Survey reveals radius 5 while ordinary walking only reveals 3.
+        // When the nearby radius is already known and no live guard can hear
+        // the noise, survey HERE instead of pacing several safe tiles to the
+        // fog boundary only to survey there. Under nearby threat preserve
+        // quiet physical movement and the normal safety-first BFS.
+        val localFloorKnown = (-3..3).all { dy -> (-3..3).all { dx ->
+            abs(dx) + abs(dy) > 3 || !s.bounds(hero.x + dx, hero.y + dy) ||
+                s.visible(hero.x + dx, hero.y + dy)
+        } }
+        val guardsNearby = s.mobs.any { it.hp > 0 &&
+            distance(it.x, it.y) <= 5 }
+        if (focus == "explore" && localFloorKnown && !guardsNearby &&
+            RelicEscapeRules.canSurvey(s)) return "survey" to here
+
         // The old shortest-path helper could choose unrevealed/acidic tiles
         // and stall forever. Scout on known safe floor with a real BFS.
         val start = s.index(hero.x, hero.y)
