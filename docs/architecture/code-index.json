@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T17:07:43.664411+00:00",
-  "commit": "7dbb82e9f0103c46ad9197a8002f3bb3d514a588",
+  "generatedAt": "2026-11-18T17:09:18.783074+00:00",
+  "commit": "73db84eb33546e808a146cdb1fddf1354613f4ec",
   "branch": "main",
-  "sourceFingerprint": "fb6b8b83b964c4e8cfc0b806f04034410a6e05d6534483affef6ee4d0d603ee3",
+  "sourceFingerprint": "5f6e0d1cae26827d499200761426d15485c1ca17c09341052ced18674e148842",
   "summary": {
     "files": 1479,
-    "lines": 312799,
+    "lines": 312692,
     "symbols": 4458
   },
   "symbolIndex": {
@@ -8789,19 +8789,19 @@
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 216
+        "line": 219
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 227
+        "line": 230
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 248
+        "line": 251
       }
     ],
     "offer": [
@@ -18441,49 +18441,49 @@
     "phoneReceiptChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 526
+        "line": 479
       }
     ],
     "phoneObservationChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 532
+        "line": 485
       }
     ],
     "phoneDecisionInvalidated": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 536
+        "line": 489
       }
     ],
     "phoneInvalidationReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 540
+        "line": 493
       }
     ],
     "stalePhoneTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 545
+        "line": 498
       }
     ],
     "queuedReceiptAlreadyObserved": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 555
+        "line": 508
       }
     ],
     "alreadyObservedPhoneTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 559
+        "line": 512
       }
     ],
     "staleReplyExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 1655
+        "line": 1595
       }
     ],
     "LaunchableApp": [
@@ -32195,8 +32195,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 255,
-      "sha256": "2276045a48b6deae2a49fb85e810cc5ce9855c67cd52e72bb5a410d918d7692e",
+      "lines": 258,
+      "sha256": "059b42c4e6909732afcc0dffa329f735e97a8ad662a0f18afdf771d9908688f3",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -32244,15 +32244,15 @@
         },
         {
           "name": "learningContext",
-          "line": 216
+          "line": 219
         },
         {
           "name": "leanExpressionContext",
-          "line": 227
+          "line": 230
         },
         {
           "name": "developmentContext",
-          "line": 248
+          "line": 251
         }
       ]
     },
@@ -43277,8 +43277,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2474,
-      "sha256": "44cf00bae7c720090a891b40a166ee6970889e235445fa7fa6924487745babb6",
+      "lines": 2406,
+      "sha256": "af5de274daf247a671a520bb9e82797f4dd9977ad5c456f9436a9f7502e627d6",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -43298,35 +43298,35 @@
         },
         {
           "name": "phoneReceiptChanged",
-          "line": 526
+          "line": 479
         },
         {
           "name": "phoneObservationChanged",
-          "line": 532
+          "line": 485
         },
         {
           "name": "phoneDecisionInvalidated",
-          "line": 536
+          "line": 489
         },
         {
           "name": "phoneInvalidationReason",
-          "line": 540
+          "line": 493
         },
         {
           "name": "stalePhoneTurn",
-          "line": 545
+          "line": 498
         },
         {
           "name": "queuedReceiptAlreadyObserved",
-          "line": 555
+          "line": 508
         },
         {
           "name": "alreadyObservedPhoneTurn",
-          "line": 559
+          "line": 512
         },
         {
           "name": "staleReplyExpression",
-          "line": 1655
+          "line": 1595
         }
       ]
     },
@@ -47302,8 +47302,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
-      "lines": 113,
-      "sha256": "ed76e945dcd4ddff04c17fbd14c43c77cc4e5ffcc51d49ff6e9c88beb21c55c6",
+      "lines": 71,
+      "sha256": "80ecd0c3bfdce248ef770d92eebc2fba153ed36867a49798f69a951b869239cf",
       "symbols": [
         {
           "name": "CharacterAccountabilityContextTest",
