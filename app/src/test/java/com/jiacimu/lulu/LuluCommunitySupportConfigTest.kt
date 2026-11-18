@@ -7,21 +7,30 @@ import org.junit.Test
 import java.net.URLDecoder
 
 class LuluCommunitySupportConfigTest {
-    @Test fun wishComposerCreatesAReviewableIssueNotASilentSubmission() {
-        val link = LuluCommunitySupportConfig.issueComposerUrl(
+    @Test fun mailComposerUsesConfiguredRecipientAndReviewableDraft() {
+        val link = requireNotNull(LuluCommunitySupportConfig.emailComposerUrl(
             "  加个日程搜索  ", "功能许愿", "希望角色可以自己查日程",
-        )
-        assertTrue(link.startsWith("https://github.com/jiacimu-droid/lulu1/issues/new?"))
-        val title = URLDecoder.decode(link.substringAfter("title=").substringBefore("&body="), "UTF-8")
+        ))
+        assertTrue(link.startsWith("mailto:1187725424@qq.com?subject="))
+        assertFalse(link.contains("github.com"))
+        val subject = URLDecoder.decode(link.substringAfter("subject=").substringBefore("&body="), "UTF-8")
         val body = URLDecoder.decode(link.substringAfter("&body="), "UTF-8")
-        assertEquals("[许愿] 加个日程搜索", title)
-        assertTrue(LuluCommunitySupportConfig.wishesListUrl().startsWith(
-            "https://github.com/jiacimu-droid/lulu1/issues?q="))
-        assertTrue(URLDecoder.decode(LuluCommunitySupportConfig.wishesListUrl()
-            .substringAfter("?q="), "UTF-8").contains("in:title"))
+        assertEquals("[许愿] 加个日程搜索", subject)
         assertTrue(body.contains("功能许愿"))
         assertTrue(body.contains("希望角色可以自己查日程"))
         assertFalse(body.contains("API Key: hidden_secret"))
+    }
+
+    @Test fun composerEscapesEmailQueryMetacharactersAndNewlines() {
+        val link = requireNotNull(LuluCommunitySupportConfig.emailComposerUrl(
+            "建议 A & B", "体验优化", "第一行\n第二行 & 好用?",
+        ))
+        assertTrue(link.contains("%20"))
+        assertTrue(link.contains("%26"))
+        val subject = URLDecoder.decode(link.substringAfter("subject=").substringBefore("&body="), "UTF-8")
+        val body = URLDecoder.decode(link.substringAfter("&body="), "UTF-8")
+        assertEquals("[许愿] 建议 A & B", subject)
+        assertTrue(body.contains("第一行\n第二行 & 好用?"))
     }
 
     @Test fun longAndBlankWishTextAreBoundedAndNonIdentifying() {
