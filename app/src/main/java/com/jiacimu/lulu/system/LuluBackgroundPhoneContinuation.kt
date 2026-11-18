@@ -278,6 +278,7 @@ internal object LuluBackgroundPhoneContinuation {
         commitmentTaskId: String?,
     ): Outcome {
         val firstReceipt = runCatching { JSONObject(initialReceipt) }.getOrNull()
+        val visibleMainScreen = firstReceipt?.optString("mode") == "foreground_accessibility"
         if (!hasFreshExecutionReceipt(firstReceipt)) {
             return Outcome(
                 notes = "本次没有重新执行后台手机：只恢复了同一请求ID的历史回执。" +
@@ -448,12 +449,15 @@ internal object LuluBackgroundPhoneContinuation {
                     lastScreenReceipt?.toString()?.let(::uiReferenceSummary)
                         ?.takeIf(String::isNotBlank)?.let { appendLine("当前可操作画面：$it") }
                     appendLine("可选择的本机工具：background_phone")
+                    if (visibleMainScreen) appendLine("当前模式=foreground_accessibility。你操作的是主人正在看见的主屏，不是独立后台屏。主屏切换或锁屏即停止；每次必须先核新截图/控件token再行动。无无线调试无需ADB。主屏暂支持launch/observe/tap/tap_element/swipe/type/back/navigate/focus_search等逐步动作；发送微信应点选真实输入框、精确读回草稿，再由本人点击真实发送控件并检查对话。主屏暂不支持send_chat_message/publish_comment等复合自动发表，sendLinkToChat不能自动回传卡片，不得冒充送达。")
+                    else appendLine("当前模式=independent_virtual_display。只按独立屏上的真实画面与控件操作，不要触碰主人主屏。")
                     if (verifyCompletion) {
                         appendLine("本次行动可引用的真实回执ID：" + completionReceipts.toList().takeLast(12).joinToString())
                         appendLine("承诺完成时使用 {\"decision\":\"finish\",\"reason\":\"这些证据怎样满足原目标\",\"completionEvidenceIds\":[\"本次实际回执ID\"]}。仅打开App、滑动或看到候选不能证明链接已经发出。若确有阻碍，使用 ask 或 defer 保留未完成责任。")
                     }
                     appendLine(if (LuluRolePhoneAuthorization.isGranted(context, characterId))
-                        LuluPhoneInteractionPolicy.modelGuide else "本角色虚拟屏幕总授权未开启，不能操作。")
+                        (if (visibleMainScreen) "主屏模式使用真实前台控件与精确输入验证；不能把点击等同于发出消息。付款、密码、验证码与用户隐私排除目标必须拒绝。"
+                        else LuluPhoneInteractionPolicy.modelGuide) else "本角色虚拟屏幕总授权未开启，不能操作。")
                     appendLine(if (LuluShoppingAssistPolicy.isEnabled(context, characterId))
                         "主人已开启虚拟屏幕总授权，可自主帮忙选购；可挑商品、规格、加购物车、进入结算。付款、提交/确认订单、免密/货到付款不授权；购买相关按钮只用本轮可核实的tap_element。若想把商品链接给主人，先在真实商品页面操作“分享”，等看到可核实的“复制链接”控件后以tap_element+sendLinkToChat=true执行；只有linkSent=true说明链接已发私聊。付款阶段停下交给主人。"
                         else "主人尚未开启本角色虚拟屏幕总授权；只能浏览比较商品，不能代点购买、加购或结算按钮。")
