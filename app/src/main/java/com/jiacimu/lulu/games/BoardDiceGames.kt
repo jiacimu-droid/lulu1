@@ -238,6 +238,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
             if (actor !in session.companionIds) continue
             live.conversationStatus = "${players.firstOrNull { it.characterId == actor }?.name ?: "角色"}正在回应…"
             val completed = CompletableDeferred<GameRoleResponse>()
+            val currentRoom = session.id
             requestGameRoleResponse(
                 scope, store, null, facts,
                 "正在和主人实时连麦玩快艇骰子。先回应主人刚说的话，可以结合真实棋局交流。" +
@@ -246,7 +247,8 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                 onState = { answer ->
                     if (!answer.loading && !completed.isCompleted) completed.complete(answer)
                 },
-                maxTokens = 180, characterIdOverride = actor,
+                maxTokens = 180, characterIdOverride = actor, liveRoomId = currentRoom,
+                isLiveRoomCurrent = { session.id == currentRoom },
             )
             val answer = withTimeoutOrNull(60_000L) { completed.await() }
             when {
@@ -303,6 +305,14 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         val choice = decision.getOrElse { failure ->
             decisionError = failure.message ?: "${currentPlayer.name}暂时没有做出有效决定"
             return@LaunchedEffect
+        }
+        choice.modelReply?.let { reply ->
+            com.jiacimu.lulu.data.CharacterObservedMoment.recordScene(
+                actor, reply, "快艇骰子", session.id,
+                turnKey = "${currentScores.size}:$rolls",
+                observation = "本人已填${currentScores.size}格，本轮第${rolls}掷，当前骰面 ${dice.joinToString("、")}。",
+                outward = choice.speech,
+            )
         }
         if (choice.speech.isNotBlank()) {
             responseSpeaker = currentPlayer.name

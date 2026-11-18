@@ -1382,6 +1382,7 @@ internal object ResidentDailyDecision {
                 不能在附加步骤传 planId 或冒充执行原计划；对方未同意好友前不许称已添加成功。
                 若选 wait，请按自己实际想等的条件选择可选 waitCondition（等待什么）和 reviewAt（明确复议时刻，含时区的ISO8601）；它只表示稍后再想一想，不能自动执行原活动。若暂时没有自己的复议时间，reviewAt 留空，系统会在既有下一次每日规划时段让你重新考虑；不是替你答应原活动。
                 只输出JSON：{"choice":"execute|reschedule|cancel|wait","args":{},"dueAt":"改期时新的ISO8601时间","reason":"本人理由","waitCondition":"等待条件或空","reviewAt":"等待复议时的含时区ISO8601时间或空","steps":[]}。
+                若有未出口的真实念头，可附 innerThought 和 innerThoughtBasis={focus:刚才的触发,change:新变化或unsaidWhy:缘由}；感受可另写 mood。
                 "wait"不会标记原活动完成，之前真实执行的独立 steps 在复议时不能重新发送；原计划是否完成由其真实工具回执单独核验。
             """.trimIndent(),
             source = "原住民个人日程到点", title = "${native.name} · ${plan.title.take(48)}",
@@ -1486,6 +1487,11 @@ internal object ResidentDailyDecision {
         if (decisionEvidenceId.isBlank()) {
             markSourceUnavailable(p, phaseKey, "due-last-error:$key")
             return false
+        }
+        val dueSource = SharedExperienceTimeline.eventsByIds(plan.characterId, listOf(decisionEvidenceId)).firstOrNull()
+        if (dueSource != null) {
+            // The plan receipt anchors only the decision; it is not an activity outcome.
+            CharacterObservedMoment.recordAuthored(plan.characterId, choice, dueSource.id, "居民日程", now = now)
         }
         rememberExploration(app, plan.characterId, choice, now)
         // Reschedule, cancel and wait are NOT successes of the original
@@ -2166,6 +2172,14 @@ internal object ResidentDailyDecision {
             appraisal = null, innerLife = scopedInnerLife, innerThoughtBasis = null,
             selectedAction = "plan_day", innerThought = plan.optString("thought"),
             reason = "本人作出的当天安排；尚未执行的活动不能算亲历", now = now)
+        val dailyThought = plan.optString("thought").takeIf(String::isNotBlank)
+        val dailyMood = plan.optString("mood").takeIf(String::isNotBlank)
+        if (dailyThought != null || dailyMood != null) {
+            CompanionPresenceStore.update(
+                id, statusText = null, gesture = null, innerThought = dailyThought, mood = dailyMood,
+                source = "居民日程感知", now = now, provenanceId = mentalEvidenceId,
+            )
+        }
         rememberExploration(app, id, json, now)
         val post = json.optString("post").trim()
         val postComplete = if (post.isNotBlank()) {
@@ -2331,6 +2345,7 @@ internal object ResidentDailyDecision {
                     只输出JSON：{"steps":[{"tool":"send_character_message|send_friend_request|respond_friend_request|publish_moment|like_moment|comment_moment|send_group_message|create_group_chat|invite_duel_game|respond_duel_invite|digital_world_action|play_solo_game|reschedule_personal_activity|cancel_personal_activity","args":{},"requiresPreviousSuccess":false}]}
                     可选同时附带 "innerLife":{"emotion":{"feeling":"本人感受","cause":"真实触发"},"social":{"targetId":"真实对方ID","interpretation":"自己的印象","reason":"亲眼见证的依据","dimensions":{"trust":"up|down|same","warmth":"up|down|same"}}}}。
                     没有要执行的动作时输出 {"steps":[]}；没有心理变化时省略 innerLife。工具参数按上方本人可用能力目录填写。
+                    若有未出口的真实念头，可附 innerThought 和 innerThoughtBasis={focus:刚才的触发,change:新变化或unsaidWhy:缘由}；感受可另写 mood。
                     不得编造已见面、已发信、已发帖或对方已经回应。
                 """.trimIndent()
                 val initial = LuluAiServices.gateway.generate(
@@ -2422,6 +2437,10 @@ internal object ResidentDailyDecision {
                 CharacterInnerLifeStore.observe(
                     characterId, checkNotNull(stimulus).id, witnessed.description, innerLife,
                     witnessed.socialIds, now)
+            }
+            if (stimulus != null) {
+                CharacterExplorationContinuity.returned(app, characterId, decided, listOf(stimulus.id), now,
+                    observeInnerLife = false)
             }
             rememberExploration(app, characterId, decided, now)
             val report = executeWakeStepsReport(app, characterId, decided, decisionId,

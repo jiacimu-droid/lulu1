@@ -158,6 +158,7 @@ internal object CharacterCausalAppraisalStage {
         val delta = PrivateStateDeltaEngine.evaluate(
             previous = previous, proposal = innerLife,
             appraisal = appraisal, basis = basis, thought = rawThought,
+            hasFreshDirectObservation = true,
         )
         val grounded = CharacterHeartVoicePolicy.keepOrBlank(
             thought = rawThought, innerLife = innerLife, basis = basis,

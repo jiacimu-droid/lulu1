@@ -98,7 +98,9 @@ internal object CharacterExplorationContinuity {
 
     /** Interpret already-produced results through the same causal state, never a new model. */
     fun returned(context: Context, role: String, response: JSONObject?, evidenceIds: Collection<String>,
-        now: Instant = Instant.now()) {
+        now: Instant = Instant.now(),
+        observeInnerLife: Boolean = true,
+    ) {
         if (response == null) return
         val event = SharedExperienceTimeline.eventsByIds(role, evidenceIds).lastOrNull {
             !it.occurredAt.isAfter(now) && it.evidenceKind != EventEvidenceKind.UserStatement && canGroundQuestion(it)
@@ -112,16 +114,33 @@ internal object CharacterExplorationContinuity {
             // An actual tool result can genuinely shift the character's focus
             // without forcing an emotion/motive entry into long-term state.
             hasChosenToolAction = event.evidenceKind == EventEvidenceKind.ToolResult,
+            hasFreshDirectObservation = true,
         )
         val thought = CharacterHeartVoicePolicy.keepOrBlank(response.optString("innerThought"),
             outward = response.optString("text"), innerLife = inner, basis = basis,
             delta = delta, hasFreshEvidence = true)
-        if (inner != null) CharacterInnerLifeStore.observe(role, event.id,
+        if (inner != null && observeInnerLife) CharacterInnerLifeStore.observe(role, event.id,
             CharacterExperienceLearning.evidenceText(event), inner, emptySet(), now)
         if (appraisal != null || inner != null || thought.isNotBlank()) {
             CharacterInnerLifeStore.recordCausalTransition(role, event.id, appraisal, inner, basis,
                 "interpret_result", thought, "本人依据真实结果形成的后续看法", now)
             CharacterInnerLifeStore.recordInnerVoice(role, event.id, thought, now, delta.fingerprint)
+        }
+        val mood = response.optString("mood").ifBlank {
+            inner?.optJSONObject("emotion")?.optString("feeling").orEmpty()
+        }
+        val reflection = CharacterMomentSnapshot.reflection(inner, basis, appraisal,
+            outward = response.optString("text"), innerThought = thought)
+        val current = CompanionPresenceStore.current(role)
+        if ((thought.isNotBlank() && thought != current?.innerThought) ||
+            (mood.isNotBlank() && CompanionPresenceMood.text(mood) != current?.mood) ||
+            (reflection.isNotBlank() && reflection != current?.momentReflection)) {
+            CompanionPresenceStore.update(
+                role, statusText = null, gesture = null, innerThought = thought.takeIf(String::isNotBlank),
+                mood = mood.takeIf(String::isNotBlank), source = "结果感知", now = now, provenanceId = event.id,
+                innerThoughtFingerprint = delta.fingerprint,
+                momentReflection = reflection,
+            )
         }
         remember(context, role, response.optJSONObject("curiosity"), response.optJSONArray("curiosities"), evidenceIds, now)
     }

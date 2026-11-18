@@ -128,17 +128,18 @@ internal object LuluWidgetDailyRole {
 notify是布尔值，skin只能是-1或0/1/2/3。生成文字不代表通知已送达。
 """.trimIndent(),
                     source = "露露机 · 每日星座小组件",
+                    capturePrivateMoment = true,
                     title = "角色桌面今日解读",
                     usage = ModelUsage.Chat,
                     contextMode = CompanionContextMode.Full,
                     maxTokens = 240,
-                ).getOrNull()?.text
+                ).getOrNull()
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
                 null
             } ?: return@withLock
-            val parsed = parse(date, current, answer) ?: return@withLock
+            val parsed = parse(date, current, answer.text) ?: return@withLock
             val latest = LuluDesktopWidgetStore.load(app).firstOrNull { it.id == current.id }
                 ?: return@withLock
             if (fingerprint(latest, date) != fp || !latest.dailyReadingEnabled ||
@@ -149,6 +150,11 @@ notify是布尔值，skin只能是-1或0/1/2/3。生成文字不代表通知已�
                 .toString()).commit()
             if (!stored) return@withLock
             changes.value += 1L
+            com.jiacimu.lulu.data.CharacterObservedMoment.recordScene(
+                current.characterId, answer, "桌面组件", current.id, fp,
+                "本机日期 $date，角色看到已绑定的每日星座组件；用户设置的星座为${luluZodiacNames[current.sign]}。",
+                parsed.message,
+            )
             if (latest.allowRoleStyle && parsed.chosenSkin in 0..3) {
                 LuluDesktopWidgetStore.roleApplySkin(
                     app, latest.id, latest.characterId, parsed.chosenSkin)

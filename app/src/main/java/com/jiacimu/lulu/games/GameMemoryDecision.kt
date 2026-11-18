@@ -3,9 +3,10 @@ package com.jiacimu.lulu.games
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.ModelReply
 import org.json.JSONObject
 
-internal data class MemoryRoleChoice(val index: Int, val speech: String)
+internal data class MemoryRoleChoice(val index: Int, val speech: String, val modelReply: ModelReply? = null)
 
 /** A chosen card must be reachable in the CURRENT board, not a stale model frame. */
 internal fun parseMemoryRoleChoice(raw: String, available: Set<Int>): MemoryRoleChoice? =
@@ -47,11 +48,12 @@ internal suspend fun requestMemoryRoleChoice(
             "你可以顺便说一句自然的话，或保持安静。" +
             "只输出JSON：{\"index\":0,\"say\":\"...\"}，index必须从可翻位置中选，不要输出额外文字。",
         source = "游戏 · 记忆翻牌本人决策", title = "记忆翻牌 · 本人选牌",
+        capturePrivateMoment = true,
         maxTokens = 160, usage = ModelUsage.Game,
         contextMode = CompanionContextMode.Full,
     )
     return result.mapCatching { reply ->
-        parseMemoryRoleChoice(reply.text, available)
+        parseMemoryRoleChoice(reply.text, available)?.copy(modelReply = reply)
             ?: throw IllegalArgumentException("角色没有选出合法牌位，本轮未擅自代翻")
     }
 }

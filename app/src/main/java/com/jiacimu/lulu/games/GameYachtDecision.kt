@@ -3,13 +3,15 @@ package com.jiacimu.lulu.games
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.ai.ModelReply
 import org.json.JSONObject
 
 /** A role's validated decision, not a system-selected "best score". */
 internal sealed interface YachtRoleDecision {
     val speech: String
-    data class Keep(val indices: Set<Int>, override val speech: String) : YachtRoleDecision
-    data class Score(val category: YachtCategory, override val speech: String) : YachtRoleDecision
+    val modelReply: ModelReply?
+    data class Keep(val indices: Set<Int>, override val speech: String, override val modelReply: ModelReply? = null) : YachtRoleDecision
+    data class Score(val category: YachtCategory, override val speech: String, override val modelReply: ModelReply? = null) : YachtRoleDecision
 }
 
 /** Invalid/used slots never silently become a different choice. */
@@ -82,10 +84,14 @@ internal suspend fun requestYachtRoleDecision(
     return LuluAiServices.gateway.generate(
         characterId = characterId, facts = facts, instruction = instruction,
         source = "游戏 · 快艇骰子本人决策", title = "快艇骰子 · 本人行动",
+        capturePrivateMoment = true,
         maxTokens = 260, usage = ModelUsage.Game,
         contextMode = CompanionContextMode.Full,
     ).mapCatching { reply ->
-        parseYachtRoleDecision(reply.text, available, roll)
-            ?: throw IllegalArgumentException("角色未选择合法的保留骰子或计分格，本轮没有替其决定")
+        when (val choice = parseYachtRoleDecision(reply.text, available, roll)) {
+            is YachtRoleDecision.Keep -> choice.copy(modelReply = reply)
+            is YachtRoleDecision.Score -> choice.copy(modelReply = reply)
+            null -> throw IllegalArgumentException("角色未选择合法的保留骰子或计分格，本轮没有替其决定")
+        }
     }
 }

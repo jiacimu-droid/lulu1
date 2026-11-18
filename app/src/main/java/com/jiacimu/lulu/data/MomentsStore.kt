@@ -348,7 +348,7 @@ object MomentsStore {
             runCatching { ScopedModelSelections.residentSocialConnection() }
                 .getOrNull() else null
         if (character.characterId.startsWith("resident:") && nativeConnection == null) return
-        val raw = LuluAiServices.gateway.generate(
+        val reactionReply = LuluAiServices.gateway.generate(
             characterId = character.characterId,
             facts = buildString {
                 appendLine("【朋友圈原帖】")
@@ -392,17 +392,21 @@ object MomentsStore {
                 5. 只根据原帖、本人资料和真实经历判断，不要虚构用户未提供的身体、环境或私密设备状态。
             """.trimIndent(),
             source = "朋友圈独立感知",
+            capturePrivateMoment = true,
             title = "${character.displayName}查看朋友圈",
             maxTokens = 600,
             usage = ModelUsage.Chat,
             contextMode = CompanionContextMode.Full,
             connectionOverride = nativeConnection,
             memoryRequest = socialMemoryRequest,
-        ).getOrNull()?.text.orEmpty()
+        ).getOrNull() ?: return
 
-        val plan = parseReactionPlan(raw) ?: return
-        if (mutablePosts.value.none { it.id == post.id } ||
-            !MomentFriendAccess.canView(post, character.characterId)) return
+        val plan = parseReactionPlan(reactionReply.text) ?: return
+        val visiblePost = mutablePosts.value.firstOrNull { it.id == post.id } ?: return
+        if (!MomentFriendAccess.canView(visiblePost, character.characterId) ||
+            momentContext(visiblePost) != momentContext(post)) return
+        CharacterObservedMoment.recordScene(character.characterId, reactionReply, "朋友圈", post.id,
+            "read", "本人看到了$authorName在朋友圈发布的内容：${momentContext(post).take(350)}", plan.comment)
         if (plan.wantsLike) addCharacterLike(post, character, authorName)
         if (plan.comment.isNotBlank()) addCharacterComment(post, character, authorName,
             plan.comment, automaticReaction = true)
@@ -691,7 +695,7 @@ object MomentsStore {
         val responder = MigratedDomainStores.characters.get(responderId)
         val repliedComment = userComment.replyToCommentId?.let { id -> post.comments.firstOrNull { it.id == id } }
         val postAuthorName = postAuthorName(post)
-        val replyText = LuluAiServices.gateway.generate(
+        val modelReply = LuluAiServices.gateway.generate(
             characterId = responderId,
             facts = buildString {
                 appendLine("朋友圈原帖作者：$postAuthorName")
@@ -736,10 +740,12 @@ object MomentsStore {
                 不替其他角色说话，不写角色名，不写“回复：”标签，不解释规则。
             """.trimIndent(),
             source = "朋友圈单独回复",
+            capturePrivateMoment = true,
             title = "${responder.displayName}回复朋友圈评论",
             maxTokens = 180,
             usage = ModelUsage.Chat,
-        ).getOrNull()?.text.orEmpty().let { raw ->
+        ).getOrNull() ?: return
+        val replyText = modelReply.text.let { raw ->
             runCatching {
                 val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
                 val start = clean.indexOf('{')
@@ -751,6 +757,13 @@ object MomentsStore {
                     ""
                 }
             }.getOrDefault("")
+        }
+        val latestPost = mutablePosts.value.firstOrNull { it.id == postId } ?: return
+        if (!MomentFriendAccess.canView(latestPost, responderId) || userComment !in latestPost.comments) return
+        val accepted = ModelStructuredOutput.objectOrNull(modelReply.text)?.optString("action")
+        if (accepted == "reply" || accepted == "silent") {
+            CharacterObservedMoment.recordScene(responderId, modelReply, "朋友圈", postId,
+                "comment-$commentId", "本人看到用户在评论区说：${userComment.content.take(360)}", replyText)
         }
         commitUserCommentReply(postId, commentId, responderId, replyText)
     }
