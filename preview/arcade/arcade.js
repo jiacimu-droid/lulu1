@@ -97,6 +97,7 @@ function setBusy(value, hint = '') {
   busy = value;
   $('start').disabled = value;
   $('resume').disabled = value;
+  $('alternate-island').disabled = value;
   if (!launch.hidden) $('launch-status').textContent = hint;
 }
 function orient() {
@@ -202,6 +203,8 @@ async function loadNativeLobby(){
     drawParty();
     $('resume').hidden=!nativeSession;
     $('start').hidden=lobby.activeRun;
+    $('alternate-island').hidden=!lobby.alternateIsland;
+    $('alternate-island').textContent=lobby.alternateIsland==='coast'?'登上海岸新岛':'回到旧岛';
     if(kind==='relic'){
       for(const input of form.querySelectorAll('[name="weapon"]'))input.disabled=!lobby.weapons.includes(input.value);
     }
@@ -224,7 +227,7 @@ function closeLobby(){
   orient();
   document.querySelector(`[data-launch="${kind}"]`)?.focus({preventScroll:true});
 }
-async function enter(resume) {
+async function enter(resume, switchIsland=false) {
   if (busy||!landscape.matches||launch.hidden) return;
   const activeEpoch = ++epoch;
   setBusy(true,nativeMode?'正在读取地图…':browserMode?'正在加载岛屿与遗迹规则…':'正在启动 Kotlin 游戏引擎，首次需要编译。');
@@ -235,7 +238,8 @@ async function enter(resume) {
     const next = resume
       ? await request(nativeMode?'resume':'view',{session:storage(kind,'get'), dx:0, dy:1})
       : await request('start', {difficulty:data.get('difficulty'),weapon:data.get('weapon'),profession:data.get('profession'),
-          crew, map:kind==='island'?'coast':data.get('route'),seed:kind==='island'?4317:Math.floor(Math.random()*100000)+1,dx:0,dy:1});
+          crew, map:kind==='island'?'coast':data.get('route'),switchIsland,
+          seed:kind==='island'?4317:Math.floor(Math.random()*100000)+1,dx:0,dy:1});
     if (activeEpoch !== epoch) return;
     state=next;
     if(nativeMode)nativeSession=state.session;
@@ -268,6 +272,7 @@ async function enter(resume) {
       busy=false;
       $('start').disabled=false;
       $('resume').disabled=false;
+      $('alternate-island').disabled=false;
       if (!game.hidden) render();
     }
   }
@@ -697,6 +702,7 @@ window.addEventListener('resize',orient);
 if(nativeMode){
   $('classic').hidden=false;
   $('classic').onclick=()=>request('classic');
+  $('alternate-island').onclick=()=>enter(false,true);
   $('lobby-preview').hidden=true;
   $('invite').textContent='＋ 邀请角色';
   $('crew-title').textContent='邀请角色';

@@ -34,6 +34,21 @@ internal class ArcadeNativeGame(
                     .getString("world", "").orEmpty(), ExpeditionMode.HOMESTEAD,
             )?.let(BlockIslandState::fromLegacy)
 
+    private fun alternateIsland(): BlockIslandState? =
+        BlockIslandState.fromJson(islandPrefs.getString("arcade_alternate_world", "").orEmpty())
+
+    private fun islandSession(island: BlockIslandState) = with(island.world) { "$seed:$width:$height" }
+
+    private fun switchIsland(current: BlockIslandState, companions: List<String>): BlockIslandState {
+        val alternate = alternateIsland()
+            ?: if (ArcadeMaps.isCoast(current)) error("本机暂无旧岛存档。") else ArcadeMaps.coast(4317, companions)
+        check(islandPrefs.edit().putString("world", alternate.toJson())
+            .putString("arcade_alternate_world", current.toJson()).commit()) { "岛屿切换未保存，请重试。" }
+        party.clear()
+        party.addAll(alternate.world.friends.map { it.id }.filter(::validId).take(2))
+        return alternate
+    }
+
     @Synchronized fun relic(): RelicRun? = ledger.read().run
 
     @Synchronized fun saveIsland(next: BlockIslandState) {
@@ -74,12 +89,20 @@ internal class ArcadeNativeGame(
         val snapshot = if (kind == "relic") ledger.read() else null
         val run = snapshot?.run
         val weapons = snapshot?.purchasedWeapons.orEmpty()
-        val saved = if (kind == "island") island()?.world?.seed?.toString() else run?.id
+        val home = if (kind == "island") island() else null
+        val saved = home?.let(::islandSession) ?: run?.id
+        val alternate = when {
+            home == null -> ""
+            !ArcadeMaps.isCoast(home) -> "coast"
+            alternateIsland() != null -> "classic"
+            else -> ""
+        }
         return JSONObject().put("party", JSONArray(party.toList()))
             .put("roles", JSONArray(profiles().values.sortedBy { it.displayName }.map { character ->
                 JSONObject().put("id", character.characterId).put("name", character.displayName)
             }))
             .put("session", saved ?: JSONObject.NULL)
+            .put("alternateIsland", alternate)
             .put("activeRun", run?.phase in listOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED))
             .put("weapons", JSONArray(weapons.sorted()))
     }
@@ -121,16 +144,21 @@ internal class ArcadeNativeGame(
                 "start" -> {
                     initialRoster()
                     val ids = party.filter(::validId)
-                    store.selectCharacters(ids)
-                    val next = if (before == null) ArcadeMaps.coast(4317, ids)
-                        else with(BlockIslandRules) { before.withPartners(ids) }
-                    saveIsland(next)
-                    ids.forEach { GameInvitationContinuity.recordPartyStarted(app, it, gameId, partySession) }
+                    val switching = q.optBoolean("switchIsland") && before != null
+                    val next = if (switching) switchIsland(checkNotNull(before), ids) else {
+                        val active = if (before == null) ArcadeMaps.coast(4317, ids)
+                            else with(BlockIslandRules) { before.withPartners(ids) }
+                        saveIsland(active)
+                        active
+                    }
+                    val activeParty = next.world.friends.map { it.id }.filter(::validId)
+                    store.selectCharacters(activeParty)
+                    activeParty.forEach { GameInvitationContinuity.recordPartyStarted(app, it, gameId, partySession) }
                     next
                 }
                 else -> {
                     val saved = checkNotNull(before) { "暂无岛屿存档。" }
-                    check(q.optString("session") == saved.world.seed.toString()) { "岛屿已切换，请重新进场。" }
+                    check(q.optString("session") == islandSession(saved)) { "岛屿已切换，请重新进场。" }
                     if (verb == "act") {
                         val ids = if (islandAutonomous) saved.world.friends.map { it.id }.toSet() else emptySet()
                         arcadeIslandAct(saved, input, ids).also { if (it != saved) saveIsland(it) }
@@ -139,7 +167,7 @@ internal class ArcadeNativeGame(
             }
             val placed = verb == "act" && input.action == input.build && current.world.turns > (before?.world?.turns ?: 0)
             arcadeIslandView(current, selected, input.facing, if (placed) "" else input.build)
-                .put("session", current.world.seed.toString())
+                .put("session", islandSession(current))
         } else {
             var step: ArcadeRelicStep? = null
             val before = ledger.read()

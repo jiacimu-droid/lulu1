@@ -7,9 +7,15 @@ import kotlin.random.Random
 
 // Review layouts feed the same production state and action rules as the regular map.
 internal object ArcadeMaps {
+    private const val coastWidth = 35
+    private const val coastHeight = 34
+
+    fun isCoast(state: BlockIslandState): Boolean =
+        state.world.width == coastWidth && state.world.height == coastHeight
+
     fun coast(seed: Int, partners: List<String>): BlockIslandState {
-        val width = 35
-        val height = 34
+        val width = coastWidth
+        val height = coastHeight
         val rng = Random(seed)
         val board = MutableList(width * height) { i ->
             val x = i % width

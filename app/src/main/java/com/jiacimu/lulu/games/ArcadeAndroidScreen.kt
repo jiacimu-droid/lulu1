@@ -68,7 +68,7 @@ internal fun ArcadeAndroidScreen(
     fun back() {
         if (teamOpen) teamOpen = false
         else if (web == null || fallback != null) exit()
-        else web?.evaluateJavascript("window.luluArcadeBack && window.luluArcadeBack()", null) { result ->
+        else web?.evaluateJavascript("window.luluArcadeBack && window.luluArcadeBack()") { result ->
             if (result == null || result == "null") exit()
         }
     }

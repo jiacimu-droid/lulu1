@@ -58,4 +58,22 @@ class ArcadeNativeGameTest {
         assertFalse(saved.chests.first().opened)
         assertTrue(saved.hero.bag.isEmpty())
     }
+
+    @Test fun switchingToTheNewCoastAndBackPreservesBothHomes() {
+        val store = LuluGameStore(context)
+        val game = ArcadeNativeGame(context, store, "island", emptyList())
+        val old = BlockIslandRules.newWorld(4317, emptyList())
+        game.saveIsland(old.copy(world = old.world.copy(wood = 12)))
+        assertEquals("coast", game.request(JSONObject().put("verb", "lobby")).getString("alternateIsland"))
+        val swap = JSONObject().put("verb", "start").put("switchIsland", true)
+        val coast = game.request(swap)
+        game.request(JSONObject().put("verb", "act").put("session", coast.getString("session"))
+            .put("action", "move").put("dx", 1).put("dy", 0))
+        val reloaded = ArcadeNativeGame(context, store, "island", emptyList())
+        assertEquals("classic", reloaded.request(JSONObject().put("verb", "lobby")).getString("alternateIsland"))
+        val classic = reloaded.request(swap)
+        assertNotEquals(coast.getString("session"), classic.getString("session"))
+        assertEquals(12, classic.getJSONObject("world").getInt("wood"))
+        assertEquals(11, reloaded.request(swap).getJSONObject("world").getInt("x"))
+    }
 }
