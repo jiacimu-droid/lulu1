@@ -50,6 +50,11 @@ class ResidentDailyContinuityTest {
             .contains("字符串"))
         args.put("bubbles", JSONArray().put("第一泡").put("第二泡"))
         assertNull(ResidentDailyDecision.dayContractError(daily))
+        daily.put("steps", JSONArray().put(step).put(JSONObject(step.toString())))
+        assertTrue(ResidentDailyDecision.dayContractError(daily).orEmpty()
+            .contains("重复发送同一条私信"))
+        daily.put("steps", JSONArray().put(step))
+        assertNull(ResidentDailyDecision.dayContractError(daily))
     }
 
     @Test fun residentExchangeStepsRequireRealInteractionTypeBeforeDispatch() {
