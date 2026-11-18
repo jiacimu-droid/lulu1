@@ -188,6 +188,16 @@ class LuluAccessibilityService : AccessibilityService() {
             return window?.root?.packageName?.toString()?.takeIf(String::isNotBlank)
         }
 
+        /** Resolve the user's selected launcher; a global HOME action returning
+         * true does not by itself prove which app is now visible. */
+        fun ownerHomePackage(context: android.content.Context): String? {
+            val home = android.content.Intent(android.content.Intent.ACTION_MAIN)
+                .addCategory(android.content.Intent.CATEGORY_HOME)
+            return context.packageManager.resolveActivity(home,
+                android.content.pm.PackageManager.MATCH_DEFAULT_ONLY)
+                ?.activityInfo?.packageName?.takeIf { it.isNotBlank() && it != "android" }
+        }
+
         /** Home is an accessibility global action, not force-stop or an
          * application lock. A true return result still requires observation. */
         fun requestOwnerHome(): Boolean {
