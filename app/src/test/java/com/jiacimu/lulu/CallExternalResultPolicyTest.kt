@@ -74,6 +74,47 @@ class CallExternalResultPolicyTest {
     }
 
 
+    @Test fun rejectedNoticeDoesNotConsumeTheLaterCanonicalReceipt() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        val owner = MigratedDomainStores.characters.create("延迟原件的回执角色").characterId
+        val other = MigratedDomainStores.characters.create("误投通知的角色").characterId
+        val id = "late-canonical-$owner"
+        val pending = linkedSetOf<String>()
+        val offered = mutableMapOf<String, Long>()
+        fun offer(role: String) = CallExternalResultPolicy.enqueue(context, role, id, pending, offered)
+
+        // A notification is not evidence. Rejection must leave no checkpoint.
+        assertFalse(offer(owner))
+        assertTrue(pending.isEmpty())
+        assertTrue(offered.isEmpty())
+        SharedExperienceTimeline.record(id, owner, "实际工具执行", "执行器",
+            JSONObject().put("tool", "web_search").put("status", "observed")
+                .put("result", JSONObject().put("success", true)
+                    .put("summary", "稍后才持久化的真实结果").toString()).toString(),
+            triggerExtraction = false, source = "tool-router",
+            evidenceKind = EventEvidenceKind.ToolResult)
+        val original = SharedExperienceTimeline.eventsByIds(owner, listOf(id)).single()
+
+        assertFalse(offer(other))
+        assertTrue(pending.isEmpty())
+        assertTrue(offered.isEmpty())
+        assertTrue(offer(owner))
+        assertEquals(setOf(id), pending)
+        assertEquals(mapOf(id to original.revision), offered)
+        assertFalse(offer(owner))
+        assertEquals(original, CallExternalResultPolicy.pendingEvidence(context, owner, id))
+
+        // Another entry can acknowledge the result while this notice waits.
+        val perception = CharacterPerceptionContext.integrate(context, owner, listOf(original),
+            deferAcknowledgement = true)
+        CharacterPerceptionContext.acknowledge(context, owner, perception)
+        assertNull(CallExternalResultPolicy.pendingEvidence(context, owner, id))
+        assertFalse(offer(owner))
+        assertEquals(original, SharedExperienceTimeline.eventsByIds(owner, listOf(id)).single())
+    }
+
     private fun ready(role: String = "a", call: String = "first", connected: Boolean = true,
         opening: Boolean = false, thinking: Boolean = false, speaking: Boolean = false,
         userSpeaking: Boolean = false, audioPending: Boolean = false,
