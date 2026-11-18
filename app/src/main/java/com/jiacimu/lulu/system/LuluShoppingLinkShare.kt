@@ -100,6 +100,15 @@ internal object LuluShoppingLinkShare {
     ): Boolean = ownerApproved && clickable && merchantName(packageName) != null &&
         isCopyLabel(label)
 
+    /** Screenshot-only share controls have no accessibility click flag.
+     * Caller must prove an owned, unchanged virtual-display picture before
+     * a single visual tap. Even then, delivery requires a new merchant-owned
+     * clipboard event and an allowlisted HTTPS link, never model-supplied text. */
+    internal fun eligibleVisualCopy(
+        packageName: String, chosenTarget: String, ownerApproved: Boolean,
+    ): Boolean = ownerApproved && merchantName(packageName) != null &&
+        isCopyLabel(chosenTarget)
+
     /** Compare timestamps before reading any clipboard text: do NOT read
      * pre-existing personal clipboard contents merely to look for a change. */
     fun clipboardTimestamp(context: Context): Long = runCatching {
