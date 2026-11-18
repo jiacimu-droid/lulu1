@@ -93,6 +93,15 @@ internal val luluZodiacNames = listOf(
 )
 private val luluZodiacSymbols = listOf("♑", "♒", "♓", "♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐")
 
+/** Display heading only: picker/editor still call this widget type "每日星座".
+ * The desktop card itself must use the user's chosen sign instead. */
+internal fun luluWidgetCardHeading(widget: LuluDesktopWidget): String =
+    if (widget.kind == LuluWidgetKind.HOROSCOPE) {
+        val sign = widget.sign.coerceIn(0, 11)
+        luluZodiacSymbols[sign] + "  " + luluZodiacNames[sign]
+    } else widget.kind.title
+
+
 /** Reads only a birthday's month/day, without sending the full birth date to any model. */
 internal fun luluSignFromBirthday(raw: String?): Int? {
     val value = raw?.trim().orEmpty()
@@ -410,8 +419,7 @@ internal fun LuluDesktopWidgetCard(
             ) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     if (widget.kind == LuluWidgetKind.HOROSCOPE) {
-                        val sign = widget.sign.coerceIn(0, 11)
-                        Text(luluZodiacSymbols[sign] + "  " + luluZodiacNames[sign],
+                        Text(luluWidgetCardHeading(widget),
                             color = foreground, fontSize = if (compact) 14.sp else 19.sp,
                             fontWeight = FontWeight.SemiBold, maxLines = 1,
                             overflow = TextOverflow.Ellipsis)
