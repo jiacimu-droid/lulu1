@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T06:28:27.580094+00:00",
-  "commit": "9f24329dff2017899a1559eeccb2638af42caaae",
+  "generatedAt": "2026-11-18T06:29:08.542311+00:00",
+  "commit": "d5600a63266cd4527ac21f7c7c9e1c84e239823f",
   "branch": "main",
-  "sourceFingerprint": "3a7ac8296266e8f0f3a1f9cecee2ec17a56b2d88bc61d0ed86a0ee706796d291",
+  "sourceFingerprint": "b689130e63b96487177a95ce54c4c80afee4494cbb9870b92942ae78abe844aa",
   "summary": {
     "files": 1456,
-    "lines": 307990,
+    "lines": 307992,
     "symbols": 4389
   },
   "symbolIndex": {
@@ -45893,8 +45893,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SettingsHomeSearchTest.kt",
-      "lines": 45,
-      "sha256": "7fcf9c002c0f7850e5ce71b119fe36549ddf0e3a3a71978fbd679cfb373eddc0",
+      "lines": 47,
+      "sha256": "ac54059eb81152f810b9be415ba6d9fbce2030a4e3efe849b45b5ae0bae42f5f",
       "symbols": [
         {
           "name": "SettingsHomeSearchTest",
