@@ -58,7 +58,6 @@ internal fun CharacterCreateScreen(
     var quietEndMinutesOfDay by rememberSaveable { mutableIntStateOf(7 * 60) }
     var proactiveCalls by rememberSaveable { mutableStateOf(false) }
     var voiceId by rememberSaveable { mutableStateOf("") }
-    var realtimeVoiceId by rememberSaveable { mutableStateOf("") }
     var autoPlayVoice by rememberSaveable { mutableStateOf(false) }
     var editingField by remember { mutableStateOf<CharacterProfileField?>(null) }
     var fieldDraft by remember { mutableStateOf("") }
@@ -121,9 +120,7 @@ internal fun CharacterCreateScreen(
                     quietEndMinutesOfDay = quietEndMinutesOfDay,
                 )
             }
-            if (voiceId.isNotBlank()) CharacterVoicePreferenceStore.setVoiceId(id, voiceId)
-            if (realtimeVoiceId.isNotBlank())
-                CharacterVoicePreferenceStore.setRealtimeVoiceId(id, realtimeVoiceId)
+            if (voiceId.isNotBlank()) CharacterVoicePreferenceStore.setPlaybackVoiceId(id, voiceId)
             if (autoPlayVoice) CharacterVoicePreferenceStore.setEnabled(id, true)
             // Create a blank conversation only after all editable definition data
             // has been written. Never manufacture a welcome message.
@@ -332,10 +329,9 @@ internal fun CharacterCreateScreen(
                         Text("语音回复", fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.titleLarge)
                         OutlinedTextField(voiceId, { voiceId = it },
-                            label = { Text("MiniMax Voice ID") }, singleLine = true,
-                            modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
-                        OutlinedTextField(realtimeVoiceId, { realtimeVoiceId = it },
-                            label = { Text("ElevenLabs Voice ID") }, singleLine = true,
+                            label = { Text("Voice ID") },
+                            placeholder = { Text("跟随语音设置选择的服务商") },
+                            singleLine = true,
                             modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                         CharacterV2Switch("自动播放语音", autoPlayVoice) {
                             autoPlayVoice = it
