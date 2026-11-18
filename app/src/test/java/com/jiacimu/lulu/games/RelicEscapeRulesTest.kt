@@ -12,6 +12,21 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest=Config.NONE,sdk=[28])
 class RelicEscapeRulesTest {
+    @Test fun legacyDuplicateLootIdsNeverDeleteMoreThanOnePhysicalItem() {
+        val original=RelicEscapeWorld.create(816,2,emptyList(),0,1)
+        val loot=RelicLoot("legacy:duplicate","旧王银币",RelicTier.COMMON,70)
+        val run=original.copy(phase=RelicPhase.EXPLORE,mobs=emptyList(),
+            hero=original.hero.copy(bag=listOf(loot,loot)))
+        val dropped=RelicEscapeRules.act(run,"drop",lootId=loot.id)
+        assertEquals(1,dropped.hero.bag.size)
+        assertEquals(1,dropped.drops.size)
+        assertEquals(2,dropped.hero.bag.size+dropped.drops.size)
+        val picked=RelicEscapeRules.act(dropped,"pickup",lootId=loot.id)
+        assertEquals(2,picked.hero.bag.size)
+        assertTrue(picked.drops.isEmpty())
+        assertEquals(2,picked.hero.bag.size+picked.drops.size)
+    }
+
     @Test fun restoredExpeditionRejectsActorsEmbeddedInWallsWithoutChangingValidSave() {
         val run=RelicEscapeWorld.create(816,2,listOf("ally"),0,1)
         assertEquals(run,RelicRun.read(run.json()))
