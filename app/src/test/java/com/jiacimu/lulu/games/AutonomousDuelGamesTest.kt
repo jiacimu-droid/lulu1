@@ -160,5 +160,14 @@ class AutonomousDuelGamesTest {
         val observed = SharedExperienceTimeline.eventsByIds(sender, listOf("duel-game-${offer.id}-$sender"))
         assertTrue(CharacterPerceptionContext.selectRecent(observed, Instant.now().plusSeconds(1)).any { it.content.contains("胜者") || it.content.contains("平局") })
         assertTrue(SharedExperienceTimeline.eventsByIds("uninvited-third-party", listOf("duel-game-${offer.id}-$sender")).isEmpty())
+        // Both players can talk about a verified shared result next time.
+        // A third party or a player whose own evidence was withdrawn cannot.
+        assertTrue(AutonomousDuelGames.contextFor(app, sender).contains(result))
+        assertTrue(AutonomousDuelGames.contextFor(app, target).contains(result))
+        val stranger = MigratedDomainStores.characters.create("旁观者-" + UUID.randomUUID())
+        assertFalse(AutonomousDuelGames.contextFor(app, stranger.characterId).contains(result))
+        SharedExperienceTimeline.deleteEvent("duel-game-${offer.id}-$sender")
+        assertFalse(AutonomousDuelGames.contextFor(app, sender).contains(result))
+        assertTrue(AutonomousDuelGames.contextFor(app, target).contains(result))
     }
 }
