@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T13:45:57.431759+00:00",
-  "commit": "cc02a80829446713d8e0b8fea6f13c05e5ba3ae9",
+  "generatedAt": "2026-11-18T13:46:54.228014+00:00",
+  "commit": "779e70c2cb0ba1a80ec1b46854dd1867eb6eb38b",
   "branch": "main",
-  "sourceFingerprint": "e11c7999b16dc2a49c0b52439ceba9ef2c5090f26a015d2a4aec903eb7b697b4",
+  "sourceFingerprint": "01ce1a7fdc8e8509fe40855de83e4c81d8a1bd2a6c23fb625521a00b3e1b2363",
   "summary": {
     "files": 1468,
     "lines": 310182,
@@ -28009,7 +28009,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
       "lines": 859,
-      "sha256": "b151f0349e0e0be735a7a1693fe0c431afd5c0b1e79ff7fb2398e28876fa0a2d",
+      "sha256": "3c912ee22ca71f29b6ae099ec4fb71d220a321840861886ecc20301964557ec0",
       "symbols": [
         {
           "name": "gridTop",
