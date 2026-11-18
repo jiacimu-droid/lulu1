@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T06:29:08.542311+00:00",
-  "commit": "d5600a63266cd4527ac21f7c7c9e1c84e239823f",
+  "generatedAt": "2026-11-18T06:32:07.700662+00:00",
+  "commit": "1b054eb376cf3228147507a93c3be0cbadaebf54",
   "branch": "main",
-  "sourceFingerprint": "b689130e63b96487177a95ce54c4c80afee4494cbb9870b92942ae78abe844aa",
+  "sourceFingerprint": "c5726896cbf0bffa58e7f75d25fd6f414d7c0c3fb047d59356ce831f6f89eeb7",
   "summary": {
     "files": 1456,
-    "lines": 307992,
-    "symbols": 4389
+    "lines": 307999,
+    "symbols": 4390
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1635,7 +1635,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 77
+        "line": 80
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
@@ -3498,40 +3498,46 @@
         "line": 146
       }
     ],
-    "wishTitle": [
+    "wishesListUrl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
         "line": 46
       }
     ],
+    "wishTitle": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
+        "line": 49
+      }
+    ],
     "wishBody": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 48
+        "line": 51
       }
     ],
     "issueComposerUrl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 53
+        "line": 56
       }
     ],
     "safeDonationUrl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 56
+        "line": 59
       }
     ],
     "emailAddress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 64
+        "line": 67
       }
     ],
     "clear": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 80
+        "line": 83
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoiceAcousticAnalyzer.kt",
@@ -3593,25 +3599,25 @@
     "LuluWishCommunityScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 143
+        "line": 146
       }
     ],
     "saveDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 153
+        "line": 156
       }
     ],
     "issueUrl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 155
+        "line": 158
       }
     ],
     "LuluSupportCreatorScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 266
+        "line": 269
       }
     ],
     "setEnabled": [
@@ -27006,52 +27012,56 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-      "lines": 318,
-      "sha256": "04d122bc5d2394039be1aa53973ae48ad5c0601beca4601ae0c284349463bb6e",
+      "lines": 321,
+      "sha256": "ea346b8b10500a5a94e78f04e1752a91bcbf181623a9dbe55fe110416813a674",
       "symbols": [
         {
-          "name": "wishTitle",
+          "name": "wishesListUrl",
           "line": 46
         },
         {
+          "name": "wishTitle",
+          "line": 49
+        },
+        {
           "name": "wishBody",
-          "line": 48
+          "line": 51
         },
         {
           "name": "issueComposerUrl",
-          "line": 53
-        },
-        {
-          "name": "safeDonationUrl",
           "line": 56
         },
         {
+          "name": "safeDonationUrl",
+          "line": 59
+        },
+        {
           "name": "emailAddress",
-          "line": 64
+          "line": 67
         },
         {
           "name": "save",
-          "line": 77
-        },
-        {
-          "name": "clear",
           "line": 80
         },
         {
+          "name": "clear",
+          "line": 83
+        },
+        {
           "name": "LuluWishCommunityScreen",
-          "line": 143
+          "line": 146
         },
         {
           "name": "saveDraft",
-          "line": 153
+          "line": 156
         },
         {
           "name": "issueUrl",
-          "line": 155
+          "line": 158
         },
         {
           "name": "LuluSupportCreatorScreen",
-          "line": 266
+          "line": 269
         }
       ]
     },
@@ -45293,8 +45303,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/LuluCommunitySupportConfigTest.kt",
-      "lines": 36,
-      "sha256": "817baebc6cc242bf8114532e1015bcedd15f110b27945528bc30f7bc43229d00",
+      "lines": 40,
+      "sha256": "196a3b86fb8f0dce06a700b9b278553753508db5086c29edb2cfcee5b7881d6a",
       "symbols": [
         {
           "name": "LuluCommunitySupportConfigTest",
