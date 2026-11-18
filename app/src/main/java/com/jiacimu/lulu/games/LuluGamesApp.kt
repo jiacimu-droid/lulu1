@@ -303,6 +303,8 @@ fun LuluGamesApp(
             }
             }
             if (immersivePlay && !worldGame) {
+                val lightTable = route == GameRoute.TurtleSoup || route == GameRoute.MemoryMatch
+                val chromeInk = if (lightTable) GameDesign.ink else Color.White
                 Row(
                     modifier = Modifier.fillMaxWidth().height(54.dp)
                         .background(Brush.horizontalGradient(
