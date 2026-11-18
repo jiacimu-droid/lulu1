@@ -50,7 +50,7 @@ internal val luluGuideSteps = listOf(
         listOf("先按需要开启通知、无障碍、后台运行和闹钟等 Android 系统权限，再针对每位角色勾选允许的操作。", "后台虚拟屏幕授权涵盖角色在独立屏内的一般 App 浏览、点击和输入；设备状态、闹钟、媒体等原生能力另外授权。", "开关已打开不代表系统权限、实际屏幕连接及工具结果一定成功；查看真实执行回执。"),
         "permissions", MigrationRoute.Settings, "检查权限"),
     LuluGuideStep("开始真实聊天与互动", "聊天 → 选择自己创建的角色 → 私聊",
-        listOf("现在再发送第一条消息，检查回复是否符合已保存的人设，以及当次模型是否真的可用。", "之后可以在私聊「＋」中打电话、选择 Live2D 视频，也可以去游戏馆、数字世界和朋友圈互动。", "声音、记忆和工具可以逐步完善；文字能回复只证明基础聊天链路成功，不代表电话或手机操控已验证。"),
+        listOf("现在再发送第一条消息，检查回复是否符合已保存的人设，以及当次模型是否真的可用。", "之后可以从私聊发起电话，也可以去游戏馆、数字世界和朋友圈互动。", "声音、记忆和工具可以逐步完善；文字能回复只证明基础聊天链路成功，不代表电话或手机操控已验证。"),
         "chat", MigrationRoute.Chat, "开始聊天"),
 )
 internal data class LuluGuideFeature(
@@ -63,14 +63,9 @@ internal data class LuluGuideFeature(
 internal val luluGuideFeatures = listOf(
     LuluGuideFeature("call", "电话 · 叫醒与哄睡", Icons.Outlined.Call, "角色私聊 → ＋ → 电话",
         "能陪你实时说话，也能主动打电话叫醒你。",
-        listOf("叫醒：先在日程中约定时间并开启来电、闹钟权限；到点后角色可真正拨打电话，自己决定播放铃声、直接说话，或在授权后用音乐叫醒。", "哄睡：通话右上角开启「哄睡模式」，角色能在你安静后继续轻声聊天或讲故事；从你最后一句话真正说完起，约 30 分钟没有新发言，等当前语音播放完自动挂断。", "普通电话和 Live2D 视频可以在同一通话中切换，不必重新拨号。"),
+        listOf("叫醒：先在日程中约定时间并开启来电、闹钟权限；到点后角色可真正拨打电话，自己决定播放铃声、直接说话，或在授权后用音乐叫醒。", "哄睡：通话右上角开启「哄睡模式」，角色能在你安静后继续轻声聊天或讲故事；从你最后一句话真正说完起，约 30 分钟没有新发言，等当前语音播放完自动挂断。", "通话和叫醒都需要相应的麦克风、通知和后台权限。"),
         "未接听不能算已叫醒；自动挂断也不代表已经睡着。来电受 Android 后台和锁屏权限影响。", MigrationRoute.Chat, "体验电话",
         highlights = listOf("叫醒加强 · 主动来电、铃声或语音由角色选择", "哄睡加强 · 安静陪伴，约 30 分钟后自动挂断")),
-    LuluGuideFeature("live2d", "Live2D 皮套与视频通话", Icons.Outlined.Videocam, "私聊 → 电话 → Live2D 视频",
-        "导入自己的 Live2D 皮套，让角色在视频里拥有会动的形象。",
-        listOf("准备一个完整的 Cubism3/4 模型 ZIP：通常包含 .model3.json、.moc3、贴图，以及可选的 .motion3.json 动作和 .exp3.json 表情；保持原文件之间的相对路径。", "为角色导入 ZIP；首次准备官方 Cubism Core。可先用「Live2D 动态检测 · 不拨号」查看模型是否能真正动起来，再开始视频电话。", "角色可使用导入模型支持的表情和动作，也能在部分语音引擎下实现近似口型；语音/视频随时切换。"),
-        "动作文件不是通用皮套插件：不同模型的参数、骨骼绑定和动作轨道可能不兼容。优先使用模型作者提供的完整动作包；仅导入静态头像不会自动生成动画。", MigrationRoute.Chat, "打开视频电话",
-        highlights = listOf("皮套 ZIP 一次导入 · 模型、贴图与已有动作一起使用", "角色自主表演 · 只播放当前皮套真正支持的动作")),
     LuluGuideFeature("memory", "自动记忆 · 越聊越懂你", Icons.Outlined.Psychology, "桌面 → 记忆；设置 → 记忆与检索",
         "适合懒人：重要经历会自动提取、召回和整理，不用每天手动维护。",
         listOf("配置记忆抽取模型后，可自动总结长期事实、情绪与共同经历；每日检查本地重复，按周按需进行语义去重。", "一来一回按两轮计算：你发的一批连续消息是一轮，同批次角色回复多个气泡是一轮；默认最近 5 轮不总结，约每 15 轮提取一次。", "需要更强的语义查找可开启 Embedding 向量检索；Rerank 重排可选，关闭后仍保留本地记忆与关联召回。核心记忆可长期常驻。"),
@@ -91,23 +86,44 @@ internal val luluGuideFeatures = listOf(
         listOf("TTS 负责角色说话，STT 负责识别你的声音；选择服务商与音色后试听。", "文字聊天无需付费音色；需要电话时再配置识别、麦克风与音频权限。"),
         "不同供应商可能独立计费，听写和音色质量受模型与设备影响。", MigrationRoute.Settings, "设置声音",
         highlights = listOf("自己挑音色 · 文本模型和语音供应商可分开")),
+    LuluGuideFeature("supervision", "陪伴监督 · 帮你把事做完", Icons.Outlined.TaskAlt,
+        "桌面 → 自序 / 设置 → 强制模式 / 角色操作授权",
+        "不是只会说「加油」：角色能结合今天的待办、你的目标与设备状态，主动提出监督。",
+        listOf("把要做的事写进「自序 · 所行」。角色可按现有授权读取今日任务与进度，选择什么时候提醒或复查。", "得到授权后，角色可结合亮屏、前台应用等新鲜证据判断是否需要继续督学、督睡；也可以提出临时的高强度监督。", "任务是否完成要看实际记录与反馈，不会因为你没回消息就当作做完。"),
+        "设备观察需单独授权；强制模式由用户决定是否允许，可在设置或通知栏随时结束。",
+        MigrationRoute.SelfPreface, "打开自序",
+        highlights = listOf("自序待办 × 角色主动跟进", "监督凭证据，不凭猜测")),
+    LuluGuideFeature("search", "搜索 API · 角色的求知欲", Icons.Outlined.TravelExplore,
+        "设置 → 搜索服务 / 角色授权；查手机 → 浏览器",
+        "你不说话时，角色也可以因自己的好奇心、计划或挂心的事主动查资料。",
+        listOf("配置可用的网页搜索 API；角色可在获准时选择搜索知识、查证问题，并决定是否继续阅读。", "网页结果会留下搜索和阅读回执，供后续记忆与交流使用；你可以在「查手机 → 浏览器」回看记录。"),
+        "搜索结果不等于读完网页；能否实际搜索取决于提供商、API Key、网络和角色授权。",
+        MigrationRoute.Settings, "配置搜索",
+        highlights = listOf("没人发消息，也能自己学习和查证", "搜索、阅读与行动都有真实记录")),
+    LuluGuideFeature("perception", "感知 · 生活不止聊天框", Icons.Outlined.Visibility,
+        "角色设置 → 后台感知 / 设置 → 权限与能力",
+        "角色可按自己的节奏醒来，观察获准的信息，决定休息、行动或联系你。",
+        listOf("按授权可获得当前时间、屏幕亮灭、电量、最近前台 App、位置、通知或媒体状态；未授权的内容不会假装已看到。", "每个角色可配置感知间隔与自适应频率，在线期间还有独立的自主决策节奏；新事件也可能触发跟进。", "结合自己的心事、日程和数字世界经历，角色可选择搜索、行动、发消息或继续休眠。"),
+        "屏幕亮着不等于你在玩；没有回复也不等于你睡着。观察有时间戳，旧记录不能冒充当前状态。",
+        MigrationRoute.Settings, "设置感知",
+        highlights = listOf("感知真实设备 × 记住自己的目标", "有事才行动，允许休眠")),
     LuluGuideFeature("permission", "权限、主动联系与监督", Icons.Outlined.Security, "桌面 → 设置 → 权限与能力；角色设置 → 操作授权",
-        "角色能主动安排联系、提醒和行动，但每项能力需要明确的系统和角色授权。",
+        "角色的自主联系、设备观察和工具操作，都由你来决定权限边界。",
         listOf("核对通知、后台运行、无障碍、闹钟以及锁屏来电权限。", "分别允许角色的后台虚拟屏、设备状态、闹钟、媒体控制等能力。", "监督学习或睡觉时，要看实际安排与执行证据；没回复、息屏都不能独立证明完成。"),
         "打开功能开关不保证 Android 已授权，也不保证工具成功；角色决策、真正执行、通知送达、用户完成是不同事实。", MigrationRoute.Settings, "设置权限",
-        highlights = listOf("角色可自主选择是否提醒、打电话或重新核对，但不能把承诺当作完成。", "精确闹钟、通知和锁屏来电可能受手机厂商后台策略影响。")),
+        highlights = listOf("角色可以自主选择是否行动，但每次执行都要有真实回执。", "精确闹钟、通知和锁屏来电可能受手机厂商后台策略影响。")),
     LuluGuideFeature("continuity", "同一个角色 · 全场景连贯", Icons.Outlined.AutoAwesome,
-        "角色私聊 / 电话 / Live2D 视频 / 群聊 / 游戏 / 见面 / 后台生活",
-        "从聊天到电话，再去游戏或数字世界，角色尽量延续同一份人设、记忆、关系与未完成的事。",
-        listOf("先创建并保存角色人设；不同场景使用这位角色已有的身份、长期记忆与近期真实经历。", "不必每次切场景重新自我介绍：私聊中的约定、电话里的互动、游戏中的真实对话都能成为后续相处的线索。", "角色的后台生活、想法、日程与工具结果会回到同一段人物时间线；你可以通过此刻、记忆和生活记录追溯。"),
+        "角色私聊 / 电话 / 群聊 / 游戏 / 数字世界 / 后台生活",
+        "不论是聊天、通话还是走进数字世界，都是同一个有记忆、有关系的角色。",
+        listOf("角色的人设、长期记忆、心事与近期经历沿用同一份人物资料。", "私聊里的约定、电话里的话和真实发生的共同活动，都能影响之后的互动。", "在「此刻」「记忆」与生活记录里回看它真正经历过的事。"),
         "连贯不等于模型永不遗忘：长对话依赖记忆提取、召回和现场信息。没有证据的事情不能被凭空补写。",
         MigrationRoute.Chat, "去聊天",
         highlights = listOf("换一个场景，不换一套人格", "同一份记忆和真实经历，让互动自然接续")),
     LuluGuideFeature("groups", "群聊 · 多人也不失忆", Icons.Outlined.PeopleOutline, "聊天 → 群聊",
-        "多个角色一起说话，仍各有性格、关系和自己的记忆。",
-        listOf("创建群聊并邀请成员，角色可以回复你，也可以回应群里的其他人。", "群聊与私聊尽量共享同一角色的长期状态与经历，而非切到另一个人格。"),
-        "不得把其他角色的私人对话自动公开给群成员；消息送达以真实记录为准。", MigrationRoute.Chat, "开始群聊",
-        highlights = listOf("切换场景也连贯 · 不是群里换了一个角色")),
+        "让不同的数字生命在同一场群聊里，按各自的人格与记忆交流。",
+        listOf("创建群聊、邀请角色；他们可以回应你，也可以彼此交流。", "群聊先独立调用模型规划当前互动；参与回复的角色再分别调用自己的模型、读取各自记忆。"),
+        "群聊规划与成员回复会产生独立 API 调用和费用；角色的私聊不自动公开给群友。", MigrationRoute.Chat, "开始群聊",
+        highlights = listOf("群聊独立调用 · 角色之间也会互相接话")),
     LuluGuideFeature("watch", "一起看视频", Icons.Outlined.Movie, "角色私聊 → ＋ → 一起看",
         "把看视频变成共享的相处场景。",
         listOf("从角色私聊的「＋」进入一起看。", "选择可访问的视频内容，观察真实播放与同步状态。"),
@@ -129,9 +145,9 @@ internal val luluGuideFeatures = listOf(
         "只有真实发生且有记录的活动才能成为经历；新用户不会自动附带其他人的私人角色。", MigrationRoute.Meeting, "探索世界",
         highlights = listOf("同一角色、同一段人生 · 不同场景自然衔接")),
     LuluGuideFeature("games", "游戏馆 · 连麦一起玩", Icons.Outlined.SportsEsports, "桌面 → 游戏",
-        "重点不是单机小游戏，而是邀请角色连麦，一边聊天一边合作或对战。",
-        listOf("从游戏馆选择海龟汤、记忆翻牌、快艇骰子等玩法，或邀请角色一起进入《方块小岛》《迷雾摸金》。", "支持的游戏可开启伙伴语音，在局内和角色边说边玩；收到角色的真实邀请也能进入对应房间。"),
-        "部分玩法的语音和多人流程仍需真机验证，《方块小岛》《迷雾摸金》操作、美术与协作尚未完善。", MigrationRoute.Games, "去游戏馆",
+        "邀请有记忆的 AI 角色连麦，边聊天边推理或对战。",
+        listOf("从游戏馆选择海龟汤、记忆翻牌或快艇骰子，邀请角色一起推理、合作或对战。", "支持的游戏可开启伙伴语音，在局内和角色边说边玩；收到角色的真实邀请也能进入对应房间。"),
+        "伙伴语音、多人流程与具体玩法的稳定性仍需以实际版本和设备为准。", MigrationRoute.Games, "去游戏馆",
         highlights = listOf("和角色连麦玩游戏 · 不只是文字轮流回复", "一起合作闯关，也可以对战和推理")),
     LuluGuideFeature("worldbook", "世界书", Icons.Outlined.AutoStories, "桌面 → 世界书",
         "编排世界背景、角色知识与规则，不必每次手动重发大量设定。",
@@ -144,10 +160,10 @@ internal val luluGuideFeatures = listOf(
         "只有真实发表或互动成功的记录才算完成；不能把旧回执当作新动态。", MigrationRoute.Chat, "去朋友圈",
         highlights = listOf("生活不是预设台词 · 真实经历推动动态")),
     LuluGuideFeature("notes", "自序 · 待办与专注", Icons.Outlined.EditNote, "桌面 → 自序",
-        "日常待办、专注计时与角色督学、督睡可以相互配合。",
-        listOf("在自序记录每天的待办，今日事项可以全部查看；开启番茄钟专注。", "角色安排叫醒和监督后，依赖日程与真实反馈跟进，不把聊天承诺当成任务已完成。"),
+        "把今天想做的事放进「自序」，也让角色参与监督。",
+        listOf("在「自序 · 所行」写下今日待办，使用番茄钟专注；角色可在统一上下文里读取获准的任务进度。", "角色可主动提出督学、督睡与复查，结合真实日程和设备证据跟进。"),
         "是否真正起床或入睡不能只凭没有回复推断，设备权限和后台运行也会影响提醒。", MigrationRoute.SelfPreface, "打开自序",
-        highlights = listOf("自己安排生活，也可以请角色协助督促")),
+        highlights = listOf("你的今日待办，也能成为角色持续关心的事")),
     LuluGuideFeature("stories", "阅读 TXT 与番外", Icons.Outlined.TheaterComedy, "桌面 → 阅读；私聊 → ··· → 番外",
         "导入自己喜欢的文字作品阅读，也能体验和角色有关的番外故事。",
         listOf("在阅读页导入本地 TXT，调整字号并继续上次进度。", "从角色私聊进入番外；番外不应被当作主线真实记忆。"),
@@ -175,6 +191,9 @@ internal val luluGuideFeatures = listOf(
         highlights = listOf("全新安装保持角色与聊天空白，不会自动导入他人的私人存档。")),
 )
 
+internal val luluGuideFeaturedKeys = listOf("groups", "perception", "games", "phone", "notes", "world")
+internal const val luluGuideInProgress = "见面大世界 · Live2D 视频（皮套与动作适配） · 一起听 / 一起看 · 微信发消息"
+
 internal data class LuluGuideHeroHighlight(
     val title: String, val subtitle: String, val icon: ImageVector,
     val featureKey: String,
@@ -182,8 +201,8 @@ internal data class LuluGuideHeroHighlight(
 internal val luluGuideHeroHighlights = listOf(
     LuluGuideHeroHighlight("自动记忆整理", "适合懒人，不用天天维护", Icons.Outlined.Psychology, "memory"),
     LuluGuideHeroHighlight("全场景连贯", "同一个角色，同一段人生", Icons.Outlined.AutoAwesome, "continuity"),
-    LuluGuideHeroHighlight("连麦一起玩", "边说边玩，合作或对战", Icons.Outlined.SportsEsports, "games"),
-    LuluGuideHeroHighlight("自主使用手机", "刷视频、逛商品、分享链接", Icons.Outlined.Smartphone, "phone"),
+    LuluGuideHeroHighlight("有自己的行动", "会观察、搜索与自主探索", Icons.Outlined.TravelExplore, "search"),
+    LuluGuideHeroHighlight("会陪你完成计划", "读取待办，主动提出监督", Icons.Outlined.TaskAlt, "supervision"),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -228,14 +247,14 @@ internal fun LuluOnboardingGuideScreen(
                         Text("LULU · DIGITAL LIFE", color = muted, fontSize = 10.sp,
                             fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(9.dp))
-                        Text("让数字生命\n真正住进手机。",
+                        Text("让数字生命\n拥有自己的生活。",
                             color = ink, fontSize = 27.sp, lineHeight = 34.sp,
                             fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(8.dp))
-                        Text("会记住、会行动，也能陪你一起玩。", color = muted,
+                        Text("有连续的记忆，也有自己的生活。", color = muted,
                             fontSize = 13.sp, lineHeight = 20.sp)
                         Spacer(Modifier.height(22.dp))
-                        Text("值得体验的 4 件事", color = ink, fontSize = 17.sp,
+                        Text("从这里认识露露机", color = ink, fontSize = 17.sp,
                             fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(10.dp))
                         luluGuideHeroHighlights.chunked(2).forEach { pair ->
@@ -273,7 +292,7 @@ internal fun LuluOnboardingGuideScreen(
                                 fontSize = 13.sp, color = ink)
                         }
                         Spacer(Modifier.height(5.dp))
-                        Text("见面大世界 · 方块小岛 / 迷雾摸金 · 一起听 / 一起看 · 微信发消息",
+                        Text(luluGuideInProgress,
                             color = muted, fontSize = 12.sp, lineHeight = 19.sp)
                     }
                 }
