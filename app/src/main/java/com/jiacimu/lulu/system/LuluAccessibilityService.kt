@@ -166,11 +166,32 @@ class LuluAccessibilityService : AccessibilityService() {
             }
         }
 
+        /**
+         * Read the owner's actual display, not whichever virtual app/IME most
+         * recently held accessibility focus. A missing root is UNKNOWN, never
+         * proof that the owner opened a privacy-excluded application.
+         */
         fun observe(): AccessibilitySnapshot {
             val service = instance ?: return AccessibilitySnapshot()
-            val root = service.rootInActiveWindow
-            return AccessibilitySnapshot(connected = true, packageName = root?.packageName?.toString().orEmpty(),
-                visibleText = root.collectVisibleText().take(6_000), capturedAt = Instant.now()).also { mutableState.value = it }
+            val displays = service.windowsOnAllDisplays
+            val ownerWindows = displays.get(Display.DEFAULT_DISPLAY).orEmpty()
+            val foreground = ownerWindows.filterNot {
+                it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_INPUT_METHOD ||
+                    it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_ACCESSIBILITY_OVERLAY ||
+                    it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_MAGNIFICATION_OVERLAY ||
+                    it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SPLIT_SCREEN_DIVIDER
+            }.maxByOrNull { it.layer }
+            // Some OEMs provide no windows array even though the active root
+            // exists. Only use that fallback when NO display exposes windows;
+            // otherwise it might belong to the independent virtual screen.
+            val root = if (displays.size() > 0) foreground?.root else service.rootInActiveWindow
+            return AccessibilitySnapshot(
+                connected = true,
+                packageName = root?.packageName?.toString().orEmpty(),
+                windowTitle = foreground?.title?.toString().orEmpty().take(140),
+                visibleText = root.collectVisibleText().take(6_000),
+                capturedAt = Instant.now(),
+            ).also { mutableState.value = it }
         }
 
         /** Inspect ONLY the owner's real display (0), never the independent
