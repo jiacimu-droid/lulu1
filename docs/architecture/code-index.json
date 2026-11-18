@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T05:19:29.026533+00:00",
-  "commit": "a8d63e53eee89441c93e0732266879b56041ce1d",
+  "generatedAt": "2026-11-18T05:20:36.109317+00:00",
+  "commit": "83dbac0aec8c2da51d8631e68c0b4e1aeb5fdf0b",
   "branch": "main",
-  "sourceFingerprint": "d5969b47731bfbe0b3cae9cc75baee46afec3e3d49ca05d008086fc2e619f272",
+  "sourceFingerprint": "24177ab7be48e10a5a579a9b0666a80f9f694b56ae5c3362695490b15e9aae52",
   "summary": {
-    "files": 1452,
-    "lines": 307142,
-    "symbols": 4373
+    "files": 1453,
+    "lines": 307267,
+    "symbols": 4375
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3626,6 +3626,26 @@
         "line": 319
       }
     ],
+    "accepted": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt",
+        "line": 41
+      }
+    ],
+    "accept": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt",
+        "line": 49
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt",
+        "line": 9
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
+        "line": 148
+      }
+    ],
     "saveGroupCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt",
@@ -4198,16 +4218,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt",
         "line": 52
-      }
-    ],
-    "accept": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt",
-        "line": 9
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 148
       }
     ],
     "Loading": [
@@ -26978,6 +26988,21 @@
         {
           "name": "setProfileSign",
           "line": 319
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt",
+      "lines": 125,
+      "sha256": "dfd33813609f3047325f0ac94453b063dc23f167e69e4b525d99534e384d3246",
+      "symbols": [
+        {
+          "name": "accepted",
+          "line": 41
+        },
+        {
+          "name": "accept",
+          "line": 49
         }
       ]
     },
