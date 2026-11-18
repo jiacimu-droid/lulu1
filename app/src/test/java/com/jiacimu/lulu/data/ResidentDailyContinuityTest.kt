@@ -21,6 +21,37 @@ import java.util.concurrent.TimeUnit
 @Config(manifest = Config.NONE, sdk = [28])
 class ResidentDailyContinuityTest {
 
+    @Test fun nativePrivateMessageBubblesComeFromTheModelNotACharacterCounter() {
+        val args = JSONObject().put("targetCharacterId", "resident:actual-friend")
+            .put("bubbles", JSONArray().put("嗯").put("有意思诶，我再想想").put("明天接着聊？"))
+        assertEquals(listOf("嗯", "有意思诶，我再想想", "明天接着聊？"),
+            ResidentMessageBubbles.texts(args))
+        assertEquals(listOf("这一段不会被程序拆开；哪怕它写得很长。"),
+            ResidentMessageBubbles.texts(JSONObject().put("text",
+                "这一段不会被程序拆开；哪怕它写得很长。")))
+        val step = JSONObject().put("tool", "send_character_message").put("args", args)
+        val daily = JSONObject().put("lunch", "home").put("evening", "home")
+            .put("steps", JSONArray().put(step))
+        val due = JSONObject().put("choice", "execute").put("steps", JSONArray().put(step))
+        assertNull(ResidentDailyDecision.dayContractError(daily))
+        assertNull(ResidentDailyDecision.dueContractError(due, Instant.now()))
+        daily.put("messageTo", "resident:actual-friend")
+            .put("message", "嗯有意思诶，我再想想明天接着聊？")
+        assertTrue(ResidentDailyDecision.dayContractError(daily).orEmpty()
+            .contains("同一条私信"))
+        daily.remove("messageTo")
+        daily.remove("message")
+        args.put("text", "另一份正文")
+        assertTrue(ResidentDailyDecision.dayContractError(daily).orEmpty()
+            .contains("不要用两份正文"))
+        args.remove("text")
+        args.put("bubbles", JSONArray().put("第一泡").put(42))
+        assertTrue(ResidentDailyDecision.dayContractError(daily).orEmpty()
+            .contains("字符串"))
+        args.put("bubbles", JSONArray().put("第一泡").put("第二泡"))
+        assertNull(ResidentDailyDecision.dayContractError(daily))
+    }
+
     @Test fun residentExchangeStepsRequireRealInteractionTypeBeforeDispatch() {
         val now = java.time.LocalDate.now().plusDays(1).atTime(8, 5)
             .atZone(java.time.ZoneId.systemDefault()).toInstant()
