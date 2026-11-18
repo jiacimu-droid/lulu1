@@ -48,6 +48,13 @@
 - [b239286](https://github.com/jiacimu-droid/lulu1/commit/b2392865af0010f5a922657fc4319c642807ac31)、[8efc982](https://github.com/jiacimu-droid/lulu1/commit/8efc982a37a7cad6688b660b88aa761af480f193)：合场文学保留一次 Isolated 写作请求和各自角色章节；给每个角色带入本人的通知、原始会面及被该事件/前因锚定的已保存心声/选择，提示正文不能把另一个人的未说出的心声写成自己的或已公开的事实。写作仅产生非权威文学，不回填原世界事件、主人行为、关系或心理。证据 ID 按本人单独链接。
 - 回归源码 [e4710e4](https://github.com/jiacimu-droid/lulu1/commit/e4710e43623827ac59aa38b2b7ff7a2fc90d07f3)、[f991a19](https://github.com/jiacimu-droid/lulu1/commit/f991a194a2ad48d052454e4884ea7e970d646900)：覆盖到访→离场顺序、其他地点/未来/伪源隔离、没有通知不伪造在场、本人的证据心声能进入正文而他人的/未来的不能。**当前仅提交测试，未取得目标 SHA 的 JVM/APK 成功证明，且未在 Redmi 真机用两角色 + 真实模型重放。** 后续核 `WorldVisitorSceneContextTest`、`AutonomousEncounterCausalChapterTest`、`AutonomousEncounterPrivacyTest` 在当前 main push 的首错；真机还要验证从地点退出/强杀后离场通知是否真实到达、模型是否自主延续找人的目标、历史章节不应被静默重写。
 
+## 2026-11-18 · P-08b.1 失败电话表达后清空关系字段
+
+- 沿上轮固定入口核 `CharacterLifeStore.setRelationshipAgreement` 与 `CharacterSocialRelationship.agreement`，原 Store 已保存明确空条目，原网关每次请求重新读取当前定义。本轮未证实生产缓存残留，补此前缺失的失败后部分/全部清空反例。
+- [ee7cd58c](https://github.com/jiacimu-droid/lulu1/commit/ee7cd58ca8b9e03f10b6136a22ba774e3f62e8cf) 新增 `RelationshipPreferenceGatewayTest.failedPhoneExpressionDoesNotRestoreClearedRelationshipFields`，正式 CharacterAndScenario 电话表达 HTTP 401→只清关系标题→保持完整长约定和尾部条件→再清两字段→重建网关→本人电话请求不再带旧关系→另一人物约定仍完整。检查实际 HTTP 请求、空条目持久状态及四次请求数。只改测试，不改人物配置或运行时调用。
+- [精确 JVM/APK #44245131129](https://github.com/jiacimu-droid/lulu1/actions/runs/44245131129) 与 [索引 #44245131141](https://github.com/jiacimu-droid/lulu1/actions/runs/44245131141) 待核。前轮手改人格失败回归及完整 JVM/APK 已在 [#44237619598/job 134578616033](https://github.com/jiacimu-droid/lulu1/actions/runs/44237619598/job/134578616033) 成功，旧游戏失败不再作为持续阻塞。
+- 真机和真实模型待验。下一步转同一 P-08b.1 的原世界表达与本人心声来源，打开 `CharacterRuntime.leanExpressionContext` 与 `CharacterSpeechIdentity`，查它们是否把另场景已过期的关系观察重新解释为当前已保存约定。已有明确证据/测试则不重复修改。
+
 ## 2026-11-18 · P-08b.1 失败请求后手改人格与关系的跨场景投影
 
 - 现有 `currentAuthoredRelationshipReachesRealWorldModesWithoutKeywordRoleOverlay` 与 `crossWorldKeepsEditedTemperamentWithoutOriginalWorldDialogueScenes` 已覆盖正常请求后的编辑及原世界/独立场景投影。本轮只补前轮指定的失败分界，未证实生产缓存冻结，无生产补丁。
