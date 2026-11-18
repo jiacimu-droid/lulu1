@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:28:05.180843+00:00",
-  "commit": "47241327dd9c7a4f1f729f0a3938f5cfe8100e39",
+  "generatedAt": "2026-11-18T11:30:15.694354+00:00",
+  "commit": "096db98253019d3b85664912546dc0b30f06250f",
   "branch": "main",
-  "sourceFingerprint": "84a7c3bb5ab0ebdd69c23da592b23f93546f1a1ffbe624cd209558060f439530",
+  "sourceFingerprint": "a0fcae362758b0f928cd24bab2d71c072190faf5adb8c875e89cf68b6535747a",
   "summary": {
-    "files": 1465,
-    "lines": 310617,
-    "symbols": 4422
+    "files": 1462,
+    "lines": 308726,
+    "symbols": 4417
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1539,7 +1539,7 @@
     "loadPosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1584
+        "line": 1583
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseExplorationScene.kt",
@@ -1549,85 +1549,85 @@
     "loadQuest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1593
+        "line": 1592
       }
     ],
     "loadDiscoveries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1595
+        "line": 1594
       }
     ],
     "loadAcquaintedResidents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1597
+        "line": 1596
       }
     ],
     "saveAcquaintedResidents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1599
+        "line": 1598
       }
     ],
     "loadVenueActivities": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1601
+        "line": 1600
       }
     ],
     "saveVenueActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1604
+        "line": 1603
       }
     ],
     "loadNativePosition": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1607
+        "line": 1606
       }
     ],
     "saveNativePositions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1615
+        "line": 1614
       }
     ],
     "saveDiscoveries": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1625
+        "line": 1624
       }
     ],
     "loadHandHoldingId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1628
+        "line": 1627
       }
     ],
     "loadFollowerIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1630
+        "line": 1629
       }
     ],
     "loadSuspendedFollowers": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1633
+        "line": 1632
       }
     ],
     "saveCompanionship": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1636
+        "line": 1635
       }
     ],
     "save": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-        "line": 1644
+        "line": 1643
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
@@ -1708,10 +1708,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
         "line": 106
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 950
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionScreen.kt",
@@ -2984,10 +2980,6 @@
         "line": 740
       },
       {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 973
-      },
-      {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt",
         "line": 26
       }
@@ -3730,10 +3722,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
         "line": 102
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 924
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/FormalRoleplayCampaignV2.kt",
@@ -4749,7 +4737,7 @@
     "openReceiptLink": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-        "line": 941
+        "line": 940
       }
     ],
     "import": [
@@ -15426,12 +15414,6 @@
         "line": 160
       }
     ],
-    "markRecorded": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-        "line": 969
-      }
-    ],
     "index": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
@@ -16111,13 +16093,13 @@
     "LuluGameType": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 31
+        "line": 32
       }
     ],
     "GameInvitationCatalog": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 48
+        "line": 49
       }
     ],
     "title": [
@@ -16274,88 +16256,82 @@
         "line": 47
       }
     ],
-    "DeepSea": [
+    "BlockIsland": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 48
       }
     ],
-    "BlockIsland": [
+    "RelicEscape": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 49
       }
     ],
-    "RelicEscape": [
+    "PerfectMan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 50
       }
     ],
-    "PerfectMan": [
+    "Roleplay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 51
       }
     ],
-    "Roleplay": [
+    "TurtleSoup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 52
       }
     ],
-    "TurtleSoup": [
+    "RapportQuiz": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 53
       }
     ],
-    "RapportQuiz": [
+    "YachtDice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 54
       }
     ],
-    "YachtDice": [
+    "Gomoku": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 55
       }
     ],
-    "Gomoku": [
+    "MemoryMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 56
       }
     ],
-    "MemoryMatch": [
+    "Records": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 57
       }
     ],
-    "Records": [
+    "Replay": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
         "line": 58
       }
     ],
-    "Replay": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 59
-      }
-    ],
     "LuluGamesApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 104
+        "line": 102
       }
     ],
     "stepBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 123
+        "line": 121
       }
     ],
     "LuluGamesAppV2": [
@@ -25742,8 +25718,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldArcadeScreen.kt",
-      "lines": 114,
-      "sha256": "08b75299639fe7c919671190926324ec180c51dcc0734de98f1ff175bc03c509",
+      "lines": 103,
+      "sha256": "1e06003f4583fd497345841f649e4904fd331a61968d03c01495a7f0f1392aa0",
       "symbols": []
     },
     {
@@ -25777,8 +25753,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
-      "lines": 1649,
-      "sha256": "dcc802e3dbddee7394254e901ea868f3c1ea23b001c44470a97a5b7393a7e1d6",
+      "lines": 1648,
+      "sha256": "4f8fc21c9806eb38bc6a6c26b27efe30cecc7898cdc0bdc12a062fd7bc225743",
       "symbols": [
         {
           "name": "Resident",
@@ -25806,63 +25782,63 @@
         },
         {
           "name": "loadPosition",
-          "line": 1584
+          "line": 1583
         },
         {
           "name": "loadQuest",
-          "line": 1593
+          "line": 1592
         },
         {
           "name": "loadDiscoveries",
-          "line": 1595
+          "line": 1594
         },
         {
           "name": "loadAcquaintedResidents",
-          "line": 1597
+          "line": 1596
         },
         {
           "name": "saveAcquaintedResidents",
-          "line": 1599
+          "line": 1598
         },
         {
           "name": "loadVenueActivities",
-          "line": 1601
+          "line": 1600
         },
         {
           "name": "saveVenueActivity",
-          "line": 1604
+          "line": 1603
         },
         {
           "name": "loadNativePosition",
-          "line": 1607
+          "line": 1606
         },
         {
           "name": "saveNativePositions",
-          "line": 1615
+          "line": 1614
         },
         {
           "name": "saveDiscoveries",
-          "line": 1625
+          "line": 1624
         },
         {
           "name": "loadHandHoldingId",
-          "line": 1628
+          "line": 1627
         },
         {
           "name": "loadFollowerIds",
-          "line": 1630
+          "line": 1629
         },
         {
           "name": "loadSuspendedFollowers",
-          "line": 1633
+          "line": 1632
         },
         {
           "name": "saveCompanionship",
-          "line": 1636
+          "line": 1635
         },
         {
           "name": "save",
-          "line": 1644
+          "line": 1643
         }
       ]
     },
@@ -28410,12 +28386,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 1067,
-      "sha256": "f56a29bb8df528ff9dc2ea5c911db302aaf7dd656fdbefe565ad5a1964bad01f",
+      "lines": 1066,
+      "sha256": "26a8f093ed3037f2114bf79e499f20f4075005b7d7a05040895463f69ca3a79e",
       "symbols": [
         {
           "name": "openReceiptLink",
-          "line": 941
+          "line": 940
         }
       ]
     },
@@ -39067,8 +39043,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/AutonomousDuelGames.kt",
-      "lines": 287,
-      "sha256": "fc983f40877e2f573729223cd2ceec4477dd2e824841fd1bb7b64473988aa69b",
+      "lines": 316,
+      "sha256": "a1332b8275d18efcae7aea8247a8a4cd1552670f6af19b1cb40eccb7c0c88c85",
       "symbols": [
         {
           "name": "Match",
@@ -39358,41 +39334,6 @@
           "line": 160
         }
       ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyArt.kt",
-      "lines": 457,
-      "sha256": "836cf38a50df7fba36d7175d0edd758087bb87db851c62a55c291a9aff97696f",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
-      "lines": 978,
-      "sha256": "66541a900e1e00e19a51294128b896e16d61118b5489b330633c2e03c2434ae1",
-      "symbols": [
-        {
-          "name": "load",
-          "line": 924
-        },
-        {
-          "name": "save",
-          "line": 950
-        },
-        {
-          "name": "markRecorded",
-          "line": 969
-        },
-        {
-          "name": "reset",
-          "line": 973
-        }
-      ]
-    },
-    {
-      "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyRules.kt",
-      "lines": 157,
-      "sha256": "22e3b3d6af9011c2dec54a4bb907001296ca8b3dc0510ef5fa4fa76e3958ebfd",
-      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
@@ -40340,7 +40281,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
       "lines": 768,
-      "sha256": "4f94db9f3db3756f335d08a351573c8af1127f164cc7e6cc963e077e726398ef",
+      "sha256": "b253d408c69634e401f20a635fdb171d25788289f62c82093ec483002dbfa6c0",
       "symbols": [
         {
           "name": "available",
@@ -40348,11 +40289,11 @@
         },
         {
           "name": "LuluGameType",
-          "line": 31
+          "line": 32
         },
         {
           "name": "GameInvitationCatalog",
-          "line": 48
+          "line": 49
         },
         {
           "name": "title",
@@ -40462,68 +40403,64 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 1045,
-      "sha256": "aed212c5fc25801b60abcadfbd88dbc94bfd4cbd4b73ff228735f17144f98a5c",
+      "lines": 956,
+      "sha256": "d50b72848219b0d20b4e1c2a9c72a7698f1e205c4a4d7a43281f0311e7b2dd4d",
       "symbols": [
         {
           "name": "Home",
           "line": 47
         },
         {
-          "name": "DeepSea",
+          "name": "BlockIsland",
           "line": 48
         },
         {
-          "name": "BlockIsland",
+          "name": "RelicEscape",
           "line": 49
         },
         {
-          "name": "RelicEscape",
+          "name": "PerfectMan",
           "line": 50
         },
         {
-          "name": "PerfectMan",
+          "name": "Roleplay",
           "line": 51
         },
         {
-          "name": "Roleplay",
+          "name": "TurtleSoup",
           "line": 52
         },
         {
-          "name": "TurtleSoup",
+          "name": "RapportQuiz",
           "line": 53
         },
         {
-          "name": "RapportQuiz",
+          "name": "YachtDice",
           "line": 54
         },
         {
-          "name": "YachtDice",
+          "name": "Gomoku",
           "line": 55
         },
         {
-          "name": "Gomoku",
+          "name": "MemoryMatch",
           "line": 56
         },
         {
-          "name": "MemoryMatch",
+          "name": "Records",
           "line": 57
         },
         {
-          "name": "Records",
+          "name": "Replay",
           "line": 58
         },
         {
-          "name": "Replay",
-          "line": 59
-        },
-        {
           "name": "LuluGamesApp",
-          "line": 104
+          "line": 102
         },
         {
           "name": "stepBack",
-          "line": 123
+          "line": 121
         }
       ]
     },
@@ -45375,8 +45312,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt",
-      "lines": 48,
-      "sha256": "a89e5de40b5250813326758f4c9ba48e4d35609e03f816f2da308820f8ebfc6c",
+      "lines": 49,
+      "sha256": "a9a58b4cad670009a7d3fa4c4bee24f1a96f9313cd1628e015b13c773f82446b",
       "symbols": [
         {
           "name": "GameInviteMessageParserTest",
@@ -46417,8 +46354,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/WorldExplorationContractsTest.kt",
-      "lines": 299,
-      "sha256": "d4086f073fbc25f24432d460766a49ac7c36e4433a8a74d21ab352a72f7cf779",
+      "lines": 73,
+      "sha256": "6f6d3102e26236a4cb270e813498517da90990f73ceb4137b6e44cb48329144e",
       "symbols": [
         {
           "name": "WorldExplorationContractsTest",
@@ -50689,8 +50626,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
-      "lines": 136,
-      "sha256": "3f8b4fce870d55264ca0023bb2a760cfcbbac99f3fce23d65ee99c0435d62b5e",
+      "lines": 137,
+      "sha256": "4e5eff02d881ecfb1a278f8bea0d6efd03c1eb0fdd38d030f8950199c75144ad",
       "symbols": [
         {
           "name": "GameInvitationContinuityTest",
@@ -50723,7 +50660,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt",
       "lines": 54,
-      "sha256": "3be959903677ecfde7fea063f38512fe0526ce85c686ec5f6bb93a35ec3fbd89",
+      "sha256": "9aee9507380aebbb93a38d7d5e3a1910caa2baf98c878fc61677d047e9d5d8e3",
       "symbols": [
         {
           "name": "GameOrientationPolicyTest",
@@ -52109,8 +52046,8 @@
     },
     {
       "path": "preview/arcade/DESIGN.md",
-      "lines": 63,
-      "sha256": "ba7569931a909d53c850c7a07bd3ca626d4b17185245b10f616a809de4b5cf5b",
+      "lines": 62,
+      "sha256": "82432cf996190e7e898263af0923d1411d5e50847eae73c8e6700d836704d988",
       "symbols": []
     },
     {
@@ -52146,8 +52083,8 @@
     },
     {
       "path": "preview/arcade/index.html",
-      "lines": 104,
-      "sha256": "aa7d0f193b07d1e60e49a8a488dcaf504e07b8f512e2627730ab7850815ec77c",
+      "lines": 103,
+      "sha256": "c2d455addfcbab842644a613d61167d38acb63b461356deaa278ebfb12dd68e7",
       "symbols": []
     },
     {
