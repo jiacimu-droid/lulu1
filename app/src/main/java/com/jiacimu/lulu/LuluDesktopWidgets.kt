@@ -43,8 +43,6 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 import kotlin.math.roundToInt
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONArray
@@ -362,7 +360,6 @@ internal fun LuluDesktopWidgetCard(
     modifier: Modifier = Modifier,
     onOpen: () -> Unit,
     onEdit: () -> Unit = onOpen,
-    onAskHoroscope: () -> Unit = onOpen,
 ) {
     val context = LocalContext.current
     val css = LocalLuluCssSheet.current.element("Home", "widget-" + widget.kind.code)
@@ -412,8 +409,16 @@ internal fun LuluDesktopWidgetCard(
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(widget.kind.title, color = foreground.copy(alpha = .85f),
-                        fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    if (widget.kind == LuluWidgetKind.HOROSCOPE) {
+                        val sign = widget.sign.coerceIn(0, 11)
+                        Text(luluZodiacSymbols[sign] + "  " + luluZodiacNames[sign],
+                            color = foreground, fontSize = if (compact) 14.sp else 19.sp,
+                            fontWeight = FontWeight.SemiBold, maxLines = 1,
+                            overflow = TextOverflow.Ellipsis)
+                    } else {
+                        Text(widget.kind.title, color = foreground.copy(alpha = .85f),
+                            fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(today.monthValue.toString().padStart(2, '0') + "." +
                             today.dayOfMonth.toString().padStart(2, '0'),
@@ -429,40 +434,34 @@ internal fun LuluDesktopWidgetCard(
                     LuluWidgetKind.HOROSCOPE -> {
                         val sign = widget.sign.coerceIn(0, 11)
                         val (good, caution) = luluDailyFortune(today, sign)
-                        Text(luluZodiacSymbols[sign] + "  " + luluZodiacNames[sign],
-                            color = foreground, fontSize = if (compact) 17.sp else 23.sp,
-                            fontWeight = FontWeight.SemiBold)
-                        if (!compact) Text("宜 · " + good + "      忌 · " + caution,
-                            color = foreground, fontSize = 12.sp, maxLines = 2,
-                            overflow = TextOverflow.Ellipsis)
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            if (!compact) Text(
-                                roleReading?.message
-                                    ?: if (characterName == null) "绑定角色，听听TA的看法"
-                                    else "今天的角色解读",
-                                color = foreground.copy(alpha = .92f),
-                                fontSize = 10.sp, lineHeight = 13.sp,
-                                maxLines = 1, overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f),
-                            )
-                            Surface(
-                                onClick = onAskHoroscope,
-                                color = foreground.copy(alpha = 0.17f),
-                                shape = RoundedCornerShape(99.dp),
-                                modifier = Modifier.heightIn(min = 28.dp),
-                            ) {
-                                Text(
-                                    if (roleReading == null) "今日待解读 ✦" else "查看解读 ✦",
-                                    color = foreground, fontSize = 11.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
-                                )
-                            }
-                        }
+                        if (!compact) Text(
+                            "宜 · $good     忌 · $caution",
+                            color = foreground.copy(alpha = .82f),
+                            fontSize = 10.sp, maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            if (characterName.isNullOrBlank()) "还未绑定角色"
+                            else "$characterName · 今天想对你说",
+                            color = foreground.copy(alpha = .82f),
+                            fontSize = if (compact) 10.sp else 11.sp,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        )
+                        // Full model-authored character speech belongs on the card,
+                        // not in a popup or single-line preview. 2x1 cards scroll.
+                        Text(
+                            when {
+                                !widget.dailyReadingEnabled -> "在组件设置中开启每日解读。"
+                                characterName.isNullOrBlank() || widget.characterId.isBlank() ->
+                                    "绑定一个角色，就能在这里看到TA每天写给你的话。"
+                                roleReading != null -> "“" + roleReading.message + "”"
+                                else -> "新一天开始后，会在这里出现我写给你的话。"
+                            },
+                            color = foreground, fontSize = if (compact) 11.sp else 14.sp,
+                            lineHeight = if (compact) 15.sp else 19.sp,
+                            modifier = Modifier.fillMaxWidth().weight(1f)
+                                .verticalScroll(rememberScrollState()),
+                        )
                     }
                     LuluWidgetKind.NOTE -> {
                         Text(characterName ?: "一封等待署名的信",
@@ -535,7 +534,6 @@ internal fun LuluDesktopWidgetCanvas(
     modifier: Modifier = Modifier,
     onOpenWidget: (LuluDesktopWidget) -> Unit,
     onEditWidget: (LuluDesktopWidget) -> Unit,
-    onAskHoroscope: (LuluDesktopWidget) -> Unit,
     onBlankLongPress: () -> Unit,
 ) {
     BoxWithConstraints(modifier.pointerInput(page, widgets, launcherSlots) {
@@ -576,7 +574,6 @@ internal fun LuluDesktopWidgetCanvas(
                         ),
                     onOpen = { onOpenWidget(widget) },
                     onEdit = { onEditWidget(widget) },
-                    onAskHoroscope = { onAskHoroscope(widget) },
                 )
             }
         }
@@ -852,91 +849,5 @@ internal fun LuluDesktopPlannerDialog(
             TextButton(onClick = onOpenSelfPreface) { Text("打开自序") }
         },
         dismissButton = { TextButton(onClick = onClose) { Text("关闭") } },
-    )
-}
-
-
-/**
- * A card opens the full stored reading without triggering another paid request.
- * The user can explicitly request an early/manual reading if today's is missing.
- */
-@Composable
-internal fun LuluDesktopHoroscopeDialog(
-    widget: LuluDesktopWidget,
-    date: LocalDate,
-    characterName: String?,
-    reading: LuluWidgetDailyReading?,
-    onOpenEditor: () -> Unit,
-    onClose: () -> Unit,
-) {
-    val context = LocalContext.current
-    var generating by remember(widget.id, widget.sign, widget.characterId, date) {
-        mutableStateOf(false)
-    }
-    var generationError by remember(widget.id, widget.sign, widget.characterId, date) {
-        mutableStateOf<String?>(null)
-    }
-    val (good, caution) = luluDailyFortune(date, widget.sign)
-    AlertDialog(
-        onDismissRequest = onClose,
-        title = { Text(luluZodiacNames[widget.sign] + " · 今日解读") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("宜 · " + good + "\n忌 · " + caution,
-                    style = MaterialTheme.typography.bodyMedium)
-                Text("以上是娱乐参考，不代表对未来的真实预测。",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-                when {
-                    widget.characterId.isBlank() -> Text("还没有绑定角色，先选一位角色吧。")
-                    !widget.dailyReadingEnabled -> Text("当前未开启每日角色解读，可以在组件设置里开启。")
-                    reading != null -> {
-                        Text(characterName ?: "绑定的角色",
-                            style = MaterialTheme.typography.titleSmall)
-                        Text(reading.message, style = MaterialTheme.typography.bodyLarge)
-                        Text("当天已保存 · 再次打开不会重复调用模型",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    generating -> Row(verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                        Spacer(Modifier.width(10.dp))
-                        Text("正在请求角色今天的解读…")
-                    }
-                    else -> Text(generationError ?: "当天解读从凌晨 00:00 开始自动生成；若系统延迟，会在恢复运行后补齐。也可以点立即解读。",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onClose) { Text("完成") }
-        },
-        dismissButton = {
-            if (widget.characterId.isBlank() || !widget.dailyReadingEnabled) {
-                TextButton(onClick = onOpenEditor) { Text("去绑定 / 开启") }
-            } else if (reading == null && !generating) {
-                val scope = rememberCoroutineScope()
-                TextButton(onClick = {
-                    scope.launch {
-                        generating = true
-                        generationError = null
-                        try {
-                            withContext(kotlinx.coroutines.Dispatchers.IO) {
-                                LuluWidgetDailyRole.refresh(context, widget, date, manual = true)
-                            }
-                            if (LuluWidgetDailyRole.read(context, widget, date) == null) {
-                                generationError = "尚未生成，可能需要检查聊天模型或稍后再试。"
-                            }
-                        } catch (cancelled: kotlinx.coroutines.CancellationException) {
-                            throw cancelled
-                        } catch (_: Exception) {
-                            generationError = "请求失败，请检查模型连接。"
-                        } finally {
-                            generating = false
-                        }
-                    }
-                }) { Text("立即解读") }
-            }
-        },
     )
 }
