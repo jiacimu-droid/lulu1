@@ -42,6 +42,7 @@ internal object LuluPhoneRepeatGuard {
         "swipe" -> listOf("startX", "startY", "endX", "endY")
             .joinToString(":") { args[it].orEmpty() }
         "submit" -> "enter"
+        "back" -> "back"
         "search" -> args["text"].orEmpty().trim()
         "launch", "adopt_app" -> args["packageName"].orEmpty().trim().ifEmpty { args["appName"].orEmpty().trim() }
         else -> ""
@@ -50,7 +51,7 @@ internal object LuluPhoneRepeatGuard {
     fun shouldBlock(last: Attempt?, action: String, target: String): Boolean {
         if (target.isBlank() || last == null || last.action != action || last.target != target) return false
         if (last.effect == "known_rejection") return action == "search" || action == "launch"
-        return action in setOf("tap", "long_press", "tap_element", "swipe", "submit", "search") &&
+        return action in setOf("tap", "long_press", "tap_element", "swipe", "back", "submit", "search") &&
             last.accepted && last.effect in setOf("tree_unchanged", "unknown")
     }
 }

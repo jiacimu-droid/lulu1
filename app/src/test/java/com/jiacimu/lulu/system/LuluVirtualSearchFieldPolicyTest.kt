@@ -43,6 +43,8 @@ class LuluVirtualSearchFieldPolicyTest {
         val can = LuluVirtualSearchFieldPolicy::canActWithoutFrame
         assertTrue(can("observe", false, false, false, false))
         assertTrue(can("launch", false, false, false, false))
+        assertTrue(can("back", true, false, false, false))
+        assertFalse(can("back", false, true, true, true))
         assertFalse(can("tap", true, true, true, true))
         assertFalse(can("swipe", true, true, true, true))
         assertFalse(can("focus_search", false, true, false, false))

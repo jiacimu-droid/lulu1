@@ -2,7 +2,7 @@
  * Isolated-display keyboard injection adapted from Mika ShellService.kt
  * (Apache-2.0, Copyright 2026 Mika authors).
  * SOURCE: https://github.com/wangzan101/Mika
- * THIRD_PARTY_MODIFIED: targeted paste only, never main display or arbitrary key events.
+ * THIRD_PARTY_MODIFIED: targeted paste and BACK only, never main display or arbitrary key events.
  */
 package com.wangzan101.mika.cap.phone.shell
 
@@ -48,6 +48,34 @@ internal object LuluShellTextInput {
             .invoke(manager, event, WAIT_FOR_FINISH, targetUid) as Boolean
     } catch (_: Throwable) {
         false
+    }
+
+    internal fun canBack(displayId: Int, packageName: String, launchedPackage: String): Boolean =
+        displayId > 0 && packageName.isNotBlank() && packageName == launchedPackage
+
+    fun back(
+        context: Context, displayId: Int, packageName: String, launchedPackage: String,
+    ): JSONObject {
+        fun receipt(accepted: Boolean, attempted: Boolean, code: String) = JSONObject()
+            .put("accepted", accepted).put("dispatchAttempted", attempted)
+            .put("displayId", displayId).put("taskCompleted", false)
+            .put("actionMethod", "shell_target_uid_virtual_back").put("errorCode", code)
+            .put("verification", if (accepted) "已向独立屏目标App派发一次Android返回键，仍需核对页面"
+                else "独立屏定向返回未确认，未切换到其他屏幕或补发手势")
+        if (!canBack(displayId, packageName, launchedPackage))
+            return receipt(false, false, "virtual_back_target_invalid")
+        val uid = runCatching { context.packageManager.getPackageUid(packageName, 0) }
+            .getOrNull()?.takeIf { it >= 0 }
+            ?: return receipt(false, false, "virtual_back_uid_unverified")
+        val now = SystemClock.uptimeMillis()
+        fun send(action: Int): Boolean = injectTargeted(
+            KeyEvent(now, SystemClock.uptimeMillis(), action, KeyEvent.KEYCODE_BACK, 0, 0,
+                VIRTUAL_KEYBOARD, 0, 0, InputDevice.SOURCE_KEYBOARD),
+            displayId, uid,
+        )
+        val down = send(KeyEvent.ACTION_DOWN)
+        val up = down && send(KeyEvent.ACTION_UP)
+        return receipt(up, true, if (up) "" else "virtual_back_dispatch_unverified")
     }
 
     private fun combo(displayId: Int, uid: Int, letter: Int): Pair<Boolean, Boolean> {

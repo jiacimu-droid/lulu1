@@ -9,6 +9,7 @@ package com.jiacimu.lulu.system
 internal object LuluVirtualScrollOutcome {
     enum class Kind(val wire: String) {
         CONTENT_CHANGED("content_changed"),
+        FRAME_CHANGED("frame_changed"),
         NO_VISIBLE_CHANGE("no_visible_change"),
         UNKNOWN("unknown"),
         REJECTED("rejected"),
@@ -17,7 +18,7 @@ internal object LuluVirtualScrollOutcome {
     fun classify(
         accepted: Boolean, targetOwned: Boolean,
         beforeFingerprint: String?, afterFingerprint: String?,
-        beforeText: String?, afterText: String?,
+        beforeText: String?, afterText: String?, freshPixelsChanged: Boolean = false,
     ): Kind {
         if (!accepted) return Kind.REJECTED
         if (!targetOwned) return Kind.UNKNOWN
@@ -25,14 +26,13 @@ internal object LuluVirtualScrollOutcome {
         val afterTree = afterFingerprint.orEmpty()
         val a = beforeText.orEmpty().trim()
         val b = afterText.orEmpty().trim()
-        if (beforeTree.isNotBlank() && afterTree.isNotBlank()) {
-            if (beforeTree != afterTree) return Kind.CONTENT_CHANGED
-            // Even an unchanged accessibility tree does not prove the list has
-            // reached its end: image-only pages may have no readable text.
-            return if (a.isNotBlank() && b.isNotBlank() && a == b)
-                Kind.NO_VISIBLE_CHANGE else Kind.UNKNOWN
-        }
-        if (a.isNotBlank() && b.isNotBlank() && a != b) return Kind.CONTENT_CHANGED
-        return Kind.UNKNOWN
+        val comparableTrees = beforeTree.isNotBlank() && afterTree.isNotBlank()
+        val comparableText = a.isNotBlank() && b.isNotBlank()
+        if ((comparableTrees && beforeTree != afterTree) || (comparableText && a != b))
+            return Kind.CONTENT_CHANGED
+        // Pixels can change because a video plays in place. Send the current
+        // image for the role to inspect without declaring that scrolling worked.
+        if (freshPixelsChanged) return Kind.FRAME_CHANGED
+        return if (comparableTrees && comparableText) Kind.NO_VISIBLE_CHANGE else Kind.UNKNOWN
     }
 }

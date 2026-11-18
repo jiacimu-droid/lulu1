@@ -12,6 +12,13 @@ class LuluShellTouchInputTest {
         assertFalse(LuluShellTouchInput.allowed(3, "test.app", "test.app", 500, 900, 5001))
     }
 
+    @Test fun androidBackRequiresAnIndependentDisplayAndTheLaunchedPackage() {
+        assertTrue(LuluShellTextInput.canBack(3, "test.app", "test.app"))
+        assertFalse(LuluShellTextInput.canBack(0, "test.app", "test.app"))
+        assertFalse(LuluShellTextInput.canBack(3, "", ""))
+        assertFalse(LuluShellTextInput.canBack(3, "test.other", "test.app"))
+    }
+
     @Test fun partialTouchCancelsWithoutSendingAnotherClick() {
         val events = mutableListOf<String>()
         val result = LuluShellTouchInput.dispatch(

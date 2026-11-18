@@ -117,6 +117,9 @@ internal object LuluBackgroundPhoneSession {
         return output.put("screenSnapshotId", token)
             .put("uiTreeFingerprint", if (semanticObserved) fingerprint else "")
             .put("interactiveElements", if (semanticObserved) elements else org.json.JSONArray())
+            .put("focusedEditorVerified", withContext(Dispatchers.Main) {
+                LuluAccessibilityService.hasFocusedVirtualEditor(id, packageName)
+            })
             .put("chatHeaderTexts", inventory.optJSONArray("chatHeaderTexts") ?: org.json.JSONArray())
             .apply {
                 // The screenshot can be valid while HyperOS exposes zero
@@ -519,9 +522,11 @@ internal object LuluBackgroundPhoneSession {
                 LuluAccessibilityService.isSensitiveVirtualTap(id, packageName, x, y)
             }) return stopped("visual_input_sensitive_field",
             "当前输入位置与受保护控件重合，拒绝按文字输入处理")
-        val tap = withContext(Dispatchers.Main) {
-            LuluAccessibilityService.tapVirtualDisplay(id, packageName, x, y)
-        }
+        if (!authorized() || windowGate(id, packageName).optString("kind") != "target")
+            return stopped("visual_input_window_unverified",
+                "聚焦前独立屏窗口或授权已变化，未输入")
+        val tap = command(JSONObject().put("action", "tap").put("packageName", packageName)
+            .put("x", x).put("y", y))
         if (!tap.optBoolean("accepted")) return stopped("visual_input_focus_tap_unverified",
             "目标输入位置的单次聚焦手势未完成，没有粘贴文字")
         var imeVisible = false
@@ -1098,6 +1103,10 @@ internal object LuluBackgroundPhoneSession {
                     LuluAccessibilityService.virtualUiSnapshot(id, activeApp)
                         .optString("fingerprint")
                 }
+            val beforeScrollFrame = lastObservedUi?.takeIf {
+                action == "swipe" && it.characterId == characterId && it.displayId == id &&
+                    it.packageName == activeApp && it.visualFrameObserved && it.windowIdentity.isNotBlank()
+            }
             val beforeScrollText = if (action == "swipe")
                 withContext(Dispatchers.Main) {
                     LuluAccessibilityService.observeDisplay(id).visibleText.take(5_000)
@@ -1147,52 +1156,57 @@ internal object LuluBackgroundPhoneSession {
                 request.put("packageName", requestedPackage)
                     .put("launchComponent", component.flattenToString())
             }
-            if (action == "tap") {
-                request.put("x", args.getInt("x"))
-                request.put("y", args.getInt("y"))
-            }
             if (action == "swipe") {
                 for (name in listOf("startX", "startY", "endX", "endY")) {
                     request.put(name, args.getInt(name))
                 }
                 request.put("durationMs", args.optInt("durationMs", 400))
             }
+            val visualType = action == "type" && args.has("inputX") && args.has("inputY")
+            if (visualType || action in setOf("tap", "long_press")) {
+                val visualX = args.getInt(if (visualType) "inputX" else "x")
+                val visualY = args.getInt(if (visualType) "inputY" else "y")
+                val prior = checkNotNull(lastObservedUi)
+                val shot = command(JSONObject().put("action", "observe"))
+                val freshPixels = shot.optString("imageDataUrl")
+                val windowIdentity = withContext(Dispatchers.Main) {
+                    LuluAccessibilityService.virtualChatWindowIdentity(id, activeApp)
+                }
+                val sameTarget = prior.windowIdentity.isNotBlank() && prior.windowIdentity == windowIdentity &&
+                    shot.optInt("displayId") == id && shot.optString("targetPackage") == activeApp &&
+                    LuluVirtualFrameSafety.canSendToRole(shot.optBoolean("frameValidated"),
+                        shot.optLong("frameTimestampNanos"), freshPixels, shot.optBoolean("frameBlack")) &&
+                    withContext(Dispatchers.Default) {
+                        LuluVisualTargetFrame.unchanged(prior.visualImage, freshPixels,
+                            visualX, visualY)
+                    }
+                val liveWindow = windowGate(id, activeApp)
+                if (liveWindow.optString("kind") != "target") return pausedWindowReceipt(id, liveWindow)
+                humanOnlyPage(id, activeApp)?.let { return humanOnlyReceipt(id, activeApp, it) }
+                if (!sameTarget || !stillAuthorized()) {
+                    val receipt = JSONObject().put("success", false).put("accepted", false)
+                        .put("status", "unverified").put("sessionPreserved", true)
+                        .put("mode", "independent_virtual_display").put("displayId", id)
+                        .put("packageName", activeApp).put("errorCode", "visual_target_changed")
+                        .put("taskCompleted", false).put("verification", "目标位置或窗口已经变化，未操作；按当前画面重新选择")
+                    if (shot.optInt("displayId") == id && shot.optString("targetPackage") == activeApp &&
+                        LuluVirtualFrameSafety.canSendToRole(shot.optBoolean("frameValidated"),
+                            shot.optLong("frameTimestampNanos"), freshPixels, shot.optBoolean("frameBlack")) &&
+                        stillAuthorized()) {
+                        LuluScreenFrameHandoff.put(characterId, requestId, freshPixels)
+                        receipt.put("targetWindowVerified", true)
+                            .put("imageForwardedToRole", true).put("frameValidated", true)
+                            .put("frameTimestampNanos", shot.optLong("frameTimestampNanos"))
+                        attachUiEvidence(receipt, characterId, id, activeApp, freshPixels)
+                    } else lastObservedUi = null
+                    return receipt.toString()
+                }
+            }
             failureStage = "command_" + action
             val applied = when (action) {
                 "adopt_app" -> checkNotNull(adoptedApp)
                 "observe", LuluVirtualNavigation.ACTION -> null
                 "tap", "long_press" -> {
-                    val prior = checkNotNull(lastObservedUi)
-                    val shot = command(JSONObject().put("action", "observe"))
-                    val freshPixels = shot.optString("imageDataUrl")
-                    val windowIdentity = withContext(Dispatchers.Main) {
-                        LuluAccessibilityService.virtualChatWindowIdentity(id, activeApp)
-                    }
-                    val sameTarget = prior.windowIdentity.isNotBlank() && prior.windowIdentity == windowIdentity &&
-                        shot.optInt("displayId") == id && shot.optString("targetPackage") == activeApp &&
-                        LuluVirtualFrameSafety.canSendToRole(shot.optBoolean("frameValidated"),
-                            shot.optLong("frameTimestampNanos"), freshPixels, shot.optBoolean("frameBlack")) &&
-                        withContext(Dispatchers.Default) {
-                            LuluVisualTargetFrame.unchanged(prior.visualImage, freshPixels,
-                                args.getInt("x"), args.getInt("y"))
-                        }
-                    if (!sameTarget || !stillAuthorized() || windowGate(id, activeApp).optString("kind") != "target") {
-                        val receipt = JSONObject().put("success", false).put("accepted", false)
-                            .put("status", "unverified").put("sessionPreserved", true)
-                            .put("mode", "independent_virtual_display").put("displayId", id)
-                            .put("packageName", activeApp).put("errorCode", "visual_target_changed")
-                            .put("taskCompleted", false).put("verification", "目标位置或窗口已经变化，未点击；按当前画面重新选择")
-                        if (stillAuthorized() && windowGate(id, activeApp).optString("kind") == "target" &&
-                            shot.optInt("displayId") == id && shot.optString("targetPackage") == activeApp &&
-                            LuluVirtualFrameSafety.canSendToRole(shot.optBoolean("frameValidated"),
-                                shot.optLong("frameTimestampNanos"), freshPixels, shot.optBoolean("frameBlack"))) {
-                            LuluScreenFrameHandoff.put(characterId, requestId, freshPixels)
-                            receipt.put("imageForwardedToRole", true).put("frameValidated", true)
-                                .put("frameTimestampNanos", shot.optLong("frameTimestampNanos"))
-                            attachUiEvidence(receipt, characterId, id, activeApp, freshPixels)
-                        } else lastObservedUi = null
-                        return receipt.toString()
-                    }
                     // A single primitive for every App, including Send/Post/Like
                     // and camera long press. No app-specific title/editor/Send
                     // transaction is required for the owner's ordinary UI grant.
@@ -1238,27 +1252,25 @@ internal object LuluBackgroundPhoneSession {
                     }
                 }
                 "back" -> {
-                    // An in-app back arrow is NOT the same as Android BACK:
-                    // mini-app/WebView order pages often ignore edge gestures.
-                    // First resolve one real app-toolbar button on the owned
-                    // virtual display. If no such control is accessible, use
-                    // ONE display-bound edge-back gesture. Never try both when
-                    // a node click was attempted but its result is uncertain.
+                    // Use a verified in-app arrow, or one display- and UID-bound
+                    // Android BACK when no such arrow is exposed. A rejected
+                    // toolbar dispatch can be ambiguous, so never send both.
                     val prepared = command(JSONObject().put("action", "prepare_type"))
                     check(prepared.optBoolean("accepted")) {
                         "无法建立虚拟屏返回前的图像时间戳屏障"
                     }
                     val toolbar = withContext(Dispatchers.Main) {
                         LuluAccessibilityService.tapVirtualAppBackControl(
-                            id, activeApp, beforeUiFingerprint)
+                            id, activeApp, beforeUiFingerprint, ::stillAuthorized)
                     }
                     if (toolbar.optBoolean("attempted")) toolbar else {
-                        withContext(Dispatchers.Main) {
-                            LuluAccessibilityService.swipeVirtualDisplay(
-                                id, activeApp, 8, 500, 320, 500, 290,
-                            ).put("actionMethod", "accessibility_back_edge_virtual_display")
-                                .put("appToolbarBack", "no_verified_toolbar_control")
-                        }
+                        val gate = windowGate(id, activeApp)
+                        if (gate.optString("kind") != "target") return pausedWindowReceipt(id, gate)
+                        if (!stillAuthorized()) return JSONObject()
+                            .put("success", false).put("accepted", false).put("status", "denied")
+                            .put("mode", "independent_virtual_display").put("displayId", id)
+                            .put("errorCode", "virtual_back_authorization_changed").toString()
+                        command(JSONObject().put("action", "back").put("packageName", activeApp))
                     }
                 }
                 "submit" -> {
@@ -1292,7 +1304,8 @@ internal object LuluBackgroundPhoneSession {
                     // field readback. Zero-tree apps use a model-chosen point
                     // in the currently observed frame, then the isolated
                     // keyboard + shell target UID, without auto-submitting.
-                    if (args.has("inputX") && args.has("inputY")) {
+                    if (visualType) {
+                        lastObservedUi = null
                         typeVisualVirtualField(id, activeApp, value,
                             args.getInt("inputX"), args.getInt("inputY"),
                             ::stillAuthorized)
@@ -1999,9 +2012,13 @@ internal object LuluBackgroundPhoneSession {
                 finalReceipt.put("scrollOutcome", LuluVirtualScrollOutcome.classify(
                     applied?.optBoolean("accepted") != false, true,
                     beforeUiFingerprint, lastObservedUi?.fingerprint,
-                    beforeScrollText, visible.visibleText).wire)
+                    beforeScrollText, visible.visibleText,
+                    freshPixelsChanged = hasFrame && frameFresh && beforeScrollFrame != null &&
+                        beforeScrollFrame.windowIdentity == lastObservedUi?.windowIdentity &&
+                        beforeScrollFrame.visualImage != pixels).wire)
                 finalReceipt.put("scrollVerification", when (finalReceipt.optString("scrollOutcome")) {
-                    "content_changed" -> "后台可读内容或控件树发生变化；仍需核对是否是预期的新笔记"
+                    "content_changed" -> "后台可读内容或控件树发生变化；仍需核对是否到达预期内容"
+                    "frame_changed" -> "后台画面像素有变化；请核对是滑到了新内容还是原视频仍在播放"
                     "no_visible_change" -> "滑动后没有可证实的内容变化；可能已到底、未滚动或尚未加载，不得自动认定到底"
                     else -> "本次滑动结果不确定；不要重复滑动或声称看过新内容"
                 })

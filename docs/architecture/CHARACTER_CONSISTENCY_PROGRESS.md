@@ -1,3 +1,10 @@
+## 2026-11-18 · PH-01 独立屏返回、连续滑动与通用输入（待完整 APK / 真机）
+
+- 参考 Mika `b899c5b` 的 `AndroidScreen.back/swipe/verified` 与 `ShellService.injectKey`。保留经核实的应用内返回控件，缺少时只向独立屏和当前 App UID 发送 Android BACK。控件点击或按键派发后核对页面，结果不明时依据新证据再决定。
+- 滑动使用新鲜的同一窗口像素补充控件树。控件未变但画面变化时，回交角色核对是否切到新视频或笔记。对外发送仍以实际页面结果核对。
+- 通用视觉输入复用坐标点击的目标区域和窗口复核及独立屏定向触摸。确认独立屏输入法后才粘贴 Unicode 草稿。没有画面但有唯一真实聚焦编辑器时，仍可使用节点输入。微信、抖音接续使用同一协议。
+- 本地针对 Android 15 API 编译实际 shell helper 及生产策略，37 项专项 JUnit 通过。之前的 main 源码 `6dad4bc` 对应 [APK #44219580748](https://github.com/jiacimu-droid/lulu1/actions/runs/44219580748) 成功。本提交的完整 APK/JVM、Redmi 和真实模型待核，重点验收微信与抖音联系人→正文→单次点击→新气泡，及抖音、小红书连续滑动与返回。
+
 ## 2026-11-18 · PH-01 Mika 通用交互链路复核与错误禁点解除（待完整 APK / 真机）
 
 - 实际源码：[b79e753](https://github.com/jiacimu-droid/lulu1/commit/b79e753f721b10137d4e9bbd247e1229c7ec7879)，对应索引 [#44137166133](https://github.com/jiacimu-droid/lulu1/actions/runs/44137166133) 成功。原 [APK #44137166174](https://github.com/jiacimu-droid/lulu1/actions/runs/44137166174) 的首错仅为并行桌面组件拖拽覆盖层maxWidth/maxHeight越界；已在 [899429d](https://github.com/jiacimu-droid/lulu1/commit/899429dd1c92f38c2355995fda583afe3ef4bdb0) 将它移回原BoxWithConstraints，与图标拖拽共用测量及坐标原点。后续main已包含修复，等待最新APK/JVM，取消的旧运行不算通过。

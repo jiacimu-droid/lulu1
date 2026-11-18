@@ -12,12 +12,13 @@ internal object LuluVirtualSearchFieldPolicy {
     fun canRecoverUniqueSearchField(searchEditors: Int, otherEditors: Int): Boolean =
         searchEditors == 1 && otherEditors == 0
 
-    /** Without frame pixels, allow only owner-verified search actions. */
+    /** Search and basic session actions available without frame pixels. */
     fun canActWithoutFrame(
         action: String, targetVerified: Boolean, uniqueSearch: Boolean,
         searchFocused: Boolean, typedReadbackVerified: Boolean,
     ): Boolean = when (action) {
         "start", "launch", "adopt_app", "observe", "stop" -> true
+        "back" -> targetVerified
         "focus_search", "search" -> targetVerified && uniqueSearch
         "type" -> targetVerified && uniqueSearch && searchFocused
         "submit" -> targetVerified && uniqueSearch && searchFocused && typedReadbackVerified

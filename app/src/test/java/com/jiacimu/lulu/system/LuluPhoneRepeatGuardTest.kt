@@ -6,6 +6,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LuluPhoneRepeatGuardTest {
+    @Test fun unresolvedBackNeedsNewEvidenceBeforeAnotherBack() {
+        val target = LuluPhoneRepeatGuard.target("back", emptyMap())
+        val attempted = LuluPhoneRepeatGuard.Attempt("back", target, true, "unknown")
+        assertTrue(LuluPhoneRepeatGuard.shouldBlock(attempted, "back", target))
+        assertFalse(LuluPhoneRepeatGuard.shouldBlock(attempted.copy(accepted = false), "back", target))
+        assertFalse(LuluPhoneRepeatGuard.shouldBlock(attempted.copy(effect = "tree_changed"), "back", target))
+    }
+
     @Test fun sameTapCannotBeRepeatedAfterUnverifiedEffect() {
         val last = LuluPhoneRepeatGuard.Attempt("tap", "500:300", true, "unknown")
         assertTrue(LuluPhoneRepeatGuard.shouldBlock(last, "tap", "500:300"))

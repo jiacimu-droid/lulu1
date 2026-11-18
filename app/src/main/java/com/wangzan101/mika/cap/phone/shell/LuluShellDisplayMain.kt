@@ -245,6 +245,13 @@ object LuluShellDisplayMain {
                     else "虚拟屏启动应用被系统拒绝：${launchResult.failure}")
         }
         check(targetPackage.isNotEmpty()) { "no target app on virtual screen" }
+        if (action == "back") {
+            val requested = cmd.getString("packageName")
+            check(requested == targetPackage) { "back target package changed" }
+            pendingActionFrameBarrierNanos = discardPreActionFrames()
+            pendingActionNeedsFrame = true
+            return LuluShellTextInput.back(ShellContext.create(), id, requested, targetPackage)
+        }
         if (action == "tap" || action == "long_press") {
             check(cmd.optString("packageName") == targetPackage) { "touch target package changed" }
             pendingActionFrameBarrierNanos = discardPreActionFrames()

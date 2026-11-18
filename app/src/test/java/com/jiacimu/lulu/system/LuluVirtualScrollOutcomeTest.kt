@@ -30,6 +30,20 @@ class LuluVirtualScrollOutcomeTest {
             kind(before = "same", after = "same", oldText = "", newText = ""))
     }
 
+    @Test fun newVisualFrameWithStaticControlsNeedsModelReview() {
+        val outcome = LuluVirtualScrollOutcome.classify(
+            accepted = true, targetOwned = true,
+            beforeFingerprint = "same", afterFingerprint = "same",
+            beforeText = "共同视频页工具栏", afterText = "共同视频页工具栏",
+            freshPixelsChanged = true,
+        )
+        assertEquals(LuluVirtualScrollOutcome.Kind.FRAME_CHANGED, outcome)
+        assertEquals(LuluVirtualScrollOutcome.Kind.UNKNOWN, LuluVirtualScrollOutcome.classify(
+            true, false, "same", "same", "", "", freshPixelsChanged = true))
+        assertEquals(LuluVirtualScrollOutcome.Kind.REJECTED, LuluVirtualScrollOutcome.classify(
+            false, true, "same", "same", "", "", freshPixelsChanged = true))
+    }
+
     @Test fun rejectedSwipeNeverCountsAsRead() {
         assertEquals(LuluVirtualScrollOutcome.Kind.REJECTED, kind(accepted = false))
     }

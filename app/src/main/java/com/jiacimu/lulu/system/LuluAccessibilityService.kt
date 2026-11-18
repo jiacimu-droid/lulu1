@@ -1414,12 +1414,12 @@ class LuluAccessibilityService : AccessibilityService() {
          *
          * Only one live, top-left toolbar node is clicked. An unnamed node is
          * considered solely if the real tree also has the adjacent wide
-         * header/search control; with no such evidence, caller can instead
-         * dispatch ONE traditional edge gesture. This never touches display 0,
-         * never injects shell input, and never declares that navigation worked.
+         * header/search control. When no unique control is found, the caller
+         * can choose the owned display's Android BACK transport.
          */
         fun tapVirtualAppBackControl(
             displayId: Int, packageName: String, expectedFingerprint: String,
+            stillAuthorized: () -> Boolean,
         ): JSONObject {
             fun receipt(attempted: Boolean, accepted: Boolean,
                 code: String, detail: String): JSONObject = JSONObject()
@@ -1435,8 +1435,9 @@ class LuluAccessibilityService : AccessibilityService() {
             val dimensions = virtualDimensions(service, displayId)
                 ?: return receipt(true, false, "virtual_back_dimensions_missing",
                     "后台屏幕尺寸不可用，没有猜测按钮位置")
-            if (expectedFingerprint.isBlank() ||
-                virtualUiSnapshot(displayId, packageName).optString("fingerprint") != expectedFingerprint)
+            if (expectedFingerprint.isBlank()) return receipt(false, false,
+                "virtual_app_back_control_missing", "没有可核实的应用内返回按钮")
+            if (virtualUiSnapshot(displayId, packageName).optString("fingerprint") != expectedFingerprint)
                 return receipt(true, false, "virtual_back_snapshot_changed",
                     "后台App页面已改变，旧的返回目标无效；先重新观察")
             val buttons = mutableListOf<AccessibilityNodeInfo>()
@@ -1471,13 +1472,14 @@ class LuluAccessibilityService : AccessibilityService() {
                     "virtual_app_back_scan_incomplete",
                     "后台控件树超过深度或节点预算，不能确认唯一返回按钮；未点击且禁止自动补发边缘手势")
                 else receipt(false, false, "virtual_app_back_control_missing",
-                    "当前完整页面没有唯一可核实的左上角返回按钮；可尝试一次独立屏边缘返回")
+                    "当前页面没有唯一可核实的左上角返回按钮")
             val node = buttons[selected]
             if (!node.refresh() || !node.isVisibleToUser || !node.isEnabled ||
                 !node.isClickable || node.isPassword)
                 return receipt(true, false, "virtual_app_back_control_expired",
                     "返回按钮失效，未点击，也不会盲目补发边缘手势")
-            if (virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
+            if (!stillAuthorized() ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
                 virtualUiSnapshot(displayId, packageName).optString("fingerprint") != expectedFingerprint)
                 return receipt(true, false, "virtual_app_back_page_changed",
                     "返回前页面已变化，拒绝点击旧目标")
@@ -1486,6 +1488,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 if (clicked) "" else "virtual_app_back_click_rejected",
                 if (clicked) "已单次点击目标App左上角实际返回控件；需核对新页面才算返回成功"
                 else "目标App拒绝了左上角返回控件的点击；未重复点击或触碰主屏")
+                .put("dispatchAttempted", true)
         }
 
         /** Count only outgoing-side text bubbles currently visible on the
@@ -1837,6 +1840,21 @@ class LuluAccessibilityService : AccessibilityService() {
             return field.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments)
         }
 
+        private fun focusedVirtualEditor(
+            service: LuluAccessibilityService, displayId: Int, packageName: String,
+        ): AccessibilityNodeInfo? = ownedVirtualRoots(service, displayId, packageName)
+            .mapNotNull { it.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) }
+            .filter(::safeEditable)
+            .distinctBy(::composerBounds)
+            .singleOrNull()
+            ?.takeIf { it.refresh() && it.isFocused && safeEditable(it) }
+
+        fun hasFocusedVirtualEditor(displayId: Int, packageName: String): Boolean {
+            val service = instance ?: return false
+            return virtualWindowStatus(displayId, packageName).optString("kind") == "target" &&
+                focusedVirtualEditor(service, displayId, packageName) != null
+        }
+
         /** Type into the ACTUALLY focused editor of any owned app. This
          * does not submit a form, send a message, or invent a focus target.
          * For custom WebViews/ROMs with no accessible editor, the session may
@@ -1856,14 +1874,8 @@ class LuluAccessibilityService : AccessibilityService() {
                 text.length > LuluVirtualTextInputPolicy.MAX_TEXT_CHARS ||
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target")
                 return result(false, false, "virtual_input_target_unverified")
-            val fields = ownedVirtualRoots(service, displayId, packageName)
-                .mapNotNull { it.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) }
-                .filter(::safeEditable)
-                .distinctBy { composerBounds(it) }
-            val field = fields.singleOrNull()
+            val field = focusedVirtualEditor(service, displayId, packageName)
                 ?: return result(false, false, "virtual_input_focused_editor_missing")
-            if (!field.refresh() || !field.isFocused || !safeEditable(field))
-                return result(false, false, "virtual_input_focus_changed")
             val arguments = Bundle().apply {
                 putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
             }
