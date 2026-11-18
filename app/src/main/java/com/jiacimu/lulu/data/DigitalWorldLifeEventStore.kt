@@ -93,6 +93,16 @@ internal object DigitalWorldLifeEventStore {
         }
     }
 
+    /** Resident homes and companion homes share the same physical home ledger.
+     * Never treat a resident's location code as an unregistered public venue. */
+    internal fun homeOwnerForLocation(code: String): String? = when {
+        code.startsWith("resident-home:") ->
+            code.removePrefix("resident-home:").takeIf(String::isNotBlank)
+                ?.let(ResidentCharacterBridge::characterId)
+        code.startsWith("home:") -> code.removePrefix("home:").takeIf(String::isNotBlank)
+        else -> null
+    }
+
     private val lock = Any()
     private var prefs: android.content.SharedPreferences? = null
     private var incidents: List<Incident> = emptyList()
@@ -396,7 +406,7 @@ internal object DigitalWorldLifeEventStore {
             val resolved = !passive && baseChance > 0 &&
                 roll("${current.id}:handle:$characterId:$approach:$nextStage:${now.epochSecond / 60}", 100) <
                 (baseChance + attempt * 5).coerceAtMost(94)
-            val homeOwnerId = current.locationCode.takeIf { it.startsWith("home:") }?.removePrefix("home:")
+            val homeOwnerId = homeOwnerForLocation(current.locationCode)
             val realItems = homeOwnerId?.let(DigitalWorldStore::itemsAtHome).orEmpty()
             val previousAnchor = realItems.firstOrNull { it.id == current.anchorItemId }
             val nextAnchor = if (!resolved && current.kind == "roach" && !passive && realItems.size > 1) {
@@ -436,7 +446,7 @@ internal object DigitalWorldLifeEventStore {
         now: Instant,
         ambientOnly: Boolean = false,
     ): Pair<Incident, DigitalWorldLifeTick>? {
-        val homeOwnerId = locationCode.takeIf { it.startsWith("home:") }?.removePrefix("home:")
+        val homeOwnerId = homeOwnerForLocation(locationCode)
         val realItems = homeOwnerId?.let(DigitalWorldStore::itemsAtHome).orEmpty()
         val slot = DigitalWorldEventRules.opportunitySlot(now.epochSecond)
         val anchor = realItems.getOrNull(roll("$locationCode:$slot:anchor", realItems.size.coerceAtLeast(1)))
@@ -527,7 +537,7 @@ internal object DigitalWorldLifeEventStore {
         characterId: String,
         now: Instant,
     ): Pair<Incident, DigitalWorldLifeTick>? {
-        val owner = current.locationCode.takeIf { it.startsWith("home:") }?.removePrefix("home:")
+        val owner = homeOwnerForLocation(current.locationCode)
         val items = owner?.let(DigitalWorldStore::itemsAtHome).orEmpty()
         val missing = current.anchorItemId.isNotBlank() && items.none { it.id == current.anchorItemId }
         // Dust, bent furniture and pests do not clean/repair themselves during a perception poll.
@@ -793,11 +803,13 @@ internal object DigitalWorldLifeEventStore {
     private fun locationName(code: String): String = when (code) {
         DigitalWorldStore.ARRIVAL -> "世界入口"
         DigitalWorldStore.CLOUD_MEADOW -> "云眠原"
-        else -> if (code.startsWith("home:")) {
-            val ownerId = code.removePrefix("home:")
-            DigitalWorldStore.state.value.homes[ownerId]?.name
-                ?: "${MigratedDomainStores.characters.get(ownerId).displayName}的家"
-        } else DigitalWorldPublicPlaces.label(code) ?: code
+        else -> {
+            val ownerId = homeOwnerForLocation(code)
+            if (ownerId != null) {
+                DigitalWorldStore.state.value.homes[ownerId]?.name
+                    ?: "${MigratedDomainStores.characters.settings.value[ownerId]?.displayName ?: "居民"}的家"
+            } else DigitalWorldPublicPlaces.label(code) ?: code
+        }
     }
 
     private fun roll(seed: String, bound: Int): Int {
