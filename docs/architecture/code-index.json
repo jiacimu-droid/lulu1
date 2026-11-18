@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T13:48:35.518954+00:00",
-  "commit": "9579d650b08745624cb50aac7ecb85cadf12e30a",
+  "generatedAt": "2026-11-18T13:50:13.023835+00:00",
+  "commit": "1e5fa553c8988f241d7554bb5c6f2867b1cb4e3f",
   "branch": "main",
-  "sourceFingerprint": "964bf34011a38f0debba0949d829ae5c2be381dc3066c9aa828f01ce651dffe3",
+  "sourceFingerprint": "743b905702b32599e958f230f4c00344f1751cce4b89faefc96185c54bf9b72f",
   "summary": {
     "files": 1468,
-    "lines": 310186,
+    "lines": 310210,
     "symbols": 4435
   },
   "symbolIndex": {
@@ -25745,8 +25745,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DesktopWorldBulletinCard.kt",
-      "lines": 181,
-      "sha256": "807632720c848f1960cd455001b785551c655d3be216679c227c7c9856271510",
+      "lines": 205,
+      "sha256": "c1b75e1423f5db43f64c0f2796b21f457e1e4deb608cbfbf1ca629ac6baf8684",
       "symbols": []
     },
     {
