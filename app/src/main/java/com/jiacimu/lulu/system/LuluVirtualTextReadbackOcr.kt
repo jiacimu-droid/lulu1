@@ -39,8 +39,18 @@ internal object LuluVirtualTextReadbackOcr {
                 kotlin.math.abs((line.left + line.right) / 2 - px) <= width * 48 / 100
         }.sortedWith(compareBy({ it.top }, { it.left }))
         val wanted = normalized(expected)
-        return nearby.any { normalized(it.text) == wanted } ||
-            nearby.joinToString("") { normalized(it.text) } == wanted
+        if (nearby.any { normalized(it.text) == wanted }) return true
+        // Wrapped composer lines must be one compact text block. Do not
+        // concatenate unrelated chat bubbles into a false draft proof.
+        if (nearby.size < 2) return false
+        val oneBlock = nearby.zipWithNext().all { (a, b) ->
+            val lineHeight = maxOf(1, a.bottom - a.top, b.bottom - b.top)
+            val overlap = minOf(a.right, b.right) - maxOf(a.left, b.left)
+            b.top >= a.top &&
+                b.top - a.bottom <= maxOf(16, lineHeight) &&
+                overlap > 0
+        }
+        return oneBlock && nearby.joinToString("") { normalized(it.text) } == wanted
     }
 
     suspend fun verify(
