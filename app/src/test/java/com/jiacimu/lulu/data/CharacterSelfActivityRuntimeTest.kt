@@ -66,46 +66,29 @@ class CharacterSelfActivityRuntimeTest {
 
     @Test fun invitationIsTheCharactersExplicitChoiceAndUsesTheExistingChatTool() {
         val game = JSONObject().put("stage", "decided").put("action", "game_invite")
-            .put("gameId", "block_island").put("text", "嘿，来我的小岛一起造房子？")
-            .put("whyNow", "想找她一起建东西")
-        val parsed = CharacterSelfActivityRuntime.parse(game, emptySet(), false)!!
-        assertEquals("send_game_invite", parsed.tool)
-        assertEquals("block_island", parsed.args.getString("gameId"))
-        assertEquals("嘿，来我的小岛一起造房子？", parsed.args.getString("text"))
-        // Both choices are real now: an invitation uses chat, whereas the same
-        // game ID as a solo choice enters the role-owned physical world engine.
+            .put("gameId", "memory_match").put("text", "来玩记忆配对？")
+            .put("whyNow", "想一起玩")
+        val invited = CharacterSelfActivityRuntime.parse(game, emptySet(), false)!!
+        assertEquals("send_game_invite", invited.tool)
+        assertEquals("memory_match", invited.args.getString("gameId"))
+        assertEquals("来玩记忆配对？", invited.args.getString("text"))
         val solo = CharacterSelfActivityRuntime.parse(
-            JSONObject(game.toString()).put("action", "solo_game")
-                .put("focus", "build").put("turns", 18), emptySet(), false)!!
+            JSONObject(game.toString()).put("action", "solo_game"), emptySet(), false)!!
         assertEquals("play_solo_game", solo.tool)
-        assertEquals("block_island", solo.args.getString("gameId"))
-        assertEquals("build", solo.args.getString("focus"))
-        assertEquals(18, solo.args.getInt("turns"))
-        assertTrue(solo.label.contains("一阵"))
-        assertNull(CharacterSelfActivityRuntime.parse(
-            JSONObject(game.toString()).put("action", "solo_game")
-                .put("focus", "treasure"), emptySet(), false))
-        assertNull(CharacterSelfActivityRuntime.parse(
-            JSONObject(game.toString()).put("action", "solo_game")
-                .put("turns", 300), emptySet(), false))
-        assertNull(CharacterSelfActivityRuntime.parse(
-            JSONObject(game.toString()).put("action", "solo_game")
-                .put("turns", "many"), emptySet(), false))
-        val relic = CharacterSelfActivityRuntime.parse(
-            JSONObject(game.toString()).put("action", "solo_game")
-                .put("gameId", "relic_escape").put("focus", "rare").put("turns", 96),
-            emptySet(), false)!!
-        assertEquals("rare", relic.args.getString("focus"))
-        assertEquals(96, relic.args.getInt("turns"))
+        assertEquals("memory_match", solo.args.getString("gameId"))
+        for (removed in listOf("block_island", "relic_escape")) {
+            assertNull(CharacterSelfActivityRuntime.parse(
+                JSONObject(game.toString()).put("gameId", removed), emptySet(), false))
+            assertNull(CharacterSelfActivityRuntime.parse(
+                JSONObject(game.toString()).put("action", "solo_game")
+                    .put("gameId", removed), emptySet(), false))
+        }
         assertNull(CharacterSelfActivityRuntime.parse(
             JSONObject(game.toString()).put("gameId", "invented_game"), emptySet(), false))
         assertNull(CharacterSelfActivityRuntime.parse(
             JSONObject(game.toString()).put("text", ""), emptySet(), false))
         assertNull(CharacterSelfActivityRuntime.parse(
             JSONObject(game.toString()).put("stage", "considering"), emptySet(), false))
-        assertNull(CharacterSelfActivityRuntime.parse(
-            JSONObject().put("action", "game_invite").put("gameId", "block_island")
-                .put("text", "没有明确决定"), emptySet(), false))
     }
 
     @Test fun invitationReceiptResolvesOnlyAnInvitationIdea() {
