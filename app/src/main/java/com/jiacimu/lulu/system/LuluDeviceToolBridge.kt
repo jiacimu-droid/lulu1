@@ -1321,7 +1321,7 @@ object LuluDeviceToolBridge {
                 val virtualContinuation = if (tool == "background_phone" &&
                     i == phoneSteps.length() - 1 &&
                     effectArgs.optString("action") != "stop" &&
-                    result.optString("mode") == "independent_virtual_display" &&
+                    result.optString("mode") in setOf("independent_virtual_display", "foreground_accessibility") &&
                     result.optString("status") != "denied" &&
                     // Recovered idempotent receipts are historical, not a new
                     // owner-screen frame or permission to continue old taps.
@@ -1778,7 +1778,7 @@ object LuluDeviceToolBridge {
         // No second agent/persona and no automatic extra calls on ordinary chat.
         val phoneContinuation = if (plan.tool == "background_phone" &&
             !recoveredHistoricalReceipt &&
-            actual?.optString("mode") == "independent_virtual_display" &&
+            actual?.optString("mode") in setOf("independent_virtual_display", "foreground_accessibility") &&
             actual.optString("status") != "denied" &&
             // Even an unverified input/no-frame receipt must reach the same
             // character. It can choose a safe observe/recovery or ask the owner.
@@ -2133,7 +2133,19 @@ object LuluDeviceToolBridge {
             }
             "screen_sequence" -> VerifiedScreenSequence.execute(args)
             "phone_ui" -> LuluPhoneUiOperator.execute(context, args)
-            "background_phone" -> LuluBackgroundPhoneSession.execute(context, characterId, requestId, args)
+            "background_phone" -> {
+                // No wireless-debugging pairing? Use the owner's VISIBLE main
+                // screen only, never pretend that display 0 is an isolated
+                // virtual screen. Same ToolRouter/role/receipt chain.
+                val useMainScreen = LuluForegroundPhoneSession.activeFor(characterId) ||
+                    args.optString("mode") == "foreground_accessibility" ||
+                    !LuluWirelessDebugging.hasPriorPairing(context) ||
+                    android.os.Build.VERSION.SDK_INT < 34
+                if (useMainScreen) LuluForegroundPhoneSession.execute(
+                    context, characterId, requestId, args)
+                else LuluBackgroundPhoneSession.execute(
+                    context, characterId, requestId, args)
+            }
             "read_screen" -> {
                 val value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { LuluAccessibilityService.observe() }
                 check(value.connected) { "尚未开启屏幕感知与控制权限" }
