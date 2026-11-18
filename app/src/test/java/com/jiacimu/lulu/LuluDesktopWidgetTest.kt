@@ -96,12 +96,19 @@ class LuluDesktopWidgetTest {
             minOf(700f, 8 * luluDesktopFullCellHeight(360f, 700f, 8)), 0.01f)
     }
 
-    @Test fun cannotDragAWidgetOntoTheFirstDashboardOrOverASecondWidget() {
-        val slots = List<String?>(32) { null }
-        val first = luluPlaceWidget(LuluWidgetKind.NOTE, 1, emptyList(), slots)!!
-        val second = luluPlaceWidget(LuluWidgetKind.NOTE, 1, listOf(first), slots)!!
-        assertFalse(luluWidgetFits(first.copy(page = 0), listOf(first, second), slots))
-        assertFalse(luluWidgetFits(first.copy(col = second.col, row = second.row),
-            listOf(first, second), slots))
+    @Test fun homeChatAndBulletinAreMovableAndMayChangeSizeWithoutCoveringIcons() {
+        val slots = MutableList<String?>(64) { null }
+        for (row in 4..7) for (col in 0..3)
+            slots[desktopSlotIndex(0, row, col)] = "app-$row-$col"
+        val chat = LuluDesktopWidget("home-chat", LuluWidgetKind.CHAT, 0, 0, 0)
+        val bulletin = LuluDesktopWidget("home-bulletin", LuluWidgetKind.BULLETIN, 0, 0, 2)
+        assertTrue(luluWidgetFits(chat, listOf(bulletin), slots))
+        assertTrue(luluWidgetFits(bulletin, listOf(chat), slots))
+        assertFalse(luluWidgetFits(chat.copy(row = 2), listOf(chat, bulletin), slots))
+        assertFalse(luluWidgetFits(chat.copy(row = 4), listOf(chat, bulletin), slots))
+        assertTrue(luluWidgetFits(chat.copy(page = 1, row = 6, columns = 2, rows = 2),
+            listOf(chat, bulletin), slots))
+        assertFalse(luluWidgetFits(bulletin.copy(page = 0, row = 0),
+            listOf(chat, bulletin), slots))
     }
 }
