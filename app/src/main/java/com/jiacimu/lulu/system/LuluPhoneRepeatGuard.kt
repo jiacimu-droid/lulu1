@@ -44,6 +44,12 @@ internal object LuluPhoneRepeatGuard {
         "submit" -> "enter"
         "back" -> "back"
         "search" -> args["text"].orEmpty().trim()
+        // A Unicode paste may already have landed even when HyperOS hides
+        // the text field from accessibility/OCR. Repeating the same paste
+        // would append a duplicate draft rather than recover the first one.
+        // Changing the field or the draft is a distinct model decision.
+        "type" -> listOf(args["text"].orEmpty(), args["inputX"].orEmpty(),
+            args["inputY"].orEmpty(), args["editorRef"].orEmpty()).joinToString("|")
         "launch", "adopt_app" -> args["packageName"].orEmpty().trim().ifEmpty { args["appName"].orEmpty().trim() }
         else -> ""
     }
@@ -51,7 +57,7 @@ internal object LuluPhoneRepeatGuard {
     fun shouldBlock(last: Attempt?, action: String, target: String): Boolean {
         if (target.isBlank() || last == null || last.action != action || last.target != target) return false
         if (last.effect == "known_rejection") return action == "search" || action == "launch"
-        return action in setOf("tap", "long_press", "tap_element", "swipe", "back", "submit", "search") &&
+        return action in setOf("tap", "long_press", "tap_element", "swipe", "back", "submit", "search", "type") &&
             last.accepted && last.effect in setOf("tree_unchanged", "unknown")
     }
 }
