@@ -50,12 +50,17 @@ class LuluScreenAwarenessTest {
         assertTrue(unknown.contains("并非隐私规则禁止"))
         assertNull(LuluScreenAwareness.screenWindowBlockReason(context, "com.jiacimu.lulu"))
         assertNull(LuluScreenAwareness.screenWindowBlockReason(context, "com.tencent.mm"))
-        assertTrue(LuluScreenAwareness.screenWindowBlockReason(context,
-            "com.android.permissioncontroller")!!.contains("隐私规则排除"))
+        // A built-in system-operation protection is NOT a user screen exclusion.
+        assertNull(LuluScreenAwareness.screenWindowBlockReason(context,
+            "com.android.permissioncontroller"))
+        assertNull(LuluScreenAwareness.screenWindowBlockReason(context, "com.android.settings"))
+        assertNull(LuluScreenAwareness.screenWindowBlockReason(context, "com.example.bankapp"))
+        assertTrue(LuluScreenAwareness.isExcluded(context, "com.android.permissioncontroller"))
         LuluScreenAwareness.preferences(context).edit()
             .putString(LuluScreenAwareness.EXCLUDED, "com.example.privateapp").commit()
         assertTrue(LuluScreenAwareness.screenWindowBlockReason(context,
-            "com.example.privateapp")!!.contains("隐私规则排除"))
+            "com.example.privateapp")!!.contains("明确排除"))
+        assertNull(LuluScreenAwareness.screenWindowBlockReason(context, "com.jiacimu.lulu"))
     }
 
     @Test fun existingCharacterPhoneGrantAllowsOneShotVisionWithoutSecondConsent() {
