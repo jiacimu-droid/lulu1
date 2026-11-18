@@ -34,6 +34,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.graphics.vector.ImageVector
 import com.jiacimu.lulu.data.LuluCssSheet
 import com.jiacimu.lulu.data.LuluCssStore
 import com.jiacimu.lulu.design.LocalLuluCssSheet
@@ -589,43 +592,100 @@ internal fun LuluDesktopWidgetCanvas(
     }
 }
 
+/** Styled in-app sheet shared by widget picker, settings and todo details. */
 @Composable
-internal fun LuluDesktopWidgetPicker(onAdd: (LuluWidgetKind) -> Unit, onClose: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onClose,
-        title = { Text("添加小组件") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                Text("自由摆放到桌面空位，长按组件可拖动位置。",
-                    style = MaterialTheme.typography.bodySmall)
-                LuluWidgetKind.entries.forEach { kind ->
-                    Surface(
-                        shape = RoundedCornerShape(15.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        modifier = Modifier.fillMaxWidth().clickable { onAdd(kind) },
-                    ) {
-                        Row(Modifier.padding(13.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                when (kind) {
-                                    LuluWidgetKind.HOROSCOPE -> Icons.Outlined.AutoAwesome
-                                    LuluWidgetKind.NOTE -> Icons.Outlined.StickyNote2
-                                    LuluWidgetKind.COUNTDOWN -> Icons.Outlined.Event
-                                    LuluWidgetKind.PLANNER -> Icons.Outlined.Checklist
-                                }, contentDescription = null,
-                            )
-                            Spacer(Modifier.width(12.dp))
-                            Column {
-                                Text(kind.title, fontWeight = FontWeight.SemiBold)
-                                Text(kind.columns.toString() + "×" + kind.rows.toString() + " 格",
-                                    style = MaterialTheme.typography.labelSmall)
-                            }
-                        }
+private fun LuluWidgetSheet(
+    title: String,
+    subtitle: String,
+    graphic: ImageVector,
+    onClose: () -> Unit,
+    heightFraction: Float,
+    actions: @Composable RowScope.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Dialog(onDismissRequest = onClose,
+        properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(0.92f).fillMaxHeight(heightFraction),
+            shape = RoundedCornerShape(26.dp),
+            color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.22f)),
+            shadowElevation = 9.dp,
+        ) {
+            Column(Modifier.fillMaxSize()) {
+                Row(
+                    Modifier.fillMaxWidth().padding(start = 20.dp, end = 12.dp, top = 16.dp, bottom = 13.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Surface(shape = RoundedCornerShape(13.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer) {
+                        Icon(graphic, null, tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(10.dp).size(22.dp))
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(title, color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+                        Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 11.sp, lineHeight = 15.sp)
+                    }
+                    IconButton(onClick = onClose) {
+                        Icon(Icons.Outlined.Close, "关闭", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
+                Column(
+                    Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())
+                        .padding(horizontal = 20.dp, vertical = 14.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    content = content,
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.End),
+                    verticalAlignment = Alignment.CenterVertically,
+                    content = actions,
+                )
             }
-        },
-        confirmButton = { TextButton(onClick = onClose) { Text("完成") } },
-    )
+        }
+    }
+}
+
+@Composable
+internal fun LuluDesktopWidgetPicker(onAdd: (LuluWidgetKind) -> Unit, onClose: () -> Unit) {
+    LuluWidgetSheet(
+        title = "添加小组件",
+        subtitle = "挑选一张小卡，放进桌面剩余的空格",
+        graphic = Icons.Outlined.Widgets, onClose = onClose, heightFraction = 0.72f,
+        actions = { TextButton(onClick = onClose) { Text("完成") } },
+    ) {
+        LuluWidgetKind.entries.forEach { kind ->
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+                modifier = Modifier.fillMaxWidth().clickable { onAdd(kind) },
+            ) {
+                Row(Modifier.padding(horizontal = 14.dp, vertical = 15.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Icon(when (kind) {
+                        LuluWidgetKind.HOROSCOPE -> Icons.Outlined.AutoAwesome
+                        LuluWidgetKind.NOTE -> Icons.Outlined.StickyNote2
+                        LuluWidgetKind.COUNTDOWN -> Icons.Outlined.Event
+                        LuluWidgetKind.PLANNER -> Icons.Outlined.Checklist
+                    }, null, tint = MaterialTheme.colorScheme.primary)
+                    Spacer(Modifier.width(14.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(kind.title, fontWeight = FontWeight.SemiBold)
+                        Text("${kind.columns}×${kind.rows} · 支持调整尺寸",
+                            fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Icon(Icons.Outlined.Add, null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -655,14 +715,22 @@ internal fun LuluDesktopWidgetEditor(
                 .onFailure { importError = it.message ?: "导入图片失败" }
         }
     }
-    AlertDialog(
-        onDismissRequest = onClose,
-        title = { Text("装修 · " + initial.kind.title) },
-        text = {
-            Column(
-                Modifier.fillMaxWidth().heightIn(max = 470.dp).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
+    LuluWidgetSheet(
+        title = initial.kind.title,
+        subtitle = "装修卡片 · 内容、尺寸与角色",
+        graphic = Icons.Outlined.Tune, onClose = onClose, heightFraction = 0.87f,
+        actions = {
+            OutlinedButton(onClick = onClose) { Text("取消") }
+            Button(onClick = {
+                if (initial.kind != LuluWidgetKind.COUNTDOWN ||
+                    draft.targetDate.isBlank() ||
+                    runCatching { LocalDate.parse(draft.targetDate) }.isSuccess) {
+                    if (!onSave(draft)) layoutError =
+                        "目标尺寸与其他图标或组件重叠，请改小尺寸或先移动组件。"
+                }
+            }) { Text("保存") }
+        },
+    ) {
                 Text("尺寸", fontWeight = FontWeight.Medium)
                 Row(Modifier.horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -793,20 +861,12 @@ internal fun LuluDesktopWidgetEditor(
                 }
                 Text("高级布局可在「美化 → CSS」里使用 #Home .widget-" +
                     initial.kind.code + " 调整。", style = MaterialTheme.typography.bodySmall)
-                TextButton(onClick = onDelete) { Text("移除这个组件", color = MaterialTheme.colorScheme.error) }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                if (initial.kind != LuluWidgetKind.COUNTDOWN ||
-                    draft.targetDate.isBlank() ||
-                    runCatching { LocalDate.parse(draft.targetDate) }.isSuccess) {
-                    if (!onSave(draft)) layoutError = "目标尺寸与其他图标或组件重叠，请改小尺寸或先移动组件。"
-                }
-            }) { Text("保存") }
-        },
-        dismissButton = { TextButton(onClick = onClose) { Text("取消") } },
-    )
+                TextButton(onClick = onDelete) {
+            Icon(Icons.Outlined.DeleteOutline, null)
+            Spacer(Modifier.width(6.dp))
+            Text("移除这个组件", color = MaterialTheme.colorScheme.error)
+        }
+    }
 }
 
 
@@ -818,14 +878,15 @@ internal fun LuluDesktopPlannerDialog(
     onOpenSelfPreface: () -> Unit,
     onClose: () -> Unit,
 ) {
-    AlertDialog(
-        onDismissRequest = onClose,
-        title = { Text("今日计划 · " + tasks.size + " 项待办") },
-        text = {
-            Column(
-                Modifier.fillMaxWidth().heightIn(max = 430.dp).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(5.dp),
-            ) {
+    LuluWidgetSheet(
+        title = "今日计划",
+        subtitle = "今天还有 ${tasks.size} 项待办",
+        graphic = Icons.Outlined.Checklist, onClose = onClose, heightFraction = 0.75f,
+        actions = {
+            TextButton(onClick = onClose) { Text("关闭") }
+            Button(onClick = onOpenSelfPreface) { Text("打开自序") }
+        },
+    ) {
                 if (tasks.isEmpty()) {
                     Text("今天没有待办啦，可以在自序添加下一项。",
                         style = MaterialTheme.typography.bodyMedium)
@@ -852,11 +913,5 @@ internal fun LuluDesktopPlannerDialog(
                 }
                 Text("勾选后立即写入「自序·所行」的真实完成记录；非学习或睡眠行为的独立证明。",
                     style = MaterialTheme.typography.labelSmall)
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onOpenSelfPreface) { Text("打开自序") }
-        },
-        dismissButton = { TextButton(onClick = onClose) { Text("关闭") } },
-    )
+    }
 }
