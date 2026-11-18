@@ -277,13 +277,11 @@ internal fun MigrationHomeV2(
                             val edgePx = 32.dp.toPx()
                             val iconHeightPx = 86.dp.toPx()
 
-                            fun gridTop(page: Int): Float =
-                                if (page == 0) homeGridTopInWindow - viewportTopInWindow else 0f
+                            fun gridTop(page: Int): Float = 0f
                             fun gridHeight(page: Int): Float =
-                                if (page == 0) homeGridHeightPx else
-                                    DESKTOP_ROWS.toFloat() * luluDesktopFullCellHeight(
-                                        size.width.toFloat(), size.height.toFloat(), DESKTOP_ROWS,
-                                    )
+                                DESKTOP_ROWS.toFloat() * luluDesktopFullCellHeight(
+                                    size.width.toFloat(), size.height.toFloat(), DESKTOP_ROWS,
+                                )
                             fun slotAt(position: Offset, page: Int): Int? {
                                 val top = gridTop(page)
                                 val height = gridHeight(page)
@@ -409,140 +407,59 @@ internal fun MigrationHomeV2(
                         reverseLayout = false,
                         userScrollEnabled = draggingSource == null && draggingWidgetId == null,
                     ) { page ->
-                        if (page == 0) {
-                            Column(Modifier.fillMaxSize()) {
-            Spacer(Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth().pointerInput(Unit) {
-                    detectTapGestures(onLongPress = { showWidgetPicker = true })
-                },
-                verticalAlignment = Alignment.Top,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        personalizedGreeting,
-                        color = DesktopInk,
-                        fontSize = if (journal) 28.sp else 31.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        letterSpacing = (-0.5).sp,
-                    )
-                    Spacer(Modifier.height(3.dp))
-                    Text(dateText, color = DesktopMuted, fontSize = 11.sp, letterSpacing = 0.8.sp)
-                    if (journal) Text("✦ A LITTLE PAGE OF TODAY", color = DesktopAccent,
-                        fontSize = 9.sp, fontWeight = FontWeight.SemiBold, letterSpacing = .6.sp)
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Surface(Modifier.size(5.dp), CircleShape, DesktopAccent) {}
-                        Spacer(Modifier.width(7.dp))
-                        Text(if (journal) "HAND MADE" else "DAY MODE",
-                            color = DesktopMuted, fontSize = 9.sp, letterSpacing = 1.5.sp)
-                        if (journal) JournalPressedFlower(Modifier.size(30.dp))
-                        IconButton(
-                            onClick = { showWidgetPicker = true },
-                            modifier = Modifier.size(38.dp),
-                        ) {
-                            Icon(Icons.Outlined.AddCircleOutline, "添加桌面小组件",
-                                tint = DesktopInk, modifier = Modifier.size(23.dp))
-                        }
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(12.dp))
-            DesktopCompanionCard(
-                displayName = recentDisplayName,
-                avatarFallback = recentFallback,
-                avatarUri = recentAvatarUri,
-                isGroup = recentGroup != null,
-                recentMessage = shortcutConversation?.lastMessage
-                    ?.ifBlank {
-                        if (recentGroup != null) "点这里回到群聊。" else "点这里去找${currentCharacter?.displayName.orEmpty()}。"
-                    }
-                    ?: "从这里开始，创建属于你的角色。",
-                onClick = { shortcutConversation?.let { onOpenConversation(it.id) } ?: onOpen(MigrationRoute.Chat) },
-            )
-
-            Spacer(Modifier.height(10.dp))
-            if (journal) {
-                Box {
-                    DesktopWorldBulletinCard()
-                    JournalWashiTape(Modifier.align(Alignment.TopCenter).offset(y = (-5).dp)
-                        .width(62.dp).height(14.dp))
-                }
-            } else {
-                DesktopWorldBulletinCard()
-            }
-
-            Spacer(Modifier.height(14.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Surface(Modifier.size(5.dp), CircleShape, DesktopAccent) {}
-                Spacer(Modifier.width(9.dp))
-                Surface(Modifier.weight(1f).height(1.dp), color = DesktopLine) {}
-                Spacer(Modifier.width(9.dp))
-                Text(
-                    if (journal) "✿  我的拼贴收藏  /  APPS" else "APPS",
-                    color = DesktopMuted,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Medium,
-                    letterSpacing = 1.6.sp,
-                )
-            }
-
-            Spacer(Modifier.height(9.dp))
-
-                                Box(
-                                    Modifier.fillMaxWidth().weight(1f)
-                                        .onGloballyPositioned {
-                                            homeGridTopInWindow = it.positionInWindow().y
-                                            homeGridHeightPx = it.size.height.toFloat()
-                                        },
-                                ) {
-                                    DesktopLauncherGrid(
-                                        slots = slots.take(DESKTOP_SLOT_COUNT),
-                                        modifier = Modifier.fillMaxSize(),
-                                        draggedLauncherId = draggingSource?.let(slots::get),
-                                        onOpen = onOpen,
-                                    )
-                                }
-                            }
-                        } else {
-                            Box(Modifier.fillMaxSize()) {
-                                LuluDesktopWidgetCanvas(
-                                    page = page, widgets = widgets,
-                                    launcherSlots = slots,
-                                    today = today,
-                                    characterNames = widgetCharacterNames,
-                                    conversationTexts = widgetConversationTexts,
-                                    roleReadings = dailyReadings,
-                                    roleNotes = roleNotes,
-                                    plannerTasks = widgetTodayTasks,
-                                    onCompleteTask = onWidgetTodoCheck,
-                                    modifier = Modifier.fillMaxSize(),
-                                    onOpenWidget = { widget ->
-                                        when (widget.kind) {
-                                            LuluWidgetKind.HOROSCOPE -> Unit
-                                            LuluWidgetKind.PLANNER -> showingWidgetPlanner = true
-                                            LuluWidgetKind.NOTE, LuluWidgetKind.COUNTDOWN ->
-                                                editingWidgetId = widget.id
-                                        }
-                                    },
-                                    onEditWidget = { editingWidgetId = it.id },
-                                    onBlankLongPress = { showWidgetPicker = true },
-                                )
-                                // Draw the launchers over the widget canvas: transparent
-                                // background long-press handling must not steal icon taps.
-                                DesktopLauncherGrid(
-                                    slots = slots.drop(desktopPageStart(page)).take(DESKTOP_SLOT_COUNT),
-                                    modifier = Modifier.fillMaxSize(),
-                                    draggedLauncherId = draggingSource?.let(slots::get),
-                                    onOpen = onOpen,
-                                    fullPageGrid = true,
-                                )
-                            }
+                        Box(Modifier.fillMaxSize()) {
+                            LuluDesktopWidgetCanvas(
+                                page = page, widgets = widgets,
+                                launcherSlots = slots, today = today,
+                                characterNames = widgetCharacterNames,
+                                conversationTexts = widgetConversationTexts,
+                                roleReadings = dailyReadings, roleNotes = roleNotes,
+                                plannerTasks = widgetTodayTasks,
+                                onCompleteTask = onWidgetTodoCheck,
+                                modifier = Modifier.fillMaxSize(),
+                                onOpenWidget = { widget ->
+                                    when (widget.kind) {
+                                        LuluWidgetKind.CHAT, LuluWidgetKind.BULLETIN,
+                                        LuluWidgetKind.HOROSCOPE -> Unit
+                                        LuluWidgetKind.PLANNER -> showingWidgetPlanner = true
+                                        LuluWidgetKind.NOTE, LuluWidgetKind.COUNTDOWN ->
+                                            editingWidgetId = widget.id
+                                    }
+                                },
+                                specialContent = { widget, foreground ->
+                                    when (widget.kind) {
+                                        LuluWidgetKind.CHAT -> DesktopCompanionCard(
+                                            displayName = recentDisplayName,
+                                            avatarFallback = recentFallback,
+                                            avatarUri = recentAvatarUri,
+                                            isGroup = recentGroup != null,
+                                            recentMessage = shortcutConversation?.lastMessage
+                                                ?.ifBlank { "点这里回到聊天。" }
+                                                ?: personalizedGreeting + " · 从这里开始聊天",
+                                            onClick = {
+                                                shortcutConversation?.let { onOpenConversation(it.id) }
+                                                    ?: onOpen(MigrationRoute.Chat)
+                                            },
+                                            modifier = Modifier.fillMaxSize(),
+                                            embedded = true, foreground = foreground,
+                                        )
+                                        LuluWidgetKind.BULLETIN -> DesktopWorldBulletinCard(
+                                            modifier = Modifier.fillMaxSize(), embedded = true,
+                                            foreground = foreground,
+                                        )
+                                        else -> Unit
+                                    }
+                                },
+                                onEditWidget = { editingWidgetId = it.id },
+                                onBlankLongPress = { showWidgetPicker = true },
+                            )
+                            DesktopLauncherGrid(
+                                slots = slots.drop(desktopPageStart(page)).take(DESKTOP_SLOT_COUNT),
+                                modifier = Modifier.fillMaxSize(),
+                                draggedLauncherId = draggingSource?.let(slots::get),
+                                onOpen = onOpen,
+                                fullPageGrid = true,
+                            )
                         }
                     }
                     draggingSource?.let { source ->
@@ -551,9 +468,7 @@ internal fun MigrationHomeV2(
                         }
                     }?.let { active ->
                         val activePage = pagerState.currentPage
-                        val cellHeight = if (activePage == 0) {
-                            with(density) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
-                        } else minOf(
+                        val cellHeight = minOf(
                             desktopViewportHeight / DESKTOP_ROWS,
                             cellWidth * LULU_DESKTOP_CELL_ASPECT,
                         )
@@ -575,9 +490,7 @@ internal fun MigrationHomeV2(
                     draggingWidgetId?.let { id ->
                         widgets.firstOrNull { it.id == id }?.let { w ->
                             val cellWidth = desktopViewportWidth / DESKTOP_COLUMNS
-                            val cellHeight = if (pagerState.currentPage == 0) {
-                                with(LocalDensity.current) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
-                            } else minOf(
+                            val cellHeight = minOf(
                                 desktopViewportHeight / DESKTOP_ROWS,
                                 cellWidth * LULU_DESKTOP_CELL_ASPECT,
                             )
@@ -695,20 +608,23 @@ private fun DesktopCompanionCard(
     isGroup: Boolean,
     recentMessage: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    embedded: Boolean = false,
+    foreground: Color? = null,
 ) {
     val journal = LocalLuluAppearance.current.isJournal()
     val appearance = LocalLuluAppearance.current
     Surface(
-        modifier = Modifier.fillMaxWidth().luluCssElement("companion"),
-        color = MaterialTheme.colorScheme.surface,
+        modifier = modifier.fillMaxSize().luluCssElement("companion"),
+        color = if (embedded) Color.Transparent else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
-        border = BorderStroke(1.dp, DesktopLine),
-        shadowElevation = 2.dp,
+        border = if (embedded) null else BorderStroke(1.dp, DesktopLine),
+        shadowElevation = if (embedded) 0.dp else 2.dp,
         onClick = onClick,
     ) {
         Box {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxSize()
                 .then(if (journal) Modifier.journalPaper(appearance) else Modifier)
                 .padding(horizontal = 17.dp, vertical = 15.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -717,11 +633,11 @@ private fun DesktopCompanionCard(
             Spacer(Modifier.width(15.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(displayName, color = DesktopInk, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+                    Text(displayName, color = foreground ?: DesktopInk, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         if (isGroup) "GROUP" else "ONLINE",
-                        color = DesktopMuted,
+                        color = foreground?.copy(alpha = .75f) ?: DesktopMuted,
                         fontSize = 8.sp,
                         letterSpacing = 1.1.sp,
                     )
@@ -729,7 +645,7 @@ private fun DesktopCompanionCard(
                 Spacer(Modifier.height(3.dp))
                 Text(
                     "“${recentMessage.trim()}”",
-                    color = DesktopMuted,
+                    color = foreground?.copy(alpha = .75f) ?: DesktopMuted,
                     fontSize = 12.sp,
                     fontStyle = FontStyle.Italic,
                     maxLines = 1,
