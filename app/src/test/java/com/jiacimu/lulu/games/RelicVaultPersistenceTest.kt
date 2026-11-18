@@ -13,6 +13,28 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest=Config.NONE, sdk=[28])
 class RelicVaultPersistenceTest {
+    @Test fun legacyDuplicateMuseumIdsSellExactlyOnePhysicalRelic() {
+        val context=RuntimeEnvironment.getApplication()
+        val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
+        prefs.edit().clear().commit()
+        val first=RelicLoot("legacy-duplicate","月银胸针",RelicTier.RARE,220)
+        val second=RelicLoot("legacy-duplicate","幽蓝宝石",RelicTier.RARE,410)
+        val original=RelicSnapshot(vault=listOf(first,second),coins=35,
+            discovered=setOf(first.name,second.name),featuredLootId=first.id)
+        assertTrue(prefs.edit().putString("ledger",original.json().toString()).commit())
+        val sold=RelicEscapeLedger(context).sellLoot(first.id)
+        assertEquals(listOf(second),sold.vault)
+        assertEquals(255,sold.coins)
+        assertNull(sold.featuredLootId)
+        assertEquals(setOf(first.name,second.name),sold.discovered)
+        assertEquals(sold,RelicEscapeLedger(context).read())
+        val secondSale=RelicEscapeLedger(context).sellLoot(second.id)
+        assertTrue(secondSale.vault.isEmpty())
+        assertEquals(665,secondSale.coins)
+        assertEquals(secondSale,RelicEscapeLedger(context).read())
+        assertEquals(secondSale,RelicEscapeLedger(context).sellLoot(second.id))
+    }
+
     @Test fun realOwnedExhibitSurvivesReentryAndSellingClearsOnlyItsPedestal() {
         val context=RuntimeEnvironment.getApplication()
         val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
