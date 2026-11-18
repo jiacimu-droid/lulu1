@@ -740,7 +740,7 @@ internal fun LuluDesktopWidgetEditor(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = draft.dailyReadingEnabled,
                             onCheckedChange = { draft = draft.copy(dailyReadingEnabled = it) })
-                        Text("每天早上 8:00 自动用绑定角色的聊天模型解读（后台可能延迟）",
+                        Text("每天凌晨 00:00 自动用绑定角色的聊天模型解读（后台可能延迟）",
                             style = MaterialTheme.typography.bodySmall)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -903,7 +903,7 @@ internal fun LuluDesktopHoroscopeDialog(
                         Spacer(Modifier.width(10.dp))
                         Text("正在请求角色今天的解读…")
                     }
-                    else -> Text(generationError ?: "今天的解读将在早上 8:00 自动生成；如果系统延迟，会在恢复运行后补齐。也可以点立即解读。",
+                    else -> Text(generationError ?: "当天解读从凌晨 00:00 开始自动生成；若系统延迟，会在恢复运行后补齐。也可以点立即解读。",
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
