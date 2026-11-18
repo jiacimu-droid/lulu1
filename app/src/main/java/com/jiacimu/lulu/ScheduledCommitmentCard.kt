@@ -59,7 +59,9 @@ import java.time.format.DateTimeFormatter
     }
 }
 
-@Composable internal fun ScheduledCommitmentCard(task: CommitmentTask) {
+@Composable internal fun ScheduledCommitmentCard(
+    task: CommitmentTask, displayDueAt: Instant? = task.dueAt,
+) {
     var expanded by remember(task.id) { mutableStateOf(false) }
     var menu by remember(task.id) { mutableStateOf(false) }
     var confirm by remember(task.id) { mutableStateOf<String?>(null) }
@@ -72,7 +74,11 @@ import java.time.format.DateTimeFormatter
             it.commitmentTaskId == task.id && it.status in setOf("planned", "due")
         }
     }
-    val label = when (task.status) {
+    // A recurring calendar projection is not evidence of a newly scheduled
+    // alarm, nor is yesterday's "waiting feedback" today's outcome.
+    val projectedDaily = task.repeat == "daily" && displayDueAt != null &&
+        displayDueAt != task.dueAt && displayDueAt != task.dailyNextDueAt
+    val label = if (projectedDaily) "每日约定 · 执行待核实" else when (task.status) {
         CommitmentTaskStatus.NeedsClarification -> "待明确"
         CommitmentTaskStatus.Scheduled -> "已安排"
         CommitmentTaskStatus.Running -> "执行中"
@@ -85,7 +91,7 @@ import java.time.format.DateTimeFormatter
     val done = task.status in setOf(CommitmentTaskStatus.Completed, CommitmentTaskStatus.Cancelled)
     val problem = task.status in setOf(CommitmentTaskStatus.Blocked, CommitmentTaskStatus.Expired)
     val nextDaily = task.dailyNextDueAt?.atZone(ZoneId.systemDefault())
-    val time = task.dueAt?.atZone(ZoneId.systemDefault())
+    val time = displayDueAt?.atZone(ZoneId.systemDefault())
     val method = when (task.deliveryAction) {
         "start_call" -> "角色来电"
         "alarm_only" -> "本机铃声"
