@@ -44,11 +44,15 @@ internal class GameLiveSession(
         private set
     var lastCompanionLine by mutableStateOf("")
         private set
+    var companionSpeaking by mutableStateOf(false)
+        private set
+    var playbackError by mutableStateOf("")
     var onOwnerMessage: (String, Boolean) -> Unit = { _, _ -> }
 
     fun selectVoice(enabled: Boolean) {
         if (participantIds.isEmpty() && !allowSoloHost) return
         voiceMode = enabled
+        playbackError = ""
         voice.setEnabled(enabled)
         if (enabled && !mic.active) toggleMic()
         if (!enabled) mic.stop()
@@ -86,7 +90,10 @@ internal class GameLiveSession(
     }
 
     fun connectAudio() {
-        voice.setSpeakingListener { speaking -> mic.setCompanionSpeaking(speaking) }
+        voice.setSpeakingListener { speaking ->
+            companionSpeaking = speaking
+            mic.setCompanionSpeaking(speaking)
+        }
     }
 }
 
@@ -104,7 +111,7 @@ internal fun rememberGameLiveSession(
     val (mic, toggleMic) = rememberIslandGameOpenMic { utterance ->
         holder[0]?.receiveOwner(utterance, fromSpeech = true)
     }
-    val voice = rememberIslandCompanionVoice()
+    val voice = rememberIslandCompanionVoice { holder[0]?.playbackError = it }
     val session = remember(gameId, runId, participantIds, allowSoloHost, mic, voice) {
         GameLiveSession(context, gameId, runId, participantIds, allowSoloHost, mic, voice, toggleMic)
     }
@@ -147,7 +154,7 @@ internal fun GameTalkBar(
                 Text("你：${session.mic.partial}", color = Color(0xFFB8CFE1))
             }
             Button(onClick = {
-                if (session.mic.active) session.mic.stop() else session.selectVoice(true)
+                if (session.mic.active) session.mic.mute() else session.selectVoice(true)
             }) { Text(if (session.mic.active) "关闭麦克风" else "重新开启麦克风") }
         } else if (showComposer) {
             Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {

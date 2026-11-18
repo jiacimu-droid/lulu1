@@ -331,16 +331,21 @@ fun LuluGamesApp(
                     )
                 }
             } else if (immersivePlay) {
+                val soupTable = route == GameRoute.TurtleSoup
+                val chromeInk = if (soupTable) SoupTableColors.text else Color.White
                 Row(
                     modifier = Modifier.fillMaxWidth().height(54.dp)
-                        .background(Brush.horizontalGradient(listOf(Color(0xF00A1521), Color(0xC0182635))))
+                        .background(Brush.horizontalGradient(
+                            if (soupTable) listOf(SoupTableColors.background, SoupTableColors.panel)
+                            else listOf(Color(0xF00A1521), Color(0xC0182635))
+                        ))
                         .padding(horizontal = 5.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(onClick = ::stepBack) {
-                        Icon(Icons.Outlined.ArrowBack, "返回游戏馆", tint = Color.White)
+                        Icon(Icons.Outlined.ArrowBack, "返回游戏馆", tint = chromeInk)
                     }
-                    Text(route.title(), color = Color.White, fontWeight = FontWeight.Bold,
+                    Text(route.title(), color = chromeInk, fontWeight = FontWeight.Bold,
                         fontSize = 15.sp, modifier = Modifier.weight(1f), maxLines = 1)
                     if (landscapeSupported) {
                         TextButton(onClick = { landscape = !landscape }) {
@@ -349,14 +354,16 @@ fun LuluGamesApp(
                                 fontWeight = FontWeight.Bold)
                         }
                     }
-                    GameAmbientAudioButton(enabled = bgmEnabled, tint = Color.White)
+                    GameAmbientAudioButton(enabled = bgmEnabled, tint = chromeInk)
                     ModelArchiveIconButton(
                         usage = ModelUsage.Game, title = "游戏模型",
                         subtitle = "仅影响游戏内的角色生成，不影响其他对话模型。",
                         icon = Icons.Outlined.Memory, contentDescription = "选择游戏模型",
-                        tint = Color.White, accent = Color.White,
-                        background = Color(0xFF111620), ink = Color.White,
-                        muted = Color(0xFFB8C2D3), border = Color.White.copy(alpha = .18f),
+                        tint = chromeInk, accent = chromeInk,
+                        background = if (soupTable) SoupTableColors.panel else Color(0xFF111620),
+                        ink = chromeInk,
+                        muted = if (soupTable) SoupTableColors.muted else Color(0xFFB8C2D3),
+                        border = if (soupTable) SoupTableColors.border else Color.White.copy(alpha = .18f),
                     )
                 }
             }

@@ -48,6 +48,9 @@ internal class IslandGameOpenMic(
     var partial by mutableStateOf("")
         private set
 
+    var recoverablePartial by mutableStateOf(false)
+        private set
+
     private var disposed = false
     private var playerSpeaking = false
     private var input: ProviderCallInput? = null
@@ -56,7 +59,7 @@ internal class IslandGameOpenMic(
     // Cover audio already captured but not yet transcribed: a delayed cloud
     // partial must not let the world tick while the owner is still talking.
     val hasUncommittedSpeech: Boolean
-        get() = active && (partial.isNotBlank() || input?.hasPendingUtterance == true)
+        get() = input?.hasPendingUtterance == true || (partial.isNotBlank() && !recoverablePartial)
 
     private var onUtterance: (String) -> Unit = {}
 
@@ -65,33 +68,46 @@ internal class IslandGameOpenMic(
 
     fun start() {
         if (disposed || active) return
+        input?.let { session ->
+            active = true
+            recoverablePartial = false
+            status = "连麦中 · 直接说话"
+            if (!playerSpeaking) session.resumeCapture()
+            return
+        }
         CallVoiceConfiguration.sttPreflight(context)?.let { status = it; return }
         val prefs = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
         val engine = CallVoiceConfiguration.sttEngine(context)
         val model = CallVoiceConfiguration.elevenSttModel(prefs.getString("eleven_asr_model", null))
         val mode = CallVoiceConfiguration.elevenInputPath(engine, model)
         val sessionGeneration = ++generation
-        fun isCurrent() = active && generation == sessionGeneration
+        fun isCurrent() = generation == sessionGeneration
         val session = ProviderCallInput(
             context = context, scope = scope, sttEngine = engine,
             elevenPath = mode, elevenModel = model,
-            accept = { isCurrent() && !playerSpeaking },
-            onReady = { scope.launch { if (isCurrent()) status = "连麦中 · 直接说话" } },
+            accept = { isCurrent() && active && !playerSpeaking },
+            onReady = { scope.launch { if (isCurrent() && active) status = "连麦中 · 直接说话" } },
             onLevel = {},
-            onSpeech = { scope.launch { if (isCurrent()) status = "正在听你说话…" } },
+            onSpeech = { scope.launch { if (isCurrent() && active) status = "正在听你说话…" } },
             onCaptureFinished = {},
             onPartial = { text -> scope.launch { if (isCurrent()) partial = text } },
             onText = { text, _ ->
                 scope.launch {
                     if (isCurrent() && text.isNotBlank()) {
                         partial = ""
-                        status = "已转写，伙伴正在听"
+                        recoverablePartial = false
+                        status = if (active) "连麦中 · 直接说话" else "麦克风已关闭"
                         onUtterance(text)
                     }
                 }
             },
             onStatus = { text -> scope.launch { if (isCurrent()) status = text } },
-            onError = { text -> scope.launch { if (isCurrent()) status = text } },
+            onError = { text -> scope.launch {
+                if (isCurrent()) {
+                    status = text
+                    recoverablePartial = partial.isNotBlank()
+                }
+            } },
         )
         input = session
         active = true
@@ -109,6 +125,22 @@ internal class IslandGameOpenMic(
         }
     }
 
+    /** Explicit mute ends capture, but the provider can still deliver the final subtitle. */
+    fun mute() {
+        if (!active) return
+        val finishing = hasUncommittedSpeech
+        active = false
+        input?.pauseCapture()
+        status = if (finishing) "已静音 · 正在转写最后一句" else "麦克风已关闭"
+    }
+
+    fun sendRecoveredPartial() {
+        if (!recoverablePartial || partial.isBlank()) return
+        val text = partial
+        stop() // A late final must not send this utterance a second time.
+        onUtterance(text)
+    }
+
     fun dispose() {
         disposed = true
         stop()
@@ -117,6 +149,7 @@ internal class IslandGameOpenMic(
     fun stop() {
         ++generation
         active = false
+        recoverablePartial = false
         input?.stop()
         input = null
         partial = ""
