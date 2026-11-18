@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T09:26:17.154756+00:00",
-  "commit": "740acb1c8b73482dfaa65d4a68da5d5517d89f0d",
+  "generatedAt": "2026-11-18T09:27:00.729757+00:00",
+  "commit": "9d24a92c1c785102e85d51a106b0b45605ffd9b4",
   "branch": "main",
-  "sourceFingerprint": "8bd5938938217f0fd320585ac4e51be38226a33be24d0ec464303aaf08ca2812",
+  "sourceFingerprint": "b27070b94d5d23db2277503d791efd9ae64195419633c51e67935ac0a2593199",
   "summary": {
     "files": 1461,
-    "lines": 309236,
+    "lines": 309325,
     "symbols": 4402
   },
   "symbolIndex": {
@@ -42662,8 +42662,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 754,
-      "sha256": "92a0d1f4c8881065967acbb16dd5afc360c2ee35107a403551eb64ef936cc91e",
+      "lines": 801,
+      "sha256": "172ebcd06a204f7e1bbc71f0d64bd528351abc7492387715efddf3b43732537f",
       "symbols": [
         {
           "name": "Outcome",
@@ -51238,8 +51238,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt",
-      "lines": 161,
-      "sha256": "cf60cebf8707dd0ea858997727e66aa80156e0b30b50ce096ab0480f6031497a",
+      "lines": 203,
+      "sha256": "51000aaf7f0ce181042bca71259de0131357288ad1f70be0e6df1d8fd46a33cc",
       "symbols": [
         {
           "name": "LuluBackgroundPhoneContinuationYieldTest",
