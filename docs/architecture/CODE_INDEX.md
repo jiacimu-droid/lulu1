@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`8018bc7c0d48df2ee321ae8bed87a265c854f10f`
+- 基准提交：`62f47cb0655769071d11d65a1f8ca180b2224c20`
 - 分支：`main`
 - 已索引文件：1469
-- 已索引代码/文本行：310604
+- 已索引代码/文本行：310618
 - 已发现符号：4437
 
 | 文件 | 行数 | 符号数 |
@@ -834,7 +834,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 2318 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2392 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2404 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluForegroundPhoneSession.kt` | 346 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -878,7 +878,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextReadbackOcr.kt` | 102 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 51 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt` | 86 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt` | 88 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVisualTargetFrame.kt` | 59 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWeChatMomentsPolicy.kt` | 49 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluWirelessDebugging.kt` | 135 | 4 |
