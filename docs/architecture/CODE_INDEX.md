@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d52647a8da9ee73e33ef0a5a8a95e2d365222ee6`
+- 基准提交：`fb106d9ef62f34e573ad0a77b2c621896d7a54c8`
 - 分支：`main`
 - 已索引文件：1467
-- 已索引代码/文本行：309831
+- 已索引代码/文本行：309835
 - 已发现符号：4433
 
 | 文件 | 行数 | 符号数 |
@@ -281,7 +281,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCodec.kt` | 36 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1269 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1272 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 120 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 206 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt` | 782 | 6 |
@@ -706,7 +706,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt` | 107 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 98 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt` | 252 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt` | 253 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 288 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameMemoryDecision.kt` | 57 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 163 | 3 |
