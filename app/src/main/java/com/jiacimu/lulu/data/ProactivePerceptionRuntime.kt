@@ -3058,8 +3058,17 @@ object ProactivePerceptionRuntime {
             actionReason: String,
         ): String? {
             val includeInPrivateReport = SearchReceiptFeedback.requestsPrivateReply(actionArgs)
+            val replayed = actual.optBoolean("replayedHistoricalReceipt")
             if (includeInPrivateReport) phoneReceipts += "步骤ID=${actionRequestId.take(90)}；" +
-                "动作=${actionArgs.optString("action")}；真实回执=${actual.toString().take(1_250)}"
+                "动作=${actionArgs.optString("action")}；" +
+                (if (replayed) "恢复的历史回执（不是本次操作）=" else "本次真实回执=") +
+                actual.toString().take(1_250)
+            if (replayed) {
+                if (includeInPrivateReport) phoneUnverifiedFacts +=
+                    "本轮未重新操作手机：命中相同请求ID的历史回执，旧失败不能当作这次重试结果"
+                return "同一执行ID的旧回执被恢复；没有新操作或新画面。若主人要再试，" +
+                    "必须等待新的本人任务决定与请求ID，不能复述旧结果为刚刚失败。"
+            }
             if (includeInPrivateReport &&
                 actual.optString("status") in setOf("failed", "unverified", "denied", "waiting_user")) {
                 val why = actual.optString("error").ifBlank {
@@ -3096,11 +3105,15 @@ object ProactivePerceptionRuntime {
             phoneOutcomes += outcome
             if (includeInPrivateReport) {
                 reportablePhoneOutcomes += outcome
-                if (hasFreshUserMessage && outcome.actions == 0 && !outcome.finishedByRole) {
+                if (hasFreshUserMessage && outcome.actions == 0 &&
+                    !actual.optBoolean("taskCompleted") &&
+                    !actual.optBoolean("productLinkSent") &&
+                    !actual.optBoolean("messageAppearedInChat")) {
                     val stage = if (actual.optBoolean("targetWindowVerified"))
                         "应用已打开，尚无下一步实际动作回执"
                     else "没有取得下一步可操作页面"
-                    phoneUnverifiedFacts += stage
+                    phoneUnverifiedFacts += stage +
+                        "；角色选择结束也不等于已完成主人要求的后续搜索、输入或分享"
                 }
             }
             return "已按同一角色决定进一步执行${outcome.actions}步；" +
