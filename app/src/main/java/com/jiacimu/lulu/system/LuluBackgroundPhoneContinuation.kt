@@ -322,6 +322,9 @@ internal object LuluBackgroundPhoneContinuation {
                 characterId = characterId,
                 facts = buildString {
                     appendLine("原主人消息/行动来源：" + userText.take(1200))
+                    // The recent-step window gets trimmed on long tasks; the original
+                    // role-authored goal must never disappear after step twelve.
+                    appendLine("本人始终要完成的原目标与选择理由：" + roleReason.take(900))
                     appendLine("你自己刚才决定开展的同一项后台手机任务，不是新人物。")
                     appendLine(if (image == null) "本轮没有收到屏幕图像：只能依据实际执行回执决定下一步，绝不假称已经看过画面。" else "本轮附有真实屏幕图像；与设备回执一起判断。")
                     appendLine("已执行的步骤与真实结果：")
