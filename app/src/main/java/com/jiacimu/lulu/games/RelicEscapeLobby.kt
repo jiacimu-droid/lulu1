@@ -58,7 +58,7 @@ internal fun RelicEscapeLobby(
     onBuyBow:()->Unit,
     onUpgradeSatchel:()->Unit,
     onSellLoot:(Int,RelicLoot)->Unit,
-    onFeatureLoot:(String)->Unit,
+    onFeatureLoot:(Int,RelicLoot)->Unit,
 ) {
     val compactLobby = androidx.compose.ui.platform.LocalConfiguration.current.let {
         it.screenWidthDp > it.screenHeightDp
