@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:13:40.051361+00:00",
-  "commit": "1b6a6a09823fe05818632c3e1f2d3fc2e5b9e061",
+  "generatedAt": "2026-11-18T11:14:21.189505+00:00",
+  "commit": "49d6f82e366c4bfdbc0b2d53a4e359cb6c28009f",
   "branch": "main",
-  "sourceFingerprint": "efd965790567520f1a7393f47e52fe5dac2665a4ac7266f548af25e21aef0af0",
+  "sourceFingerprint": "ebfd31f9d73c099ccc50c8248dc1412746922b884b48d821d96538a47a3f068a",
   "summary": {
     "files": 1465,
-    "lines": 310366,
+    "lines": 310390,
     "symbols": 4422
   },
   "symbolIndex": {
@@ -20203,7 +20203,7 @@
     "GameInviteMessageParserTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt",
-        "line": 7
+        "line": 8
       }
     ],
     "GroupChatTurnPlannerTest": [
@@ -45375,12 +45375,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt",
-      "lines": 24,
-      "sha256": "8988d0da25c52a82845108e7a8c6c3d87e876c46f0cab0418e616e0f70a6bcc3",
+      "lines": 48,
+      "sha256": "a89e5de40b5250813326758f4c9ba48e4d35609e03f816f2da308820f8ebfc6c",
       "symbols": [
         {
           "name": "GameInviteMessageParserTest",
-          "line": 7
+          "line": 8
         }
       ]
     },
