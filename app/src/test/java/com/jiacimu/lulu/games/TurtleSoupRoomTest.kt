@@ -10,6 +10,57 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class TurtleSoupRoomTest {
+    @Test fun speechSurvivesAnInFlightRulingAndRoutesInOrderAfterReload() {
+        val initial = SoupRoom(started = true, companions = listOf("river"),
+            lines = listOf(SoupLine("江渡", SoupKind.QUESTION, "有人回来了吗？")))
+        val queued = initial.receiveSpeech("喂宝宝").receiveSpeech("主持人，门开了吗？")
+        val reopened = requireNotNull(SoupRoom.fromJson(queued.toJson()))
+        assertEquals(listOf(1, 2), reopened.pendingSpeech)
+        assertEquals(0, reopened.pendingQuestion)
+        assertFalse(reopened.publicContext().contains("喂宝宝"))
+        val answered = reopened.copy(lines = reopened.lines + SoupLine("主持", SoupKind.ANSWER, "是", 0))
+
+        val chat = answered.resolveSpeech(1, SoupSpeechDestination.TEAM)
+        assertEquals(SoupLine("你", SoupKind.DISCUSSION, "喂宝宝"), chat.lines[1])
+        assertEquals(1, chat.questionCount)
+        assertTrue(chat.publicContext(2).contains("主持人，门开了吗？"))
+        assertFalse(chat.publicContext(2).contains(chat.puzzle.truth))
+        val question = chat.resolveSpeech(2, SoupSpeechDestination.HOST)
+        assertEquals(SoupLine("你", SoupKind.QUESTION, "主持人，门开了吗？"), question.lines[2])
+        assertEquals(2, question.pendingQuestion)
+        assertEquals(2, question.questionCount)
+        assertTrue(question.pendingSpeech.isEmpty())
+    }
+
+    @Test fun voiceReplyAndTeammateQuestionAreSeparateActions() {
+        val turn = requireNotNull(parseSoupSpeechTurn(
+            """{"to":"team","reply":"我在。这个细节值得问。","action":"question","move":"门开着吗？"}""",
+            teammate = "江渡",
+        ))
+        assertEquals(SoupSpeechDestination.TEAM, turn.destination)
+        assertEquals("我在。这个细节值得问。", turn.reply)
+        assertEquals(SoupLine("江渡", SoupKind.QUESTION, "门开着吗？"), turn.move)
+        assertNull(parseSoupSpeechTurn("""{"to":"team","reply":"","action":"none"}""", teammate = "江渡"))
+        val routed = requireNotNull(parseSoupSpeechTurn("""{"to":"host","action":"question","move":"额外问题"}""", "江渡"))
+        assertNull(routed.move)
+        assertEquals("", routed.reply)
+    }
+
+    @Test fun drainedQuestionBudgetStillKeepsSpokenSubtitle() {
+        val lines = buildList {
+            repeat(12) { index ->
+                add(SoupLine("你", SoupKind.QUESTION, "问题" + index))
+                add(SoupLine("主持", SoupKind.ANSWER, "否", size - 1))
+            }
+        }
+        val room = SoupRoom(started = true, questionBudget = 12, lines = lines).receiveSpeech("主持人，是这里吗？")
+        val resolved = room.resolveSpeech(24, SoupSpeechDestination.HOST)
+        assertEquals("主持人，是这里吗？", resolved.lines[24].text)
+        assertEquals(SoupKind.DISCUSSION, resolved.lines[24].kind)
+        assertEquals(12, resolved.questionCount)
+        assertEquals(-1, resolved.pendingQuestion)
+    }
+
     @Test fun longRoomKeepsAllQuestionsNegativeEvidenceAndDiscussionsAcrossReload() {
         val context = RuntimeEnvironment.getApplication() as android.content.Context
         context.getSharedPreferences("lulu_turtle_soup_room_v1", 0).edit().clear().commit()
@@ -193,7 +244,8 @@ class TurtleSoupRoomTest {
         assertTrue(restored.publicContext().contains("复述"))
         val invalid = org.json.JSONObject(encoded).put("custom_truth", "").toString()
         assertNull(SoupRoom.fromJson(invalid))
-        assertEquals(SoupLibrary.cases.first().id, SoupRoom().caseId)
+        assertEquals(SoupLibrary.beginnerCase.id, SoupRoom().caseId)
+        assertEquals("简单", SoupRoom().puzzle.difficulty)
     }
 
     @Test fun newCuratedCasesHaveProgressiveHintsAndExplicitFairSolutionMilestones() {

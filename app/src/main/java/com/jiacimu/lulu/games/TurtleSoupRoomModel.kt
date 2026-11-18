@@ -103,6 +103,8 @@ internal object SoupLibrary {
             listOf("海龟汤不一定是菜。", "这张纸本来应该显示文字。", "离开不是为了逃命，只是游戏无法正常开始。"),
         ),
     ) + SoupExpansionCases.cases + SoupCuratedCases.cases
+    val beginnerCase: SoupCase get() = requireNotNull(find("closed_shop"))
+
     fun find(id: String): SoupCase? = cases.firstOrNull { it.id == id }
 }
 
@@ -120,7 +122,7 @@ internal data class SoupLine(
 
 internal data class SoupRoom(
     val id: String = UUID.randomUUID().toString(),
-    val caseId: String = SoupLibrary.cases.first().id,
+    val caseId: String = SoupLibrary.beginnerCase.id,
     val customTitle: String = "",
     val customSurface: String = "",
     val customTruth: String = "",
@@ -132,6 +134,8 @@ internal data class SoupRoom(
     val questionBudget: Int = 0,
     val revealed: Boolean = false,
     val solved: Boolean = false,
+    /** Room-line indexes of utterances awaiting a destination and a teammate's response. */
+    val pendingSpeech: List<Int> = emptyList(),
 ) {
     val puzzle: SoupCase get() = if (caseId == CUSTOM_CASE_ID) {
         require(customSurface.isNotBlank() && customTruth.isNotBlank())
@@ -160,14 +164,33 @@ internal data class SoupRoom(
             lines.indices.none { j -> lines[j].kind == SoupKind.SOLUTION_RESULT && lines[j].questionIndex == i }
     } ?: -1
 
+    fun receiveSpeech(text: String): SoupRoom = copy(
+        lines = lines + SoupLine("你", SoupKind.DISCUSSION, text),
+        pendingSpeech = pendingSpeech + lines.size,
+    )
+
+    fun resolveSpeech(index: Int, destination: SoupSpeechDestination): SoupRoom {
+        require(index == pendingSpeech.firstOrNull() && pendingQuestion < 0 && pendingSolution < 0)
+        val kind = when (destination) {
+            SoupSpeechDestination.TEAM -> SoupKind.DISCUSSION
+            SoupSpeechDestination.HOST -> if (host != SoupHost.USER && canAsk) SoupKind.QUESTION else SoupKind.DISCUSSION
+            SoupSpeechDestination.SOLUTION -> if (host != SoupHost.USER) SoupKind.SOLUTION else SoupKind.DISCUSSION
+        }
+        return copy(
+            lines = lines.toMutableList().apply { this[index] = this[index].copy(kind = kind) },
+            pendingSpeech = pendingSpeech.drop(1),
+        )
+    }
+
     /** Every event, including early discussions and negative evidence, remains in this authoritative log. */
-    fun publicContext(): String = buildString {
+    fun publicContext(speechIndex: Int? = null): String = buildString {
         append("题面：").append(puzzle.surface).append('\n')
         append("类型：").append(puzzle.category).append('\n')
         append("主持规则：只能回答是、否、部分是、无关；不得虚构已确认事实。\n")
         if (questionBudget > 0) append("限问挑战：总共").append(questionBudget).append("问；已提").append(questionCount)
             .append("问；").append(if (canAsk) "仍可提问。" else "问数用尽，只能讨论或还原真相。").append('\n')
         lines.forEachIndexed { index, line ->
+            if (index in pendingSpeech && index != speechIndex) return@forEachIndexed
             append('#').append(index + 1).append(' ')
             append(line.speaker).append(' ')
             append(when (line.kind) {
@@ -195,6 +218,7 @@ internal data class SoupRoom(
         .put("question_budget", questionBudget)
         .put("revealed", revealed)
         .put("solved", solved)
+        .put("pending_speech", JSONArray(pendingSpeech))
         .put("lines", JSONArray().apply {
             lines.forEach { line ->
                 put(JSONObject().put("speaker", line.speaker)
@@ -214,6 +238,7 @@ internal data class SoupRoom(
             ))
             val roster = raw.optJSONArray("companions") ?: JSONArray()
             val entries = raw.optJSONArray("lines") ?: JSONArray()
+            val pending = raw.optJSONArray("pending_speech") ?: JSONArray()
             SoupRoom(
                 id = raw.getString("id"),
                 caseId = caseId,
@@ -225,6 +250,12 @@ internal data class SoupRoom(
                 revealed = raw.optBoolean("revealed"),
                 solved = raw.optBoolean("solved"),
                 started = raw.optBoolean("started", entries.length() > 0),
+                pendingSpeech = (0 until pending.length()).map { pending.optInt(it, -1) }
+                    .filter { index ->
+                        index in 0 until entries.length() && entries.getJSONObject(index).let {
+                            it.optString("speaker") == "你" && it.optString("kind") == SoupKind.DISCUSSION.name
+                        }
+                    }.distinct().sorted(),
                 questionBudget = raw.optInt("question_budget", 0).takeIf { it == 12 } ?: 0,
                 lines = (0 until entries.length()).map { index ->
                     val line = entries.getJSONObject(index)
@@ -272,6 +303,44 @@ internal fun parseSoupCompanionDecision(raw: String): SoupCompanionDecision? = r
     val message = json.optString("text").trim()
     require(type == "wait" || message.isNotBlank())
     SoupCompanionDecision(type, message.take(400))
+}.getOrNull()
+
+internal enum class SoupSpeechDestination { TEAM, HOST, SOLUTION }
+
+internal data class SoupSpeechTurn(
+    val destination: SoupSpeechDestination,
+    val reply: String,
+    val move: SoupLine?,
+)
+
+internal fun parseSoupSpeechTurn(raw: String, teammate: String?): SoupSpeechTurn? = runCatching {
+    val start = raw.indexOf('{')
+    val end = raw.lastIndexOf('}')
+    require(start >= 0 && end > start)
+    val json = JSONObject(raw.substring(start, end + 1))
+    val destination = when (json.getString("to")) {
+        "team" -> SoupSpeechDestination.TEAM
+        "host" -> SoupSpeechDestination.HOST
+        "solution" -> SoupSpeechDestination.SOLUTION
+        else -> error("Unknown destination")
+    }
+    if (destination != SoupSpeechDestination.TEAM || teammate == null) {
+        return@runCatching SoupSpeechTurn(destination, "", null)
+    }
+    val reply = json.getString("reply").trim()
+    require(reply.isNotEmpty())
+    val kind = when (json.optString("action", "none")) {
+        "none" -> null
+        "question" -> SoupKind.QUESTION
+        "solve" -> SoupKind.SOLUTION
+        else -> error("Unknown move")
+    }
+    val move = kind?.let {
+        val text = json.getString("move").trim()
+        require(text.isNotEmpty())
+        SoupLine(teammate, kind, text)
+    }
+    SoupSpeechTurn(destination, reply, move)
 }.getOrNull()
 
 /** The judge must return an explicit JSON boolean; never parse "looks correct" from prose. */

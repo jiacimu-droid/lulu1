@@ -130,6 +130,54 @@ internal object CharacterEverydaySocialContext {
         }.trim()
     }
 
+    /**
+     * Per-friend conversation threads are derived only from delivered,
+     * viewer-owned mail. The global inbox tail can otherwise hide quiet friends.
+     * A preview is neither an obligation to reply nor proof of a reply.
+     */
+    internal fun friendThreadLines(
+        actorId: String,
+        friends: List<Pair<String, String>>,
+        witnessedLetters: List<ResidentDirectMessage>,
+        now: Instant,
+    ): List<String> = friends.map { (peerId, peerName) ->
+        val thread = witnessedLetters.asSequence()
+            .filter { it.createdAt <= now &&
+                ((it.fromId == actorId && it.toId == peerId) ||
+                    (it.fromId == peerId && it.toId == actorId)) }
+            .sortedBy { it.createdAt }.toList().takeLast(3)
+        val detail = if (thread.isEmpty()) "目前没有彼此已送达的私信" else thread.joinToString(" / ") { mail ->
+            val speaker = if (mail.fromId == actorId) "我" else peerName
+            "${mail.createdAt} $speaker：${mail.content.take(105)}"
+        }
+        "好友=$peerName；targetCharacterId=$peerId；真实通信片段=$detail"
+    }
+
+    fun friendshipThreads(characterId: String, now: Instant = Instant.now()): String {
+        if (!DigitalLifeProfileStore.isEnabled(characterId)) return ""
+        val friends = ResidentSocialMailbox.visibleContacts(characterId)
+            .filter { MomentFriendAccess.areFriends(characterId, it) }
+        if (friends.isEmpty()) return ""
+        val history = ResidentSocialMailbox.historyForInspection(characterId)
+            .filter { !it.createdAt.isAfter(now) }
+        val lastContact = history.groupBy {
+            if (it.fromId == characterId) it.toId else it.fromId
+        }.mapValues { (_, letters) -> letters.maxOf { it.createdAt } }
+        // Surface quiet ties alongside recent threads; never pick who to call.
+        val active = friends.sortedByDescending { lastContact[it] ?: Instant.MIN }.take(5)
+        val quieter = friends.filterNot { it in active }
+            .sortedBy { lastContact[it] ?: Instant.MIN }.take(3)
+        val selected = (active + quieter).distinct().map { peer ->
+            peer to (MigratedDomainStores.characters.settings.value[peer]?.displayName ?: peer)
+        }
+        val lines = friendThreadLines(characterId, selected, history, now)
+        return buildString {
+            appendLine("【真正的好友关系与可延续的双向话题｜只来自本人信箱】")
+            lines.forEach { appendLine("- $it") }
+            appendLine("这不是今日发信指标。发过信但没回信，不等于对方已读、拒绝或答应；没有聊过的朋友也不必为了热闹硬聊。")
+        }.trim()
+    }
+
     fun render(characterId: String, now: Instant = Instant.now(),
         pending: List<ResidentDirectMessage> = ResidentSocialMailbox.pendingIncoming(characterId)): String {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return ""
