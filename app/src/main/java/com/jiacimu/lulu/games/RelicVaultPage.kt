@@ -32,12 +32,12 @@ private val museumGold=Color(0xFFE6CDA0)
 @Composable
 internal fun RelicVaultPage(
     snapshot:RelicSnapshot,live:Boolean,onClose:()->Unit,
-    onFeature:(String)->Unit,onSell:(Int,RelicLoot)->Unit,
+    onFeature:(Int,RelicLoot)->Unit,onSell:(Int,RelicLoot)->Unit,
 ) {
     val context=LocalContext.current
     var grade by remember { mutableStateOf("全部") }
     var museumTab by remember { mutableStateOf("藏品") }
-    var selectedIndex by remember { mutableIntStateOf(snapshot.vault.indexOfLast { it.id==snapshot.featuredLootId }.takeIf { it>=0 } ?: snapshot.vault.lastIndex) }
+    var selectedIndex by remember { mutableIntStateOf((snapshot.featuredLootIndex ?: snapshot.vault.indexOfLast { it.id==snapshot.featuredLootId }.takeIf { it>=0 }) ?: snapshot.vault.lastIndex) }
     var pendingSale by remember { mutableStateOf<Pair<Int,RelicLoot>?>(null) }
     val inventory=remember(snapshot.vault,grade) {
         snapshot.vault.indices.reversed().filter { index ->
@@ -48,9 +48,13 @@ internal fun RelicVaultPage(
     // A remembered selection from another rank must not appear as an owned
     // item of the newly selected rank, especially when that rank is empty.
     val selectedEntry=inventory.firstOrNull { it.first==selectedIndex }
-        ?: inventory.firstOrNull { it.second.id==snapshot.featuredLootId }
+        ?: inventory.firstOrNull { it.first==snapshot.featuredLootIndex } ?: inventory.firstOrNull { snapshot.featuredLootIndex==null && it.second.id==snapshot.featuredLootId }
         ?: inventory.firstOrNull()
     val selected=selectedEntry?.second
+    val selectedIsFeatured=selectedEntry?.let { (index,item) ->
+        if(snapshot.featuredLootIndex!=null) index==snapshot.featuredLootIndex && item.id==snapshot.featuredLootId
+        else item.id==snapshot.featuredLootId && snapshot.vault.indexOfFirst { it.id==item.id }==index
+    } ?: false
     val share:(RelicLoot)->Unit = { item ->
         val intent=Intent(Intent.ACTION_SEND).apply {
             type="text/plain"
@@ -64,12 +68,12 @@ internal fun RelicVaultPage(
                 color=museumMuted,fontSize=13.sp,lineHeight=20.sp,
                 modifier=Modifier.padding(16.dp))
         } else {
-            RelicTreasureGalleryCard(selected,selected.id==snapshot.featuredLootId)
+            RelicTreasureGalleryCard(selected,selectedIsFeatured)
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(5.dp)) {
-                OutlinedButton(onClick={onFeature(selected.id)},
-                    enabled=!live && selected.id!=snapshot.featuredLootId,
+                OutlinedButton(onClick={selectedEntry?.let { (index,item) -> onFeature(index,item) }},
+                    enabled=!live && !selectedIsFeatured,
                     modifier=Modifier.weight(1f),contentPadding=PaddingValues(horizontal=4.dp)) {
-                    Text(if(selected.id==snapshot.featuredLootId)"✓ 已展出" else "✦ 展出",
+                    Text(if(selectedIsFeatured)"✓ 已展出" else "✦ 展出",
                         color=museumGold,fontSize=11.sp)
                 }
                 OutlinedButton(onClick={share(selected)},modifier=Modifier.weight(1f),
@@ -122,7 +126,7 @@ internal fun RelicVaultPage(
                         }
                         Spacer(Modifier.width(11.dp))
                         Column(Modifier.weight(1f)) {
-                            Text((if(item.id==snapshot.featuredLootId)"✦ " else "")+item.name,
+                            Text((if(snapshot.featuredLootIndex?.let { it==vaultIndex } ?: (snapshot.featuredLootId==item.id && snapshot.vault.indexOfFirst { it.id==item.id }==vaultIndex))"✦ " else "")+item.name,
                                 fontSize=13.sp,color=museumInk,maxLines=1,
                                 fontWeight=FontWeight.SemiBold)
                             Text(RelicCollectibles.displayRank(item),fontSize=11.sp,color=color)
