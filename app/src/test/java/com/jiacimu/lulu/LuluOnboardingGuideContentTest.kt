@@ -62,7 +62,10 @@ class LuluOnboardingGuideContentTest {
         assertTrue(byKey.getValue("phone").warning.contains("发送"))
         assertTrue(byKey.getValue("mind").instructions.any { it.contains("顶部") || it.contains("最上方") })
         assertTrue(byKey.getValue("mind").instructions.any { it.contains("左侧") && it.contains("头像") })
-        assertTrue(byKey.getValue("phone").instructions.any { it.contains("拼多多") && it.contains("浏览器") })
+        // Shopping and the role-phone browser now have separate guide steps.
+        // Both must still be documented; do not require them in one sentence.
+        assertTrue(byKey.getValue("phone").instructions.any { it.contains("拼多多") })
+        assertTrue(byKey.getValue("phone").instructions.any { it.contains("浏览器") })
         assertTrue(byKey.getValue("appearance").instructions.any { it.contains(".css") })
         assertTrue(byKey.getValue("widgets").instructions.any { it.contains("星座") })
         assertTrue(byKey.getValue("meet").warning.contains("大世界"))
