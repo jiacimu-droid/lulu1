@@ -19,7 +19,7 @@ import java.time.Instant
 import java.util.UUID
 import kotlin.random.Random
 
-/** Product-parity game identifiers from lulu/master plus Lulu1 additions. */
+/** Main is the stable APK; the unfinished island and relic worlds ship only on game.\n * Keep their saved types/readers in main so switching editions never deletes history. */\ninternal object LuluGameEdition {\n    const val worldGamesEnabled = false\n    fun available(gameId: String): Boolean = worldGamesEnabled ||\n        gameId !in setOf("block_island", "relic_escape")\n}\n\n/** Product-parity game identifiers from lulu/master plus Lulu1 additions. */
 enum class LuluGameType {
     PerfectMan,
     RoleplayAdventure,
