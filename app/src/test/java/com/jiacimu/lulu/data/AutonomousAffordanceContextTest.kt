@@ -146,8 +146,14 @@ class AutonomousAffordanceContextTest {
             digital = false, location = "", books = emptyList(), groups = emptyList(),
         )
         assertTrue(context.contains("游戏意愿先于入口"))
-        assertTrue(context.contains("方块小岛（独立持久生存存档）"))
-        assertTrue(context.contains("迷雾摸金（独立探索、真实撤离）"))
+        if (com.jiacimu.lulu.games.LuluGameEdition.worldGamesEnabled) {
+            assertTrue(context.contains("方块小岛（独立持久生存存档）"))
+            assertTrue(context.contains("迷雾摸金（独立探索、真实撤离）"))
+        } else {
+            assertTrue(context.contains("当前可独玩记忆配对和快艇骰子"))
+            assertFalse(context.contains("方块小岛（独立持久生存存档）"))
+            assertFalse(context.contains("迷雾摸金（独立探索、真实撤离）"))
+        }
         assertTrue(context.contains("不要误以为只有快艇骰子能独玩"))
         assertTrue(context.contains("可以真心喜欢某款而重玩"))
         assertTrue(context.contains("action=game_invite"))
