@@ -51,6 +51,20 @@ class LuluStrictModeTest {
         assertFalse(LuluStrictMode.shouldReturn("return", "", lulu, emptySet(), false))
     }
 
+    @Test fun ownerCanRevokeAuthorizationEvenWithNoActiveSession() {
+        val context = app
+        val settings = LuluScreenAwareness.preferences(context)
+        settings.edit().putBoolean(LuluScreenAwareness.CONSENT, true)
+            .putBoolean(LuluStrictMode.GRANT, true).commit()
+        assertTrue(LuluStrictMode.ownerGranted(context))
+        LuluStrictMode.ownerStop(context)
+        assertFalse(LuluStrictMode.ownerGranted(context))
+        assertEquals("denied", JSONObject(LuluStrictMode.command(context, "role-a",
+            JSONObject().put("action", "start").put("goal", "监督学习")))
+            .optString("status"))
+        settings.edit().clear().commit()
+    }
+
     @Test fun highIntensityIsLocalAndBoundedBySeparatePaidReviewGap() {
         assertEquals(10_000L, LuluStrictMode.LOCAL_SAMPLE_GAP)
         assertEquals(20_000L, LuluStrictMode.REVIEW_GAP)
