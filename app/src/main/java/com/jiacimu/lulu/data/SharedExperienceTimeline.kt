@@ -725,14 +725,17 @@ object SharedExperienceTimeline {
     /** Query one real shared activity without loading years of unrelated conversations. */
     fun sessionEvents(characterId: String, sessionId: String, limit: Int = 160): List<SharedTimelineEvent> =
         if (characterId.isBlank() || sessionId.isBlank() || limit <= 0) emptyList()
-        else query(characterId, limit, sessionId).sortedBy(SharedTimelineEvent::occurredAt)
+        // The limited query returns newest-first (timestamp, insertion order).
+        // Reverse BOTH keys: sorting only by millisecond timestamp would keep
+        // tied records in descending order and invert actual game dialogue.
+        else query(characterId, limit, sessionId).asReversed()
 
     /** Query speech BEFORE applying the limit: game combat/movement/tool ticks must
      * not evict the latest actual player/companion dialogue from a live session. */
     fun sessionStatementEvents(characterId: String, sessionId: String, limit: Int = 12): List<SharedTimelineEvent> =
         if (characterId.isBlank() || sessionId.isBlank() || limit <= 0) emptyList()
         else query(characterId, limit, sessionId, statementOnly = true)
-            .sortedBy(SharedTimelineEvent::occurredAt)
+            .asReversed()
 
     fun recentContext(characterId: String, limit: Int = 24, characterBudget: Int = 7_000): String {
         val events = recentEvents(characterId, limit)
@@ -787,7 +790,15 @@ object SharedExperienceTimeline {
         sourceLike: String? = null, after: Instant? = null,
         until: Instant? = null, statementOnly: Boolean = false): List<SharedTimelineEvent> {
         val database = helper?.readableDatabase ?: return emptyList()
-        val order = if (limit == null) "occurred_at ASC" else "occurred_at DESC, id DESC"
+        // Session conversations must preserve the observed INSERT sequence
+        // for events sharing one millisecond. IDs are opaque and are NOT a
+        // chronological key (e.g. game role-1 sorts after owner-1).
+        // Preserve ID-based keyset ordering for other timeline consumers.
+        val order = when {
+            limit == null -> "occurred_at ASC"
+            sessionId != null -> "occurred_at DESC, rowid DESC"
+            else -> "occurred_at DESC, id DESC"
+        }
         val birth = DigitalLifeProfileStore.birthAt(characterId)
         val selection = buildList {
             add("character_id = ?")
