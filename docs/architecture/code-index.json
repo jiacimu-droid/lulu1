@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:57:10.731944+00:00",
-  "commit": "c1dbf4e9d47183a29a5a4717b7071a2526fa3596",
+  "generatedAt": "2026-11-18T11:58:22.870982+00:00",
+  "commit": "c03111cac67ab1f4b60c3ce8d4d7c155136c61c3",
   "branch": "main",
-  "sourceFingerprint": "5e006880a74aa8048d7f6a679a3766a0319f91e65e82ba144460e061506ea65a",
+  "sourceFingerprint": "32debd9a22eb8d7110e9b6ab031e565cd1b3437aa95e672b446825c5bc0ebe7a",
   "summary": {
-    "files": 1467,
-    "lines": 309895,
-    "symbols": 4433
+    "files": 1468,
+    "lines": 309954,
+    "symbols": 4434
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -23970,6 +23970,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/IslandWorkbenchRecipesTest.kt",
         "line": 107
+      }
+    ],
+    "MemoryMatchIndependentDeckTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/MemoryMatchIndependentDeckTest.kt",
+        "line": 14
       }
     ],
     "MemoryMatchModeTest": [
@@ -51085,6 +51091,17 @@
         {
           "name": "beside",
           "line": 107
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/MemoryMatchIndependentDeckTest.kt",
+      "lines": 59,
+      "sha256": "fd38804bee028a60b66384cd72ad8006ffa9c9f8c19d72ea4dcfd1885788368f",
+      "symbols": [
+        {
+          "name": "MemoryMatchIndependentDeckTest",
+          "line": 14
         }
       ]
     },
