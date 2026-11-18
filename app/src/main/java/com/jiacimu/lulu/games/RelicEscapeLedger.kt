@@ -181,7 +181,9 @@ internal class RelicEscapeLedger(context:Context, preferenceName:String="relic_e
         val award=if(terminal && next.phase==RelicPhase.SUCCESS)next.secured else emptyList()
         // Even if caller replays a stale action, each unique run can be settled only once.
         return write(old.copy(run=next,
-            vault=old.vault+award.filter{candidate->old.vault.none{it.id==candidate.id}},
+            // A settled run owns physical loot, even when an old save reused an item ID.
+            // Run-level awarded tombstones (not loot IDs) prevent duplicate settlement.
+            vault=old.vault+award,
             coins=old.coins+if(terminal)award.sumOf{it.value}/4 + RelicContractBoard.bonus(next) else 0,
             successes=old.successes+if(terminal && next.phase==RelicPhase.SUCCESS)1 else 0,
             awarded=if(terminal)old.awarded+next.id else old.awarded,
