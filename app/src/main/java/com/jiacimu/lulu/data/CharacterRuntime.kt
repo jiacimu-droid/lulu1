@@ -237,7 +237,9 @@ object CharacterRuntime {
         if (known.isNotEmpty()) {
             appendLine("【这位角色从本人原话了解到的对方偏好与习惯｜供本人自主斟酌，并非系统分泡命令】")
             known.forEach { record ->
-                appendLine("- ${record.content.take(210)}")
+                // Selection limits the number of records; preserve each selected
+                // preference whole so its final negation or condition is not lost.
+                appendLine("- ${record.content}")
             }
         }
     }.trim()
