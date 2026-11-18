@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T08:01:03.566896+00:00",
-  "commit": "11aee5cb92d532b746176c226c86277e8be63c44",
+  "generatedAt": "2026-11-18T08:12:55.293415+00:00",
+  "commit": "cb585c37885c45aff53b02b43c2561e7f2ef1042",
   "branch": "main",
-  "sourceFingerprint": "437735b13476b52d56ab7fb2bb2901f9a1bfc3ff66cca8d98395401354190720",
+  "sourceFingerprint": "afe9a79fd9363a6ae89fcb19042705cd878b3956597f1c657065419450d9c72c",
   "summary": {
     "files": 1461,
-    "lines": 308820,
+    "lines": 308847,
     "symbols": 4399
   },
   "symbolIndex": {
@@ -2801,7 +2801,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-        "line": 194
+        "line": 200
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
@@ -20931,7 +20931,7 @@
     "game": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-        "line": 216
+        "line": 222
       }
     ],
     "AutonomousDecisionRecoveryTest": [
@@ -23315,7 +23315,7 @@
     "SoloGameSystemNoticeTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SoloGameSystemNoticeTest.kt",
-        "line": 18
+        "line": 20
       }
     ],
     "TimedContactCommitmentParserTest": [
@@ -46461,8 +46461,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-      "lines": 255,
-      "sha256": "1953f1f3e38468a1270a7f7870006019373f7477af706c616b5fe1c3c6195f43",
+      "lines": 261,
+      "sha256": "353fba01533cf3fe00ad35f59bc85d786c355ae17e7bb90aaee56fe1c93f11e2",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",
@@ -46470,11 +46470,11 @@
         },
         {
           "name": "record",
-          "line": 194
+          "line": 200
         },
         {
           "name": "game",
-          "line": 216
+          "line": 222
         }
       ]
     },
@@ -49875,12 +49875,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/SoloGameSystemNoticeTest.kt",
-      "lines": 56,
-      "sha256": "4c1a038df35511022eafd9856c95747572c16efa0671674e3238070b38e35382",
+      "lines": 72,
+      "sha256": "f9fef5c5d0bf0127f66354be801beda44993059be25e85f90cba106529586121",
       "symbols": [
         {
           "name": "SoloGameSystemNoticeTest",
-          "line": 18
+          "line": 20
         }
       ]
     },
@@ -50452,8 +50452,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
-      "lines": 131,
-      "sha256": "744340ef7f666b42e14ddb331f285ff1e95f6aa60123c2f3075ca344e9755a56",
+      "lines": 136,
+      "sha256": "3f8b4fce870d55264ca0023bb2a760cfcbbac99f3fce23d65ee99c0435d62b5e",
       "symbols": [
         {
           "name": "GameInvitationContinuityTest",
