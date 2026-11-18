@@ -15,6 +15,10 @@ internal object CharacterAccountabilityContext {
         val tasks = CommitmentTaskStore.snapshot(characterId)
             .filter { it.status != CommitmentTaskStatus.Cancelled }
             .filter { includeActiveDetails || !it.status.isActive() }
+            // Old one-off reminders must not push the current duty out of
+            // the model's visible responsibility context.
+            .sortedWith(compareBy<CommitmentTask> { !it.status.isActive() }
+                .thenByDescending { it.updatedAt })
             .take(12)
         if (tasks.isEmpty() && !includeActiveDetails) return "未结责任及其真实回执已由统一责任上下文提供；没有回执不能宣称履行，日记与心声不能代替行动。"
         if (tasks.isEmpty()) return """

@@ -1510,6 +1510,11 @@ object LuluDeviceToolBridge {
                         }
                         if (expressionConversation.isEmpty()) appendLine("用户刚才说：$userText")
                         appendLine("【本轮明确选择的副动作，不是已执行回执】$chosenEffects")
+                        // The chat renderer is a second model pass. Give it the
+                        // same outstanding duty facts; otherwise it may turn a
+                        // planner's promise into an ungrounded accusation.
+                        appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.prompt(characterId))
+                        appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.reflectionGuidance(characterId))
                         if (commitmentReceipt.isNotBlank()) appendLine("【本轮约定真实回执】$commitmentReceipt")
                 if (mediaReceipt.isNotBlank()) appendLine("【本轮音乐操作真实回执】$mediaReceipt")
                 if (sideDeviceReceipt.isNotBlank()) appendLine("【本轮统一决策设备执行回执｜按实际状态说话，不能编造成功】$sideDeviceReceipt")
