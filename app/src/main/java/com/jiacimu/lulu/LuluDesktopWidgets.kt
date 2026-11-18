@@ -63,6 +63,8 @@ internal fun luluDesktopFullCellHeight(viewportWidth: Float, viewportHeight: Flo
         .coerceAtLeast(0f)
 
 internal enum class LuluWidgetKind(val code: String, val title: String, val columns: Int, val rows: Int) {
+    CHAT("chat", "聊天快捷卡", 4, 2),
+    BULLETIN("bulletin", "数字世界公告栏", 4, 2),
     HOROSCOPE("horoscope", "每日星座", 4, 2),
     NOTE("note", "角色便签", 2, 2),
     COUNTDOWN("countdown", "纪念日", 2, 2),
@@ -152,7 +154,7 @@ internal fun luluWidgetFits(
     widgets: List<LuluDesktopWidget>,
     launcherSlots: List<String?>,
 ): Boolean {
-    if (candidate.page < 1 || candidate.col < 0 || candidate.row < 0 ||
+    if (candidate.page < 0 || candidate.col < 0 || candidate.row < 0 ||
         candidate.columns !in 1..4 || candidate.rows !in 1..8 ||
         candidate.col + candidate.columns > 4 || candidate.row + candidate.rows > 8) return false
     for (y in candidate.row until candidate.row + candidate.rows) {
@@ -175,7 +177,7 @@ internal fun luluPlaceWidget(
     launcherSlots: List<String?>,
     sign: Int = 0,
 ): LuluDesktopWidget? {
-    val first = startPage.coerceAtLeast(1)
+    val first = startPage.coerceAtLeast(0)
     val last = maxOf(first + 2, widgets.maxOfOrNull { it.page }?.plus(2) ?: 2)
     for (page in first..last) {
         for (y in 0..8 - kind.rows) for (x in 0..4 - kind.columns) {
@@ -183,6 +185,7 @@ internal fun luluPlaceWidget(
                 id = UUID.randomUUID().toString(), kind = kind,
                 page = page, col = x, row = y, sign = sign,
                 skin = when (kind) {
+                    LuluWidgetKind.CHAT, LuluWidgetKind.BULLETIN -> 1
                     LuluWidgetKind.HOROSCOPE -> 0
                     LuluWidgetKind.NOTE -> 1
                     LuluWidgetKind.COUNTDOWN -> 2
@@ -245,7 +248,7 @@ internal object LuluDesktopWidgetStore {
                         }.orEmpty(),
                         roleCornerDp = obj.optInt("roleCornerDp", -1).coerceIn(-1, 60),
                     )
-                    if (value.page in 1..100 && luluWidgetFits(value, this, emptyList())) add(value)
+                    if (value.page in 0..100 && luluWidgetFits(value, this, emptyList())) add(value)
                 }
             }
         }.getOrDefault(emptyList())
@@ -283,6 +286,24 @@ internal object LuluDesktopWidgetStore {
             runCatching { LuluWidgetDailyRole.schedule(context, widgets) }
         }
         ok
+    }
+
+    /** One-time default home layout. User removal stays removed across restart. */
+    fun ensureHomeCards(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        if (prefs.getBoolean("home_cards_seeded_v1", false)) return
+        synchronized(mutex) {
+            if (prefs.getBoolean("home_cards_seeded_v1", false)) return@synchronized
+            val existing = load(context)
+            val defaults = listOf(
+                LuluDesktopWidget("home-chat", LuluWidgetKind.CHAT, 0, 0, 0, skin = 1),
+                LuluDesktopWidget("home-bulletin", LuluWidgetKind.BULLETIN, 0, 0, 2, skin = 1),
+            ).filter { card -> existing.none { it.kind == card.kind } &&
+                luluWidgetFits(card, existing, emptyList()) }
+            if (save(context, existing + defaults)) {
+                prefs.edit().putBoolean("home_cards_seeded_v1", true).commit()
+            }
+        }
     }
 
     /** A model may touch ONLY its bound, explicitly unlocked widgets. */
@@ -373,6 +394,7 @@ internal fun LuluDesktopWidgetCard(
     modifier: Modifier = Modifier,
     onOpen: () -> Unit,
     onEdit: () -> Unit = onOpen,
+    specialContent: @Composable ((LuluDesktopWidget, Color) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val css = LocalLuluCssSheet.current.element("Home", "widget-" + widget.kind.code)
@@ -403,6 +425,25 @@ internal fun LuluDesktopWidgetCard(
         shadowElevation = 1.dp,
         onClick = onOpen,
     ) {
+        if (widget.kind == LuluWidgetKind.CHAT || widget.kind == LuluWidgetKind.BULLETIN) {
+            Box(Modifier.fillMaxSize()) {
+                if (artImage != null) Image(
+                    bitmap = artImage, contentDescription = null,
+                    modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                Box(Modifier.fillMaxSize().background(backing.copy(alpha = if (defaultDark) .28f else .14f)))
+                specialContent?.invoke(widget, foreground)
+                Surface(
+                    modifier = Modifier.align(Alignment.TopEnd).padding(5.dp),
+                    shape = RoundedCornerShape(13.dp),
+                    color = backing.copy(alpha = 0.88f),
+                ) {
+                    IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
+                        Icon(Icons.Outlined.Tune, "装修小组件", tint = foreground,
+                            modifier = Modifier.size(17.dp))
+                    }
+                }
+            }
+        } else {
         BoxWithConstraints(Modifier.fillMaxSize().background(Brush.verticalGradient(
             listOf(backing.copy(alpha = .55f), backing.copy(alpha = .86f)),
         ))) {
@@ -443,6 +484,7 @@ internal fun LuluDesktopWidgetCard(
                     }
                 }
                 when (widget.kind) {
+                    LuluWidgetKind.CHAT, LuluWidgetKind.BULLETIN -> Unit
                     LuluWidgetKind.HOROSCOPE -> {
                         val sign = widget.sign.coerceIn(0, 11)
                         val (good, caution) = luluDailyFortune(today, sign)
@@ -528,6 +570,7 @@ internal fun LuluDesktopWidgetCard(
                 }
             }
         }
+        }
     }
 }
 
@@ -544,6 +587,7 @@ internal fun LuluDesktopWidgetCanvas(
     plannerTasks: List<TodoOccurrence> = emptyList(),
     onCompleteTask: (TodoOccurrence) -> Unit = {},
     modifier: Modifier = Modifier,
+    specialContent: @Composable ((LuluDesktopWidget, Color) -> Unit)? = null,
     onOpenWidget: (LuluDesktopWidget) -> Unit,
     onEditWidget: (LuluDesktopWidget) -> Unit,
     onBlankLongPress: () -> Unit,
@@ -586,6 +630,7 @@ internal fun LuluDesktopWidgetCanvas(
                         ),
                     onOpen = { onOpenWidget(widget) },
                     onEdit = { onEditWidget(widget) },
+                    specialContent = specialContent,
                 )
             }
         }
@@ -669,6 +714,8 @@ internal fun LuluDesktopWidgetPicker(onAdd: (LuluWidgetKind) -> Unit, onClose: (
                 Row(Modifier.padding(horizontal = 14.dp, vertical = 15.dp),
                     verticalAlignment = Alignment.CenterVertically) {
                     Icon(when (kind) {
+                        LuluWidgetKind.CHAT -> Icons.Outlined.ChatBubbleOutline
+                        LuluWidgetKind.BULLETIN -> Icons.Outlined.Campaign
                         LuluWidgetKind.HOROSCOPE -> Icons.Outlined.AutoAwesome
                         LuluWidgetKind.NOTE -> Icons.Outlined.StickyNote2
                         LuluWidgetKind.COUNTDOWN -> Icons.Outlined.Event
@@ -734,7 +781,7 @@ internal fun LuluDesktopWidgetEditor(
                 Text("尺寸", fontWeight = FontWeight.Medium)
                 Row(Modifier.horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    listOf(2 to 1, 2 to 2, 4 to 2).forEach { (width, height) ->
+                    listOf(2 to 1, 2 to 2, 2 to 3, 4 to 1, 4 to 2, 4 to 3, 4 to 4).forEach { (width, height) ->
                         FilterChip(
                             selected = draft.columns == width && draft.rows == height,
                             onClick = {
