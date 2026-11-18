@@ -580,6 +580,9 @@ object CommitmentTaskStore {
             it.status == CommitmentTaskStatus.Completed
         }.thenByDescending { it.lastAlarmReceivedAt != null }
             .thenByDescending { it.attemptCount }
+            // If neither has execution evidence, the recurring reminder is
+            // the canonical record. Do not throw away tomorrow's occurrence.
+            .thenByDescending { it.repeat == "daily" }
             .thenBy { it.createdAt })
         val kept = mutableListOf<CommitmentTask>()
         candidates.forEach { task ->
@@ -600,6 +603,17 @@ object CommitmentTaskStore {
                 // factual results; de-duplication cannot rewrite real history.
                 kept.add(task)
             } else {
+                // Old versions could create a once-only and a daily record
+                // for the same accepted reminder. If the one-off has the
+                // authoritative delivery receipt, keep its ID and upgrade its
+                // recurrence rather than cancelling the only daily promise.
+                if (task.repeat == "daily" && original.repeat != "daily") {
+                    update(original.id) { current ->
+                        current.copy(repeat = "daily",
+                            dailyBaseDueAt = current.dailyBaseDueAt ?: task.dailyBaseDueAt ?: task.dueAt,
+                            sourceEventIds = (current.sourceEventIds + task.sourceEventIds).distinct())
+                    }
+                }
                 cancel(task.id, "重复定时约定已整理：保留原约定 ${original.id}；" +
                     "旧任务回执：${task.readableLastResult().take(130)}")
             }
