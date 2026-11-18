@@ -174,7 +174,11 @@ internal fun GameTalkBar(
             Text("你：${session.lastOwnerLine}", color = Color(0xFFB8CFE1))
         }
         if (session.lastCompanionLine.isNotBlank()) {
-            Text("伙伴：${session.lastCompanionLine}", color = Color(0xFFD8E8F2))
+            Text(
+                if (session.lastCompanionLine.startsWith("主持：")) session.lastCompanionLine
+                else "伙伴：${session.lastCompanionLine}",
+                color = Color(0xFFD8E8F2),
+            )
         }
     }
 }
