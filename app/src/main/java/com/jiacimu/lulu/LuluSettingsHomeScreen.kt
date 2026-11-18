@@ -57,7 +57,6 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
         SettingsHomePage.Strict -> LuluStrictModeSettingsScreen(
             onBack = { page = SettingsHomePage.Home },
             onOpenCapabilities = { page = SettingsHomePage.Capabilities },
-            onOpenStrict = { page = SettingsHomePage.Strict },
         )
         SettingsHomePage.Integrations -> LuluIntegrationsSettingsScreen(
             onBack = { page = SettingsHomePage.Home },
@@ -86,6 +85,7 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
             onSearchQueryChange = { settingsQuery = it },
             onOpenApi = { page = SettingsHomePage.Api },
             onOpenCapabilities = { page = SettingsHomePage.Capabilities },
+            onOpenStrict = { page = SettingsHomePage.Strict },
             onOpenIntegrations = { page = SettingsHomePage.Integrations },
             onOpenVoice = { page = SettingsHomePage.Voice },
             onOpenMemory = { page = SettingsHomePage.Memory },
@@ -234,6 +234,7 @@ private fun SettingsEntryScreen(
                                 "vision" -> Icons.Outlined.Visibility
                                 "image" -> Icons.Outlined.Image
                                 "capabilities" -> Icons.Outlined.Security
+                                "strict" -> Icons.Outlined.AdminPanelSettings
                                 else -> Icons.Outlined.Backup
                             }
                             SettingsEntryRow(
