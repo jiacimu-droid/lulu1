@@ -711,3 +711,7 @@
 ## 2026-11-18 G-03.5 · 正式遗迹存档拒绝实体卡墙出生点
 - 正式 `RelicRun.read` 原仅检查地图尺寸/地块枚举，未检查主角、伙伴、撤离门是否落在不可行走的实体墙内；损坏存档可恢复为无法操作的地图。本轮生产 `967c315b71bd2c96e5d060c656dd0d2af6f501a8`（blob `a4c537f1a89413c4223864b81ff92ba62dc75173`）在读取后拒绝这些物理不合法位置，不瞬移角色、不修改实物、不发奖励；测试 `20fb2f5267deb32b9f0b78185d7e195b43c7d3a4`（blob `06026b6bc62e4578112254d18d090f03699d0e05`）覆盖有效旧档及三类阻挡。
 - 本轮无本地 Gradle/Android 工程可执行，`scripts/generate_code_index.py` 亦未实际运行；按测试 SHA 查询 Actions 返回 0 条，JVM/APK/index 均未验，不把源码提交称为可玩闭环。下一入口 `RelicEscapeRulesTest.restoredExpeditionRejectsActorsEmbeddedInWallsWithoutChangingValidSave` 的 JVM 首错、`RelicEscapeLedger` 对坏档回退及正式 `RelicEscapeScreen.kt` 重进反馈；Redmi 横屏、帧率、真实模型和美术审图仍独立待验。
+
+## 2026-11-18 G-03.5 · game 分支藏宝馆旧档重复 ID 售卖实物守恒
+- 遵守 AGENTS 最新双分支规则：G-02/G-03 仅更新 `game`，不重新开放 `main` 游戏入口。检查正式 `RelicEscapeLedger.sellLoot` 发现旧档若两件藏品共用同一 ID，`filterNot` 会一次删除两件却只结算第一件售价；修复为只移除匹配的首件实体，原有展示位清空与单次同步 commit 保持不变。生产提交 `291e3de509e23eeb5523a5100dbb7e1e7b31180f`，blob `ec37c2000c5edee765029584d9727fe6ccb935af`。
+- 回归 `RelicVaultPersistenceTest.legacyDuplicateMuseumIdsSellExactlyOnePhysicalRelic` 以两件同 ID、不同价值藏品检查首次售卖只移除一件、钱只增加第一件价格、重进仍保留第二件、第二次卖完后重试不刷币。测试提交 `c6f4a3f51154c20f0ce751551961cb5bbeeb2021`，blob `42fd0bcd45db2f2f1f1bc04aac24e567d968897c`。此轮未本地运行 JVM/Gradle；需核 `game` push 的 JVM/APK/index 对应 head SHA，不能用 main 的绿灯代替。下一入口该测试 JVM 首错、`RelicEscapeScreen.kt` 藏宝馆售卖实体选中及重进显示；Redmi/FPS/模型/美术待验。
