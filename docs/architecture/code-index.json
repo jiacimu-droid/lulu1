@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T16:32:36.762062+00:00",
-  "commit": "aa6156b909da0d408c16bd73086af376e0c4d718",
+  "generatedAt": "2026-11-18T16:33:19.991874+00:00",
+  "commit": "dadbbbd1c3576518c88b7cd92a2716fd0ed0ae4a",
   "branch": "main",
-  "sourceFingerprint": "7a27796545e894f9f7381593683c74b3d64993f89bc7784396693f6ab8e45aa9",
+  "sourceFingerprint": "838d792dc26487f860ba30e95ef09636e11492a90cf3e4ab2ddcd7fb1472dabd",
   "summary": {
     "files": 1476,
-    "lines": 312420,
+    "lines": 312452,
     "symbols": 4456
   },
   "symbolIndex": {
@@ -48266,8 +48266,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStoreTest.kt",
-      "lines": 46,
-      "sha256": "d3aa02398348198c0f7f6ab6fb9d91354e026385b73e8a61df018e765e412467",
+      "lines": 78,
+      "sha256": "462887d0a83627fe5d6614688c8699808e626286c30fe54be9dee0d50ee82613",
       "symbols": [
         {
           "name": "CharacterVoicePreferenceStoreTest",
