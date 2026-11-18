@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import android.content.Context
+
 import com.jiacimu.lulu.design.LuluCssScaffold
 import com.jiacimu.lulu.design.LuluCssTopAppBar
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
