@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0ee6b39cae56aee7a9f843357eb2deccdc21473c`
+- 基准提交：`e203a76261b067c958886fb66b4e89c87ce2a293`
 - 分支：`main`
 - 已索引文件：1464
-- 已索引代码/文本行：309367
-- 已发现符号：4427
+- 已索引代码/文本行：309502
+- 已发现符号：4429
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -426,7 +426,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 61 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt` | 228 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt` | 143 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 253 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 255 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSceneCadence.kt` | 43 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 431 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt` | 73 | 1 |
@@ -705,10 +705,10 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt` | 107 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 98 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt` | 192 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt` | 237 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 288 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameMemoryDecision.kt` | 57 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 163 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 607 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt` | 122 | 4 |
@@ -741,7 +741,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 768 | 29 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 812 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 963 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 935 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 382 | 4 |
@@ -1238,7 +1238,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt` | 218 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnCommitmentWireTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrimaryTurnLifeHandoffTest.kt` | 90 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 96 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PrivateChatExpressionContextTest.kt` | 138 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicyTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveIncomingCallHistoryTest.kt` | 94 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt` | 317 | 25 |
