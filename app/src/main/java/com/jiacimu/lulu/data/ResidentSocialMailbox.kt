@@ -17,6 +17,39 @@ internal data class ResidentDirectMessage(
     val createdAt: Instant, val author: String,
 )
 
+/** A model-authored bubbles array is a sequence of actual Send presses.
+ * Never split prose by punctuation, word count or display width. Legacy text
+ * remains one bubble, not a heuristic to be divided by the executor.
+ */
+internal object ResidentMessageBubbles {
+    fun texts(args: JSONObject): List<String> {
+        if (!args.has("bubbles")) {
+            val legacy = args.optString("text").trim()
+            require(legacy.isNotBlank()) { "私信缺少本人实际写好的 text 或 bubbles" }
+            return listOf(legacy)
+        }
+        require(args.optString("text").isBlank()) {
+            "私信请只选择 bubbles 或 text，不要用两份正文重复发送"
+        }
+        val array = args.optJSONArray("bubbles")
+        require(array != null && array.length() in 1..64) {
+            "私信 bubbles 必须是包含 1 至 64 次真实发送的字符串数组"
+        }
+        val result = (0 until array.length()).map { index ->
+            val raw = array.opt(index)
+            require(raw is String && raw.trim().isNotBlank()) {
+                "bubbles[$index] 必须是非空的本人台词"
+            }
+            raw.trim()
+        }
+        require(result.sumOf { it.length } <= 32_000) { "私信气泡总正文超出传输上限" }
+        return result
+    }
+
+    fun contractError(args: JSONObject): String? =
+        runCatching { texts(args) }.exceptionOrNull()?.message ?: null
+}
+
 internal object ResidentSocialMailbox {
     private const val PREFS = "lulu_native_social_mail_v1"
     private var prefs: android.content.SharedPreferences? = null
@@ -174,25 +207,34 @@ internal object ResidentSocialMailbox {
     @Synchronized
     fun send(from: String, to: String, content: String,
         author: String = "character", at: Instant = Instant.now(),
-        requestPeerReview: Boolean = true): ResidentDirectMessage {
+        requestPeerReview: Boolean = true): ResidentDirectMessage =
+        sendBubbles(from, to, listOf(content), author, at, requestPeerReview).single()
+
+    /** One model choice can contain many independently authored chat bubbles.
+     * Commit the whole set as ONE durable mailbox write before exposing any
+     * bubble, so an interrupted decision cannot publish only a prefix and
+     * replay the remainder as another conversation.
+     */
+    @Synchronized
+    fun sendBubbles(from: String, to: String, bubbles: List<String>,
+        author: String = "character", at: Instant = Instant.now(),
+        requestPeerReview: Boolean = true): List<ResidentDirectMessage> {
         require(author in setOf("character", "owner-on-behalf")) { "发送来源不合法" }
-        // This is the delivered, durable letter. Prompt previews may be
-        // budgeted, but they must not rewrite what the sender actually sent.
-        val text = content.trim()
-        require(text.isNotBlank() && canContact(from, to)) { "双方尚未真实认识或同处现场，不能凭空通信" }
-        // Timeline persistence rejects pre-birth experiences. Enforce the same
-        // factual boundary before committing mail or reporting delivery, also
-        // when a device clock moves backwards after a character was created.
+        require(bubbles.isNotEmpty() && bubbles.size <= 64 &&
+            bubbles.all { it.trim().isNotEmpty() } &&
+            bubbles.sumOf { it.length } <= 32_000) { "私信气泡正文不合法" }
+        require(canContact(from, to)) { "双方尚未真实认识或同处现场，不能凭空通信" }
         require(DigitalLifeProfileStore.allowsTimestamp(from, at) &&
             DigitalLifeProfileStore.allowsTimestamp(to, at)) {
             "发送时间早于通信参与者的数字生命诞生时间，消息未发送"
         }
-        val item = ResidentDirectMessage(UUID.randomUUID().toString(), from, to, text, at, author)
-        // This is the durable conversation authority, not a prompt window.
-        // Trimming it used to destroy old topics and could evict the read
-        // cursor while retaining older mail from another pair. Context limits
-        // belong in inbox()/pendingIncoming(), never in historical storage.
-        val updated = messages + item
+        val delivered = bubbles.mapIndexed { index, content ->
+            ResidentDirectMessage(UUID.randomUUID().toString(), from, to,
+                content.trim(), at.plusMillis(index.toLong()), author)
+        }
+        // Context budgets belong in inbox()/pendingIncoming(); never trim the
+        // durable letters or erase the original model-authored boundaries.
+        val updated = messages + delivered
         val array = JSONArray()
         updated.forEach { msg ->
             array.put(JSONObject().put("id", msg.id).put("fromId", msg.fromId)
@@ -205,31 +247,36 @@ internal object ResidentSocialMailbox {
         messages = updated
         val sender = MigratedDomainStores.characters.get(from).displayName
         val recipient = MigratedDomainStores.characters.get(to).displayName
-        for (viewer in setOf(from, to)) {
-            SharedExperienceTimeline.record(
-                eventId = "native-mail-${item.id}-viewer-$viewer",
-                characterId = viewer, channel = "数字人物私信",
-                sessionId = "native-thread:${listOf(from, to).sorted().joinToString(":")}",
-                source = if (author == "character") "character-message" else "owner-on-behalf",
-                speaker = sender,
-                content = "$sender 向 $recipient 发了私信：$text" +
-                    if (author == "owner-on-behalf") "（实际由用户代发；对方暂未必知晓）" else "",
-                occurredAt = at, triggerExtraction = false,
-                evidenceKind = EventEvidenceKind.Observation,
-            )
+        for (message in delivered) {
+            for (viewer in setOf(from, to)) {
+                SharedExperienceTimeline.record(
+                    eventId = evidenceId(message, viewer),
+                    characterId = viewer, channel = "数字人物私信",
+                    sessionId = "native-thread:${listOf(from, to).sorted().joinToString(":")}",
+                    source = if (author == "character") "character-message" else "owner-on-behalf",
+                    speaker = sender,
+                    content = "$sender 向 $recipient 发了私信：${message.content}" +
+                        if (author == "owner-on-behalf") "（实际由用户代发；对方暂未必知晓）" else "",
+                    occurredAt = message.createdAt, triggerExtraction = false,
+                    evidenceKind = EventEvidenceKind.Observation,
+                )
+            }
         }
         appContext?.let { context ->
-            val resident = to.startsWith("resident:")
-            val mayReview = if (resident)
+            val mayReview = if (to.startsWith("resident:"))
                 CompanionOnlineStore.renewResidentWindow(context, to, at)
             else mailWakeEnabled(to)
             if (mayReview && requestPeerReview) {
                 runCatching {
-                    ProactivePerceptionScheduler.scheduleResidentMail(context, to, evidenceId(item, to))
+                    // A batch is one conversational turn and needs one wake,
+                    // even though it is several separately visible bubbles.
+                    ProactivePerceptionScheduler.scheduleResidentMail(
+                        context, to, evidenceId(delivered.last(), to))
                 }.onFailure { android.util.Log.w("ResidentMail", "Mail wake scheduling failed", it) }
             }
         }
         changeCount.value += 1
-        return item
+        return delivered
     }
+
 }
