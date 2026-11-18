@@ -2055,11 +2055,9 @@ object ProactivePerceptionRuntime {
                 characterId, listOf(input.evidenceId)).firstOrNull()?.revision
             if (actualRevision != null) input.copy(revision = actualRevision) else input
         }
-        val decision = onlineSpeech.copy(innerThought =
-            CharacterAccountabilityContext.guardUnfoundedInnerBlame(
-                listOf(onlineUnread.text, pendingUserContext, trigger).joinToString("\n"),
-                onlineSpeech.innerThought,
-            )).let { chosen ->
+        // Keep the same role-authored private thought. Responsibility review
+        // now belongs to the shared model context, not a keyword-based veto.
+        val decision = onlineSpeech.let { chosen ->
                 // There is one private conversational reply, which may contain
                 // multiple model-authored bubbles. Do not let steps/nextAction
                 // become a second private-message sender for this same input.
