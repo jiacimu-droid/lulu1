@@ -28,7 +28,7 @@ internal fun DigitalWorldArcadeScreen(
         mutableStateOf(residents.firstOrNull()?.characterId?.let(::listOf).orEmpty())
     }
     val memoryMatch = gameId == "memory_match"
-    val soloAllowed = gameId in setOf("yacht_dice", "block_island", "relic_escape")
+    val soloAllowed = gameId in setOf("memory_match", "yacht_dice", "block_island", "relic_escape")
     val gameTitle = when (gameId) {
         "memory_match" -> "记忆配对"
         "yacht_dice" -> "快艇骰子"
@@ -62,7 +62,7 @@ internal fun DigitalWorldArcadeScreen(
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Text(gameTitle, style = MaterialTheme.typography.headlineMedium)
-            Text("选择同伴", style = MaterialTheme.typography.titleMedium)
+            Text(if (memoryMatch) "选择对手，或独自挑战最少轮次" else "选择同伴", style = MaterialTheme.typography.titleMedium)
             if (soloAllowed) {
                 FilterChip(selected = selectedIds.isEmpty(),
                     onClick = { selectedIds = emptyList() }, label = { Text("自己玩") })
@@ -81,17 +81,17 @@ internal fun DigitalWorldArcadeScreen(
             }
             if (maxParty > 1) Text("最多邀请${maxParty}位在场伙伴，同行角色会真实采集、战斗和搜索。",
                 style = MaterialTheme.typography.bodySmall)
-            if (memoryMatch && residents.isEmpty()) Text("这里暂时没有在场角色，记忆配对需要一位对手。")
+            if (memoryMatch && residents.isEmpty()) Text("当前没有在场角色，也可以独自挑战自己的最佳轮次。")
             val hasUnfinished = memoryMatch && gameState.memoryMatch.moves > 0 && !gameState.memoryMatch.finished
             if (hasUnfinished) Text("已有一局未完成的配对；开始新局会替换它。", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            if (hasUnfinished && partner?.characterId == gameState.selectedCharacterId) {
+            if (hasUnfinished && gameState.memoryMatch.opponentId == selectedIds.firstOrNull()) {
                 OutlinedButton(onClick = { partner?.let { com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(it.characterId) }; started = true }, shape = RoundedCornerShape(16.dp)) { Text("继续当前对局") }
             }
             Button(
                 enabled = soloAllowed || partner != null,
                 onClick = {
-                    store.selectCharacters(selectedIds)
-                    if (memoryMatch) store.resetMemoryMatch()
+                    if (memoryMatch) store.startMemoryMatch(selectedIds.firstOrNull())
+                    else store.selectCharacters(selectedIds)
                     selectedIds.forEach { com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(it) }
                     started = true
                 },
