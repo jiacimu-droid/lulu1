@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:00:38.643280+00:00",
-  "commit": "466056361f8d9131b53c599dbcae519e6e80d415",
+  "generatedAt": "2026-11-18T07:01:20.982041+00:00",
+  "commit": "9412683f0bfbe581d97b907116e167e885a8aa9a",
   "branch": "main",
-  "sourceFingerprint": "a06d863ad7c8a4b0f26345b702801070622e377617485cdd5ccf478c8da6f606",
+  "sourceFingerprint": "e9d0609b6e139b2284e904becbbcbbc76c8095fe831efff75fa8f364382d7160",
   "summary": {
     "files": 1457,
-    "lines": 308119,
+    "lines": 308142,
     "symbols": 4391
   },
   "symbolIndex": {
@@ -27027,8 +27027,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-      "lines": 322,
-      "sha256": "900cfd7ef1bc81b7991c0b384a4eaa5601eb1cc1a3b3084186560c3be1511e4f",
+      "lines": 340,
+      "sha256": "b5611e03fc822c065695cff3f49056729425bb4209c3bd2e6a8f5ae876ad39d8",
       "symbols": [
         {
           "name": "wishesListUrl",
@@ -45318,8 +45318,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/LuluCommunitySupportConfigTest.kt",
-      "lines": 40,
-      "sha256": "5e2fba2c1e4320242d436d1a685e1f4202093e9d0a66abe99ba1702716d7b373",
+      "lines": 45,
+      "sha256": "f3671b99649a0900ed94fdbf3d2da07633e31a6822049719378daf3def79abe8",
       "symbols": [
         {
           "name": "LuluCommunitySupportConfigTest",
