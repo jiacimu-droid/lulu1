@@ -18,8 +18,8 @@ internal object LuluVirtualTextInputPolicy {
     fun requiresVisualSnapshot(hasX: Boolean, hasY: Boolean): Boolean = hasX && hasY
 
     fun stage(accepted: Boolean, exactReadback: Boolean): String = when {
+        !accepted -> "input_not_dispatched"
         exactReadback -> "draft_verified"
-        accepted -> "input_dispatched_unverified"
-        else -> "input_not_dispatched"
+        else -> "input_dispatched_unverified"
     }
 }
