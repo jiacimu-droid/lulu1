@@ -3058,7 +3058,8 @@ object ProactivePerceptionRuntime {
             actionReason: String,
         ): String? {
             val includeInPrivateReport = SearchReceiptFeedback.requestsPrivateReply(actionArgs)
-            val replayed = actual.optBoolean("replayedHistoricalReceipt")
+            val replayed = !com.jiacimu.lulu.system.LuluBackgroundPhoneContinuation
+                .hasFreshExecutionReceipt(actual)
             if (includeInPrivateReport) phoneReceipts += "步骤ID=${actionRequestId.take(90)}；" +
                 "动作=${actionArgs.optString("action")}；" +
                 (if (replayed) "恢复的历史回执（不是本次操作）=" else "本次真实回执=") +
