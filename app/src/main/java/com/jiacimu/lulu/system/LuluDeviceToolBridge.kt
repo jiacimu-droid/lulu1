@@ -243,51 +243,6 @@ object LuluDeviceToolBridge {
         val connection = runCatching { LuluAiServices.connectionStore.resolveConnection(selectedArchive) }
             .getOrElse { return Result.failure(it) }
         val character = MigratedDomainStores.characters.get(characterId)
-        // Factual integrity only. If the model wrongly puts its own missed
-        // obligation on the user, ask the SAME role to reconsider its expression.
-        // Never substitute a universal apology script or mutate stored persona.
-        val repairUnfairSpeech: suspend (String) -> String? = { speech ->
-            if (!com.jiacimu.lulu.data.CharacterAccountabilityContext
-                    .containsUnfoundedBlame(userText, speech)) speech
-            else {
-                val redraft = LuluAiServices.gateway.generate(
-                    characterId = characterId,
-                    facts = buildString {
-                        appendLine("此时场景：${sceneContext.take(180)}")
-                        appendLine("用户本轮原话：${userText.take(850)}")
-                        appendLine("刚才真实对话（只作关系与承诺核对，不把旧草稿当事实）：${history.takeLast(1_600)}")
-                        appendLine("本角色刚才尚未发出的表达：${speech.take(900)}")
-                        appendLine("已核实的责任上下文：")
-                        appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext
-                            .prompt(characterId).take(1800))
-                    },
-                    instruction = """
-                        这是同一角色的原话在送达前进行事实核对，而不是新增用户消息。
-                        原稿把没有证据的责任/动机强加给用户了。请依据刚才的事实，
-                        由你自己重新判断想说什么，并用你原有的人格、关系、语气自然说出来。
-                        保留有根据的不同意见和情绪，不重复无证据的指责。
-                        角色应从本人已经成立的关系、先前的承诺和主人此次真实反馈出发理解，
-                        不能把对方正常核查履约解释成故意挑衅、找茬或倒打一耙。
-                        未履行或缺少实际回执时说清本人已知事实与不确定性，
-                        不把用户没有回应等同于角色已经通知到位。
-                        不规定必须道歉或必须怎样道歉；不得声称工具动作已经完成.
-                        只输出本人自然口语的完整文本，不要 JSON、引号或舞台旁白。
-                    """.trimIndent(),
-                    source = "聊天发送前·责任事实核对",
-                    title = title,
-                    maxTokens = 420,
-                    connectionOverride = connection,
-                ).getOrNull()?.text?.trim().orEmpty()
-                val natural = com.jiacimu.lulu.data.ModelStructuredOutput.completedReplyText(redraft)
-                    ?: redraft.takeUnless {
-                        it.startsWith("{") || it.startsWith("```")
-                    }.orEmpty()
-                natural.takeIf { it.isNotBlank() &&
-                    !com.jiacimu.lulu.data.CharacterAccountabilityContext
-                        .containsUnfoundedBlame(userText, it) }
-            }
-        }
-
         val previousPresence = CompanionPresenceStore.current(characterId)
         val now = Instant.now()
         val zone = ZoneId.systemDefault()
@@ -511,8 +466,6 @@ object LuluDeviceToolBridge {
             如果已经决定现在收藏，就直接行动而不是说“挂了以后再操作”；犹豫或暂不收藏时不要填写。
             如果决定以后再做，应把有真实目标和下一步的未完成意愿放进 appraisal.pendingConcern；心声、后续口头承诺或意图字段本身不会自动执行工具。明确决定在电话里稍后放歌时，必须使用上文 afterCallMedia，不要只留口头保证。
         """.trimIndent()
-        val disputeNeedsReview = com.jiacimu.lulu.data.CharacterAccountabilityContext
-            .let { it.isUnmetPromiseChallenge(userText) || it.isWakeExplanation(userText) }
         // This is deliberately AFTER message persistence, not a photo-picker blocker.
         val chatPhotos = if (!sceneContext.contains("电话") && userEvidenceIds.isNotEmpty())
             com.jiacimu.lulu.QqChatImageModelInput.prepare(appContext, characterId, userEvidenceIds)
@@ -618,9 +571,8 @@ object LuluDeviceToolBridge {
                 if (sceneContext.contains("电话") && !callSilence && !rewriting)
                     appendLine(com.jiacimu.lulu.data.CharacterSocialActionOpportunities.prompt(characterId))
                 if (chatPhotos.promptNote.isNotBlank()) appendLine(chatPhotos.promptNote)
-                // Existing obligations are already delivered by CharacterRuntime
-                // in the gateway. Only the current-message challenge is local.
-                appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.challengeGuidance(userText))
+                // CharacterRuntime supplies persona, live duties and self-reflection
+                // in the same Full-context gateway; no keyword-specific speech gate.
             },
             instruction = if (bedtimePromptActive) """
                 【通话哄睡：单次完整长篇语音】你是当前角色，不是朗读系统或睡眠客服。
@@ -725,10 +677,10 @@ object LuluDeviceToolBridge {
             // A complaint about unfulfilled responsibilities needs a checked complete response,
             // not an irreversible stream of premature accusations.
             streamResponse = PhoneModelTransportPolicy.shouldStream(
-                sceneContext, separateExpression, disputeNeedsReview,
+                sceneContext, separateExpression, disputeNeedsReview = false,
                 hasSafeStreamConsumer = onReplyStream != null,
             ),
-            onStreamText = if (separateExpression || disputeNeedsReview) null else onReplyStream,
+            onStreamText = if (separateExpression) null else onReplyStream,
             imageDataUrls = chatPhotos.urls,
             connectionOverride = connection,
             memoryRequest = UnifiedMemoryRequest(
@@ -831,12 +783,9 @@ object LuluDeviceToolBridge {
                 return Result.failure(IllegalStateException(
                     "角色把内部观察误写为口语，已拦截发声，请重试"))
             }
-            val verifiedSpeech = repairUnfairSpeech(visible)
+            val verifiedSpeech = visible
             currentCoroutineContext().ensureActive()
             if (phoneDecisionInvalidated()) return stalePhoneTurn()
-            if (verifiedSpeech == null) return Result.failure(IllegalStateException(
-                "本轮角色回复包含无事实依据的归责，重新表达仍未通过核验；原消息未丢失"
-            ))
             // A malformed phone JSON can still recover genuinely speakable
             // text. Previously this early return skipped the whole Live2D
             // action gateway: audio played but no motion was ever planned.
@@ -854,10 +803,7 @@ object LuluDeviceToolBridge {
         }
         if (callSilence && parsedPlan.action !in setOf("reply", CharacterDecisionProtocol.SILENT))
             return Result.failure(IllegalStateException("通话沉默观察不执行外部工具动作"))
-        var plan = parsedPlan.copy(innerThought =
-            com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
-                userText, parsedPlan.innerThought,
-            ))
+        var plan = parsedPlan
         // Common voice models sometimes complete speechIntent but omit the
         // optional final text field. Fix only the missing spoken surface instead
         // of treating a usable character decision as a failed phone request.
@@ -1084,14 +1030,8 @@ object LuluDeviceToolBridge {
         // Do not treat a decision envelope as spoken content. In particular,
         // a phone model returning only a brief must never read JSON aloud.
         val proposedSpeech = if (plan.action == "reply") plan.text else ""
-        val checkedText = if (proposedSpeech.isNotBlank())
-            com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfairBlame(
-                userText, proposedSpeech,
-            ) else ""
-        // A corrected visible sentence must not leave abusive hidden state behind.
-        val invalidBlame = proposedSpeech.isNotBlank() && checkedText != proposedSpeech
         var phoneMoment: CompanionPresenceState? = null
-        if (!invalidBlame && !rewriting) {
+        if (!rewriting) {
             com.jiacimu.lulu.data.CharacterMotivationOwnership.updateLegacyIfPresent(characterId, plan.intention)
             val verifiedSources = if (ordinaryPhone) originalUserEvidence else originalUserEvidence.ifEmpty {
                 com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
@@ -1655,12 +1595,9 @@ object LuluDeviceToolBridge {
             fun staleReplyExpression() = Result.failure<ModelReply>(IllegalStateException(
                 "本轮电话期间${phoneInvalidationReason()}，旧台词未交付，请继续说话",
             ))
-            val repairedSpeech = repairUnfairSpeech(naturalText)
+            val verifiedSpeech = naturalText
             currentCoroutineContext().ensureActive()
             if (phoneDecisionInvalidated()) return staleReplyExpression()
-            val verifiedSpeech = repairedSpeech ?: return Result.failure(IllegalStateException(
-                    "角色本轮表达与未履行责任的事实不符，已停止发送，不使用固定道歉模板"
-                ))
             if (sceneContext.contains("电话") &&
                 com.jiacimu.lulu.PhoneSpokenContentBoundary.leaksInternalAnalysis(verifiedSpeech)) {
                 if (callSilence) return Result.success(expressed.copy(
@@ -1690,7 +1627,7 @@ object LuluDeviceToolBridge {
                 ),
             ).filter(String::isNotBlank).joinToString(com.jiacimu.lulu.SemanticBubbleSeparator)
             if (com.jiacimu.lulu.Live2DVisualActionBus.canPublishPhoneVisual(
-                    invalidBlame, rewriting, phoneCallId, safeText)) {
+                    false, rewriting, phoneCallId, safeText)) {
                 // Visual expression is an independent action chosen by the
                 // SAME phone-turn model. Guarding it with safeText == naturalText
                 // previously dropped real gestures whenever speech needed
@@ -1705,7 +1642,7 @@ object LuluDeviceToolBridge {
                     if (phoneDecisionInvalidated()) return staleReplyExpression()
                 } else plan.live2d?.let { chosen -> onLive2DAction?.invoke(chosen) }
             }
-            if (!invalidBlame && !bedtimePromptActive && !rewriting &&
+            if (!bedtimePromptActive && !rewriting &&
                 (if (ordinaryPhone) verifiedSpeech == naturalText else safeText == naturalText)) {
                 if (ordinaryPhone) phoneMoment?.let { moment ->
                     onPhonePresence?.invoke(moment)
@@ -1717,11 +1654,11 @@ object LuluDeviceToolBridge {
                 )
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId, if (callSilence) "电话中的安静陪伴观察" else "本轮用户消息：$userText", plan.afterglow)
             }
-            if (!invalidBlame && !rewriting && !plan.endCall &&
+            if (!rewriting && !plan.endCall &&
                 sceneContext.contains("电话") && phoneCallId.isNotBlank() &&
                 plan.hangupAfterSeconds in 0..86_400)
                 onTimedHangup?.invoke(plan.hangupAfterSeconds)
-            if (!invalidBlame && !rewriting && plan.endCall && sceneContext.contains("电话"))
+            if (!rewriting && plan.endCall && sceneContext.contains("电话"))
                 onCharacterHangup?.invoke()
             if (rewriting) onReconsiderationDraft?.invoke(ReconsideredChatReply(
                 text = sendText,
@@ -1742,7 +1679,7 @@ object LuluDeviceToolBridge {
                 sleepDecision = plan.sleepDecision.takeIf { sceneContext.contains("电话") && it in setOf("enable", "disable") },
                 musicAfterSpeech = plan.musicAfterSpeech.takeIf { sceneContext.contains("电话") && it in setOf("resume", "stay_paused") },
                 phoneMediaReceipt = mediaReceipt.takeIf(String::isNotBlank),
-                interactionReceipt = if (rewriting || invalidBlame || safeText != naturalText) null else com.jiacimu.lulu.data.CharacterConversationAgency.receipt(
+                interactionReceipt = if (rewriting || safeText != naturalText) null else com.jiacimu.lulu.data.CharacterConversationAgency.receipt(
                     groundingEvidenceId.ifBlank { observedWorld.lastOrNull()?.id.orEmpty() },
                     plan.reason, plan.motiveId, plan.concernId, plan.curiosity, plan.experienceId,
                     plan.learningApplication, intentionId = plan.intentionId,
@@ -1901,10 +1838,10 @@ object LuluDeviceToolBridge {
             maxTokens = if (sceneContext.contains("电话")) 1_800 else 1_200,
             imageDataUrls = lastRoleScreenImage?.let(::listOf).orEmpty(),
             streamResponse = PhoneModelTransportPolicy.shouldStream(
-                sceneContext, separateExpression = false, disputeNeedsReview = disputeNeedsReview,
+                sceneContext, separateExpression = false, disputeNeedsReview = false,
                 hasSafeStreamConsumer = onReplyStream != null,
             ),
-            onStreamText = if (disputeNeedsReview) null else onReplyStream,
+            onStreamText = onReplyStream,
             connectionOverride = connection,
             memoryRequest = recalledGroupEventIds.takeIf { it.isNotEmpty() }?.let {
                 UnifiedMemoryRequest(currentInput = userText, sceneContext = sceneContext,
@@ -1923,7 +1860,7 @@ object LuluDeviceToolBridge {
         // and no text, action, promise or tool fact is changed here.
         // Phone streams and disputed replies were already excluded below.
         val toolReplyForDelivery = if (!sceneContext.contains("电话") &&
-            onReplyStream == null && !disputeNeedsReview) {
+            onReplyStream == null) {
             val draft = finalReply.getOrNull()
             val envelope = draft?.text?.let {
                 com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(it)
@@ -1948,9 +1885,7 @@ object LuluDeviceToolBridge {
             val toolResultPrivateStateBefore = com.jiacimu.lulu.data.CharacterInnerLifeStore.snapshot(characterId)
             var toolResultPrivateDelta: com.jiacimu.lulu.data.PrivateStateDelta? = null
             val finalPlan = parsePlan(result.text)?.let { parsed ->
-                val guarded = com.jiacimu.lulu.data.CharacterAccountabilityContext.guardUnfoundedInnerBlame(
-                    userText, parsed.innerThought,
-                )
+                val guarded = parsed.innerThought
                 toolResultPrivateDelta = com.jiacimu.lulu.data.PrivateStateDeltaEngine.evaluate(
                     previous = toolResultPrivateStateBefore,
                     proposal = parsed.innerLife,
@@ -1972,12 +1907,9 @@ object LuluDeviceToolBridge {
             }
             val naturalText = finalPlan?.text?.ifBlank { result.text }
                 ?: com.jiacimu.lulu.CallReplyStream.completeReplyText(result.text) ?: result.text
-            val repairedResultText = repairUnfairSpeech(naturalText)
             currentCoroutineContext().ensureActive()
             if (phoneDecisionInvalidated()) return stalePhoneTurn(toolResultAvailable = true)
-            val checkedResultText = repairedResultText ?: throw IllegalStateException(
-                    "工具完成后回复包含无依据的归责，重新表达仍未通过核验；不代写道歉"
-                )
+            val checkedResultText = naturalText
             if (sceneContext.contains("电话") &&
                 com.jiacimu.lulu.PhoneSpokenContentBoundary.leaksInternalAnalysis(checkedResultText))
                 throw IllegalStateException("工具结果混入内部分析，未向通话播放")

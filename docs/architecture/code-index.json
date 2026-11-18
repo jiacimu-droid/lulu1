@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T17:05:58.755325+00:00",
-  "commit": "f01d17fe8073961e591fb36a7a54c2e8eb3aff88",
+  "generatedAt": "2026-11-18T17:07:43.664411+00:00",
+  "commit": "7dbb82e9f0103c46ad9197a8002f3bb3d514a588",
   "branch": "main",
-  "sourceFingerprint": "0c79003b61faeb692514fcb0aa8c73c15761a191722c8a64f43fd8bbbc1ef80f",
+  "sourceFingerprint": "fb6b8b83b964c4e8cfc0b806f04034410a6e05d6534483affef6ee4d0d603ee3",
   "summary": {
     "files": 1479,
-    "lines": 312863,
-    "symbols": 4463
+    "lines": 312799,
+    "symbols": 4458
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6866,40 +6866,10 @@
         "line": 141
       }
     ],
-    "isWakeExplanation": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 48
-      }
-    ],
-    "isUnmetPromiseChallenge": [
+    "reflectionGuidance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
         "line": 55
-      }
-    ],
-    "containsUnfoundedBlame": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 76
-      }
-    ],
-    "guardUnfairBlame": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 93
-      }
-    ],
-    "guardUnfoundedInnerBlame": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 101
-      }
-    ],
-    "challengeGuidance": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-        "line": 123
       }
     ],
     "resolve": [
@@ -30628,36 +30598,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
-      "lines": 132,
-      "sha256": "11ab2cf12a2ebc50b48cfc8d10bc6e669c36217af81c0c0804ad198fb8cb0d12",
+      "lines": 68,
+      "sha256": "ef544d6c95306efb3a744fcd79d82c5fca9795ed5426a4fd3474925591bbe49d",
       "symbols": [
         {
           "name": "prompt",
           "line": 13
         },
         {
-          "name": "isWakeExplanation",
-          "line": 48
-        },
-        {
-          "name": "isUnmetPromiseChallenge",
+          "name": "reflectionGuidance",
           "line": 55
-        },
-        {
-          "name": "containsUnfoundedBlame",
-          "line": 76
-        },
-        {
-          "name": "guardUnfairBlame",
-          "line": 93
-        },
-        {
-          "name": "guardUnfoundedInnerBlame",
-          "line": 101
-        },
-        {
-          "name": "challengeGuidance",
-          "line": 123
         }
       ]
     },
