@@ -125,8 +125,9 @@ class GameInvitationContinuityTest {
             setOf("memory_match", "yacht_dice", "block_island", "relic_escape")
         else setOf("memory_match", "yacht_dice")
         assertEquals(expectedSolo, AutonomousGameCatalog.gameNames.keys)
-        assertEquals(if (LuluGameEdition.worldGamesEnabled) 6 else 4,
+        assertEquals(if (LuluGameEdition.worldGamesEnabled) 5 else 3,
             GameInvitationCatalog.titles.size)
+        assertNull(GameInvitationCatalog.title("deep_sea_journey"))
         if (!LuluGameEdition.worldGamesEnabled) {
             assertNull(GameInvitationCatalog.title("block_island"))
             assertNull(GameInvitationCatalog.title("relic_escape"))

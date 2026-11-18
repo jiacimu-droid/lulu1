@@ -13,7 +13,7 @@ import org.robolectric.annotation.Config
 @Config(manifest = Config.NONE, sdk = [28])
 class GameOrientationPolicyTest {
     @Test fun worldMapGamesStartInLandscape() {
-        listOf("block_island", "relic_escape", "deep_sea_journey").forEach { id ->
+        listOf("block_island", "relic_escape").forEach { id ->
             assertTrue(gameSupportsLandscape(id))
             assertEquals(
                 ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE,
@@ -23,7 +23,7 @@ class GameOrientationPolicyTest {
     }
 
     @Test fun returningToHallAndOtherAppsMustUsePortrait() {
-        listOf("home", "memory_match", "turtle_soup", "records", "roleplay").forEach { id ->
+        listOf("home", "memory_match", "turtle_soup", "records", "roleplay", "deep_sea_journey").forEach { id ->
             assertFalse(gameSupportsLandscape(id))
             assertEquals(
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,

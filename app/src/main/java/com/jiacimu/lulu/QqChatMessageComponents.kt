@@ -808,7 +808,6 @@ private fun GameInviteMessageCard(
     val accent = when (invite.gameId) {
         "block_island" -> Color(0xFF4A8367)
         "relic_escape" -> Color(0xFFAD8755)
-        "deep_sea_journey" -> Color(0xFF417D8D)
         else -> QqMine
     }
     Card(

@@ -41,6 +41,7 @@ class GameInviteMessageParserTest {
 
     @Test fun unknownOrMalformedInvitationsCannotBecomeActionableCards() {
         assertNull(parseGameInvite("[游戏邀约|not_a_game|假游戏] 点击开始"))
+        assertNull(parseGameInvite("[游戏邀约|deep_sea_journey|深海回声] 旧消息"))
         assertNull(parseGameInvite("[游戏邀约|relic_escape|迷雾摸金"))
         assertNull(parseGameInvite("咱们去玩迷雾摸金吧"))
     }

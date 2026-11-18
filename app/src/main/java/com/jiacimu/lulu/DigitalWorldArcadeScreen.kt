@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.CharacterSettings
 import com.jiacimu.lulu.games.LuluGames
@@ -21,8 +20,6 @@ internal fun DigitalWorldArcadeScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
-    val divePrefs = remember(context) { context.getSharedPreferences("lulu_deep_sea_journey_v1", 0) }
     val store = LuluGames.store
     val gameState by store.state.collectAsState()
     var started by rememberSaveable(gameId) { mutableStateOf(false) }
@@ -30,17 +27,15 @@ internal fun DigitalWorldArcadeScreen(
     var selectedIds by rememberSaveable(gameId) {
         mutableStateOf(residents.firstOrNull()?.characterId?.let(::listOf).orEmpty())
     }
-    var errorText by remember { mutableStateOf("") }
     val memoryMatch = gameId == "memory_match"
-    val deepSea = gameId == "deep_sea_journey"
-    val soloAllowed = deepSea || gameId in setOf("yacht_dice", "block_island", "relic_escape")
+    val soloAllowed = gameId in setOf("yacht_dice", "block_island", "relic_escape")
     val gameTitle = when (gameId) {
         "memory_match" -> "记忆配对"
         "yacht_dice" -> "快艇骰子"
         "block_island" -> "方块小岛"
         "relic_escape" -> "迷雾摸金"
         "turtle_soup" -> "海龟汤"
-        else -> "深海回声"
+        else -> "游戏"
     }
     val partner = residents.firstOrNull { it.characterId == selectedIds.firstOrNull() }
     BackHandler(onBack = onBack)
@@ -88,10 +83,6 @@ internal fun DigitalWorldArcadeScreen(
                 style = MaterialTheme.typography.bodySmall)
             if (memoryMatch && residents.isEmpty()) Text("这里暂时没有在场角色，记忆配对需要一位对手。")
             val hasUnfinished = memoryMatch && gameState.memoryMatch.moves > 0 && !gameState.memoryMatch.finished
-            if (deepSea && divePrefs.getLong("started_at", 0L) > 0L && !divePrefs.getBoolean("completed", false)) {
-                Text("已有潜航进度；开始新潜航会替换它。已完成的游戏记录会保留。", color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            if (errorText.isNotBlank()) Text(errorText, color = MaterialTheme.colorScheme.error)
             if (hasUnfinished) Text("已有一局未完成的配对；开始新局会替换它。", color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (hasUnfinished && partner?.characterId == gameState.selectedCharacterId) {
                 OutlinedButton(onClick = { partner?.let { com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(it.characterId) }; started = true }, shape = RoundedCornerShape(16.dp)) { Text("继续当前对局") }
@@ -99,15 +90,13 @@ internal fun DigitalWorldArcadeScreen(
             Button(
                 enabled = soloAllowed || partner != null,
                 onClick = {
-                    if (!deepSea || divePrefs.edit().clear().putLong("started_at", System.currentTimeMillis()).commit()) {
-                        store.selectCharacters(selectedIds)
-                        if (memoryMatch) store.resetMemoryMatch()
-                        selectedIds.forEach { com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(it) }
-                        started = true
-                    } else errorText = "潜航进度保存失败，请重试"
+                    store.selectCharacters(selectedIds)
+                    if (memoryMatch) store.resetMemoryMatch()
+                    selectedIds.forEach { com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(it) }
+                    started = true
                 },
                 shape = RoundedCornerShape(16.dp),
-            ) { Text(if (deepSea) "开始新潜航" else "开始新局") }
+            ) { Text("开始新局") }
         }
     }
 }

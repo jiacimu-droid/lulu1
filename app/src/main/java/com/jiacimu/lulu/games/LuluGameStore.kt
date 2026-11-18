@@ -23,8 +23,9 @@ import kotlin.random.Random
  * Preserve world save parsers on main so switching APK editions never loses data. */
 internal object LuluGameEdition {
     const val worldGamesEnabled = false
-    fun available(gameId: String): Boolean = worldGamesEnabled ||
-        gameId !in setOf("block_island", "relic_escape")
+    fun available(gameId: String): Boolean =
+        gameId !in setOf("deep_sea", "deep_sea_journey") &&
+            (worldGamesEnabled || gameId !in setOf("block_island", "relic_escape"))
 }
 
 /** Product-parity game identifiers from lulu/master plus Lulu1 additions. */
@@ -37,7 +38,7 @@ enum class LuluGameType {
     YachtDice,
     Gomoku,
     MemoryMatch,
-    DeepSeaJourney,
+    DeepSeaJourney, // Legacy record decoder: keep old game history readable.
     MoodGuess,
     BlockIsland,
     RelicEscape,
@@ -49,7 +50,6 @@ object GameInvitationCatalog {
     val titles: Map<String, String> = linkedMapOf(
         "block_island" to "方块小岛",
         "relic_escape" to "迷雾摸金",
-        "deep_sea_journey" to "深海回声",
         "turtle_soup" to "海龟汤",
         "yacht_dice" to "快艇骰子",
         "memory_match" to "记忆配对",
