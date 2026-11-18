@@ -30,10 +30,15 @@ class LuluCommunitySupportConfigTest {
         assertFalse(LuluCommunitySupportConfig.wishBody("功能许愿", "文字").contains("设备编号"))
     }
 
-    @Test fun noPaymentDestinationIsInvented() {
-        // The owner must supply a real public payment URL before enabling donations.
-        assertEquals("", LuluCommunitySupportConfig.DONATION_URL)
-        assertEquals(null, LuluCommunitySupportConfig.safeDonationUrl())
+    @Test fun donationQrUsesOwnersImagePayloadAndIsReadyOffline() {
+        // Decoded from the image supplied by the maintainer, not a guessed recipient.
+        assertEquals(LuluAlipayDonationQrData.expectedPayload, LuluCommunitySupportConfig.DONATION_URL)
+        assertEquals(LuluAlipayDonationQrData.expectedPayload, LuluCommunitySupportConfig.safeDonationUrl())
+        assertTrue(LuluAlipayDonationQrData.valid())
+        assertEquals(41, LuluAlipayDonationQrData.rows.size)
+        assertEquals(41, LuluAlipayDonationQrData.rows[0].length)
+        // QR quiet zone must stay blank so nearby UI cannot disrupt scanning.
+        assertTrue(LuluAlipayDonationQrData.rows.take(4).all { it.all { cell -> cell == '0' } })
         assertEquals("1187725424@qq.com", LuluCommunitySupportConfig.emailAddress())
     }
 }
