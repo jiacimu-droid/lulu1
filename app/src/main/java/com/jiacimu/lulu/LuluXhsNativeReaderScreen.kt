@@ -393,6 +393,7 @@ internal fun LuluXhsNativeReaderScreen(
     if (shareVisible && article != null) {
         XhsShareToRoleDialog(
             preview = article?.title.orEmpty(),
+            isXhs = true,
             onDismiss = { shareVisible = false },
             onSelect = share@{ chat ->
                 val openedArticle = article ?: return@share
