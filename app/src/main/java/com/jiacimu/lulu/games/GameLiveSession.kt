@@ -71,6 +71,14 @@ internal class GameLiveSession(
         if (voiceMode) voice.enqueue(actorId, line)
     }
 
+    /** A sealed puzzle's fixed AI host is not a companion participant. */
+    fun fixedHostSaid(raw: String) {
+        val line = raw.trim()
+        if (line.isBlank()) return
+        lastCompanionLine = "主持：$line"
+        if (voiceMode) voice.enqueue("lulu", line)
+    }
+
     fun close() {
         voice.setEnabled(false)
         mic.stop()
