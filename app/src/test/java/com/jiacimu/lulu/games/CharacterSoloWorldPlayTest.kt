@@ -112,6 +112,27 @@ class CharacterSoloWorldPlayTest {
         assertEquals("extract", executor.chooseRelic(nearExit, "safe")?.first)
     }
 
+    @Test fun soloRelicSurveysAtKnownFogFrontierInsteadOfPacingBackAndForth() {
+        val executor = CharacterSoloWorldPlay(context)
+        val initial = RelicEscapeWorld.create(404, 1, emptyList(), 1, 1)
+        val startX = 6
+        val startY = 6
+        val revealed = (0 until initial.w * initial.h).filter { index ->
+            val x = index % initial.w
+            val y = index / initial.w
+            kotlin.math.abs(x - startX) + kotlin.math.abs(y - startY) <= 3
+        }.toSet()
+        val board = initial.copy(
+            hero = initial.hero.copy(x = startX, y = startY),
+            tiles = List(initial.w * initial.h) { 0 }, seen = revealed,
+            mobs = emptyList(), chests = emptyList(), sites = emptyList(),
+        )
+        assertTrue(RelicEscapeRules.canSurvey(board))
+        assertEquals("survey", executor.chooseRelic(board, "explore")?.first)
+        val surveyed = RelicEscapeRules.act(board, "survey")
+        assertTrue(surveyed.seen.size > board.seen.size)
+    }
+
     @Test fun invalidFocusAndTurnBudgetCannotChangePersonalSave() {
         val executor=CharacterSoloWorldPlay(context)
         val id="solo-invalid-settings"
