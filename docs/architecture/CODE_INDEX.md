@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`03eb074fefe9c611652b4b872e7b91ca882842a9`
+- 基准提交：`eaf7f2ccbe3b320816d5cc831fe52bf4334b933e`
 - 分支：`main`
 - 已索引文件：1445
-- 已索引代码/文本行：305586
+- 已索引代码/文本行：305592
 - 已发现符号：4366
 
 | 文件 | 行数 | 符号数 |
@@ -210,7 +210,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt` | 520 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 402 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt` | 231 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 317 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 318 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 342 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 567 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluStrictModeSettingsScreen.kt` | 147 | 1 |
@@ -307,7 +307,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 651 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolderUi.kt` | 177 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt` | 103 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/SettingsHomeSearch.kt` | 81 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/SettingsHomeSearch.kt` | 86 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 98 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt` | 60 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/SleepNarrativeStore.kt` | 90 | 1 |
