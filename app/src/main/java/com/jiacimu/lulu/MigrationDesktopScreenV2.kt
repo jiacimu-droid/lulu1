@@ -772,10 +772,12 @@ private fun DesktopV2LauncherItem(
     BoxWithConstraints(modifier.luluCssElement("launcher")) {
         // Reserve space for the label first: icon labels must not be clipped by
         // a fixed 61dp icon box on compact or eight-row desktop pages.
-        val twoLines = launcher.title.length > 4 && launcher.title != "Live2D"
-        val labelSpace = if (twoLines) 28.dp else 18.dp
-        val iconHeight = minOf(61.dp, (maxHeight - labelSpace - 3.dp).coerceAtLeast(30.dp))
-        val iconWidth = minOf(57.dp, (maxWidth - 6.dp).coerceAtLeast(32.dp))
+        val smallCell = maxHeight < 64.dp
+        val twoLines = !smallCell && launcher.title.length > 4 && launcher.title != "Live2D"
+        val labelSpace = if (smallCell) 12.dp else if (twoLines) 28.dp else 18.dp
+        val space = if (smallCell) 1.dp else 3.dp
+        val iconHeight = minOf(61.dp, (maxHeight - labelSpace - space).coerceAtLeast(12.dp))
+        val iconWidth = minOf(57.dp, (maxWidth - 6.dp).coerceAtLeast(24.dp))
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
             Surface(
@@ -791,10 +793,12 @@ private fun DesktopV2LauncherItem(
                         modifier = Modifier.size(minOf(30.dp, iconHeight - 8.dp)))
                 }
             }
-            Spacer(Modifier.height(3.dp))
+            Spacer(Modifier.height(space))
             Text(
-                launcher.title, color = DesktopInk, fontSize = 11.sp,
-                lineHeight = 13.sp, fontWeight = FontWeight.Medium,
+                launcher.title, color = DesktopInk,
+                fontSize = if (smallCell) 8.sp else 11.sp,
+                lineHeight = if (smallCell) 11.sp else 13.sp,
+                fontWeight = FontWeight.Medium,
                 maxLines = if (twoLines) 2 else 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
