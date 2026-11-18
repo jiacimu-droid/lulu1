@@ -121,6 +121,76 @@ class RelationshipPreferenceGatewayTest {
         } finally { server.shutdown() }
     }
 
+    @Test(timeout = 60_000) fun failedRequestDoesNotFreezeEditedPersonaOrLeakRelationshipIntoNextScene() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        val actor = MigratedDomainStores.characters.create("失败后手改的人物", "旧人格专用标记")
+        val peer = MigratedDomainStores.characters.create("相邻请求的另一人物", "另一人物独立人格标记")
+        val oldAgreement = "旧约定专用标记：可以沿用旧称呼。"
+        val peerAgreement = "另一人物关系专用标记：只按自己的约定回应。"
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(actor.characterId, "user", "旧关系", oldAgreement))
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(peer.characterId, "user", "另一关系", peerAgreement))
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setResponseCode(401).setBody("invalid test credential"))
+            repeat(3) {
+                server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                    .setBody("""{"choices":[{"message":{"content":"测试响应"},"finish_reason":"stop"}]}"""))
+            }
+            server.start()
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            suspend fun request(role: String, mode: CompanionContextMode) =
+                LuluAiServices.gateway.generate(role, "当前场景事实标记", "依据本人的当前设定回应",
+                    "人物失败后跨轮回归", "test", connectionOverride = connection, contextMode = mode)
+            fun system(): String {
+                val body = checkNotNull(server.takeRequest(5, TimeUnit.SECONDS)).body.readUtf8()
+                return JSONObject(body).getJSONArray("messages").getJSONObject(0).getString("content")
+            }
+            assertTrue(request(actor.characterId, CompanionContextMode.Full).isFailure)
+            val failedPrompt = system()
+            assertTrue(failedPrompt.contains(actor.persona))
+            assertTrue(failedPrompt.contains(oldAgreement))
+            assertEquals(1, server.requestCount)
+
+            val editedPersona = "新版人格：喜欢独立思考，有自己的审美。".repeat(90) +
+                "最终条件：只有对方明确同意才靠近，否则不要替对方作决定。"
+            val editedAgreement = "新版关系：按双方本次保存的约定相处。".repeat(90) +
+                "最终边界：除非用户主动提出，否则不要再用旧称呼。"
+            MigratedDomainStores.characters.update(actor.copy(persona = editedPersona))
+            assertTrue(CharacterLifeStore.setRelationshipAgreement(actor.characterId, "user",
+                "新版关系标题", editedAgreement))
+
+            request(peer.characterId, CompanionContextMode.Full).getOrThrow()
+            val peerPrompt = system()
+            assertTrue(peerPrompt.contains(peer.persona))
+            assertTrue(peerPrompt.contains(peerAgreement))
+            for (excluded in listOf(actor.persona, editedPersona, oldAgreement, editedAgreement)) {
+                assertFalse(peerPrompt.contains(excluded))
+            }
+
+            request(actor.characterId, CompanionContextMode.PersonaAndScenario).getOrThrow()
+            val isolatedPersona = system()
+            assertTrue(isolatedPersona.contains(editedPersona))
+            for (excluded in listOf(actor.persona, oldAgreement, editedAgreement, peer.persona, peerAgreement)) {
+                assertFalse(isolatedPersona.contains(excluded))
+            }
+
+            request(actor.characterId, CompanionContextMode.Full).getOrThrow()
+            val current = system()
+            assertTrue(current.contains(editedPersona))
+            assertTrue(current.contains(editedAgreement))
+            assertTrue(current.contains("新版关系标题"))
+            for (excluded in listOf(actor.persona, oldAgreement, peer.persona, peerAgreement)) {
+                assertFalse(current.contains(excluded))
+            }
+            assertEquals(4, server.requestCount)
+            assertEquals(editedPersona, MigratedDomainStores.characters.get(actor.characterId).persona)
+            assertEquals(editedAgreement, CharacterSocialRelationship.agreement(actor.characterId, "user")?.details)
+        }
+    }
+
     @Test fun leanExpressionActuallyReceivesEnduringPreferencesAndCoreButIsolatedTasksDoNot() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
