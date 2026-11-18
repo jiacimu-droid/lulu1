@@ -69,16 +69,31 @@ class LuluDesktopWidgetTest {
         ), listOf(first), slots))
     }
 
-    @Test fun aFullPageAllocatesAnotherWithoutErasingExistingItems() {
-        val slots = MutableList<String?>(32) { null }
-        val first = luluPlaceWidget(LuluWidgetKind.HOROSCOPE, 1, emptyList(), slots)!!
-        val second = luluPlaceWidget(LuluWidgetKind.HOROSCOPE, 1, listOf(first), slots)!!
-        assertEquals(1, first.page)
-        assertEquals(1, second.page)
-        val third = luluPlaceWidget(LuluWidgetKind.HOROSCOPE, 1, listOf(first, second), slots)!!
-        assertEquals(2, third.page)
-        assertEquals(0, third.col)
-        assertEquals(0, third.row)
+    @Test fun fourLargeWidgetsFitOneFullPageAndFifthGoesToNext() {
+        val slots = MutableList<String?>(desktopPageStart(2)) { null }
+        val placed = mutableListOf<LuluDesktopWidget>()
+        repeat(4) {
+            val added = luluPlaceWidget(LuluWidgetKind.HOROSCOPE, 1, placed, slots)!!
+            assertEquals(1, added.page)
+            placed.add(added)
+        }
+        assertEquals(listOf(0, 2, 4, 6), placed.map { it.row })
+        val fifth = luluPlaceWidget(LuluWidgetKind.HOROSCOPE, 1, placed, slots)!!
+        assertEquals(2, fifth.page)
+        assertEquals(0, fifth.col)
+        assertEquals(0, fifth.row)
+    }
+
+    @Test fun lowerRowVacanciesAcceptAppsButNeverOverwrittenByWidgets() {
+        val slots = MutableList<String?>(desktopPageStart(2)) { null }
+        val lastRow = desktopSlotIndex(1, 7, 3)
+        slots[lastRow] = "games"
+        val note = LuluDesktopWidget("bottom", LuluWidgetKind.NOTE,
+            page = 1, col = 2, row = 6)
+        assertFalse(luluWidgetFits(note, emptyList(), slots))
+        assertTrue(luluWidgetFits(note.copy(col = 0), emptyList(), slots))
+        assertEquals(8f * luluDesktopFullCellHeight(360f, 700f, 8),
+            minOf(700f, 8 * luluDesktopFullCellHeight(360f, 700f, 8)), 0.01f)
     }
 
     @Test fun cannotDragAWidgetOntoTheFirstDashboardOrOverASecondWidget() {
