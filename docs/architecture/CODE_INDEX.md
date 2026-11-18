@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`87ad0a0d67ee5be4f0c3955dfbd9fdcc1d4ebcd8`
+- 基准提交：`2ed8f6bfcf64e4af194c005700684ee91b885099`
 - 分支：`main`
 - 已索引文件：1444
-- 已索引代码/文本行：305064
+- 已索引代码/文本行：305078
 - 已发现符号：4359
 
 | 文件 | 行数 | 符号数 |
@@ -219,7 +219,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 816 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2719 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt` | 299 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt` | 305 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWidgetRoleActions.kt` | 105 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 844 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 210 | 9 |
@@ -966,7 +966,7 @@
 | `app/src/test/java/com/jiacimu/lulu/LuluDesktopWidgetTest.kt` | 82 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt` | 92 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluVoiceCallReplyActivityTest.kt` | 29 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/LuluWidgetLiveIntegrationTest.kt` | 149 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/LuluWidgetLiveIntegrationTest.kt` | 157 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingSceneConcurrencyTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingSceneConsentTest.kt` | 45 | 1 |
