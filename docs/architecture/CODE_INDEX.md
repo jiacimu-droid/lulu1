@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`cfc635a174cab3c006d39790800d2ed3465dca13`
+- 基准提交：`288087006d7307a2395037460c38a3cf36919839`
 - 分支：`main`
 - 已索引文件：1443
-- 已索引代码/文本行：304418
-- 已发现符号：4348
+- 已索引代码/文本行：304459
+- 已发现符号：4349
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -911,7 +911,7 @@
 | `app/src/test/java/com/jiacimu/lulu/CallAudioRecoveryPolicyTest.kt` | 16 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallCommitmentDecisionPolicyTest.kt` | 14 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 279 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt` | 109 | 3 |
+| `app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt` | 150 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/CallHangupGracePolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallMemoryPolicyTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallResponsibilityContextTest.kt` | 40 | 1 |

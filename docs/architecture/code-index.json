@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T00:48:21.938383+00:00",
-  "commit": "cfc635a174cab3c006d39790800d2ed3465dca13",
+  "generatedAt": "2026-11-18T01:37:24.948246+00:00",
+  "commit": "288087006d7307a2395037460c38a3cf36919839",
   "branch": "main",
-  "sourceFingerprint": "7e233a004e7381153a0785e29ace79fe526acf84451977f66d5ab40ada5cd00d",
+  "sourceFingerprint": "620b3a658cd0c7d38b6f46519dcf324be2722614f147dce1c1228ab325e07775",
   "summary": {
     "files": 1443,
-    "lines": 304418,
-    "symbols": 4348
+    "lines": 304459,
+    "symbols": 4349
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -8696,6 +8696,10 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt",
         "line": 42
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt",
+        "line": 86
       }
     ],
     "latestConsideration": [
@@ -44326,8 +44330,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/CallExternalResultPolicyTest.kt",
-      "lines": 109,
-      "sha256": "e453d4122f86b0d58f1d443a4e9f4553d99fa470b50c87d008d4afeaf26b0d2a",
+      "lines": 150,
+      "sha256": "244707971f16c145e5b5b52dba8c99c0a3753c38b21a5f428ebcfa727617de90",
       "symbols": [
         {
           "name": "CallExternalResultPolicyTest",
@@ -44340,6 +44344,10 @@
         {
           "name": "offer",
           "line": 42
+        },
+        {
+          "name": "offer",
+          "line": 86
         }
       ]
     },
