@@ -108,4 +108,27 @@ class RelicVaultPersistenceTest {
         assertEquals(sold,RelicSnapshot.read(JSONObject(sold.json().toString()).toString()))
         assertEquals(sold,ledger.sellLoot(loot.id))
     }
+    @Test fun duplicateMuseumExhibitTracksPhysicalRowThroughSaleAndReload() {
+        val context=RuntimeEnvironment.getApplication()
+        val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
+        prefs.edit().clear().commit()
+        val a=RelicLoot("duplicate","月银胸针",RelicTier.RARE,220)
+        val b=RelicLoot("duplicate","幽蓝宝石",RelicTier.RARE,410)
+        prefs.edit().putString("ledger",RelicSnapshot(vault=listOf(a,b)).json().toString()).commit()
+        val ledger=RelicEscapeLedger(context)
+        val featured=ledger.featureLootAt(1,b)
+        assertEquals(1,featured.featuredLootIndex)
+        assertEquals(1,RelicEscapeLedger(context).read().featuredLootIndex)
+        assertEquals(featured,ledger.featureLootAt(0,b))
+        val sold=ledger.sellLootAt(0,a)
+        assertEquals(listOf(b),sold.vault)
+        assertEquals(0,sold.featuredLootIndex)
+        assertEquals(b.id,sold.featuredLootId)
+        assertEquals(sold,RelicEscapeLedger(context).read())
+        val cleared=ledger.sellLootAt(0,b)
+        assertNull(cleared.featuredLootId)
+        assertNull(cleared.featuredLootIndex)
+        assertEquals(630,cleared.coins)
+    }
+
 }
