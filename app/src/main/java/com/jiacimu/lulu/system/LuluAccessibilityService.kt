@@ -1268,7 +1268,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 else tapVirtualDisplay(displayId, packageName, x, y)
             } else null
             val accepted = nativeClicked || viaTouch?.optBoolean("accepted") == true
-            val dispatched = nativeClicked || viaTouch?.optBoolean("gestureDispatched") == true
+            val dispatched = nativeClicked || viaTouch?.optBoolean("dispatchAttempted") == true
             return result(accepted, if (accepted) "" else "chat_keyboard_toggle_rejected",
                 if (accepted) "已尝试切换微信文字模式，等待实际文字框出现"
                 else "未确认微信接受键盘切换",
@@ -1926,87 +1926,98 @@ class LuluAccessibilityService : AccessibilityService() {
             return service.performGlobalAction(globalAction)
         }
 
-        /**
-         * Mika ScreenAccessibility's official per-display gesture route.
-         * Shell input is NOT the authorization authority for a role-owned swipe.
-         * Only the verified target window on an independent display can receive
-         * a gesture; no fallback to the owner's main screen is permitted.
-         *
-         * An Android onCompleted callback confirms gesture dispatch/completion,
-         * not that the page actually scrolled. The session separately compares
-         * fresh accessibility observations and image frames.
-         */
         suspend fun swipeVirtualDisplay(
             displayId: Int, packageName: String,
             startX: Int, startY: Int, endX: Int, endY: Int, durationMs: Int,
+        ): JSONObject = dispatchVirtualGesture(displayId, packageName,
+            startX, startY, endX, endY, durationMs.coerceIn(180, 1600),
+            "accessibility_gesture_virtual_display")
+
+        suspend fun tapVirtualDisplay(
+            displayId: Int, packageName: String, x: Int, y: Int,
+            stillAuthorized: () -> Boolean = { true },
+        ): JSONObject = pressVirtualDisplay(displayId, packageName, x, y, null, stillAuthorized)
+
+        /** Use the same display-bound Android gesture API as scrolling, even
+         * when the App exposes no clickable accessibility nodes. */
+        suspend fun pressVirtualDisplay(
+            displayId: Int, packageName: String, x: Int, y: Int, holdMs: Int?,
+            stillAuthorized: () -> Boolean,
+        ): JSONObject = dispatchVirtualGesture(displayId, packageName, x, y, x, y,
+            holdMs ?: (android.view.ViewConfiguration.getTapTimeout() / 2).coerceAtLeast(1),
+            if (holdMs == null) "accessibility_tap_virtual_display"
+            else "accessibility_long_press_virtual_display", stillAuthorized)
+
+        internal fun virtualGesture(
+            displayId: Int, width: Int, height: Int, startX: Int, startY: Int,
+            endX: Int, endY: Int, durationMs: Int,
+        ): GestureDescription {
+            require(displayId > 0)
+            val path = Path().apply {
+                moveTo(LuluPhoneUiGeometry.pixel(startX, width),
+                    LuluPhoneUiGeometry.pixel(startY, height))
+                if (startX != endX || startY != endY)
+                    lineTo(LuluPhoneUiGeometry.pixel(endX, width), LuluPhoneUiGeometry.pixel(endY, height))
+            }
+            return GestureDescription.Builder().setDisplayId(displayId)
+                .addStroke(GestureDescription.StrokeDescription(path, 0, durationMs.toLong())).build()
+        }
+
+        private suspend fun dispatchVirtualGesture(
+            displayId: Int, packageName: String, startX: Int, startY: Int,
+            endX: Int, endY: Int, durationMs: Int, method: String,
+            stillAuthorized: () -> Boolean = { true },
         ): JSONObject {
             fun receipt(accepted: Boolean, errorCode: String, detail: String,
-                dispatched: Boolean = false) = JSONObject()
-                .put("accepted", accepted)
-                .put("actionMethod", "accessibility_gesture_virtual_display")
-                .put("gestureDispatched", dispatched)
-                .put("gestureCompleted", accepted)
-                .put("errorCode", errorCode)
-                .put("taskCompleted", false)
+                dispatched: Boolean = false, dispatchUncertain: Boolean = false) = JSONObject()
+                .put("accepted", accepted).put("actionMethod", method)
+                .put("gestureDispatched", dispatched).put("gestureCompleted", accepted)
+                .put("dispatchAttempted", dispatched || dispatchUncertain)
+                .put("errorCode", errorCode).put("taskCompleted", false)
                 .put("verification", detail)
-
             val service = instance ?: return receipt(false, "accessibility_disconnected",
-                "无障碍服务没有连接，本次没有向任何屏幕下发滑动")
+                "无障碍服务没有连接，没有派发触摸")
             if (Build.VERSION.SDK_INT < 30 || displayId <= 0 || packageName.isBlank())
                 return receipt(false, "virtual_gesture_display_invalid",
-                    "Android版本或虚拟屏幕ID不支持指定屏手势，未滑动")
+                    "Android版本或显示屏ID不支持指定屏手势，没有派发触摸")
             val gate = virtualWindowStatus(displayId, packageName)
-            if (!LuluVirtualWindowPolicy.allowsGestureOnDisplay(
-                    displayId, gate.optString("kind")))
+            if (!LuluVirtualWindowPolicy.allowsGestureOnDisplay(displayId, gate.optString("kind")))
                 return receipt(false, "virtual_gesture_window_unverified",
-                    "滑动前虚拟屏的目标App窗口未核实，未触碰其他屏幕")
-            val dimensions = virtualDimensions(service, displayId)
+                    "目标App窗口未核实，没有派发触摸")
+            val (width, height) = virtualDimensions(service, displayId)
                 ?: return receipt(false, "virtual_gesture_dimensions_missing",
-                    "虚拟屏幕的实际尺寸无法核实，未滑动")
-            val path = Path().apply {
-                moveTo(LuluPhoneUiGeometry.pixel(startX, dimensions.first),
-                    LuluPhoneUiGeometry.pixel(startY, dimensions.second))
-                lineTo(LuluPhoneUiGeometry.pixel(endX, dimensions.first),
-                    LuluPhoneUiGeometry.pixel(endY, dimensions.second))
-            }
-            val gesture = GestureDescription.Builder()
-                .setDisplayId(displayId)
-                .addStroke(GestureDescription.StrokeDescription(
-                    path, 0, durationMs.coerceIn(180, 1600).toLong()))
-                .build()
-            return kotlinx.coroutines.withTimeoutOrNull(5_000L) {
+                    "虚拟屏幕尺寸无法核实，没有派发触摸")
+            val gesture = virtualGesture(displayId, width, height, startX, startY, endX, endY, durationMs)
+            return kotlinx.coroutines.withTimeoutOrNull(maxOf(5_000L, durationMs + 1_500L)) {
                 suspendCancellableCoroutine<JSONObject> { cont ->
                     val callback = object : AccessibilityService.GestureResultCallback() {
                         override fun onCompleted(description: GestureDescription) {
                             if (cont.isActive) cont.resume(receipt(true, "",
-                                "Android已完成独立虚拟屏上的手势，仍需核对页面是否真的滚动", true))
+                                "Android已完成独立虚拟屏手势，仍需核对页面效果", dispatched = true))
                         }
                         override fun onCancelled(description: GestureDescription) {
                             if (cont.isActive) cont.resume(receipt(false, "virtual_gesture_cancelled",
-                                "Android取消了这次虚拟屏手势，结果未知；不自动重复滑动", true))
+                                "Android取消了虚拟屏手势，应用是否收到触摸仍需观察", dispatched = true))
                         }
+                    }
+                    if (!cont.isActive) return@suspendCancellableCoroutine
+                    if (!stillAuthorized()) {
+                        cont.resume(receipt(false, "virtual_gesture_authorization_changed", "操作授权已变化，没有派发触摸"))
+                        return@suspendCancellableCoroutine
                     }
                     val sent = runCatching {
                         service.dispatchGesture(gesture, callback, Handler(Looper.getMainLooper()))
-                    }.getOrDefault(false)
+                    }.getOrElse {
+                        if (cont.isActive) cont.resume(receipt(false, "virtual_gesture_dispatch_unknown",
+                            "Android未返回明确的派发结果，先观察页面", dispatchUncertain = true))
+                        return@suspendCancellableCoroutine
+                    }
                     if (!sent && cont.isActive) cont.resume(receipt(false,
-                        "virtual_gesture_dispatch_rejected",
-                        "Android未接收虚拟屏手势，未使用主屏幕或Shell输入兜底"))
+                        "virtual_gesture_dispatch_rejected", "Android明确拒绝了这次指定屏手势"))
                 }
             } ?: receipt(false, "virtual_gesture_timeout",
-                "虚拟屏手势回执超时，可能已有局部滑动；先核对新画面，禁止盲目补发", true)
+                "虚拟屏手势回执超时，应用是否收到触摸仍需观察", dispatchUncertain = true)
         }
-
-        /**
-         * A single stationary gesture on the OWNED virtual display. Never use
-         * shell "input" or the active-display tapNormalized() fallback: neither
-         * guarantees the owner's display 0 will remain untouched.
-         */
-        suspend fun tapVirtualDisplay(
-            displayId: Int, packageName: String, x: Int, y: Int,
-        ): JSONObject = swipeVirtualDisplay(
-            displayId, packageName, x, y, x, y, 180,
-        ).put("actionMethod", "accessibility_tap_virtual_display")
 
         /**
          * Only a focused search editor in this app may submit IME_ENTER.

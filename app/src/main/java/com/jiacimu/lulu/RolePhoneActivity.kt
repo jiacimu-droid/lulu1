@@ -63,6 +63,7 @@ internal fun inspectedPhoneActions(events: List<SharedTimelineEvent>): List<Insp
                 "observe", "inspect" -> "查看屏幕"
                 "tap_element" -> "点按控件"
                 "tap" -> "点按"
+                "long_press" -> "长按"
                 "swipe", "scroll" -> "滑动"
                 "back" -> "返回"
                 "type" -> "输入"
@@ -91,7 +92,11 @@ internal fun inspectedPhoneActions(events: List<SharedTimelineEvent>): List<Insp
                 "unverified", "pending", "waiting_user" ->
                     "尚未确认成功 · " + result?.optString("verification")
                         .orEmpty().take(62).replace("\n", " ")
-                "observed", "captured" -> "已取得画面，任务结果仍需核实"
+                "observed", "captured" ->
+                    if (tool == "background_phone" && operation in setOf("点按", "长按"))
+                        result?.optString("verification").orEmpty().take(96)
+                            .ifBlank { "已取得画面，仍需核对触摸效果" }
+                    else "已取得画面，任务结果仍需核实"
                 "client_message_visible" -> "已看到本次新发出的消息气泡"
                 "send_clicked_delivery_unverified" -> "已点发送，尚未看到新消息气泡"
                 "succeeded", "completed" -> result?.optString("summary").orEmpty()

@@ -500,6 +500,27 @@ internal object LuluBackgroundPhoneSession {
         )
     }
 
+    private suspend fun pressVisualTarget(
+        id: Int, packageName: String, x: Int, y: Int, holdMs: Int?, authorized: () -> Boolean,
+    ): JSONObject {
+        val prepared = command(JSONObject().put("action", "prepare_type"))
+        if (!prepared.optBoolean("accepted")) return JSONObject().put("accepted", false)
+            .put("errorCode", "visual_touch_frame_barrier_missing")
+            .put("verification", "无法建立触摸前的画面校验，未派发触摸")
+        val touch = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.pressVirtualDisplay(id, packageName, x, y, holdMs, authorized)
+        }
+        // Only a synchronous, explicit rejection means the first transport
+        // did not take the gesture. Cancellation, timeout and no UI change
+        // are never a reason to send another tap.
+        if (touch.optString("errorCode") != "virtual_gesture_dispatch_rejected" ||
+            !authorized() || windowGate(id, packageName).optString("kind") != "target" ||
+            humanOnlyPage(id, packageName) != null || !authorized()) return touch
+        return command(JSONObject().put("action", if (holdMs == null) "tap" else "long_press")
+            .put("packageName", packageName).put("x", x).put("y", y)
+            .apply { if (holdMs != null) put("durationMs", holdMs) })
+    }
+
     /**
      * Shared visual typing for ALL owner-authorized third-party apps.
      * Unlike a chat send, this only writes a draft. It never presses Enter,
@@ -543,8 +564,7 @@ internal object LuluBackgroundPhoneSession {
         if (!authorized() || windowGate(id, packageName).optString("kind") != "target")
             return stopped("visual_input_window_unverified",
                 "聚焦前独立屏窗口或授权已变化，未输入")
-        val tap = command(JSONObject().put("action", "tap").put("packageName", packageName)
-            .put("x", x).put("y", y))
+        val tap = pressVisualTarget(id, packageName, x, y, holdMs = null, authorized = authorized)
         if (!tap.optBoolean("accepted")) return stopped("visual_input_focus_tap_unverified",
             "目标输入位置的单次聚焦手势未完成，没有粘贴文字")
         var imeVisible = false
@@ -620,7 +640,7 @@ internal object LuluBackgroundPhoneSession {
         if (!command(JSONObject().put("action", "prepare_type")).optBoolean("accepted"))
             return denied("visual_chat_frame_barrier_missing", "输入前的独立屏图像屏障失败")
         val tapped = withContext(Dispatchers.Main) {
-            LuluAccessibilityService.tapVirtualDisplay(id, packageName, composerX, composerY)
+            LuluAccessibilityService.tapVirtualDisplay(id, packageName, composerX, composerY, authorized)
         }
         if (!tapped.optBoolean("accepted"))
             return denied("visual_chat_focus_tap_unverified",
@@ -673,9 +693,9 @@ internal object LuluBackgroundPhoneSession {
         // ONE irreversible action; OCR provided the center of a unique button.
         val click = withContext(Dispatchers.Main) {
             LuluAccessibilityService.tapVirtualDisplay(id, packageName,
-                proof.sendX, proof.sendY)
+                proof.sendX, proof.sendY, authorized)
         }
-        val attempted = click.optBoolean("gestureDispatched")
+        val attempted = click.optBoolean("dispatchAttempted")
         val clicked = click.optBoolean("accepted")
         return JSONObject().put("accepted", clicked)
             .put("messageSendAttempted", attempted)
@@ -1181,7 +1201,9 @@ internal object LuluBackgroundPhoneSession {
                 request.put("durationMs", args.optInt("durationMs", 400))
             }
             val visualType = action == "type" && args.has("inputX") && args.has("inputY")
-            if (visualType || action in setOf("tap", "long_press")) {
+            val visualPress = action in setOf("tap", "long_press")
+            var beforeTouchPixels = ""
+            if (visualType || visualPress) {
                 val visualX = args.getInt(if (visualType) "inputX" else "x")
                 val visualY = args.getInt(if (visualType) "inputY" else "y")
                 val prior = checkNotNull(lastObservedUi)
@@ -1219,19 +1241,18 @@ internal object LuluBackgroundPhoneSession {
                     } else lastObservedUi = null
                     return receipt.toString()
                 }
+                if (visualPress) beforeTouchPixels = freshPixels
             }
             failureStage = "command_" + action
             val applied = when (action) {
                 "adopt_app" -> checkNotNull(adoptedApp)
                 "observe", LuluVirtualNavigation.ACTION -> null
                 "tap", "long_press" -> {
-                    // A single primitive for every App, including Send/Post/Like
-                    // and camera long press. No app-specific title/editor/Send
-                    // transaction is required for the owner's ordinary UI grant.
                     lastObservedUi = null
-                    command(JSONObject().put("action", action).put("packageName", activeApp)
-                        .put("x", args.getInt("x")).put("y", args.getInt("y"))
-                        .put("durationMs", args.optInt("durationMs", android.view.ViewConfiguration.getLongPressTimeout() + 100)))
+                    val holdMs = if (action == "long_press")
+                        args.optInt("durationMs", android.view.ViewConfiguration.getLongPressTimeout() + 100)
+                    else null
+                    pressVisualTarget(id, activeApp, args.getInt("x"), args.getInt("y"), holdMs, ::stillAuthorized)
                         .put("interactionTarget", args.getString("target"))
                         .put("outwardEffectUnverified", true)
                 }
@@ -1313,10 +1334,6 @@ internal object LuluBackgroundPhoneSession {
                     require(value.isNotEmpty() && value.length <= LuluVirtualTextInputPolicy.MAX_TEXT_CHARS) {
                         "每次输入1到${LuluVirtualTextInputPolicy.MAX_TEXT_CHARS}个字符"
                     }
-                    val prepared = command(JSONObject().put("action", "prepare_type"))
-                    check(prepared.optBoolean("accepted")) {
-                        "无法建立后台屏文字输入的画面核验屏障"
-                    }
                     // One generic phone text operation across apps.
                     // Standard focused editors use ACTION_SET_TEXT and exact
                     // field readback. Zero-tree apps use a model-chosen point
@@ -1327,8 +1344,13 @@ internal object LuluBackgroundPhoneSession {
                         typeVisualVirtualField(id, activeApp, value,
                             args.getInt("inputX"), args.getInt("inputY"),
                             ::stillAuthorized)
-                    } else withContext(Dispatchers.Main) {
-                        LuluAccessibilityService.typeFocusedVirtualEditor(id, activeApp, value)
+                    } else {
+                        check(command(JSONObject().put("action", "prepare_type")).optBoolean("accepted")) {
+                            "无法建立后台屏文字输入的画面核验屏障"
+                        }
+                        withContext(Dispatchers.Main) {
+                            LuluAccessibilityService.typeFocusedVirtualEditor(id, activeApp, value)
+                        }
                     }
                 }
                 LuluVirtualCommentPolicy.ACTION -> {
@@ -1671,7 +1693,7 @@ internal object LuluBackgroundPhoneSession {
             }
             if (action == "launch" && applied?.optBoolean("accepted") == true) activeApp = requestedPackage
             if (applied != null && !applied.optBoolean("accepted") &&
-                action !in setOf("type", "focus_search", "tap_element", "search",
+                action !in setOf("type", "focus_search", "tap", "long_press", "tap_element", "search",
                     LuluWeChatMomentsPolicy.OPEN_COMPOSER, LuluWeChatMomentsPolicy.PUBLISH)) {
                 // A rejected Android shell command is a REAL execution
                 // failure, not an ordinary awaiting-screen observation.
@@ -1737,7 +1759,7 @@ internal object LuluBackgroundPhoneSession {
             // is never mistaken for a finished user task.
             val uiSettled = if (navigationReceipt?.optBoolean("navigationCompleted") == true) true
             else if (applied?.optBoolean("accepted") == true &&
-                action in setOf("tap", "tap_element", "swipe", "submit", "search", "back",
+                action in setOf("tap", "long_press", "tap_element", "swipe", "submit", "search", "back",
                     LuluWeChatMomentsPolicy.OPEN_COMPOSER, LuluWeChatMomentsPolicy.PUBLISH))
                 awaitStableUi(id, activeApp, beforeUiFingerprint) else false
             val backOutcome = if (action == "back" && applied?.optBoolean("accepted") == true)
@@ -1808,12 +1830,10 @@ internal object LuluBackgroundPhoneSession {
                     .put("dispatchAttempted", applied?.optBoolean("dispatchAttempted") == true)
                     .put("outwardEffectUnverified", applied?.optBoolean("outwardEffectUnverified") == true)
                     .put("actionErrorCode", applied?.optString("errorCode").orEmpty())
-                    .put("verification", (
-                        if (action == "back") applied?.optString("verification").orEmpty() + "；"
-                        else ""
-                    ) + frame.optString("verification", "后台屏幕暂无可确认画面") +
-                        if (owned) "；目标App仍在；返回是否成功未证实时先核对真实页面与可点返回控件"
-                        else "；目标App窗口未核实，禁止盲点")
+                    .put("verification", listOfNotNull(
+                        applied?.optString("verification")?.takeIf(String::isNotBlank),
+                        frame.optString("verification", "后台屏幕暂无可确认画面"),
+                    ).joinToString("；"))
                     .attachSearchReceipt(applied).attachMomentReceipt(momentReceipt).attachCommentReceipt(commentReceipt).attachNavigationReceipt(navigationReceipt)
                 if (!owned) {
                     lastObservedUi = null
@@ -1969,6 +1989,12 @@ internal object LuluBackgroundPhoneSession {
                         .put("shareError", failure.message.orEmpty().take(140))
                 }
             } else JSONObject()
+            val touchVerification = if (!visualPress || applied == null) "" else when {
+                !applied.optBoolean("accepted") -> applied.optString("verification", "触摸派发未获确认")
+                uiSettled || (hasFrame && frameFresh && beforeTouchPixels.isNotBlank() &&
+                    beforeTouchPixels != pixels) -> "设备已完成触摸，观察到页面变化，请核对是否到达目标"
+                else -> "设备已派发触摸，尚未观察到页面变化"
+            }
             val finalReceipt = JSONObject().put("success", observed)
                 .put("status", if (observed) "observed" else "unverified")
                 .put("actionConditionVerified", actionConditionVerified)
@@ -2005,7 +2031,8 @@ internal object LuluBackgroundPhoneSession {
                 .put("sentToChat", sharedReceipt.optBoolean("sentToChat"))
                 .put("shareSummary", sharedReceipt.optString("shareSummary"))
                 .put("shareError", sharedReceipt.optString("shareError"))
-                .put("verification", if (frame.optBoolean("actionFrameUnverified"))
+                .put("verification", if (touchVerification.isNotBlank()) touchVerification
+                    else if (frame.optBoolean("actionFrameUnverified"))
                     frame.optString("verification")
                     else if (action == "back")
                     (applied?.optString("verification").orEmpty() + "；" +

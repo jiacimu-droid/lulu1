@@ -258,7 +258,8 @@ object LuluShellDisplayMain {
             pendingActionNeedsFrame = true
             return LuluShellTouchInput.touch(ShellContext.create(), id, targetPackage, targetPackage,
                 cmd.getInt("x"), cmd.getInt("y"), WIDTH, HEIGHT,
-                if (action == "long_press") cmd.optInt("durationMs", android.view.ViewConfiguration.getLongPressTimeout() + 100) else 180)
+                if (action == "long_press") cmd.optInt("durationMs", android.view.ViewConfiguration.getLongPressTimeout() + 100)
+                else (android.view.ViewConfiguration.getTapTimeout() / 2).coerceAtLeast(1))
         }
         if (action == "paste_text") {
             // Narrowly scoped internal channel: caller proves the exact

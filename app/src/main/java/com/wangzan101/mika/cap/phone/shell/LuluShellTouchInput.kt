@@ -65,6 +65,8 @@ internal object LuluShellTouchInput {
         )
         return receipt(actual.attempted, actual.down && actual.up,
             if (actual.down && actual.up) "" else "virtual_touch_dispatch_unverified")
-            .put("verification", "只向所属独立屏和目标App UID派发了一次触摸；页面效果仍需观察")
+            .put("verification", if (actual.down && actual.up)
+                "定向触摸的按下和抬起均获接收，仍需核对页面效果"
+                else "定向触摸未获完整接收回执，先核对页面")
     }
 }
