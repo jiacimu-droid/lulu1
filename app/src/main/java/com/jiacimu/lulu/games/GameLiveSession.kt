@@ -176,7 +176,7 @@ internal fun GameTalkBar(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        if (session.voiceMode) "$conversationTitle · 连麦" else "和$conversationTitle说话",
+                        if (session.voiceMode) "$conversationTitle · 连麦" else "和${conversationTitle}说话",
                         color = talkInk, fontWeight = FontWeight.SemiBold, fontSize = 14.sp,
                     )
                     Text(status, color = talkMuted, fontSize = 11.sp, maxLines = 2)
