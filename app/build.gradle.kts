@@ -51,8 +51,12 @@ android {
         }
         val releaseNumber = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull()?.coerceIn(1, 2_000_000_000) ?: 1
         val revision = System.getenv("GITHUB_SHA")?.takeIf { it.matches(Regex("[0-9a-fA-F]{40}")) }?.take(12) ?: "local"
+        // Android installation order is strictly monotonic, independently of
+        // the public marketing version. Existing 1.0.10xxx APKs must upgrade.
         versionCode = releaseNumber
-        versionName = "1.0.$releaseNumber"
+        // One deliberately versioned public release can have many CI builds.
+        // Keep versionName readable (1.1), never append the build/run counter.
+        versionName = providers.gradleProperty("luluVersionName").get()
         buildConfigField("String", "BUILD_REVISION", "\"$revision\"")
     }
 
