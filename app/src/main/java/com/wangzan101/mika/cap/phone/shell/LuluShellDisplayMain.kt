@@ -18,6 +18,7 @@ import android.os.Looper
 import android.view.Display
 import android.view.Surface
 import com.jiacimu.lulu.system.LuluMikaFrameMath
+import com.jiacimu.lulu.system.LuluShoppingLinkShare
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.util.Base64
@@ -46,6 +47,10 @@ object LuluShellDisplayMain {
     private var reader: ImageReader? = null
     private val frameBuffer = LuluDisplayFrameBuffer<android.media.Image>()
     private var targetPackage = ""
+    private data class PendingMerchantCopy(
+        val packageName: String, val previousTimestamp: Long, val startedAt: Long,
+    )
+    private var pendingMerchantCopy: PendingMerchantCopy? = null
     // Mika sets DISPLAY_IME_POLICY_LOCAL when the separate display is born.
     // Without this, the keyboard may appear on the owner's screen instead
     // of the virtual one even though FLAG_OWN_FOCUS was granted.
@@ -191,6 +196,60 @@ object LuluShellDisplayMain {
         }
         val id = virtual?.display?.displayId ?: error("start virtual display first")
         check(id > 0) { "cannot inject into main display" }
+        // One-shot, same-session handoff. Unrelated commands invalidate the marker.
+        if (action != "prepare_product_copy" && action != "read_product_copy")
+            pendingMerchantCopy = null
+        if (action == "prepare_product_copy") {
+            check(cmd.optString("packageName") == targetPackage && targetPackage.isNotBlank()) {
+                "merchant copy target changed"
+            }
+            check(LuluShoppingLinkShare.merchantName(targetPackage) != null) {
+                "not a supported merchant copy source"
+            }
+            val previous = LuluShellClipboard(ShellContext.create()).descriptionTimestamp()
+            pendingMerchantCopy = PendingMerchantCopy(
+                targetPackage, previous, System.currentTimeMillis())
+            return JSONObject().put("accepted", true).put("displayId", id)
+                .put("targetPackage", targetPackage)
+                .put("actionMethod", "shell_merchant_copy_marker")
+        }
+        if (action == "read_product_copy") {
+            val pending = pendingMerchantCopy
+            pendingMerchantCopy = null
+            if (pending == null || pending.packageName != targetPackage ||
+                cmd.optString("packageName") != targetPackage)
+                return JSONObject().put("accepted", false)
+                    .put("errorCode", "merchant_copy_marker_expired")
+            val clipboard = LuluShellClipboard(ShellContext.create())
+            var reason = "merchant_copy_not_observed"
+            repeat(12) {
+                Thread.sleep(150)
+                val current = clipboard.descriptionTimestamp()
+                if (!LuluShoppingLinkShare.freshCopyEvent(
+                        pending.previousTimestamp, pending.startedAt, current)) return@repeat
+                val source = clipboard.sourcePackage()
+                if (source != null && source != targetPackage)
+                    return JSONObject().put("accepted", false)
+                        .put("errorCode", "merchant_copy_source_mismatch")
+                // Read CONTENT only after this newly observed copy event.
+                // Unverified text stays in shell and never reaches the role.
+                val clip = runCatching { clipboard.snapshot() }.getOrNull()
+                if (clip == null || clip.itemCount != 1) {
+                    reason = "merchant_copy_unreadable"
+                    return@repeat
+                }
+                val link = LuluShoppingLinkShare.merchantCopyLink(
+                    targetPackage, pending.previousTimestamp, pending.startedAt,
+                    current, source, clip.getItemAt(0).text?.toString())
+                if (link != null) return JSONObject().put("accepted", true)
+                    .put("displayId", id).put("targetPackage", targetPackage)
+                    .put("actionMethod", "shell_verified_merchant_clipboard")
+                    .put("link", link)
+                reason = "merchant_copy_not_merchant_link"
+            }
+            return JSONObject().put("accepted", false).put("errorCode", reason)
+                .put("displayId", id).put("targetPackage", targetPackage)
+        }
         if (action == "adopt_app") {
             val pkg = cmd.getString("packageName")
             check(pkg.matches(Regex("[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)+"))) { "invalid adopted package" }
@@ -425,6 +484,7 @@ object LuluShellDisplayMain {
     }
 
     private fun release() {
+        pendingMerchantCopy = null
         localImeConfigured = false
         targetPackage = ""
         pendingActionFrameBarrierNanos = 0L
