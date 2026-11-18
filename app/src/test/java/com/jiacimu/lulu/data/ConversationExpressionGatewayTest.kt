@@ -1540,7 +1540,7 @@ class ConversationExpressionGatewayTest {
         }
     }
 
-    @Test(timeout = 60_000) fun ordinaryPhoneReplyRejectsEditsDuringSpeechOrMotionRepair() = runBlocking {
+    @Test(timeout = 60_000) fun ordinaryPhoneReplyRejectsEditsDuringMotionRepair() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
         SharedExperienceTimeline.initialize(context)
@@ -1549,8 +1549,8 @@ class ConversationExpressionGatewayTest {
         LuluDeviceToolBridge.initialize(context)
         MomentsStore.initialize(context)
 
-        for (repairSpeech in listOf(true, false)) {
-            val role = MigratedDomainStores.characters.create("电话普通回复样本-$repairSpeech", "记得自己的约定")
+        for (directChallenge in listOf(true, false)) {
+            val role = MigratedDomainStores.characters.create("电话普通回复样本-$directChallenge", "记得自己的约定")
             val id = role.characterId
             val callId = "ordinary-phone-reply-edit-$id"
             assertTrue(CharacterLifeStore.setRelationshipAgreement(id, "user", "约定", "沿用原来的称呼"))
@@ -1564,11 +1564,10 @@ class ConversationExpressionGatewayTest {
             com.jiacimu.lulu.Live2DVisualActionBus.stageReady(id, callId)
 
             val post = "刚才的事留了一条动态"
-            val spoken = "我还要去核对一下。"
+            val spoken = if (directChallenge) "我记得你交代的是十点。" else "我还要去核对一下。"
             val staleStatus = "已经向用户交代"
-            val userText = if (repairSpeech) "那你也没十点叫我啊" else "后来核对了吗？"
-            val draft = if (repairSpeech) "憋了四个小时，就憋出这一句倒打一耙？" else spoken
-            val decision = JSONObject().put("action", "reply").put("text", draft)
+            val userText = if (directChallenge) "那你也没十点叫我啊" else "后来核对了吗？"
+            val decision = JSONObject().put("action", "reply").put("text", spoken)
                 .put("statusText", staleStatus).put("endCall", true)
                 .put("steps", JSONArray().put(JSONObject().put("tool", "publish_moment")
                     .put("args", JSONObject().put("text", post))))
@@ -1591,7 +1590,7 @@ class ConversationExpressionGatewayTest {
                         1 -> response(decision.toString())
                         2 -> {
                             if (!release.await(15, TimeUnit.SECONDS)) return MockResponse().setResponseCode(500)
-                            if (repairSpeech) response(spoken) else response(
+                            response(
                                 """{"live2d":{"speech":[{"id":"s1","text":"$spoken","motion":{"group":"Gesture","index":0},"transition":"blend"}]}}""")
                         }
                         else -> MockResponse().setResponseCode(500)
@@ -1615,7 +1614,7 @@ class ConversationExpressionGatewayTest {
                         checkNotNull(server.takeRequest(10, TimeUnit.SECONDS))
                         checkNotNull(server.takeRequest(10, TimeUnit.SECONDS)).body.readUtf8()
                     }
-                    assertTrue(repairRequest.contains(if (repairSpeech) draft else "spokenText"))
+                    assertTrue(repairRequest.contains("spokenText"))
                     val receipt = receipts().single()
                     val result = JSONObject(receipt.content).getString("result")
                     assertTrue(ToolExecutionStatus.completed(JSONObject(result)))

@@ -96,7 +96,7 @@ class LuluOnboardingGuideContentTest {
 
     @Test fun backgroundPhoneGuideShowsPairingAuthorizationTryAndEvidence() {
         val phone = luluGuideFeatures.first { it.key == "phone" }
-        assertEquals(6, phone.instructions.size)
+        assertEquals(7, phone.instructions.size)
         assertTrue(phone.instructions[0].contains("无线调试"))
         assertTrue(phone.instructions[0].contains("开发者选项"))
         assertTrue(phone.instructions[1].contains("6 位配对码"))
@@ -107,6 +107,8 @@ class LuluOnboardingGuideContentTest {
         assertTrue(phone.instructions[4].contains("查手机"))
         assertTrue(phone.instructions[4].contains("行动记录"))
         assertTrue(phone.instructions[5].contains("重新观察"))
+        assertTrue(phone.instructions[6].contains("旧版 MCP 路径已停用"))
+        assertTrue(phone.instructions[6].contains("联网与扩展"))
         assertTrue(luluBackgroundPhoneTryPrompt.contains("打开拼多多"))
         assertTrue(luluBackgroundPhoneTryPrompt.contains("自己挑"))
         assertTrue(luluBackgroundPhoneTryPrompt.contains("链接发给我"))

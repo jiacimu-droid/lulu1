@@ -3,7 +3,12 @@ package com.jiacimu.lulu.data
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE, sdk = [28])
 class PhoneInnerVoicePerceptionTest {
     private val thought = "我忽然想听她把刚才那句话说完。"
     private val basis = JSONObject()
