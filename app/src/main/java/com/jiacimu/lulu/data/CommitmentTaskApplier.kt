@@ -431,11 +431,19 @@ internal fun matchesExistingCommitmentCreation(
     val newAt = draft.dueAt
     if (oldAt == null || newAt == null)
         return oldAt == null && newAt == null && existing.goal.sameTaskText(draft.goal)
-    val sameSlot = oldAt == newAt || sameTimedReminderTask(existing, draft)
+    val zone = existing.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
+        ?: java.time.ZoneId.systemDefault()
+    val oldLocal = oldAt.atZone(zone)
+    val newLocal = newAt.atZone(zone)
+    // One daily reminder can cover a one-off mention of today's occurrence.
+    // For two one-offs, the actual calendar date must also match.
+    val sameSlot = oldLocal.hour == newLocal.hour &&
+        oldLocal.minute == newLocal.minute &&
+        (existing.repeat == "daily" || draft.repeat == "daily" ||
+            oldLocal.toLocalDate() == newLocal.toLocalDate())
     if (!sameSlot) return false
     return existing.goal.sameTaskText(draft.goal) ||
-        (sameTimedReminderTask(existing, draft) &&
-            existing.goal.nearlySameTaskText(draft.goal))
+        existing.goal.nearlySameTaskText(draft.goal)
 }
 
 /** Conservative identity for persisted legacy rows. Do not merge two different
@@ -448,10 +456,7 @@ internal fun sameRecordedTimedCommitment(first: CommitmentTask, second: Commitme
     first.verificationMode == second.verificationMode &&
     first.startNow == second.startNow &&
     (first.goal.sameTaskText(second.goal) ||
-        (sameDailyClockAndPurpose(first.goal, first.dueAt, second.goal, second.dueAt,
-            first.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
-                ?: java.time.ZoneId.systemDefault()) &&
-            first.goal.nearlySameTaskText(second.goal)))
+        first.goal.nearlySameTaskText(second.goal))
 
 /** Exact local clock slot and shared subject; unrelated appointments stay independent. */
 internal fun sameDailyClockAndPurpose(
