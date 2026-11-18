@@ -176,9 +176,16 @@ jobs:
           RELEASE_NUMBER: ${{ github.run_number }}
         run: |
           set -euo pipefail
+          # Keep a unique technical tag for every publish; the user-facing
+          # version is managed independently in gradle.properties.
+          public_version="$(sed -n 's/^luluVersionName=//p' gradle.properties)"
+          if [[ ! "$public_version" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "::error::Invalid or missing luluVersionName in gradle.properties"
+            exit 1
+          fi
           tag="lulu-v${RELEASE_NUMBER}"
-          title="Lulu v${RELEASE_NUMBER}"
-          notes="${title}，仅提供 ARM64 手机包（功能完整），构建自 ${GITHUB_SHA}。修复 Android 16 VerifyError：此版未启用 R8 优化、使用原签名支持保留数据覆盖安装；实际运行仍需真机验证。"
+          title="Lulu v${public_version}"
+          notes="${title}（内部构建编号 #${RELEASE_NUMBER}），仅提供 ARM64 手机包（功能完整），构建自 ${GITHUB_SHA}。此版未启用 R8 优化、使用原签名支持保留数据覆盖安装；实际运行仍需真机验证。"
 
           # GitHub Releases can return a temporary HTTP 5xx after a valid APK
           # has already been built. Retry only publication, never the Gradle
