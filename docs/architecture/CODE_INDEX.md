@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`855f762d193e3502139458f63b9c2a5c53e20528`
+- 基准提交：`4a84931b7c9217a2674bd34c6a58da6a13bef0d1`
 - 分支：`main`
-- 已索引文件：1445
-- 已索引代码/文本行：305656
-- 已发现符号：4367
+- 已索引文件：1452
+- 已索引代码/文本行：306928
+- 已发现符号：4371
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -853,7 +853,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt` | 145 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt` | 445 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt` | 456 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversal.kt` | 66 | 1 |
@@ -1443,6 +1443,13 @@
 | `preview/ASSET_ORIGINS.md` | 11 | 0 |
 | `preview/WORLD_ASSETS.md` | 40 | 0 |
 | `preview/app.js` | 54 | 0 |
+| `preview/arcade/DESIGN.md` | 63 | 0 |
+| `preview/arcade/RulesPreview.kt` | 228 | 3 |
+| `preview/arcade/arcade.css` | 18 | 0 |
+| `preview/arcade/arcade.js` | 340 | 0 |
+| `preview/arcade/index.html` | 104 | 0 |
+| `preview/arcade/island-map.js` | 353 | 1 |
+| `preview/arcade/relic-map.js` | 155 | 0 |
 | `preview/compare.html` | 52 | 0 |
 | `preview/index.html` | 101 | 0 |
 | `preview/play.html` | 173 | 0 |

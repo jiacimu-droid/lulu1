@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T04:20:56.108717+00:00",
-  "commit": "855f762d193e3502139458f63b9c2a5c53e20528",
+  "generatedAt": "2026-11-18T04:22:55.139053+00:00",
+  "commit": "4a84931b7c9217a2674bd34c6a58da6a13bef0d1",
   "branch": "main",
-  "sourceFingerprint": "84a2d7493ef3550bb5e1cc8e95857087ff1ac5d9b0c465cc402d3c114994f051",
+  "sourceFingerprint": "73356635fcd27cdef8471308fe976566e3cc6dacf4331d2344f8eddcae8e2e6c",
   "summary": {
-    "files": 1445,
-    "lines": 305656,
-    "symbols": 4367
+    "files": 1452,
+    "lines": 306928,
+    "symbols": 4371
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -149,7 +149,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 337
+        "line": 344
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -4283,7 +4283,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 217
+        "line": 224
       }
     ],
     "errorNote": [
@@ -5679,7 +5679,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 363
+        "line": 370
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
@@ -8545,7 +8545,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 373
+        "line": 380
       }
     ],
     "requestContext": [
@@ -18639,43 +18639,43 @@
     "command": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 118
+        "line": 125
       }
     ],
     "onWindowChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 234
+        "line": 241
       }
     ],
     "onPulse": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 242
+        "line": 249
       }
     ],
     "ownerStop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 359
+        "line": 366
       }
     ],
     "LuluStrictModeReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 392
+        "line": 403
       }
     ],
     "LuluStrictReviewWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 402
+        "line": 413
       }
     ],
     "LuluStrictExpiryWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 432
+        "line": 443
       }
     ],
     "canObserve": [
@@ -19274,6 +19274,10 @@
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
         "line": 82
+      },
+      {
+        "path": "preview/arcade/RulesPreview.kt",
+        "line": 219
       }
     ],
     "mayPaste": [
@@ -24240,6 +24244,24 @@
       {
         "path": "scripts/test_xhs_reader.js",
         "line": 538
+      }
+    ],
+    "Island": [
+      {
+        "path": "preview/arcade/RulesPreview.kt",
+        "line": 11
+      }
+    ],
+    "Relic": [
+      {
+        "path": "preview/arcade/RulesPreview.kt",
+        "line": 12
+      }
+    ],
+    "Mesh": [
+      {
+        "path": "preview/arcade/island-map.js",
+        "line": 32
       }
     ]
   },
@@ -43043,8 +43065,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-      "lines": 445,
-      "sha256": "5db425b00563a13f30bef054225766d534b3a365da257cb9eb68302b5b7cd2bd",
+      "lines": 456,
+      "sha256": "4fd7552fd1dd6d2c96edb4790948d79d94dcea5ca03881bc5052b65339b53692",
       "symbols": [
         {
           "name": "ownerGranted",
@@ -43056,47 +43078,47 @@
         },
         {
           "name": "command",
-          "line": 118
+          "line": 125
         },
         {
           "name": "status",
-          "line": 217
+          "line": 224
         },
         {
           "name": "onWindowChanged",
-          "line": 234
+          "line": 241
         },
         {
           "name": "onPulse",
-          "line": 242
+          "line": 249
         },
         {
           "name": "stop",
-          "line": 337
+          "line": 344
         },
         {
           "name": "ownerStop",
-          "line": 359
+          "line": 366
         },
         {
           "name": "restore",
-          "line": 363
+          "line": 370
         },
         {
           "name": "modelContext",
-          "line": 373
+          "line": 380
         },
         {
           "name": "LuluStrictModeReceiver",
-          "line": 392
+          "line": 403
         },
         {
           "name": "LuluStrictReviewWorker",
-          "line": 402
+          "line": 413
         },
         {
           "name": "LuluStrictExpiryWorker",
-          "line": 432
+          "line": 443
         }
       ]
     },
@@ -51506,6 +51528,66 @@
       "symbols": []
     },
     {
+      "path": "preview/arcade/DESIGN.md",
+      "lines": 63,
+      "sha256": "ba7569931a909d53c850c7a07bd3ca626d4b17185245b10f616a809de4b5cf5b",
+      "symbols": []
+    },
+    {
+      "path": "preview/arcade/RulesPreview.kt",
+      "lines": 228,
+      "sha256": "25344560465e3ad67595a4ec21522aa6337aa216838153c348518032844b6651",
+      "symbols": [
+        {
+          "name": "Island",
+          "line": 11
+        },
+        {
+          "name": "Relic",
+          "line": 12
+        },
+        {
+          "name": "main",
+          "line": 219
+        }
+      ]
+    },
+    {
+      "path": "preview/arcade/arcade.css",
+      "lines": 18,
+      "sha256": "21e7b69ada91c6dc0bea100a674f99d96843c1a5a8ff8abece962d3992cee936",
+      "symbols": []
+    },
+    {
+      "path": "preview/arcade/arcade.js",
+      "lines": 340,
+      "sha256": "786e9a477123efc317c6530508e554c50a8c751f56aaaec99d351836d2993d75",
+      "symbols": []
+    },
+    {
+      "path": "preview/arcade/index.html",
+      "lines": 104,
+      "sha256": "aa7d0f193b07d1e60e49a8a488dcaf504e07b8f512e2627730ab7850815ec77c",
+      "symbols": []
+    },
+    {
+      "path": "preview/arcade/island-map.js",
+      "lines": 353,
+      "sha256": "4ca329e2aec2a484a73068d623c58fe48383c21489ae975ecf9b75b4e38d7448",
+      "symbols": [
+        {
+          "name": "Mesh",
+          "line": 32
+        }
+      ]
+    },
+    {
+      "path": "preview/arcade/relic-map.js",
+      "lines": 155,
+      "sha256": "cef2dd72a087ce35373237e2e8ff6f1dd3436f4b2395fa5ce26f3e67467e21c2",
+      "symbols": []
+    },
+    {
       "path": "preview/compare.html",
       "lines": 52,
       "sha256": "bacc02b70501d73cf0886ccbff94678d17b73a57e6c620b98091f9d0d4aa5ab4",
@@ -51514,7 +51596,7 @@
     {
       "path": "preview/index.html",
       "lines": 101,
-      "sha256": "d5ee9cdccd925b61a45e6a7d460657f2ae1322fd1f83bc1df3089f74bea74cae",
+      "sha256": "0b81c31992efbf1896c6fc72f7fb3f3f5b2fadd9cb04d18f381335045140eb90",
       "symbols": []
     },
     {
