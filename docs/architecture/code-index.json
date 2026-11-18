@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:31:04.734152+00:00",
-  "commit": "064557c3a54db23cc9d9f1d73148f9027f8c11e8",
+  "generatedAt": "2026-11-18T07:35:49.290908+00:00",
+  "commit": "b840daacfbb5888a4098a8d97956568135bece14",
   "branch": "main",
-  "sourceFingerprint": "8c325315d2320e995754ef167120ab60a7c6f48e548d18c8812c8e3a8acbc0af",
+  "sourceFingerprint": "5be56a982c95f3808b0c7d522cbe9e42d414995c4987ae39080c0312fbb79d3a",
   "summary": {
     "files": 1457,
     "lines": 308191,
@@ -40085,7 +40085,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
       "lines": 759,
-      "sha256": "97a9961e9cfa615b4ba47c49ab5ed732fc8ec789d4cd8d55255493ff5679de71",
+      "sha256": "3dd066555b8379dca50f79133233e098a4ad3cdf00062812945369ca1edc84da",
       "symbols": [
         {
           "name": "LuluGameType",
