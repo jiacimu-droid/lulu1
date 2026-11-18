@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`096db98253019d3b85664912546dc0b30f06250f`
+- 基准提交：`ef20a4be173ad33a9e43d6a5ef33be73cdbdbc26`
 - 分支：`main`
-- 已索引文件：1462
-- 已索引代码/文本行：308726
-- 已发现符号：4417
+- 已索引文件：1463
+- 已索引代码/文本行：309302
+- 已发现符号：4426
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -388,7 +388,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt` | 437 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentStore.kt` | 331 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt` | 180 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 397 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt` | 445 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt` | 155 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExplorationContinuity.kt` | 129 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionContinuity.kt` | 92 | 6 |
@@ -593,7 +593,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 596 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 95 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 2546 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 2549 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt` | 132 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 196 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 283 | 9 |
@@ -705,7 +705,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt` | 107 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 98 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt` | 185 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt` | 192 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 288 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameMemoryDecision.kt` | 57 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
@@ -724,7 +724,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt` | 151 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt` | 75 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandFollowCamera.kt` | 47 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt` | 171 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt` | 204 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt` | 71 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandGuardianEncounter.kt` | 75 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt` | 309 | 18 |
@@ -742,7 +742,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 768 | 29 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 956 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 963 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 935 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 382 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 94 | 10 |
@@ -776,8 +776,9 @@
 | `app/src/main/java/com/jiacimu/lulu/games/SoupCuratedCases.kt` | 92 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/SoupExpansionCases.kt` | 119 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/SoupHostGuide.kt` | 31 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt` | 290 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt` | 786 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt` | 359 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt` | 679 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupTable.kt` | 464 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 660 | 0 |
@@ -1374,7 +1375,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/RelicStaleRunActionTest.kt` | 35 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicTensionPresentationTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicVaultPersistenceTest.kt` | 44 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/TurtleSoupRoomTest.kt` | 287 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/TurtleSoupRoomTest.kt` | 339 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt` | 201 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 94 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt` | 585 | 1 |
