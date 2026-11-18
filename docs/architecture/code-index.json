@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T16:33:19.991874+00:00",
-  "commit": "dadbbbd1c3576518c88b7cd92a2716fd0ed0ae4a",
+  "generatedAt": "2026-11-18T16:35:51.770604+00:00",
+  "commit": "9ba8580ddb9158e770f4f506cef4da90b17d0153",
   "branch": "main",
-  "sourceFingerprint": "838d792dc26487f860ba30e95ef09636e11492a90cf3e4ab2ddcd7fb1472dabd",
+  "sourceFingerprint": "72c5973a787e9d94a170f90ea4aabe57bd060b35acb16938530a7a626735f72f",
   "summary": {
     "files": 1476,
-    "lines": 312452,
+    "lines": 312496,
     "symbols": 4456
   },
   "symbolIndex": {
@@ -1635,7 +1635,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 734
+        "line": 743
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
@@ -3355,19 +3355,19 @@
     "saveVoiceSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 158
+        "line": 159
       }
     ],
     "LuluMemorySettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 721
+        "line": 730
       }
     ],
     "LuluImageSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 814
+        "line": 823
       }
     ],
     "valid": [
@@ -9585,7 +9585,7 @@
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 2002
+        "line": 2000
       }
     ],
     "age": [
@@ -13109,7 +13109,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3917
+        "line": 3934
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -27220,8 +27220,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-      "lines": 1008,
-      "sha256": "3001947e4ad539141f47ac39ebc43cba2815cd620e58e2485977cb91a8e87243",
+      "lines": 1017,
+      "sha256": "790184c06f09eb09664d4ea532eb8c1549e2d965700d14cef3885177a797b0d8",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
@@ -27229,19 +27229,19 @@
         },
         {
           "name": "saveVoiceSettings",
-          "line": 158
+          "line": 159
         },
         {
           "name": "LuluMemorySettingsScreen",
-          "line": 721
+          "line": 730
         },
         {
           "name": "save",
-          "line": 734
+          "line": 743
         },
         {
           "name": "LuluImageSettingsScreen",
-          "line": 814
+          "line": 823
         }
       ]
     },
@@ -30548,7 +30548,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 207,
-      "sha256": "33ad41bf44b3cf6768e8f64baa3b77d292aeb0014d6f951028cb6e7d44ac9539",
+      "sha256": "bcd2136228762b3914652c55b91ed06231b2217580bb11afc581283b2dbd6133",
       "symbols": [
         {
           "name": "Capability",
@@ -33098,8 +33098,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 2050,
-      "sha256": "691bfed5429225099014bdecddbd82498505e14080b1d32a65d52124b8202ac7",
+      "lines": 2048,
+      "sha256": "a5d25365261ac07ac912a80617959b39a3902100e4030de85d276a01dccb618e",
       "symbols": [
         {
           "name": "asJson",
@@ -33147,7 +33147,7 @@
         },
         {
           "name": "availableContext",
-          "line": 2002
+          "line": 2000
         }
       ]
     },
@@ -36562,7 +36562,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 171,
-      "sha256": "21bc8ee6db231fbb338ba0773c3f486a2084416dcc6c5ee599ec24d292e011bf",
+      "sha256": "9f132fbc1f99b08a7f9f4e6af457e16d2f5ac243ba9fbe001a693b64f926f68a",
       "symbols": []
     },
     {
@@ -36722,8 +36722,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3984,
-      "sha256": "4baea10bd3300304ab490d3d3f3f644e40317ed3ff70cea6fb283f5bbe00cb09",
+      "lines": 4001,
+      "sha256": "b29f1b642f205e2201da22eb3d1d14234d6659ffdcbf8ad6523194537b98e461",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -36755,7 +36755,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3917
+          "line": 3934
         }
       ]
     },
@@ -38007,7 +38007,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UserInteractionPresence.kt",
       "lines": 117,
-      "sha256": "4f14ef97d4ad5bf2dcefffa27a6418225527808997c123df68522463647fc769",
+      "sha256": "473d6bbedb6703afae57f833de8695b330f773767bb6b529af62b96945dd6693",
       "symbols": [
         {
           "name": "UserInteractionPresence",
@@ -43701,7 +43701,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
       "lines": 802,
-      "sha256": "4dd4ad0891fcc089feb5c8f49ab0465812f3ff2c873abb57b60c86d1f107561d",
+      "sha256": "3f31bb31916c38da7efa7a3608db0f72f3fe73d84b7e658b9c77c6bdf1a2cba3",
       "symbols": [
         {
           "name": "blockReason",
@@ -43982,7 +43982,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
       "lines": 486,
-      "sha256": "d687ba15850581c2785aeac64dc71220e9a608b0c91e0846aca7e28db7aa73d5",
+      "sha256": "36e8deb0e364cd43edf0af17f87b254cde4341a664820caa87191ff8c6a70f6e",
       "symbols": [
         {
           "name": "active",
@@ -50401,8 +50401,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt",
-      "lines": 178,
-      "sha256": "d29bc711ae649dd20c759dd6cdd9c73a28b36738121eae06d621c8fa4c8ee2aa",
+      "lines": 180,
+      "sha256": "64273ac4e1fb2d7d5d25a39404e4519e60c4b311da25e87ebadf63ffd4b9ba41",
       "symbols": [
         {
           "name": "ScreenVisionCapabilityContextTest",
@@ -52171,8 +52171,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt",
-      "lines": 233,
-      "sha256": "57e32f0f0a3977153cc574a17fdfea01e98db8e4525455eb446483d570f5d77f",
+      "lines": 251,
+      "sha256": "b2ac8725301e561305090746f74ea9cd7e5de90941bf12114d8fa7ca30ed4151",
       "symbols": [
         {
           "name": "LuluStudyWatchTest",
