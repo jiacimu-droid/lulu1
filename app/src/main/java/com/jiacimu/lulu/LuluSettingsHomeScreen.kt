@@ -234,7 +234,7 @@ private fun SettingsEntryScreen(
                                 "vision" -> Icons.Outlined.Visibility
                                 "image" -> Icons.Outlined.Image
                                 "capabilities" -> Icons.Outlined.Security
-                                "strict" -> Icons.Outlined.AdminPanelSettings
+                                "strict" -> Icons.Outlined.Security
                                 else -> Icons.Outlined.Backup
                             }
                             SettingsEntryRow(
