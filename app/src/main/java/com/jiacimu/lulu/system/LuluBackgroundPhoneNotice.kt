@@ -20,7 +20,11 @@ internal object LuluBackgroundPhoneNotice {
     private const val ID = 47231
     const val ACTION_STOP = "com.jiacimu.lulu.BACKGROUND_PHONE_STOP"
 
-    fun show(context: Context) {
+    fun show(context: Context) = showMode(context, foreground = false)
+
+    fun showForeground(context: Context) = showMode(context, foreground = true)
+
+    private fun showMode(context: Context, foreground: Boolean) {
         val manager = context.getSystemService(NotificationManager::class.java)
         check(manager.areNotificationsEnabled()) {
             "请先允许露露机通知，以便显示可随时停止的后台手机操作状态"
@@ -33,8 +37,10 @@ internal object LuluBackgroundPhoneNotice {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val notification = Notification.Builder(context, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_menu_view)
-            .setContentTitle("角色正在后台操作手机")
-            .setContentText("使用独立虚拟屏幕，不占用你的主屏")
+            .setContentTitle(if (foreground) "角色正在操作可见主屏" else "角色正在后台操作手机")
+            .setContentText(if (foreground)
+                "纯无障碍模式会占用主屏；点停止即可中断" else
+                "使用独立虚拟屏幕，不占用你的主屏")
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .addAction(Notification.Action.Builder(
@@ -92,8 +98,10 @@ internal class LuluBackgroundPhoneStopReceiver : BroadcastReceiver() {
         if (intent.action != LuluBackgroundPhoneNotice.ACTION_STOP) return
         val completion = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
-            try { LuluBackgroundPhoneSession.stop(context) }
-            finally { completion.finish() }
+            try {
+                LuluBackgroundPhoneSession.stop(context)
+                LuluForegroundPhoneSession.stopSession(context)
+            } finally { completion.finish() }
         }
     }
 }
