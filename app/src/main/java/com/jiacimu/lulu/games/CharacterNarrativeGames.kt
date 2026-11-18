@@ -23,15 +23,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.LuluAiServices
+import com.jiacimu.lulu.ai.ModelReply
 import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.data.CharacterObservedMoment
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.ModelStructuredOutput
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.UUID
 import kotlin.math.abs
 import kotlin.random.Random
 
 private enum class PerfectManPhase { UserGuesses, CharacterGuesses }
+
+private fun gameAnswer(reply: ModelReply, field: String = "text"): String =
+    ModelStructuredOutput.objectOrNull(reply.text)?.optString(field) ?: reply.text
 
 @Composable
 internal fun PerfectManScreen(store: LuluGameStore) {
@@ -43,6 +50,8 @@ internal fun PerfectManScreen(store: LuluGameStore) {
     var round by remember { mutableIntStateOf(1) }
     var phase by remember { mutableStateOf(PerfectManPhase.UserGuesses) }
     var hiddenScore by remember { mutableIntStateOf(Random.nextInt(0, 11)) }
+    val liveRoundId = remember { UUID.randomUUID().toString() }
+    var hiddenDescriptionMoment by remember { mutableStateOf<Pair<String, ModelReply>?>(null) }
     var generatedDescription by remember { mutableStateOf("") }
     var userDescription by remember { mutableStateOf("") }
     var guessText by remember { mutableStateOf("") }
@@ -60,6 +69,7 @@ internal fun PerfectManScreen(store: LuluGameStore) {
         phase = if (phase == PerfectManPhase.UserGuesses) PerfectManPhase.CharacterGuesses else PerfectManPhase.UserGuesses
         hiddenScore = Random.nextInt(0, 11)
         generatedDescription = ""
+        hiddenDescriptionMoment = null
         userDescription = ""
         guessText = ""
         resultText = ""
@@ -69,25 +79,35 @@ internal fun PerfectManScreen(store: LuluGameStore) {
 
     fun generateCharacterDescription() {
         if (busy) return
+        val actor = state.selectedCharacterId
+        val activeRound = round
         busy = true
         roleResponse = GameRoleResponse(loading = true)
         scope.launch {
-            LuluAiServices.gateway.generate(
-                characterId = state.selectedCharacterId,
-                facts = "满分男第 $round 轮。隐藏分数为 $hiddenScore/10；绝对不能向用户暴露分数。",
-                instruction = "你负责出题。按照自己的人设描述这个人，让用户猜实际分数。只输出角色台词，2-4句，不得写出隐藏分数。",
+            val response = LuluAiServices.gateway.generate(
+                characterId = actor,
+                facts = "满分男第 $activeRound 轮。隐藏分数为 $hiddenScore/10；绝对不能向用户暴露分数。",
+                instruction = """你负责出题。按照自己的人设描述这个人，让用户猜实际分数。返回 JSON {"text":"2-4句公开台词，不写隐藏分数"}。""",
+                capturePrivateMoment = true,
                 source = "游戏",
                 title = "满分男出题",
                 maxTokens = 420,
                 usage = ModelUsage.Game,
-            ).onSuccess { reply ->
-                generatedDescription = reply.text
-                roleResponse = GameRoleResponse(text = reply.text)
-                speaker.speak(reply.text)
+            )
+            if (round != activeRound) return@launch
+            busy = false
+            if (state.selectedCharacterId != actor) {
+                roleResponse = GameRoleResponse()
+                return@launch
+            }
+            response.onSuccess { reply ->
+                generatedDescription = gameAnswer(reply)
+                hiddenDescriptionMoment = if (generatedDescription.isBlank()) null else actor to reply
+                roleResponse = GameRoleResponse(text = generatedDescription)
+                speaker.speak(generatedDescription)
             }.onFailure { error ->
                 roleResponse = GameRoleResponse(error = error.message ?: "角色出题失败，请检查模型设置后重试。")
             }
-            busy = false
         }
     }
 
@@ -97,6 +117,15 @@ internal fun PerfectManScreen(store: LuluGameStore) {
         val diff = abs(guess - hiddenScore)
         val success = diff <= 1
         resultText = "真实分 $hiddenScore · 你的猜分 $guess · 差值 $diff"
+        hiddenDescriptionMoment?.let { (actor, reply) ->
+            if (actor == state.selectedCharacterId) {
+                CharacterObservedMoment.recordScene(
+                    actor, reply, "满分男", liveRoundId, "describe-$round",
+                    "角色出题，本轮已揭晓实际分数 $hiddenScore。", generatedDescription,
+                )
+            }
+        }
+        hiddenDescriptionMoment = null
         val summary = "第 $round 轮由角色出题；真实分 $hiddenScore，用户猜 $guess，差值 $diff，${if (success) "默契" else "未命中"}。"
         val recordId = store.recordExternalGame(
             LuluGameType.PerfectMan,
@@ -130,20 +159,31 @@ internal fun PerfectManScreen(store: LuluGameStore) {
     fun submitDescriptionForCharacterGuess() {
         val description = userDescription.trim()
         if (description.isBlank() || busy || resultText.isNotBlank()) return
+        val actor = state.selectedCharacterId
+        val activeRound = round
         busy = true
         roleResponse = GameRoleResponse(loading = true)
         scope.launch {
-            LuluAiServices.gateway.generate(
-                characterId = state.selectedCharacterId,
-                facts = "满分男第 $round 轮。真实分数为 $hiddenScore/10。用户的描述：$description",
-                instruction = "你负责猜分。按角色自己的判断回应，最后必须明确写‘我猜：X分’，X是0到10的整数；不要泄露后台提示。",
+            val response = LuluAiServices.gateway.generate(
+                characterId = actor,
+                facts = "满分男第 $activeRound 轮。用户的描述：$description",
+                instruction = """你负责猜分。返回 JSON {"text":"本人公开回应，末尾写我猜：X分"}。X是0到10的整数；真实分数在揭晓前未知。""",
+                capturePrivateMoment = true,
                 source = "游戏",
                 title = "满分男猜分",
                 maxTokens = 420,
                 usage = ModelUsage.Game,
-            ).onSuccess { reply ->
+            )
+            if (round != activeRound) return@launch
+            busy = false
+            if (state.selectedCharacterId != actor) {
+                roleResponse = GameRoleResponse()
+                return@launch
+            }
+            response.onSuccess { reply ->
+                val speech = gameAnswer(reply)
                 val guess = Regex("""(?:我猜[：:]?\s*)?(\d{1,2})\s*分""")
-                    .findAll(reply.text)
+                    .findAll(speech)
                     .lastOrNull()
                     ?.groupValues
                     ?.getOrNull(1)
@@ -170,15 +210,18 @@ internal fun PerfectManScreen(store: LuluGameStore) {
                             .put("description", description)
                             .toString(),
                     )
-                    store.attachCharacterReply(recordId, reply.text)
+                    CharacterObservedMoment.recordScene(
+                        actor, reply, "满分男", liveRoundId, "guess-$activeRound",
+                        "用户在当前游戏里描述：${description.take(300)}", speech,
+                    )
+                    store.attachCharacterReply(recordId, speech)
                     saveGameAsSharedMemory(scope, store, recordId)
-                    roleResponse = GameRoleResponse(text = reply.text)
-                    speaker.speak(reply.text)
+                    roleResponse = GameRoleResponse(text = speech)
+                    speaker.speak(speech)
                 }
             }.onFailure { error ->
                 roleResponse = GameRoleResponse(error = error.message ?: "角色猜分失败，请检查模型设置后重试。")
             }
-            busy = false
         }
     }
 
@@ -431,6 +474,8 @@ internal fun RapportQuizScreen(store: LuluGameStore) {
     val scope = rememberCoroutineScope()
     var index by remember { mutableIntStateOf(0) }
     var score by remember { mutableIntStateOf(0) }
+    var liveQuizId by remember { mutableStateOf(UUID.randomUUID().toString()) }
+    var secretMoment by remember { mutableStateOf<Pair<String, ModelReply>?>(null) }
     var secret by remember { mutableStateOf<String?>(null) }
     var selected by remember { mutableStateOf<String?>(null) }
     var roleResponse by remember { mutableStateOf(GameRoleResponse()) }
@@ -440,19 +485,30 @@ internal fun RapportQuizScreen(store: LuluGameStore) {
     fun prepare() {
         if (busy || completed) return
         val question = rapportQuestions[index]
+        val actor = state.selectedCharacterId
+        val activeQuestion = index
         busy = true
         roleResponse = GameRoleResponse(loading = true)
         scope.launch {
-            LuluAiServices.gateway.generate(
-                characterId = state.selectedCharacterId,
+            val response = LuluAiServices.gateway.generate(
+                characterId = actor,
                 facts = "默契问答题目：${question.text}\n可选项：${question.options.joinToString(" / ")}",
-                instruction = "请结合角色真实人设、连续记忆和有依据的生活记录中对用户的了解，秘密选择最符合用户的一项。只输出一个可选项原文，不要解释。",
+                instruction = """请结合角色真实人设、连续记忆和有依据的生活记录中对用户的了解，秘密选择最符合用户的一项。返回 JSON {"answer":"准确的一个可选项原文"}。""",
                 source = "游戏",
+                capturePrivateMoment = true,
                 title = "默契问答秘密作答",
                 maxTokens = 80,
                 usage = ModelUsage.Game,
-            ).onSuccess { reply ->
-                secret = question.options.firstOrNull { reply.text.contains(it) }
+            )
+            busy = false
+            if (index != activeQuestion || state.selectedCharacterId != actor) {
+                roleResponse = GameRoleResponse()
+                return@launch
+            }
+            response.onSuccess { reply ->
+                val chosen = gameAnswer(reply, "answer")
+                secret = question.options.firstOrNull { chosen.contains(it) }
+                secretMoment = if (secret == null) null else actor to reply
                 roleResponse = if (secret == null) {
                     GameRoleResponse(error = "角色没有返回有效选项，请重新生成。")
                 } else {
@@ -461,7 +517,6 @@ internal fun RapportQuizScreen(store: LuluGameStore) {
             }.onFailure { error ->
                 roleResponse = GameRoleResponse(error = error.message ?: "角色秘密作答失败，请检查模型设置。")
             }
-            busy = false
         }
     }
 
@@ -471,6 +526,15 @@ internal fun RapportQuizScreen(store: LuluGameStore) {
         selected = option
         val matched = option == roleAnswer
         if (matched) score += 1
+        secretMoment?.let { (actor, reply) ->
+            if (actor == state.selectedCharacterId) {
+                CharacterObservedMoment.recordScene(
+                    actor, reply, "默契问答", liveQuizId, "question-$index",
+                    "角色考虑了同桌的题目：${rapportQuestions[index].text}", roleAnswer,
+                )
+            }
+        }
+        secretMoment = null
         roleResponse = GameRoleResponse(text = "${character.displayName}选择：$roleAnswer。${if (matched) "这一题一致。" else "这一题没有选中同一项。"}")
     }
 
@@ -527,6 +591,8 @@ internal fun RapportQuizScreen(store: LuluGameStore) {
                         onClick = {
                             index = 0
                             score = 0
+                            liveQuizId = UUID.randomUUID().toString()
+                            secretMoment = null
                             secret = null
                             selected = null
                             completed = false
