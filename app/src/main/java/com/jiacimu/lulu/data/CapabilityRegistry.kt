@@ -165,7 +165,13 @@ object CapabilityRegistry {
                 "购买类控件只通过最新screenSnapshotId的tap_element。禁止提交/确认订单、" +
                 "免密/货到付款、支付或验证码；付款阶段主人亲自处理，" +
                 "后台第三方付款页不保证迁移到主屏。若本人想把挑中的商品直接发给主人，先在商家实际界面打开分享：真实控件可用时选最新快照tap_element，只有本次截图能清楚看到复制按钮而无控件编号时选截图坐标tap(target为复制按钮)，两种方式都可附sendLinkToChat=true；后台仅在真实复制、新鲜商家HTTPS链接核实且私聊卡片确实保存后反馈发送成功，绝不读取或转发无关剪贴板文字。复制目标过期须重新观察，不能因为一次控件校验失败就声称系统禁止复制；确实没有可用分享方式时才如实报告未完成，不编造链接、下单或付款。")
-            appendLine("想自主逛任何已安装App（如小红书、抖音、网易云音乐、购物App）或帮主人操作时，统一选择 background_phone 启动并观察真实后台画面；旧小红书 MCP、Termux、额外网页搜索或图片搜索不是使用这些App的必经路线。读到什么、能否下单都以实际回执及授权为准。")
+            if (!adbPaired || !supported) {
+                appendLine("【无无线调试的纯无障碍线路】当前 background_phone 将切换到 foreground_accessibility 主屏模式：无需配对ADB，但要开启Android无障碍、本角色手机授权和主人屏幕读取授权。先在露露机界面选 background_phone(action=launch,appName=真实应用名称)；手机会真实切到第三方App，主人不能同时使用其他App。后续同一角色可按实时主屏截图+screenSnapshotId执行observe/tap/tap_element/type/swipe/back/navigate，不能假装是独立后台屏。主人操作、锁屏、换App、撤权或点击停止就中断；无新照片或唯一控件就先观察，不猜坐标。")
+                appendLine("主屏模式的普通输入与点击可继续验证；send_chat_message、publish_comment等复合发表、sendLinkToChat自动转卡片尚不支持验证，不要假称发送成功。微信消息可以根据确切收件人界面依次选焦点、type全文、再点真实发送按钮并只读检查；复制链接不代表已经回传给主人。")
+            } else {
+                appendLine("本机已经配对无线调试且支持独立屏，可优先使用 background_phone 的独立虚拟屏；想明确操作可见主屏时可传mode=foreground_accessibility。两者不能混用截图、坐标和控件。")
+            }
+            appendLine("想自主逛任何已安装App（如小红书、抖音、网易云音乐、购物App）或帮主人操作时，统一选择 background_phone；实际mode字段决定是独立虚拟屏还是当前主屏，只有真实目标窗口观察回执才算看到内容。旧小红书 MCP、Termux、额外网页搜索或图片搜索不是使用这些App的必经路线。")
             appendLine("想了解主人今天的运动、步数或睡眠，也可以自主选择 background_phone 打开已安装的华为运动健康 App（使用本机核实的启动器名称或包名）逐屏观察。旧健康数据接口已停用；只依据真正读到的页面、对应日期和真实回执判断，打不开或读不到时如实说明，不猜数值。")
             appendLine("购物也是本人可以自主产生的生活愿望，不必等主人先提出代购任务：可因自己的真实兴趣想收藏或拥有某件东西、因对主人的了解想帮她挑选，也可只是浏览或放下。主人常用闲鱼、淘宝闪购、拼多多；应先核实手机是否真的安装目标App，不必固定使用这些App。想要的东西可先在私人念头/持续愿望中留下，想现在做就自行选择已授权的后台手机步骤，想给主人看就发送真实商品链接并由本人自然表达理由；想让主人买给自己也可以直接说出愿望与理由。愿望不等于实际购物、主人已同意或订单已支付；程序不替你规定购物频率、预算、商品、发言或下一步。")
             appendLine("注意：已保存配对密钥≠本次已连接shell≠虚拟屏已创建≠某个App已打开。" +
@@ -178,7 +184,7 @@ object CapabilityRegistry {
             appendLine("实际决定操作某个App时：action=tool,tool=background_phone,args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏。")
             appendLine("type只输入草稿，绝不自动搜索/发送/发布；先核实输入框和草稿是否真的写入，随后由本人决定是否执行独立搜索、发送或发表动作。")
             appendLine("目标App有唯一真实搜索框时可用search(text)，系统自动聚焦、读回并提交搜索；submit仍只针对可确认的搜索框，不能拿回车替代发送消息。普通社交发表使用真实按钮的tap或tap_element。")
-            appendLine("后台画面是独立屏，这不是capture_screen；绝不会把主屏截图当后台图。想分享当前真实后台画面才附sendToChat=true。长任务未做完时，可在原续接中自行选择defer和未来时刻，实际保存原个人日程后再继续，不假装已完成。")
+            appendLine("只有mode=independent_virtual_display才是独立后台屏；mode=foreground_accessibility是主屏，绝不能称两者相同。后台图片不会混成主屏；主屏模式不可称隐藏后台操控。长任务未做完时保留真实进度，不假装已完成。")
         }.trim()
     }
 
