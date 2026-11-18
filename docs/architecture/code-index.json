@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T08:26:13.713915+00:00",
-  "commit": "0ccfe4b6f10c66d68f3507bfc852e62ea364da2e",
+  "generatedAt": "2026-11-18T08:28:57.613012+00:00",
+  "commit": "9847b8a26c7fd795c3deed2f5149a546b1a050ea",
   "branch": "main",
-  "sourceFingerprint": "2c5d85f6a97b375e7bc5a2c0f853af17a817c2fe77e455f9b2c76af094dbf156",
+  "sourceFingerprint": "b57c6b1f397b480efa3e414bd8525c536b28d01bff246ed9af776d00eb451baf",
   "summary": {
     "files": 1461,
-    "lines": 308972,
+    "lines": 308990,
     "symbols": 4399
   },
   "symbolIndex": {
@@ -18747,7 +18747,7 @@
     "clipboardTimestamp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
-        "line": 87
+        "line": 105
       }
     ],
     "ownerGranted": [
@@ -43337,12 +43337,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
-      "lines": 157,
-      "sha256": "f8d4ebbe94f0a1306bf73713584b0ac7794b0d3a066e0ed7c890377bbd929171",
+      "lines": 175,
+      "sha256": "a5ce8fd2c23068cdb131aa14adc8f87547b1c09a920199dc983a6f3ccdb40b10",
       "symbols": [
         {
           "name": "clipboardTimestamp",
-          "line": 87
+          "line": 105
         }
       ]
     },
