@@ -1819,6 +1819,7 @@ internal object ResidentDailyDecision {
             和每位真实通信过的联系人最近一封信（不代表未读、需要回复或对方已看过）：
             ${lastByContact.ifBlank { "暂无通信" }}
             ${CharacterEverydaySocialContext.render(characterId, at, pending)}
+            ${CharacterEverydaySocialContext.friendshipThreads(characterId, at)}
             自己确实经历过的事情与工具结果（失败也是真实经历；计划未执行不算）：
             ${evidence.joinToString("\n") { "evidenceId=${it.id}；${lifeEvidenceLine(it)}" }.ifBlank { "暂未积累" }}
             自己对熟人的真实个人印象（对方未必这么想）：
@@ -1964,6 +1965,7 @@ internal object ResidentDailyDecision {
                 这也是每天规划时一次真实的手机感知：你知道这会儿哪些好友新发了朋友圈，有什么未读私信与好友申请。可以在同一轮模型决定日程，并自己选择处理或忽略它们。
                 注意昨天和之前实际发生的小事：某次工具失败、没送出去的信、一次真实互动、一次具体的快乐或失落，都可能让你今天换个办法、继续关注或决定放下。但回执只能说明执行成功/失败，不能替别人确认喜欢、收到或原谅；已写计划不等于亲历，不为显得热闹而重复安排。
                 想见熟人、与另一位居民聊共同话题、通过 invite_duel_game 邀请熟人比快艇骰子或记忆配对、通过 respond_duel_invite 自己决定应邀或拒绝、回复真实来信、参与群聊、组织自己认识的好友建群或结识新朋友，都可以成为具体行程。
+                今天若想玩游戏，先把自己真实的熟人、已有对局结果、未完成的聊天和当下邀约一起放进考虑范围：可以约朋友玩、聊一局之前的胜负、延续没聊完的事，也可以确实更想独玩或休息。朋友是活生生的独立人物，不是为了活跃率而必须陪玩的对象；由本人决定联系谁、何时联系和是否沉默，不默认每天只发一条社交消息。
                 见过面但尚未成为好友的人，不等于已经发出了申请。今天若确实想继续来往，可以从上文真实认识且没有待处理申请的 targetCharacterId 自主选择 steps 中的 send_friend_request；对方仍可以拒绝，也可以彼此保持普通熟人。已收到申请则由你决定 respond_friend_request，不允许替对方同意。
                 有真实已确认的好友时，可以选择当下 steps 工具 create_group_chat，args={"groupName":"自己想的名称","memberIds":["邀请的真实好友角色ID"]} 组建没有用户自动参与的朋友圈小群；创建并不代表群友回应。确认有合适共同话题再建，已有适合群时优先继续旧群。
                 steps 按本人选择的先后执行；每步可填写 requiresPreviousSuccess=true|false，true 依赖前一步实际完成，false 可独立继续；没有前置动作的首步可直接执行。可带原有 motiveId/concernId/experienceId，让每个回执只关联自己的事项。
@@ -2306,6 +2308,7 @@ internal object ResidentDailyDecision {
                     只根据你的性格、关系、最近真实经历、未读私信和好友申请决定怎么做。
                     你可以回信、继续旧话题、发朋友圈、回应好友申请、点赞评论、
                     与真实熟人群聊、安排活动，也可以选择暂时不做任何事。
+                    若对方提到已经共同经历的游戏或约定，可以依据本人实际见证的记录继续交流，或自主提出下一次真实邀约；不能把自己的提议写成双方已经参与的活动。
                     不要替别人答应好友，不把已发的申请当成已成为好友。给数字人物发私信时，同一个 send_character_message 的 args.bubbles 是你自己选择逐次按发送的台词数组；一泡或多泡都可以，不按字数机械切，不要把同一段话重复安排成两个发送动作。历史 text 兼容单泡，不与 bubbles 并存。
                     可以一次选择多项独立动作，各自由工具核验；不要求凑数量，
                     也不因为收件就必须回复。所有收件人、帖子和申请必须用实际ID。
