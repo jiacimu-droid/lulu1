@@ -1,6 +1,7 @@
 package com.jiacimu.lulu
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -42,6 +43,7 @@ internal fun DesktopWorldBulletinCard(
     modifier: Modifier = Modifier,
     embedded: Boolean = false,
     foreground: Color? = null,
+    interactionSource: MutableInteractionSource? = null,
 ) {
     val context = LocalContext.current
     val world by DigitalWorldStore.state.collectAsState()
@@ -94,6 +96,7 @@ internal fun DesktopWorldBulletinCard(
         shape = RoundedCornerShape(24.dp),
         border = if (embedded) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         shadowElevation = if (embedded) 0.dp else 1.dp,
+        interactionSource = interactionSource,
         onClick = {
             opened = true
             val updated = (seen + notices.map(DigitalWorldNotice::id)).toList().takeLast(500).toSet()

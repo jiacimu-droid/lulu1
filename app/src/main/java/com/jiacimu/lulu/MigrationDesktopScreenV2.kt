@@ -2,7 +2,9 @@ package com.jiacimu.lulu
 
 import android.content.Context
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.pager.HorizontalPager
@@ -16,6 +18,7 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -305,7 +308,8 @@ internal fun MigrationHomeV2(
                     ) { page ->
                         Box(Modifier.fillMaxSize()) {
                             LuluDesktopWidgetCanvas(
-                                page = page, widgets = widgets, draggingWidgetId = draggingWidgetId,
+                                page = page, isSettledPage = pagerState.settledPage == page,
+                                widgets = widgets, draggingWidgetId = draggingWidgetId,
                                 launcherSlots = slots, today = today,
                                 characterNames = widgetCharacterNames,
                                 conversationTexts = widgetConversationTexts,
@@ -320,7 +324,7 @@ internal fun MigrationHomeV2(
                                         else -> editingWidgetId = widget.id
                                     }
                                 },
-                                specialContent = { widget, foreground ->
+                                specialContent = { widget, foreground, interaction ->
                                     when (widget.kind) {
                                         LuluWidgetKind.CHAT -> DesktopCompanionCard(
                                             displayName = recentDisplayName,
@@ -336,11 +340,11 @@ internal fun MigrationHomeV2(
                                                     ?: onOpen(MigrationRoute.Chat)
                                             },
                                             modifier = Modifier.fillMaxSize(),
-                                            foreground = foreground,
+                                            foreground = foreground, interaction = interaction,
                                         )
                                         LuluWidgetKind.BULLETIN -> DesktopWorldBulletinCard(
                                             modifier = Modifier.fillMaxSize(), embedded = true,
-                                            foreground = foreground,
+                                            foreground = foreground, interactionSource = interaction,
                                         )
                                         else -> Unit
                                     }
@@ -392,7 +396,8 @@ internal fun MigrationHomeV2(
                                         )
                                     }.graphicsLayer { alpha = .93f; shadowElevation = 8f },
                                 onOpen = {},
-                                specialContent = { item, ink ->
+                                onEdit = null,
+                                specialContent = { item, ink, _ ->
                                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                         Text(item.kind.title, color = ink, fontWeight = FontWeight.SemiBold)
                                     }
@@ -502,9 +507,11 @@ private fun DesktopCompanionCard(
     greeting: String,
     modifier: Modifier = Modifier,
     foreground: Color,
+    interaction: MutableInteractionSource,
 ) {
     val secondary = foreground.copy(alpha = .79f)
-    BoxWithConstraints(modifier.luluCssElement("companion").clickable(onClick = onClick)) {
+    BoxWithConstraints(modifier.luluCssElement("companion")
+        .clickable(interactionSource = interaction, indication = null, onClick = onClick)) {
         val narrow = maxWidth < 232.dp
         val short = maxHeight < 106.dp
         if (narrow && maxHeight >= 210.dp) {
@@ -513,7 +520,7 @@ private fun DesktopCompanionCard(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                DesktopV2Avatar(avatarFallback, 60, avatarUri)
+                DesktopWidgetAvatar(avatarFallback, 60, avatarUri, foreground)
                 Spacer(Modifier.height(12.dp))
                 Text(displayName, color = foreground, fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
                     maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -531,7 +538,7 @@ private fun DesktopCompanionCard(
                 ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                DesktopV2Avatar(avatarFallback, avatarSize, avatarUri)
+                DesktopWidgetAvatar(avatarFallback, avatarSize, avatarUri, foreground)
                 Spacer(Modifier.width(if (narrow) 9.dp else 14.dp))
                 Column(Modifier.weight(1f)) {
                     if (!short && !narrow) {
@@ -643,8 +650,14 @@ private fun DesktopV2LauncherItem(
 }
 
 @Composable
-private fun DesktopV2Avatar(text: String, size: Int, imageUri: String? = null, modifier: Modifier = Modifier) =
-    LuluProfileAvatar(imageUri = imageUri, fallback = text, size = size, modifier = modifier)
+private fun DesktopWidgetAvatar(text: String, size: Int, imageUri: String?, ink: Color) {
+    Box(Modifier.size((size + 6).dp), contentAlignment = Alignment.Center) {
+        Box(Modifier.matchParentSize().rotate(-5f).border(
+            1.dp, ink.copy(alpha = .30f), RoundedCornerShape(13.dp),
+        ))
+        LuluProfileAvatar(imageUri = imageUri, fallback = text, size = size)
+    }
+}
 
 private fun loadDesktopSlots(context: Context): List<String?> {
     val launcherIds = DesktopV2Launchers.map { it.id }
