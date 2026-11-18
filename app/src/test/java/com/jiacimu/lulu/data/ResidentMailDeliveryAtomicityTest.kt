@@ -331,4 +331,49 @@ class ResidentMailDeliveryAtomicityTest {
         val actual = ResidentSocialMailbox.send(first, second, "双方确实确认好友后可以联系")
         assertEquals(actual.id, ResidentSocialMailbox.pendingIncoming(second).single().id)
     }
+
+    @Test fun oneAuthoredTurnCommitsAllNaturalBubblesWithoutProgramSplitting() {
+        val sender = person()
+        val receiver = person()
+        assertTrue(MomentFriendAccess.setFriends(sender, receiver, true))
+        val words = listOf("刚看见你发的消息", "我对这个也有兴趣", "等会儿再聊？")
+        val before = ResidentSocialMailbox.historyForInspection(receiver).size
+        val sent = ResidentSocialMailbox.sendBubbles(sender, receiver, words,
+            at = Instant.now().minusSeconds(5), requestPeerReview = false)
+        assertEquals(words, sent.map { it.content })
+        assertEquals(3, sent.map { it.id }.toSet().size)
+        assertEquals(words, ResidentSocialMailbox.historyForInspection(sender)
+            .takeLast(3).map { it.content })
+        assertEquals(words, ResidentSocialMailbox.historyForInspection(receiver)
+            .takeLast(3).map { it.content })
+        assertEquals(before + 3, ResidentSocialMailbox.historyForInspection(receiver).size)
+        for (message in sent) for (viewer in listOf(sender, receiver)) {
+            val evidence = SharedExperienceTimeline.eventsByIds(viewer,
+                listOf(ResidentSocialMailbox.evidenceId(message, viewer))).single()
+            assertEquals("数字人物私信", evidence.channel)
+            assertTrue(evidence.content.contains(message.content))
+        }
+        reloadMailbox()
+        assertEquals(words, ResidentSocialMailbox.historyForInspection(receiver)
+            .takeLast(3).map { it.content })
+    }
+
+    @Test fun failedMultiBubbleCommitLeavesNoPartialLettersOrFakeEvidence() {
+        val sender = person()
+        val receiver = person()
+        assertTrue(MomentFriendAccess.setFriends(sender, receiver, true))
+        val before = actualPrefs.getString("messages", "[]")
+        val letters = ResidentSocialMailbox.historyForInspection(receiver)
+        interceptCommit { false }
+        try {
+            assertTrue(runCatching { ResidentSocialMailbox.sendBubbles(sender, receiver,
+                listOf("原本第一泡", "原本第二泡"), requestPeerReview = false) }.isFailure)
+            assertEquals(before, actualPrefs.getString("messages", "[]"))
+            assertEquals(letters, ResidentSocialMailbox.historyForInspection(receiver))
+            assertFalse(SharedExperienceTimeline.all(receiver).any {
+                it.content.contains("原本第一泡") || it.content.contains("原本第二泡") })
+        } finally {
+            field("prefs").set(ResidentSocialMailbox, actualPrefs)
+        }
+    }
 }
