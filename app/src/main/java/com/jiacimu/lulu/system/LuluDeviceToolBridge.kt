@@ -1030,7 +1030,7 @@ object LuluDeviceToolBridge {
         // Do not treat a decision envelope as spoken content. In particular,
         // a phone model returning only a brief must never read JSON aloud.
         val proposedSpeech = if (plan.action == "reply") plan.text else ""
-        var phoneMoment: CompanionPresenceState? = null
+        var phonePerceptionEvidenceId = ""
         if (!rewriting) {
             com.jiacimu.lulu.data.CharacterMotivationOwnership.updateLegacyIfPresent(characterId, plan.intention)
             val verifiedSources = if (ordinaryPhone) originalUserEvidence else originalUserEvidence.ifEmpty {
@@ -1157,12 +1157,14 @@ object LuluDeviceToolBridge {
                 voiceFingerprint = privateDelta.fingerprint,
             )
             if (ordinaryPhone) {
-                // The real perception already happened, including when the
-                // role stays silent or its later audio is never delivered.
-                phoneMoment = savePresence(
+                phonePerceptionEvidenceId = causalEvidenceId
+                // The private reaction belongs to the observation. Proposed
+                // visible state still depends on the current turn succeeding.
+                if (plan.innerThought.isNotBlank()) savePresence(
                     characterId, plan, "电话感知",
                     preserveQuietThought = true, heartVoiceFingerprint = privateDelta.fingerprint,
                     momentChanged = privateDelta.meaningful, provenanceId = causalEvidenceId,
+                    includeVisibleState = false,
                 )
             }
         }
@@ -1390,11 +1392,12 @@ object LuluDeviceToolBridge {
                 executionHasPrimary = false,
                 executionState = if (chatSilentHasSteps) "pending" else "reported",
             )
-            if (!ordinaryPhone && !bedtimePromptActive) savePresence(
-                characterId, plan, "聊天沉默",
+            if (!bedtimePromptActive) savePresence(
+                characterId, plan, if (ordinaryPhone) "电话感知" else "聊天沉默",
                 preserveQuietThought = true, heartVoiceFingerprint = privateDelta.fingerprint,
                 momentChanged = privateDelta.meaningful,
-                provenanceId = groundingEvidenceId.takeIf { userEvidenceIds.isNotEmpty() }.orEmpty(),
+                provenanceId = if (ordinaryPhone) phonePerceptionEvidenceId else
+                    groundingEvidenceId.takeIf { userEvidenceIds.isNotEmpty() }.orEmpty(),
             )
             if (!rewriting && phoneCallId.isNotBlank()) {
                 // A silent visual reply is a REAL chosen action, not a speech
@@ -1649,9 +1652,11 @@ object LuluDeviceToolBridge {
             }
             if (!bedtimePromptActive && !rewriting &&
                 (if (ordinaryPhone) verifiedSpeech == naturalText else safeText == naturalText)) {
-                if (ordinaryPhone) phoneMoment?.let { moment ->
-                    onPhonePresence?.invoke(moment)
-                } else savePresence(
+                if (ordinaryPhone) savePresence(
+                    characterId, plan, "电话感知",
+                    preserveQuietThought = true, heartVoiceFingerprint = privateDelta.fingerprint,
+                    momentChanged = privateDelta.meaningful, provenanceId = phonePerceptionEvidenceId,
+                )?.let { onPhonePresence?.invoke(it) } else savePresence(
                     characterId, plan, "聊天",
                     heartVoiceFingerprint = privateDelta.fingerprint,
                     momentChanged = privateDelta.meaningful,
@@ -2325,15 +2330,16 @@ object LuluDeviceToolBridge {
         heartVoiceFingerprint: String = "",
         momentChanged: Boolean = true,
         provenanceId: String = "",
+        includeVisibleState: Boolean = true,
     ): CompanionPresenceState? {
         val now = Instant.now()
         CompanionPresenceStore.update(
             characterId = characterId,
             now = now,
-            statusText = plan.statusText,
-            gesture = plan.gesture,
+            statusText = plan.statusText.takeIf { includeVisibleState },
+            gesture = plan.gesture.takeIf { includeVisibleState },
             innerThought = if (preserveQuietThought) plan.innerThought.takeIf(String::isNotBlank) else plan.innerThought,
-            mood = plan.mood,
+            mood = plan.mood.takeIf { includeVisibleState },
             source = source,
             provenanceId = provenanceId,
             innerThoughtFingerprint = heartVoiceFingerprint,

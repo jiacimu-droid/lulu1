@@ -314,9 +314,13 @@ class UserMessageFavoritesTest {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)
         val role = "call-state-test"
-        CompanionPresenceStore.update(role, "准备看书", "靠着沙发", "还想陪她聊会儿", "开心", "聊天")
+        CompanionPresenceStore.clearCharacter(role)
+        CompanionPresenceStore.update(role, "准备看书", "靠着沙发", "这页还没看完", "开心", "聊天")
         CompanionPresenceStore.beginCall(role)
         assertEquals("通话中", CompanionPresenceStore.current(role)!!.statusText)
+        assertEquals("", CompanionPresenceStore.current(role)!!.innerThought)
+        assertTrue(CompanionPresenceStore.histories.value[role].orEmpty().any { it.innerThought == "这页还没看完" })
+        CompanionPresenceStore.update(role, "通话中", "正在接听电话", "还想陪她聊会儿", "开心", "电话感知")
         CompanionPresenceStore.selectMessageAnchor(role, Instant.now())
         val old = CompanionPresenceStore.selectedMessageAnchor(role)!!.state
         CompanionPresenceStore.finishCall(role)
