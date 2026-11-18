@@ -2467,10 +2467,31 @@ object ProactivePerceptionRuntime {
         LuluRepositories.performance.recordTiming("决策返回到动作交接",
             (System.nanoTime() - firstModelCompletedNanos) / 1_000_000L,
             "批次=" + (onlineRevision?.toString() ?: "自主"), traceId = turnTraceId)
+        // The causal transition above already owns this authored psychology.
+        // Give actual sends from this decision a frozen mind snapshot NOW.
+        // A long-running phone/tool action must not postpone avatar bindings
+        // until the entire plan returns, and an unrelated concurrent turn must
+        // never steal the snapshot. No extra model call or artificial delivery.
+        val deliveryMindSnapshot = CompanionPresenceState(
+            characterId = characterId,
+            innerThought = groundedInnerThought,
+            mood = CompanionPresenceMood.text(decision.mood),
+            updatedAt = Instant.now(),
+            source = CompanionPresenceStore.DELIVERY_MOMENT_SOURCE,
+            innerThoughtFingerprint = privateDelta.fingerprint,
+            momentReflection = CharacterMomentSnapshot.reflection(
+                canonicalInnerLife, decision.innerThoughtBasis, decision.appraisal,
+                innerThought = groundedInnerThought,
+            ),
+        ).takeIf {
+            it.innerThought.isNotBlank() || it.mood.isNotBlank() ||
+                it.momentReflection.isNotBlank()
+        }
         val actionStartedNanos = System.nanoTime()
         val execution = try {
-            SearchResultContinuation.finishAcceptedTurn(protectedSearchTurn) {
-            performAction(
+            CompanionPresenceStore.withDecisionDeliveryMoment(deliveryMindSnapshot) {
+                SearchResultContinuation.finishAcceptedTurn(protectedSearchTurn) {
+                    performAction(
                 appContext, character, decision.copy(motiveId = resolvedMotiveId), availableGroups, now,
                 goalReviewMode = trigger.startsWith("持续目标定时复盘"),
                 hasFreshUserMessage = messageStimulus != null,
@@ -2485,7 +2506,8 @@ object ProactivePerceptionRuntime {
                 connection = connection,
                 turnTraceId = turnTraceId,
                 groupNoticeFollowUp = trigger == GroupSocialOpportunity.WAKE_TRIGGER,
-            )
+                    )
+                }
             }
         } finally {
             // Nested tool calls and the first bubble may overlap this duration.
@@ -2769,6 +2791,11 @@ object ProactivePerceptionRuntime {
         // The verified delivery ID, not a 30-second timestamp guess, owns the
         // final private snapshot. Long tool calls must not lose their heart voice.
         verifiedDeliveries.forEach { message ->
+            // Already frozen at the real send boundary. A subsequent phone
+            // receipt must not retroactively replace the thoughts accompanying
+            // this earlier bubble with the character's post-action state.
+            if (CompanionPresenceStore.isFrozenDecisionDelivery(characterId, message.id))
+                return@forEach
             val exact = committedMessageMoment
             if (exact != null) {
                 CompanionPresenceStore.bindVerifiedDeliveredMessageMoment(
