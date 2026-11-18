@@ -78,7 +78,7 @@ internal fun requestGameRoleResponse(
             val speech = if (capturesMoment && structured != null) structured.optString("text") else reply.text
             if (recordId != null) {
                 com.jiacimu.lulu.data.CharacterObservedMoment.record(
-                    role, reply, "游戏结算", evidenceId = "game-raw-$recordId", outward = speech,
+                    role, reply, evidenceId = "game-raw-$recordId", scene = "游戏结算", outward = speech,
                 )
                 store.attachCharacterReply(recordId, speech)
             } else if (liveRoomId != null && isLiveRoomCurrent()) {
