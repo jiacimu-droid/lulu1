@@ -210,6 +210,8 @@ internal class CharacterSoloWorldPlay(context: Context) {
             val y = current / s.w
             val frontier = listOf(x + 1 to y, x - 1 to y, x to y + 1, x to y - 1)
                 .any { (nx, ny) -> s.bounds(nx, ny) && !s.visible(nx, ny) }
+            if (current == start && frontier && RelicEscapeRules.canSurvey(s))
+                return "survey" to here
             if (current != start && frontier) {
                 var cursor = current
                 while (parents[cursor] != start) cursor = parents[cursor]
