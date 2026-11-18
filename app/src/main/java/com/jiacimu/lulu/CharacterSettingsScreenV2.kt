@@ -81,7 +81,6 @@ fun CharacterSettingsScreenV2(
     val perceptionPolicies by ProactivePerceptionPolicyStore.policies.collectAsState()
     val wakePlans by com.jiacimu.lulu.data.PerceptionWakePlanStore.plans.collectAsState()
     val voicePreferences by CharacterVoicePreferenceStore.autoPlayReplies.collectAsState()
-    val characterVoiceIds by CharacterVoicePreferenceStore.voiceIds.collectAsState()
     val digitalLifeProfiles by DigitalLifeProfileStore.profiles.collectAsState()
     val original = settings[characterId] ?: MigratedDomainStores.characters.get(characterId)
     val residentRevision by DigitalWorldExpansionStore.revisions.collectAsState()
@@ -109,7 +108,6 @@ fun CharacterSettingsScreenV2(
         }
     }
     val autoPlayVoice = voicePreferences[characterId] == true
-    val characterVoiceId = characterVoiceIds[characterId].orEmpty()
     val scope = rememberCoroutineScope()
     var displayName by remember(characterId) { mutableStateOf(original.displayName) }
     var avatarUri by remember(characterId) { mutableStateOf(original.avatarUri) }
@@ -351,17 +349,22 @@ fun CharacterSettingsScreenV2(
             item {
                 CharacterV2Card {
                     Text("语音回复", fontWeight = FontWeight.Bold, fontSize = 19.sp)
+                    val voiceProvider = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+                        .getString("tts_provider", "system").orEmpty()
+                    var editableVoiceId by remember(characterId, voiceProvider) {
+                        mutableStateOf(CharacterVoicePreferenceStore.playbackVoiceId(characterId).orEmpty())
+                    }
                     OutlinedTextField(
-                        value = characterVoiceId,
-                        onValueChange = { CharacterVoicePreferenceStore.setVoiceId(characterId, it) },
-                        label = { Text("MiniMax Voice ID") },
-                        placeholder = { Text("填写这个角色自己的 Voice ID") },
+                        value = editableVoiceId,
+                        onValueChange = {
+                            editableVoiceId = it
+                            CharacterVoicePreferenceStore.setPlaybackVoiceId(characterId, it)
+                        },
+                        label = { Text("Voice ID") },
+                        placeholder = { Text("当前服务商：" + CallVoiceConfiguration.label(voiceProvider)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
                     )
-                    var realtimeVoiceId by remember(characterId) { mutableStateOf(CharacterVoicePreferenceStore.realtimeVoiceId(characterId).orEmpty()) }
-                    OutlinedTextField(value = realtimeVoiceId, onValueChange = { realtimeVoiceId = it; CharacterVoicePreferenceStore.setRealtimeVoiceId(characterId, it) },
-                        label = { Text("ElevenLabs Voice ID") }, singleLine = true, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                     CharacterV2Switch(title = "自动播放语音", checked = autoPlayVoice) { enabled -> CharacterVoicePreferenceStore.setEnabled(characterId, enabled) }
 
                 }
