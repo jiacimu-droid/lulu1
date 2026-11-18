@@ -694,3 +694,7 @@
 ## 2026-11-18 G-03.5 · 真救援跨存档回执与路线恢复回归
 - 新增正式 JVM 测试 `RelicObjectiveRouteTest.actualRescuePersistsAcrossReloadWithoutDuplicatingKitOrRescue`：DOWNED 存档重读后路线不可走；`RelicEscapeRules.act(wait)` 由有药伙伴实际救援，再序列化重读，核药剂消耗、救援计数、生命、已知路线恢复、宝箱未开与重复重读不重复结算。测试提交 `81922cfc1ff75d01a9606f0eefc4c2149cdb0121`，blob `74c51781212887584a696d8f1257de02b9f946cc`；未修改生产规则、掉落或角色选择。
 - 本轮未本地运行 Gradle；提交后需按该 SHA 的 main push 读取 JVM/APK/index 的真实终态，失败按首错修。Redmi 横屏救援动画、实际模型队友选择、帧时间及美术审图仍独立待验。下一入口 `RelicObjectiveRouteTest.kt` 本测试及 `RelicEscapeScreen.kt` 倒地→药剂救援→藏宝馆重进。
+
+## 2026-11-18 G-03.5 · 正式遗迹存档拒绝实体卡墙出生点
+- 正式 `RelicRun.read` 原仅检查地图尺寸/地块枚举，未检查主角、伙伴、撤离门是否落在不可行走的实体墙内；损坏存档可恢复为无法操作的地图。本轮生产 `967c315b71bd2c96e5d060c656dd0d2af6f501a8`（blob `a4c537f1a89413c4223864b81ff92ba62dc75173`）在读取后拒绝这些物理不合法位置，不瞬移角色、不修改实物、不发奖励；测试 `20fb2f5267deb32b9f0b78185d7e195b43c7d3a4`（blob `06026b6bc62e4578112254d18d090f03699d0e05`）覆盖有效旧档及三类阻挡。
+- 本轮无本地 Gradle/Android 工程可执行，`scripts/generate_code_index.py` 亦未实际运行；按测试 SHA 查询 Actions 返回 0 条，JVM/APK/index 均未验，不把源码提交称为可玩闭环。下一入口 `RelicEscapeRulesTest.restoredExpeditionRejectsActorsEmbeddedInWallsWithoutChangingValidSave` 的 JVM 首错、`RelicEscapeLedger` 对坏档回退及正式 `RelicEscapeScreen.kt` 重进反馈；Redmi 横屏、帧率、真实模型和美术审图仍独立待验。
