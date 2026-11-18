@@ -38,7 +38,7 @@ class LuluOnboardingGuideContentTest {
     @Test fun heroFocusesOnFourDistinctStrengths() {
         assertEquals(4, luluGuideHeroHighlights.size)
         assertEquals(
-            listOf("memory", "continuity", "games", "phone"),
+            listOf("memory", "continuity", "search", "supervision"),
             luluGuideHeroHighlights.map { it.featureKey },
         )
         assertTrue(luluGuideHeroHighlights.all { point ->
@@ -55,7 +55,9 @@ class LuluOnboardingGuideContentTest {
         val byKey = luluGuideFeatures.associateBy { it.key }
         assertTrue(byKey.getValue("call").instructions.any { it.contains("30 分钟") })
         assertTrue(byKey.getValue("call").highlights.any { it.contains("铃声") })
-        assertTrue(byKey.getValue("live2d").instructions.any { it.contains("切换") })
+        assertFalse(byKey.containsKey("live2d"))
+        assertTrue(luluGuideInProgress.contains("Live2D 视频"))
+        assertTrue(luluGuideInProgress.contains("动作"))
         assertTrue(byKey.getValue("memory").instructions.any { it.contains("轮") && it.contains("15") })
         assertTrue(byKey.getValue("memory").instructions.any { it.contains("气泡") && it.contains("一轮") })
         assertTrue(byKey.getValue("phone").instructions.any { it.contains("小红书") && it.contains("微信") })
@@ -71,12 +73,46 @@ class LuluOnboardingGuideContentTest {
         assertTrue(byKey.getValue("meet").warning.contains("大世界"))
         assertTrue(byKey.getValue("games").description.contains("连麦"))
         assertTrue(byKey.getValue("continuity").instructions.any { it.contains("私聊") && it.contains("电话") })
-        assertTrue(byKey.getValue("live2d").warning.contains("不兼容"))
+        assertTrue(byKey.getValue("groups").instructions.any { it.contains("独立调用") && it.contains("模型") })
+        assertTrue(byKey.getValue("groups").warning.contains("费用"))
+        assertTrue(byKey.getValue("supervision").description.contains("待办"))
+        assertTrue(byKey.getValue("supervision").instructions.any { it.contains("自序") && it.contains("所行") })
+        assertTrue(byKey.getValue("search").instructions.any { it.contains("搜索") && it.contains("角色") })
+        assertTrue(byKey.getValue("perception").instructions.any { it.contains("前台") && it.contains("电量") })
+        assertTrue(byKey.getValue("perception").warning.contains("没有回复"))
         assertTrue(byKey.getValue("memory").description.contains("自动"))
         assertTrue(luluGuideFeatures.none { it.warning.contains("内测提醒") })
         assertTrue(luluGuideFeatures.all {
             it.where.isNotBlank() && it.instructions.isNotEmpty() && it.warning.isNotBlank()
         })
+    }
+
+    @Test fun publicGuideDoesNotAdvertiseRestrictedGamesOrUnreadyVideo() {
+        val directory = luluGuideFeatures.associateBy { it.key }
+        val allText = buildString {
+            luluGuideSteps.forEach { step ->
+                appendLine(step.name)
+                step.tips.forEach { appendLine(it) }
+            }
+            luluGuideFeatures.forEach { feature ->
+                appendLine(feature.name)
+                appendLine(feature.description)
+                feature.instructions.forEach { appendLine(it) }
+                feature.highlights.forEach { appendLine(it) }
+                appendLine(feature.warning)
+            }
+            appendLine(luluGuideInProgress)
+        }
+        assertFalse(allText.contains("方块小岛"))
+        assertFalse(allText.contains("迷雾摸金"))
+        assertFalse(directory.containsKey("live2d"))
+        assertTrue(directory.getValue("games").instructions.any {
+            it.contains("海龟汤") && it.contains("快艇骰子")
+        })
+        assertTrue(luluGuideInProgress.contains("Live2D"))
+        assertEquals(luluGuideFeaturedKeys.size, luluGuideFeaturedKeys.distinct().size)
+        assertTrue(luluGuideFeaturedKeys.all(directory::containsKey))
+        assertTrue(luluGuideHeroHighlights.all { directory.containsKey(it.featureKey) })
     }
 
     @Test fun publicGuideDoesNotShipOwnersPrivateNamesOrKeys() {
