@@ -151,6 +151,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var phoneOptionsOpen by remember { mutableStateOf(false) }
     var providerAdvancedOpen by remember { mutableStateOf(false) }
     var cloudTasksOpen by remember { mutableStateOf(false) }
+    var musicOptionsOpen by remember { mutableStateOf(false) }
 
     DisposableEffect(speechEngine) {
         onDispose { speechEngine.shutdown() }
@@ -213,41 +214,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 }
             }
         }
-        item {
-            SettingsSectionCard("电话线路") {
-                TextButton(onClick = { phoneOptionsOpen = !phoneOptionsOpen }) {
-                    Text(if (phoneOptionsOpen) "收起电话线路" else "电话线路与实时通话 · 展开")
-                }
-                if (phoneOptionsOpen) VoiceCallSettings(provider)
-            }
-        }
-        item {
-            SettingsSwitchCard(
-                title = "启用 TTS",
-                subtitle = "关闭后停止当前语音与电话，手动朗读也不可用。",
-                checked = enabled,
-                onCheckedChange = {
-                    enabled = it
-                    prefs.edit().putBoolean("tts_enabled", it).apply()
-                    if (!it) {
-                        // End an active direct call as well as its playback when TTS is turned off.
-                        LuluVoiceCallSession.endCall()
-                    }
-                },
-            )
-        }
-        item {
-            SettingsSwitchCard(
-                title = "自动朗读",
-                subtitle = "默认关闭。开启后聊天新消息才可能自动朗读。",
-                checked = autoSpeak,
-                enabled = enabled,
-                onCheckedChange = {
-                    autoSpeak = it
-                    prefs.edit().putBoolean("tts_auto_speak", it).apply()
-                },
-            )
-        }
         if (provider == "system") item {
             SettingsSectionCard("系统声音参数") {
                 AdvancedTextField("语言代码", language, { language = it }, "例如 zh-CN")
@@ -272,14 +238,14 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         }
         if (provider == "minimax") item {
             SettingsSectionCard("MiniMax · 声音") {
+                AdvancedChoiceField("语音模型", minimaxModel,
+                    MiniMaxSpeechModels.map { it to it }, { minimaxModel = it })
+                Spacer(Modifier.height(10.dp))
                 AdvancedTextField("API Key", minimaxApiKey, { minimaxApiKey = it },
                     "填写 MiniMax API Key", password = true)
                 Spacer(Modifier.height(10.dp))
                 AdvancedTextField("Group ID", minimaxGroupId, { minimaxGroupId = it },
                     "国内账号填写 Group ID")
-                Spacer(Modifier.height(10.dp))
-                AdvancedChoiceField("语音模型", minimaxModel,
-                    MiniMaxSpeechModels.map { it to it }, { minimaxModel = it })
                 Spacer(Modifier.height(10.dp))
                 AdvancedTextField("默认 Voice ID", minimaxVoiceId, { minimaxVoiceId = it }, "填写声线 ID")
                 TextButton(onClick = { providerAdvancedOpen = !providerAdvancedOpen }) {
@@ -356,13 +322,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         }
         if (provider == "elevenlabs") item {
             SettingsSectionCard("ElevenLabs · 配音") {
-                AdvancedTextField("API Key", elevenKey, {
-                    elevenKey = it
-                    prefs.edit().putString("eleven_api_key", it.trim()).apply()
-                }, "配音、Scribe 和 Eleven Music 共用", password = true)
-                Spacer(Modifier.height(10.dp))
-                AdvancedTextField("默认 Voice ID", elevenVoice, { elevenVoice = it }, "填写选择的声线 ID")
-                Spacer(Modifier.height(10.dp))
                 AdvancedChoiceField(
                     label = "语音模型",
                     value = elevenModel,
@@ -370,6 +329,13 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                         else listOf("已保存的模型" to elevenModel) + ElevenLabsSpeechModels,
                     onSelected = { elevenModel = it; prefs.edit().putString("eleven_tts_model", it).apply() },
                 )
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("API Key", elevenKey, {
+                    elevenKey = it
+                    prefs.edit().putString("eleven_api_key", it.trim()).apply()
+                }, "配音、Scribe 和 Eleven Music 共用", password = true)
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("默认 Voice ID", elevenVoice, { elevenVoice = it }, "填写选择的声线 ID")
                 if (!ElevenLabsModels.dialogue(elevenModel)) {
                     TextButton(onClick = { providerAdvancedOpen = !providerAdvancedOpen }) {
                         Text(if (providerAdvancedOpen) "收起高级参数" else "更多参数 · 稳定性 / 相似度")
@@ -398,6 +364,49 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
             }
         }
         item {
+            SettingsSectionCard("电话线路") {
+                TextButton(onClick = { phoneOptionsOpen = !phoneOptionsOpen }) {
+                    Text(if (phoneOptionsOpen) "收起电话线路" else "电话线路与实时通话 · 展开")
+                }
+                if (phoneOptionsOpen) VoiceCallSettings(provider)
+            }
+        }
+        item {
+            SettingsSwitchCard(
+                title = "启用 TTS",
+                subtitle = "关闭后停止当前语音与电话，手动朗读也不可用。",
+                checked = enabled,
+                onCheckedChange = {
+                    enabled = it
+                    prefs.edit().putBoolean("tts_enabled", it).apply()
+                    if (!it) {
+                        // End an active direct call as well as its playback when TTS is turned off.
+                        LuluVoiceCallSession.endCall()
+                    }
+                },
+            )
+        }
+        item {
+            SettingsSwitchCard(
+                title = "自动朗读",
+                subtitle = "默认关闭。开启后聊天新消息才可能自动朗读。",
+                checked = autoSpeak,
+                enabled = enabled,
+                onCheckedChange = {
+                    autoSpeak = it
+                    prefs.edit().putBoolean("tts_auto_speak", it).apply()
+                },
+            )
+        }
+        // Keep independent ElevenLabs singing available without cluttering the chosen TTS provider.
+        item {
+            SettingsSectionCard("音乐与试唱 · 可选") {
+                TextButton(onClick = { musicOptionsOpen = !musicOptionsOpen }) {
+                    Text(if (musicOptionsOpen) "收起 ElevenLabs 音乐功能" else "展开 ElevenLabs 音乐与试唱")
+                }
+            }
+        }
+        if (musicOptionsOpen) item {
             SettingsSectionCard("角色直接试唱 · ElevenLabs v4") {
                 Text("直接用角色自己已有的 ElevenLabs Voice ID 试唱，音频在露露机内生成、播放和保存；" +
                     "不用网页、不用 GPU、不把陌生歌手的声音硬换过来。" +
@@ -473,7 +482,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     Text(directSingingNotice, color = AdvancedMuted, fontSize = 12.sp)
             }
         }
-        item {
+        if (musicOptionsOpen) item {
             SettingsSectionCard("角色唱歌 · Eleven Music") {
                 Text("独立音乐生成，不改变聊天和电话的 TTS 声音。生成原创歌曲会消耗 Eleven Music 额度。",
                     color = AdvancedMuted, fontSize = 12.sp)
