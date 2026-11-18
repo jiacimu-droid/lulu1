@@ -63,6 +63,20 @@ class LuluScreenAwarenessTest {
         assertNull(LuluScreenAwareness.screenWindowBlockReason(context, "com.jiacimu.lulu"))
     }
 
+    @Test fun screenshotCanProceedWithoutAccessibilityTextWhenOwnerDidNotExcludeApps() {
+        // The real screenshot is obtained from Android display 0. An empty
+        // accessibility node tree is not proof the pixels are unavailable.
+        assertNull(LuluScreenAwareness.captureWindowReason(context, ""))
+        assertNull(LuluScreenAwareness.captureWindowReason(context, "com.jiacimu.lulu"))
+        assertNull(LuluScreenAwareness.captureWindowReason(context, "com.android.settings"))
+        LuluScreenAwareness.preferences(context).edit()
+            .putString(LuluScreenAwareness.EXCLUDED, "com.example.privateapp").commit()
+        assertTrue(LuluScreenAwareness.captureWindowReason(context,
+            "com.example.privateapp")!!.contains("明确排除"))
+        assertTrue(LuluScreenAwareness.captureWindowReason(context, "")!!.contains("无法核实"))
+        assertNull(LuluScreenAwareness.captureWindowReason(context, "com.jiacimu.lulu"))
+    }
+
     @Test fun existingCharacterPhoneGrantAllowsOneShotVisionWithoutSecondConsent() {
         val role = "screen-authorized-character-test"
         val prefs = LuluScreenAwareness.preferences(context)
