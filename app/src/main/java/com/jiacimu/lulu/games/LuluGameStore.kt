@@ -116,6 +116,13 @@ data class MemoryMatchState(
 
 enum class MemoryTurn { User, Character }
 
+/** Solo attempts never hand control to an absent actor; a duel alternates on misses. */
+internal fun nextMemoryTurn(game: MemoryMatchState): MemoryTurn = when {
+    game.opponentId == null -> MemoryTurn.User
+    game.turn == MemoryTurn.User -> MemoryTurn.Character
+    else -> MemoryTurn.User
+}
+
 /**
  * The companion may remember cards that were actually exposed to either player,
  * but must never inspect the still-hidden deck to choose a match.
@@ -369,8 +376,7 @@ class LuluGameStore internal constructor(context: Context) {
     fun closeUnmatchedCards() {
         val current = mutableState.value.memoryMatch
         if (current.opened.any { it !in current.matched }) {
-            val nextTurn = if (current.opponentId == null) MemoryTurn.User
-                else if (current.turn == MemoryTurn.User) MemoryTurn.Character else MemoryTurn.User
+            val nextTurn = nextMemoryTurn(current)
             mutate {
                 it.copy(
                     memoryMatch = current.copy(
