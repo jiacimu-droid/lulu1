@@ -23,18 +23,29 @@ internal data class RelationshipPreferenceSnapshot(
 /** Immediate projection; SQLite timeline remains the only durable authority. */
 internal object CharacterRelationshipPreferences {
     private val version = AtomicLong()
-    private data class Cached(val version: Long, val birth: Instant?, val value: RelationshipPreferenceSnapshot)
+    private data class Cached(
+        val version: Long, val birth: Instant?, val observedAt: Instant,
+        val nextEvidenceAt: Instant?, val value: RelationshipPreferenceSnapshot,
+    )
     private val cache = ConcurrentHashMap<String, Cached>()
 
     // No callback into the ledger here: source mutation cannot deadlock with prompt assembly.
     fun invalidate() { version.incrementAndGet(); cache.clear() }
 
-    fun snapshot(characterId: String): RelationshipPreferenceSnapshot {
+    fun snapshot(characterId: String, now: Instant = Instant.now()): RelationshipPreferenceSnapshot {
         val epoch = version.get()
         val birth = DigitalLifeProfileStore.birthAt(characterId)
-        cache[characterId]?.takeIf { it.version == epoch && it.birth == birth }?.let { return it.value }
-        val result = fromEvents(SharedExperienceTimeline.all(characterId))
-        if (epoch == version.get()) cache[characterId] = Cached(epoch, birth, result)
+        cache[characterId]?.takeIf {
+            it.version == epoch && it.birth == birth && !now.isBefore(it.observedAt) &&
+                (it.nextEvidenceAt == null || now.isBefore(it.nextEvidenceAt))
+        }?.let { return it.value }
+        val events = SharedExperienceTimeline.all(characterId)
+        val result = fromEvents(events, now)
+        // Imported/device-clock timestamps can lie ahead of this observation.
+        // Revisit at that boundary without polling or another durable state source.
+        val nextEvidenceAt = events.asSequence().filter(::eligible).map { it.occurredAt }
+            .filter { it.isAfter(now) }.minOrNull()
+        if (epoch == version.get()) cache[characterId] = Cached(epoch, birth, now, nextEvidenceAt, result)
         return result
     }
 
@@ -47,11 +58,13 @@ internal object CharacterRelationshipPreferences {
         return event.channel == "私聊" || event.channel.contains("电话") || event.channel.contains("见面")
     }
 
-    internal fun fromEvents(events: List<SharedTimelineEvent>): RelationshipPreferenceSnapshot {
+    internal fun fromEvents(
+        events: List<SharedTimelineEvent>, now: Instant = Instant.now(),
+    ): RelationshipPreferenceSnapshot {
         var preferred: Pair<String, String>? = null
         val rejected = linkedSetOf<String>()
         val enduring = linkedMapOf<String, RelationshipPreference>()
-        events.filter(::eligible).sortedWith(compareBy<SharedTimelineEvent> { it.occurredAt }.thenBy { it.id }).forEach { event ->
+        events.filter { eligible(it) && !it.occurredAt.isAfter(now) }.sortedWith(compareBy<SharedTimelineEvent> { it.occurredAt }.thenBy { it.id }).forEach { event ->
             val text = event.content
             CharacterAddressPreference.extractRejectedAddresses(text).forEach {
                 rejected.add(it)

@@ -11,6 +11,21 @@ class RelationshipPreferencesTest {
         SharedTimelineEvent(id, "role", channel, "用户", text, at.plusSeconds(offset), evidenceKind = kind)
     private fun state(text: String) = CharacterRelationshipPreferences.fromEvents(listOf(event("u", text)))
 
+    @Test fun futureUserEvidenceCannotReplaceCurrentNameOrConditionalContract() {
+        val events = listOf(
+            event("old", "以后叫我宝宝吧。以后每次抛飞吻的时候都要发mwah"),
+            event("future", "别叫我宝宝，以后叫我佳辞吧。以后每次抛飞吻的时候不用发mwah", 60),
+        )
+        val before = CharacterRelationshipPreferences.fromEvents(events, at.plusSeconds(59))
+        assertEquals("宝宝", before.preferredAddress?.first)
+        assertTrue(before.rejectedAddresses.isEmpty())
+        assertEquals(listOf("mwah"), before.preferences.single().requiredForms)
+        val due = CharacterRelationshipPreferences.fromEvents(events, at.plusSeconds(60))
+        assertEquals("佳辞", due.preferredAddress?.first)
+        assertTrue("宝宝" in due.rejectedAddresses)
+        assertTrue(due.preferences.single().requiredForms.isEmpty())
+    }
+
     @Test fun mixedCorrectionRetainsBothPreferredAndRejectedNames() {
         val result = state("别叫我小公主，我更喜欢你叫我宝宝")
         assertEquals("宝宝", result.preferredAddress?.first)
