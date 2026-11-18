@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:44:19.261060+00:00",
-  "commit": "dcd690e7ea641340c69a729147db608807a069c2",
+  "generatedAt": "2026-11-18T07:45:30.251541+00:00",
+  "commit": "275c3d48a081aa8ab2ec30af7600c0cba84efa69",
   "branch": "main",
-  "sourceFingerprint": "3638bb268600a0855b049050a798d30d31bbf33dc9ea4492e35356365b99ee8b",
+  "sourceFingerprint": "d4f34b3f89b6a374c92fe4c49bad1eb25a3bfc60bac101702646c0543d669931",
   "summary": {
-    "files": 1460,
-    "lines": 308708,
-    "symbols": 4400
+    "files": 1461,
+    "lines": 308762,
+    "symbols": 4401
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -23666,6 +23666,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt",
         "line": 14
+      }
+    ],
+    "GameRoleChoiceContractTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/GameRoleChoiceContractTest.kt",
+        "line": 11
       }
     ],
     "GameTeamConversationTimelineTest": [
@@ -50505,6 +50511,17 @@
         {
           "name": "GameOrientationPolicyTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/GameRoleChoiceContractTest.kt",
+      "lines": 54,
+      "sha256": "bb1e5297da8641dbd0bac3c204eae25fafd58a5d3bd760e8303e62f2232f5a43",
+      "symbols": [
+        {
+          "name": "GameRoleChoiceContractTest",
+          "line": 11
         }
       ]
     },
