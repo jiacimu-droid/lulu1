@@ -435,7 +435,8 @@ internal fun MigrationHomeV2(
                                             isGroup = recentGroup != null,
                                             recentMessage = shortcutConversation?.lastMessage
                                                 ?.ifBlank { "点这里回到聊天。" }
-                                                ?: personalizedGreeting + " · 从这里开始聊天",
+                                                ?: "从这里开始，创建属于你的角色。",
+                                            greeting = personalizedGreeting,
                                             onClick = {
                                                 shortcutConversation?.let { onOpenConversation(it.id) }
                                                     ?: onOpen(MigrationRoute.Chat)
@@ -608,6 +609,7 @@ private fun DesktopCompanionCard(
     isGroup: Boolean,
     recentMessage: String,
     onClick: () -> Unit,
+    greeting: String = "",
     modifier: Modifier = Modifier,
     embedded: Boolean = false,
     foreground: Color? = null,
@@ -634,6 +636,11 @@ private fun DesktopCompanionCard(
                 DesktopV2Avatar(avatarFallback, if (compact) 42 else 62, avatarUri)
                 Spacer(Modifier.width(if (compact) 8.dp else 13.dp))
                 Column(Modifier.weight(1f)) {
+                    if (!compact && greeting.isNotBlank()) {
+                        Text(greeting, color = secondary, fontSize = 10.sp,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Spacer(Modifier.height(3.dp))
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(displayName, color = ink,
                             fontSize = if (compact) 14.sp else 18.sp,
