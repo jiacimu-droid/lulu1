@@ -302,7 +302,14 @@ internal object LuluBackgroundPhoneContinuation {
         fun rememberCompletionReceipt(args: JSONObject, result: JSONObject?, attemptId: String) {
             if (verifyCompletion && result != null && hasFreshExecutionReceipt(result) &&
                 result.optBoolean("success") && args.optString("action") !in setOf("start", "stop") &&
-                (completionMode != "link_delivery" || result.optBoolean("linkSent"))) {
+                (completionMode != "link_delivery" || result.optBoolean("linkSent")) &&
+                // A tap/observe on display 0 proves only a local UI action.
+                // It cannot fulfill an outward-message responsibility without
+                // a separate verified delivery receipt.
+                (result.optString("mode") != "foreground_accessibility" ||
+                    completionMode !in setOf("delivery", "link_delivery") ||
+                    (completionMode == "delivery" && result.optBoolean("messageDeliveryVerified")) ||
+                    (completionMode == "link_delivery" && result.optBoolean("linkSent")))) {
                 completionReceipts += "tool-$characterId-$attemptId"
             }
         }
