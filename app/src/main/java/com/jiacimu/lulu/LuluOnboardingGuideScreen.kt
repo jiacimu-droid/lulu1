@@ -414,74 +414,95 @@ internal fun LuluOnboardingGuideScreen(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(inner),
-                contentPadding = PaddingValues(20.dp, bottom = 36.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 item {
-                    Surface(shape = RoundedCornerShape(22.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant) {
-                        Icon(selected.icon, null, Modifier.padding(18.dp).size(32.dp))
+                    Surface(
+                        modifier = Modifier.size(56.dp),
+                        shape = RoundedCornerShape(18.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                    ) {
+                        Icon(selected.icon, null,
+                            modifier = Modifier.padding(15.dp),
+                            tint = MaterialTheme.colorScheme.onSurface)
                     }
-                    Spacer(Modifier.height(15.dp))
-                    Text(selected.description, color = ink, fontSize = 16.sp, lineHeight = 25.sp)
+                    Spacer(Modifier.height(16.dp))
+                    Text(selected.description, color = ink, fontSize = 18.sp,
+                        lineHeight = 27.sp, fontWeight = FontWeight.Medium)
                 }
-                if (selected.key == "call" || selected.key == "live2d" || selected.key == "watch" || selected.key == "music") {
+                item {
+                    Text("它能为你做什么", color = ink, fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(10.dp))
+                    selected.highlights.forEach { highlight ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 9.dp),
+                            verticalAlignment = Alignment.Top,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            Icon(Icons.Outlined.CheckCircleOutline, null,
+                                Modifier.size(18.dp), tint = muted)
+                            Text(highlight, color = ink, fontSize = 13.sp,
+                                lineHeight = 20.sp, modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+                item {
+                    GuidePanel {
+                        Text("从这里开始", color = ink, fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold)
+                        Spacer(Modifier.height(5.dp))
+                        Text(selected.where, color = muted, fontSize = 12.sp, lineHeight = 19.sp)
+                        Spacer(Modifier.height(9.dp))
+                        Button(onClick = { onOpen(selected.destination) }) {
+                            Text(selected.button)
+                            Icon(Icons.Outlined.ArrowForward, null, Modifier.size(17.dp))
+                        }
+                    }
+                }
+                item {
+                    Text("使用方法", color = ink, fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(11.dp))
+                    selected.instructions.forEachIndexed { index, tip ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 15.dp),
+                            verticalAlignment = Alignment.Top,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            Text((index + 1).toString().padStart(2, '0'),
+                                color = muted, fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium)
+                            Text(tip, color = ink, modifier = Modifier.weight(1f),
+                                fontSize = 13.sp, lineHeight = 21.sp)
+                        }
+                    }
+                }
+                if (selected.key == "call" || selected.key == "watch" || selected.key == "music") {
                     item {
-                        Text("操作示意", color = ink, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        Text("界面示意", color = muted, fontSize = 12.sp)
+                        Spacer(Modifier.height(6.dp))
                         GuideSafeScreen("chat")
                     }
                 }
                 item {
-                    GuidePanel {
-                        Text("亮点", color = ink, fontWeight = FontWeight.SemiBold,
-                            fontSize = 16.sp)
-                        Spacer(Modifier.height(10.dp))
-                        selected.highlights.forEach { highlight ->
-                            Text("•  " + highlight, color = ink, fontSize = 13.sp, lineHeight = 21.sp,
-                                modifier = Modifier.padding(bottom = 10.dp))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    ) {
+                        Column(Modifier.padding(15.dp)) {
+                            GuideNote(Icons.Outlined.Info, "使用前须知", selected.warning)
                         }
                     }
                 }
                 item {
-                    GuidePanel {
-                        Text("在哪里找？", color = ink, fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold)
-                        Spacer(Modifier.height(9.dp))
-                        Text(selected.where, color = muted, fontSize = 13.sp, lineHeight = 20.sp)
-                        Spacer(Modifier.height(13.dp))
-                        Button(onClick = { onOpen(selected.destination) }) {
-                            Text(selected.button)
-                            Icon(Icons.Outlined.ChevronRight, null, Modifier.size(17.dp))
-                        }
-                    }
-                }
-                item {
-                    GuidePanel {
-                        Text("怎么使用", color = ink, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                        Spacer(Modifier.height(12.dp))
-                        selected.instructions.forEachIndexed { index, tip ->
-                            Row(Modifier.padding(bottom = 13.dp), verticalAlignment = Alignment.Top) {
-                                Surface(shape = CircleShape,
-                                    color = MaterialTheme.colorScheme.surfaceVariant) {
-                                    Text((index + 1).toString(),
-                                        Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                                        color = ink, fontSize = 12.sp)
-                                }
-                                Spacer(Modifier.width(10.dp))
-                                Text(tip, color = ink, modifier = Modifier.weight(1f),
-                                    fontSize = 13.sp, lineHeight = 21.sp)
-                            }
-                        }
-                    }
-                }
-                item {
-                    GuidePanel {
-                        GuideNote(Icons.Outlined.Info, "使用规则与边界", selected.warning)
-                    }
-                }
-                item {
-                    OutlinedButton(onClick = { selectedKey = null },
-                        modifier = Modifier.fillMaxWidth()) { Text("返回功能目录") }
+                    OutlinedButton(
+                        onClick = { selectedKey = null },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text("返回功能目录") }
+                    Spacer(Modifier.height(10.dp))
                 }
             }
         }
