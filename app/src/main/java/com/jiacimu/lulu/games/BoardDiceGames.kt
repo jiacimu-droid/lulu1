@@ -238,10 +238,13 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         }
     }
 
+    // Speech can arrive during an animated roll. Do not cancel the real roll
+    // halfway through or let a half-animated display become a decision input.
+    val latestOwnerSpeech by rememberUpdatedState(ownerSpeech)
     // Resume from the persisted dice and score sheet. The engine rolls random
     // dice, while the role model makes the hold/score decision after EACH roll.
     // A malformed/failed decision stops the turn for an explicit retry.
-    LaunchedEffect(session.id, currentPlayerIndex, rolls, decisionRetry, ownerSpeech) {
+    LaunchedEffect(session.id, currentPlayerIndex, rolls, decisionRetry) {
         if (gameOver || currentPlayer.characterId == null ||
             currentScores.size == YachtCategory.entries.size) return@LaunchedEffect
         decisionError = ""
@@ -271,7 +274,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         val decision = requestYachtRoleDecision(
             characterId = actor, dice = dice, roll = rolls,
             scores = scores, playerNames = players.associate { it.id to it.name },
-            ownerSpeech = ownerSpeech,
+            ownerSpeech = latestOwnerSpeech,
         )
         deciding = false
         val choice = decision.getOrElse { failure ->
