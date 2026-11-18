@@ -42,4 +42,36 @@ class CharacterVoicePreferenceStoreTest {
             CharacterVoicePreferenceStore.setRealtimeVoiceId(role, "")
         }
     }
+    @Test fun oneEditorKeepsIndependentVoiceIdsWhenProviderChanges() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CharacterVoicePreferenceStore.initialize(context)
+        val advanced = context.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
+        val role = "provider-voice-switch-test"
+        val originalProvider = advanced.getString("tts_provider", "system")
+        try {
+            advanced.edit().putString("tts_provider", "minimax").commit()
+            CharacterVoicePreferenceStore.setPlaybackVoiceId(role, "minimax-voice")
+            assertEquals("minimax-voice", CharacterVoicePreferenceStore.playbackVoiceId(role))
+
+            advanced.edit().putString("tts_provider", "moss").commit()
+            assertNull(CharacterVoicePreferenceStore.playbackVoiceId(role))
+            CharacterVoicePreferenceStore.setPlaybackVoiceId(role, "moss-voice")
+            assertEquals("moss-voice", CharacterVoicePreferenceStore.callVoiceId(role, false))
+
+            advanced.edit().putString("tts_provider", "elevenlabs").commit()
+            CharacterVoicePreferenceStore.setPlaybackVoiceId(role, "eleven-voice")
+            assertEquals("eleven-voice", CharacterVoicePreferenceStore.playbackVoiceId(role))
+
+            advanced.edit().putString("tts_provider", "minimax").commit()
+            assertEquals("minimax-voice", CharacterVoicePreferenceStore.playbackVoiceId(role))
+            advanced.edit().putString("tts_provider", "moss").commit()
+            assertEquals("moss-voice", CharacterVoicePreferenceStore.playbackVoiceId(role))
+        } finally {
+            advanced.edit().putString("tts_provider", originalProvider).commit()
+            CharacterVoicePreferenceStore.setVoiceId(role, "")
+            CharacterVoicePreferenceStore.setRealtimeVoiceId(role, "")
+            CharacterVoicePreferenceStore.setMossVoiceId(role, "")
+        }
+    }
+
 }
