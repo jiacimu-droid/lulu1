@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:50:28.962215+00:00",
-  "commit": "6485203aba02d8ec1e7ab9b6f19c464ed0a44bf0",
+  "generatedAt": "2026-11-18T07:51:52.133258+00:00",
+  "commit": "698d5f2bf4e4b48271a5d8097ffe96314706e20d",
   "branch": "main",
-  "sourceFingerprint": "f8638ab390be7d87ae3f3cfc7f45c6e9746f270a1099a9a1ca275cb363832f68",
+  "sourceFingerprint": "0baa5d047260170d40d309b7b289608f45017a18eb6d134454c3e4e40d431d0c",
   "summary": {
     "files": 1461,
-    "lines": 308800,
+    "lines": 308820,
     "symbols": 4401
   },
   "symbolIndex": {
@@ -50527,8 +50527,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameTeamConversationTimelineTest.kt",
-      "lines": 125,
-      "sha256": "fb625cb0e7e2404464949170cbd57dc139bfd9731f1886a330b2c8c900ac0223",
+      "lines": 145,
+      "sha256": "d79420c713478ac28aec18a59a2c84dc39cd7aa0ddf716eac24aaabb494829db",
       "symbols": [
         {
           "name": "GameTeamConversationTimelineTest",
