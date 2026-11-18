@@ -49,8 +49,6 @@ internal fun CharacterMusicSensingSettings(characterId: String) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         HorizontalDivider()
         Text("分享音乐给角色听", style = MaterialTheme.typography.titleMedium)
-        Text("选音频让角色真正听：有听觉模型时理解乐器、人声和氛围；不配模型也能免费观察 PCM16 WAV 的声音强弱。结果进统一时间线，不会录制其他音乐 App。",
-            style = MaterialTheme.typography.bodySmall)
         Text("听觉模型：" + model.ifBlank { "未配置" },
             style = MaterialTheme.typography.bodySmall)
         TextButton(onClick = { expanded = !expanded }) {
@@ -67,10 +65,6 @@ internal fun CharacterMusicSensingSettings(characterId: String) {
                     onClick = { mode = LuluMusicSensoryRuntime.MODE_GEMINI },
                     label = { Text("Gemini 原生") })
             }
-            Text(if (mode == LuluMusicSensoryRuntime.MODE_GEMINI)
-                "需原生 Gemini API 的 /v1beta 基地址，模型必须支持音频。"
-                else "需支持 audio_url data URI 的 /v1/chat/completions API；普通文字模型无法识音。",
-                style = MaterialTheme.typography.bodySmall)
             SavedConfigurationModelPicker(
                 pickerKey = "music-sense",
                 currentBaseUrl = baseUrl,

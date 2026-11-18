@@ -61,7 +61,7 @@ import com.jiacimu.lulu.ai.archiveIdFor
 @Composable
 internal fun ModelArchivePickerSheet(
     title: String,
-    subtitle: String,
+    subtitle: String = "",
     selectedArchiveId: String?,
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit,
@@ -103,7 +103,7 @@ internal fun ModelArchivePickerSheet(
                 Spacer(Modifier.width(11.dp))
                 Column(Modifier.weight(1f)) {
                     Text(title, color = ink, fontSize = 22.sp, fontWeight = FontWeight.Black)
-                    Text(subtitle, color = muted, fontSize = 11.sp, lineHeight = 16.sp)
+                    if (subtitle.isNotBlank()) Text(subtitle, color = muted, fontSize = 11.sp, lineHeight = 16.sp)
                 }
             }
 

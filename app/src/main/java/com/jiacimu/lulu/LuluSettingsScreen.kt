@@ -261,7 +261,6 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text("模型存档", color = SettingsInk, fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    Text("模型存档仅用于保存和管理。使用哪个模型，请在兜底或对应功能页面选择。", color = SettingsMuted, fontSize = 12.sp, lineHeight = 18.sp)
                 }
             }
             item { SettingsCardBox { OptionalModelRolesSettings() } }

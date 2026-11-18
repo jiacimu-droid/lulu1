@@ -73,7 +73,7 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                             Text("图片理解 · 聊天 / 小红书", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                         Text(
-                            "当前聊天模型：$chatModel。没有独立识图模型时就用它；模型与中转都必须支持图片输入。",
+                            "当前聊天模型：$chatModel",
                             color = Color(0xFF77777B),
                             fontSize = 13.sp,
                             lineHeight = 19.sp,
@@ -94,12 +94,6 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                             "当前小红书图片使用独立模型：$model"
                             else "当前小红书图片跟随聊天模型：$chatModel",
                             color = Color(0xFF3C7667), fontSize = 13.sp)
-                        Text(
-                            "优先用这里的模型，失败或留空时用聊天模型。",
-                            color = Color(0xFF77777B),
-                            fontSize = 12.sp,
-                            lineHeight = 18.sp,
-                        )
                         TextButton(onClick = { customExpanded = !customExpanded }) {
                             Text(if (customExpanded) "收起独立模型设置" else "更换识图模型（需要时再配）")
                         }
@@ -118,24 +112,6 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
                             onModelSelected = { model = it },
                         )
                         }
-                    }
-                }
-            }
-            item {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp),
-                    color = Color(0xFFF7F7F8),
-                    border = BorderStroke(1.dp, Color(0xFFE7E7E7)),
-                ) {
-                    Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Text("什么时候才需要单独配？", fontWeight = FontWeight.Bold, color = Color(0xFF1D1D1F))
-                        Text(
-                            "私聊模型支持图文输入时，无需另配。若不支持，可在这里选择支持视觉的模型。",
-                            color = Color(0xFF77777B),
-                            fontSize = 12.sp,
-                            lineHeight = 18.sp,
-                        )
                     }
                 }
             }

@@ -95,8 +95,10 @@ internal object InteractionSignalBridge {
         }
     }
 
+    internal fun callStartEvidenceId(callId: String): String = "interaction-call-start-$callId"
+
     fun recordCallStart(characterId: String, callId: String, incomingReason: String, now: Instant = Instant.now()) {
-        val id = "interaction-call-start-$callId"
+        val id = callStartEvidenceId(callId)
         if (SharedExperienceTimeline.eventsByIds(characterId, listOf(id)).isNotEmpty()) return
         SharedExperienceTimeline.record(eventId = id, characterId = characterId, channel = "电话互动",
             speaker = "通话操作", content = "电话刚刚真实接通，用户尚未新增发言。" +

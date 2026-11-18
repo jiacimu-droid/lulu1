@@ -1095,8 +1095,6 @@ internal fun LuluDesktopWidgetEditor(
                         }
                     }
                 }
-                Text("高级布局可在「美化 → CSS」里使用 #Home .widget-" +
-                    initial.kind.code + " 调整。", style = MaterialTheme.typography.bodySmall)
                 TextButton(onClick = onDelete) {
             Icon(Icons.Outlined.DeleteOutline, null)
             Spacer(Modifier.width(6.dp))

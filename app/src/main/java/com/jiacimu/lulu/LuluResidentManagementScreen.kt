@@ -79,8 +79,6 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text("自动生成新居民", fontWeight = FontWeight.SemiBold)
-                        Text("默认关闭；不再自动增员和调用世界扩张提案。现有人物、聊天和历史保留。",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                     }
                     Switch(checked = allowNew, onCheckedChange = { next ->
                         if (ResidentDailyPolicy.setAllowNewResidents(context, next)) allowNew = next
@@ -88,7 +86,7 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
                 }
             }
             item {
-                Text("人数上限：" + maximum + "（不自动删除已有居民）")
+                Text("人数上限：" + maximum)
                 Slider(value = maximum.toFloat(), valueRange = 0f..ResidentDailyPolicy.MAX_RESIDENTS.toFloat(),
                     steps = ResidentDailyPolicy.MAX_RESIDENTS - 1,
                     onValueChange = { next ->
@@ -119,8 +117,6 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
                         val count = next.roundToInt().coerceIn(0, ResidentDailyPolicy.MAX_AGENDA_ITEMS)
                         if (count != agenda && ResidentDailyPolicy.setMaxAgendaItems(context, count)) agenda = count
                     })
-                Text("只限制新建行程。清醒时的私信、发圈和评论不占行程数；模型请求仍按实际调用记录。",
-                    fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             item {
                 if (ScopedModelSelections.selectedArchiveId(ScopedModelSelections.RESIDENT_DAILY) == null) {
@@ -191,7 +187,6 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
     if (choosingResidentModel) {
         ModelArchivePickerSheet(
             title = "居民模型",
-            subtitle = "居民每日规划、行程决策、私聊与社交共用此模型；不影响主角聊天。",
             selectedArchiveId = residentModelId,
             onSelect = { id ->
                 val model = modelLibrary.archives.firstOrNull { it.id == id }

@@ -163,7 +163,19 @@ internal object PresenceHistoryPresentation {
         // history at message.createdAt may exclude that very turn's heart voice.
         // Never substitute an older heart voice: this is the exact anchor only.
         if (messageAnchored && current.innerThought.isNotBlank()) return current
-        return history.firstOrNull { it.updatedAt == at && it.innerThought.isNotBlank() }
+        val exact = history.firstOrNull { it.updatedAt == at && it.innerThought.isNotBlank() }
+        if (exact != null || messageAnchored) return exact
+        // A phone moment can be followed by more turns or a hang-up that only
+        // changes call status. Show its original entry and timestamp as long
+        // as the current call state still carries that same authored thought.
+        val phoneSources = setOf("电话感知", "通话工具感知")
+        if (current.source !in phoneSources && current.source != "通话结束") return null
+        if (current.innerThought.isBlank() || current.innerThoughtFingerprint.isBlank()) return null
+        return history.firstOrNull { saved ->
+            saved.updatedAt <= at && saved.source in phoneSources &&
+                saved.innerThought == current.innerThought &&
+                saved.innerThoughtFingerprint == current.innerThoughtFingerprint
+        }
     }
 
     fun latestReflection(

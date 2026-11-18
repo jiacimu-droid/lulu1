@@ -120,9 +120,6 @@ internal fun CharacterWirelessDebuggingSettings() {
                     },
                     modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                 ) { Text("配对手机") }
-                Text("两种端口不同；配对码仅在本机使用。",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
                 TextButton(
                     enabled = !busy && debug.hasPriorPairing(context),
                     onClick = {

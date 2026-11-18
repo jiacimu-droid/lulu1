@@ -198,22 +198,11 @@ fun LuluBackupScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                "导出会把设置、聊天与时间线、各角色数据、日记与词库、模型皮套打成一个包，" +
-                    "存在你自己选的位置，卸了 app 也还在。",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 14.sp,
-                lineHeight = 21.sp,
-            )
-            Text(
                 "注意：备份里有登录密钥等私密东西，别把备份文件发给别人。",
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 14.sp,
                 lineHeight = 21.sp,
             )
-            Text("先把现在的数据保存下来", fontWeight = FontWeight.SemiBold,
-                style = MaterialTheme.typography.titleMedium)
-            Text("① 点导出备份  ② 选「下载」文件夹  ③ 点保存。看见导出成功才算备份完成。",
-                color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp, lineHeight = 19.sp)
             Button(
                 onClick = {
                     val stamp = LocalDateTime.now()
@@ -232,8 +221,6 @@ fun LuluBackupScreen(onBack: () -> Unit) {
                 Text(status!!, fontSize = 13.sp, lineHeight = 20.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Text("恢复会替换现有文件；请先导出当前版本，确认文件安全保存后再操作。",
-                color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             HorizontalDivider()
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -242,12 +229,6 @@ fun LuluBackupScreen(onBack: () -> Unit) {
             ) {
                 Column(Modifier.weight(1f)) {
                     Text("每天自动备份", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
-                    Text(
-                        "每天自动存一份到下载文件夹 lulu-backups，只留最近 7 份。",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 12.sp,
-                        lineHeight = 18.sp,
-                    )
                 }
                 Switch(
                     checked = autoBackup,
@@ -269,12 +250,6 @@ fun LuluBackupScreen(onBack: () -> Unit) {
             ) {
                 Column(Modifier.weight(1f)) {
                     Text("云备份（WebDAV）", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
-                    Text(
-                        "自动备份后同步传到你的 WebDAV 网盘（坚果云、Nextcloud、群晖等）。",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 12.sp,
-                        lineHeight = 18.sp,
-                    )
                 }
                 Switch(
                     checked = cloudConfig.enabled,
@@ -346,13 +321,6 @@ fun LuluBackupScreen(onBack: () -> Unit) {
                     lastResult = null
                 }) { Text("知道了") }
             }
-            Spacer(Modifier.height(4.dp))
-            Text(
-                "恢复说明：全新安装后恢复最干净；已有数据上恢复时，同名文件会被覆盖，多余文件不会被删。",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 12.sp,
-                lineHeight = 18.sp,
-            )
         }
     }
 }

@@ -46,6 +46,35 @@ class CompanionPresenceFreshnessTest {
         CompanionPresenceStore.clearCharacter(role)
     }
 
+    @Test fun hangingUpLeavesTheLastPhoneThoughtInTheExistingAvatarView() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        CompanionPresenceStore.initialize(context)
+        val role = "avatar-after-call"
+        CompanionPresenceStore.clearCharacter(role)
+        try {
+            CompanionPresenceStore.beginCall(role)
+            val thought = "听见她笑，我也想再陪她一会儿。"
+            val at = Instant.now()
+            CompanionPresenceStore.update(role, null, null, thought, null, "电话感知", at,
+                innerThoughtFingerprint = "causal-voice")
+            CompanionPresenceStore.update(role, null, null, null, null, "电话感知", at.plusNanos(1))
+            CompanionPresenceStore.finishCall(role)
+            val current = CompanionPresenceStore.current(role)
+            val history = CompanionPresenceStore.histories.value[role].orEmpty()
+            assertEquals("通话已结束", current?.statusText)
+            assertEquals(at, PresenceHistoryPresentation.latestVoice(current, history, false)?.updatedAt)
+            assertEquals(thought, PresenceHistoryPresentation.latestVoice(current, history, false)?.innerThought)
+            assertNull(PresenceHistoryPresentation.latestVoice(current?.copy(innerThought = ""), history, true))
+
+            CompanionPresenceStore.beginCall(role)
+            assertNull(PresenceHistoryPresentation.latestVoice(
+                CompanionPresenceStore.current(role), CompanionPresenceStore.histories.value[role].orEmpty(), false))
+        } finally {
+            CompanionPresenceStore.finishCall(role)
+            CompanionPresenceStore.clearCharacter(role)
+        }
+    }
+
     @Test fun oldGameCompletionReceiptIsHistoricalNotTheNextChatAction() {
         val context = RuntimeEnvironment.getApplication() as Context
         CompanionPresenceStore.initialize(context)

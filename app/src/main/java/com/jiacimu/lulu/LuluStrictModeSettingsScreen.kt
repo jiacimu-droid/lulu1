@@ -83,16 +83,10 @@ fun LuluStrictModeSettingsScreen(
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Text("角色目标监督", style = MaterialTheme.typography.titleLarge)
-            Text(
-                "角色根据督睡、学习等实际约定，自行决定何时开启、采用什么力度、是否达成并停止。这里不要求主人填写监督时长。",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
             HorizontalDivider()
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("授权角色启动强制模式", fontWeight = FontWeight.Medium)
-                    Text("默认关闭；主人关闭后角色不可自行重新开启",
-                        style = MaterialTheme.typography.bodySmall)
                 }
                 Switch(
                     checked = grant,
@@ -107,8 +101,6 @@ fun LuluStrictModeSettingsScreen(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("允许直接切回", fontWeight = FontWeight.Medium)
-                    Text("允许角色选择切回露露机或桌面；不会真正关闭、锁死其他 App",
-                        style = MaterialTheme.typography.bodySmall)
                 }
                 Switch(
                     checked = directReturn,
@@ -139,14 +131,6 @@ fun LuluStrictModeSettingsScreen(
                     revision++
                 }) { Text("立即结束并禁止自动重启") }
             }
-            HorizontalDivider()
-            Text("高强度感知与全面限制", style = MaterialTheme.typography.titleMedium)
-            Text("由角色按本次目标自主选择力度：观察、限制指定应用、切回露露机，或者开启「全面限制」。")
-            Text("全面限制：除露露机、桌面以及系统／安全等保护页面外，打开任何普通 App 都尝试立即返回桌面；不只是限制抖音或游戏。")
-            Text("本机大约每10秒检查一次前台 App；有新观察时最快约20秒提交角色复查请求。不会每次都截图或扣一次视觉模型费用。实际模型唤醒受 Android 后台调度、设备休眠和模型执行时间影响。")
-            Text("全面限制期间，角色不能绕开系统安全例外；手机桌面和露露机永远不拦截。用户随时可以从此页或通知栏「立即结束」，结束后会撤销角色再次启动的授权。")
-            Text("角色达成目标可立即结束；之后通过原有责任复查发现目标又未达成，也可以在授权仍有效时重新开启。单次最多120分钟为安全租约，到期不自动判定完成；主人可以随时退出。",
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

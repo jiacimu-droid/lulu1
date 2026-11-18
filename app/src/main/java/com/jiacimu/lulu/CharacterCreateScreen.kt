@@ -226,13 +226,6 @@ internal fun CharacterCreateScreen(
                             modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
                     }
                 }
-                item {
-                    CharacterV2Card {
-                        Text("数字生命", fontWeight = FontWeight.SemiBold)
-                        Text("角色将生活在露露机的数字世界中。保存后可继续编辑所有设置。",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
             }
             if (section == 1) {
                 item {
@@ -347,9 +340,6 @@ internal fun CharacterCreateScreen(
             title = { Text(field.label) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (field.hint.isNotBlank()) Text(field.hint,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodySmall)
                     OutlinedTextField(fieldDraft, { fieldDraft = it },
                         minLines = 4, maxLines = 8,
                         modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible())
