@@ -14,6 +14,7 @@ internal data class IslandActorChoice(
     val speech: String,
     /** One character-owned intention, not a completed action or persistent task. */
     val intent: String = "",
+    val modelReply: com.jiacimu.lulu.ai.ModelReply? = null,
 )
 
 internal object IslandActorPlay {
@@ -373,9 +374,10 @@ start_house 是你本人决定要不要为玩家亲手盖房以及挑选 warm �
 只输出有效 JSON：{"actionId":"options里的id","speech":"你此刻自然想说的话，可以留空","intent":"可选，你自己的下一步打算，可留空"}。
 角色决定行动与说话，程序只检查真实执行与回执。你不是任务助手，不需要每步都解释或每次都讲话。""",
             source="游戏 · 方块小岛自主同行",
+            capturePrivateMoment = true,
             title="方块小岛伙伴自主决策",
             usage=ModelUsage.Game,
             contextMode=CompanionContextMode.Full,
             maxTokens=320,
-        ).mapCatching { parse(it.text) ?: error("游戏模型未返回有效的结构化选择") }
+        ).mapCatching { parse(it.text)?.copy(modelReply = it) ?: error("游戏模型未返回有效的结构化选择") }
 }

@@ -213,6 +213,16 @@ internal fun RelicCompanionPanel(run: RelicRun, continuousTravel: Boolean = fals
                                 ?: "游戏规则已接受 ${choice.actionId}；持续计划仍待实际推进",
                         )
                     }
+                    choice.modelReply?.let { reply ->
+                        com.jiacimu.lulu.data.CharacterObservedMoment.recordScene(
+                            id, reply, "迷雾摸金", snapshot.id,
+                            turnKey = "${snapshot.logicalStep}:${message.hashCode()}",
+                            observation = "角色处在同一场遗迹探险，第${snapshot.turns}回合；" +
+                                "当前玩家体力 ${snapshot.hero.hp}，队伍持有${snapshot.carried.size}件战利品。" +
+                                message.takeIf(String::isNotBlank)?.let { "玩家说：${it.take(220)}" }.orEmpty(),
+                            outward = choice.speech,
+                        )
+                    }
                     if(message.isNotBlank())inbox=inbox.acknowledge(id,unread.messages.size)
                     val name = MigratedDomainStores.characters.get(id).displayName
                     line = name + "：" + choice.speech.ifBlank {

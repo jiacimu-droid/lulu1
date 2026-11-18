@@ -249,6 +249,16 @@ internal fun IslandCompanionPanel(
                     if (selectedAction.x >= 0 && selectedAction.y >= 0)
                         currentPing(selectedAction.x to selectedAction.y)
                 }
+                choice.modelReply?.let { reply ->
+                    com.jiacimu.lulu.data.CharacterObservedMoment.recordScene(
+                        id, reply, "方块小岛", snapshot.world.seed.toString(),
+                        turnKey = "${snapshot.world.turns}:${heard.hashCode()}",
+                        observation = "角色处在共同小岛，第${snapshot.world.turns}回合；" +
+                            "当前玩家体力 ${snapshot.world.hp}，木材 ${snapshot.world.wood}，石料 ${snapshot.world.stone}。" +
+                            heard.takeIf(String::isNotBlank)?.let { "玩家说：${it.take(220)}" }.orEmpty(),
+                        outward = choice.speech,
+                    )
+                }
                 // Confirm delivery only after a valid role-owned decision was processed.
                 // Never clear messages before the API returns: each role has its own ack.
                 if (heard.isNotBlank()) {
