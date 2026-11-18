@@ -677,3 +677,6 @@
 ## 2026-11-18 G-03.5 · 倒地路线回归改用真实药剂救援
 - 原 `RelicObjectiveRouteTest.downedHeroCannotReceiveAFalseWalkableObjectiveRoute` 通过直接复制 hero.hp=1 模拟复活，未覆盖真实伙伴消耗药剂和规则状态转换。测试提交 `bc9ef961e7ff2d6c5dc62950600918fbd8bb07c5`，测试 blob `90884cd30007ad01326d7e156a8b10682616950f`：无药伙伴等待后仍倒地、无路线；有药伙伴通过 `RelicEscapeRules.act(wait)` 真实救援，药剂-1、救援次数+1、生命4、phase 恢复 EXPLORE 后才显示路线，宝箱仍未开启。生产规则/画面未改；这只是可运行根因回归，尚无 JVM 实跑通过证据。
 - 最近可核 main push `568a2e736` APK/JVM #44200642594 completed/failure（Test and build phone APK），同 SHA 索引 #44200642542 success；不能视为本次新测试通过。下一入口：`RelicObjectiveRouteTest.downedHeroCannotReceiveAFalseWalkableObjectiveRoute` 的新 main JVM 首错，再测正式 `RelicEscapeScreen.kt` 倒地→伙伴药剂救援→路线重现、横屏 HUD 和帧时间；真机/真实模型/美术审图仍待验。
+
+## 2026-11-18 G-03.5 · 终局不再误报待救援（CI/真机待验）
+- 正式 `RelicObjectiveGuide.prompt` 之前先看 hp<=0，导致已 FAILURE/SUCCESS/SETTLEMENT 的遗迹仍显示“等待真实救援”，与终局结算冲突。生产 `77f80195f2328eb409dbfcc210af3beead5f5781`（blob `4d84ea13a1a0335c379b2a28226f88432b15060c`）先判可继续探索/倒地阶段，再提示救援；终局返回空提示，不动实物、生命、救援或结算。测试 `34a3478329382fa7d9bd05cb929f8a1ae86b231b`（blob `37853d4bc1fae8b6c0aa04e0111f1c07cc53e99b`）覆盖 SUCCESS/FAILURE 的 hp0 终局、无路线/目标及 DOWNED 真救援提示。未实际执行 JVM/APK/索引或 Redmi；下一入口 `RelicObjectiveRouteTest.finishedExpeditionNeverAsksForRescueOrFurtherExploration` 的新 main push JVM 首错，随后 `RelicEscapeScreen.kt` 终局 HUD 和藏宝馆重进。
