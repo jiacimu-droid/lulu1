@@ -77,7 +77,7 @@ class MigrationActivity : ComponentActivity() {
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        if (StartupFailureRecovery.recovering) return
+        if (StartupFailureRecovery.recovering || !runtimeInitialized) return
         navigationIntent.value = intent
         navigationRequestSerial.longValue += 1L
         val incomingCall = ProactiveIncomingCallStore.pending.value?.active() == true
@@ -85,6 +85,7 @@ class MigrationActivity : ComponentActivity() {
         incomingXhsText(intent)?.let { incomingSharedNote.value = it }
     }
 
+    private var runtimeInitialized = false
     private var xhsBrowserSessionInitialized = false
     internal fun browserSession(): XhsAppBrowserSession {
         xhsBrowserSessionInitialized = true
@@ -110,7 +111,7 @@ class MigrationActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (StartupFailureRecovery.recovering) return
+        if (StartupFailureRecovery.recovering || !runtimeInitialized) return
         resumePeripheral("小红书前台会话恢复") {
             com.jiacimu.lulu.data.XhsReadingEngine.resume(this)
         }
@@ -153,7 +154,7 @@ class MigrationActivity : ComponentActivity() {
     }
 
     override fun onPause() {
-        if (StartupFailureRecovery.recovering) {
+        if (StartupFailureRecovery.recovering || !runtimeInitialized) {
             super.onPause()
             return
         }
@@ -167,7 +168,7 @@ class MigrationActivity : ComponentActivity() {
     }
 
     override fun dispatchTouchEvent(event: android.view.MotionEvent): Boolean {
-        if (!StartupFailureRecovery.recovering &&
+        if (!StartupFailureRecovery.recovering && runtimeInitialized &&
             event.actionMasked == android.view.MotionEvent.ACTION_DOWN)
             com.jiacimu.lulu.data.UserInteractionPresenceStore.touch()
         return super.dispatchTouchEvent(event)
@@ -182,6 +183,22 @@ class MigrationActivity : ComponentActivity() {
         LuluDataBackup.applyPendingRestoreIfNeeded(appContext)
         StartupFailureRecovery.latest(appContext)?.let { report ->
             StartupFailureRecovery.display(this, report)
+            return
+        }
+        // Do not start companions, model/network clients or device perception before
+        // this installation has accepted the current user agreement.
+        if (!LuluFirstRunAgreement.accepted(appContext)) {
+            setContent {
+                LuluFirstRunAgreementScreen(
+                    onProceed = {
+                        if (LuluFirstRunAgreement.accept(appContext)) {
+                            recreate()
+                            true
+                        } else false
+                    },
+                    onExit = { finish() },
+                )
+            }
             return
         }
         try {
@@ -271,6 +288,7 @@ class MigrationActivity : ComponentActivity() {
         navigationIntent.value = intent
         com.jiacimu.lulu.study.ReadingReflectionStore.initialize(appContext)
         StartupFailureRecovery.stage("桌面 Compose 首次渲染")
+        runtimeInitialized = true
         setContent {
             val requestedNavigation = navigationIntent.value
             LuluMigrationRootAppV2(
@@ -294,6 +312,7 @@ class MigrationActivity : ComponentActivity() {
             if (!StartupFailureRecovery.recovering) StartupFailureRecovery.ready()
         }, 5_000L)
         } catch (error: Throwable) {
+            runtimeInitialized = false
             // Keep all existing stores intact when the new version fails.
             StartupFailureRecovery.recordCurrent(appContext, error)
             StartupFailureRecovery.display(this,
