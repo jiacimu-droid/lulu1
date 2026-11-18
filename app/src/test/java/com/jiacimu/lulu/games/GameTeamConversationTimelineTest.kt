@@ -122,6 +122,44 @@ class GameTeamConversationTimelineTest {
             stranger, "game-session-turtle_soup-" + room).isEmpty())
     }
 
+    @Test fun sameMillisecondSpeechPreservesActualOrderInBothDirections() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        val role = "classic-tie-role-" + UUID.randomUUID()
+        val at = Instant.now()
+
+        val ownerFirstRoom = UUID.randomUUID().toString()
+        assertTrue(GameTeamConversationTimeline.recordOwner(
+            context, "yacht_dice", ownerFirstRoom, listOf(role),
+            "玩家先发言", true, "owner-tie", at))
+        assertTrue(GameTeamConversationTimeline.recordCompanion(
+            context, "yacht_dice", ownerFirstRoom, listOf(role),
+            role, "角色随后回复", "role-tie", at))
+        val ownerFirst = "game-session-yacht_dice-" + ownerFirstRoom
+        assertEquals(listOf("game-team-owner-stt", "game-team-companion"),
+            SharedExperienceTimeline.sessionEvents(role, ownerFirst).map { it.source })
+        assertEquals("game-team-companion",
+            SharedExperienceTimeline.sessionEvents(role, ownerFirst, 1).single().source)
+        assertEquals(listOf("玩家先发言", "角色随后回复"),
+            SharedExperienceTimeline.sessionStatementEvents(role, ownerFirst).map { it.content })
+        assertEquals("角色随后回复",
+            SharedExperienceTimeline.sessionStatementEvents(role, ownerFirst, 1).single().content)
+
+        val roleFirstRoom = UUID.randomUUID().toString()
+        assertTrue(GameTeamConversationTimeline.recordCompanion(
+            context, "memory_match", roleFirstRoom, listOf(role),
+            role, "角色先发言", "role-first", at))
+        assertTrue(GameTeamConversationTimeline.recordOwner(
+            context, "memory_match", roleFirstRoom, listOf(role),
+            "玩家随后回答", true, "owner-after", at))
+        val roleFirst = "game-session-memory_match-" + roleFirstRoom
+        assertEquals(listOf("game-team-companion", "game-team-owner-stt"),
+            SharedExperienceTimeline.sessionEvents(role, roleFirst).map { it.source })
+        assertEquals("game-team-owner-stt",
+            SharedExperienceTimeline.sessionEvents(role, roleFirst, 1).single().source)
+        assertEquals(listOf("角色先发言", "玩家随后回答"),
+            SharedExperienceTimeline.sessionStatementEvents(role, roleFirst).map { it.content })
+    }
+
     @Test fun classicGamesCommitSpokenOwnerAndCharacterLinesToTheirOwnMatch() {
         val context = RuntimeEnvironment.getApplication() as android.content.Context
         val actor = "classic-role-" + UUID.randomUUID()
