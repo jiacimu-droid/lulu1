@@ -24,7 +24,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
 import com.jiacimu.lulu.data.MigratedDomainStores
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.math.abs
@@ -70,6 +73,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     var responseSpeaker by remember(session.id) { mutableStateOf("") }
     val live = rememberGameLiveSession("yacht_dice", session.id, session.companionIds)
     var ownerSpeech by remember(session.id) { mutableStateOf("") }
+    val spokenReplies = remember(session.id) { Channel<Pair<String, String>>(Channel.UNLIMITED) }
     var decisionError by remember(session.id) { mutableStateOf("") }
     var decisionRetry by remember(session.id) { mutableIntStateOf(0) }
     var deciding by remember(session.id) { mutableStateOf(false) }
@@ -207,33 +211,52 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     }
 
     SideEffect {
-        // Speech is a real player turn, not a command to move a die without the
-        // companion's subsequent choice. New speech re-contextualizes that choice.
         live.onOwnerMessage = { text, fromSpeech ->
             ownerSpeech = text
             GameTeamConversationTimeline.recordOwner(
                 context, "yacht_dice", session.id, session.companionIds, text, fromSpeech,
             )
-            if (currentPlayer.id == "user" && !gameOver) {
-                val actor = session.companionIds.firstOrNull()
-                if (actor != null) {
-                    responseSpeaker = players.firstOrNull { it.characterId == actor }?.name.orEmpty()
-                    requestGameRoleResponse(
-                        scope, store, null,
-                        "主人刚刚在快艇骰子对局中说：$text。当前双方真实比分：" +
-                            players.joinToString("；") { "${it.name} ${scores[it.id].orEmpty().values.sum()}分" } +
-                            "。当前真实骰面：${dice.joinToString("、")}。\n" + store.activeGameContext(actor),
-                        "你是同桌玩家，用本人的口吻回应主人刚才的话，可讨论局势但不要替主人掷骰或填格。最多两句自然口语。",
-                        "快艇骰子 · 同桌交流",
-                        onState = { answer ->
-                            roleResponse = answer
-                            if (answer.text.isNotBlank()) {
-                                live.companionSaid(actor, answer.text, "owner-reply-${System.nanoTime()}")
-                            }
-                        },
-                        maxTokens = 140, characterIdOverride = actor,
-                    )
+            val actor = session.companionIds.firstOrNull()
+            if (actor != null) {
+                val facts = buildString {
+                    appendLine("你正和主人连麦玩快艇骰子。主人刚才对你说：$text")
+                    appendLine("此刻是${if (gameOver) "结束后交流" else currentPlayer.name + "的回合"}。")
+                    appendLine("真实公开比分：${players.joinToString("；") { "${it.name} ${scores[it.id].orEmpty().values.sum()}分" }}")
+                    appendLine("当前骰面：${dice.joinToString("、").ifBlank { "尚未掷骰" }}；已掷$rolls/3次。")
+                    appendLine("最近计分：${lastResult.ifBlank { "暂无" }}")
+                    appendLine(store.activeGameContext(actor))
                 }
+                spokenReplies.trySend(actor to facts)
+                live.conversationStatus = "听到了，准备回应…"
+            }
+        }
+    }
+
+    LaunchedEffect(session.id) {
+        // Speech is a separate, ordered interaction; it never waits for the player's turn.
+        for ((actor, facts) in spokenReplies) {
+            if (actor !in session.companionIds) continue
+            live.conversationStatus = "伙伴正在回应…"
+            val completed = CompletableDeferred<GameRoleResponse>()
+            requestGameRoleResponse(
+                scope, store, null, facts,
+                "正在和主人实时连麦玩快艇骰子。先回应主人刚说的话，可以结合真实棋局交流。" +
+                    "不要代替主人操作，不编造骰面与结算。用本人平时的口吻，简短自然。",
+                "快艇骰子 · 连麦回应",
+                onState = { answer ->
+                    if (!answer.loading && !completed.isCompleted) completed.complete(answer)
+                },
+                maxTokens = 180, characterIdOverride = actor,
+            )
+            val answer = withTimeoutOrNull(60_000L) { completed.await() }
+            when {
+                answer == null -> live.conversationStatus = "回应超时，可以再说一次"
+                answer.error.isNotBlank() -> live.conversationStatus = "回应失败：${answer.error}"
+                answer.text.isNotBlank() -> {
+                    live.companionSaid(actor, answer.text, "owner-reply-${System.nanoTime()}")
+                    live.conversationStatus = ""
+                }
+                else -> live.conversationStatus = "伙伴这次没有说话"
             }
         }
     }
@@ -322,25 +345,31 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     val mint = Color(0xFF9BE6D8)
     val currentTurnLabel = if (gameOver) "对局结束" else if (currentPlayer.id == "user") "你的回合" else "${currentPlayer.name}的回合"
     val stageHint = when {
-        gameOver -> "所有计分格已填满，查看本局排名"
-        currentPlayer.id != "user" -> "伙伴正在掷骰和挑选计分格"
-        rolls == 0 -> "第一步 · 掷出五颗骰子"
-        rolls < 3 -> "第二步 · 点亮想留下的骰子，再重掷其余骰子"
-        else -> "第三步 · 选择下方一个计分格，锁定这一轮得分"
+        gameOver -> "十三轮完成，可以继续聊天或再来一局"
+        currentPlayer.id != "user" -> "伙伴正在选择下一步"
+        rolls == 0 -> "掷出五颗骰子，开始这一轮"
+        rolls < 3 -> "轻触骰子保留，再掷剩余骰子"
+        else -> "从下方选一项，记录本轮分数"
     }
-    LazyColumn(
-        modifier = Modifier.fillMaxSize().background(
+    Column(
+        Modifier.fillMaxSize().background(
             Brush.verticalGradient(listOf(Color(0xFF122C3C), ocean, Color(0xFF080F20))),
         ),
-        contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 40.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 12.dp, bottom = 22.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
         item {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("YACHT DICE   /   ${currentScores.size + 1} · 13",
-                    color = mint, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                Text(currentTurnLabel, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Black)
-                Text(stageHint, color = Color(0xFFC0D8E3), fontSize = 13.sp, lineHeight = 19.sp)
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("第 ${(currentScores.size + 1).coerceAtMost(13)} / 13 轮",
+                        modifier = Modifier.weight(1f),
+                        color = mint, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                    Text(currentTurnLabel, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                }
+                Text(stageHint, color = Color(0xFFB4CFD9), fontSize = 12.sp, lineHeight = 17.sp)
                 Row(
                     Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -364,50 +393,15 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
             }
         }
         item {
-            TextButton(onClick = { scoreBoardExpanded = !scoreBoardExpanded }) {
-                Text(if (scoreBoardExpanded) "收起完整计分表" else "查看所有玩家的13格计分表", color = mint)
-            }
-            if (scoreBoardExpanded) {
-                Column(
-                    modifier = Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()),
-                ) {
-                    Row(Modifier.padding(vertical = 6.dp)) {
-                        Text("计分项目", Modifier.width(80.dp), color = mint, fontSize = 12.sp)
-                        players.forEach { player ->
-                            Text(player.name, Modifier.width(82.dp), color = mint, fontSize = 12.sp)
-                        }
-                    }
-                    YachtCategory.entries.forEach { category ->
-                        Row(Modifier.padding(vertical = 5.dp)) {
-                            Text(category.label, Modifier.width(80.dp), color = Color.White, fontSize = 11.sp)
-                            players.forEach { player ->
-                                val points = scores[player.id]?.get(category)
-                                Text(points?.toString() ?: "—", Modifier.width(82.dp),
-                                    color = if (points == null) Color(0xFF8595A5) else Color.White,
-                                    fontSize = 12.sp)
-                            }
-                        }
-                    }
-                    Row(Modifier.padding(top = 5.dp)) {
-                        Text("当前总分", Modifier.width(80.dp), color = mint, fontSize = 12.sp)
-                        players.forEach { player ->
-                            Text(scores[player.id].orEmpty().values.sum().toString(),
-                                Modifier.width(82.dp), color = mint, fontSize = 12.sp)
-                        }
-                    }
-                }
-            }
-        }
-        item {
             Surface(
                 modifier = Modifier.fillMaxWidth(), color = Color(0xFF1B3444),
-                shape = RoundedCornerShape(27.dp),
+                shape = RoundedCornerShape(20.dp),
                 border = BorderStroke(1.dp, Color.White.copy(alpha = .13f)),
             ) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(15.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("骰子桌", color = Color.White, fontWeight = FontWeight.Black,
-                            fontSize = 19.sp, modifier = Modifier.weight(1f))
+                        Text("本轮骰面", color = Color.White, fontWeight = FontWeight.SemiBold,
+                            fontSize = 18.sp, modifier = Modifier.weight(1f))
                         Text("已掷 ${rolls}/3 次", color = mint, fontSize = 12.sp)
                     }
                     Row(
@@ -424,7 +418,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                                     persistMatch(completed = false)
                                 },
                                 enabled = selectable,
-                                modifier = Modifier.weight(1f).aspectRatio(.79f),
+                                modifier = Modifier.weight(1f).aspectRatio(.88f),
                                 shape = RoundedCornerShape(15.dp),
                                 color = when {
                                     locked -> mint
@@ -432,17 +426,19 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                                     else -> Color.White.copy(alpha = .09f)
                                 },
                                 border = BorderStroke(2.dp, if (locked) Color.White else Color.Transparent),
-                                shadowElevation = if (locked) 7.dp else 0.dp,
+                                shadowElevation = if (locked) 2.dp else 0.dp,
                             ) {
                                 Column(
                                     Modifier.fillMaxSize().padding(vertical = 3.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center,
                                 ) {
-                                    Text(value?.toString() ?: "?", fontSize = 30.sp,
-                                        fontWeight = FontWeight.Black,
-                                        color = if (value == null) Color.White.copy(alpha = .5f) else ocean)
-                                    Text(if (locked) "保留" else if (selectable) "点选" else " ",
+                                    if (value == null) {
+                                        Text("?", fontSize = 27.sp, color = Color.White.copy(alpha = .5f))
+                                    } else {
+                                        YachtDicePips(value, ocean)
+                                    }
+                                    Text(if (locked) "已留" else if (selectable) "轻触保留" else " ",
                                         color = if (locked) ocean else Color(0xFF50637A),
                                         fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                 }
@@ -481,10 +477,44 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                 }
             }
         }
-        if (session.companionIds.isNotEmpty()) {
+        item {
+            TextButton(onClick = { scoreBoardExpanded = !scoreBoardExpanded }) {
+                Text(if (scoreBoardExpanded) "收起计分详情" else "查看双方计分详情  ↓", color = mint, fontSize = 12.sp)
+            }
+            if (scoreBoardExpanded) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()),
+                ) {
+                    Row(Modifier.padding(vertical = 6.dp)) {
+                        Text("计分项目", Modifier.width(80.dp), color = mint, fontSize = 12.sp)
+                        players.forEach { player ->
+                            Text(player.name, Modifier.width(82.dp), color = mint, fontSize = 12.sp)
+                        }
+                    }
+                    YachtCategory.entries.forEach { category ->
+                        Row(Modifier.padding(vertical = 5.dp)) {
+                            Text(category.label, Modifier.width(80.dp), color = Color.White, fontSize = 11.sp)
+                            players.forEach { player ->
+                                val points = scores[player.id]?.get(category)
+                                Text(points?.toString() ?: "—", Modifier.width(82.dp),
+                                    color = if (points == null) Color(0xFF8595A5) else Color.White,
+                                    fontSize = 12.sp)
+                            }
+                        }
+                    }
+                    Row(Modifier.padding(top = 5.dp)) {
+                        Text("当前总分", Modifier.width(80.dp), color = mint, fontSize = 12.sp)
+                        players.forEach { player ->
+                            Text(scores[player.id].orEmpty().values.sum().toString(),
+                                Modifier.width(82.dp), color = mint, fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
+        }
+        if (session.companionIds.isNotEmpty() && (deciding || decisionError.isNotBlank())) {
             item {
-                GameTalkBar(live)
-                if (deciding) Text("伙伴正在看双方分数，决定保留骰子还是填格…", color = mint)
+                if (deciding) Text("伙伴正在决定下一掷…", color = mint, fontSize = 12.sp)
                 if (decisionError.isNotBlank()) {
                     Text(decisionError, color = Color(0xFFFFC4B6))
                     Button(onClick = { decisionRetry++ }) { Text("让伙伴重新决定") }
@@ -500,7 +530,8 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                 onScore = { category -> saveTurn(currentPlayer, category, dice, scoreYacht(category, dice)) },
             )
         }
-        if (currentPlayer.characterId != null || roleResponse.text.isNotBlank() || roleResponse.loading || roleResponse.error.isNotBlank()) {
+        // Captions already display actual speech; do not duplicate it in a large panel.
+        if (roleResponse.error.isNotBlank()) {
             item { GameRolePanel(responseSpeaker.ifBlank { currentPlayer.name }, roleResponse) }
         }
         if (gameOver) {
@@ -580,6 +611,28 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                     }
                 }
             }
+        }
+        }
+        if (session.companionIds.isNotEmpty()) {
+            GameTalkBar(live)
+        }
+    }
+}
+
+@Composable
+private fun YachtDicePips(value: Int, color: Color) {
+    val dots = when (value) {
+        1 -> listOf(.5f to .5f)
+        2 -> listOf(.25f to .25f, .75f to .75f)
+        3 -> listOf(.25f to .25f, .5f to .5f, .75f to .75f)
+        4 -> listOf(.25f to .25f, .75f to .25f, .25f to .75f, .75f to .75f)
+        5 -> listOf(.25f to .25f, .75f to .25f, .5f to .5f, .25f to .75f, .75f to .75f)
+        else -> listOf(.25f to .22f, .75f to .22f, .25f to .5f, .75f to .5f, .25f to .78f, .75f to .78f)
+    }
+    Canvas(Modifier.size(34.dp)) {
+        dots.forEach { (x, y) ->
+            drawCircle(color, radius = size.minDimension * .085f,
+                center = Offset(size.width * x, size.height * y))
         }
     }
 }

@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6155a86d831e34a96de9dd4fedc7fc1bb6174840`
+- 基准提交：`1ef5a2d7661d82cf74da89e507647edf84f62871`
 - 分支：`main`
 - 已索引文件：1464
-- 已索引代码/文本行：309507
+- 已索引代码/文本行：309510
 - 已发现符号：4429
 
 | 文件 | 行数 | 符号数 |
@@ -742,7 +742,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 812 | 31 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 963 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 966 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 935 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 382 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 94 | 10 |
