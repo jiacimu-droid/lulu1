@@ -1061,7 +1061,10 @@ fun QqStyleChatDetailScreen(
                                     if (gameId == "memory_match") {
                                         // The invitation starts an actual two-player room, even after a solo run.
                                         // The opponent is stored in the room rather than guessed from global selection.
-                                        gameStore.startMemoryMatch(inviterId)
+                                        val ongoing = gameStore.state.value.memoryMatch
+                                        if (ongoing.opponentId != inviterId || ongoing.finished) {
+                                            gameStore.startMemoryMatch(inviterId)
+                                        }
                                     } else {
                                         gameStore.selectCharacters(listOf(inviterId))
                                         if (gameId == "yacht_dice") {

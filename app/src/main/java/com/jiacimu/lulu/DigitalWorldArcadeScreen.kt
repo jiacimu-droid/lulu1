@@ -25,7 +25,7 @@ internal fun DigitalWorldArcadeScreen(
     var started by rememberSaveable(gameId) { mutableStateOf(false) }
     val maxParty = if (gameId in setOf("block_island", "relic_escape", "yacht_dice", "turtle_soup")) 3 else 1
     var selectedIds by rememberSaveable(gameId) {
-        mutableStateOf(residents.firstOrNull()?.characterId?.let(::listOf).orEmpty())
+        mutableStateOf(if (gameId == "memory_match") emptyList() else residents.firstOrNull()?.characterId?.let(::listOf).orEmpty())
     }
     val memoryMatch = gameId == "memory_match"
     val soloAllowed = gameId in setOf("memory_match", "yacht_dice", "block_island", "relic_escape")
