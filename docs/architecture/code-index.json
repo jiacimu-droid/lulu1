@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:31:41.421549+00:00",
-  "commit": "ef20a4be173ad33a9e43d6a5ef33be73cdbdbc26",
+  "generatedAt": "2026-11-18T11:32:43.253721+00:00",
+  "commit": "0ee6b39cae56aee7a9f843357eb2deccdc21473c",
   "branch": "main",
-  "sourceFingerprint": "4a9a1805ec5fc1960520e156d52c83eb098459dae51a0a3f6be4b5680f8acd09",
+  "sourceFingerprint": "6e642e5c52299ad3c88bfb8b91c8c10b2c6729375cef8e161e391538279fd14b",
   "summary": {
-    "files": 1463,
-    "lines": 309302,
-    "symbols": 4426
+    "files": 1464,
+    "lines": 309367,
+    "symbols": 4427
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -23346,6 +23346,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt",
         "line": 17
+      }
+    ],
+    "ResidentFriendshipContinuityTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentFriendshipContinuityTest.kt",
+        "line": 8
       }
     ],
     "ResidentMailCausalIntegrationTest": [
@@ -49933,6 +49939,17 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentFriendshipContinuityTest.kt",
+      "lines": 56,
+      "sha256": "28e66c644551932942435efd9f4f849625f286773b92430bb11066d15c19e3f9",
+      "symbols": [
+        {
+          "name": "ResidentFriendshipContinuityTest",
+          "line": 8
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt",
       "lines": 200,
       "sha256": "1294743c7c396da44b4b03d747c91e6e7414b591060e83d77ecdd0cb1319e35d",
@@ -50623,8 +50640,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/AutonomousDuelGamesTest.kt",
-      "lines": 165,
-      "sha256": "346010987060d7f4bf9618c8fca5d34145272c7fb0a3aa9df1f85db8f80df62b",
+      "lines": 174,
+      "sha256": "002a873f2b5125e466c63f55b12e01a6a161b56116e2e212575a71acf2612743",
       "symbols": [
         {
           "name": "AutonomousDuelGamesTest",
