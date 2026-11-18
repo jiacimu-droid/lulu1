@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T03:16:59.744036+00:00",
-  "commit": "2ed8f6bfcf64e4af194c005700684ee91b885099",
+  "generatedAt": "2026-11-18T03:20:55.885785+00:00",
+  "commit": "5e6a4096d15dbddf3301e6d816c8970ab74d3c8f",
   "branch": "main",
-  "sourceFingerprint": "0b8cab98738addf3a85da01e1ffcb610c19e4e7f294ea8a9bf9ebe91168907da",
+  "sourceFingerprint": "30c645743eb2e4fe6b4505814a2c2fe7d0f9cc38907edf2b63a4cebae089c165",
   "summary": {
     "files": 1444,
-    "lines": 305078,
+    "lines": 304973,
     "symbols": 4359
   },
   "symbolIndex": {
@@ -1635,7 +1635,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 242
+        "line": 240
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
@@ -3555,13 +3555,13 @@
     "profileSign": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 194
+        "line": 192
       }
     ],
     "load": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 202
+        "line": 200
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
@@ -3611,19 +3611,19 @@
     "roleApplySkin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 278
+        "line": 276
       }
     ],
     "roleApplyStyle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 287
+        "line": 285
       }
     ],
     "setProfileSign": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 312
+        "line": 310
       }
     ],
     "saveGroupCall": [
@@ -4167,19 +4167,19 @@
     "gridTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 242
+        "line": 241
       }
     ],
     "gridHeight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 245
+        "line": 244
       }
     ],
     "slotAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 250
+        "line": 249
       }
     ],
     "MigrationRoute": [
@@ -26870,32 +26870,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-      "lines": 943,
-      "sha256": "fb09076ed5f64ed6d3d50a0174670eaa6593e302f2698f21b042da13d2519908",
+      "lines": 854,
+      "sha256": "bfa8ef874bae48aed7e5e483372699f258c1a3d44b39f73567929e5c88dfc915",
       "symbols": [
         {
           "name": "profileSign",
-          "line": 194
+          "line": 192
         },
         {
           "name": "load",
-          "line": 202
+          "line": 200
         },
         {
           "name": "save",
-          "line": 242
+          "line": 240
         },
         {
           "name": "roleApplySkin",
-          "line": 278
+          "line": 276
         },
         {
           "name": "roleApplyStyle",
-          "line": 287
+          "line": 285
         },
         {
           "name": "setProfileSign",
-          "line": 312
+          "line": 310
         }
       ]
     },
@@ -27482,20 +27482,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 906,
-      "sha256": "e7f04ef7f321fb96f0b2ec1d93521f35653189851acb884961422f655e2eba4a",
+      "lines": 890,
+      "sha256": "82fb739e786fbc8c1314ec9b610cc230d5f4f5784e71dfb83f9bcf4d8fc9a128",
       "symbols": [
         {
           "name": "gridTop",
-          "line": 242
+          "line": 241
         },
         {
           "name": "gridHeight",
-          "line": 245
+          "line": 244
         },
         {
           "name": "slotAt",
-          "line": 250
+          "line": 249
         }
       ]
     },
