@@ -44,6 +44,41 @@ class LuluScreenAwarenessTest {
         assertFalse(LuluScreenAwareness.isExcluded(context, "com.example.game"))
     }
 
+    @Test fun anUnidentifiedOwnerWindowIsNotAPrivacyExclusion() {
+        val unknown = LuluScreenAwareness.screenWindowBlockReason(context, "")
+        assertTrue(unknown!!.contains("无障碍窗口未就绪"))
+        assertTrue(unknown.contains("并非隐私规则禁止"))
+        assertNull(LuluScreenAwareness.screenWindowBlockReason(context, "com.jiacimu.lulu"))
+        assertNull(LuluScreenAwareness.screenWindowBlockReason(context, "com.tencent.mm"))
+        assertTrue(LuluScreenAwareness.screenWindowBlockReason(context,
+            "com.android.permissioncontroller")!!.contains("隐私规则排除"))
+        LuluScreenAwareness.preferences(context).edit()
+            .putString(LuluScreenAwareness.EXCLUDED, "com.example.privateapp").commit()
+        assertTrue(LuluScreenAwareness.screenWindowBlockReason(context,
+            "com.example.privateapp")!!.contains("隐私规则排除"))
+    }
+
+    @Test fun existingCharacterPhoneGrantAllowsOneShotVisionWithoutSecondConsent() {
+        val role = "screen-authorized-character-test"
+        val prefs = LuluScreenAwareness.preferences(context)
+        LuluRolePhoneAuthorization.setGranted(context, role, false)
+        try {
+            assertFalse(LuluScreenAwareness.onDemandAllowed(context, role))
+            assertTrue(LuluRolePhoneAuthorization.setGranted(context, role, true))
+            assertTrue(LuluScreenAwareness.onDemandAllowed(context, role))
+            assertTrue(LuluScreenAwareness.autonomousAllowed(context, role))
+            prefs.edit().putBoolean(LuluScreenAwareness.ON_DEMAND, false).commit()
+            assertFalse(LuluScreenAwareness.onDemandAllowed(context, role))
+            prefs.edit().putBoolean(LuluScreenAwareness.ON_DEMAND, true)
+                .putBoolean(LuluScreenAwareness.AUTONOMOUS, false).commit()
+            assertTrue(LuluScreenAwareness.onDemandAllowed(context, role))
+            assertFalse(LuluScreenAwareness.autonomousAllowed(context, role))
+        } finally {
+            LuluRolePhoneAuthorization.setGranted(context, role, false)
+        }
+        assertFalse(LuluScreenAwareness.onDemandAllowed(context, role))
+    }
+
     @Test fun ownerCanGrantAndRevokeOngoingAutonomousScreenInspection() {
         val prefs = LuluScreenAwareness.preferences(context)
         prefs.edit().putBoolean(LuluScreenAwareness.CONSENT, true)
@@ -62,8 +97,8 @@ class LuluScreenAwarenessTest {
             userRequested = false, characterId = "test-role", requestId = "test-request"))
         assertFalse(result.optBoolean("success"))
         assertEquals("waiting_user", result.optString("status"))
-        assertTrue(result.optString("error").contains("同意"))
-        assertTrue(LuluScreenAwareness.diagnostics(context).contains("同意"))
+        assertTrue(result.optString("error").contains("尚未授予"))
+        assertTrue(LuluScreenAwareness.diagnostics(context).contains("尚未授予"))
     }
 
     @Test fun onDemandCanStayEnabledWhenAutonomyDisabled() {

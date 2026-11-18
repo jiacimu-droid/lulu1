@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d27bb7a45f7e9d0bf8b631654328a18030e30896`
+- 基准提交：`81978f7d26e3ca0aa1c99c83b04c87f20e25138a`
 - 分支：`main`
 - 已索引文件：1470
-- 已索引代码/文本行：310724
+- 已索引代码/文本行：310759
 - 已发现符号：4439
 
 | 文件 | 行数 | 符号数 |
@@ -1421,7 +1421,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneTaskDeferralTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneUiGeometryTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt` | 95 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 115 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 150 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenFrameHandoffTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluSharedWebLinksTest.kt` | 41 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShellDisplayCommandTest.kt` | 42 | 1 |
