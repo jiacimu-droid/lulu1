@@ -131,6 +131,16 @@ class CharacterSoloWorldPlayTest {
         assertEquals("survey", executor.chooseRelic(board, "explore")?.first)
         val surveyed = RelicEscapeRules.act(board, "survey")
         assertTrue(surveyed.seen.size > board.seen.size)
+        assertEquals(board.turns + 1, surveyed.turns)
+        // A noisy survey near a guard is dangerous; the role must not
+        // blindly repeat the same policy when enemy pressure is present.
+        val threatened = board.copy(mobs=listOf(
+            RelicMob(id=901,x=startX+2,y=startY,hp=8,kind=0)
+        ))
+        assertTrue(RelicEscapeRules.canSurvey(threatened))
+        assertFalse(RelicArsenal.canHit(threatened,startX+2,startY))
+        assertNotEquals("survey",
+            executor.chooseRelic(threatened, "explore")?.first)
     }
 
     @Test fun invalidFocusAndTurnBudgetCannotChangePersonalSave() {
