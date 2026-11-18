@@ -52,7 +52,7 @@
 
 - 现有 `currentAuthoredRelationshipReachesRealWorldModesWithoutKeywordRoleOverlay` 与 `crossWorldKeepsEditedTemperamentWithoutOriginalWorldDialogueScenes` 已覆盖正常请求后的编辑及原世界/独立场景投影。本轮只补前轮指定的失败分界，未证实生产缓存冻结，无生产补丁。
 - [54c5b42f](https://github.com/jiacimu-droid/lulu1/commit/54c5b42fa223f9bf0427e86a086b91ba2510ed82) 的 `RelationshipPreferenceGatewayTest.failedRequestDoesNotFreezeEditedPersonaOrLeakRelationshipIntoNextScene` 使用正式 Gateway 和 MockWebServer：Full 发出旧定义收到 HTTP 401→原 Store 手改本人长人格和长关系（尾部含条件/否定）→另一人物 Full 请求→本人 PersonaAndScenario→本人 Full。比较每个实际 HTTP system，要求同人新值完整、另一人没有串线、独立场景无原世界关系，失败请求没有自动重发，最终 Store 仍保留手改。模拟台词只作传输占位，不能证明真实模型的人设表现。
-- [精确 JVM/APK #44231563553](https://github.com/jiacimu-droid/lulu1/actions/runs/44231563553) 与 [原索引 #44231563552](https://github.com/jiacimu-droid/lulu1/actions/runs/44231563552) 待核。前轮拒收回归在 [#44217167149/job 134509776129](https://github.com/jiacimu-droid/lulu1/actions/runs/44217167149/job/134509776129) 已通过，整体仍由指南单项失败阻断 APK。
+- [精确 JVM/APK #44231563553/job 134562071524](https://github.com/jiacimu-droid/lulu1/actions/runs/44231563553/job/134562071524) 的新增失败后手改 HTTP 回归通过，[原索引 #44231563552](https://github.com/jiacimu-droid/lulu1/actions/runs/44231563552) 成功。全量 3478 项，1 失败、1 跳过，唯一失败是游戏专项 `CharacterSoloWorldPlayTest.soloRelicSurveysAtKnownFogFrontierInsteadOfPacingBackAndForth`，APK 未生成。前轮拒收/版本回归和全量 JVM/APK 已在本轮之前的 [#44231270686/job 134556693274](https://github.com/jiacimu-droid/lulu1/actions/runs/44231270686/job/134556693274) 通过，指南旧失败已不再阻挡。
 - 真机和真实模型待验。下一步打开同一 `RelationshipPreferenceGatewayTest` 与 `CompanionModelGateway.generate` 的 CharacterAndScenario，核失败后用户清空某个关系字段，下一电话表达请求是否仍残留旧约定。已有成功后清空用例时只补失败跨轮边界，不能恢复人物私有预设。
 
 ## 2026-11-18 · P-03.1 拒收通知不抢占后续原件的资格
