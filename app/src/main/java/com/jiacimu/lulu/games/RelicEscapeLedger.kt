@@ -147,7 +147,7 @@ internal class RelicEscapeLedger(context:Context, preferenceName:String="relic_e
         // The camp UI also disables this action, but the ledger owns the authoritative guard.
         if(old.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))return old
         val item=old.vault.firstOrNull{it.id==id}?:return old
-        return write(old.copy(vault=old.vault.filterNot{it.id==id},
+        return write(old.copy(vault=old.vault.toMutableList().apply { removeAt(indexOfFirst { it.id==id }) },
             featuredLootId=old.featuredLootId?.takeUnless { it==id },
             coins=old.coins+item.value))
     }
