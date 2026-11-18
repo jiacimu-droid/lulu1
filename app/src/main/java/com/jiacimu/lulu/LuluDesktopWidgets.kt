@@ -456,7 +456,7 @@ internal fun LuluDesktopWidgetCard(
                                 modifier = Modifier.heightIn(min = 28.dp),
                             ) {
                                 Text(
-                                    if (roleReading == null) "请角色解读 ✦" else "查看解读 ✦",
+                                    if (roleReading == null) "今日待解读 ✦" else "查看解读 ✦",
                                     color = foreground, fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
                                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
@@ -740,7 +740,7 @@ internal fun LuluDesktopWidgetEditor(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(checked = draft.dailyReadingEnabled,
                             onCheckedChange = { draft = draft.copy(dailyReadingEnabled = it) })
-                        Text("每天使用绑定角色的聊天模型解读今日运势",
+                        Text("每天早上 8:00 自动用绑定角色的聊天模型解读（后台可能延迟）",
                             style = MaterialTheme.typography.bodySmall)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -857,8 +857,8 @@ internal fun LuluDesktopPlannerDialog(
 
 
 /**
- * Explicit one-tap role-reading entry: opens the FULL text instead of trimming it
- * to the card; generates only when the current day has no saved real model answer.
+ * A card opens the full stored reading without triggering another paid request.
+ * The user can explicitly request an early/manual reading if today's is missing.
  */
 @Composable
 internal fun LuluDesktopHoroscopeDialog(
@@ -875,26 +875,6 @@ internal fun LuluDesktopHoroscopeDialog(
     }
     var generationError by remember(widget.id, widget.sign, widget.characterId, date) {
         mutableStateOf<String?>(null)
-    }
-    LaunchedEffect(widget.id, widget.sign, widget.characterId, date) {
-        if (reading == null && widget.dailyReadingEnabled && widget.characterId.isNotBlank()) {
-            generating = true
-            generationError = null
-            try {
-                withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    LuluWidgetDailyRole.refresh(context, widget, date, manual = true)
-                }
-                if (LuluWidgetDailyRole.read(context, widget, date) == null) {
-                    generationError = "暂时没能获得今天的真实角色解读。请检查角色聊天模型和网络，稍后可以再试。"
-                }
-            } catch (cancelled: kotlinx.coroutines.CancellationException) {
-                throw cancelled
-            } catch (_: Exception) {
-                generationError = "生成未完成，请检查模型连接或网络。"
-            } finally {
-                generating = false
-            }
-        }
     }
     val (good, caution) = luluDailyFortune(date, widget.sign)
     AlertDialog(
@@ -923,7 +903,7 @@ internal fun LuluDesktopHoroscopeDialog(
                         Spacer(Modifier.width(10.dp))
                         Text("正在请求角色今天的解读…")
                     }
-                    else -> Text(generationError ?: "今天还没有获得角色解读。",
+                    else -> Text(generationError ?: "今天的解读将在早上 8:00 自动生成；如果系统延迟，会在恢复运行后补齐。也可以点立即解读。",
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
@@ -955,7 +935,7 @@ internal fun LuluDesktopHoroscopeDialog(
                             generating = false
                         }
                     }
-                }) { Text("重试解读") }
+                }) { Text("立即解读") }
             }
         },
     )
