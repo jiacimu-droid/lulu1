@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T05:20:36.109317+00:00",
-  "commit": "83dbac0aec8c2da51d8631e68c0b4e1aeb5fdf0b",
+  "generatedAt": "2026-11-18T05:21:10.248327+00:00",
+  "commit": "eccf24ba7d1ef882932e25c27c0f3c03503e99aa",
   "branch": "main",
-  "sourceFingerprint": "24177ab7be48e10a5a579a9b0666a80f9f694b56ae5c3362695490b15e9aae52",
+  "sourceFingerprint": "7478a32420e1e287a0cea0d74fe425334231736c0739960d882c5b0d10667467",
   "summary": {
-    "files": 1453,
-    "lines": 307267,
-    "symbols": 4375
+    "files": 1454,
+    "lines": 307316,
+    "symbols": 4376
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20162,6 +20162,12 @@
         "line": 9
       }
     ],
+    "LuluFirstRunAgreementTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/LuluFirstRunAgreementTest.kt",
+        "line": 6
+      }
+    ],
     "LuluOnboardingGuideContentTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt",
@@ -27589,8 +27595,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 305,
-      "sha256": "bf90871200d4bfaa759f588f167f2162fe4035d4261cd49de7b924a57cee28e5",
+      "lines": 324,
+      "sha256": "859aafe7c134706438353e77e428927ed8477e9c940e8f1166f24ff78f06bf43",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -45170,6 +45176,17 @@
         {
           "name": "LuluDesktopWidgetTest",
           "line": 9
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/LuluFirstRunAgreementTest.kt",
+      "lines": 30,
+      "sha256": "fa7ff46b6633a5e441bd8aceb51c24c06629a00c22ac87dcfd183ae17c4a2102",
+      "symbols": [
+        {
+          "name": "LuluFirstRunAgreementTest",
+          "line": 6
         }
       ]
     },
