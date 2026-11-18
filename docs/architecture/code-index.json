@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T16:23:39.515718+00:00",
-  "commit": "48a542d8a09faade0461bf43c6b8233aa9d7e5af",
+  "generatedAt": "2026-11-18T16:24:51.750070+00:00",
+  "commit": "7437466498f31f6b6e8eb76e69c9a091e66d363f",
   "branch": "main",
-  "sourceFingerprint": "6ee7352e0e16186aa978ad703d314908b246d2da20aa0b8f5e81de8078b6d844",
+  "sourceFingerprint": "7c3581d7258c8c9fa4191e2e46baa6247b2666574a71720e4234f5bd894104f4",
   "summary": {
     "files": 1475,
-    "lines": 312132,
+    "lines": 312128,
     "symbols": 4452
   },
   "symbolIndex": {
@@ -18801,103 +18801,103 @@
     "authorizationBlockReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 101
+        "line": 97
       }
     ],
     "onDemandAllowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 117
+        "line": 113
       }
     ],
     "autonomousAllowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 119
+        "line": 115
       }
     ],
     "summonAllowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 121
+        "line": 117
       }
     ],
     "directReturnAllowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 126
+        "line": 122
       }
     ],
     "excluded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 128
+        "line": 124
       }
     ],
     "isExcluded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 132
+        "line": 128
       }
     ],
     "diagnostics": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 194
+        "line": 190
       }
     ],
     "decisionIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 253
+        "line": 249
       }
     ],
     "studySessionValid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 353
+        "line": 349
       }
     ],
     "withScreenRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 416
+        "line": 412
       }
     ],
     "summon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 590
+        "line": 586
       }
     ],
     "scheduledReminder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 653
+        "line": 649
       }
     ],
     "recentAppActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 703
+        "line": 699
       }
     ],
     "addUntil": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 713
+        "line": 709
       }
     ],
     "LuluScreenRequestReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 743
+        "line": 739
       }
     ],
     "LuluApprovedScreenWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 755
+        "line": 751
       }
     ],
     "take": [
@@ -43655,8 +43655,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-      "lines": 806,
-      "sha256": "f6a5e72567b08b95694e715c533651900066c4ce2b935e2f048afe36a05599e3",
+      "lines": 802,
+      "sha256": "4dd4ad0891fcc089feb5c8f49ab0465812f3ff2c873abb57b60c86d1f107561d",
       "symbols": [
         {
           "name": "blockReason",
@@ -43680,71 +43680,71 @@
         },
         {
           "name": "authorizationBlockReason",
-          "line": 101
+          "line": 97
         },
         {
           "name": "onDemandAllowed",
-          "line": 117
+          "line": 113
         },
         {
           "name": "autonomousAllowed",
-          "line": 119
+          "line": 115
         },
         {
           "name": "summonAllowed",
-          "line": 121
+          "line": 117
         },
         {
           "name": "directReturnAllowed",
-          "line": 126
+          "line": 122
         },
         {
           "name": "excluded",
-          "line": 128
+          "line": 124
         },
         {
           "name": "isExcluded",
-          "line": 132
+          "line": 128
         },
         {
           "name": "diagnostics",
-          "line": 194
+          "line": 190
         },
         {
           "name": "decisionIntent",
-          "line": 253
+          "line": 249
         },
         {
           "name": "studySessionValid",
-          "line": 353
+          "line": 349
         },
         {
           "name": "withScreenRecord",
-          "line": 416
+          "line": 412
         },
         {
           "name": "summon",
-          "line": 590
+          "line": 586
         },
         {
           "name": "scheduledReminder",
-          "line": 653
+          "line": 649
         },
         {
           "name": "recentAppActivity",
-          "line": 703
+          "line": 699
         },
         {
           "name": "addUntil",
-          "line": 713
+          "line": 709
         },
         {
           "name": "LuluScreenRequestReceiver",
-          "line": 743
+          "line": 739
         },
         {
           "name": "LuluApprovedScreenWorker",
-          "line": 755
+          "line": 751
         }
       ]
     },
@@ -50357,7 +50357,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt",
       "lines": 178,
-      "sha256": "5e02de71a832cb26c148e3d8453160b35916021f979d02bea2647bb2a07da3d7",
+      "sha256": "d29bc711ae649dd20c759dd6cdd9c73a28b36738121eae06d621c8fa4c8ee2aa",
       "symbols": [
         {
           "name": "ScreenVisionCapabilityContextTest",
