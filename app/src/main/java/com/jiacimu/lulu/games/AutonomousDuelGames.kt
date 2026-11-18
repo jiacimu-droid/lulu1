@@ -150,7 +150,7 @@ internal object AutonomousDuelGames {
         }.filter { row ->
             val kind = if (row.optString("status") == "finished") "duel-game" else "duel-invite"
             SharedExperienceTimeline.eventsByIds(role,
-                listOf("$" + "{kind}-$" + "{row.optString(\"id\")}-$" + "{role}")).any {
+                listOf("${kind}-${row.optString("id")}-${role}")).any {
                 it.source == kind && it.revision == 1L &&
                     it.evidenceKind == EventEvidenceKind.Observation
             }
@@ -181,7 +181,7 @@ internal object AutonomousDuelGames {
                     val outcome = if (row.optString("status") == "finished")
                         row.optString("result").take(240)
                     else "邀约被拒绝，未开局"
-                    appendLine("- challengeId=$" + "{row.optString(\"id\")}；伙伴=$" + "{peerName}($peerId)；$" + "{gameName}；$" + "{outcome}")
+                    appendLine("- challengeId=${row.optString("id")}；伙伴=${peerName}($peerId)；${gameName}；${outcome}")
                 }
                 appendLine("这是双方已有的共同经历，不是今天自动发生的新一局；本人可选择谈论、再次邀请或暂时不联系。")
             }
