@@ -84,7 +84,7 @@ class LuluShoppingLinkShareTest {
         assertTrue(LuluShoppingLinkShare.eligibleCopy(
             "com.taobao.idlefish", "复制", true, true))
         assertTrue(LuluShoppingLinkShare.eligibleCopy(
-            pdd, "复制\\n链接", true, true))
+            pdd, "复制\n链接", true, true))
         assertTrue(LuluShoppingLinkShare.eligibleCopy(
             pdd, "複製連結", true, true))
         assertTrue(LuluShoppingLinkShare.eligibleCopy(
@@ -146,6 +146,25 @@ class LuluShoppingLinkShareTest {
         )
         assertEquals(offer, decoded?.url)
         assertEquals("看到一家想尝尝的小店", decoded?.caption)
+    }
+
+    @Test fun screenshotCopyTapCanUseVisualLabelButNotPaymentOrArbitraryClipboard() {
+        assertTrue(LuluShoppingLinkShare.eligibleVisualCopy(
+            pdd, "右上角的复制链接按钮", true))
+        assertTrue(LuluShoppingLinkShare.eligibleVisualCopy(
+            pdd, "复制", true))
+        assertFalse(LuluShoppingLinkShare.eligibleVisualCopy(
+            pdd, "立即购买", true))
+        assertFalse(LuluShoppingLinkShare.eligibleVisualCopy(
+            pdd, "复制链接后立即支付", true))
+        assertFalse(LuluShoppingLinkShare.eligibleVisualCopy(
+            pdd, "复制链接", false))
+        assertFalse(LuluShoppingLinkShare.eligibleVisualCopy(
+            "com.tencent.mm", "复制链接", true))
+        // A real click is not itself success; stale or foreign-domain text
+        // never passes the separate merchant clipboard validator.
+        assertNull(LuluShoppingLinkShare.verifiedChangedLink(
+            pdd, "old", "https://example.org/private"))
     }
 
     @Test fun copiedLinkRequiresNewClipboardEventAfterTheActualClickStarted() {
