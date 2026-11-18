@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T03:22:24.171726+00:00",
-  "commit": "3d3d2bb6943d834a424baa71488b299576334113",
+  "generatedAt": "2026-11-18T03:23:26.530470+00:00",
+  "commit": "16fa164d09fbfa2635d8165a9cc74c05a4f351bf",
   "branch": "main",
-  "sourceFingerprint": "5c0cf55f84de3b3223a66dfe587689be64575adb34b9423121b3deafea4deb1a",
+  "sourceFingerprint": "f6c9a46598ba20f38766e3d787e79e8e9b46aa6248bfa14c235ee5ee74878f80",
   "summary": {
     "files": 1444,
-    "lines": 304992,
+    "lines": 304998,
     "symbols": 4359
   },
   "symbolIndex": {
@@ -23663,7 +23663,7 @@
     "RelicObjectiveRouteTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt",
-        "line": 9
+        "line": 15
       }
     ],
     "RelicQuickActionTest": [
@@ -36668,7 +36668,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
       "lines": 283,
-      "sha256": "be7f4478c3bb6a84864488212d38b87784cd57847086ef486f84a4f0f3167d02",
+      "sha256": "22bc5d6a2704ad20526450eb71e440f083e4f107007f52fbd4d3f7c3f504ba15",
       "symbols": [
         {
           "name": "texts",
@@ -50441,12 +50441,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicObjectiveRouteTest.kt",
-      "lines": 295,
-      "sha256": "6de2890d25a76bc8e6b26218650f91a6522f4ae9c71cb3f1cc5ef99fca5d7258",
+      "lines": 301,
+      "sha256": "650d41b3b61c5376666b1ebe525a8612df5f9da4586a38299a36cf2f6b3b8b5d",
       "symbols": [
         {
           "name": "RelicObjectiveRouteTest",
-          "line": 9
+          "line": 15
         }
       ]
     },
