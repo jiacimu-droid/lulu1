@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T10:21:44.540514+00:00",
-  "commit": "306cf41077230ecb1f66d08f595d81808bae93de",
-  "branch": "main",
-  "sourceFingerprint": "a68a7f6265b4e5d8408e55df1bd3109a553cb04b2cad2bb71aa4240faa82c5c4",
+  "generatedAt": "2026-11-18T10:29:21.937159+00:00",
+  "commit": "local",
+  "branch": "local",
+  "sourceFingerprint": "c4c9b425428f8abba4ddabd2a461f1735f40325e0ffd81483dd8062415756004",
   "summary": {
-    "files": 1463,
-    "lines": 309807,
-    "symbols": 4411
+    "files": 1465,
+    "lines": 310174,
+    "symbols": 4421
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2213,11 +2213,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 201
+        "line": 206
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 268
+        "line": 275
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
@@ -4965,7 +4965,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 239
+        "line": 244
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
@@ -6575,7 +6575,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-        "line": 384
+        "line": 399
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -9427,7 +9427,7 @@
     "local": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 203
+        "line": 208
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnectPort.kt",
@@ -9437,13 +9437,13 @@
     "elapsed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 204
+        "line": 209
       }
     ],
     "clock": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-        "line": 206
+        "line": 211
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt",
@@ -10936,6 +10936,48 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
         "line": 310
+      }
+    ],
+    "mayHaveOmittedPhoneAction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImmediateCommitmentDecision.kt",
+        "line": 25
+      }
+    ],
+    "repairStep": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImmediateCommitmentDecision.kt",
+        "line": 27
+      }
+    ],
+    "repairedChange": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImmediateCommitmentDecision.kt",
+        "line": 36
+      }
+    ],
+    "promisedChanges": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImmediateCommitmentDecision.kt",
+        "line": 48
+      }
+    ],
+    "hasFirstAction": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImmediateCommitmentDecision.kt",
+        "line": 56
+      }
+    ],
+    "isExecutable": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImmediateCommitmentDecision.kt",
+        "line": 65
+      }
+    ],
+    "readyToReview": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ImmediateCommitmentDecision.kt",
+        "line": 85
       }
     ],
     "ImportantEventBridge": [
@@ -12981,19 +13023,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 839
+        "line": 852
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 844
+        "line": 857
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3836
+        "line": 3917
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -13137,43 +13179,43 @@
     "scheduleActionFollowThrough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 837
+        "line": 858
       }
     ],
     "scheduleInteractionReflection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 864
+        "line": 885
       }
     ],
     "scheduleInteractionRetry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 891
+        "line": 912
       }
     ],
     "cancelOnline": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 908
+        "line": 929
       }
     ],
     "ProactivePerceptionWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 922
+        "line": 943
       }
     ],
     "ProactivePerceptionReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1182
+        "line": 1212
       }
     ],
     "ProactivePerceptionBootReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-        "line": 1190
+        "line": 1220
       }
     ],
     "ProactiveSendReceipt": [
@@ -18129,19 +18171,31 @@
     "decodeDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 121
+        "line": 123
       }
     ],
     "ownerHasNewInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 285
+        "line": 291
+      }
+    ],
+    "rememberCompletionReceipt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
+        "line": 301
+      }
+    ],
+    "linkDeliveryCompletion": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
+        "line": 308
       }
     ],
     "rememberGesture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 309
+        "line": 333
       }
     ],
     "showPaymentHandoff": [
@@ -22284,6 +22338,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ImageSearchProviderTest.kt",
         "line": 17
+      }
+    ],
+    "ImmediateCommitmentDecisionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/ImmediateCommitmentDecisionTest.kt",
+        "line": 14
       }
     ],
     "ImmediateMemoryExtractionTest": [
@@ -32542,8 +32602,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionProtocol.kt",
-      "lines": 81,
-      "sha256": "580dae0656462eedbbd1873110b4631f94165edcd4b8b5f59ce11710b5ce2d45",
+      "lines": 86,
+      "sha256": "3ba03b5856309a6c46be0362e2157337b28c01103d52db9c87313e4c6211e6a4",
       "symbols": [
         {
           "name": "context",
@@ -32557,8 +32617,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentDecisionRuntime.kt",
-      "lines": 149,
-      "sha256": "90d76ca3268360e520abb2f5de28cd84edf1e479f3a75df5dfd6a57383843fb2",
+      "lines": 152,
+      "sha256": "5a9c4402996207df42979db0755970e16f7da936d377950d5d6cece77f270082",
       "symbols": [
         {
           "name": "handled",
@@ -32598,8 +32658,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt",
-      "lines": 104,
-      "sha256": "da014ff0aa3b78c1b2f180a9891bc03306d2fd3fbf270e5d2227e880595f11c8",
+      "lines": 108,
+      "sha256": "e8758d06ba19c87e447893e4579c14658277d7a56207713d8520af4bd6248f57",
       "symbols": [
         {
           "name": "Result",
@@ -32620,8 +32680,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTask.kt",
-      "lines": 332,
-      "sha256": "f3a0e6f17dfd9501a4ef87ea39b4a246352fc73ac0a2b5fe6d1dd46831c79928",
+      "lines": 341,
+      "sha256": "8fd1092e081c97e2cc073f92ad9014e733902dbb562f34c16909b49136667fc2",
       "symbols": [
         {
           "name": "DailyCommitmentAttempt",
@@ -32633,51 +32693,51 @@
         },
         {
           "name": "render",
-          "line": 201
-        },
-        {
-          "name": "local",
-          "line": 203
-        },
-        {
-          "name": "elapsed",
-          "line": 204
-        },
-        {
-          "name": "clock",
           "line": 206
         },
         {
+          "name": "local",
+          "line": 208
+        },
+        {
+          "name": "elapsed",
+          "line": 209
+        },
+        {
+          "name": "clock",
+          "line": 211
+        },
+        {
           "name": "select",
-          "line": 239
+          "line": 244
         },
         {
           "name": "render",
-          "line": 268
+          "line": 275
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-      "lines": 436,
-      "sha256": "74f28fc6120526bbbd1159a257291f799175e95f9530ed8e89fc2fb9e69b9f0f",
+      "lines": 451,
+      "sha256": "5ee7deb8a4d142b7d43a38ac3dc2debe399f34559fa6c77860567b29ab65d8f1",
       "symbols": [
         {
           "name": "normalize",
-          "line": 384
+          "line": 399
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDecoder.kt",
-      "lines": 87,
-      "sha256": "b1f6019f8a67fb59626c1a0ef39e47d8b8c2162c46c91d0f7c9e3363cefe940e",
+      "lines": 89,
+      "sha256": "b23e0877cb322c814a914c39a9316f98955a0c93bc1c74798b90e708089f63d4",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskDraft.kt",
-      "lines": 29,
-      "sha256": "4cc865593ab83b53ea014240eb976f39e1bce10a4464f07d8fcf711955d737f9",
+      "lines": 30,
+      "sha256": "722e31f94110fa5adb1f434260c4cbf66a28400c90d1e601dc995d09df114c0f",
       "symbols": [
         {
           "name": "CommitmentTaskDraft",
@@ -32687,14 +32747,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskEncoder.kt",
-      "lines": 56,
-      "sha256": "e33137019de7bed6525fe8856a5536fb35aba84999850be8b22cf74aa6861194",
+      "lines": 58,
+      "sha256": "f406824b15c4bd6ad52a63d090249c1b0d5a55730c69bdc04d9f4c981ec51438",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskExtractor.kt",
-      "lines": 172,
-      "sha256": "d4101741b089c8515920aa5cdeeeb5083957986808ada56872eaf5b1aee428d1",
+      "lines": 173,
+      "sha256": "19a8b8b505cd6c0926e93f1a3e7fa30d0c786b112dbb82130d582f82a8d9f26d",
       "symbols": []
     },
     {
@@ -34215,6 +34275,41 @@
         {
           "name": "download",
           "line": 186
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/ImmediateCommitmentDecision.kt",
+      "lines": 91,
+      "sha256": "92c6f70405c788619b033a0d8139efdd62e58729196aa7687034bd1ff3fffa7f",
+      "symbols": [
+        {
+          "name": "mayHaveOmittedPhoneAction",
+          "line": 25
+        },
+        {
+          "name": "repairStep",
+          "line": 27
+        },
+        {
+          "name": "repairedChange",
+          "line": 36
+        },
+        {
+          "name": "promisedChanges",
+          "line": 48
+        },
+        {
+          "name": "hasFirstAction",
+          "line": 56
+        },
+        {
+          "name": "isExecutable",
+          "line": 65
+        },
+        {
+          "name": "readyToReview",
+          "line": 85
         }
       ]
     },
@@ -36174,8 +36269,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 170,
-      "sha256": "44a78b025f6b4c04bee424848e024995a4f8f6504e33f7a529e49964384ce965",
+      "lines": 171,
+      "sha256": "21bc8ee6db231fbb338ba0773c3f486a2084416dcc6c5ee599ec24d292e011bf",
       "symbols": []
     },
     {
@@ -36335,8 +36430,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3903,
-      "sha256": "64dc05d687bb940c30d45d8425e48657f51a36089ee3bf2654a038fff48ed365",
+      "lines": 3984,
+      "sha256": "a3f6db08ef0f2e369d5b9998e3a5d4e71af9fee55f8c34b973bc3b73eb6f0a01",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -36360,22 +36455,22 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 839
+          "line": 852
         },
         {
           "name": "deferSupersededDecision",
-          "line": 844
+          "line": 857
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3836
+          "line": 3917
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt",
-      "lines": 1246,
-      "sha256": "968243ff9b14ff5754b6c66931e5d8ed93d73f0f6c3cd96732439584696d26ca",
+      "lines": 1276,
+      "sha256": "f7d22a038570c2c492638f2afb81e18d8914703204f83be03dd186b678e19d7e",
       "symbols": [
         {
           "name": "ProactivePerceptionScheduler",
@@ -36475,31 +36570,31 @@
         },
         {
           "name": "scheduleActionFollowThrough",
-          "line": 837
+          "line": 858
         },
         {
           "name": "scheduleInteractionReflection",
-          "line": 864
+          "line": 885
         },
         {
           "name": "scheduleInteractionRetry",
-          "line": 891
+          "line": 912
         },
         {
           "name": "cancelOnline",
-          "line": 908
+          "line": 929
         },
         {
           "name": "ProactivePerceptionWorker",
-          "line": 922
+          "line": 943
         },
         {
           "name": "ProactivePerceptionReceiver",
-          "line": 1182
+          "line": 1212
         },
         {
           "name": "ProactivePerceptionBootReceiver",
-          "line": 1190
+          "line": 1220
         }
       ]
     },
@@ -42714,8 +42809,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 812,
-      "sha256": "b86430d6379f61f3e4960918a0e92813a6ab8b4f53fb402e31997b07c4e8f83a",
+      "lines": 857,
+      "sha256": "81611ccbbca67fc58a1edff6307311581ad40a81371a2eb9ada57a1b3ba22e23",
       "symbols": [
         {
           "name": "Outcome",
@@ -42723,15 +42818,23 @@
         },
         {
           "name": "decodeDecision",
-          "line": 121
+          "line": 123
         },
         {
           "name": "ownerHasNewInput",
-          "line": 285
+          "line": 291
+        },
+        {
+          "name": "rememberCompletionReceipt",
+          "line": 301
+        },
+        {
+          "name": "linkDeliveryCompletion",
+          "line": 308
         },
         {
           "name": "rememberGesture",
-          "line": 309
+          "line": 333
         }
       ]
     },
@@ -47943,8 +48046,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CommitmentOutcomeVerificationTest.kt",
-      "lines": 178,
-      "sha256": "ff2f75270663a1f8f3580304dff98c23ccc649cc32c6d2346daa9981cce76c9f",
+      "lines": 192,
+      "sha256": "10b59340147d88ac6b8c8968fca9c640ef78e397d735ac2b64726a74d8cf60de",
       "symbols": [
         {
           "name": "CommitmentOutcomeVerificationTest",
@@ -48523,6 +48626,17 @@
         {
           "name": "ImageSearchProviderTest",
           "line": 17
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/ImmediateCommitmentDecisionTest.kt",
+      "lines": 63,
+      "sha256": "b1b2369b09a2973abd296210ab5af0fef88cac455acc9580d2e4c24b8e2bd324",
+      "symbols": [
+        {
+          "name": "ImmediateCommitmentDecisionTest",
+          "line": 14
         }
       ]
     },

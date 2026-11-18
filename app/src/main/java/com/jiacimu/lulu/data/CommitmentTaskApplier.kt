@@ -58,13 +58,25 @@ private suspend fun createCommitmentTask(
         // A clock and broad topic are not a task identity: "remind me to study"
         // and "check how studying went" can share both yet remain independent.
         // The model should name targetTaskId to update an existing obligation.
-        task.goal.sameTaskText(draft.goal) &&
+        task.goal.sameTaskText(draft.goal) && task.startNow == draft.startNow &&
             task.deliveryAction == draft.deliveryAction.ifBlank { "send_private_message" } && (
             (task.dueAt == null && draft.dueAt == null) ||
                 (task.dueAt != null && draft.dueAt != null && sameTimedReminderTask(task, draft))
         )
     }
     if (existing != null) {
+        if (draft.startNow && sourceEventIds.any { it !in existing.sourceEventIds }) {
+            val updated = CommitmentTaskStore.update(existing.id) { current ->
+                current.copy(
+                    sourceEventIds = (current.sourceEventIds + sourceEventIds).distinct(),
+                    immediateRetryAt = now,
+                    nextCheckAt = null,
+                    linkedAlarmId = null,
+                    followUpKind = "",
+                )
+            }
+            if (updated != null) existing.linkedAlarmId?.let(LuluAlarmSystem::cancel)
+        }
         if (draft.repeat == "daily" && existing.repeat != "daily" &&
             sameTimedReminderTask(existing, draft)) {
             CommitmentTaskStore.update(existing.id) { current ->
@@ -126,10 +138,12 @@ private suspend fun createCommitmentTask(
         steps = draft.steps,
         deliveryAction = draft.deliveryAction.ifBlank { "send_private_message" },
         repeat = draft.repeat ?: "once",
+        startNow = draft.startNow,
         dailyBaseDueAt = if ((draft.repeat ?: "once") == "daily") draft.dueAt else null,
         lastActionResult = if (needsClarification && wakeChoiceMissing)
             "已识别叫醒约定，但尚未选出真实来电或有声闹钟；没有登记叫醒任务"
             else if (needsClarification) "缺少必要条件，需要后续自然确认"
+            else if (draft.startNow) "已承担当下责任，等待实际执行与结果证据"
             else if (ongoing) "持续约定已保存，可在日程的未定时约定中查看；按真实进展跟进，未创建固定闹钟" else "",
     )
     task = CommitmentTaskStore.save(task)
@@ -223,6 +237,7 @@ private suspend fun updateCommitmentTask(
             reschedule -> current.copy(
                 goal = draft.goal.ifBlank { current.goal },
                 dueAt = draft.dueAt,
+                startNow = current.startNow && draft.dueAt == null,
                 timezone = draft.timezone ?: current.timezone,
                 nextCheckAt = draft.dueAt,
                 completionCondition = draft.completionCondition.ifBlank { current.completionCondition },

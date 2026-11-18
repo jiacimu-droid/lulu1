@@ -24,5 +24,6 @@ data class CommitmentTaskDraft(
     val permanent: Boolean = false,
     val targetTaskId: String? = null,
     val promiseKind: String? = null,
+    val startNow: Boolean = false,
 )
 

@@ -42,6 +42,20 @@ class CommitmentOutcomeVerificationTest {
                 EventEvidenceKind.CharacterStatement))).accepted)
     }
 
+    @Test fun linkPromiseNeedsDeliveryFromTheCurrentAttempt() {
+        val promise = task.copy(goal = "找另一篇帖子并发给她", startNow = true,
+            verificationMode = "link_delivery", immediateRetryAt = at.minusSeconds(30))
+        val delivered = event("link", EventEvidenceKind.ToolResult, "tool-router").copy(
+            content = """{"status":"delivered","tool":"background_phone","result":"{\"success\":true,\"linkSent\":true}"}""")
+        val launched = delivered.copy(id = "launch",
+            content = """{"status":"succeeded","tool":"background_phone","result":"{\"success\":true}"}""")
+        assertFalse(CommitmentOutcomeVerification.eligibleEvidence(promise, launched))
+        assertFalse(CommitmentOutcomeVerification.eligibleEvidence(promise,
+            delivered.copy(occurredAt = at.minusSeconds(31))))
+        assertTrue(CommitmentOutcomeVerification.evaluate(promise, listOf(delivered.id),
+            "本次真实分享回执证明链接卡片已送达", listOf(delivered)).accepted)
+    }
+
     @Test fun successfulToolCannotProveSeparateRealWorldOutcome() {
         val receipt = event("alarm-success", EventEvidenceKind.ToolResult, "tool-router")
             .copy(content = """{"status":"succeeded","result":"{\"success\":true}","tool":"create_alarm"}""")

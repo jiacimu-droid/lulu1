@@ -66,6 +66,10 @@ data class CommitmentTask(
     val updatedAt: Instant = Instant.now(),
     /** Current wake rounds with verified audio evidence and chosen reasons. */
     val wakeAttemptHistory: List<String> = emptyList(),
+    /** Accepted for this moment, with its next step owned by the ordinary role executor. */
+    val startNow: Boolean = false,
+    /** A new explicit retry may not be fulfilled by an older attempt's receipt. */
+    val immediateRetryAt: Instant? = null,
 )
 
 /**
@@ -154,6 +158,7 @@ internal fun CommitmentTask.invalidatesUndatedFollowUps(next: CommitmentTask): B
     needsUndatedActionReview() && (
         !next.needsUndatedActionReview() ||
             goal != next.goal ||
+            immediateRetryAt != next.immediateRetryAt ||
             completionCondition != next.completionCondition ||
             verificationMode != next.verificationMode ||
             deliveryAction != next.deliveryAction ||
@@ -244,13 +249,15 @@ internal object PersistentResponsibilityAttention {
         // from last night behind many unrelated future alarms.
         val recent = active.filter { it.recentDailyOutcomeContext(now) != null }
             .take(minOf(2, limit))
-        val recentIds = recent.map(CommitmentTask::id).toSet()
+        val immediate = active.filter { it.startNow }.take(minOf(3, limit - recent.size))
+        val priority = recent + immediate
+        val recentIds = priority.map(CommitmentTask::id).toSet()
         val candidates = active.filterNot { it.id in recentIds }
-        val room = limit - recent.size
-        if (room == 0) return recent
+        val room = limit - priority.size
+        if (room == 0) return priority
         val ongoing = candidates.filter { it.dueAt == null }
         val timed = candidates.filter { it.dueAt != null }
-        if (ongoing.isEmpty()) return recent + timed.take(room)
+        if (ongoing.isEmpty()) return priority + timed.take(room)
 
         // Preserve most of the window for time-bound commitments while never
         // starving duties without a clock, even if there are many old alarms.
@@ -260,7 +267,7 @@ internal object PersistentResponsibilityAttention {
         val offset = ((now.epochSecond / 300L) * ongoingCount.toLong())
             .mod(ongoing.size.toLong()).toInt()
         val sampled = (0 until ongoingCount).map { ongoing[(offset + it) % ongoing.size] }
-        return recent + timed.take(timedCount) + sampled
+        return priority + timed.take(timedCount) + sampled
     }
 }
 
@@ -282,6 +289,8 @@ internal object ActiveCommitmentAttention {
                 val phase = when {
                     task.status == CommitmentTaskStatus.Scheduled && previous != null ->
                         "下一次每日时刻已登记；上一轮动作与真实效果需分开判断"
+                    task.startNow && task.status == CommitmentTaskStatus.WaitingForFeedback ->
+                        "当下责任仍未核实；查看已有回执，再采取可行下一步或核实结果"
                     task.status == CommitmentTaskStatus.WaitingForFeedback ->
                         "已尝试一步，实际效果尚未证实"
                     task.status == CommitmentTaskStatus.Blocked ->
