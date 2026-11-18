@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6bbee5f4ad68febba49e451632f9818e369384d2`
+- 基准提交：`0d7b2b3f451845fbebe4487f1cead40f1d896a48`
 - 分支：`main`
 - 已索引文件：1444
-- 已索引代码/文本行：304844
+- 已索引代码/文本行：304935
 - 已发现符号：4359
 
 | 文件 | 行数 | 符号数 |
@@ -1253,7 +1253,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParserTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReplyReplacementTest.kt` | 89 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 299 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 3225 | 26 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 3256 | 26 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt` | 380 | 1 |
@@ -1284,7 +1284,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/UserAvatarVisionPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserDevicePerceptionTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt` | 116 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 540 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/UserMessageFavoritesTest.kt` | 600 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/UserRoutinePatternsTest.kt` | 183 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeActionPlannerTest.kt` | 127 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/WakeCommitmentParserTest.kt` | 55 | 1 |
