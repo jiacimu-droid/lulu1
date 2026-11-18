@@ -105,32 +105,30 @@ object CapabilityRegistry {
         val rolePhoneGrant =
             com.jiacimu.lulu.system.LuluRolePhoneAuthorization.isGranted(context, characterId)
         val summonRegistered = find("summon_lulu") != null
-        val accessibilityConnected = com.jiacimu.lulu.system.LuluAccessibilityService.observe().connected
-        val chatConfigured = com.jiacimu.lulu.ai.VisionModelService.canDescribeCamera(context, characterId)
+        val accessibilityConnected =
+            com.jiacimu.lulu.system.LuluAccessibilityService.observe().connected
+        val chatConfigured =
+            com.jiacimu.lulu.ai.VisionModelService.canDescribeCamera(context, characterId)
         return buildString {
-            appendLine("【Android 屏幕视觉 · 当前已注册能力与授权｜不是已执行的回执】")
-            appendLine("capture_screen 工具已注册=$registered；主人按需识图授权=$permittedOnDemand；角色自主观察授权=$permittedAutonomous。")
-            appendLine("本角色统一手机屏幕授权=$rolePhoneGrant；本机无障碍截图服务已连接=$accessibilityConnected；本角色聊天模型已配置=$chatConfigured（是否支持图片须由实际调用回执证明）。")
-            appendLine("【主屏识图的真实实现】read_screen 直接读取当前主屏无障碍文字和控件；capture_screen 直接调用 Android AccessibilityService.takeScreenshot(displayId=0) 获取一帧，再由本角色的模型理解画面。两者都不使用 MediaProjection，不需要 Android 录屏/投屏授权弹窗。")
-            appendLine("已授权本角色手机操作时，该角色也获准使用主屏无障碍读取和单帧截图，不必再次申请独立屏幕视觉许可。主屏截图只检查主人亲自填写的排除应用，不使用系统操作的内置应用黑名单；设置页、露露机聊天页等不能仅凭应用类别宣称禁止查看。无障碍服务必须真实连接、主屏需解锁，Android 受保护画面可能拒绝截图，主人关闭观察或撤销授权后立即失效。请先实际调用并核对新回执，失败时只根据真实的包名、窗口状态或 Android 截图错误解释，不要编造 MediaProjection 弹窗或隐私排除。")
-            appendLine("capture_screen 不等于独立后台虚拟屏：若要在主人继续使用手机时自主操作其他 App，使用 background_phone，后者需要独立屏及对应运行环境。主屏截图无需无线调试，且不能用后台屏的旧截图冒充本次主屏观察。")
-            appendLine("授权开关、Android 实际权限、监督时段、已获取屏幕画面是不同层次的事实；主人说权限已开可以提醒你去核对，但不能替代本机状态。")
-            appendLine("【自主核实真实状态】用户没回复、挂断电话或说过困，不等于已经睡着、在忙或不想你联系。若你想知道她此刻在做什么，可以主动选择查看当前应用、已获许可的 read_screen 或 capture_screen；先获得新证据，再由你自行判断是否联系、继续做别的事或安静。不需要主人每次开口指挥，也不要把不确定的睡眠猜测当成阻止行动的事实。")
+            appendLine("【主屏感知｜以下是权限和设备状态，不是实际查看回执】")
+            appendLine("capture_screen 工具已注册=$registered；主人按需识图授权=$permittedOnDemand；角色自主观察授权=$permittedAutonomous；本角色手机屏幕授权=$rolePhoneGrant；无障碍已连接=$accessibilityConnected；视觉模型已配置=$chatConfigured。")
+            appendLine("read_screen=当前真实主屏的无障碍文字（不含截图或完整控件信息）；capture_screen=Android无障碍单帧截图+本角色模型识图。两者都不需要MediaProjection、录屏弹窗或无线调试。独立后台App才使用background_phone，切勿把两种屏幕混淆。")
             if (permittedAutonomous) {
-                appendLine("角色已获准自主识图：action=tool,tool=capture_screen,args={}；直接读取当前一帧，无须逐次申请、无固定五分钟间隔。工具完成后由原有回执进入下一轮感知，再据实际画面更新判断；未获取成功不得声称看到。如果这张截图确实值得留在自己的手机相册，可以在执行前自己选择 args={\"saveToAlbum\":true}，只有实际捕获并识图成功的画面才会保存，回执含 albumSaved 与 photoId；不选则截图照常只用于当次识图，不长期留存。")
+                appendLine("现在已获准自主查看主屏：由你自主决定何时调用 action=tool,tool=capture_screen,args={}；主人明确要求看屏幕时应直接尝试，**无须逐次申请**，也没有固定五分钟冷却。需要纯文字时可选read_screen；文字为空不等于已经看到了画面。")
             } else if (permittedOnDemand) {
-                appendLine("按需识图已授权，但自主识图尚未开启；主人本轮明确要求时可用 action=tool,tool=capture_screen,args={}。需要自主查看时请主人打开『权限与能力→角色屏幕视觉→自主观察』。")
+                appendLine("主人明确请求时，直接用 action=tool,tool=capture_screen,args={} 查看；角色自主观察授权=false，不能偷偷改成自动监看。")
             } else {
-                appendLine("本角色当前尚无可执行的主屏识图授权：主人可在角色授权中开启统一『手机屏幕操作』，或在『权限与能力→角色屏幕视觉』授权按需识图；还需 Android 无障碍服务连接。无需 MediaProjection 录屏弹窗。你可以说明实际缺少的授权，但不能把工具说成不存在，也不能没执行就称看过屏幕。")
+                appendLine("当前屏幕视觉未获有效授权：先由主人在角色手机屏幕授权或『权限与能力→角色屏幕视觉』开启；无障碍系统权限也必须真实连接。不要要求MediaProjection。")
             }
-            appendLine("【真实图片分享】你可以独立选择 image_search 搜索并发送网络图片（需已配置图片搜索服务）；也可以在主人已经许可的范围内选择 capture_screen,args={\"sendToChat\":true,\"caption\":\"自己想配的简短文字\"}，把刚截取的真实手机画面直接作为图片消息发到主人私聊。只有真实截图与消息持久化成功，回执才有 sentToChat=true、evidenceId、conversationId；未成功绝不能说已发送。若还想额外保存相册，可同时选 saveToAlbum=true。单纯查看屏幕不要选 sendToChat；不会自动公开到群聊、朋友圈。")
-            appendLine("【学习监督本机核验状态（以它为准）】" + com.jiacimu.lulu.system.LuluStudyWatch.decisionStatus(context, characterId))
-            appendLine("回应监督请求时先看这条当前设备状态，再决定并尝试真实行动；请自然说清楚已答应、正在申请、已启动或尚不能启动的实际阶段，别用口头答应替代回执。")
-            appendLine("如果你本人决定现在开始持续监督，应在同轮选择 steps=[{tool:start_study_watch,args:{minutes:45}}] 真实申请限时许可；只说「我监督你」不会启动检查，不能把口头答应、申请中、主人同意和成功看到屏幕混为一谈。主人同意后显示可结束的悬浮窗（需悬浮窗权限）及持续通知，系统间歇截图，再交给你原有感知决定是否开口。用户停止时用 stop_study_watch；你也可以选择不申请或稍后安排，不要把监督变成固定口癖。")
-            appendLine("summon_lulu 工具已注册=$summonRegistered；发送可点击的回到露露机通知获授权=${summonRegistered && screen.summonAllowed(context)}。已获授权时可用 action=tool,tool=summon_lulu,args={}，不是强制切回 App。")
-            appendLine("bring_lulu_front（直接切回露露机）工具已注册=${find("bring_lulu_front") != null}；主人单独授权=${screen.directReturnAllowed(context)}；需主屏无障碍已连接、主屏解锁、当前App可核实且非敏感页。只有你确实选择并执行 action=tool,tool=bring_lulu_front,args={} 才会尝试将主屏其他App切到后台、把露露机拉到前台；它不会强制停止其他App、不会持续封禁或锁住屏幕。可先按本人意愿用 get_current_app 查询最新状态，再自行决定是否执行，不能因主人说要睡就机械抢屏；未授权时只能请求开启，不得绕过。执行后的 success=true,status=observed 才是主屏已经真实切换的证据；仅 accepted 或旧回执都不代表本次已切回。")
+            appendLine("失败处理：窗口临时为空、输入法切换、通知遮挡或截图服务拒绝，属于本次观察失败，不等于隐私规则禁止；以新工具回执报告真实原因，适合时重新观察一次。只有主人亲自填写的屏幕排除包名才能触发截图排除；Android自身的锁屏/受保护画面仍可能无法截图。授权打开不等于这次截图成功，未见新像素时不能说看到了。")
+            appendLine("截图时露露机会显示『正在查看屏幕』的低打扰状态通知，允许的悬浮窗也可显示进度；这只是观察提示，不是逐次审批。角色消息横幅、后台虚拟屏和主屏截图彼此不同。")
+            appendLine("如果你本人决定了解主人是不是仍醒着、在学习或用手机，可基于已授权的实时屏幕证据自己作出判断；无回复不能证明睡着，单张截图也不能证明持续专注。")
+            appendLine("仅在你明确选择发给主人时使用 capture_screen,args={\"sendToChat\":true,\"caption\":\"简短说明\"}；回执真实sentToChat=true才算发送。额外保存自己相册可单独选saveToAlbum=true，不选就不要声称已保存。")
+            appendLine("【监督本机状态】" + com.jiacimu.lulu.system.LuluStudyWatch.decisionStatus(context, characterId))
+            appendLine("持续督学是独立限时监督：要真正开始须调用 start_study_watch 并取得当前时段授权，不能把一次主屏截图当作持续监督。用户停止后立即停止。")
+            appendLine("summon_lulu 工具已注册=$summonRegistered；通知邀请获准=${summonRegistered && screen.summonAllowed(context)}；它只发送用户可点击的回到露露机通知。bring_lulu_front需单独授权=${screen.directReturnAllowed(context)}，执行后必须核对最新主屏才能称成功。")
             appendLine(com.jiacimu.lulu.system.LuluStrictMode.modelContext(context, characterId))
-            appendLine("以上是当前本机能力记录。不要声称自己查过『动作清单』、拿到了截图或真正打开某 App，除非本轮有相应执行回执。")
+            appendLine("角色应该做真实行动而非预先说系统不允许；但不能绕过主人关闭的权限，也不能凭旧回执编造新截图。")
         }.trim()
     }
 
