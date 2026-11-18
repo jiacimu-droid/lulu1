@@ -43,17 +43,17 @@ class GameInvitationContinuityTest {
         val messageId = "chat-" + UUID.randomUUID()
         val whenAccepted = Instant.now()
         assertTrue(GameInvitationContinuity.recordAccepted(
-            context, role, messageId, "block_island", whenAccepted))
+            context, role, messageId, "memory_match", whenAccepted))
         assertFalse(GameInvitationContinuity.recordAccepted(
-            context, role, messageId, "relic_escape", whenAccepted.plusSeconds(60)))
+            context, role, messageId, "yacht_dice", whenAccepted.plusSeconds(60)))
         assertTrue(GameInvitationContinuity.recordAccepted(
-            context, role, messageId, "block_island", whenAccepted.plusSeconds(90)))
+            context, role, messageId, "memory_match", whenAccepted.plusSeconds(90)))
         val event = SharedExperienceTimeline.eventsByIds(
             role, listOf("game-invite-accepted-$role-$messageId")).single()
         // The durable shared timeline intentionally stores millisecond precision.
         assertEquals(whenAccepted.truncatedTo(java.time.temporal.ChronoUnit.MILLIS), event.occurredAt)
-        assertTrue(event.content.contains("gameId=block_island"))
-        assertFalse(event.content.contains("gameId=relic_escape"))
+        assertTrue(event.content.contains("gameId=memory_match"))
+        assertFalse(event.content.contains("gameId=yacht_dice"))
     }
 
     @Test fun actualInvitationAndPartyFactsReachTheCharacterPerceptionPipeline() {
@@ -64,9 +64,9 @@ class GameInvitationContinuityTest {
         val now = Instant.now()
         assertTrue(GameInvitationContinuity.recordAccepted(context, role, invitation, "yacht_dice", now))
         assertTrue(GameInvitationContinuity.recordPartyJoined(
-            context, role, "relic_escape", partyId, now.plusSeconds(1)))
+            context, role, "memory_match", partyId, now.plusSeconds(1)))
         assertTrue(GameInvitationContinuity.recordPartyStarted(
-            context, role, "relic_escape", partyId, now.plusSeconds(2)))
+            context, role, "memory_match", partyId, now.plusSeconds(2)))
         val perceived = CharacterPerceptionContext.selectRecent(
             SharedExperienceTimeline.recentEvents(role, 160), now.plusSeconds(3),
             limit = 20,
@@ -87,7 +87,7 @@ class GameInvitationContinuityTest {
         // A valid invitation must use selectCharacters rather than selectCharacter:
         // the latter leaves an earlier solo session in solo mode.
         assertTrue(GameInvitationContinuity.recordAccepted(
-            context, role, "invite-" + UUID.randomUUID(), "block_island"))
+            context, role, "invite-" + UUID.randomUUID(), "memory_match"))
         store.selectCharacters(listOf(role))
         assertEquals(listOf(role), store.state.value.selectedCharacterIds)
         assertEquals(role, store.state.value.selectedCharacterId)
@@ -123,6 +123,8 @@ class GameInvitationContinuityTest {
         // catalogue is still separate and never proves the owner accepted.
         assertEquals(setOf("memory_match","yacht_dice","block_island","relic_escape"),
             AutonomousGameCatalog.gameNames.keys)
-        assertEquals(6, GameInvitationCatalog.titles.size)
+        assertEquals(4, GameInvitationCatalog.titles.size)
+        assertNull(GameInvitationCatalog.title("block_island"))
+        assertNull(GameInvitationCatalog.title("relic_escape"))
     }
 }
