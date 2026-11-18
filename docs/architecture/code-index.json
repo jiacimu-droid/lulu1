@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:38:44.791942+00:00",
-  "commit": "8a37e716c32b3bbc477abb47ca42e5b7f90dbba1",
+  "generatedAt": "2026-11-18T07:39:18.940081+00:00",
+  "commit": "ef3069abe3531fa4792e9e7b50e005f513e2f125",
   "branch": "main",
-  "sourceFingerprint": "8a5270430cb460652b0242e661b4225b49c889b976fe10c76ca8d8411a5ac2e6",
+  "sourceFingerprint": "7509fa0c5eab8b99762eb4a6cd51300b970d63ec63118899d2534cb17c9ea117",
   "summary": {
-    "files": 1458,
-    "lines": 308379,
-    "symbols": 4397
+    "files": 1459,
+    "lines": 308473,
+    "symbols": 4399
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3311,7 +3311,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1572
+        "line": 1574
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -9527,49 +9527,49 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1465
+        "line": 1467
       }
     ],
     "requestsPrivateReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1523
+        "line": 1525
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1534
+        "line": 1536
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1541
+        "line": 1543
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1555
+        "line": 1557
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1565
+        "line": 1567
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1619
+        "line": 1621
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1995
+        "line": 1997
       }
     ],
     "age": [
@@ -15592,6 +15592,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt",
         "line": 40
+      }
+    ],
+    "Keep": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt",
+        "line": 11
+      }
+    ],
+    "Score": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt",
+        "line": 12
       }
     ],
     "eventPrefix": [
@@ -32716,8 +32728,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 2043,
-      "sha256": "d141ffcd9be86d37ff9ac821f4aef08e88571568befc886978d214c3c88f8266",
+      "lines": 2045,
+      "sha256": "2dd01ef5294dd7e272f222a2c0dd17a0434e7c607ca10755e1b8c35692e198ef",
       "symbols": [
         {
           "name": "asJson",
@@ -32733,39 +32745,39 @@
         },
         {
           "name": "world",
-          "line": 1465
+          "line": 1467
         },
         {
           "name": "requestsPrivateReply",
-          "line": 1523
+          "line": 1525
         },
         {
           "name": "recordedReceiptId",
-          "line": 1534
+          "line": 1536
         },
         {
           "name": "completedEvidence",
-          "line": 1541
+          "line": 1543
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1555
+          "line": 1557
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1565
+          "line": 1567
         },
         {
           "name": "from",
-          "line": 1572
+          "line": 1574
         },
         {
           "name": "requiresCompletion",
-          "line": 1619
+          "line": 1621
         },
         {
           "name": "availableContext",
-          "line": 1995
+          "line": 1997
         }
       ]
     },
@@ -36807,7 +36819,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
       "lines": 2546,
-      "sha256": "b311bfb734c26781ed7730d035d5062578d696425c1e8332129a105839811cd1",
+      "sha256": "5dac9ab2edab7c1c058c233f595f4dc14fd5cf97ecb30b60151e9a50054a1b2e",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -39530,6 +39542,21 @@
         {
           "name": "expanded",
           "line": 40
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt",
+      "lines": 92,
+      "sha256": "df0a2d217a2e033a04151ce00fda12b15d98579c38834262927d37eb73c93123",
+      "symbols": [
+        {
+          "name": "Keep",
+          "line": 11
+        },
+        {
+          "name": "Score",
+          "line": 12
         }
       ]
     },

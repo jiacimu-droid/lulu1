@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8a37e716c32b3bbc477abb47ca42e5b7f90dbba1`
+- 基准提交：`ef3069abe3531fa4792e9e7b50e005f513e2f125`
 - 分支：`main`
-- 已索引文件：1458
-- 已索引代码/文本行：308379
-- 已发现符号：4397
+- 已索引文件：1459
+- 已索引代码/文本行：308473
+- 已发现符号：4399
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -463,7 +463,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 695 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 481 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 2043 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 2045 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 65 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 1169 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceMood.kt` | 24 | 1 |
@@ -716,6 +716,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt` | 92 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 304 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 382 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 81 | 3 |
