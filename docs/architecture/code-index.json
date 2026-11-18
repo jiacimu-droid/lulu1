@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T14:29:24.864833+00:00",
-  "commit": "d27bb7a45f7e9d0bf8b631654328a18030e30896",
+  "generatedAt": "2026-11-18T14:30:23.495532+00:00",
+  "commit": "81978f7d26e3ca0aa1c99c83b04c87f20e25138a",
   "branch": "main",
-  "sourceFingerprint": "9bdfe569884b3410ad076cfaf393de0147ed14f0e52ebc74f2399755dafdfce6",
+  "sourceFingerprint": "3f9366bc9cfc3991357ecd3ddc50a413687788d04575ce80d5f8d800e94ed637",
   "summary": {
     "files": 1470,
-    "lines": 310724,
+    "lines": 310759,
     "symbols": 4439
   },
   "symbolIndex": {
@@ -51872,8 +51872,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt",
-      "lines": 115,
-      "sha256": "8bdd226f341681b7468489cc783cd3538e76b1d54895d42bb8f02fa89593f8b0",
+      "lines": 150,
+      "sha256": "ac17a03335c9ee8f339efcdd59857923c76c430bf0589e6b9d09c52e2574c834",
       "symbols": [
         {
           "name": "LuluScreenAwarenessTest",
