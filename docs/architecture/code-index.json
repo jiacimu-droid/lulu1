@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:24:33.490819+00:00",
-  "commit": "33adc12ec7bbbd0df3085e6414e24dd38843934d",
+  "generatedAt": "2026-11-18T11:25:09.125949+00:00",
+  "commit": "6972272219440c5aa4380014da8f6ffb0cc37e27",
   "branch": "main",
-  "sourceFingerprint": "06c3f198b020b06080d4a6665224d92e7605969a022aa37915d34b208a92f9b3",
+  "sourceFingerprint": "ea5a618aaa45c099354730af19c5e3593fcea9988b7bde72cb200aa93102c306",
   "summary": {
     "files": 1465,
-    "lines": 310512,
+    "lines": 310513,
     "symbols": 4422
   },
   "symbolIndex": {
@@ -31394,8 +31394,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
-      "lines": 148,
-      "sha256": "3893c31700d01918b597752ce5ed653b11c6da2c367c27be3a601421511fabe4",
+      "lines": 149,
+      "sha256": "62d3158b168d486098cd96cbaa1d1c3cf3e945e75a83bb8e3a2e3957333a4ebd",
       "symbols": [
         {
           "name": "localDay",
