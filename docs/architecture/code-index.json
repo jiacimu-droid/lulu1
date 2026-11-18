@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:47:34.768813+00:00",
-  "commit": "81426216f5f5ba9384e4392310a7994c3e4c979e",
+  "generatedAt": "2026-11-18T11:49:03.035743+00:00",
+  "commit": "d52647a8da9ee73e33ef0a5a8a95e2d365222ee6",
   "branch": "main",
-  "sourceFingerprint": "cc1aafd8337dea3ced65c14a7daa02adab3ea3d9741cd3eb5db220a9566ae36d",
+  "sourceFingerprint": "2259380d3838e74c250c82d22949a99e5cad5780c1f6291aaa5b7b9751e798bf",
   "summary": {
     "files": 1467,
-    "lines": 309828,
+    "lines": 309831,
     "symbols": 4433
   },
   "symbolIndex": {
@@ -25813,7 +25813,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldArcadeScreen.kt",
       "lines": 103,
-      "sha256": "1e06003f4583fd497345841f649e4904fd331a61968d03c01495a7f0f1392aa0",
+      "sha256": "c8b907b7dac38b09ce9a069b203ddfc18c66fd2c3074984839d84524079aee48",
       "symbols": []
     },
     {
@@ -28588,8 +28588,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 1266,
-      "sha256": "499a007b078756c1eb87fa850e60ad34fad474ebc0ee565a42a3751204d8bee7",
+      "lines": 1269,
+      "sha256": "ce4f5795b23647a784acde32fd075562cbdb0dfacb66e26da66b77cb5670cc39",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
@@ -50808,7 +50808,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
       "lines": 137,
-      "sha256": "4e5eff02d881ecfb1a278f8bea0d6efd03c1eb0fdd38d030f8950199c75144ad",
+      "sha256": "90d29b4eb94ffc592fbe6571d593b98423342c6864ee227aeeaad8d565bf0cb8",
       "symbols": [
         {
           "name": "GameInvitationContinuityTest",
