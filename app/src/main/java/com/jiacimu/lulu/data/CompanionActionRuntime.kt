@@ -17,6 +17,13 @@ import com.jiacimu.lulu.study.*
 import java.time.Instant
 import java.util.UUID
 
+/** A game invitation is its own chat event. A character's optional words are real
+ * earlier bubbles, never text hidden in a four-line card preview. */
+internal fun gameInvitationOutgoingContents(gameId: String, title: String, text: String): List<String> =
+    text.trim().split(com.jiacimu.lulu.SemanticBubbleSeparator)
+        .map(String::trim).filter(String::isNotBlank) +
+        "[游戏邀约|$gameId|$title]"
+
 internal data class CompanionActionResult(
     val success: Boolean,
     val summary: String,
@@ -85,8 +92,9 @@ internal object CompanionActionRuntime {
     private val gameTitles = com.jiacimu.lulu.games.GameInvitationCatalog.titles
     /** One authoritative, human-readable invitation guide for both foreground and online chats. */
     internal val gameInvitationCapabilityGuide: String
-        get() = "- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"本人邀请语\"}：" +
+        get() = "- send_game_invite，args={\"gameId\":\"游戏ID\",\"text\":\"可选的本人邀请语\"}：" +
             "角色可以主动在私聊发送可点击的游戏邀请卡片，不用主人先打开游戏或另装游戏App。" +
+            "若想附言，先发本人自然聊天气泡，之后单独发邀请卡片；没有话想说就只发卡片，不把长文塞进卡片。" +
             "可邀游戏（名称=gameId）：${gameTitles.entries.joinToString("、") { "${it.value}=${it.key}" }}。" +
             "发送、主人接受、游戏开局各有独立真实回执，不能凭口头说法当成已经邀请或已经开局。"
 
@@ -903,15 +911,17 @@ internal object CompanionActionRuntime {
             "send_game_invite" -> {
                 val gameId = args.optString("gameId").trim()
                 val title = gameTitles[gameId] ?: error("未知游戏ID")
-                val text = args.optString("text").trim().ifBlank { "要不要一起玩《$title》？" }.take(240)
+                val text = args.optString("text")
                 val conversation = privateConversation(characterId, character.displayName)
-                val delivered = MigratedDomainStores.chat.appendCharacterMessage(
-                    conversation.id,
-                    "[游戏邀约|$gameId|$title] $text",
-                    characterId,
-                )
+                // Commit actual authored bubbles in order, then the clean actionable card.
+                // Never fabricate an invitation sentence when the role chose none.
+                val deliveredIds = gameInvitationOutgoingContents(gameId, title, text).map { content ->
+                    MigratedDomainStores.chat.appendCharacterMessage(
+                        conversation.id, content, characterId,
+                    ).id
+                }
                 CompanionActionResult(true, "已在私聊中发送《$title》游戏邀请",
-                    conversation.id, delivered.id, deliveredMessageIds = listOf(delivered.id))
+                    conversation.id, deliveredIds.last(), deliveredMessageIds = deliveredIds)
             }
             "send_world_invite" -> {
                 require(DigitalLifeProfileStore.isEnabled(characterId)) { "只有数字生命可以从数字世界发起见面邀请" }
