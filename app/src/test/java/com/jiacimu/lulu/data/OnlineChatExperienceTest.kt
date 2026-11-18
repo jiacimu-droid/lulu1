@@ -726,6 +726,23 @@ class OnlineChatExperienceTest {
             delayedUntil.isBefore(now.plusSeconds(10)))
     }
 
+    @Test fun lateDeliveryAndSlowModelCanStillRenewTheSameUnclaimedWindow() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("后台晚投递角色").characterId
+        val start = java.time.Instant.now()
+        CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.PrivateWake,
+            "用户唤醒", perceiveNow = false, now = start)
+        val expiry = start.plusSeconds(300).toEpochMilli()
+        assertTrue(CompanionOnlineStore.claimOnlineExpiry(role, expiry, start.plusSeconds(540)))
+        assertFalse(CompanionOnlineStore.claimOnlineExpiry(role, expiry, start.plusSeconds(541)))
+        val finishedAt = start.plusSeconds(660)
+        assertTrue(CompanionOnlineStore.extendByOwnChoice(role, expiry, "我还想想怎么跟她谈", finishedAt))
+        CompanionOnlineStore.finishOnlineExpiryReview(role, expiry)
+        assertEquals(finishedAt.plusSeconds(300), CompanionOnlineStore.states.value.getValue(role).onlineUntil)
+    }
+
     @Test fun explicitSleepWaitsUntilTheLastRealActionLeaseEnds() {
         val context = RuntimeEnvironment.getApplication() as Context
         initializeStores(context)

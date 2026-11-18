@@ -12,6 +12,28 @@ import java.time.Instant
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterOpenConcernRuntimeTest {
+    @Test fun aReplyAndRejectedCallCanStillLeaveAnIndependentConcernForLater() {
+        val original = JSONObject("""{"meaning":"她拒绝这次通话","pendingConcerns":[]}""")
+        val userWords = "你刚才说的话让我难过。先不要打电话。"
+        assertTrue(EmotionFollowThroughCoordinator.needsConcernAssessment(userWords, original))
+        val completion = JSONObject("""{
+            "action":"call",
+            "appraisal":{
+                "meaning":"把拒绝看成同意",
+                "concernAssessment":"我还有话想等她愿意时说清楚",
+                "pendingConcerns":[{"topicKey":"trust","focus":"我想认真弄清哪句话伤到了她",
+                    "whyItMatters":"她明确说刚才的话伤到了她"}]
+            }
+        }""")
+        val appraisal = EmotionFollowThroughCoordinator.mergeAssessment(original, null, completion)!!.appraisal!!
+        assertEquals("她拒绝这次通话", appraisal.getString("meaning"))
+        assertFalse(appraisal.has("action"))
+        assertEquals(0, original.getJSONArray("pendingConcerns").length())
+        val saved = CharacterOpenConcernRuntime.update(null, appraisal, "real-user-turn", now)
+        assertTrue(CharacterOpenConcernRuntime.meritsOneFollowThrough(saved, now.plusSeconds(300)))
+        assertFalse(EmotionFollowThroughCoordinator.needsConcernAssessment(userWords, appraisal))
+    }
+
     @Test fun olderUnresolvedConcernsSurviveNewConcernsRevisionsAndReceiptWriteback() {
         var saved = JSONArray()
         repeat(20) { index ->

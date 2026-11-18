@@ -1364,6 +1364,7 @@ object CharacterInnerLifeStore {
         val move = appraisal?.optString("interactionMove").orEmpty().trim().lowercase().take(80)
         val uncertainty = appraisal?.optString("uncertainty").orEmpty().trim()
         val commonGround = appraisal?.optString("commonGroundUpdate").orEmpty().trim()
+        val concernAssessment = (appraisal?.opt("concernAssessment") as? String).orEmpty().trim().take(240)
         val interpreted = CharacterDeliberationContext.conciseAppraisal(appraisal)
         val expression = appraisal?.optJSONObject("expression")
         val hasExpression = listOf("stance", "subtext", "device", "restraint")
@@ -1371,7 +1372,7 @@ object CharacterInnerLifeStore {
 
         if (!hasStateDelta && thought.isBlank() && focus.isBlank() && meaning.isBlank() &&
             responseAim.isBlank() && move.isBlank() && effectiveReason.isBlank() &&
-            interpreted == null && !hasExpression &&
+            interpreted == null && !hasExpression && concernAssessment.isBlank() &&
             !CharacterOpenConcernRuntime.hasProposals(appraisal) &&
             appraisal?.optJSONObject("ownActivity") == null &&
             appraisal?.optJSONObject("shareWish") == null &&
@@ -1404,6 +1405,7 @@ object CharacterInnerLifeStore {
         if (move.isNotBlank()) appraisalTrace.put("interactionMove", move)
         if (uncertainty.isNotBlank()) appraisalTrace.put("uncertainty", uncertainty)
         if (commonGround.isNotBlank()) appraisalTrace.put("commonGroundUpdate", commonGround)
+        if (concernAssessment.isNotBlank()) appraisalTrace.put("concernAssessment", concernAssessment)
         // Short, explicit subjective hypotheses: not hidden model reasoning,
         // not a factual assertion about the user.
         interpreted?.optString("tension")?.takeIf(String::isNotBlank)?.let {
