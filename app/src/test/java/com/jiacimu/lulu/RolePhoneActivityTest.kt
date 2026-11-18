@@ -80,6 +80,37 @@ class RolePhoneActivityTest {
         assertTrue(visible.outcome.contains("消息气泡"))
     }
 
+    @Test fun inputHistorySeparatesConfirmedDraftFromUnverifiedDispatch() {
+        val base = tool("background_phone", "unverified", 2)
+        fun typed(status: String, verified: Boolean, stage: String) =
+            base.copy(content = JSONObject(base.content)
+                .put("fingerprint", """background_phone:{"action":"type"}""")
+                .put("result", JSONObject()
+                    .put("status", status)
+                    .put("inputTextReadbackVerified", verified)
+                    .put("inputStage", stage)
+                    .put("verification", "原始设备回执仍未提供可确认的全文")
+                    .toString())
+                .toString())
+        val unverified = inspectedPhoneActions(listOf(
+            typed("unverified", false, "input_dispatched_unverified")
+        )).single()
+        assertTrue(unverified.isUnverified)
+        assertTrue(unverified.outcome.contains("未从目标输入框读回全文"))
+        assertFalse(unverified.outcome.contains("已读回完整"))
+        val exact = inspectedPhoneActions(listOf(
+            typed("observed", true, "draft_verified")
+        )).single()
+        assertFalse(exact.isUnverified)
+        assertTrue(exact.outcome.contains("完整草稿"))
+        assertTrue(exact.outcome.contains("未发送或提交"))
+        val noFrame = inspectedPhoneActions(listOf(
+            typed("unverified", true, "draft_verified")
+        )).single()
+        assertTrue(noFrame.isUnverified)
+        assertTrue(noFrame.outcome.contains("新画面不可用"))
+    }
+
     @Test fun recentRealReceiptsAreSortedAndBounded() {
         val rows = inspectedPhoneActions((1L..80L).map {
             tool("web_search", "succeeded", it)
