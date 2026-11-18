@@ -82,8 +82,9 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
             if (actor != null && !game.finished) {
                 requestGameRoleResponse(
                     scope, store, null,
-                    "主人在记忆翻牌中刚说：$text。当前比分：主人${game.userPairs}对，你${game.characterPairs}对。" +
-                        "已公开位置：${game.observed.toSortedMap()}；现在轮到${game.turn}。只知道已翻过的牌。",
+                    "主人在记忆翻牌中刚说：$text。双方各自拿同一副牌挑战6对，比较更少轮次。" +
+                        "主人已用${game.moves}轮、完成${game.userPairs}对；你已用${game.characterMoves}轮、完成${game.characterPairs}对。" +
+                        "你自己见过的位置：${game.characterObserved.toSortedMap()}；现在轮到${game.turn}。不知道没翻开的牌面。",
                     "你正在和主人一起玩翻牌。可以随意聊这句话和当前真实局面，别说出没有翻过的牌面，也不要替主人选牌。两句以内。",
                     "记忆翻牌 · 同桌交流",
                     onState = { response ->
@@ -97,19 +98,28 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
         }
     }
 
-    LaunchedEffect(game.opened) {
-        if (game.opened.size == 2 && game.opened.any { it !in game.matched }) {
+    LaunchedEffect(game.opened, game.characterOpened, game.turn) {
+        val open = if (game.turn == MemoryTurn.Character) game.characterOpened else game.opened
+        val found = if (game.turn == MemoryTurn.Character) game.characterMatched else game.matched
+        if (open.size == 2 && open.any { it !in found }) {
             delay(900)
             store.closeUnmatchedCards()
         }
     }
-    LaunchedEffect(game.turn, game.opened, game.matched, game.finished, choiceRetry, ownerSpeech) {
+    LaunchedEffect(game.turn, game.opened, game.characterOpened, game.characterMatched,
+        game.characterObserved, game.matched, game.finished, choiceRetry, ownerSpeech) {
         if (participants.isEmpty() || game.turn != MemoryTurn.Character ||
-            game.finished || game.opened.size >= 2) return@LaunchedEffect
+            game.finished || game.characterOpened.size >= 2) return@LaunchedEffect
         roleError = ""
         delay(450)
         deciding = true
-        val decision = requestMemoryRoleChoice(opponentId ?: return@LaunchedEffect, game, ownerSpeech)
+        val roleView = game.copy(
+            opened = game.characterOpened,
+            matched = game.characterMatched,
+            observed = game.characterObserved,
+            moves = game.characterMoves,
+        )
+        val decision = requestMemoryRoleChoice(opponentId ?: return@LaunchedEffect, roleView, ownerSpeech)
         deciding = false
         val choice = decision.getOrElse { failure ->
             roleError = failure.message ?: "选牌失败，请重试"
@@ -117,11 +127,13 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
         }
         // The model might finish after the user has left the turn or changed the deck.
         val now = store.state.value.memoryMatch
-        if (now.cards != game.cards || now.turn != game.turn || now.opened != game.opened ||
-            now.matched != game.matched || now.finished) return@LaunchedEffect
+        if (now.cards != game.cards || now.turn != game.turn ||
+            now.characterOpened != game.characterOpened ||
+            now.characterMatched != game.characterMatched ||
+            now.characterObserved != game.characterObserved || now.finished) return@LaunchedEffect
         if (choice.speech.isNotBlank()) {
             live.companionSaid(opponentId ?: return@LaunchedEffect, choice.speech,
-                "flip-${game.moves}-${game.opened.size}")
+                "flip-${game.characterMoves}-${game.characterOpened.size}")
         }
         GameSoundEffects.play(GameSoundEffect.Interact)
         store.openCharacterMemoryCard(choice.index)
@@ -153,11 +165,12 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
                 bestMoves = personalBest,
                 turn = game.turn,
                 moves = game.moves,
+                characterMoves = game.characterMoves,
             )
             MemoryArenaBoard(
                 cards = game.cards,
-                opened = game.opened,
-                matched = game.matched,
+                opened = if (game.turn == MemoryTurn.Character) game.characterOpened else game.opened,
+                matched = if (game.turn == MemoryTurn.Character) game.characterMatched else game.matched,
                 enabled = !game.finished && game.turn == MemoryTurn.User && game.opened.size < 2,
                 phase = phase,
                 onOpen = { index ->
@@ -196,7 +209,9 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
                     }
                     Spacer(Modifier.size(8.dp))
                     Text(game.lastEvent, color = Color(0xFF495367), fontSize = 10.sp, modifier = Modifier.weight(1f))
-                    Text("配对 ${game.matched.size / 2}/6", color = Color(0xFF657184), fontSize = 9.sp)
+                    Text(if (solo) "配对 ${game.userPairs}/6"
+                        else "你 ${game.userPairs}/6 · ${character?.displayName} ${game.characterPairs}/6",
+                        color = Color(0xFF657184), fontSize = 9.sp)
                 }
             }
         }
@@ -209,8 +224,8 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
         ) {
             val result = when {
                 solo -> "挑战完成！"
-                game.userPairs > game.characterPairs -> "你赢下了这局"
-                game.userPairs < game.characterPairs -> "${character?.displayName}赢下了这局"
+                game.moves < game.characterMoves -> "你用更少轮次获胜！"
+                game.moves > game.characterMoves -> "${character?.displayName}用更少轮次获胜！"
                 else -> "这局平手"
             }
             Surface(
@@ -228,7 +243,7 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
                     Icon(Icons.Outlined.AutoAwesome, null, tint = Color(0xFFB58A4C), modifier = Modifier.size(36.dp))
                     Text(result, color = GameDesign.ink, fontSize = 22.sp, fontWeight = FontWeight.Black)
                     Text(if (solo) "${game.moves} 轮找齐全部 6 对 · 最佳 ${personalBest ?: game.moves} 轮"
-                        else "${game.moves} 轮 · 你 ${game.userPairs} : ${game.characterPairs} ${character?.displayName}", color = Color(0xFF657184), fontSize = 11.sp)
+                        else "你 ${game.moves} 轮 · ${character?.displayName} ${game.characterMoves} 轮 · 各找齐6对", color = Color(0xFF657184), fontSize = 11.sp)
                     Button(
                         onClick = store::resetMemoryMatch,
                         modifier = Modifier.fillMaxWidth().height(48.dp),
@@ -281,6 +296,7 @@ private fun MemoryArenaScoreboard(
     characterAvatar: String?,
     turn: MemoryTurn,
     moves: Int,
+    characterMoves: Int,
     solo: Boolean,
     bestMoves: Int?,
 ) {
@@ -323,17 +339,19 @@ private fun MemoryArenaScoreboard(
             }
             Column(Modifier.padding(start = 8.dp)) {
                 Text("你", color = GameDesign.ink, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                Text(userPairs.toString().padStart(2, '0'), color = Color(0xFF74558D), fontSize = 22.sp, fontWeight = FontWeight.Black)
+                Text("${moves} 轮", color = Color(0xFF74558D), fontSize = 17.sp, fontWeight = FontWeight.Black)
+                Text("完成 ${userPairs}/6 对", color = GameDesign.muted, fontSize = 9.sp)
             }
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                 Surface(shape = RoundedCornerShape(9.dp), color = Color(0xFF846A9B).copy(alpha = .12f)) {
                     Text(if (turn == MemoryTurn.User) "你的回合" else "$characterName 思考中", color = Color(0xFF634F7D), fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp))
                 }
-                Text("ROUND ${moves + 1}", color = Color(0xFF7B8191), fontSize = 7.5.sp, modifier = Modifier.padding(top = 4.dp))
+                Text(if (turn == MemoryTurn.User) "我的牌桌" else "对手牌桌", color = Color(0xFF7B8191), fontSize = 9.sp, modifier = Modifier.padding(top = 4.dp))
             }
             Column(Modifier.padding(end = 8.dp), horizontalAlignment = Alignment.End) {
                 Text(characterName, color = GameDesign.ink, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                Text(characterPairs.toString().padStart(2, '0'), color = Color(0xFF367F7A), fontSize = 22.sp, fontWeight = FontWeight.Black)
+                Text("${characterMoves} 轮", color = Color(0xFF367F7A), fontSize = 17.sp, fontWeight = FontWeight.Black)
+                Text("完成 ${characterPairs}/6 对", color = GameDesign.muted, fontSize = 9.sp)
             }
             LuluProfileAvatar(characterAvatar, characterName.take(1).ifBlank { "角" }, 38)
         }
