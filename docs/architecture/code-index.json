@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T05:55:36.694539+00:00",
-  "commit": "ed4c7114a71390080541d2f99bb9fc70ec53a8a3",
+  "generatedAt": "2026-11-18T05:57:54.866522+00:00",
+  "commit": "c86823a2ac173b45b69dc6df29f632231ee664ed",
   "branch": "main",
-  "sourceFingerprint": "7bb5cd69ef14b4b78449e528d84dfedef3914230e0bbfbc344d931d8fa211ccf",
+  "sourceFingerprint": "069eb24166a119a0fdec1e416607705811a93bb8eee48d2cc0cb953fdda46f40",
   "summary": {
     "files": 1454,
-    "lines": 307556,
+    "lines": 307616,
     "symbols": 4377
   },
   "symbolIndex": {
@@ -3629,13 +3629,13 @@
     "accepted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt",
-        "line": 41
+        "line": 37
       }
     ],
     "accept": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt",
-        "line": 49
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt",
@@ -27003,16 +27003,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt",
-      "lines": 125,
-      "sha256": "dfd33813609f3047325f0ac94453b063dc23f167e69e4b525d99534e384d3246",
+      "lines": 185,
+      "sha256": "42340258de110814cdfc056f8dcf66a5ccdc74bbf0949613183109c7a33ad067",
       "symbols": [
         {
           "name": "accepted",
-          "line": 41
+          "line": 37
         },
         {
           "name": "accept",
-          "line": 49
+          "line": 45
         }
       ]
     },
