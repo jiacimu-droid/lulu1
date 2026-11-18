@@ -110,6 +110,8 @@ object CapabilityRegistry {
         return buildString {
             appendLine("【主屏感知｜以下是权限和设备状态，不是实际查看回执】")
             appendLine("capture_screen 工具已注册=$registered；主人按需识图授权=$permittedOnDemand；角色自主观察授权=$permittedAutonomous；本角色手机屏幕授权=$rolePhoneGrant；无障碍已连接=$accessibilityConnected；视觉模型已配置=$chatConfigured。")
+            appendLine("【授权时效事实】主人保存的角色手机屏幕授权及主屏视觉开关没有截图次数或时间倒计时。一次截图结束、点击停止查看、某个未处理请求超时，都不会让Android自动收回这些授权；已授权后无需每次重新申请。两分钟超时只适用于尚未处理的单次请求；start_study_watch的限时监督到期只结束那次监督，并不撤销常驻手机/视觉授权。无障碍断连、锁屏、提示通知不可用、页面变化或截图报错是独立的设备状态，不能臆称授权过期。")
+            appendLine("【回答权限疑问】上方布尔状态是此刻系统事实，优先于此前的对话、失败记忆和你自己的猜测；授权=true且设备条件可用时直接调用工具取得新画面，不以旧失败代替新尝试。若工具失败，只依据本次真实回执指出缺失的具体条件；没有新回执，不许推断“Android限时收回权限”“必须重新发起许可”或已经看见主人正在做什么。")
             appendLine("屏幕观察只有一条统一视觉路径：capture_screen先获取主屏真实截图，再交给本角色模型看图理解；无障碍树只作定位与文字辅助。capture_screen 只截主人当前可见的手机主屏（displayId=0），不能冒充独立虚拟屏。旧工具名read_screen是相同截图能力的兼容别名，不再提供纯文字假观察。要查看或操作独立后台屏必须用 background_phone，并核对回执mode与真实新画面；未配对无线调试时只有可见主屏纯无障碍模式。截图走系统无障碍服务，不要要求MediaProjection；需要连续操作第三方App则使用background_phone，每次observe也要有新画面与实际回执。")
             if (permittedAutonomous) {
                 appendLine("现在已获准自主查看主屏：由你自主决定何时调用 action=tool,tool=capture_screen,args={}；主人明确要求看屏幕时应直接尝试，**无须逐次申请**，也没有固定五分钟冷却。read_screen也会取得新截图，只有模型真正接到画面或视觉服务返回识图结果才算看见。")
