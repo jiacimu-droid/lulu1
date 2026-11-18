@@ -58,6 +58,7 @@ fun ScheduleFeatureScreen(
     var cancelId by remember { mutableStateOf<String?>(null) }
     var deletePlanId by remember { mutableStateOf<String?>(null) }
     var error by remember { mutableStateOf("") }
+    var showOldUnverified by remember(selectedCharacterId) { mutableStateOf(false) }
     LaunchedEffect(characters.keys, selectedCharacterId) {
         if (selectedCharacterId !in characters && characters.isNotEmpty()) {
             selectedCharacterId = characters.keys.first()
@@ -103,10 +104,12 @@ fun ScheduleFeatureScreen(
         .sortedBy { it.time }
     val pending = plans.count { it.status !in setOf("completed", "cancelled") } +
         tasks.count { it.status.isActive() } +
-        unfinishedPast.size + undatedResponsibilities.size +
+        undatedResponsibilities.size +
         legacyPromises.count { it.status == LexiconStatus.Active }
-    val total = plans.size + tasks.size + unfinishedPast.size +
-        undatedResponsibilities.size + legacyPromises.size
+    // Historical unverified duties are follow-up liabilities, not today's
+    // new appointments, so never inflate the calendar's "today" total.
+    val total = plans.size + tasks.size + undatedResponsibilities.size +
+        legacyPromises.size
 
     Scaffold(
         containerColor = Color.White,
@@ -265,10 +268,20 @@ fun ScheduleFeatureScreen(
             }
             if (unfinishedPast.isNotEmpty()) {
                 item(key = "old-unverified-title") {
-                    ScheduleSectionHeading("往日未核实（非今日新日程）", unfinishedPast.size)
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text("往日未核实 · ${unfinishedPast.size} 项",
+                            modifier = Modifier.weight(1f), fontSize = 13.sp,
+                            color = Color(0xFF77777D))
+                        TextButton(onClick = { showOldUnverified = !showOldUnverified }) {
+                            Text(if (showOldUnverified) "收起历史" else "查看历史责任",
+                                fontSize = 12.sp)
+                        }
+                    }
                 }
-                items(unfinishedPast, key = { "overdue:" + it.id }) { task ->
-                    ScheduledCommitmentCard(task)
+                if (showOldUnverified) {
+                    items(unfinishedPast, key = { "overdue:" + it.id }) { task ->
+                        ScheduledCommitmentCard(task)
+                    }
                 }
             }
             if (legacyPromises.isNotEmpty()) {
