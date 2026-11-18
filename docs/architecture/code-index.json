@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:35:49.290908+00:00",
-  "commit": "b840daacfbb5888a4098a8d97956568135bece14",
+  "generatedAt": "2026-11-18T07:36:23.750646+00:00",
+  "commit": "b4ca9839091e30891f3954b53e1b626efab3df89",
   "branch": "main",
-  "sourceFingerprint": "5be56a982c95f3808b0c7d522cbe9e42d414995c4987ae39080c0312fbb79d3a",
+  "sourceFingerprint": "e49499e314385e31296d642a98ffb589942a3fb54983ea0e05738a8609d72b7c",
   "summary": {
     "files": 1457,
-    "lines": 308191,
+    "lines": 308195,
     "symbols": 4391
   },
   "symbolIndex": {
@@ -15335,19 +15335,19 @@
     "readIsland": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-        "line": 35
+        "line": 36
       }
     ],
     "readRelic": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-        "line": 39
+        "line": 40
       }
     ],
     "distance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-        "line": 123
+        "line": 124
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
@@ -15361,7 +15361,7 @@
     "dist": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-        "line": 283
+        "line": 284
       }
     ],
     "partyFor": [
@@ -16269,7 +16269,7 @@
     "stepBack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-        "line": 120
+        "line": 123
       }
     ],
     "LuluGamesAppV2": [
@@ -39100,8 +39100,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-      "lines": 373,
-      "sha256": "cd9cdd8bd894e16777a374dab9dbe19c5d4c531898ba90501ce2a3f098e60020",
+      "lines": 374,
+      "sha256": "b4d22141d23414d14a9e506066643d4ebcdf79b5b5c395af45202a753717fbb9",
       "symbols": [
         {
           "name": "play",
@@ -39109,19 +39109,19 @@
         },
         {
           "name": "readIsland",
-          "line": 35
+          "line": 36
         },
         {
           "name": "readRelic",
-          "line": 39
+          "line": 40
         },
         {
           "name": "distance",
-          "line": 123
+          "line": 124
         },
         {
           "name": "dist",
-          "line": 283
+          "line": 284
         }
       ]
     },
@@ -40203,8 +40203,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 1042,
-      "sha256": "5eac3b876cd900be2f8b4bfc9be8da3229f6d2c86dd40f692209aad8fe620e90",
+      "lines": 1045,
+      "sha256": "aed212c5fc25801b60abcadfbd88dbc94bfd4cbd4b73ff228735f17144f98a5c",
       "symbols": [
         {
           "name": "Home",
@@ -40264,7 +40264,7 @@
         },
         {
           "name": "stepBack",
-          "line": 120
+          "line": 123
         }
       ]
     },
