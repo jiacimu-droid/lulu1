@@ -181,10 +181,15 @@ class LuluAccessibilityService : AccessibilityService() {
                     it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_MAGNIFICATION_OVERLAY ||
                     it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SPLIT_SCREEN_DIVIDER
             }.maxByOrNull { it.layer }
-            // Some OEMs provide no windows array even though the active root
-            // exists. Only use that fallback when NO display exposes windows;
-            // otherwise it might belong to the independent virtual screen.
-            val root = if (displays.size() > 0) foreground?.root else service.rootInActiveWindow
+            // An OEM can expose only the virtual-display window in this array
+            // while rootInActiveWindow still points to the real owner screen.
+            // An older 'displays.size()>0' check rejected that valid owner
+            // root. Trust the active-root fallback ONLY when its window is
+            // explicitly tagged as display 0, never an independent VM display.
+            val visibleRoot = foreground?.root
+            val root = visibleRoot ?: service.rootInActiveWindow?.takeIf {
+                it.window?.displayId == Display.DEFAULT_DISPLAY
+            }
             return AccessibilitySnapshot(
                 connected = true,
                 packageName = root?.packageName?.toString().orEmpty(),
