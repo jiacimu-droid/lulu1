@@ -55,6 +55,26 @@ class LuluVirtualTextInputPolicyTest {
                 .put("inputY", 750).put("screenSnapshotId", "fresh")))
     }
 
+    @Test fun focusedEditorFallbackRequiresClickedPointInsideCurrentOwnedField() {
+        // Coordinates come from the exact virtual display snapshot, not display 0.
+        assertTrue(LuluVirtualTextInputPolicy.focusedFieldContainsSelectedPoint(
+            460, 750, 720, 1280, 90, 915, 680, 995))
+        assertFalse("An unrelated focused editor cannot receive the draft",
+            LuluVirtualTextInputPolicy.focusedFieldContainsSelectedPoint(
+                460, 320, 720, 1280, 90, 915, 680, 995))
+        assertFalse("Wrong orientation dimensions cannot authorize a random field",
+            LuluVirtualTextInputPolicy.focusedFieldContainsSelectedPoint(
+                460, 750, 720, 1280, 90, 915, 1000, 995))
+        assertFalse(LuluVirtualTextInputPolicy.focusedFieldContainsSelectedPoint(
+            460, 750, 0, 1280, 90, 915, 680, 995))
+        assertFalse("System status bar is not an editable area",
+            LuluVirtualTextInputPolicy.focusedFieldContainsSelectedPoint(
+                460, 10, 720, 1280, 90, 0, 680, 995))
+        assertFalse("A full-screen ambiguous node is not a field",
+            LuluVirtualTextInputPolicy.focusedFieldContainsSelectedPoint(
+                460, 750, 720, 1280, 0, 0, 720, 1280))
+    }
+
     @Test fun inputPointMustStayOnOwnedAppAboveIme() {
         assertTrue(LuluVirtualTextInputPolicy.inputPointSafe(450, 70, null))
         assertTrue(LuluVirtualTextInputPolicy.inputPointSafe(450, 760, 900))
