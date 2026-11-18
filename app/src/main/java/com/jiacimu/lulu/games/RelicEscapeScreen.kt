@@ -1019,7 +1019,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         Row(verticalAlignment=Alignment.CenterVertically) {
                             Text("地面："+drop.loot.name+" · "+drop.loot.weight+"格",
                                 color=relicGreen,fontSize=12.sp,modifier=Modifier.weight(1f))
-                            TextButton(onClick={action("pickup",id=drop.loot.id)}){Text("拾取")}
+                            TextButton(onClick={action("pickup",x=drop.x,y=drop.y,id=drop.loot.id)}){Text("拾取")}
                         }
                     }
                 }
