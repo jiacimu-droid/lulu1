@@ -393,8 +393,10 @@ internal object RelicEscapeRules {
     }
     fun act(s:RelicRun,action:String,x:Int=s.hero.x,y:Int=s.hero.y,lootId:String="", autonomousIds:Set<String> = emptySet(),
         advanceExtraction: Boolean = true):RelicRun {
-        if(s.phase !in listOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
-            return s.copy(notice="当前不能继续行动")
+        // A settled expedition is immutable. Late UI/role callbacks must not
+        // overwrite a completed extraction or a saved terminal result.
+        if (s.phase !in listOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED))
+            return s
         if(s.phase==RelicPhase.DOWNED && action!="wait" && action!="companion_tick")return s.copy(notice="倒地了，等待同伴救援")
         if(action=="weapon_skill" && s.equipped=="blade")
             return act(s,"sweep",autonomousIds=autonomousIds,advanceExtraction=advanceExtraction)
