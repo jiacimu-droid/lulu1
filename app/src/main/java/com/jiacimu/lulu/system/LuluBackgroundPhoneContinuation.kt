@@ -69,6 +69,13 @@ internal object LuluBackgroundPhoneContinuation {
     internal fun hasFreshExecutionReceipt(receipt: JSONObject?): Boolean =
         receipt != null && !receipt.optBoolean("replayedHistoricalReceipt")
 
+    /** Different failed actions on a newly verified page are not proof that
+     * the entire goal is impossible. Keep the anti-repeat and human gates, but
+     * stop only when repeated failures have no owned screen evidence to work from. */
+    internal fun failuresExhaustedWithoutScreen(failures: Int, receipt: JSONObject?, image: String?): Boolean =
+        failures > 1 && !(receipt?.optBoolean("targetWindowVerified") == true &&
+            (image != null || receipt.optString("uiTreeFingerprint").isNotBlank()))
+
     /** A model reply is stale if STOP or authorization revocation happened while waiting. */
     internal fun mustAbortAfterModel(ownerPaused: Boolean, authorized: Boolean): Boolean =
         ownerPaused || !authorized
@@ -642,11 +649,12 @@ internal object LuluBackgroundPhoneContinuation {
             }
             if (result.optString("status") == "failed") {
                 failedAttempts++
-                if (failedAttempts > 1) {
-                    history.appendLine("连续两次设备操作失败；停止这次尝试，必须给主人反馈真实阻碍")
+                if (failuresExhaustedWithoutScreen(failedAttempts, result, image)) {
+                    history.appendLine("连续设备失败且无法得到当前目标App的新画面或控件依据；停止盲试并反馈真实阻碍")
                     return Outcome(history.toString().takeLast(5_000), image, false, count)
                 }
-                history.appendLine("上一步真实失败；如果想换方法，本人再判断一次，不能原样自动重放")
+                history.appendLine("上一步真实失败；若仍有已核实的页面依据，本人可改选不同策略。" +
+                    "不得原样重放失败输入、点击或发送；没有可靠画面就先只读观察。")
                 continue
             }
             if (screenChanged == true || result.optBoolean("success") ||
