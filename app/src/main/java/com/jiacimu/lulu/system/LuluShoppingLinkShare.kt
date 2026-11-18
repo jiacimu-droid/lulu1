@@ -18,7 +18,11 @@ internal object LuluShoppingLinkShare {
         "复制链接", "复制商品链接", "复制分享链接", "复制网址",
         // Some marketplace share sheets use these explicit link-only labels.
         "复制宝贝链接", "复制链接到剪贴板", "复制商品网址",
-        "copy link", "copy product link", "copy url",
+        // Many marketplace share panels expose only a small "复制" / "复制口令"
+        // action. The explicit one-shot product-share request and a fresh
+        // merchant HTTPS clipboard event are still required downstream.
+        "复制", "复制口令", "复制分享口令",
+        "copy", "copy link", "copy product link", "copy url",
     )
 
     private val merchantDomains = mapOf(
@@ -77,10 +81,24 @@ internal object LuluShoppingLinkShare {
         }
     }
 
+    /** Treat whitespace, line breaks and Traditional Chinese as presentation,
+     * not as distinct share actions. This is still an exact action-name match:
+     * surrounding product descriptions, coupon instructions and send/payment
+     * buttons cannot claim to be a Copy Link control. */
+    private fun normalizedCopyLabel(label: String): String =
+        LuluMikaHant.fold(label).lowercase(Locale.ROOT)
+            .replace(Regex("""\\s+"""), "").trim('：', ':', '·')
+
+    internal fun isCopyLabel(label: String): Boolean {
+        val normalized = normalizedCopyLabel(label)
+        return normalized.isNotBlank() &&
+            copyLabels.any { normalizedCopyLabel(it) == normalized }
+    }
+
     internal fun eligibleCopy(
         packageName: String, label: String, clickable: Boolean, ownerApproved: Boolean,
     ): Boolean = ownerApproved && clickable && merchantName(packageName) != null &&
-        label.trim().lowercase(Locale.ROOT) in copyLabels
+        isCopyLabel(label)
 
     /** Compare timestamps before reading any clipboard text: do NOT read
      * pre-existing personal clipboard contents merely to look for a change. */
