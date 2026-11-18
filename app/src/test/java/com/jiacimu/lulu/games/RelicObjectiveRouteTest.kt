@@ -234,6 +234,19 @@ class RelicObjectiveRouteTest {
         assertTrue(revived.chests.none { it.opened })
     }
 
+    @Test fun finishedExpeditionNeverAsksForRescueOrFurtherExploration() {
+        val world=corridor().copy(seen=(2..6).map { 2*12+it }.toSet())
+        val chest=RelicObjectiveGuide.visibleChest(world)!!
+        for(phase in listOf(RelicPhase.FAILURE,RelicPhase.SUCCESS)) {
+            val ended=world.copy(phase=phase,hero=world.hero.copy(hp=0))
+            assertEquals("",RelicObjectiveGuide.prompt(ended))
+            assertNull(RelicObjectiveGuide.knownRouteTiles(ended,chest))
+            assertNull(RelicObjectiveGuide.nextVisible(ended))
+        }
+        val downed=world.copy(phase=RelicPhase.DOWNED,hero=world.hero.copy(hp=0))
+        assertTrue(RelicObjectiveGuide.prompt(downed).contains("等待真实救援"))
+    }
+
     @Test fun routeIndexIgnoresSpentTrapsAndDeadMobsButBlocksLiveHazards() {
         val base=corridor().copy(seen=(2..6).map { 2*12+it }.toSet())
         val target=RelicObjectiveGuide.visibleChest(base)!!
