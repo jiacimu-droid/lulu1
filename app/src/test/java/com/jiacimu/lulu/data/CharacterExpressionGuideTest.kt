@@ -187,6 +187,65 @@ class CharacterExpressionGuideTest {
         assertFalse(secondVoice.contains("爱说冷笑话的独特节奏"))
     }
 
+
+    @Test fun revisedExpressionEvidenceStopsLearnedVoiceWithoutErasingAuthoredVoice() {
+        MemoryTestEnvironment.release()
+        try {
+            val app = RuntimeEnvironment.getApplication() as Context
+            com.jiacimu.lulu.LuluRepositories.initialize(app)
+            MigratedDomainStores.initialize(app)
+            CharacterLifeStore.initialize(app)
+            CharacterDevelopmentStore.initialize(app)
+            SharedExperienceTimeline.initialize(app)
+            val role = MigratedDomainStores.characters.create("习得表达甲").characterId
+            val other = MigratedDomainStores.characters.create("习得表达乙").characterId
+            val authored = "用户手改：措辞直接，允许停顿，不用固定结尾。"
+            val peerAuthored = "用户手改：先说结论，再解释细节。"
+            CharacterLifeStore.setProfile(role, "speechHabits", authored)
+            CharacterLifeStore.setProfile(other, "speechHabits", peerAuthored)
+            val evidence = (1..3).map { index ->
+                val id = "learned-voice-feedback-$index"
+                SharedExperienceTimeline.record(id, role, "私聊", "用户",
+                    "我喜欢刚才那种接话方式，例子$index", java.time.Instant.now(),
+                    triggerExtraction = false, evidenceKind = EventEvidenceKind.UserStatement)
+                id
+            } + (1..2).map { index ->
+                val id = "learned-voice-own-$index"
+                SharedExperienceTimeline.record(id, role, "私聊", "本人",
+                    "先听你说完，再一起想下一步，例子$index", java.time.Instant.now(),
+                    triggerExtraction = false, evidenceKind = EventEvidenceKind.CharacterStatement)
+                id
+            }
+            val learned = "从这些交流形成的习惯：先接住具体原话；但对方明确要结论时，不继续铺垫。"
+            val persona = CharacterRuntime.personaConstraintSnapshot(role)
+            assertTrue(CharacterDevelopmentStore.applyProposal(role, "learned-voice",
+                DevelopmentKind.ExpressionHabit, learned, evidence, emptyList(), persona))
+            val saved = CharacterDevelopmentStore.active(role).single { it.slot == "learned-voice" }
+            val before = CharacterSpeechIdentity.promptSection(role, includeRelationship = false)
+            assertTrue(before.contains(authored))
+            assertTrue(before.contains(learned))
+            assertFalse(CharacterSpeechIdentity.promptSection(other, includeRelationship = false)
+                .contains(learned))
+
+            SharedExperienceTimeline.record(evidence.first(), role, "私聊", "用户",
+                "那只是当时的情境，不是我的长期表达偏好。", java.time.Instant.now(),
+                triggerExtraction = false, evidenceKind = EventEvidenceKind.UserStatement)
+            val after = CharacterSpeechIdentity.promptSection(role, includeRelationship = false)
+            assertFalse(after.contains(learned))
+            assertTrue(after.contains(authored))
+            assertEquals(persona, CharacterRuntime.personaConstraintSnapshot(role))
+            val retained = CharacterDevelopmentStore.history(role).single { it.id == saved.id }
+            assertEquals(learned, retained.content)
+            assertEquals(saved.evidence, retained.evidence)
+            val peer = CharacterSpeechIdentity.promptSection(other, includeRelationship = false)
+            assertTrue(peer.contains(peerAuthored))
+            assertFalse(peer.contains(authored))
+            assertFalse(peer.contains(learned))
+        } finally {
+            MemoryTestEnvironment.release()
+        }
+    }
+
     @Test fun authoredExamplesKeepTheFinalUserTurnBeyondTheOldCutoff() {
         val app = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(app)
