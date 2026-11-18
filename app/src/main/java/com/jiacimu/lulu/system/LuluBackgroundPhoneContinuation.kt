@@ -800,7 +800,7 @@ internal object LuluBackgroundPhoneContinuation {
                 continue
             }
             if (result == null || result.optString("status") == "denied" ||
-                result.optString("mode") != "independent_virtual_display") {
+                result.optString("mode") !in setOf("independent_virtual_display", "foreground_accessibility")) {
                 history.appendLine("设备回执异常或权限拒绝；停止本次执行，不凭空重试")
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             }
