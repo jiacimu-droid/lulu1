@@ -23,8 +23,9 @@ import kotlin.random.Random
  * Preserve world save parsers on main so switching APK editions never loses data. */
 internal object LuluGameEdition {
     const val worldGamesEnabled = true
-    fun available(gameId: String): Boolean = worldGamesEnabled ||
-        gameId !in setOf("block_island", "relic_escape")
+    fun available(gameId: String): Boolean =
+        gameId !in setOf("deep_sea", "deep_sea_journey") &&
+            (worldGamesEnabled || gameId !in setOf("block_island", "relic_escape"))
 }
 
 /** Product-parity game identifiers from lulu/master plus Lulu1 additions. */
