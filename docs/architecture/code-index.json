@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:37:20.618717+00:00",
-  "commit": "8494c9b00092c3e70819d5edd371de6c3c5ebf0e",
+  "generatedAt": "2026-11-18T07:38:06.990900+00:00",
+  "commit": "1f3950864cc451032af260a9f4f7496c07e65746",
   "branch": "main",
-  "sourceFingerprint": "f6a095350f75d1013ee74cee50b84df44c9584f36703b1e3771d6bbb142e5cfe",
+  "sourceFingerprint": "432903eee5742934d2b5ed2496572cdc625d9fd39b26702d89df0b93847fd1d0",
   "summary": {
     "files": 1457,
-    "lines": 308204,
+    "lines": 308211,
     "symbols": 4392
   },
   "symbolIndex": {
@@ -25570,8 +25570,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldArcadeScreen.kt",
-      "lines": 107,
-      "sha256": "f796a02d6253918f15f4918616fa346d38cbfd8cdfaf50db7eeaeab6753f58c2",
+      "lines": 114,
+      "sha256": "08b75299639fe7c919671190926324ec180c51dcc0734de98f1ff175bc03c509",
       "symbols": []
     },
     {
@@ -25606,7 +25606,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt",
       "lines": 1649,
-      "sha256": "c90218500d43a165196836670a58ac4841d88f47fc23013c0355401f1e4b67e5",
+      "sha256": "dcc802e3dbddee7394254e901ea868f3c1ea23b001c44470a97a5b7393a7e1d6",
       "symbols": [
         {
           "name": "Resident",
@@ -29951,7 +29951,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
       "lines": 164,
-      "sha256": "742d2008c8cf877223ddef18b4b496bb41c0d892da9f7a466d99719a34d2e0a8",
+      "sha256": "26bbfc0709a13b5b33172971cbdc29f5dddb3bcfa620786ea01c10abb635aa43",
       "symbols": [
         {
           "name": "recentSoloGames",
@@ -40279,7 +40279,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt",
       "lines": 935,
-      "sha256": "64303a1fd0d7217680ece1b3ec21afe4744e71134fac7567d0133bd0dfb3f7a7",
+      "sha256": "493071c807112badf0dae85fe3f35972f7d3928ad2ec2adc4d7cfbbef709a754",
       "symbols": [
         {
           "name": "LuluGamesAppV2",
