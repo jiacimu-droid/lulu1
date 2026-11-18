@@ -57,16 +57,12 @@ jobs:
             fi
 
             edition='app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt'
-            python3 - "$edition" <<'PY'
-import pathlib, sys
-path = pathlib.Path(sys.argv[1])
-source = path.read_text()
-if 'const val worldGamesEnabled = false' not in source and \
-        'const val worldGamesEnabled = true' not in source:
-    raise SystemExit('The edition switch was lost during the merge')
-path.write_text(source.replace('const val worldGamesEnabled = false',
-                               'const val worldGamesEnabled = true'))
-PY
+            if ! grep -q 'const val worldGamesEnabled' "$edition"; then
+              echo "::error::The game edition switch was lost during the merge"
+              git merge --abort
+              exit 1
+            fi
+            sed -i 's/const val worldGamesEnabled = false/const val worldGamesEnabled = true/' "$edition"
             # Tests about the two experimental worlds must run in game,
             # not inherit main's deliberate absence expectations.
             git restore --source="$original" -- \
