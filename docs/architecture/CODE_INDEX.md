@@ -1,15 +1,15 @@
 # Lulu1 代码索引
 
-- 基准提交：`508adde389f66b86209fc52c763237da67725f7d`
+- 基准提交：`855f762d193e3502139458f63b9c2a5c53e20528`
 - 分支：`main`
 - 已索引文件：1445
-- 已索引代码/文本行：305634
-- 已发现符号：4366
+- 已索引代码/文本行：305656
+- 已发现符号：4367
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
 | `app/build.gradle.kts` | 236 | 0 |
-| `app/src/main/AndroidManifest.xml` | 201 | 0 |
+| `app/src/main/AndroidManifest.xml` | 206 | 0 |
 | `app/src/main/assets/live2d/bootstrap.js` | 33 | 0 |
 | `app/src/main/assets/live2d/stage.html` | 17 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/00_nod.motion3.json` | 142 | 0 |
@@ -820,7 +820,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt` | 32 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 2258 | 72 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 2268 | 73 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 136 | 4 |
@@ -853,7 +853,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt` | 145 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt` | 438 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt` | 445 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversal.kt` | 66 | 1 |
