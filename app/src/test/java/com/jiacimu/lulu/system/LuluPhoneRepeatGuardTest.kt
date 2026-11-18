@@ -20,6 +20,9 @@ class LuluPhoneRepeatGuardTest {
         val target = LuluPhoneRepeatGuard.target("type", original)
         val pending = LuluPhoneRepeatGuard.Attempt("type", target, true, "unknown")
         assertTrue(LuluPhoneRepeatGuard.shouldBlock(pending, "type", target))
+        assertTrue("The real input executor returns input_unverified",
+            LuluPhoneRepeatGuard.shouldBlock(
+                pending.copy(effect = "input_unverified"), "type", target))
         assertTrue(LuluPhoneRepeatGuard.shouldBlock(
             pending.copy(effect = "tree_unchanged"), "type", target))
         assertFalse("A rejected paste was never dispatched",
