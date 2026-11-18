@@ -103,6 +103,8 @@ internal fun DesktopWorldBulletinCard(
     ) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val compact = maxWidth < 250.dp || maxHeight < 115.dp
+            // Capture the BoxWithConstraints receiver before entering ColumnScope.
+            val showCompactDetail = maxHeight >= 110.dp
             if (compact) {
                 Column(
                     Modifier.fillMaxSize().padding(horizontal = 10.dp, vertical = 7.dp),
@@ -118,7 +120,7 @@ internal fun DesktopWorldBulletinCard(
                     }
                     Text(latest?.title ?: "暂无新动态", color = ink, fontSize = 12.sp,
                         maxLines = 2, overflow = TextOverflow.Ellipsis)
-                    if (maxHeight >= 110.dp) {
+                    if (showCompactDetail) {
                         Text(latest?.detail ?: "重要动态会在这里出现。", color = mutedInk,
                             fontSize = 10.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     }
