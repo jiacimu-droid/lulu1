@@ -353,7 +353,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     }
     Column(
         Modifier.fillMaxSize().background(
-            Brush.verticalGradient(listOf(Color(0xFFF8F1E8), ocean, Color(0xFFEAF1ED))),
+            Brush.verticalGradient(listOf(Color(0xFFF8F1E8), Color(0xFFE1EEE8), Color(0xFFEAF1ED))),
         ),
     ) {
         LazyColumn(
