@@ -10,7 +10,7 @@ class SettingsHomeSearchTest {
     @Test fun everySettingsDestinationIsStillReachableAndGrouped() {
         assertEquals(
             setOf("api", "integrations", "voice", "memory", "residents",
-                "vision", "image", "capabilities", "strict", "backup"),
+                "vision", "image", "capabilities", "strict", "backup", "wishes", "donate"),
             settingsHomeEntries.map { it.id }.toSet(),
         )
         assertEquals(settingsHomeEntries.size, settingsHomeEntries.map { it.id }.distinct().size)
@@ -29,6 +29,8 @@ class SettingsHomeSearchTest {
         assertEquals(listOf("vision"), ids("图片理解"))
         assertEquals(listOf("image"), ids("图像生成"))
         assertEquals(listOf("integrations"), ids("小红书"))
+        assertEquals(listOf("wishes"), ids("许愿"))
+        assertEquals(listOf("donate"), ids("打赏"))
     }
 
     @Test fun multiTermCaseInsensitiveSearchAndNoMatchesStayPredictable() {
