@@ -106,7 +106,7 @@ class ScreenVisionCapabilityContextTest {
                 // A previous screenshot and an expired unanswered popup are
                 // neither a revocation nor a new Android permission request.
                 .putLong("last_autonomous_attempt", 1L)
-                .putString("pending_capture_permission", "{\\"id\\":\\"old\\",\\"at\\":1}")
+                .putString("pending_capture_permission", "{\"id\":\"old\",\"at\":1}")
                 .commit()
             rolePrefs.edit().putBoolean(grantKey, true).commit()
 
