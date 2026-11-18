@@ -121,7 +121,10 @@ internal fun QqMessageRow(
     val bubbles = remember(sharedLinks, mine, gameInvite, worldInvite, forwardBundle, xhsShare, shoppingLink) {
         when {
             forwardBundle != null || xhsShare != null || shoppingLink != null -> emptyList()
-            gameInvite != null || worldInvite != null -> emptyList()
+            // Old invitation records contain prose after the payload. Restore it as
+            // a real, untruncated chat bubble ahead of the card.
+            gameInvite != null -> splitCharacterBubbles(gameInvite.message)
+            worldInvite != null -> emptyList()
             mine -> listOf(sharedLinks.text)
             message.voiceNote -> listOf(sharedLinks.text)
             else -> splitCharacterBubbles(sharedLinks.text)
@@ -185,12 +188,6 @@ internal fun QqMessageRow(
                 if (!mine && showCharacterName && showAvatar) {
                     Text(characterLabel, color = QqMuted, fontSize = 11.sp, modifier = Modifier.padding(start = 4.dp, bottom = 3.dp))
                 }
-                if (gameInvite != null) {
-                    MessageLineWithTime(mine, showTime, timeText) { bubbleModifier ->
-                        GameInviteMessageCard(gameInvite, characterName, { onAcceptGame(gameInvite.gameId) }, bubbleModifier)
-                    }
-                    Spacer(Modifier.height(5.dp))
-                }
                 if (worldInvite != null) {
                     MessageLineWithTime(mine, showTime, timeText) { bubbleModifier ->
                         WorldInviteMessageCard(
@@ -242,7 +239,7 @@ internal fun QqMessageRow(
                 }
                 bubbles.filter(String::isNotBlank).forEachIndexed { index, bubble ->
                     val isLastBubble = index == bubbles.lastIndex
-                    MessageLineWithTime(mine, showTime && isLastBubble && sharedLinks.links.isEmpty(), timeText) { bubbleModifier ->
+                    MessageLineWithTime(mine, showTime && isLastBubble && sharedLinks.links.isEmpty() && gameInvite == null, timeText) { bubbleModifier ->
                         val journal = LocalLuluAppearance.current.isJournal()
                         val bubbleContent: @Composable () -> Unit = {
                             Column(Modifier.padding(horizontal = 12.dp, vertical = 7.dp)) {
@@ -307,6 +304,12 @@ internal fun QqMessageRow(
                         }
                     }
                     if (!isLastBubble || sharedLinks.links.isNotEmpty()) Spacer(Modifier.height(3.dp))
+                }
+                if (gameInvite != null) {
+                    MessageLineWithTime(mine, showTime, timeText) { bubbleModifier ->
+                        GameInviteMessageCard(gameInvite, characterName, { onAcceptGame(gameInvite.gameId) }, bubbleModifier)
+                    }
+                    Spacer(Modifier.height(5.dp))
                 }
                 sharedLinks.links.forEachIndexed { index, link ->
                     val last = index == sharedLinks.links.lastIndex
@@ -841,12 +844,6 @@ private fun GameInviteMessageCard(
                         maxLines = 1, overflow = TextOverflow.Ellipsis,
                     )
                 }
-            }
-            if (invite.message.isNotBlank()) {
-                Text(
-                    invite.message, color = QqInk, fontSize = 13.sp, lineHeight = 19.sp,
-                    maxLines = 4, overflow = TextOverflow.Ellipsis,
-                )
             }
             Button(
                 onClick = onAccept,
