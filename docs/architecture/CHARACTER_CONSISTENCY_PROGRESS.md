@@ -48,6 +48,13 @@
 - [b239286](https://github.com/jiacimu-droid/lulu1/commit/b2392865af0010f5a922657fc4319c642807ac31)、[8efc982](https://github.com/jiacimu-droid/lulu1/commit/8efc982a37a7cad6688b660b88aa761af480f193)：合场文学保留一次 Isolated 写作请求和各自角色章节；给每个角色带入本人的通知、原始会面及被该事件/前因锚定的已保存心声/选择，提示正文不能把另一个人的未说出的心声写成自己的或已公开的事实。写作仅产生非权威文学，不回填原世界事件、主人行为、关系或心理。证据 ID 按本人单独链接。
 - 回归源码 [e4710e4](https://github.com/jiacimu-droid/lulu1/commit/e4710e43623827ac59aa38b2b7ff7a2fc90d07f3)、[f991a19](https://github.com/jiacimu-droid/lulu1/commit/f991a194a2ad48d052454e4884ea7e970d646900)：覆盖到访→离场顺序、其他地点/未来/伪源隔离、没有通知不伪造在场、本人的证据心声能进入正文而他人的/未来的不能。**当前仅提交测试，未取得目标 SHA 的 JVM/APK 成功证明，且未在 Redmi 真机用两角色 + 真实模型重放。** 后续核 `WorldVisitorSceneContextTest`、`AutonomousEncounterCausalChapterTest`、`AutonomousEncounterPrivacyTest` 在当前 main push 的首错；真机还要验证从地点退出/强杀后离场通知是否真实到达、模型是否自主延续找人的目标、历史章节不应被静默重写。
 
+## 2026-11-18 · P-08b.1 表达交接保留习得偏好的完整条件
+
+- 沿上轮入口实查：`CharacterDevelopmentStore.active` 已按原证据 revision 排除失效记录；但 `CharacterRuntime.leanExpressionContext` 把选中的 UserPreference/UserHabit 再截为 210 字，而原 Store 允许 500 字。末尾否定/条件会在决策→表达之间消失；本轮不重复修改来源校验。
+- [f551596e](https://github.com/jiacimu-droid/lulu1/commit/f551596ef475c0d8b539d797d35cd8f8b7da26a0) 保留已选记录完整正文，沿原召回数量上限 5 条与单记录 500 字校验，不增加模型回合或第二份人格/记忆权威。提交基于最新 main `70f8f5c3`，两文件 blob 均复核未变，避开当前社交/游戏/手机修改。
+- `PrivateChatExpressionContextTest.learnedPreferenceKeepsItsFinalConditionAndExpiresWithSourceRevision` 通过正式 Store 保存超过 210 字且末尾含预订条件与否定的偏好；验证本人表达完整、另一角色不读到，原证据经 Timeline 修订后派生偏好不再出现且修订原件保留。精确 [JVM/APK #44295897271](https://github.com/jiacimu-droid/lulu1/actions/runs/44295897271)、[原索引 #44295897999](https://github.com/jiacimu-droid/lulu1/actions/runs/44295897999) 待核；前轮 `b8fd45f2` 的 [#44276704455](https://github.com/jiacimu-droid/lulu1/actions/runs/44276704455) 已确认 success，不代表本轮新 SHA 通过。
+- 真机/真实模型仍待验。下一轮直接打开本测试与 `CharacterSpeechIdentity.promptSection` 的 ExpressionHabit 召回；若本轮 CI 未完成先沿本 ID 核回归，勿再重做关系清空、撤回或群导演旧用例。
+
 ## 2026-11-18 · P-08b.1 相处观察按当前时间投影
 
 - 链路 `CharacterSpeechIdentity → CharacterAddressPreference/CharacterRelationshipPreferences → SharedExperienceTimeline.all` 实查：all 保留未来时间记录，原 fromEvents 不限观察时刻，较晚记录会提前替换称呼、拒称及条件约定；原缓存只有数据版本与出生边界，因此单加过滤也会在时间自然经过时继续返回旧快照。旧记录原文不等于当前已经发生的事实。
