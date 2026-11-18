@@ -34,6 +34,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,6 +65,9 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
         companions = if (state.playWithCharacter) state.selectedCharacterIds else emptyList(),
     ) }
     var room by remember { mutableStateOf(initial) }
+    val live = rememberGameLiveSession("turtle_soup", room.id, room.companions)
+    // Historic archive lines never masquerade as new audible speech on resume.
+    var lastNarratedLine by remember(room.id) { mutableIntStateOf(room.lines.lastIndex) }
     var input by remember(room.id) { mutableStateOf("") }
     var composingQuestion by remember(room.id) { mutableStateOf(true) }
     var composingSolution by remember(room.id) { mutableStateOf(false) }
@@ -192,8 +196,8 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
         }
     }
 
-    fun sendOwner() {
-        val message = input.trim()
+    fun sendOwner(textInput: String = input, fromSpeech: Boolean = false) {
+        val message = textInput.trim()
         if (message.isEmpty() || busy || !room.started || room.revealed ||
             room.pendingQuestion >= 0 || room.pendingSolution >= 0) return
         val kind = when {
@@ -212,7 +216,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
         // The owner is heard by the actual participants, not by every character.
         GameTeamConversationTimeline.recordOwner(
             context, "turtle_soup", next.id, next.companions, message,
-            fromSpeech = false, utteranceId = "owner-${next.lines.lastIndex}",
+            fromSpeech = fromSpeech, utteranceId = "owner-${next.lines.lastIndex}",
         )
         input = ""
         remainingAutonomousSteps = 3
@@ -225,6 +229,30 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                 } finally { busy = false }
             }
         }
+    }
+
+    SideEffect {
+        live.onOwnerMessage = { text, fromSpeech ->
+            // Player speech goes through exactly the same room commit and
+            // host judgment flow as typed questions; STT is not a second judge.
+            sendOwner(text, fromSpeech)
+        }
+    }
+
+    LaunchedEffect(room.id, room.lines.size) {
+        if (room.lines.lastIndex <= lastNarratedLine) return@LaunchedEffect
+        for (index in (lastNarratedLine + 1)..room.lines.lastIndex) {
+            val line = room.lines[index]
+            if (line.speaker.startsWith("你") || line.speaker == "系统提示") continue
+            val actor = room.companions.firstOrNull { name(it) == line.speaker ||
+                (room.hostId == it && line.speaker == hostName()) }
+            when {
+                actor != null -> live.companionSaid(actor, line.text, "companion-$index")
+                room.host == SoupHost.AI && (line.kind == SoupKind.ANSWER ||
+                    line.kind == SoupKind.SOLUTION_RESULT) -> live.fixedHostSaid(line.text)
+            }
+        }
+        lastNarratedLine = room.lines.lastIndex
     }
 
     fun sendOwnerVerdict(verdict: String) {
@@ -702,7 +730,8 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                                 label = { Text("还原真相") })
                         }
                     }
-                    OutlinedTextField(
+                    GameTalkBar(live, showComposer = false)
+                    if (!live.voiceMode) OutlinedTextField(
                         value = input,
                         onValueChange = { input = it },
                         label = { Text(if (room.host == SoupHost.USER) "以主持人身份讨论" else
@@ -714,7 +743,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     )
                     Row(verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = ::sendOwner, enabled = input.isNotBlank() && !busy &&
+                        if (!live.voiceMode) Button(onClick = { sendOwner() }, enabled = input.isNotBlank() && !busy &&
                             (room.host == SoupHost.USER || composingSolution || !composingQuestion || room.canAsk) &&
                             room.pendingQuestion < 0 && room.pendingSolution < 0,
                             modifier = Modifier.weight(1f),

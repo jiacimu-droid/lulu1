@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b840daacfbb5888a4098a8d97956568135bece14`
+- 基准提交：`275c3d48a081aa8ab2ec30af7600c0cba84efa69`
 - 分支：`main`
-- 已索引文件：1457
-- 已索引代码/文本行：308191
-- 已发现符号：4391
+- 已索引文件：1461
+- 已索引代码/文本行：308762
+- 已发现符号：4401
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -128,7 +128,7 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalResidentFurniturePose.kt` | 35 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalStreetJourney.kt` | 37 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorld3DTrialRoom.kt` | 338 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldArcadeScreen.kt` | 107 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldArcadeScreen.kt` | 114 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldAtlas.kt` | 138 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldDiscoveredArt.kt` | 106 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldExplorationSpots.kt` | 105 | 1 |
@@ -463,7 +463,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 695 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 481 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 2043 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 2045 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 65 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 1169 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceMood.kt` | 24 | 1 |
@@ -692,9 +692,9 @@
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 348 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 959 | 18 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1351 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 724 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 804 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 596 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt` | 373 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt` | 374 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyArt.kt` | 457 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt` | 978 | 4 |
@@ -707,7 +707,9 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt` | 107 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 98 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt` | 176 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 288 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameMemoryDecision.kt` | 57 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSceneDeck.kt` | 607 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameSoundEffects.kt` | 98 | 1 |
@@ -715,7 +717,8 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 304 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt` | 92 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 376 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 382 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 81 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandChallengeBoard.kt` | 75 | 1 |
@@ -740,8 +743,8 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 759 | 28 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 1042 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 768 | 29 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 1045 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 935 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 382 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 94 | 10 |
@@ -776,7 +779,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/SoupExpansionCases.kt` | 119 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/SoupHostGuide.kt` | 31 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt` | 290 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt` | 757 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt` | 786 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt` | 89 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 660 | 0 |
@@ -1131,7 +1134,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterRelationshipAuthorityTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSceneCadenceTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterScreenShareTest.kt` | 123 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt` | 286 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt` | 269 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunitiesTest.kt` | 230 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterSocialNetworkTest.kt` | 257 | 11 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoffTest.kt` | 782 | 3 |
@@ -1318,17 +1321,18 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/AutonomousDuelGamesTest.kt` | 165 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 748 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt` | 273 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt` | 277 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CompanionCoopCombatTest.kt` | 136 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt` | 269 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExplorationPlaytest.kt` | 70 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameCoopPacingTest.kt` | 245 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameHudLayoutBudgetTest.kt` | 56 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 129 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt` | 131 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameMicPermissionGateTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt` | 54 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameRoleChoiceContractTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameTeamConversationTimelineTest.kt` | 125 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameTeamSpeechPressureTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 174 | 1 |

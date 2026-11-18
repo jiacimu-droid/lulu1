@@ -19,7 +19,15 @@ import java.time.Instant
 import java.util.UUID
 import kotlin.random.Random
 
-/** Main is the stable APK; the unfinished island and relic worlds ship only on game.\n * Keep their saved types/readers in main so switching editions never deletes history. */\ninternal object LuluGameEdition {\n    const val worldGamesEnabled = false\n    fun available(gameId: String): Boolean = worldGamesEnabled ||\n        gameId !in setOf("block_island", "relic_escape")\n}\n\n/** Product-parity game identifiers from lulu/master plus Lulu1 additions. */
+/** Stable main excludes the two unfinished worlds; game keeps both.
+ * Preserve world save parsers on main so switching APK editions never loses data. */
+internal object LuluGameEdition {
+    const val worldGamesEnabled = true
+    fun available(gameId: String): Boolean = worldGamesEnabled ||
+        gameId !in setOf("block_island", "relic_escape")
+}
+
+/** Product-parity game identifiers from lulu/master plus Lulu1 additions. */
 enum class LuluGameType {
     PerfectMan,
     RoleplayAdventure,
@@ -45,7 +53,7 @@ object GameInvitationCatalog {
         "turtle_soup" to "海龟汤",
         "yacht_dice" to "快艇骰子",
         "memory_match" to "记忆配对",
-    )
+    ).filterKeys(LuluGameEdition::available)
     fun title(gameId: String): String? = titles[gameId.trim().lowercase()]
 }
 
@@ -60,7 +68,7 @@ object AutonomousGameCatalog {
         YACHT_DICE to "快艇骰子",
         BLOCK_ISLAND to "方块小岛",
         RELIC_ESCAPE to "迷雾摸金",
-    )
+    ).filterKeys(LuluGameEdition::available)
     fun title(gameId: String): String? = gameNames[gameId.trim().lowercase()]
 }
 
@@ -442,6 +450,7 @@ class LuluGameStore internal constructor(context: Context) {
     ): AutonomousGameResult? {
         if (characterId.isBlank()) return null
         val normalized = gameId.trim().lowercase()
+        if (!LuluGameEdition.available(normalized)) return null
         if (normalized in setOf(AutonomousGameCatalog.RELIC_ESCAPE, AutonomousGameCatalog.BLOCK_ISLAND)) {
             require(targetScore == null) { "此游戏不接受记忆配对目标分数" }
             val played = CharacterSoloWorldPlay(applicationContext).play(

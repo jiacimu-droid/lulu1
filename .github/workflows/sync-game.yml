@@ -44,15 +44,34 @@ jobs:
               exit 0
             fi
 
-            if ! git merge --no-edit "$upstream"; then
+            # Reuse ordinary main changes; keep game-owned gameplay where
+            # both branches changed the same lines. Never copy the stable
+            # edition switch (false) into the experimental game release.
+            if ! git merge --no-commit --no-ff -X ours "$upstream"; then
               {
-                echo '### Resolve these conflicts on the game branch'
-                printf '\n'
+                echo '### Unexpected merge conflicts on the game branch'
                 git diff --name-only --diff-filter=U | sed 's/^/- /'
               } >> "$GITHUB_STEP_SUMMARY"
               git merge --abort
               exit 1
             fi
+
+            edition='app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt'
+            if ! grep -q 'const val worldGamesEnabled' "$edition"; then
+              echo "::error::The game edition switch was lost during the merge"
+              git merge --abort
+              exit 1
+            fi
+            sed -i 's/const val worldGamesEnabled = false/const val worldGamesEnabled = true/' "$edition"
+            # Tests about the two experimental worlds must run in game,
+            # not inherit main's deliberate absence expectations.
+            git restore --source="$original" -- \
+              app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt \
+              app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt \
+              app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt \
+              app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt
+            git add -A
+            git -c core.editor=true commit -m "Merge main into game (preserve experimental worlds)"
 
             if git push origin HEAD:refs/heads/game; then
               printf 'Merged main `%s` into game `%s`.\n' "$upstream" "$(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"

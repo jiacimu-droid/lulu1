@@ -1388,7 +1388,7 @@ private fun buildInteractionChoices(
                 DigitalInteractionChoice("记忆配对", "开始真实对局", gameId = "memory_match"),
                 DigitalInteractionChoice("快艇骰子", "与在场角色投骰子", gameId = "yacht_dice"),
                 DigitalInteractionChoice("深海回声", "开始潜航探索", gameId = "deep_sea_journey"),
-            )
+            ).filter { choice -> choice.gameId?.let(com.jiacimu.lulu.games.GameInvitationCatalog::title) != null }
         } else emptyList()
         games + allowed.filterNot { it.first == "choose_arcade" }.map { (activityId, label) ->
             DigitalInteractionChoice(
