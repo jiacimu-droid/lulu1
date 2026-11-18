@@ -92,7 +92,8 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
                             live.companionSaid(actor, response.text, "reply-${System.nanoTime()}")
                         }
                     },
-                    maxTokens = 140, characterIdOverride = actor,
+                    maxTokens = 140, characterIdOverride = actor, liveRoomId = roomId,
+                    isLiveRoomCurrent = { store.state.value.memoryMatch.cards == game.cards },
                 )
             }
         }
@@ -131,6 +132,15 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
             now.characterOpened != game.characterOpened ||
             now.characterMatched != game.characterMatched ||
             now.characterObserved != game.characterObserved || now.finished) return@LaunchedEffect
+        choice.modelReply?.let { reply ->
+            com.jiacimu.lulu.data.CharacterObservedMoment.recordScene(
+                opponentId ?: return@LaunchedEffect, reply, "记忆配对", roomId,
+                turnKey = "${game.characterMoves}:${game.characterOpened.size}",
+                observation = "角色已找到${game.characterPairs}对，已用${game.characterMoves}轮；" +
+                    "本轮已翻开${roleView.opened.size}张，主人已找到${game.userPairs}对。",
+                outward = choice.speech,
+            )
+        }
         if (choice.speech.isNotBlank()) {
             live.companionSaid(opponentId ?: return@LaunchedEffect, choice.speech,
                 "flip-${game.characterMoves}-${game.characterOpened.size}")

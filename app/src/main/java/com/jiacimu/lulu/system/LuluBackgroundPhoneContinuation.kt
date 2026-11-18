@@ -499,6 +499,7 @@ internal object LuluBackgroundPhoneContinuation {
                     目标已完成、无法判断或用户停止时可以直接结束。
                 """.trimIndent(),
                 source = "角色本人·手机任务下一步",
+                capturePrivateMoment = true,
                 title = title,
                 maxTokens = 850,
                 connectionOverride = connection,
@@ -529,6 +530,11 @@ internal object LuluBackgroundPhoneContinuation {
                 history.appendLine("下一步结构无效；没有替本人猜测操作")
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             }
+            com.jiacimu.lulu.data.CharacterObservedMoment.recordScene(
+                characterId, response, "手机任务", requestId, "step-$index",
+                if (image == null) "角色收到了当前手机任务步骤的执行回执，本轮未提供屏幕图像。"
+                else "角色收到了当前手机任务步骤的真实屏幕画面和执行回执。",
+            )
             when (decision.optString("decision")) {
                 "finish" -> {
                     val reason = decision.optString("reason").trim()

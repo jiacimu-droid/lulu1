@@ -298,6 +298,7 @@ internal fun WatchTogetherRoom(
         }
         busy = true
         error = ""
+        val observedTurn = UUID.randomUUID().toString()
         scope.launch {
             try {
                 val storyboard = watchFrames(context, uri, frameTimes)
@@ -320,7 +321,7 @@ internal fun WatchTogetherRoom(
                         else "用户想听听你对目前共同看过内容的想法。"
                     })
                 }
-                val raw = LuluAiServices.gateway.generate(
+                val reply = LuluAiServices.gateway.generate(
                     characterId = characterId, facts = facts,
                     instruction = """
                         这是露露机真实生活里的共同观影场景，不是一次陌生的照片鉴定。
@@ -339,9 +340,11 @@ internal fun WatchTogetherRoom(
                         impression 是你的主观看法，不是事实和对用户人格的判断。
                     """.trimIndent(),
                     source = "一起看", title = "一起看 · " + characterName,
+                    capturePrivateMoment = true,
                     usage = ModelUsage.Chat, maxTokens = 440,
                     imageDataUrls = storyboard.map { it.second },
-                ).getOrThrow().text.trim()
+                ).getOrThrow()
+                val raw = reply.text.trim()
                 if (roomId != currentRoom || requestRevision != revision) return@launch
                 val fence = 96.toChar().toString().repeat(3)
                 val cleaned = raw.removePrefix(fence + "json").removePrefix(fence)
@@ -350,6 +353,15 @@ internal fun WatchTogetherRoom(
                 val speech = if (json != null) {
                     if (json.optBoolean("speak", true)) json.optString("text").trim() else ""
                 } else raw.takeUnless { it.startsWith("{") || it.startsWith("[") }.orEmpty()
+                if (json != null && (snapshot.observedMs(at) > 0L || comment.isNotBlank())) {
+                    com.jiacimu.lulu.data.CharacterObservedMoment.recordScene(
+                        characterId, reply, "一起看", currentRoom, observedTurn,
+                        "共同观看《$title》，实际观看时长 ${snapshot.observedMs(at) / 1000} 秒，" +
+                            "播放头 ${at / 1000} 秒。" +
+                            comment.takeIf(String::isNotBlank)?.let { "用户说：${it.take(300)}" }.orEmpty(),
+                        speech,
+                    )
+                }
                 val impression = json?.optString("impression")?.trim().orEmpty()
                 if (impression.isNotBlank()) {
                     record(characterName, "[" + (at / 1000) + "秒] 片中阶段印象（主观）：" +

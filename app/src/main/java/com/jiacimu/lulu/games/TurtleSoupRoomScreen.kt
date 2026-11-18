@@ -272,6 +272,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     maxTokens = 240,
                     usage = ModelUsage.Game,
                     contextMode = if (actor == null) CompanionContextMode.Isolated else CompanionContextMode.Full,
+                    capturePrivateMoment = actor != null,
                 )
                 if (room.id != snapshot.id || room.pendingSpeech.firstOrNull() != index || room.revealed) return@launch
                 val decision = result.getOrNull()?.let { parseSoupSpeechTurn(it.text, actorName) }
@@ -294,6 +295,12 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                 }
                 lastAutonomousTrigger = next.lines.size
                 if (actor != null) {
+                    result.getOrNull()?.let { reply ->
+                        com.jiacimu.lulu.data.CharacterObservedMoment.recordScene(
+                            actor, reply, "海龟汤", snapshot.id, "voice-$index",
+                            "玩家在共同游戏中说：${snapshot.lines[index].text.take(350)}", decision.reply,
+                        )
+                    }
                     companionCursor++
                     for (reply in replyIndex until next.lines.size) {
                         rememberCompanionLine(actor, next, reply)
@@ -368,6 +375,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     // life; only the sealed current-case truth stays unavailable.
                     // Independent fixed hosts remain isolated objective judges.
                     source = "游戏 · 海龟汤同伴推理",
+                    capturePrivateMoment = true,
                     title = "海龟汤 · 同伴推理",
                     maxTokens = 220,
                     usage = ModelUsage.Game,
@@ -377,11 +385,16 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                     val parsed = parseSoupCompanionDecision(response.text)
                     if (parsed == null) {
                         error = "同伴的本轮决定格式不正确，未写入对局。可以再试。"
-                    } else if (room.id == snapshot.id) {
+                    } else if (room.id == snapshot.id && room.lines == snapshot.lines && !room.revealed) {
                         if (parsed.type == "question" && !room.canAsk) {
                             error = "同伴想继续提问，但12问挑战已满；本轮未写入对局，可重新决定。"
                             return@onSuccess
                         }
+                        com.jiacimu.lulu.data.CharacterObservedMoment.recordScene(
+                            actor, response, "海龟汤", snapshot.id, "guess-${snapshot.lines.size}",
+                            "与同桌玩家观察同一题面的公开线索；当前已记录${snapshot.lines.size}条公开发言。",
+                            parsed.text,
+                        )
                         when (parsed.type) {
                             "wait" -> Unit
                             "discussion", "question", "solve" -> {

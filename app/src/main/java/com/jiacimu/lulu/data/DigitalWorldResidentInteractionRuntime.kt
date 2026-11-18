@@ -99,6 +99,7 @@ internal object DigitalWorldResidentInteractionRuntime {
                     自然、独立、有理由，可以简短；没有真实执行回执不声称做完另一件事。
                 """.trimIndent(),
                 source = "数字世界居民交流", title = "与${resident.name}说话", maxTokens = 1300,
+                capturePrivateMoment = true,
                 connectionOverride = actorConnection,
             ).getOrThrow()
             val actorJson = ModelStructuredOutput.objectOrNull(actorReply.text)
@@ -126,6 +127,7 @@ internal object DigitalWorldResidentInteractionRuntime {
                     }.orEmpty()}
                 """.trimIndent(),
                 source = "数字世界原住民交流", title = "与${character.displayName}交谈", maxTokens = if (episodeStep == null) 1400 else 1900,
+                capturePrivateMoment = true,
                 connectionOverride = nativeConnection,
             ).getOrThrow()
             val nativeJson = ModelStructuredOutput.objectOrNull(nativeReply.text)
@@ -218,6 +220,12 @@ internal object DigitalWorldResidentInteractionRuntime {
                         innerThought = null, mood = feeling, source = "数字世界·居民相处",
                         now = now, provenanceId = "meeting-${session.id}-presence-resident")
                 }
+                CharacterObservedMoment.record(
+                    characterId, actorReply, evidenceIds[actorIndex], "数字世界交流", actorText, now,
+                )
+                CharacterObservedMoment.record(
+                    nativeId, nativeReply, nativeEvidenceIds.first(), "数字世界交流", nativeText, now,
+                )
                 DigitalWorldExpansionStore.moveResident(resident.id, location, now)
             }
             // Publish a readable, multi-person literary rendering only AFTER

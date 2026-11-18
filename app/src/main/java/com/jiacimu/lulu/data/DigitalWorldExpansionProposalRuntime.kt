@@ -111,6 +111,7 @@ internal object DigitalWorldExpansionProposalRuntime {
             """.trimIndent() + (if (allowResidents) "" else
                 "\n主人当前已禁止新增居民或人数已达上限，只能选择 action=none/place，不能提出 resident。"),
             source = "数字世界扩展提案",
+            capturePrivateMoment = true,
             title = "${character.displayName}的低频世界提案",
             maxTokens = 700,
             connectionOverride = connection,
@@ -118,8 +119,15 @@ internal object DigitalWorldExpansionProposalRuntime {
         ).getOrNull() ?: return null
         val proposal = parseObject(result.text) ?: return null
         // The owner can stop auto generation while an asynchronous proposal is in flight.
-        if (!ResidentDailyPolicy.allowNewResidents(context)) return null
-        return when (proposal.optString("action").trim().lowercase()) {
+        if (!ResidentDailyPolicy.allowNewResidents(context) || !DigitalLifeProfileStore.isEnabled(characterId)) return null
+        val action = proposal.optString("action").trim().lowercase()
+        if (action in setOf("none", "place", "resident")) {
+            CharacterObservedMoment.recordScene(
+                characterId, result, "数字世界", "world-expansion", slot.toString(),
+                "本人看到了当前数字世界已登记的公共地点与居民，正在考虑是否提出扩展。",
+            )
+        }
+        return when (action) {
             "place" -> applyPlaceProposal(characterId, proposal, availableLocations, now)
             "resident" -> if (ResidentDailyPolicy.mayAddResident(context, DigitalWorldExpansionStore.residents().size))
                 applyResidentProposal(characterId, proposal, availableLocations, now) else null

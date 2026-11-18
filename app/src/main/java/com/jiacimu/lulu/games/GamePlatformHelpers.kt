@@ -40,6 +40,8 @@ internal fun requestGameRoleResponse(
     onState: (GameRoleResponse) -> Unit,
     maxTokens: Int = 500,
     characterIdOverride: String? = null,
+    liveRoomId: String? = null,
+    isLiveRoomCurrent: () -> Boolean = { true },
 ) {
     val snapshot = store.state.value
     // A joined game room has explicit participant identity even when the lobby's
@@ -55,10 +57,15 @@ internal fun requestGameRoleResponse(
             onState(GameRoleResponse(error = error.message ?: "请先选择游戏模型"))
             return@launch
         }
+        val role = characterIdOverride ?: snapshot.selectedCharacterId
+        val capturesMoment = recordId != null || liveRoomId != null
+        val turnId = java.util.UUID.randomUUID().toString()
         val result = LuluAiServices.gateway.generate(
-            characterId = characterIdOverride ?: snapshot.selectedCharacterId,
+            characterId = role,
             facts = facts,
-            instruction = instruction,
+            instruction = if (capturesMoment) instruction +
+                "\n用JSON对象返回，text是你真正愿意说的话，选择安静时留空。" else instruction,
+            capturePrivateMoment = capturesMoment,
             source = "游戏",
             title = title,
             maxTokens = maxTokens,
@@ -67,8 +74,19 @@ internal fun requestGameRoleResponse(
         result.onSuccess { reply ->
             // Round-by-round banter can exist inside a match without becoming a persistent game
             // record. Only callers that pass the final match record attach the reply to history.
-            recordId?.let { id -> store.attachCharacterReply(id, reply.text) }
-            onState(GameRoleResponse(text = reply.text))
+            val structured = com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(reply.text)
+            val speech = if (capturesMoment && structured != null) structured.optString("text") else reply.text
+            if (recordId != null) {
+                com.jiacimu.lulu.data.CharacterObservedMoment.record(
+                    role, reply, "游戏结算", evidenceId = "game-raw-$recordId", outward = speech,
+                )
+                store.attachCharacterReply(recordId, speech)
+            } else if (liveRoomId != null && isLiveRoomCurrent()) {
+                com.jiacimu.lulu.data.CharacterObservedMoment.recordScene(
+                    role, reply, "游戏连麦", liveRoomId, turnId, facts, outward = speech,
+                )
+            }
+            onState(GameRoleResponse(text = speech))
         }.onFailure { error ->
             onState(GameRoleResponse(error = error.message ?: "角色回应生成失败，请重试。"))
         }

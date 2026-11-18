@@ -129,6 +129,8 @@ data class ModelReply(
     val voiceBubbleSpeechTracks: List<String> = emptyList(),
     /** Local-only correlation passed from the role decision to its real delivery. */
     val diagnosticTurnTraceId: String = "",
+    internal val privateMoment: JSONObject? = null,
+    internal val privateMomentOwner: String = "",
 )
 
 class ModelConnectionStore private constructor(context: Context) {
@@ -550,6 +552,7 @@ class CompanionModelGateway(
          * sees one more bubble or uses a slightly different context window.
          */
         backgroundEvidenceKey: String? = null,
+        capturePrivateMoment: Boolean = false,
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
         val totalStartedAt = System.nanoTime()
         var requestUrl: String? = null
@@ -560,6 +563,11 @@ class CompanionModelGateway(
         var failedRequestBytes = 0L
         runCatching {
             val promptStartedAt = System.nanoTime()
+            val collectMoment = capturePrivateMoment && onStreamText == null &&
+                contextMode in setOf(CompanionContextMode.Full, CompanionContextMode.CharacterAndScenario)
+            val outputLimit = if (collectMoment) maxTokens?.plus(260) else maxTokens
+            val momentProtocol = if (collectMoment) "\n" +
+                com.jiacimu.lulu.data.CharacterObservedMoment.instruction else ""
             val requestedArchiveId = if (source.startsWith("末世求生")) {
                 ScopedModelSelections.selectedArchiveId(ScopedModelSelections.APOCALYPSE)
             } else if (connectionOverride == null &&
@@ -928,7 +936,7 @@ class CompanionModelGateway(
                     "当前数字人物与QQ好友权威登记" to liveSocialAuthority),
                 dynamicTail = listOf("本轮表达证据" to speechIdentitySection) +
                     conversationMaterials +
-                    listOf("本轮任务指令" to "本次任务：$instruction",
+                    listOf("本轮任务指令" to "本次任务：$instruction$momentProtocol",
                         "本轮头像观察说明" to ownerAvatar?.promptNote.orEmpty(),
                         "权威现实时钟" to authoritativeClock),
                 bottomWorldBooks = bottomWorldBooks,
@@ -980,7 +988,7 @@ class CompanionModelGateway(
                 "currentChars=${userPrompt.length};" +
                 "historyMessages=${dialogueHistory.size};images=${imagesForThisTurn.size};" +
                 "transport=${if (streamResponse) "sse" else "json"};" +
-                "maxTokens=${maxTokens ?: "unset"};contextMode=${effectiveMode.name};" +
+                "maxTokens=${outputLimit ?: "unset"};contextMode=${effectiveMode.name};" +
                 "largestSections=$largestSections"
             val reducedSections = if (RelayRequestPressurePolicy.canRecover(source))
                 RelayRequestPressurePolicy.compactSectionPairs(systemOnlySections) else emptyList()
@@ -1020,7 +1028,7 @@ class CompanionModelGateway(
                     connection = connection,
                     system = if (sentReduced) reducedSystem else systemPrompt,
                     user = userPrompt,
-                    maxTokens = maxTokens,
+                    maxTokens = outputLimit,
                     streamResponse = streamResponse,
                     readTimeoutMillis = readTimeoutMillis,
                     onStreamText = onStreamText,
@@ -1068,7 +1076,7 @@ class CompanionModelGateway(
                     connection = connection,
                     system = reducedSystem,
                     user = userPrompt, // preserve the complete current user turn
-                    maxTokens = maxTokens,
+                    maxTokens = outputLimit,
                     streamResponse = streamResponse,
                     readTimeoutMillis = readTimeoutMillis,
                     onStreamText = onStreamText,
@@ -1174,7 +1182,7 @@ class CompanionModelGateway(
                 streamedRequest = streamResponse,
                 turnTraceId = turnTraceId,
             )
-            reply
+            if (collectMoment) com.jiacimu.lulu.data.CharacterObservedMoment.detach(characterId, reply) else reply
         }.onFailure { error ->
             // Cancellation is control flow (newer chat turn, screen transition
             // or an explicit Stop), not an HTTP/model error. Propagating it is

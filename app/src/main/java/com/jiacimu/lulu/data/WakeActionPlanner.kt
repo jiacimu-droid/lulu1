@@ -44,7 +44,7 @@ internal object WakeActionPlanner {
         val fallback = Choice(Cue.RING, systemFallback = true,
             executionIssue = "模型未能作出有效叫醒决定，由本机铃声应急保底")
         val canMusic = musicAllowed(context, task.characterId)
-        val raw = try {
+        val modelReply = try {
             withTimeoutOrNull(20_000L) {
                 // Cold-process AlarmManager deliveries are allowed to use the
                 // same configured character model as foreground conversations.
@@ -101,17 +101,27 @@ internal object WakeActionPlanner {
                     模型超时、网络不通时，已有安卓叫醒响铃负责兜底。
                 """.trimIndent(),
                 source = "到点叫醒决策",
+                capturePrivateMoment = true,
                 title = "角色自主叫醒",
                 maxTokens = 320,
                 usage = ModelUsage.Chat,
-            ).getOrNull()?.text
+            ).getOrNull()
             }
         } catch (cancelled: kotlinx.coroutines.CancellationException) {
             throw cancelled
         } catch (_: Exception) {
             null // Never sacrifice the audible Android fallback for AI failure.
         } ?: return fallback
-        return honorFirstWakePromise(parseChoice(raw, canMusic, inCall), task.attemptCount)
+        val parsed = parseChoice(modelReply.text, canMusic, inCall)
+        if (!parsed.systemFallback &&
+            CommitmentTaskStore.tasks.value.any { it == task }) {
+            CharacterObservedMoment.recordScene(
+                task.characterId, modelReply, "叫醒复查", task.id, "${task.dueAt}:${task.attemptCount}:$now",
+                "在约定时段复查本人负责的叫醒任务；${if (inCall) "电话仍接通" else "当前未通话"}。",
+                parsed.openingLine,
+            )
+        }
+        return honorFirstWakePromise(parsed, task.attemptCount)
     }
 
     /** The owner explicitly promised the first audible ring. A valid but
