@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T09:42:12.093750+00:00",
-  "commit": "b4fa90eaddb6ae854f74071228ae29b948df49f2",
+  "generatedAt": "2026-11-18T09:45:00.109467+00:00",
+  "commit": "760f12eabd516412110760329241961d33fe8425",
   "branch": "main",
-  "sourceFingerprint": "af7e300b84af06810cd6926ea97f0ca4da6bb5e7cb3cb4e69d2ec5b24e6f1aef",
+  "sourceFingerprint": "df1a2620e8d0950a5796b3a42faa9ba9f7bc57e517dc35acf7747547934913f1",
   "summary": {
     "files": 1461,
-    "lines": 309459,
+    "lines": 309469,
     "symbols": 4404
   },
   "symbolIndex": {
@@ -33034,8 +33034,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt",
-      "lines": 95,
-      "sha256": "74aa60bcf774efb2c3d3057d3b763241c70f196ed8d5c45b22aa533c28b14f51",
+      "lines": 105,
+      "sha256": "72b5ca352fe6e8044820df9b66c9fce4c0e75edc233868da83e7586f98259f8a",
       "symbols": [
         {
           "name": "turns",
