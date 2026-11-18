@@ -11,6 +11,22 @@ import org.json.JSONObject
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class LuluBackgroundPhoneContinuationYieldTest {
+    @Test fun distinctFailedRoutesRemainExploreableOnlyWithRealCurrentPageEvidence() {
+        val ownedPage = JSONObject()
+            .put("targetWindowVerified", true)
+            .put("uiTreeFingerprint", "real-current-editor-tree")
+        assertFalse(LuluBackgroundPhoneContinuation.failuresExhaustedWithoutScreen(
+            2, ownedPage, null))
+        assertFalse(LuluBackgroundPhoneContinuation.failuresExhaustedWithoutScreen(
+            5, JSONObject().put("targetWindowVerified", true), "actual-current-frame"))
+        assertTrue(LuluBackgroundPhoneContinuation.failuresExhaustedWithoutScreen(
+            2, JSONObject().put("targetWindowVerified", false), "unowned-image"))
+        assertTrue(LuluBackgroundPhoneContinuation.failuresExhaustedWithoutScreen(
+            2, JSONObject().put("targetWindowVerified", true), null))
+        assertFalse(LuluBackgroundPhoneContinuation.failuresExhaustedWithoutScreen(
+            1, null, null))
+    }
+
     @Test fun historicalPhoneReceiptsNeverBecomeNewAttemptsOrGestures() {
         val current = JSONObject().put("mode", "independent_virtual_display")
             .put("status", "observed").put("success", true)
