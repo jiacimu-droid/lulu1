@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:10:56.258570+00:00",
-  "commit": "2d3dba6e300d3a341568a4083314ce35aea975c8",
+  "generatedAt": "2026-11-18T11:12:59.836480+00:00",
+  "commit": "3d5a82fbc70b892eba0ab8f1dc1b454fc442ccad",
   "branch": "main",
-  "sourceFingerprint": "93ce2e09a0ee4502e252402f4520a79e0ba958a26a70372e3f8506296e74f75d",
+  "sourceFingerprint": "e5937e539ca5b994e1b833f24f7c65ff14052e00b48720405668a8252aa79d98",
   "summary": {
     "files": 1465,
-    "lines": 310337,
+    "lines": 310359,
     "symbols": 4422
   },
   "symbolIndex": {
@@ -8075,7 +8075,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-        "line": 363
+        "line": 381
       }
     ],
     "axis": [
@@ -23369,7 +23369,7 @@
     "savedPlan": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-        "line": 494
+        "line": 512
       }
     ],
     "ScheduledReminderDeliveryTest": [
@@ -32724,7 +32724,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
       "lines": 494,
-      "sha256": "1e974198c026da537334900e6967d9aa04168e3dc31a92f39d2ab9fb7a87a739",
+      "sha256": "717a09911a6d208d3783dc46a63bd79b5509ae35da233586156ab21507006b1b",
       "symbols": [
         {
           "name": "normalize",
@@ -37185,8 +37185,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 1067,
-      "sha256": "1a5b35f7b754ab89914e9b2645ec2b37d3ed05fb7484b0240ed2be64c816e13b",
+      "lines": 1071,
+      "sha256": "fc75a0de57518d264a51f48dd5b673d7563005e8c578bec5b9796869b9feffac",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -49978,8 +49978,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-      "lines": 573,
-      "sha256": "19ebd63bbf7f134db6b09a46c9b78db1258ff5d28a19b35c31b25507cb289609",
+      "lines": 591,
+      "sha256": "56e1dd6e30a1e99e9e4995514b4c41fd810d45908375661717b52f7f665da880",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",
@@ -49987,11 +49987,11 @@
         },
         {
           "name": "completed",
-          "line": 363
+          "line": 381
         },
         {
           "name": "savedPlan",
-          "line": 494
+          "line": 512
         }
       ]
     },
