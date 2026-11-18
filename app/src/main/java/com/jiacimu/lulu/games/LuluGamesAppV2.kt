@@ -60,7 +60,8 @@ fun LuluGamesAppV2(onBack: () -> Unit, initialGameId: String? = null) {
     var selectedReplayId by rememberSaveable { mutableStateOf<String?>(null) }
     var fullscreenReplayId by rememberSaveable { mutableStateOf<String?>(null) }
 
-    LuluGamesApp(onBack = onBack, initialGameId = initialGameId,
+    Box(Modifier.fillMaxSize()) {
+        LuluGamesApp(onBack = onBack, initialGameId = initialGameId,
         onReplayCenter = { replayCenterVisible = true },
         replayLandscapeGameId = if (fullscreenReplayId != null) "relic_escape" else null,
         fullscreenReplayId = fullscreenReplayId,
@@ -82,6 +83,7 @@ fun LuluGamesAppV2(onBack: () -> Unit, initialGameId: String? = null) {
             },
         )
     }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,20 +98,26 @@ private fun UniversalReplayCenter(
 ) {
     val selected = records.firstOrNull { it.id == selectedId }
     var showReplay by rememberSaveable(selectedId) { mutableStateOf(false) }
-    BackHandler(enabled = selected != null) {
-        if (showReplay) showReplay = false
-        else onSelectRecord(null)
+    BackHandler {
+        when {
+            showReplay -> showReplay = false
+            selected != null -> onSelectRecord(null)
+            else -> onDismiss()
+        }
     }
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        containerColor = LuluColors.Paper,
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = LuluColors.Paper,
     ) {
         if (selected == null) {
             Column(
-                modifier = Modifier.fillMaxWidth().fillMaxHeight(0.88f).padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Outlined.ArrowBack, "返回游戏馆")
+                    }
                     Column(Modifier.weight(1f)) {
                         Text("游戏战绩", style = MaterialTheme.typography.headlineMedium)
                         Text("一起玩只记结果；角色独自玩才可以看他的实际操作。", color = LuluColors.Muted)
@@ -213,7 +221,7 @@ internal fun UniversalGameResult(record: LuluGameRecord, onBack: () -> Unit, onR
     val accent = Color(0xFF9BE6D8)
     val ink = Color(0xFF102333)
     Column(
-        Modifier.fillMaxWidth().fillMaxHeight(.88f).background(Color(0xFF101B27))
+        Modifier.fillMaxWidth().fillMaxHeight().background(Color(0xFF101B27))
             .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
@@ -387,7 +395,7 @@ internal fun UniversalGameReplay(record: LuluGameRecord, onBack: () -> Unit) {
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth().fillMaxHeight(0.88f).padding(horizontal = 16.dp),
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
