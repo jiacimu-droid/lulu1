@@ -94,7 +94,7 @@ internal val luluGuideFeatures = listOf(
         MigrationRoute.SelfPreface, "打开自序",
         highlights = listOf("自序待办 × 角色主动跟进", "监督凭证据，不凭猜测")),
     LuluGuideFeature("search", "搜索 API · 角色的求知欲", Icons.Outlined.TravelExplore,
-        "设置 → 搜索服务 / 角色授权；查手机 → 浏览器",
+        "设置 → 联网与扩展 → 网络搜索；查手机 → 浏览器",
         "你不说话时，角色也可以因自己的好奇心、计划或挂心的事主动查资料。",
         listOf("配置可用的网页搜索 API；角色可在获准时选择搜索知识、查证问题，并决定是否继续阅读。", "网页结果会留下搜索和阅读回执，供后续记忆与交流使用；你可以在「查手机 → 浏览器」回看记录。"),
         "搜索结果不等于读完网页；能否实际搜索取决于提供商、API Key、网络和角色授权。",
@@ -263,7 +263,7 @@ internal fun LuluOnboardingGuideScreen(
                         Text("记得你的故事，也会自己观察、思考与行动。", color = muted,
                             fontSize = 13.sp, lineHeight = 20.sp)
                         Spacer(Modifier.height(22.dp))
-                        Text("从这里认识露露机", color = ink, fontSize = 17.sp,
+                        Text("四个最值得体验的地方", color = ink, fontSize = 17.sp,
                             fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(10.dp))
                         luluGuideHeroHighlights.chunked(2).forEach { pair ->
@@ -406,7 +406,7 @@ internal fun LuluOnboardingGuideScreen(
                     }
                 }
                 item {
-                    Text("示意图为通用样例，不包含个人数据。",
+                    Text("操作示意为通用样例，不含个人数据。",
                         color = muted, fontSize = 11.sp, lineHeight = 18.sp,
                         modifier = Modifier.padding(top = 10.dp))
                 }
