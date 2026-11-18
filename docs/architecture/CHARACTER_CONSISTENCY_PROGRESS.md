@@ -52,7 +52,7 @@
 
 - 沿上轮固定入口核 `CharacterLifeStore.setRelationshipAgreement` 与 `CharacterSocialRelationship.agreement`，原 Store 已保存明确空条目，原网关每次请求重新读取当前定义。本轮未证实生产缓存残留，补此前缺失的失败后部分/全部清空反例。
 - [ee7cd58c](https://github.com/jiacimu-droid/lulu1/commit/ee7cd58ca8b9e03f10b6136a22ba774e3f62e8cf) 新增 `RelationshipPreferenceGatewayTest.failedPhoneExpressionDoesNotRestoreClearedRelationshipFields`，正式 CharacterAndScenario 电话表达 HTTP 401→只清关系标题→保持完整长约定和尾部条件→再清两字段→重建网关→本人电话请求不再带旧关系→另一人物约定仍完整。检查实际 HTTP 请求、空条目持久状态及四次请求数。只改测试，不改人物配置或运行时调用。
-- [精确 JVM/APK #44245131129](https://github.com/jiacimu-droid/lulu1/actions/runs/44245131129) 与 [索引 #44245131141](https://github.com/jiacimu-droid/lulu1/actions/runs/44245131141) 待核。前轮手改人格失败回归及完整 JVM/APK 已在 [#44237619598/job 134578616033](https://github.com/jiacimu-droid/lulu1/actions/runs/44237619598/job/134578616033) 成功，旧游戏失败不再作为持续阻塞。
+- [精确 JVM/APK #44245131129/job 134602883673](https://github.com/jiacimu-droid/lulu1/actions/runs/44245131129/job/134602883673) 成功，新增失败后清空回归、上轮失败后手改回归均通过；全量 `:app:testPhoneUnitTest` 与 `:app:assemblePhone` 成功，已生成 [APK 14401483823](https://github.com/jiacimu-droid/lulu1/actions/runs/44245131129/artifacts/14401483823)。[原索引 #44245131141](https://github.com/jiacimu-droid/lulu1/actions/runs/44245131141) 成功。前轮手改人格失败回归及完整 JVM/APK 已在 [#44237619598/job 134578616033](https://github.com/jiacimu-droid/lulu1/actions/runs/44237619598/job/134578616033) 成功，旧游戏失败不再作为持续阻塞。
 - 真机和真实模型待验。下一步转同一 P-08b.1 的原世界表达与本人心声来源，打开 `CharacterRuntime.leanExpressionContext` 与 `CharacterSpeechIdentity`，查它们是否把另场景已过期的关系观察重新解释为当前已保存约定。已有明确证据/测试则不重复修改。
 
 ## 2026-11-18 · P-08b.1 失败请求后手改人格与关系的跨场景投影
