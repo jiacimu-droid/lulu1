@@ -57,8 +57,8 @@ class LuluDesktopWidgetTest {
     }
 
     @Test fun addingWidgetsAvoidsEveryOccupiedLauncherCellAndWidget() {
-        val slots = MutableList<String?>(32) { null }
-        slots[16] = "chat"
+        val slots = MutableList<String?>(64) { null }
+        slots[desktopSlotIndex(1, 0, 0)] = "chat"
         val first = luluPlaceWidget(LuluWidgetKind.NOTE, 1, emptyList(), slots)!!
         assertTrue(luluWidgetFits(first, emptyList(), slots))
         assertFalse(first.col == 0 && first.row == 0)
