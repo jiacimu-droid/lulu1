@@ -60,6 +60,27 @@ class RelicVaultPersistenceTest {
         assertEquals(secondSale,RelicEscapeLedger(context).sellLoot(second.id))
     }
 
+    @Test fun museumRowSelectionSellsSecondDuplicateAndRejectsStaleTapAfterReload() {
+        val context=RuntimeEnvironment.getApplication()
+        val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
+        prefs.edit().clear().commit()
+        val first=RelicLoot("legacy-same","月银胸针",RelicTier.RARE,220)
+        val second=RelicLoot("legacy-same","幽蓝宝石",RelicTier.RARE,410)
+        val initial=RelicSnapshot(vault=listOf(first,second),coins=30)
+        assertTrue(prefs.edit().putString("ledger",initial.json().toString()).commit())
+        val ledger=RelicEscapeLedger(context)
+        val sold=ledger.sellLootAt(1,second)
+        assertEquals(listOf(first),sold.vault)
+        assertEquals(440,sold.coins)
+        assertEquals(sold,RelicEscapeLedger(context).read())
+        assertEquals(sold,ledger.sellLootAt(1,second))
+        assertEquals(sold,ledger.sellLootAt(0,second))
+        val final=RelicEscapeLedger(context).sellLootAt(0,first)
+        assertTrue(final.vault.isEmpty())
+        assertEquals(660,final.coins)
+        assertEquals(final,RelicEscapeLedger(context).read())
+    }
+
     @Test fun realOwnedExhibitSurvivesReentryAndSellingClearsOnlyItsPedestal() {
         val context=RuntimeEnvironment.getApplication()
         val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
