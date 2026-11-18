@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T15:01:00.063777+00:00",
-  "commit": "157962eb0f409b02843a0aed611fb9c790b53c0f",
+  "generatedAt": "2026-11-18T15:03:24.642070+00:00",
+  "commit": "3925d261cba6e274a71d4c4be5cfb2893f0f1776",
   "branch": "main",
-  "sourceFingerprint": "6c1be8b9d17b00335f9258db1e93ae135e8015fcde951c0f4d6fbd8137f3a461",
+  "sourceFingerprint": "51bf0e9e878dd15ea1f500797b918eb2620055bc727e9f56b281b98741201a0a",
   "summary": {
     "files": 1473,
-    "lines": 311693,
+    "lines": 311712,
     "symbols": 4451
   },
   "symbolIndex": {
@@ -5985,7 +5985,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 602
+        "line": 619
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt",
@@ -30496,7 +30496,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 204,
-      "sha256": "27c33ac92a04cc8efc0f67fd64dab198bfcc2e29e635d041d45b2133d8a6ab1a",
+      "sha256": "8439438fe975495db9af77286f7f9b8fa53ec66f023c59f570e92f7052a5fd80",
       "symbols": [
         {
           "name": "Capability",
@@ -37781,8 +37781,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 721,
-      "sha256": "cfa87572f6388e29028606909cb897ef1628883f300a02b37d1f7d05512be6ad",
+      "lines": 738,
+      "sha256": "17b0c212ab29da628961c0161a35d96942940e60d3113c58cf49d4be03415399",
       "symbols": [
         {
           "name": "completed",
@@ -37814,7 +37814,7 @@
         },
         {
           "name": "project",
-          "line": 602
+          "line": 619
         }
       ]
     },
@@ -43202,8 +43202,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2407,
-      "sha256": "5e2ff584d29105ddc51be841b74225f64aa0d983334165f8fbc286f915c317cd",
+      "lines": 2409,
+      "sha256": "95415746e95cb19165efa64d7d1ca56fb6d767561a6deea33da81b1a98ed469b",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
