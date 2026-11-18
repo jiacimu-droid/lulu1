@@ -248,7 +248,7 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
             onUpgradeWeapon={change{ledger.upgradeWeapon()}},
             onBuyBow={change{ledger.buyBow()}},
             onUpgradeSatchel={change{ledger.upgradeSatchel()}},
-            onSellLoot={id->change{ledger.sellLoot(id)}},
+            onSellLoot={index,item->change{ledger.sellLootAt(index,item)}},
             onFeatureLoot={id->change{ledger.featureLoot(id)}},
         )
         return
