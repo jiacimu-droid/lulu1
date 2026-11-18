@@ -581,8 +581,22 @@ class InMemoryLuluChatStore : LuluChatStore {
         ).also { message ->
             val visible = CharacterMessageNotifications.visibleConversation(conversationId)
             append(conversationId, message, incrementUnread = !visible, durable = !visible)
-            if (!onBehalfByOwner) CompanionPresenceStore.bindDeliveredMessage(
-                effectiveAuthorId, message.id, message.createdAt)
+            if (!onBehalfByOwner) {
+                // Freeze the exact decision's authored heart voice as soon as
+                // this bubble is real. Tool-first turns can keep operating for
+                // minutes after the first reply; waiting for their final receipt
+                // makes the avatar incorrectly claim there is no bound moment.
+                val turnMoment = CompanionPresenceStore.deliveryMomentFor(effectiveAuthorId)
+                if (turnMoment != null) {
+                    CompanionPresenceStore.bindVerifiedDeliveredMessageMoment(
+                        effectiveAuthorId, message.id, turnMoment,
+                    )
+                } else {
+                    CompanionPresenceStore.bindDeliveredMessage(
+                        effectiveAuthorId, message.id, message.createdAt,
+                    )
+                }
+            }
             appContext?.let { context ->
                 conversationState.value.firstOrNull { it.id == conversationId }?.let { savedConversation ->
                     runCatching { CharacterMessageNotifications.onSaved(context, savedConversation, message) }
