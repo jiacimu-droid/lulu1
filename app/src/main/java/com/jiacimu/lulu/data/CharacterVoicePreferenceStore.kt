@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-/** Per-character speech preferences for generated chat replies and MiniMax playback. */
+/** Independent per-provider voice IDs, edited through a unified role field. */
 object CharacterVoicePreferenceStore {
     private const val PREFS_NAME = "lulu_character_voice_preferences"
     private const val AUTO_PLAY_PREFIX = "auto_play_"
@@ -66,8 +66,28 @@ object CharacterVoicePreferenceStore {
     }
 
     fun realtimeVoiceId(characterId: String): String? = prefs?.getString("eleven_voice:$characterId", null)?.takeIf(String::isNotBlank)
-    fun playbackVoiceId(characterId: String): String? = if (advanced?.getString("tts_provider", "system") == "elevenlabs")
-        realtimeVoiceId(characterId) else voiceId(characterId)
+    fun mossVoiceId(characterId: String): String? =
+        prefs?.getString("moss_voice:" + characterId.trim(), null)?.trim()?.takeIf(String::isNotBlank)
+
+    fun setMossVoiceId(characterId: String, voiceId: String) {
+        val id = characterId.trim()
+        if (id.isNotBlank()) prefs?.edit()?.putString("moss_voice:" + id, voiceId.trim())?.apply()
+    }
+
+    fun playbackVoiceId(characterId: String): String? =
+        when (advanced?.getString("tts_provider", "system")) {
+            "elevenlabs" -> realtimeVoiceId(characterId)
+            "moss" -> mossVoiceId(characterId)
+            else -> voiceId(characterId)
+        }
+
+    fun setPlaybackVoiceId(characterId: String, voiceId: String) {
+        when (advanced?.getString("tts_provider", "system")) {
+            "elevenlabs" -> setRealtimeVoiceId(characterId, voiceId)
+            "moss" -> setMossVoiceId(characterId, voiceId)
+            else -> setVoiceId(characterId, voiceId)
+        }
+    }
     fun setRealtimeVoiceId(characterId: String, voiceId: String) {
         check(prefs?.edit()?.putString("eleven_voice:$characterId", voiceId.trim())?.putInt("eleven_voice_version:$characterId", (prefs?.getInt("eleven_voice_version:$characterId", 0) ?: 0) + 1)?.commit() == true)
     }

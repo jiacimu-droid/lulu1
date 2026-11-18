@@ -26,7 +26,7 @@ internal object VoiceSynthesisPolicy {
         if (!automaticAllowed(context)) return false
         val prefs = context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
         val provider = prefs.getString("tts_provider", "system").orEmpty()
-        if (provider !in setOf("elevenlabs", "minimax")) return true
+        if (provider !in setOf("elevenlabs", "minimax", "moss")) return true
         val manager = context.getSystemService(Context.AUDIO_SERVICE) as? android.media.AudioManager
         return manager == null || manager.getStreamVolume(android.media.AudioManager.STREAM_MUSIC) > 0
     }
@@ -39,7 +39,7 @@ internal object VoiceSynthesisPolicy {
     fun meetingPlayable(context: Context): Boolean {
         if (!enabled(context)) return false
         val prefs = context.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
-        if (prefs.getString("tts_provider", "system") !in setOf("elevenlabs", "minimax"))
+        if (prefs.getString("tts_provider", "system") !in setOf("elevenlabs", "minimax", "moss"))
             return true
         val audio = context.getSystemService(Context.AUDIO_SERVICE) as? android.media.AudioManager
         return audio == null || audio.getStreamVolume(android.media.AudioManager.STREAM_MUSIC) > 0
