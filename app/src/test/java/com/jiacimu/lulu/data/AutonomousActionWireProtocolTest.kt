@@ -10,6 +10,19 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class AutonomousActionWireProtocolTest {
+
+    @Test fun flatNativeMessageStepPreservesExactlyModelAuthoredBubbles() {
+        val authored = org.json.JSONArray().put("刚看到").put("其实还想再说一句")
+        val flat = JSONObject().put("tool", "send_character_message")
+            .put("targetCharacterId", "resident:someone").put("bubbles", authored)
+        val normalized = AutonomousActionWireProtocol.normalizeStep(flat)
+        assertEquals("send_character_message", normalized.getString("tool"))
+        assertEquals("resident:someone", normalized.getJSONObject("args")
+            .getString("targetCharacterId"))
+        assertEquals(listOf("刚看到", "其实还想再说一句"),
+            ResidentMessageBubbles.texts(normalized.getJSONObject("args")))
+        assertFalse(normalized.getJSONObject("args").has("text"))
+    }
     @Test fun explicitReadingOrDiaryToolNeverFallsThroughToSilent() {
         val reading = AutonomousActionWireProtocol.normalize(
             JSONObject().put("action", "read_book")
