@@ -16,7 +16,7 @@ class CharacterAccountabilityContextTest {
         assertTrue(guide.contains("稳定价值观"))
         assertTrue(guide.contains("即使她没有逐字说出任务名称"))
         assertTrue(guide.contains("一条睡前提醒"))
-        assertTrue(guide.contains("实际采取的动作"))
+        assertTrue(guide.contains("真实采取的动作与结果"))
         assertTrue(guide.contains("同一次思考"))
         assertTrue(guide.contains("不规定台词"))
         assertTrue(guide.contains("不强制道歉"))
