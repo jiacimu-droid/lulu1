@@ -332,7 +332,7 @@ fun LuluGamesApp(
                     )
                 }
             } else if (immersivePlay) {
-                val lightTable = route == GameRoute.TurtleSoup || route == GameRoute.MemoryMatch
+                val lightTable = route == GameRoute.TurtleSoup || route == GameRoute.MemoryMatch || route == GameRoute.YachtDice
                 val chromeInk = if (lightTable) GameDesign.ink else Color.White
                 Row(
                     modifier = Modifier.fillMaxWidth().height(54.dp)
