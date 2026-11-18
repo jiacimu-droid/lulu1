@@ -71,9 +71,15 @@ internal object LuluStrictMode {
         mode: String, foreground: String, lulu: String,
         exceptions: Set<String>, isProtected: Boolean,
         blockedPackages: Set<String> = emptySet(),
-    ): Boolean = mode in setOf("return", "home") && foreground.isNotBlank() &&
-        foreground != lulu && foreground !in exceptions && !isProtected &&
-        (blockedPackages.isEmpty() || foreground in blockedPackages)
+    ): Boolean = foreground.isNotBlank() && foreground != lulu && !isProtected &&
+        when (mode) {
+            // Lockdown is an explicit separate role choice. No custom allowlist
+            // overrides it; Android/system/privacy exceptions are still enforced.
+            "lockdown" -> true
+            "return", "home" -> foreground !in exceptions &&
+                (blockedPackages.isEmpty() || foreground in blockedPackages)
+            else -> false
+        }
 
     private fun notificationsReady(context: Context): Boolean {
         if (Build.VERSION.SDK_INT >= 33 &&
@@ -94,7 +100,8 @@ internal object LuluStrictMode {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val label = when (value.optString("mode")) {
             "return" -> "即时切回露露机"
-            "home" -> "即时返回桌面"
+            "home" -> "指定应用切回桌面"
+            "lockdown" -> "全面限制普通应用"
             else -> "高频观察应用"
         }
         context.getSystemService(NotificationManager::class.java).notify(
@@ -141,8 +148,8 @@ internal object LuluStrictMode {
         if (action == "adjust" && previous == null)
             return response(false, "inactive", "没有可以调整的监督会话")
         val mode = args.optString("mode", previous?.optString("mode") ?: "observe")
-        if (mode !in setOf("observe", "return", "home"))
-            return response(false, "invalid", "mode 仅支持 observe/return/home")
+        if (mode !in setOf("observe", "return", "home", "lockdown"))
+            return response(false, "invalid", "mode 仅支持 observe/return/home/lockdown")
         if (mode != "observe" && !LuluScreenAwareness.directReturnAllowed(context))
             return response(false, "denied", "主人未开启直接切回授权")
         val goal = args.optString("goal", previous?.optString("goal").orEmpty()).trim()
@@ -281,7 +288,7 @@ internal object LuluStrictMode {
         if (attempt) lastReturnAttemptAt = now
         val accepted = when {
             !attempt -> false
-            session.optString("mode") == "home" ->
+            session.optString("mode") in setOf("home", "lockdown") ->
                 LuluAccessibilityService.requestOwnerHome()
             else -> LuluAccessibilityService.requestLuluForeground(context)
         }
@@ -291,7 +298,7 @@ internal object LuluStrictMode {
             val after = LuluAccessibilityService.ownerForegroundPackage().orEmpty()
             val confirmed = attempt && accepted && after.isNotBlank() &&
                 when (session.optString("mode")) {
-                    "home" -> homePackage != null && after == homePackage
+                    "home", "lockdown" -> homePackage != null && after == homePackage
                     "return" -> after == context.packageName
                     else -> false
                 }
@@ -377,9 +384,13 @@ internal object LuluStrictMode {
             "；直接切回授权=" + LuluScreenAwareness.directReturnAllowed(context) +
             "；本角色状态=" + status(context, role) + "。" +
             "strict_supervision 支持 start/adjust/stop/status；start 必须提供真实具体 goal，" +
-            "mode=observe 只观察；mode=return 切回露露机；mode=home 返回手机桌面。" +
-            "可选 blockedPackages 为需限制的普通 App 包名数组，留空时所有非例外普通 App 都会切回；" +
-            "exceptPackages 为不拦截名单。由你依实际目标选择，不预设用户任何应用违规。" +
+            "mode=observe 只观察；mode=return 切回露露机；mode=home 将指定普通 App 切回桌面；" +
+            "mode=lockdown 是单独的全面限制模式：当你认为主人现在不该使用其他普通 App 时，" +
+            "任何非露露机、非桌面、非系统保护的普通 App 都立即尝试切回手机桌面，" +
+            "忽略 blockedPackages 与 exceptPackages，不能当作真正的系统级 App 锁。" +
+            "可选 blockedPackages 为普通模式需限制的 App 包名数组，留空表示全部普通 App；" +
+            "exceptPackages 为普通模式不拦截名单。须由你基于实际承诺、原因与新鲜证据选择，" +
+            "不能仅因提示词示例就默认全面限制，也不可无目标永久开启。" +
             "你可决定何时停止或重新启动；安全租约默认最多120分钟，并不代表任务完成。" +
             "目标确证达成后主动 stop，未证实可继续或安排稍后复查。" +
             "已获得授权时本机约10秒检查前台应用、约20秒交同一角色模型复议（系统后台可能延迟），" +
