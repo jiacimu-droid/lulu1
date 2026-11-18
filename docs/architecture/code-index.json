@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T16:30:51.625166+00:00",
-  "commit": "89bcd9f6e8f85aecf392d24df6cd6c22107feaaf",
+  "generatedAt": "2026-11-18T16:32:36.762062+00:00",
+  "commit": "aa6156b909da0d408c16bd73086af376e0c4d718",
   "branch": "main",
-  "sourceFingerprint": "1ef77558276f523056ffd383633114f7c55e1755b6dec4576cd64a0e488b833f",
+  "sourceFingerprint": "7a27796545e894f9f7381593683c74b3d64993f89bc7784396693f6ab8e45aa9",
   "summary": {
     "files": 1476,
-    "lines": 312404,
+    "lines": 312420,
     "symbols": 4456
   },
   "symbolIndex": {
@@ -29440,8 +29440,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt",
-      "lines": 297,
-      "sha256": "7572212483881577f10d943bb18981cac13016808f45e2adf50975789ac711c6",
+      "lines": 313,
+      "sha256": "2d34a6bf46078299abaa503c7a99bf4965302fecc1549b5ffb11fad257fadc01",
       "symbols": []
     },
     {
