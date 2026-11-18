@@ -84,13 +84,13 @@ class GameInvitationContinuityTest {
         val store = LuluGames.store
         store.setPlayWithCharacter(false)
         assertFalse(store.state.value.playWithCharacter)
-        // A valid invitation must use selectCharacters rather than selectCharacter:
-        // the latter leaves an earlier solo session in solo mode.
+        // Accepted invitations create a new room with a real opponent, not a reused solo board.
         assertTrue(GameInvitationContinuity.recordAccepted(
             context, role, "invite-" + UUID.randomUUID(), "memory_match"))
-        store.selectCharacters(listOf(role))
+        store.startMemoryMatch(role)
         assertEquals(listOf(role), store.state.value.selectedCharacterIds)
         assertEquals(role, store.state.value.selectedCharacterId)
+        assertEquals(role, store.state.value.memoryMatch.opponentId)
         assertTrue(store.state.value.playWithCharacter)
     }
 
