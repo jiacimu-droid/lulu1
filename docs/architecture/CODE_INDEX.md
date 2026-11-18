@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f941879a235dfe9403b331f043390c0c07010b5d`
+- 基准提交：`19cbf106b8a89bf61c1bc1476c6c2047ae04f89e`
 - 分支：`main`
 - 已索引文件：1452
-- 已索引代码/文本行：306961
-- 已发现符号：4371
+- 已索引代码/文本行：307115
+- 已发现符号：4373
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -827,7 +827,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 677 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 2123 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 2169 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2388 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -852,8 +852,8 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt` | 64 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt` | 45 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt` | 145 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt` | 466 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt` | 157 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt` | 467 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversal.kt` | 66 | 1 |
@@ -879,8 +879,8 @@
 | `app/src/main/java/com/jiacimu/lulu/system/VerifiedScreenSequence.kt` | 49 | 0 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameBuffer.kt` | 29 | 1 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluDisplayFrameFreshness.kt` | 22 | 3 |
-| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt` | 120 | 3 |
-| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 441 | 2 |
+| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt` | 134 | 5 |
+| `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt` | 501 | 2 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt` | 160 | 7 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTouchInput.kt` | 73 | 6 |
 | `app/src/main/java/com/wangzan101/mika/cap/phone/shell/ShellContext.kt` | 82 | 1 |
@@ -1409,8 +1409,8 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShellDisplayCommandTest.kt` | 42 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistConsentTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicyTest.kt` | 34 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt` | 166 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluStrictModeTest.kt` | 146 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt` | 184 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluStrictModeTest.kt` | 149 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversalTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualAccessibilityInputTest.kt` | 64 | 1 |

@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T04:26:49.668487+00:00",
-  "commit": "f941879a235dfe9403b331f043390c0c07010b5d",
+  "generatedAt": "2026-11-18T04:28:06.823129+00:00",
+  "commit": "19cbf106b8a89bf61c1bc1476c6c2047ae04f89e",
   "branch": "main",
-  "sourceFingerprint": "334864925a5f91abc6c40eb01de0b54f664ac1ce585a16a98b9d1dc1fcde11f5",
+  "sourceFingerprint": "0821e2b793a7a738212fca0f8b404666940f1a7a51209aadb8d3e6880c392290",
   "summary": {
     "files": 1452,
-    "lines": 306961,
-    "symbols": 4371
+    "lines": 307115,
+    "symbols": 4373
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -717,7 +717,7 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
-        "line": 92
+        "line": 106
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbConnection.kt",
@@ -5683,7 +5683,7 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
-        "line": 106
+        "line": 120
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt",
@@ -7149,7 +7149,7 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
-        "line": 71
+        "line": 85
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
@@ -18069,7 +18069,7 @@
     "stillAuthorized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 1172
+        "line": 1173
       }
     ],
     "LuluDeviceToolBridge": [
@@ -18663,19 +18663,19 @@
     "LuluStrictModeReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 413
+        "line": 414
       }
     ],
     "LuluStrictReviewWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 423
+        "line": 424
       }
     ],
     "LuluStrictExpiryWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 453
+        "line": 454
       }
     ],
     "canObserve": [
@@ -19264,16 +19264,28 @@
         "line": 18
       }
     ],
+    "descriptionTimestamp": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
+        "line": 73
+      }
+    ],
+    "sourcePackage": [
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
+        "line": 80
+      }
+    ],
     "LuluShellDisplayMain": [
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-        "line": 31
+        "line": 32
       }
     ],
     "main": [
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-        "line": 82
+        "line": 87
       },
       {
         "path": "preview/arcade/RulesPreview.kt",
@@ -42408,8 +42420,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 2123,
-      "sha256": "9b3e5b47d0b2714972040f01084cf6c11355a47716545bd6a69a27c63cfe2cbd",
+      "lines": 2169,
+      "sha256": "e907a4bbcff0015fd7e7a1d730915fac41ba04d5ac7f04ac487ae44dc9ce1047",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -42445,7 +42457,7 @@
         },
         {
           "name": "stillAuthorized",
-          "line": 1172
+          "line": 1173
         }
       ]
     },
@@ -43054,8 +43066,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
-      "lines": 145,
-      "sha256": "4fb50d979631dd2edc3c3667b2110f02376f15ad551011ef6bfffe0ed8b03fba",
+      "lines": 157,
+      "sha256": "f8d4ebbe94f0a1306bf73713584b0ac7794b0d3a066e0ed7c890377bbd929171",
       "symbols": [
         {
           "name": "clipboardTimestamp",
@@ -43065,8 +43077,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-      "lines": 466,
-      "sha256": "7593f4315c2fca3c02d593051c1e3760ccd544c18e6e44c7c646d79fe67cfb79",
+      "lines": 467,
+      "sha256": "7e7e4188804b53b70faf76941696aa418e249a321ef5e89866709fbd9cb1b4f6",
       "symbols": [
         {
           "name": "ownerGranted",
@@ -43110,15 +43122,15 @@
         },
         {
           "name": "LuluStrictModeReceiver",
-          "line": 413
+          "line": 414
         },
         {
           "name": "LuluStrictReviewWorker",
-          "line": 423
+          "line": 424
         },
         {
           "name": "LuluStrictExpiryWorker",
-          "line": 453
+          "line": 454
         }
       ]
     },
@@ -43794,35 +43806,43 @@
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
-      "lines": 120,
-      "sha256": "88025b6eb6f720736f17701aafd45f405561b33dba60602cb7994be36a1da9df",
+      "lines": 134,
+      "sha256": "11875cb963ddb20162cc99daf463583d0b19480bb20e666e366982ae1370a59d",
       "symbols": [
         {
+          "name": "descriptionTimestamp",
+          "line": 73
+        },
+        {
+          "name": "sourcePackage",
+          "line": 80
+        },
+        {
           "name": "snapshot",
-          "line": 71
+          "line": 85
         },
         {
           "name": "write",
-          "line": 92
+          "line": 106
         },
         {
           "name": "restore",
-          "line": 106
+          "line": 120
         }
       ]
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-      "lines": 441,
-      "sha256": "c61c2de74e04a494b3a1db06b9eb79ee8ab230ae703a291b64416784f38df9fc",
+      "lines": 501,
+      "sha256": "f7e4573291b37cad0081c26059d8f0b1e983842250e0217e5eaf513cf15bddc5",
       "symbols": [
         {
           "name": "LuluShellDisplayMain",
-          "line": 31
+          "line": 32
         },
         {
           "name": "main",
-          "line": 82
+          "line": 87
         }
       ]
     },
@@ -51154,8 +51174,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt",
-      "lines": 166,
-      "sha256": "6f8188385963dc961cd22121ad8945ebe9a6ff0a8e4eba3e8e2dc92f510be1ee",
+      "lines": 184,
+      "sha256": "312ff1a8b4d8bec8b7ff5e3b72541d2a43dd897181ac7be278eab87c90606708",
       "symbols": [
         {
           "name": "LuluShoppingLinkShareTest",
@@ -51165,8 +51185,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluStrictModeTest.kt",
-      "lines": 146,
-      "sha256": "4c5b85278c6a5a8a1cdf3ba9c3326a48f5a6b7d9babb3d4459e1d0c24bff262d",
+      "lines": 149,
+      "sha256": "a424ad9abcc0eb1ef0b6683cb237bfebaf6db01858dedda3c5fee2b214553303",
       "symbols": [
         {
           "name": "LuluStrictModeTest",
