@@ -3,8 +3,10 @@ package com.jiacimu.lulu.games
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.data.CharacterObservedMoment
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.UUID
 
 /** A role must actually choose whether to join. A failed request is not consent. */
 internal data class RelicInviteDecision(val accepted:Boolean, val speech:String)
@@ -40,7 +42,15 @@ internal object RelicLobbyInvitation {
             // The decision to join belongs to the character's ongoing life.
             // The lightweight scenario-only renderer omits raw history.
             contextMode=CompanionContextMode.Full,
+            capturePrivateMoment = true,
             maxTokens=170,
-        ).mapCatching { parse(it.text) ?: error("邀请回复格式无效，尚未加入队伍") }
+        ).mapCatching { response ->
+            val decision = parse(response.text) ?: error("邀请回复格式无效，尚未加入队伍")
+            CharacterObservedMoment.recordScene(
+                characterId, response, "迷雾摸金", UUID.randomUUID().toString(), "invitation",
+                "玩家在营地邀请角色参加探索，当前有 ${accepted.size} 位同行者，尚未开局。", decision.speech,
+            )
+            decision
+        }
     }
 }

@@ -3,7 +3,9 @@ package com.jiacimu.lulu.games
 import com.jiacimu.lulu.ai.CompanionContextMode
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
+import com.jiacimu.lulu.data.CharacterObservedMoment
 import org.json.JSONObject
+import java.util.UUID
 
 internal data class IslandInvitationAnswer(val accepted: Boolean, val speech: String)
 
@@ -39,9 +41,15 @@ internal object IslandInvitation {
             // game character. Full mode recalls prior lived experiences and
             // current motivations from the shared timeline.
             contextMode = CompanionContextMode.Full,
+            capturePrivateMoment = true,
             maxTokens = 180,
         ).mapCatching { response ->
-            parse(response.text) ?: error("角色的邀请答复格式无效，请重新邀请")
+            val decision = parse(response.text) ?: error("角色的邀请答复格式无效，请重新邀请")
+            CharacterObservedMoment.recordScene(
+                characterId, response, "方块小岛", UUID.randomUUID().toString(), "invitation",
+                "玩家邀请角色从大厅加入方块小岛，当前已有 ${party.size} 位同伴同行。", decision.speech,
+            )
+            decision
         }
     }
 }
