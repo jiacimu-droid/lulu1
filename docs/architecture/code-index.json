@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T04:24:10.190809+00:00",
-  "commit": "db6471de2ff4c0a6499e6c6d679b2b968bd252d9",
+  "generatedAt": "2026-11-18T04:26:07.328036+00:00",
+  "commit": "6ee57cdf84766f37defd4389212ee823b2bd87e8",
   "branch": "main",
-  "sourceFingerprint": "f7c07c2a15f4aea8e05d9296574d25e2d94a43381d2fd426c2c1ecbf1a241724",
+  "sourceFingerprint": "3d4e9241dab42d9d8225f1dc4da4ca0e11ed08463bc6239ca57e5e701ccaf240",
   "summary": {
     "files": 1452,
-    "lines": 306951,
+    "lines": 306955,
     "symbols": 4371
   },
   "symbolIndex": {
@@ -149,7 +149,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 344
+        "line": 348
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -4283,7 +4283,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 224
+        "line": 228
       }
     ],
     "errorNote": [
@@ -5679,7 +5679,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 370
+        "line": 374
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
@@ -8545,7 +8545,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 380
+        "line": 384
       }
     ],
     "requestContext": [
@@ -18645,37 +18645,37 @@
     "onWindowChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 241
+        "line": 245
       }
     ],
     "onPulse": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 249
+        "line": 253
       }
     ],
     "ownerStop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 366
+        "line": 370
       }
     ],
     "LuluStrictModeReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 403
+        "line": 407
       }
     ],
     "LuluStrictReviewWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 413
+        "line": 417
       }
     ],
     "LuluStrictExpiryWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 443
+        "line": 447
       }
     ],
     "canObserve": [
@@ -43065,8 +43065,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-      "lines": 456,
-      "sha256": "4fd7552fd1dd6d2c96edb4790948d79d94dcea5ca03881bc5052b65339b53692",
+      "lines": 460,
+      "sha256": "ef97802aa0ab5930a45409002397c5572216b4e7e0397125ca166f766e2e868c",
       "symbols": [
         {
           "name": "ownerGranted",
@@ -43082,43 +43082,43 @@
         },
         {
           "name": "status",
-          "line": 224
+          "line": 228
         },
         {
           "name": "onWindowChanged",
-          "line": 241
+          "line": 245
         },
         {
           "name": "onPulse",
-          "line": 249
+          "line": 253
         },
         {
           "name": "stop",
-          "line": 344
+          "line": 348
         },
         {
           "name": "ownerStop",
-          "line": 366
-        },
-        {
-          "name": "restore",
           "line": 370
         },
         {
+          "name": "restore",
+          "line": 374
+        },
+        {
           "name": "modelContext",
-          "line": 380
+          "line": 384
         },
         {
           "name": "LuluStrictModeReceiver",
-          "line": 403
+          "line": 407
         },
         {
           "name": "LuluStrictReviewWorker",
-          "line": 413
+          "line": 417
         },
         {
           "name": "LuluStrictExpiryWorker",
-          "line": 443
+          "line": 447
         }
       ]
     },
