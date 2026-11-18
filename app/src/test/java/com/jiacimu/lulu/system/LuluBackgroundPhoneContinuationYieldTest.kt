@@ -96,6 +96,24 @@ class LuluBackgroundPhoneContinuationYieldTest {
         assertTrue(ids.last() == "owner-task-phone-128")
     }
 
+    @Test fun invalidChatSnapshotIsPreSendAndCanReinspectWithoutResending() {
+        val beforeClick = JSONObject()
+            .put("errorCode", "invalid_action_arguments")
+            .put("status", "failed")
+            .put("accepted", false)
+            .put("sessionPreserved", true)
+            .put("verification", "发送聊天消息必须提供最近一次真实聊天界面的screenSnapshotId")
+        assertTrue(LuluBackgroundPhoneContinuation.mayRecoverUnsentChat(beforeClick))
+        assertTrue(LuluBackgroundPhoneContinuation.needsSnapshotReinspection(
+            "send_chat_message", beforeClick))
+        assertFalse(LuluBackgroundPhoneContinuation.mayRecoverUnsentChat(
+            JSONObject(beforeClick.toString()).put("messageSendAttempted", true)))
+        assertFalse(LuluBackgroundPhoneContinuation.mayRecoverUnsentChat(
+            JSONObject(beforeClick.toString()).put("accepted", true)))
+        assertFalse(LuluBackgroundPhoneContinuation.mayRecoverUnsentChat(
+            JSONObject(beforeClick.toString()).put("sessionPreserved", false)))
+    }
+
     @Test fun visualWechatPreSendFailurePermitsOnlySafeReinspection() {
         assertTrue(LuluBackgroundPhoneContinuation.mayRecoverUnsentChat(
             JSONObject().put("errorCode", "visual_chat_draft_or_send_unverified")
