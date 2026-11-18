@@ -149,7 +149,7 @@ internal object LuluForegroundPhoneSession {
             return rejection(action, "主人或系统已切换主屏窗口；已暂停，不再对旧坐标点击",
                 "foreground_window_changed", "waiting_user")
         }
-        if (action == "observe") return observe(context, role, requestId, action)
+        if (action == "observe") return observe(context, role, requestId, action).toString()
         if (action == "adopt_app") return rejection(action,
             "可见主屏不会自动接管跳转后的第三方App；请主人回到露露机再明确launch",
             "foreground_adoption_requires_owner", "waiting_user")
