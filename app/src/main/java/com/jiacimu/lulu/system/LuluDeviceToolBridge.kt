@@ -1324,7 +1324,7 @@ object LuluDeviceToolBridge {
                     result.optString("status") != "denied" &&
                     // Recovered idempotent receipts are historical, not a new
                     // owner-screen frame or permission to continue old taps.
-                    !result.optBoolean("replayedHistoricalReceipt") &&
+                    LuluBackgroundPhoneContinuation.hasFreshExecutionReceipt(result) &&
                     !phoneDecisionInvalidated()) {
                     LuluBackgroundPhoneContinuation.continueFrom(
                         context = appContext,
