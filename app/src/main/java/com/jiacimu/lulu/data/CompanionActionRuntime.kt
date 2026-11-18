@@ -1532,7 +1532,7 @@ internal object SearchReceiptFeedback {
     /** One vocabulary for result-bearing reads, including optional model
      * references, across all scene adapters. No result selects a new action. */
     val resultTools = setOf("web_search", "image_search", "read_xiaohongshu",
-        "read_self_todo", "capture_screen", com.jiacimu.lulu.ai.JevDirections.TOOL)
+        "read_self_todo", "capture_screen", "read_screen", com.jiacimu.lulu.ai.JevDirections.TOOL)
 
     /** Use the actual persisted receipt ID, including a pre-execution refusal.
      * A native result ID alone does not prove which request produced it.
@@ -1582,7 +1582,7 @@ internal object SearchReceiptFeedback {
             args.optString("url").isNotBlank() -> "shared_link"
             args.optString("keyword").isNotBlank() -> "search_read"
             else -> "home_read"
-        } else if (tool == "capture_screen") "observe"
+        } else if (tool in setOf("capture_screen", "read_screen")) "observe"
         else if (tool == "read_self_todo") args.optString("scope", "today")
         else if (tool == com.jiacimu.lulu.ai.JevDirections.TOOL) "consider"
         else args.optString("op", "search").ifBlank { "search" }
@@ -1905,7 +1905,7 @@ internal object OrderedCharacterActions {
                 JSONObject(ToolRouter.execute(context, characterId, name, args,
                     requestId = stepRequestId,
                     intentionId = intentionId, goalReviewMode = goalReviewMode,
-                    userRequested = if (name == "capture_screen") explicitScreenRequest
+                    userRequested = if (name in setOf("capture_screen", "read_screen")) explicitScreenRequest
                         else CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, name),
                     autonomousLifeTurn = autonomousLifeTurn,
                     learningApplication = normalized.optJSONObject("learningApplication"),
