@@ -430,26 +430,21 @@ internal object CompanionActionRuntime {
         }
     }
 
-    /**
-     * Persist an actually copied merchant share link as a role-owned chat card.
-     * Only the virtual-display executor calls this after checking the fresh
-     * clipboard change, verified merchant and currently authorized copy node.
-     * Model prose and arbitrary clipboard contents cannot invoke this path.
-     */
-    internal suspend fun sendShoppingProductLink(
-        characterId: String, merchant: String, url: String, caption: String,
+    /** Only the virtual-display executor delivers an actually copied, source-checked URL. */
+    internal suspend fun sendCopiedWebLink(
+        characterId: String, url: String, caption: String, merchant: String?,
     ): CompanionActionResult {
         require(characterId.isNotBlank() && !characterId.startsWith("resident:"))
+        require(com.jiacimu.lulu.system.LuluSharedWebLinks.uri(url) != null)
         val character = MigratedDomainStores.characters.get(characterId)
         val conversation = privateConversation(characterId, character.displayName)
-        val payload = com.jiacimu.lulu.encodeQqShoppingProductLink(merchant, url, caption)
+        val payload = if (merchant != null) com.jiacimu.lulu.encodeQqShoppingProductLink(merchant, url, caption)
+            else listOf(caption.trim().take(240), url).filter(String::isNotBlank).joinToString("\n")
         val delivered = ChatGenerationActivity.during(characterId, setOf(conversation.id)) {
             MigratedDomainStores.chat.appendCharacterMessage(conversation.id, payload, characterId)
         }
-        return CompanionActionResult(
-            true, "已将真实复制到的${merchant}商品链接作为可点击卡片发给主人；未下单或付款",
-            conversation.id, delivered.id, deliveredMessageIds = listOf(delivered.id),
-        )
+        return CompanionActionResult(true, "已将本次真实复制的链接发到主人私聊",
+            conversation.id, delivered.id, deliveredMessageIds = listOf(delivered.id))
     }
 
     private suspend fun sendSearchedImage(
@@ -1997,7 +1992,7 @@ internal object XhsRoleShare {
 
     fun availableContext(characterId: String): String {
         val notes = recentNotes(characterId)
-        if (notes.isEmpty()) return "【本人可分享的小红书】暂无可供分享卡片的旧版阅读记录。新浏览请用 background_phone 读取真实App画面；可按实际观察自行选择发送后台截图，不会自动伪造旧卡片证据。"
+        if (notes.isEmpty()) return "【本人可分享的小红书】暂无可供分享卡片的旧版阅读记录。新浏览请用 background_phone 读取真实App画面；可在实际分享面板复制帖子链接，以卡片发到私聊，不会自动伪造旧卡片证据。"
         return buildString {
             appendLine("【本人已读、可用卡片分享的小红书｜仅事实，不要求自动发送】")
             notes.forEach { (event, note) ->

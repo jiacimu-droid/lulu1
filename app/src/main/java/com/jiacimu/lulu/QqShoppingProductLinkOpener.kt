@@ -4,13 +4,12 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.jiacimu.lulu.data.XhsSharedLinkResolver
+import com.jiacimu.lulu.system.LuluSharedWebLinks
 import com.jiacimu.lulu.system.LuluShoppingLinkShare
+import kotlinx.coroutines.CancellationException
 
-/**
- * Only handles owner taps on verified shopping cards, never character actions.
- * Android decides whether a merchant app supports its HTTPS/App Link; simply
- * having it installed is not proof a particular product URL is supported.
- */
+/** Opens original links on owner tap, with app-specific handling for verified official domains. */
 internal object QqShoppingProductLinkOpener {
     enum class Result { MERCHANT_APP, SYSTEM_HANDLER, FAILED }
 
@@ -19,28 +18,64 @@ internal object QqShoppingProductLinkOpener {
             product.merchant, product.url)
         if (packages.isEmpty()) return emptyList()
         val url = Uri.parse(product.url)
-        fun viewIntent(packageName: String?): Intent =
-            Intent(Intent.ACTION_VIEW, url)
-                .addCategory(Intent.CATEGORY_BROWSABLE)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .apply { if (packageName != null) setPackage(packageName) }
-        // Retain the actual URL/query data on both merchant and fallback routes.
-        // Explicit packages prevent a generic browser/default handler from
-        // intercepting the merchant-app attempt.
-        return packages.distinct().map(::viewIntent) + viewIntent(null)
+        return packages.distinct().map { viewIntent(url, it) } + viewIntent(url)
+    }
+
+    private fun xhsNoteIntent(noteUrl: String): Intent? {
+        val note = runCatching { XhsSharedLinkResolver.parseDirect(noteUrl) }.getOrNull() ?: return null
+        val query = Uri.parse(note.url).encodedQuery
+        val target = Uri.Builder().scheme("xhsdiscover").authority("item")
+            .appendPath(note.id).encodedQuery(query).build()
+        return viewIntent(target, LuluSharedWebLinks.XHS_PACKAGE)
+    }
+
+    private fun viewIntent(url: Uri, packageName: String? = null): Intent =
+        Intent(Intent.ACTION_VIEW, url)
+            .addCategory(Intent.CATEGORY_BROWSABLE)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            .setPackage(packageName)
+
+    private fun launch(context: Context, intent: Intent): Boolean = try {
+        context.startActivity(intent)
+        true
+    } catch (_: ActivityNotFoundException) {
+        false
+    } catch (_: SecurityException) {
+        false
+    }
+
+    suspend fun openSharedLink(context: Context, url: String, merchant: String? = null): Result {
+        if (merchant != null) return open(context, QqShoppingProductLink(merchant, url, ""))
+        if (LuluSharedWebLinks.uri(url) == null) return Result.FAILED
+        val xhs = LuluSharedWebLinks.xhsUrl(url)
+        if (xhs != null) {
+            val direct = xhsNoteIntent(xhs)
+            if (direct != null && launch(context, direct)) return Result.MERCHANT_APP
+            if (launch(context, viewIntent(Uri.parse(xhs), LuluSharedWebLinks.XHS_PACKAGE)))
+                return Result.MERCHANT_APP
+            if (direct == null && Uri.parse(xhs).host?.lowercase() in LuluSharedWebLinks.xhsShortHosts &&
+                context.packageManager.getLaunchIntentForPackage(LuluSharedWebLinks.XHS_PACKAGE) != null) {
+                val note = try {
+                    XhsSharedLinkResolver.resolve(xhs)
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    null
+                }
+                if (note != null) {
+                    val native = xhsNoteIntent(note.url)
+                    if (native != null && launch(context, native)) return Result.MERCHANT_APP
+                }
+            }
+        }
+        return if (launch(context, viewIntent(Uri.parse(xhs ?: url)))) Result.SYSTEM_HANDLER
+        else Result.FAILED
     }
 
     fun open(context: Context, product: QqShoppingProductLink): Result {
         for (intent in candidates(product)) {
-            try {
-                context.startActivity(intent)
-                return if (intent.`package` != null) Result.MERCHANT_APP
-                    else Result.SYSTEM_HANDLER
-            } catch (_: ActivityNotFoundException) {
-                // App missing or not registered to receive this HTTPS URL.
-            } catch (_: SecurityException) {
-                // The destination rejected a cross-app launch.
-            }
+            if (launch(context, intent)) return if (intent.`package` != null) Result.MERCHANT_APP
+            else Result.SYSTEM_HANDLER
         }
         return Result.FAILED
     }

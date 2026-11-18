@@ -59,19 +59,12 @@ class MigrationActivity : ComponentActivity() {
     private val navigationIntent = androidx.compose.runtime.mutableStateOf<android.content.Intent?>(null)
     private val navigationRequestSerial = androidx.compose.runtime.mutableLongStateOf(0L)
 
-    private fun incomingXhsText(intent: android.content.Intent?): String? {
+    private fun incomingLinkText(intent: android.content.Intent?): String? {
         if (intent?.action != android.content.Intent.ACTION_SEND ||
             !intent.type.orEmpty().startsWith("text/")) return null
-        val text = intent.getStringExtra(android.content.Intent.EXTRA_TEXT)?.trim()?.take(3_000).orEmpty()
-        val urls = Regex("""https?://[^\s<>]+""", RegexOption.IGNORE_CASE).findAll(text)
-        val isXhs = urls.any { match ->
-            val host = runCatching {
-                android.net.Uri.parse(match.value.trimEnd('。', '，', ',', ')')).host?.lowercase()
-            }.getOrNull()
-            host == "xhslink.com" || host?.endsWith(".xhslink.com") == true ||
-                host == "xiaohongshu.com" || host?.endsWith(".xiaohongshu.com") == true
-        }
-        return text.takeIf { isXhs }
+        val text = intent.getCharSequenceExtra(android.content.Intent.EXTRA_TEXT)
+            ?.toString()?.trim()?.take(3_000).orEmpty()
+        return text.takeIf { com.jiacimu.lulu.system.LuluSharedWebLinks.project(it).links.isNotEmpty() }
     }
 
     override fun onNewIntent(intent: android.content.Intent) {
@@ -82,7 +75,7 @@ class MigrationActivity : ComponentActivity() {
         navigationRequestSerial.longValue += 1L
         val incomingCall = ProactiveIncomingCallStore.pending.value?.active() == true
         setIncomingCallWindow(incomingCall)
-        incomingXhsText(intent)?.let { incomingSharedNote.value = it }
+        incomingLinkText(intent)?.let { incomingSharedNote.value = it }
     }
 
     private var runtimeInitialized = false
@@ -284,7 +277,7 @@ class MigrationActivity : ComponentActivity() {
             ProactivePerceptionScheduler.schedule(appContext)
         }
 
-        incomingSharedNote.value = incomingXhsText(intent)
+        incomingSharedNote.value = incomingLinkText(intent)
         navigationIntent.value = intent
         com.jiacimu.lulu.study.ReadingReflectionStore.initialize(appContext)
         StartupFailureRecovery.stage("桌面 Compose 首次渲染")

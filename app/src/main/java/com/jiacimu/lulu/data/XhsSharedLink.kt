@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.data
 
+import com.jiacimu.lulu.system.LuluSharedWebLinks
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
@@ -17,9 +18,6 @@ internal data class XhsSharedLink(
 )
 
 internal object XhsSharedLinkResolver {
-    private val allowedHosts = setOf(
-        "www.xiaohongshu.com", "xiaohongshu.com", "www.xhslink.com", "xhslink.com",
-    )
     private val notePath = Regex("""^/(?:explore|discovery/item|search_result)/([a-zA-Z0-9]{12,40})/?$""")
 
     private fun safeUri(raw: String): URI {
@@ -27,7 +25,7 @@ internal object XhsSharedLinkResolver {
         require(candidate.length in 15..2048) { "小红书链接格式不正确" }
         val uri = URI(candidate)
         require(uri.scheme?.lowercase() == "https" && uri.userInfo == null &&
-            uri.port in setOf(-1, 443) && uri.host?.lowercase() in allowedHosts) {
+            uri.port in setOf(-1, 443) && uri.host?.lowercase() in LuluSharedWebLinks.xhsNoteHosts + LuluSharedWebLinks.xhsShortHosts) {
             "只能读取 HTTPS 小红书官方链接"
         }
         return uri
@@ -41,7 +39,7 @@ internal object XhsSharedLinkResolver {
 
     fun parseDirect(raw: String): XhsSharedLink? {
         val uri = safeUri(raw)
-        if (uri.host?.lowercase() !in setOf("xiaohongshu.com", "www.xiaohongshu.com")) return null
+        if (uri.host?.lowercase() !in LuluSharedWebLinks.xhsNoteHosts) return null
         val id = notePath.matchEntire(uri.path.orEmpty())?.groupValues?.get(1) ?: return null
         val source = query(uri, "xsec_source").takeIf {
             it in setOf("pc_feed", "pc_search", "pc_user", "pc_share", "pc_board")
@@ -55,7 +53,7 @@ internal object XhsSharedLinkResolver {
         repeat(5) { hop ->
             parseDirect(candidate)?.let { return@withContext it }
             val uri = safeUri(candidate)
-            if (uri.host?.lowercase() !in setOf("xhslink.com", "www.xhslink.com"))
+            if (uri.host?.lowercase() !in LuluSharedWebLinks.xhsShortHosts)
                 error("分享链接没有指向具体的小红书笔记")
             if (hop == 4) error("分享短链跳转次数过多")
             val connection = URL(candidate).openConnection() as HttpURLConnection

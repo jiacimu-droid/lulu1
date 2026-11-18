@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -103,4 +104,19 @@ class QqShoppingProductLinkOpenerTest {
                 context, product("淘宝", "https://m.tb.cn/h.abc123")))
         assertEquals(listOf("com.taobao.taobao", null), attempts)
     }
+
+    @Test fun nativeXhsNoteCarriesOriginalQueryAndExactNoteId() = runBlocking {
+        val id = "6777abcdef1234567890abcd"
+        val url = "https://www.xiaohongshu.com/explore/$id?xsec_token=a%2Bb&xsec_source=app_share"
+        val attempts = mutableListOf<Intent>()
+        val context = object : ContextWrapper(RuntimeEnvironment.getApplication()) {
+            override fun startActivity(intent: Intent) { attempts.add(intent) }
+        }
+        assertEquals(QqShoppingProductLinkOpener.Result.MERCHANT_APP,
+            QqShoppingProductLinkOpener.openSharedLink(context, url))
+        assertEquals("com.xingin.xhs", attempts.single().`package`)
+        assertEquals("xhsdiscover://item/$id?xsec_token=a%2Bb&xsec_source=app_share",
+            attempts.single().dataString)
+    }
+
 }

@@ -29,6 +29,7 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 @Composable
 internal fun XhsShareToRoleDialog(
     preview: String,
+    isXhs: Boolean,
     onDismiss: () -> Unit,
     onSelect: (LuluConversation) -> Unit,
 ) {
@@ -45,7 +46,7 @@ internal fun XhsShareToRoleDialog(
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text("分享给谁？", fontWeight = FontWeight.Bold, fontSize = 21.sp,
                     color = Color(0xFF25232B))
-                Text("选择一个想一起看笔记的人", fontSize = 12.sp,
+                Text("选择要接收链接的角色", fontSize = 12.sp,
                     color = Color(0xFF929099))
             }
         },
@@ -57,11 +58,11 @@ internal fun XhsShareToRoleDialog(
                         horizontalArrangement = Arrangement.spacedBy(11.dp)) {
                         Box(Modifier.size(43.dp).background(Color(0xFFFFE1E3), RoundedCornerShape(11.dp)),
                             contentAlignment = Alignment.Center) {
-                            Text("小", color = Color(0xFFE44C5B), fontWeight = FontWeight.Black,
+                            Text(if (isXhs) "小" else "↗", color = Color(0xFFE44C5B), fontWeight = FontWeight.Black,
                                 fontSize = 23.sp)
                         }
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                            Text("小红书 · 笔记分享", fontSize = 10.sp,
+                            Text(if (isXhs) "小红书 · 笔记分享" else "链接分享", fontSize = 10.sp,
                                 color = Color(0xFFE44C5B), fontWeight = FontWeight.SemiBold)
                             Text(preview.take(160), maxLines = 2, fontSize = 13.sp,
                                 color = Color(0xFF373139), lineHeight = 18.sp,
@@ -71,7 +72,7 @@ internal fun XhsShareToRoleDialog(
                 }
                 Column(Modifier.heightIn(max = 322.dp).verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    if (recipients.isEmpty()) Text("还没有创建角色。可以先创建角色，再来分享笔记。",
+                    if (recipients.isEmpty()) Text("还没有创建角色。可以先创建角色，再来分享链接。",
                         fontSize = 13.sp, color = Color(0xFF858189))
                     recipients.forEach { person ->
                         val chat = conversations.filter { it.characterId == person.characterId && it.groupChat == null }

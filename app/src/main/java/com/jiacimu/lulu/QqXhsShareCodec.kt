@@ -2,7 +2,7 @@ package com.jiacimu.lulu
 
 import org.json.JSONArray
 import org.json.JSONObject
-import java.net.URI
+import com.jiacimu.lulu.system.LuluSharedWebLinks
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 
@@ -22,25 +22,15 @@ internal data class QqXhsSharedNote(
 )
 
 private val xhsDirective = Regex("""⟪XHS_NOTE:([A-Za-z0-9_-]+)⟫""")
-private val shareUrlRegex = Regex("""https?://[^\s<>"']+""", RegexOption.IGNORE_CASE)
-
-private fun officialXhsUrl(value: String): String? = runCatching {
-    val url = value.trim().trimEnd('。', '，', ',', ')', '】', ';')
-    val uri = URI(url)
-    val host = uri.host?.lowercase()
-    if (uri.scheme?.lowercase() != "https" || uri.userInfo != null ||
-        uri.port !in setOf(-1, 443) ||
-        host !in setOf("xiaohongshu.com", "www.xiaohongshu.com", "xhslink.com", "www.xhslink.com")
-    ) null else url
-}.getOrNull()
+private fun officialXhsUrl(value: String): String? = LuluSharedWebLinks.xhsUrl(value.trim())
 
 internal fun xhsUrlInText(text: String): String? =
-    shareUrlRegex.findAll(text).mapNotNull { officialXhsUrl(it.value) }.firstOrNull()
+    LuluSharedWebLinks.project(text).links.firstNotNullOfOrNull { officialXhsUrl(it.url) }
 
 /** Android's share sheet generally provides only a URL and title, not readable note pixels. */
 internal fun externalXhsSharedNote(sharedText: String): QqXhsSharedNote? {
     val link = xhsUrlInText(sharedText) ?: return null
-    val beforeLink = sharedText.substringBefore(link).trim()
+    val beforeLink = LuluSharedWebLinks.project(sharedText).text
     val title = beforeLink.lineSequence().map { it.trim() }
         .firstOrNull { it.isNotBlank() && !it.startsWith("分享给你一篇小红书笔记") }
         ?.replace(Regex("""^(?:分享给你|发现一个|我在小红书发现了|复制打开小红书看看)\s*[:：]?\s*"""), "")

@@ -61,6 +61,7 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
 import java.time.Duration
 import java.time.Instant
+import com.jiacimu.lulu.system.LuluSharedWebLinks
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
@@ -112,13 +113,18 @@ internal fun QqMessageRow(
             else -> stripCharacterReplyDirective(message.content)
         }
     }
-    val bubbles = remember(visibleContent, mine, gameInvite, worldInvite, forwardBundle, xhsShare, shoppingLink) {
+    val sharedLinks = remember(visibleContent, message.voiceNote, gameInvite, worldInvite) {
+        if (message.voiceNote || gameInvite != null || worldInvite != null || decodeQqChatImage(visibleContent) != null)
+            LuluSharedWebLinks.Message(visibleContent, emptyList())
+        else LuluSharedWebLinks.project(visibleContent)
+    }
+    val bubbles = remember(sharedLinks, mine, gameInvite, worldInvite, forwardBundle, xhsShare, shoppingLink) {
         when {
             forwardBundle != null || xhsShare != null || shoppingLink != null -> emptyList()
             gameInvite != null || worldInvite != null -> emptyList()
-            mine -> listOf(visibleContent)
-            message.voiceNote -> listOf(visibleContent)
-            else -> splitCharacterBubbles(visibleContent)
+            mine -> listOf(sharedLinks.text)
+            message.voiceNote -> listOf(sharedLinks.text)
+            else -> splitCharacterBubbles(sharedLinks.text)
         }
     }
     val density = LocalDensity.current
@@ -212,7 +218,7 @@ internal fun QqMessageRow(
                         QqXhsSharedNoteCard(
                             note = xhsShare,
                             modifier = bubbleModifier,
-                            onClick = { xhsOpen = true },
+                            onDetails = { xhsOpen = true },
                             onLongClick = onLongClick,
                         )
                     }
@@ -220,7 +226,8 @@ internal fun QqMessageRow(
                 }
                 if (shoppingLink != null) {
                     MessageLineWithTime(mine, showTime, timeText) { bubbleModifier ->
-                        QqShoppingProductLinkCard(shoppingLink, bubbleModifier, onLongClick)
+                        QqSharedWebLinkCard(shoppingLink.url, bubbleModifier, caption = shoppingLink.caption,
+                            verifiedMerchant = shoppingLink.merchant, onLongClick = onLongClick)
                     }
                     Spacer(Modifier.height(5.dp))
                 }
@@ -235,7 +242,7 @@ internal fun QqMessageRow(
                 }
                 bubbles.filter(String::isNotBlank).forEachIndexed { index, bubble ->
                     val isLastBubble = index == bubbles.lastIndex
-                    MessageLineWithTime(mine, showTime && isLastBubble, timeText) { bubbleModifier ->
+                    MessageLineWithTime(mine, showTime && isLastBubble && sharedLinks.links.isEmpty(), timeText) { bubbleModifier ->
                         val journal = LocalLuluAppearance.current.isJournal()
                         val bubbleContent: @Composable () -> Unit = {
                             Column(Modifier.padding(horizontal = 12.dp, vertical = 7.dp)) {
@@ -299,7 +306,14 @@ internal fun QqMessageRow(
                             ) { bubbleContent() }
                         }
                     }
-                    if (!isLastBubble) Spacer(Modifier.height(3.dp))
+                    if (!isLastBubble || sharedLinks.links.isNotEmpty()) Spacer(Modifier.height(3.dp))
+                }
+                sharedLinks.links.forEachIndexed { index, link ->
+                    val last = index == sharedLinks.links.lastIndex
+                    MessageLineWithTime(mine, showTime && last, timeText) { bubbleModifier ->
+                        QqSharedWebLinkCard(link.url, bubbleModifier, title = link.title, onLongClick = onLongClick)
+                    }
+                    if (!last) Spacer(Modifier.height(5.dp))
                 }
             }
             Spacer(Modifier.width(9.dp))
@@ -328,7 +342,18 @@ internal fun QqMessageRow(
                                 Spacer(Modifier.weight(1f))
                                 if (entry.timeLabel.isNotBlank()) Text(entry.timeLabel, color = QqMuted, fontSize = 10.sp)
                             }
-                            Text(entry.content, color = QqInk, fontSize = 13.sp, lineHeight = 19.sp)
+                            val product = remember(entry.content) { decodeQqShoppingProductLink(entry.content) }
+                            val shared = remember(entry.content) { LuluSharedWebLinks.project(entry.content) }
+                            if (product != null) {
+                                QqSharedWebLinkCard(product.url, caption = product.caption,
+                                    verifiedMerchant = product.merchant, onLongClick = onLongClick)
+                            } else {
+                                if (shared.text.isNotBlank()) Text(shared.text, color = QqInk,
+                                    fontSize = 13.sp, lineHeight = 19.sp)
+                                shared.links.forEach { link ->
+                                    QqSharedWebLinkCard(link.url, title = link.title, onLongClick = onLongClick)
+                                }
+                            }
                             HorizontalDivider(color = QqBorder)
                         }
                     }

@@ -16,6 +16,7 @@ import java.util.Locale
 internal object LuluShoppingLinkShare {
     private val copyLabels = setOf(
         "复制链接", "复制商品链接", "复制分享链接", "复制网址",
+        "复制笔记链接", "复制帖子链接", "复制作品链接", "复制视频链接",
         // Some marketplace share sheets use these explicit link-only labels.
         "复制宝贝链接", "复制链接到剪贴板", "复制商品网址",
         // Many marketplace share panels expose only a small "复制" / "复制口令"
@@ -53,6 +54,34 @@ internal object LuluShoppingLinkShare {
             if (host == "ele.me" || host?.endsWith(".ele.me") == true) return "淘宝闪购"
         }
         return merchantName(packageName)
+    }
+
+    internal fun merchantForUrl(url: String): String? =
+        merchantDomains.keys.firstNotNullOfOrNull { merchantNameForLink(it, url) }
+
+    /** When Android cannot identify the clipboard writer, the known app's
+     * own official link domain is the remaining positive source evidence. */
+    private fun sourceBoundLink(
+        packageName: String, text: String?, exactSource: Boolean, merchantOnly: Boolean,
+    ): String? {
+        if (merchantOnly || merchantName(packageName) != null)
+            return verifiedChangedLink(packageName, null, text)
+        val links = LuluSharedWebLinks.project(text.orEmpty().take(6000)).links
+        if (packageName == LuluSharedWebLinks.XHS_PACKAGE)
+            return links.firstNotNullOfOrNull { LuluSharedWebLinks.xhsUrl(it.url) }
+        return if (exactSource) links.singleOrNull()?.url else null
+    }
+
+    internal fun sharedCopyLink(
+        packageName: String, previousTimestamp: Long, startedAt: Long,
+        currentTimestamp: Long, sourcePackage: String?, rawText: String?, merchantOnly: Boolean,
+    ): String? {
+        if (merchantOnly) return merchantCopyLink(packageName, previousTimestamp,
+            startedAt, currentTimestamp, sourcePackage, rawText)
+        if (packageName.isBlank() || startedAt <= 0L || currentTimestamp > startedAt + 10_000L ||
+            !freshCopyEvent(previousTimestamp, startedAt, currentTimestamp) ||
+            (sourcePackage != null && sourcePackage != packageName)) return null
+        return sourceBoundLink(packageName, rawText, sourcePackage == packageName, merchantOnly = false)
     }
 
     /** Also used when restoring a persisted chat card: reject arbitrary-site links. */
@@ -97,7 +126,8 @@ internal object LuluShoppingLinkShare {
 
     internal fun eligibleCopy(
         packageName: String, label: String, clickable: Boolean, ownerApproved: Boolean,
-    ): Boolean = ownerApproved && clickable && merchantName(packageName) != null &&
+        merchantOnly: Boolean = true,
+    ): Boolean = ownerApproved && clickable && (!merchantOnly || merchantName(packageName) != null) &&
         isCopyLabel(label)
 
     /** Screenshot-only share controls have no accessibility click flag.
@@ -105,9 +135,9 @@ internal object LuluShoppingLinkShare {
      * a single visual tap. Even then, delivery requires a new merchant-owned
      * clipboard event and an allowlisted HTTPS link, never model-supplied text. */
     internal fun eligibleVisualCopy(
-        packageName: String, chosenTarget: String, ownerApproved: Boolean,
+        packageName: String, chosenTarget: String, ownerApproved: Boolean, merchantOnly: Boolean = true,
     ): Boolean {
-        if (!ownerApproved || merchantName(packageName) == null ||
+        if (!ownerApproved || (merchantOnly && merchantName(packageName) == null) ||
             chosenTarget.isBlank() || chosenTarget.length > 48 ||
             LuluPhoneInteractionPolicy.hardBlocked(chosenTarget)) return false
         val label = normalizedCopyLabel(chosenTarget)
@@ -167,6 +197,7 @@ internal object LuluShoppingLinkShare {
      * content to a language model; only the allowlisted URL can enter chat. */
     suspend fun awaitFreshLink(
         context: Context, packageName: String, previousTimestamp: Long, tapStartedAt: Long,
+        merchantOnly: Boolean = true,
     ): String? {
         // On Android 10+ a fresh clipboard event can be visible before its
         // text becomes readable (or the read may remain blocked by focus).
@@ -181,7 +212,10 @@ internal object LuluShoppingLinkShare {
             freshEventTimestamp = timestamp
             val freshText = withContext(Dispatchers.Main) { clipboardText(context) }
             if (!freshText.isNullOrBlank()) {
-                return verifiedChangedLink(packageName, null, freshText)
+                val afterRead = withContext(Dispatchers.Main) { clipboardTimestamp(context) }
+                if (afterRead != timestamp) return null
+                return sharedCopyLink(packageName, previousTimestamp, tapStartedAt,
+                    timestamp, null, freshText, merchantOnly)
             }
         }
         // No validated merchant link; do not reuse old clipboard data.
