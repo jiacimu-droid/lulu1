@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T03:34:16.414305+00:00",
-  "commit": "1430254367b4c525aab2940742ff3af8a2c53ac0",
+  "generatedAt": "2026-11-18T03:36:26.777160+00:00",
+  "commit": "54c5b42fa223f9bf0427e86a086b91ba2510ed82",
   "branch": "main",
-  "sourceFingerprint": "7ad3e233aecf4a5c894c6f523515e676d1159cd2ad672da65af0e91c0cbf5706",
+  "sourceFingerprint": "dca4362a5ce0780141aeb6b2b5c16752a1f4c05db5547481f946dde5283f768c",
   "summary": {
     "files": 1444,
-    "lines": 305142,
-    "symbols": 4359
+    "lines": 305212,
+    "symbols": 4360
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -419,7 +419,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 212
+        "line": 282
       }
     ],
     "update": [
@@ -22826,22 +22826,28 @@
         "line": 30
       }
     ],
+    "system": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
+        "line": 147
+      }
+    ],
     "editedLongRelationshipSurvivesFailedPhoneTurnAndReachesNextExpression": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 160
+        "line": 230
       }
     ],
     "persistedAgreement": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 189
+        "line": 259
       }
     ],
     "assertCurrent": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 231
+        "line": 301
       }
     ],
     "RelationshipPreferencePersistenceTest": [
@@ -48993,28 +48999,32 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-      "lines": 502,
-      "sha256": "0119769b4ecb91c6b99fdf18d25d4f6141da036c6e70d5635de84b0db91abde9",
+      "lines": 572,
+      "sha256": "217049b571aa25fcd6b0cebd8348582e7f982b26c6ff380e9cca0a882ffe05d2",
       "symbols": [
         {
           "name": "RelationshipPreferenceGatewayTest",
           "line": 30
         },
         {
+          "name": "system",
+          "line": 147
+        },
+        {
           "name": "editedLongRelationshipSurvivesFailedPhoneTurnAndReachesNextExpression",
-          "line": 160
+          "line": 230
         },
         {
           "name": "persistedAgreement",
-          "line": 189
+          "line": 259
         },
         {
           "name": "prompt",
-          "line": 212
+          "line": 282
         },
         {
           "name": "assertCurrent",
-          "line": 231
+          "line": 301
         }
       ]
     },
