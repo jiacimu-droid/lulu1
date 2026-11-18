@@ -421,6 +421,14 @@ internal object LuluBackgroundPhoneSession {
         }
     }
 
+    // Once a helper write is attempted, a missing reply cannot prove that
+    // the device did nothing. Do not invite a replay of an uncertain click.
+    internal class UnverifiedHelperCommandException(message: String, cause: Throwable? = null) :
+        IllegalStateException(message, cause)
+
+    internal fun commandFailureStatus(error: Throwable): String =
+        if (error is UnverifiedHelperCommandException) "unverified" else "failed"
+
     private suspend fun command(args: JSONObject): JSONObject = withContext(Dispatchers.IO) {
         // STOP may arrive while a multi-step operation is already holding mutex.
         // Reject every subsequent helper command at its final dispatch boundary;
@@ -431,16 +439,22 @@ internal object LuluBackgroundPhoneSession {
             }
         }
         val pipe = stream ?: error("shell helper disconnected")
-        pipe.write((args.toString() + "\n").toByteArray(Charsets.UTF_8))
-        val line = replies.poll(13, TimeUnit.SECONDS) ?: error(
-            "shell helper did not reply for ${args.optString("action")}" +
-                lastHelperDiagnostic.takeIf(String::isNotBlank)?.let { "；helper: $it" }.orEmpty()
-        )
+        try {
+            pipe.write((args.toString() + "\n").toByteArray(Charsets.UTF_8))
+        } catch (error: Exception) {
+            // A partial write may already have reached the helper.
+            throw UnverifiedHelperCommandException("shell helper write outcome unknown", error)
+        }
+        val line = replies.poll(13, TimeUnit.SECONDS)
+            ?: throw UnverifiedHelperCommandException(
+                "shell helper reply missing for ${args.optString("action")}" +
+                    lastHelperDiagnostic.takeIf(String::isNotBlank)?.let { "；helper: $it" }.orEmpty()
+            )
         val response = JSONObject(line)
         // Only start/stop may omit an owned display identifier.
         if (args.optString("action") !in setOf("start", "stop")) {
-            check(displayId > 0 && response.optInt("displayId", -1) == displayId) {
-                "来自未知虚拟屏的回执已丢弃"
+            if (displayId <= 0 || response.optInt("displayId", -1) != displayId) {
+                throw UnverifiedHelperCommandException("来自未知虚拟屏的回执已丢弃；设备动作结果未知")
             }
         }
         response
@@ -2037,7 +2051,11 @@ internal object LuluBackgroundPhoneSession {
             forgetTransport()
             val detail = error.message?.takeIf(String::isNotBlank)
                 ?: error::class.java.simpleName
-            return JSONObject().put("success", false).put("status", "failed")
+            val outcome = commandFailureStatus(error)
+            return JSONObject().put("success", false).put("status", outcome)
+                .put("taskCompleted", false)
+                .put("effectKind", if (outcome == "unverified") "unknown" else "none")
+                .put("retrySafe", false)
                 .put("mode", "independent_virtual_display")
                 .put("errorCode", "virtual_phone_" + failureStage)
                 .put("diagnosticStage", failureStage)
