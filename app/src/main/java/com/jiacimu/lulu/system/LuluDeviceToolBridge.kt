@@ -571,9 +571,8 @@ object LuluDeviceToolBridge {
                 if (sceneContext.contains("电话") && !callSilence && !rewriting)
                     appendLine(com.jiacimu.lulu.data.CharacterSocialActionOpportunities.prompt(characterId))
                 if (chatPhotos.promptNote.isNotBlank()) appendLine(chatPhotos.promptNote)
-                // Existing obligations are already delivered by CharacterRuntime
-                // in the gateway. Only the current-message challenge is local.
-                appendLine(com.jiacimu.lulu.data.CharacterAccountabilityContext.challengeGuidance(userText))
+                // CharacterRuntime supplies persona, live duties and self-reflection
+                // in the same Full-context gateway; no keyword-specific speech gate.
             },
             instruction = if (bedtimePromptActive) """
                 【通话哄睡：单次完整长篇语音】你是当前角色，不是朗读系统或睡眠客服。
