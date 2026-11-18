@@ -15,6 +15,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -53,6 +55,8 @@ internal val luluGuideSteps = listOf(
         listOf("现在再发送第一条消息，检查回复是否符合已保存的人设，以及当次模型是否真的可用。", "之后可以从私聊发起电话，也可以去游戏馆、数字世界和朋友圈互动。", "声音、记忆和工具可以逐步完善；文字能回复只证明基础聊天链路成功，不代表电话或手机操控已验证。"),
         "chat", MigrationRoute.Chat, "开始聊天"),
 )
+internal const val luluBackgroundPhoneTryPrompt = "打开拼多多，自己挑一件你觉得不错的商品，打开分享，把真实商品链接发给我。我只想看看你的推荐，不要下单或付款。"
+
 internal data class LuluGuideFeature(
     val key: String, val name: String, val icon: ImageVector,
     val where: String, val description: String,
@@ -76,10 +80,18 @@ internal val luluGuideFeatures = listOf(
         listOf("点聊天最上方的「角色头像」：查看角色最近的此刻与心声，没有绑定具体某条消息。", "点角色发言左侧的「头像」：定位到这条回复当时的心声；不是打开最新一次的记录。双击消息头像的「戳一戳」是另一种互动。", "点右上角「··· → 此刻」：进入历史，查看情绪、想法、持续挂心和它们关联的真实事件与行动结果。"),
         "心声是角色留下的记录，不是实时读心；过去的想法不能被当作此刻仍在执行的动作。", MigrationRoute.Chat, "查看此刻",
         highlights = listOf("顶部头像 = 最近的心声 · 消息旁头像 = 这句话的心声", "此刻 = 追溯情绪、念头与持续心事")),
-    LuluGuideFeature("phone", "后台虚拟屏 · 自主操作手机", Icons.Outlined.Smartphone, "角色私聊 → ··· → 查手机；设置 → 权限与能力",
-        "角色可通过授权的后台虚拟屏浏览和操作手机应用，探索页面并记录真实操作结果。",
-        listOf("授权后台虚拟屏与无障碍后，角色可以尝试自己刷小红书、抖音、B 站，点击页面、搜索、打字、评论或打开微信发送消息。", "也能尝试浏览拼多多、淘宝等购物 App，挑商品并分享链接，由用户自己决定是否购买并付款。", "打开「查手机」查看角色手机里的「浏览器」（API 网页搜索记录）、「屏幕记录」（真实截图）、「行动记录」（真实工具回执）、相册与备忘录，也能查看独立后台虚拟屏。"),
-        "第三方 App 的控件识别和微信发送尚不稳定；点击不等于已发布或已送达。密码、付款及敏感操作仍有权限边界。", MigrationRoute.Chat, "查看角色手机",
+    LuluGuideFeature("phone", "后台虚拟屏 · 自主操作手机", Icons.Outlined.Smartphone,
+        "角色设置 → 管理 → 后台连接 / 操作权限；角色私聊 → ··· → 查手机",
+        "给角色一块独立的后台屏幕，让它尝试打开手机 App、浏览、挑选并分享真实结果。",
+        listOf(
+            "01 · 开启无线调试：手机需 Android 11 或以上。在系统「开发者选项 → 无线调试」开启无线调试，点击「使用配对码配对设备」。",
+            "02 · 完成本机配对：进入角色设置「管理 → 后台连接」，填写系统弹出的配对端口和 6 位配对码，点击「配对手机」，再点击「检查连接」。连接端口与配对端口不是一回事；配对码不要发给角色。",
+            "03 · 开启权限：在「设置 → 权限与能力」同意屏幕视觉授权，检查 Android 无障碍服务与通知权限；回到角色设置「管理 → 操作权限」，打开「允许自主操作虚拟屏幕」。",
+            "04 · 开始试用：回到角色私聊，把下面的示例发给它。也可以让它尝试打开小红书、抖音、B 站或微信，自己观察页面、点击、搜索和输入；拼多多与淘宝可尝试挑商品并分享链接。",
+            "05 · 检查真实结果：打开私聊右上角「··· → 查手机」，进入后台画面查看实际屏幕；在「屏幕记录」「行动记录」看新截图和工具回执，并核对聊天里是否真的出现了商品分享卡片。「浏览器」是 API 网页搜索记录。",
+            "06 · 遇到失败：先回「后台连接」检查连接及系统权限，再让角色重新观察当前页面并尝试。不要把上一次的截图或失败回执当作这一次的结果。",
+        ),
+        "无线调试配对、授权与已连接是不同状态；第三方 App 输入、微信发送和商品链接分享仍待真机验证。只有真实发出且保存的链接才算已转发；密码、下单和付款另有边界。", MigrationRoute.Chat, "进入角色私聊",
         highlights = listOf("独立虚拟屏 · 自主浏览、点击、输入和搜索", "操作记录 · 截图、浏览历史和真实回执可回看")),
     LuluGuideFeature("voice", "语音与音色", Icons.Outlined.RecordVoiceOver, "设置 → 语音与音色",
         "为每个角色选择自己喜欢的声音，也可以设置通话时听懂你说话的方式。",
@@ -224,6 +236,7 @@ internal fun LuluOnboardingGuideScreen(
     val overviewScrollState = rememberLazyListState()
     val selected = luluGuideFeatures.firstOrNull { it.key == selectedKey }
     BackHandler(enabled = selected != null) { selectedKey = null }
+    val clipboard = LocalClipboardManager.current
     val ink = MaterialTheme.colorScheme.onBackground
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     Scaffold(
@@ -450,6 +463,25 @@ internal fun LuluOnboardingGuideScreen(
                                 fontWeight = FontWeight.Medium)
                             Text(tip, color = ink, modifier = Modifier.weight(1f),
                                 fontSize = 13.sp, lineHeight = 21.sp)
+                        }
+                    }
+                }
+                if (selected.key == "phone") {
+                    item {
+                        GuidePanel {
+                            Text("试着这样对角色说", color = ink, fontSize = 15.sp,
+                                fontWeight = FontWeight.SemiBold)
+                            Spacer(Modifier.height(9.dp))
+                            Text(luluBackgroundPhoneTryPrompt, color = ink,
+                                fontSize = 13.sp, lineHeight = 22.sp)
+                            Spacer(Modifier.height(8.dp))
+                            TextButton(onClick = {
+                                clipboard.setText(AnnotatedString(luluBackgroundPhoneTryPrompt))
+                            }) {
+                                Icon(Icons.Outlined.ContentCopy, null, Modifier.size(16.dp))
+                                Spacer(Modifier.width(6.dp))
+                                Text("复制试用指令")
+                            }
                         }
                     }
                 }
