@@ -250,7 +250,8 @@ internal object CompanionActionRuntime {
                 if (ownedItems.isEmpty()) "尚未添加家具" else
                     ownedItems.take(12).joinToString("；") { "itemId=${it.id}，${it.name}，${it.position}" })
             appendLine("家具不是要定期打卡的义务。想让家更舒适、方便接待朋友或改变布置时，可以自主决定先回家、再建设或移动；每一步必须取得真实工具回执。")
-            appendLine("- play_solo_game：可选gameId=memory_match/yacht_dice/relic_escape/block_island。摸金会真实探索、战斗与撤离，只有成功撤离才收藏战利品；小岛每次玩一阵，持续保存自己的世界。可选focus（摸金explore/treasure/rare/safe/extract；小岛explore/gather/build/survive/wildlife）、turns=4至128。是否玩、玩什么、玩多久和目标由你自己决定，不能自报虚构结果。")
+            if (com.jiacimu.lulu.games.LuluGameEdition.worldGamesEnabled) appendLine("- play_solo_game：可选gameId=memory_match/yacht_dice/relic_escape/block_island。摸金会真实探索、战斗与撤离，只有成功撤离才收藏战利品；小岛每次玩一阵，持续保存自己的世界。可选focus（摸金explore/treasure/rare/safe/extract；小岛explore/gather/build/survive/wildlife）、turns=4至128。是否玩、玩什么、玩多久和目标由你自己决定，不能自报虚构结果。")
+            else appendLine("- play_solo_game：可选gameId=memory_match/yacht_dice，真实独玩记忆配对或快艇骰子。请凭真实游戏回执决定是否分享。")
             appendLine("- reschedule_personal_activity，args={\"planId\":\"本人已有日程ID\",\"expectedDueAt\":\"上下文原时间版本\",\"dueAt\":\"自己新选的未来ISO时间\",\"reason\":\"本人理由\"}：新时刻须超过当前时间60秒；可提前安排复议，不代表活动已执行或对方已答应。")
             appendLine("- cancel_personal_activity，args={\"planId\":\"本人已有日程ID\",\"expectedDueAt\":\"上下文原时间版本\",\"reason\":\"本人理由\"}：仅取消本人的原安排，不取消其他人的意愿。")
             appendLine("- go_offline：仅调整通信在线状态，不代替程序保存的日常起居和身体睡眠。")
@@ -299,7 +300,8 @@ internal object CompanionActionRuntime {
             appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(context))
         }
         appendLine(gameInvitationCapabilityGuide)
-        appendLine("- play_solo_game，args={\"gameId\":\"relic_escape\",\"focus\":\"treasure\",\"turns\":96}：也可选block_island（长期个人生存存档）、memory_match、yacht_dice；小岛focus=explore/gather/build/survive/wildlife，摸金focus=explore/treasure/rare/safe/extract，turns=4至128。自己选择玩哪个与何时停；角色实际操作同一游戏规则，摸金成功撤离后才归仓，小岛出入不清空存档。记忆配对独有targetScore。是否要把实况告诉主人另行自己决定，不自动当成聊天回复。")
+        if (com.jiacimu.lulu.games.LuluGameEdition.worldGamesEnabled) appendLine("- play_solo_game，args={\"gameId\":\"relic_escape\",\"focus\":\"treasure\",\"turns\":96}：也可选block_island（长期个人生存存档）、memory_match、yacht_dice；小岛focus=explore/gather/build/survive/wildlife，摸金focus=explore/treasure/rare/safe/extract，turns=4至128。自己选择玩哪个与何时停；角色实际操作同一游戏规则，摸金成功撤离后才归仓，小岛出入不清空存档。记忆配对独有targetScore。是否要把实况告诉主人另行自己决定，不自动当成聊天回复。")
+        else appendLine("- play_solo_game，args={\"gameId\":\"memory_match\"}：也可选yacht_dice。选择游戏由本人决定，真实结算后再记经历。")
         appendLine("- publish_moment，args={\"text\":\"动态正文\"}：朋友圈是仅好友可见的生活分享（QQ空间式）；好友可看全部点赞、评论，不限共同好友。角色有好笑、惊讶、烦人、得意、失败、沉迷、值得吐槽或想让熟人看见的小事时，可以像真人一样随手发；朋友圈不是稀有动作，也不是定期打卡。")
         appendLine("- set_phone_moments_cover，args={\"preset\":\"night|sky|forest|rose|ocean|sunset\"}，或 args={\"postId\":\"本人发布且有真实配图的朋友圈postId\"}：依自己当下的审美和心情主动更换自己聊天软件的朋友圈封面。只会用已有预设或真实已上传图片，不会凭空生成照片；不需每次醒来都换。")
             appendLine(MomentFriendAccess.audienceContext(characterId))
