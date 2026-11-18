@@ -25,6 +25,7 @@ internal class CharacterSoloWorldPlay(context: Context) {
     fun play(id: String, game: String, focus: String, turns: Int,
              now: Instant): SoloWorldResult = synchronized(sharedSaveLock) {
         require(id.isNotBlank())
+        require(LuluGameEdition.available(game)) { "该游戏仅在 game 分支版本提供" }
         require(turns in 4..128) { "单次游戏须为4至128回合" }
         return when (game) {
             "relic_escape" -> relic(id, focus, turns, now)
