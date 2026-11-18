@@ -18,6 +18,16 @@ class LuluVisualChatDraftPolicyTest {
         LuluVirtualChatTitleOcr.Line(text,
             LuluVirtualChatSendPolicy.ComposerBounds(left, top, right, bottom))
 
+    @Test fun outgoingEvidenceMustBeRightAlignedNotLongIncomingText() {
+        val message = "你好佳辞"
+        val incomingWide = line(message, 72, 430, 470, 480)
+        val outgoing = line(message, 392, 500, 682, 550)
+        assertEquals(0, LuluVisualChatDraftPolicy.outgoingCount(
+            listOf(incomingWide), message, 720, 1280))
+        assertEquals(1, LuluVisualChatDraftPolicy.outgoingCount(
+            listOf(incomingWide, outgoing), message, 720, 1280))
+    }
+
     @Test fun exactRecipientAndDraftYieldOnlyVisibleSendButtonCoordinates() {
         val lines = listOf(
             line("文件传输助手", 288, 58, 438, 99),
