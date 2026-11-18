@@ -168,6 +168,9 @@ object CharacterRuntime {
             if (!freshAnswer) CharacterGrowthTrajectory.context(characterId)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             appendLine(CharacterAccountabilityContext.prompt(characterId, includeActiveDetails = includeActiveCommitments))
+            // Responsibility is weighed by the same role model, using live persona,
+            // original agreements and actual receipts; never a lexical speech veto.
+            appendLine(CharacterAccountabilityContext.reflectionGuidance(characterId))
             CharacterCuriosityRuntime.briefContext(characterId)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             // Same recent personal scene is visible in chat, telephone and
