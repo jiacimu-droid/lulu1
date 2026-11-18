@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T04:26:07.328036+00:00",
-  "commit": "6ee57cdf84766f37defd4389212ee823b2bd87e8",
+  "generatedAt": "2026-11-18T04:26:49.668487+00:00",
+  "commit": "f941879a235dfe9403b331f043390c0c07010b5d",
   "branch": "main",
-  "sourceFingerprint": "3d4e9241dab42d9d8225f1dc4da4ca0e11ed08463bc6239ca57e5e701ccaf240",
+  "sourceFingerprint": "334864925a5f91abc6c40eb01de0b54f664ac1ce585a16a98b9d1dc1fcde11f5",
   "summary": {
     "files": 1452,
-    "lines": 306955,
+    "lines": 306961,
     "symbols": 4371
   },
   "symbolIndex": {
@@ -149,7 +149,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 348
+        "line": 354
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt",
@@ -4283,7 +4283,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 228
+        "line": 234
       }
     ],
     "errorNote": [
@@ -5679,7 +5679,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 374
+        "line": 380
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
@@ -8545,7 +8545,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 384
+        "line": 390
       }
     ],
     "requestContext": [
@@ -18639,43 +18639,43 @@
     "command": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 125
+        "line": 127
       }
     ],
     "onWindowChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 245
+        "line": 251
       }
     ],
     "onPulse": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 253
+        "line": 259
       }
     ],
     "ownerStop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 370
+        "line": 376
       }
     ],
     "LuluStrictModeReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 407
+        "line": 413
       }
     ],
     "LuluStrictReviewWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 417
+        "line": 423
       }
     ],
     "LuluStrictExpiryWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-        "line": 447
+        "line": 453
       }
     ],
     "canObserve": [
@@ -43065,8 +43065,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
-      "lines": 460,
-      "sha256": "ef97802aa0ab5930a45409002397c5572216b4e7e0397125ca166f766e2e868c",
+      "lines": 466,
+      "sha256": "7593f4315c2fca3c02d593051c1e3760ccd544c18e6e44c7c646d79fe67cfb79",
       "symbols": [
         {
           "name": "ownerGranted",
@@ -43078,47 +43078,47 @@
         },
         {
           "name": "command",
-          "line": 125
+          "line": 127
         },
         {
           "name": "status",
-          "line": 228
+          "line": 234
         },
         {
           "name": "onWindowChanged",
-          "line": 245
+          "line": 251
         },
         {
           "name": "onPulse",
-          "line": 253
+          "line": 259
         },
         {
           "name": "stop",
-          "line": 348
+          "line": 354
         },
         {
           "name": "ownerStop",
-          "line": 370
+          "line": 376
         },
         {
           "name": "restore",
-          "line": 374
+          "line": 380
         },
         {
           "name": "modelContext",
-          "line": 384
+          "line": 390
         },
         {
           "name": "LuluStrictModeReceiver",
-          "line": 407
+          "line": 413
         },
         {
           "name": "LuluStrictReviewWorker",
-          "line": 417
+          "line": 423
         },
         {
           "name": "LuluStrictExpiryWorker",
-          "line": 447
+          "line": 453
         }
       ]
     },
