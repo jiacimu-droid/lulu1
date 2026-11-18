@@ -48,6 +48,13 @@
 - [b239286](https://github.com/jiacimu-droid/lulu1/commit/b2392865af0010f5a922657fc4319c642807ac31)、[8efc982](https://github.com/jiacimu-droid/lulu1/commit/8efc982a37a7cad6688b660b88aa761af480f193)：合场文学保留一次 Isolated 写作请求和各自角色章节；给每个角色带入本人的通知、原始会面及被该事件/前因锚定的已保存心声/选择，提示正文不能把另一个人的未说出的心声写成自己的或已公开的事实。写作仅产生非权威文学，不回填原世界事件、主人行为、关系或心理。证据 ID 按本人单独链接。
 - 回归源码 [e4710e4](https://github.com/jiacimu-droid/lulu1/commit/e4710e43623827ac59aa38b2b7ff7a2fc90d07f3)、[f991a19](https://github.com/jiacimu-droid/lulu1/commit/f991a194a2ad48d052454e4884ea7e970d646900)：覆盖到访→离场顺序、其他地点/未来/伪源隔离、没有通知不伪造在场、本人的证据心声能进入正文而他人的/未来的不能。**当前仅提交测试，未取得目标 SHA 的 JVM/APK 成功证明，且未在 Redmi 真机用两角色 + 真实模型重放。** 后续核 `WorldVisitorSceneContextTest`、`AutonomousEncounterCausalChapterTest`、`AutonomousEncounterPrivacyTest` 在当前 main push 的首错；真机还要验证从地点退出/强杀后离场通知是否真实到达、模型是否自主延续找人的目标、历史章节不应被静默重写。
 
+## 2026-11-18 · P-08b.1 习得表达随原证据修订退场
+
+- 生产 `CharacterSpeechIdentity.promptSection → CharacterDevelopmentRecall.select → CharacterDevelopmentStore.active` 已复核：本人手改 speechHabits 与习得 ExpressionHabit 分源读取，后者检查本人 persona 及证据 revision。本轮没有证实生产缺口，补既有 CharacterExpressionGuideTest 未覆盖的正式存储→表达栏目→原件修订纵向反例。
+- [ea7980a0](https://github.com/jiacimu-droid/lulu1/commit/ea7980a0186b1e43ffbda935fe8594cc7671f4f8) 新增 `revisedExpressionEvidenceStopsLearnedVoiceWithoutErasingAuthoredVoice`：以真实 SQLite 保存 3 条用户反馈及 2 条本人表达，经原 applyProposal 接受 ExpressionHabit；本人栏目完整读取、另一人隔离；修订一条支持证据后旧表达退场，手改语感/稳定 persona 和另一人设置不变，派生历史内容及原证据版本链保留。只改测试，提交前已复核最新 main 与目标 blob，未修改社交/手机/游戏执行器。
+- 精确 [原索引 #44315740884](https://github.com/jiacimu-droid/lulu1/actions/runs/44315740884) success；[JVM/APK #44315740641](https://github.com/jiacimu-droid/lulu1/actions/runs/44315740641) 尚 pending，新增测试未宣称跑通。前轮 `f551596e` 两文件与后继 `62902195` blob 相同，[#44307079427/job 134818679694](https://github.com/jiacimu-droid/lulu1/actions/runs/44307079427/job/134818679694) 已实际核实完整偏好回归 PASSED、完整 JVM/APK 成功；更早 #44296006453 只是被 CommitmentTaskApplier 协程编译错误挡住，并非本轮测试失败。
+- 真机、真实模型及长期语感质量待验。下一轮先核本测试实际 CI；通过后打开 `CharacterDevelopmentStore.active` 的 personaSnapshot 授权迁移与 `CharacterSpeechIdentity`，核用户手改人格后习得语感的隔离/退场，已有完整测试则转下一未测边界。
+
 ## 2026-11-18 · P-08b.1 表达交接保留习得偏好的完整条件
 
 - 沿上轮入口实查：`CharacterDevelopmentStore.active` 已按原证据 revision 排除失效记录；但 `CharacterRuntime.leanExpressionContext` 把选中的 UserPreference/UserHabit 再截为 210 字，而原 Store 允许 500 字。末尾否定/条件会在决策→表达之间消失；本轮不重复修改来源校验。
