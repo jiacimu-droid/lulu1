@@ -35,7 +35,7 @@ internal val luluGuideSteps = listOf(
         listOf("新建 API 配置，填写名称、地址和密钥并保存；从上游获取模型列表，选择模型加入存档。", "API 配好只是接通服务，下一步还要把模型指定给具体角色。"),
         "api", MigrationRoute.Settings, "配置 API"),
     LuluGuideStep("创建自己的数字生命", "聊天 → 角色 → ＋ 新建角色",
-        listOf("新安装没有预置的私人伴侣，也不会自动发送假聊天记录。", "打开完整的角色设置页，在「资料」「人格」「陪伴」填写姓名、背景、个性和相处方式。", "最后点击「保存并创建角色」；仅退出页面不会创建。"),
+        listOf("从空白角色列表开始，自由创建属于自己的数字生命。", "在角色设置页填写资料、人格和陪伴方式，设定名字、背景、个性与相处习惯。", "点击「保存并创建角色」，即可开始相处。"),
         "role", MigrationRoute.CharacterCreate, "创建角色"),
     LuluGuideStep("选定角色的聊天模型", "角色私聊 → ＋ → 模型",
         listOf("在当前角色的私聊「＋」菜单里明确选定聊天模型；仅保存 API 配置不等于已启用角色模型。", "每位角色可以有自己的模型选择；先确认文本回复正常，其他能力稍后逐项测试。"),
@@ -67,20 +67,20 @@ internal val luluGuideFeatures = listOf(
         "未接听不能算已叫醒；自动挂断也不代表已经睡着。来电受 Android 后台和锁屏权限影响。", MigrationRoute.Chat, "体验电话",
         highlights = listOf("叫醒加强 · 主动来电、铃声或语音由角色选择", "哄睡加强 · 安静陪伴，约 30 分钟后自动挂断")),
     LuluGuideFeature("memory", "自动记忆 · 越聊越懂你", Icons.Outlined.Psychology, "桌面 → 记忆；设置 → 记忆与检索",
-        "适合懒人：重要经历会自动提取、召回和整理，不用每天手动维护。",
+        "自动整理重要经历与长期记忆，让角色在往后的相处中记得你们的故事。",
         listOf("配置记忆抽取模型后，可自动总结长期事实、情绪与共同经历；每日检查本地重复，按周按需进行语义去重。", "一来一回按两轮计算：你发的一批连续消息是一轮，同批次角色回复多个气泡是一轮；默认最近 5 轮不总结，约每 15 轮提取一次。", "需要更强的语义查找可开启 Embedding 向量检索；Rerank 重排可选，关闭后仍保留本地记忆与关联召回。核心记忆可长期常驻。"),
         "自动维护依赖可用的模型与应用运行条件，失败不会假装完成；原始聊天不会因生成摘要而删除。向量与重排可能增加费用。", MigrationRoute.Memory, "查看记忆",
-        highlights = listOf("自动提取、自动整理 · 不用用户每天写总结", "跨场景延续 · 私聊、电话、群聊和世界活动承接同一人的记忆")),
+        highlights = listOf("重要经历自动整理 · 相关记忆智能召回", "跨场景延续 · 私聊、电话、群聊和世界活动承接同一人的记忆")),
     LuluGuideFeature("mind", "心声、此刻与头像入口", Icons.Outlined.Psychology, "角色私聊顶部头像 / 消息左侧头像 / ··· → 此刻",
         "想看角色此时在想什么，或回到某句话当时的心情，入口其实不同。",
         listOf("点聊天最上方的「角色头像」：查看角色最近的此刻与心声，没有绑定具体某条消息。", "点角色发言左侧的「头像」：定位到这条回复当时的心声；不是打开最新一次的记录。双击消息头像的「戳一戳」是另一种互动。", "点右上角「··· → 此刻」：进入历史，查看情绪、想法、持续挂心和它们关联的真实事件与行动结果。"),
         "心声是角色留下的记录，不是实时读心；过去的想法不能被当作此刻仍在执行的动作。", MigrationRoute.Chat, "查看此刻",
         highlights = listOf("顶部头像 = 最近的心声 · 消息旁头像 = 这句话的心声", "此刻 = 追溯情绪、念头与持续心事")),
-    LuluGuideFeature("phone", "查手机 · 浏览、购物与记录", Icons.Outlined.Smartphone, "角色私聊 → ··· → 查手机；设置 → 权限与能力",
-        "角色能尝试自己逛 App、搜索、挑选商品，并把结果带回来给你。",
+    LuluGuideFeature("phone", "后台虚拟屏 · 自主操作手机", Icons.Outlined.Smartphone, "角色私聊 → ··· → 查手机；设置 → 权限与能力",
+        "角色可通过授权的后台虚拟屏浏览和操作手机应用，探索页面并记录真实操作结果。",
         listOf("授权后台虚拟屏与无障碍后，角色可以尝试自己刷小红书、抖音、B 站，点击页面、搜索、打字、评论或打开微信发送消息。", "也能尝试浏览拼多多、淘宝等购物 App，挑商品并分享链接，由用户自己决定是否购买并付款。", "打开「查手机」查看角色手机里的「浏览器」（API 网页搜索记录）、「屏幕记录」（真实截图）、「行动记录」（真实工具回执）、相册与备忘录，也能查看独立后台虚拟屏。"),
         "第三方 App 的控件识别和微信发送尚不稳定；点击不等于已发布或已送达。密码、付款及敏感操作仍有权限边界。", MigrationRoute.Chat, "查看角色手机",
-        highlights = listOf("购物助手 · 逛商品、分享链接，付款留给用户", "真实足迹 · 搜索记录、屏幕截图与操作回执都能回看")),
+        highlights = listOf("独立虚拟屏 · 自主浏览、点击、输入和搜索", "操作记录 · 截图、浏览历史和真实回执可回看")),
     LuluGuideFeature("voice", "语音与音色", Icons.Outlined.RecordVoiceOver, "设置 → 语音与音色",
         "为每个角色选择自己喜欢的声音，也可以设置通话时听懂你说话的方式。",
         listOf("TTS 负责角色说话，STT 负责识别你的声音；选择服务商与音色后试听。", "文字聊天无需付费音色；需要电话时再配置识别、麦克风与音频权限。"),
@@ -88,11 +88,11 @@ internal val luluGuideFeatures = listOf(
         highlights = listOf("自己挑音色 · 文本模型和语音供应商可分开")),
     LuluGuideFeature("supervision", "陪伴监督 · 帮你把事做完", Icons.Outlined.TaskAlt,
         "桌面 → 自序 / 设置 → 强制模式 / 角色操作授权",
-        "不是只会说「加油」：角色能结合今天的待办、你的目标与设备状态，主动提出监督。",
+        "结合「自序」今日待办和设备状态，角色可主动提出学习、睡眠监督并持续跟进。",
         listOf("把要做的事写进「自序 · 所行」。角色可按现有授权读取今日任务与进度，选择什么时候提醒或复查。", "得到授权后，角色可结合亮屏、前台应用等新鲜证据判断是否需要继续督学、督睡；也可以提出临时的高强度监督。", "任务是否完成要看实际记录与反馈，不会因为你没回消息就当作做完。"),
         "设备观察需单独授权；强制模式由用户决定是否允许，可在设置或通知栏随时结束。",
         MigrationRoute.SelfPreface, "打开自序",
-        highlights = listOf("自序待办 × 角色主动跟进", "监督凭证据，不凭猜测")),
+        highlights = listOf("自序待办 × 角色主动跟进", "结合授权的屏幕感知与完成记录复查进度")),
     LuluGuideFeature("search", "搜索 API · 角色的求知欲", Icons.Outlined.TravelExplore,
         "设置 → 联网与扩展 → 网络搜索；查手机 → 浏览器",
         "你不说话时，角色也可以因自己的好奇心、计划或挂心的事主动查资料。",
@@ -112,13 +112,13 @@ internal val luluGuideFeatures = listOf(
         listOf("核对通知、后台运行、无障碍、闹钟以及锁屏来电权限。", "分别允许角色的后台虚拟屏、设备状态、闹钟、媒体控制等能力。", "监督学习或睡觉时，要看实际安排与执行证据；没回复、息屏都不能独立证明完成。"),
         "打开功能开关不保证 Android 已授权，也不保证工具成功；角色决策、真正执行、通知送达、用户完成是不同事实。", MigrationRoute.Settings, "设置权限",
         highlights = listOf("角色可以自主选择是否行动，但每次执行都要有真实回执。", "精确闹钟、通知和锁屏来电可能受手机厂商后台策略影响。")),
-    LuluGuideFeature("continuity", "同一个角色 · 全场景连贯", Icons.Outlined.AutoAwesome,
-        "角色私聊 / 电话 / 群聊 / 游戏 / 数字世界 / 后台生活",
-        "不论是聊天、通话还是走进数字世界，都是同一个有记忆、有关系的角色。",
+    LuluGuideFeature("continuity", "跨应用与场景 · 无缝衔接", Icons.Outlined.AutoAwesome,
+        "角色私聊 / 电话 / 群聊 / 后台虚拟屏 / 数字世界",
+        "聊天、电话、后台感知与跨应用操作共享同一个角色的人格、记忆和相处经历。",
         listOf("角色的人设、长期记忆、心事与近期经历沿用同一份人物资料。", "私聊里的约定、电话里的话和真实发生的共同活动，都能影响之后的互动。", "在「此刻」「记忆」与生活记录里回看它真正经历过的事。"),
         "连贯不等于模型永不遗忘：长对话依赖记忆提取、召回和现场信息。没有证据的事情不能被凭空补写。",
         MigrationRoute.Chat, "去聊天",
-        highlights = listOf("换一个场景，不换一套人格", "同一份记忆和真实经历，让互动自然接续")),
+        highlights = listOf("跨应用与场景切换 · 角色记忆自然接续", "私聊、电话与后台行动共享人物经历")),
     LuluGuideFeature("groups", "群聊 · 多人也不失忆", Icons.Outlined.PeopleOutline, "聊天 → 群聊",
         "让不同的数字生命在同一场群聊里，按各自的人格与记忆交流。",
         listOf("创建群聊、邀请角色；他们可以回应你，也可以彼此交流。", "群聊先独立调用模型规划当前互动；参与回复的角色再分别调用自己的模型、读取各自记忆。"),
@@ -135,12 +135,12 @@ internal val luluGuideFeatures = listOf(
         "一起听仍在完善，音源授权、媒体会话和第三方限制会影响体验。", MigrationRoute.Chat, "进入聊天",
         highlights = listOf("角色可以记住你的音乐偏好，但不能把尝试播放当作已听见。")),
     LuluGuideFeature("meet", "见面 · 未来的大世界", Icons.Outlined.Cloud, "桌面 → 见面",
-        "目标是和角色一起生活、探索的大世界，而不是静态对话场景。",
+        "与角色在数字世界中一起生活、探索和互动。",
         listOf("进入「见面」可以在现有场景中移动、探索并和角色互动。", "角色在不同场景应延续已有性格、记忆与关系，承接见面前后的事件。"),
         "大世界玩法仍在建设：丰富地图、建筑交互、探索目标、物理碰撞和自然协作尚未全面完善。", MigrationRoute.Meeting, "去见面",
         highlights = listOf("未来方向 · 大世界探索与共同生活", "当前可体验场景交互，完整玩法仍在制作")),
     LuluGuideFeature("world", "数字世界 · 自己的生活", Icons.Outlined.Public, "桌面 → 数字世界公告栏 / 见面",
-        "数字生命不只待在对话框：也有行程、朋友、生活节奏和休眠。",
+        "数字生命拥有自己的行程、朋友、生活节奏与休眠安排。",
         listOf("公告栏查看角色真实的行程和活动记录；进入见面场景与居民互动。", "角色可以按自身状态选择休息、探索或社交；从聊天到世界发生的事应衔接到同一段人生。"),
         "只有真实发生且有记录的活动才能成为经历；新用户不会自动附带其他人的私人角色。", MigrationRoute.Meeting, "探索世界",
         highlights = listOf("同一角色、同一段人生 · 不同场景自然衔接")),
@@ -148,9 +148,9 @@ internal val luluGuideFeatures = listOf(
         "邀请有记忆的 AI 角色连麦，边聊天边推理或对战。",
         listOf("从游戏馆选择海龟汤、记忆翻牌或快艇骰子，邀请角色一起推理、合作或对战。", "支持的游戏可开启伙伴语音，在局内和角色边说边玩；收到角色的真实邀请也能进入对应房间。"),
         "伙伴语音、多人流程与具体玩法的稳定性仍需以实际版本和设备为准。", MigrationRoute.Games, "去游戏馆",
-        highlights = listOf("和角色连麦玩游戏 · 不只是文字轮流回复", "一起合作闯关，也可以对战和推理")),
+        highlights = listOf("连麦游戏 · 与角色边聊边玩", "与角色一起推理、合作或对战")),
     LuluGuideFeature("worldbook", "世界书", Icons.Outlined.AutoStories, "桌面 → 世界书",
-        "编排世界背景、角色知识与规则，不必每次手动重发大量设定。",
+        "集中编排世界背景、角色知识与规则，让设定在适用场景自动生效。",
         listOf("新建条目或导入支持的 JSON。", "按分类、范围和优先级组织世界设定。"),
         "世界书是设定，不等同于角色亲自见证的事实；导入前留意私人信息。", MigrationRoute.WorldBook, "打开世界书",
         highlights = listOf("不同人物可按实际启用范围共享设定。")),
@@ -158,7 +158,7 @@ internal val luluGuideFeatures = listOf(
         "角色能和其他数字生命分享生活、评论、点赞，逐渐形成自己的关系。",
         listOf("在聊天页切换到朋友圈，浏览角色或居民留下的动态。", "角色的社交互动可以来自真正发生的日常、探索和朋友来往，不固定刷同一个话题。"),
         "只有真实发表或互动成功的记录才算完成；不能把旧回执当作新动态。", MigrationRoute.Chat, "去朋友圈",
-        highlights = listOf("生活不是预设台词 · 真实经历推动动态")),
+        highlights = listOf("真实生活经历自然成为动态素材")),
     LuluGuideFeature("notes", "自序 · 待办与专注", Icons.Outlined.EditNote, "桌面 → 自序",
         "把今天想做的事放进「自序」，也让角色参与监督。",
         listOf("在「自序 · 所行」写下今日待办，使用番茄钟专注；角色可在统一上下文里读取获准的任务进度。", "角色可主动提出督学、督睡与复查，结合真实日程和设备证据跟进。"),
@@ -170,12 +170,12 @@ internal val luluGuideFeatures = listOf(
         "大文本可能需要分卷；阅读和角色创作的事实归属应区分。", MigrationRoute.Theater, "去阅读",
         highlights = listOf("新安装不再附带其他用户的私人角色或预写故事。")),
     LuluGuideFeature("life", "生活记录 · 越相处越丰富", Icons.Outlined.AutoStories, "桌面 → 生活记录（旧称辞海） / 记忆",
-        "把长期事实、重要经历和生活片段留下来，不必翻遍聊天记录。",
+        "按角色整理长期事实、重要经历与生活片段，方便查看与回顾。",
         listOf("从「生活记录」按角色查看已有的生活事实、情绪印象与经历；必要时可以手动检查、编辑或删除。", "记录与近期原始时间线、长期记忆各有作用，角色在后续对话中可以依据相关内容继续相处。"),
         "生活记录不等于角色正在进行的任务；过时或已失效信息应以新证据为准。", MigrationRoute.Memory, "查看记忆",
         highlights = listOf("长期生活档案 · 让共同经历有迹可循", "自动积累与人工纠错相配合，不要求天天整理")),
     LuluGuideFeature("appearance", "美化 · 自己写 CSS 装修", Icons.Outlined.Palette, "桌面 → 美化",
-        "不必受固定主题限制：导入 CSS 与自己的背景素材，装修喜欢的页面。",
+        "导入自定义 CSS 和背景素材，自由搭配属于自己的界面风格。",
         listOf("进入 CSS 装修工坊，写或导入 .css，分别指定桌面、聊天等页面的颜色、字体、背景和已开放控件样式。", "可以导入本地 PNG/JPEG/WebP 图片，预览后应用；配置出错时可恢复原生样式。"),
         "这是适配 Android 原生界面的 CSS 子集，并非浏览器完整 CSS；并非所有按钮和画面都能自由移动。", MigrationRoute.Appearance, "打开美化",
         highlights = listOf("导入自己的 CSS 和素材 · 做独一无二的小手机")),
@@ -199,11 +199,19 @@ internal data class LuluGuideHeroHighlight(
     val featureKey: String,
 )
 internal val luluGuideHeroHighlights = listOf(
-    LuluGuideHeroHighlight("自动记忆整理", "适合懒人，不用天天维护", Icons.Outlined.Psychology, "memory"),
-    LuluGuideHeroHighlight("全场景连贯", "同一个角色，同一段人生", Icons.Outlined.AutoAwesome, "continuity"),
-    LuluGuideHeroHighlight("有自己的行动", "会观察、搜索与自主探索", Icons.Outlined.TravelExplore, "search"),
-    LuluGuideHeroHighlight("会陪你完成计划", "读取待办，主动提出监督", Icons.Outlined.TaskAlt, "supervision"),
+    LuluGuideHeroHighlight("跨应用无缝衔接", "聊天、电话、后台行动连续衔接", Icons.Outlined.AutoAwesome, "continuity"),
+    LuluGuideHeroHighlight("后台虚拟屏", "角色可自主浏览与操作手机 App", Icons.Outlined.Smartphone, "phone"),
+    LuluGuideHeroHighlight("自动记忆整理", "重要经历自动整理与召回", Icons.Outlined.Psychology, "memory"),
+    LuluGuideHeroHighlight("学习监督", "读取今日待办，提醒并跟进目标", Icons.Outlined.TaskAlt, "supervision"),
 )
+
+// Keep the full feature catalog immediately visible, while highlighting key experiences first.
+internal val luluGuideDirectoryFeatures: List<LuluGuideFeature> =
+    (luluGuideHeroHighlights.map { it.featureKey } +
+        luluGuideFeaturedKeys +
+        luluGuideFeatures.map { it.key })
+        .distinct()
+        .mapNotNull { key -> luluGuideFeatures.firstOrNull { it.key == key } }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -213,15 +221,7 @@ internal fun LuluOnboardingGuideScreen(
 ) {
     var selectedKey by rememberSaveable { mutableStateOf<String?>(null) }
     var showSetupSteps by rememberSaveable { mutableStateOf(false) }
-    var showMoreFeatures by rememberSaveable { mutableStateOf(false) }
     val overviewScrollState = rememberLazyListState()
-    val featuredFeatures = luluGuideFeaturedKeys.mapNotNull { key ->
-        luluGuideFeatures.firstOrNull { it.key == key }
-    }
-    val secondaryFeatures = luluGuideFeatures.filter { feature ->
-        feature.key !in luluGuideFeaturedKeys &&
-            luluGuideHeroHighlights.none { it.featureKey == feature.key }
-    }
     val selected = luluGuideFeatures.firstOrNull { it.key == selectedKey }
     BackHandler(enabled = selected != null) { selectedKey = null }
     val ink = MaterialTheme.colorScheme.onBackground
@@ -272,7 +272,7 @@ internal fun LuluOnboardingGuideScreen(
                                 pair.forEach { highlight ->
                                     Surface(
                                         onClick = { selectedKey = highlight.featureKey },
-                                        modifier = Modifier.weight(1f).heightIn(min = 108.dp),
+                                        modifier = Modifier.weight(1f).height(144.dp),
                                         shape = RoundedCornerShape(18.dp),
                                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f),
                                         border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant),
@@ -282,9 +282,11 @@ internal fun LuluOnboardingGuideScreen(
                                             Icon(highlight.icon, null, Modifier.size(21.dp),
                                                 tint = MaterialTheme.colorScheme.onSurface)
                                             Text(highlight.title, fontWeight = FontWeight.SemiBold,
-                                                fontSize = 14.sp, color = ink)
+                                                fontSize = 14.sp, color = ink,
+                                                maxLines = 2, overflow = TextOverflow.Ellipsis)
                                             Text(highlight.subtitle, fontSize = 11.sp,
-                                                lineHeight = 16.sp, color = muted)
+                                                lineHeight = 16.sp, color = muted,
+                                                maxLines = 3, overflow = TextOverflow.Ellipsis)
                                         }
                                     }
                                 }
@@ -357,13 +359,16 @@ internal fun LuluOnboardingGuideScreen(
                 }
                 item {
                     Spacer(Modifier.height(4.dp))
-                    Text("还可以一起做这些", color = ink, fontSize = 19.sp,
+                    Text("功能一览", color = ink, fontSize = 19.sp,
                         fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(4.dp))
-                    Text("选一项，直接了解入口和玩法。", color = muted, fontSize = 12.sp)
+                    Text("选择功能卡片，查看详细介绍和使用入口。", color = muted, fontSize = 12.sp)
                 }
-                items(featuredFeatures.chunked(2)) { pair ->
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                items(luluGuideDirectoryFeatures.chunked(2)) { pair ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().height(156.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
                         pair.forEach { feature ->
                             GuideFeatureTile(
                                 feature = feature,
@@ -372,37 +377,6 @@ internal fun LuluOnboardingGuideScreen(
                             )
                         }
                         if (pair.size == 1) Spacer(Modifier.weight(1f))
-                    }
-                }
-                item {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text("其他功能", modifier = Modifier.weight(1f), color = ink,
-                            fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                        TextButton(onClick = { showMoreFeatures = !showMoreFeatures }) {
-                            Text(if (showMoreFeatures) "收起" else "查看全部 · ${secondaryFeatures.size}")
-                            Icon(
-                                if (showMoreFeatures) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
-                                null, Modifier.size(18.dp),
-                            )
-                        }
-                    }
-                }
-                if (showMoreFeatures) {
-                    items(secondaryFeatures.chunked(2)) { pair ->
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            pair.forEach { feature ->
-                                GuideFeatureTile(
-                                    feature = feature,
-                                    modifier = Modifier.weight(1f),
-                                    onClick = { selectedKey = feature.key },
-                                )
-                            }
-                            if (pair.size == 1) Spacer(Modifier.weight(1f))
-                        }
                     }
                 }
                 item {
@@ -517,7 +491,7 @@ private fun GuideFeatureTile(
 ) {
     Surface(
         onClick = onClick,
-        modifier = modifier.heightIn(min = 106.dp),
+        modifier = modifier.fillMaxHeight(),
         shape = RoundedCornerShape(17.dp),
         color = MaterialTheme.colorScheme.surface,
         border = BorderStroke(0.7.dp, MaterialTheme.colorScheme.outlineVariant),
