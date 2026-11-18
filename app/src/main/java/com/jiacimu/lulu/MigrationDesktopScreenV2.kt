@@ -79,33 +79,43 @@ private val DesktopV2Launchers = listOf(
 )
 
 private const val DESKTOP_COLUMNS = 4
-private const val DESKTOP_HOME_ROWS = 4
 private const val DESKTOP_ROWS = 8
-private const val DESKTOP_HOME_SLOT_COUNT = DESKTOP_COLUMNS * DESKTOP_HOME_ROWS
 private const val DESKTOP_SLOT_COUNT = DESKTOP_COLUMNS * DESKTOP_ROWS
 
-/** Dashboard 4x4; subsequent full canvas pages 4x8. */
-internal fun desktopPageStart(page: Int): Int =
-    if (page <= 0) 0 else DESKTOP_HOME_SLOT_COUNT + (page - 1) * DESKTOP_SLOT_COUNT
-internal fun desktopPageForSlot(slot: Int): Int =
-    if (slot < DESKTOP_HOME_SLOT_COUNT) 0
-    else 1 + (slot - DESKTOP_HOME_SLOT_COUNT) / DESKTOP_SLOT_COUNT
-internal fun desktopPageRows(page: Int): Int = if (page == 0) DESKTOP_HOME_ROWS else DESKTOP_ROWS
+/** Every desktop page has the same four columns and eight rows. */
+internal fun desktopPageStart(page: Int): Int = page.coerceAtLeast(0) * DESKTOP_SLOT_COUNT
+internal fun desktopPageForSlot(slot: Int): Int = slot.coerceAtLeast(0) / DESKTOP_SLOT_COUNT
+internal fun desktopPageRows(page: Int): Int = DESKTOP_ROWS
 internal fun desktopSlotIndex(page: Int, row: Int, col: Int): Int =
     desktopPageStart(page) + row * DESKTOP_COLUMNS + col
 internal fun desktopStoredPageCount(slotCount: Int): Int =
-    if (slotCount <= DESKTOP_HOME_SLOT_COUNT) 1
-    else 1 + (slotCount - DESKTOP_HOME_SLOT_COUNT + DESKTOP_SLOT_COUNT - 1) / DESKTOP_SLOT_COUNT
+    maxOf(1, (slotCount + DESKTOP_SLOT_COUNT - 1) / DESKTOP_SLOT_COUNT)
 
-/** Migrate legacy 4x4 page icons without changing visible row or column. */
+/** Legacy 4x4 pages; home icons now start on row five. */
 internal fun desktopMigrateLegacySlots(legacy: List<String?>): List<String?> {
-    val pages = maxOf(2, (legacy.size + DESKTOP_HOME_SLOT_COUNT - 1) / DESKTOP_HOME_SLOT_COUNT)
+    val pages = maxOf(2, (legacy.size + 15) / 16)
     val result = MutableList<String?>(desktopPageStart(pages)) { null }
     legacy.forEachIndexed { i, id ->
-        if (id != null) result[desktopSlotIndex(
-            i / DESKTOP_HOME_SLOT_COUNT,
-            (i % DESKTOP_HOME_SLOT_COUNT) / DESKTOP_COLUMNS,
-            i % DESKTOP_COLUMNS)] = id
+        if (id != null) {
+            val page = i / 16
+            val row = (i % 16) / DESKTOP_COLUMNS + if (page == 0) 4 else 0
+            result[desktopSlotIndex(page, row, i % DESKTOP_COLUMNS)] = id
+        }
+    }
+    return result
+}
+
+/** Recent layout with 4x4 dashboard and 4x8 secondary pages. */
+internal fun desktopMigrateMixedSlots(mixed: List<String?>): List<String?> {
+    val pages = maxOf(2, if (mixed.size <= 16) 1 else 1 + (mixed.size - 16 + 31) / 32)
+    val result = MutableList<String?>(desktopPageStart(pages)) { null }
+    mixed.forEachIndexed { i, id ->
+        if (id != null) {
+            val page = if (i < 16) 0 else 1 + (i - 16) / 32
+            val local = if (i < 16) i else (i - 16) % 32
+            val row = local / DESKTOP_COLUMNS + if (page == 0) 4 else 0
+            result[desktopSlotIndex(page, row, local % DESKTOP_COLUMNS)] = id
+        }
     }
     return result
 }
@@ -117,7 +127,7 @@ internal fun desktopMoveLauncher(slots: List<String?>, from: Int, to: Int): List
     updated[from] = slots[to]
     updated[to] = slots[from]
     val lastOccupied = updated.indexOfLast { it != null } + 1
-    val wanted = desktopPageStart(desktopAllocatedPageCount(maxOf(DESKTOP_HOME_SLOT_COUNT, lastOccupied)))
+    val wanted = desktopPageStart(desktopAllocatedPageCount(maxOf(DESKTOP_SLOT_COUNT, lastOccupied)))
     return if (wanted <= updated.size) updated.take(wanted)
         else updated + List<String?>(wanted - updated.size) { null }
 }
@@ -492,7 +502,7 @@ internal fun MigrationHomeV2(
                                         },
                                 ) {
                                     DesktopLauncherGrid(
-                                        slots = slots.take(DESKTOP_HOME_SLOT_COUNT),
+                                        slots = slots.take(DESKTOP_SLOT_COUNT),
                                         modifier = Modifier.fillMaxSize(),
                                         draggedLauncherId = draggingSource?.let(slots::get),
                                         onOpen = onOpen,
@@ -542,7 +552,7 @@ internal fun MigrationHomeV2(
                     }?.let { active ->
                         val activePage = pagerState.currentPage
                         val cellHeight = if (activePage == 0) {
-                            with(density) { (homeGridHeightPx / DESKTOP_HOME_ROWS).toDp() }
+                            with(density) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
                         } else minOf(
                             desktopViewportHeight / DESKTOP_ROWS,
                             cellWidth * LULU_DESKTOP_CELL_ASPECT,
@@ -566,7 +576,7 @@ internal fun MigrationHomeV2(
                         widgets.firstOrNull { it.id == id }?.let { w ->
                             val cellWidth = desktopViewportWidth / DESKTOP_COLUMNS
                             val cellHeight = if (pagerState.currentPage == 0) {
-                                with(LocalDensity.current) { (homeGridHeightPx / DESKTOP_HOME_ROWS).toDp() }
+                                with(LocalDensity.current) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
                             } else minOf(
                                 desktopViewportHeight / DESKTOP_ROWS,
                                 cellWidth * LULU_DESKTOP_CELL_ASPECT,
@@ -815,7 +825,7 @@ private fun DesktopLauncherGrid(
         val cellWidth = maxWidth / DESKTOP_COLUMNS
         val cellHeight = if (fullPageGrid)
             minOf(maxHeight / DESKTOP_ROWS, cellWidth * LULU_DESKTOP_CELL_ASPECT)
-            else maxHeight / DESKTOP_HOME_ROWS
+            else maxHeight / DESKTOP_ROWS
         slots.forEachIndexed { index, launcherId ->
             val launcher = DesktopV2Launchers.firstOrNull { it.id == launcherId } ?: return@forEachIndexed
             val column = index % DESKTOP_COLUMNS
@@ -881,15 +891,22 @@ private fun DesktopV2Avatar(text: String, size: Int, imageUri: String? = null, m
     LuluProfileAvatar(imageUri = imageUri, fallback = text, size = size, modifier = modifier)
 
 private fun loadDesktopSlots(context: Context): List<String?> {
+    LuluDesktopWidgetStore.ensureHomeCards(context)
     val known = DesktopV2Launchers.mapTo(mutableSetOf()) { it.id }
     val prefs = context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
-    val upgraded = prefs.contains("slots_v2")
-    val raw = prefs.getString(if (upgraded) "slots_v2" else "slots_v1", null)
-    val saved = raw?.split('|')
-        ?.map { value -> value.takeIf(String::isNotBlank) }
-        ?.map { id -> id?.takeIf { it in known } }
-        .orEmpty()
-    val positioned = if (upgraded) saved else desktopMigrateLegacySlots(saved)
+    val version = when {
+        prefs.contains("slots_v3") -> 3
+        prefs.contains("slots_v2") -> 2
+        else -> 1
+    }
+    val raw = prefs.getString("slots_v" + version, null)
+    val saved = raw?.split('|')?.map { it.takeIf(String::isNotBlank) }
+        ?.map { it?.takeIf { id -> id in known } }.orEmpty()
+    val positioned = when (version) {
+        3 -> saved
+        2 -> desktopMigrateMixedSlots(saved)
+        else -> desktopMigrateLegacySlots(saved)
+    }
     val widgetCells = LuluDesktopWidgetStore.load(context).flatMap { widget ->
         (widget.row until widget.row + widget.rows).flatMap { row ->
             (widget.col until widget.col + widget.columns).map { col ->
@@ -898,12 +915,13 @@ private fun loadDesktopSlots(context: Context): List<String?> {
         }
     }.toSet()
     val lastOccupied = maxOf(positioned.indexOfLast { it != null }, widgetCells.maxOrNull() ?: -1)
-    val required = maxOf(DESKTOP_HOME_SLOT_COUNT, lastOccupied + 1,
-        known.size + widgetCells.size)
+    val required = maxOf(DESKTOP_SLOT_COUNT, lastOccupied + 1, known.size + widgetCells.size)
     val sized = MutableList<String?>(desktopPageStart(desktopAllocatedPageCount(required))) { null }
-    positioned.take(sized.size).forEachIndexed { index, id -> sized[index] = id }
-    val existing = sized.filterNotNull().toSet()
-    DesktopV2Launchers.filterNot { it.id in existing }.forEach { launcher ->
+    positioned.take(sized.size).forEachIndexed { index, id ->
+        if (id != null && index !in widgetCells) sized[index] = id
+    }
+    val present = sized.filterNotNull().toSet()
+    DesktopV2Launchers.filterNot { it.id in present }.forEach { launcher ->
         var empty = sized.indices.firstOrNull { sized[it] == null && it !in widgetCells }
         if (empty == null) {
             empty = sized.size
@@ -911,13 +929,13 @@ private fun loadDesktopSlots(context: Context): List<String?> {
         }
         sized[empty] = launcher.id
     }
-    if (!upgraded) saveDesktopSlots(context, sized)
+    if (version != 3) saveDesktopSlots(context, sized)
     return sized
 }
 
 private fun saveDesktopSlots(context: Context, slots: List<String?>) {
     context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
         .edit()
-        .putString("slots_v2", slots.joinToString("|") { it.orEmpty() })
+        .putString("slots_v3", slots.joinToString("|") { it.orEmpty() })
         .apply()
 }
