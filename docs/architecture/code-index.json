@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T14:25:19.487906+00:00",
-  "commit": "8018bc7c0d48df2ee321ae8bed87a265c854f10f",
+  "generatedAt": "2026-11-18T14:25:56.939062+00:00",
+  "commit": "62f47cb0655769071d11d65a1f8ca180b2224c20",
   "branch": "main",
-  "sourceFingerprint": "40c917b11dfd4bb0e64c96fd4b78f3af58a057c4d731d5db6e156905eec348f2",
+  "sourceFingerprint": "d1247f4d0fc387a9ac718a3b59723768044f5ce55a000224a7929dffc95ac539",
   "summary": {
     "files": 1469,
-    "lines": 310604,
+    "lines": 310618,
     "symbols": 4437
   },
   "symbolIndex": {
@@ -43047,8 +43047,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2392,
-      "sha256": "dcbe234f38f6d69b4691c1fccf2c33696d14adbb9649ba009de8b5429f8a5f6a",
+      "lines": 2404,
+      "sha256": "da664c952f086750a675abfe653ac82dd9c4fcdfed444857806e44ccd8a74e2b",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -43099,7 +43099,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluForegroundPhoneSession.kt",
       "lines": 346,
-      "sha256": "afb02abb0dcad93e2b10866564966dfaedefa36be7cbf3e14d95819f3abb4358",
+      "sha256": "c6b62985221202a749e950a07f471b28963c01de832c19a386d12e70a4dd8e36",
       "symbols": [
         {
           "name": "activeFor",
@@ -44262,8 +44262,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt",
-      "lines": 86,
-      "sha256": "9e2ef744a81b51eb82f4054f955790554a4904138a15b5dcaaf5b393978b3f1b",
+      "lines": 88,
+      "sha256": "34629d5bcc2bce09bb3478a18c2db7d765c78f7e34b988f20dd4e7c8ac6f5eb3",
       "symbols": [
         {
           "name": "Proof",
