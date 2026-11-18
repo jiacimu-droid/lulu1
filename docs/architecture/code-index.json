@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T01:37:24.948246+00:00",
-  "commit": "288087006d7307a2395037460c38a3cf36919839",
+  "generatedAt": "2026-11-18T01:41:38.872382+00:00",
+  "commit": "2c15877ce454d9d85a28a415ff450cfaa2855537",
   "branch": "main",
-  "sourceFingerprint": "620b3a658cd0c7d38b6f46519dcf324be2722614f147dce1c1228ab325e07775",
+  "sourceFingerprint": "336b33e14916a5208592ee73ba9c68ad746543289813b483a0b9ee46630b3f02",
   "summary": {
     "files": 1443,
-    "lines": 304459,
+    "lines": 304467,
     "symbols": 4349
   },
   "symbolIndex": {
@@ -17657,7 +17657,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 566
+        "line": 574
       }
     ],
     "box": [
@@ -18001,17 +18001,17 @@
     "stopped": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 488
+        "line": 496
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 688
+        "line": 696
       }
     ],
     "stillAuthorized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 1098
+        "line": 1106
       }
     ],
     "LuluDeviceToolBridge": [
@@ -42247,8 +42247,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 2025,
-      "sha256": "580587a661295d856464ffb3a4a07e9d70b60c15e7f5d3f87bd4f504bba5dca7",
+      "lines": 2033,
+      "sha256": "8a315694aaf33e18eee9593cff8d762c6dbbb97fb8079f21316c4db2f24c227d",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -42272,19 +42272,19 @@
         },
         {
           "name": "stopped",
-          "line": 488
+          "line": 496
         },
         {
           "name": "denied",
-          "line": 566
+          "line": 574
         },
         {
           "name": "stopped",
-          "line": 688
+          "line": 696
         },
         {
           "name": "stillAuthorized",
-          "line": 1098
+          "line": 1106
         }
       ]
     },
