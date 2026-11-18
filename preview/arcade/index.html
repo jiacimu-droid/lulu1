@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111820">
+  <link rel="stylesheet" href="./arcade.css">
+  <script defer src="../world-joystick.js"></script>
+  <script type="module" src="./arcade.js"></script>
+  <title>露露机 · 游戏馆</title>
+</head>
+<body>
+  <main id="hall" class="hall">
+    <header class="masthead"><span><b class="mark" aria-hidden="true">✦</b> 露露机</span><a href="../index.html">返回露露机 ↗</a></header>
+    <div class="intro">
+      <div><h1>游戏馆</h1><p>盖一间屋，带一件珍宝回来。</p></div>
+      <span class="edition">设计审稿</span>
+    </div>
+    <div class="covers">
+      <article class="cover cover-island">
+        <img src="./art/island.png" alt="正式版方块小岛场景原画">
+        <div class="cover-copy"><small>采集 / 建造 / 守夜</small><h2>方块小岛</h2><p>从第一把木斧，到和伙伴亲手搭起来的家。</p>
+          <button data-launch="island">登岛试玩 <span aria-hidden="true">↗</span></button></div>
+      </article>
+      <article class="cover cover-relic">
+        <img src="./art/relic.webp" alt="正式版迷雾摸金营地原画">
+        <div class="cover-copy"><small>勘察 / 搜宝 / 撤离</small><h2>迷雾摸金</h2><p>开箱之后，决定带着宝物回去，还是再往深处走。</p>
+          <button data-launch="relic">进入营地 <span aria-hidden="true">↗</span></button></div>
+      </article>
+    </div>
+    <section class="other" aria-labelledby="other-title">
+      <h2 id="other-title">其他游戏</h2>
+      <div class="other-games">
+        <div class="other-game sea"><span aria-hidden="true">≈</span><div><b>深海回声</b><small>侧视潜航 · 设计方案</small></div></div>
+        <a class="other-game memory" href="../play.html#memory"><span aria-hidden="true">◫</span><div><b>记忆配对</b><small>桌面翻牌 · 旧版试玩</small></div><i aria-hidden="true">↗</i></a>
+        <a class="other-game soup" href="../play.html#soup"><span aria-hidden="true">◌</span><div><b>海龟汤</b><small>推理笔记 · 旧版试玩</small></div><i aria-hidden="true">↗</i></a>
+        <a class="other-game dice" href="../play.html#dice"><span aria-hidden="true">⚄</span><div><b>快艇骰子</b><small>俯视骰桌 · 旧版试玩</small></div><i aria-hidden="true">↗</i></a>
+      </div>
+    </section>
+    <footer>两款主试玩运行仓库的 Kotlin 游戏规则。试玩进度留在本地服务，队友由你指挥。</footer>
+  </main>
+  <main id="game" class="game" hidden>
+    <canvas id="map-3d" aria-label="方块小岛三维地图，点选地块"></canvas>
+    <canvas id="map-2d" aria-label="迷雾摸金地图，点选目标"></canvas>
+    <div class="hud">
+      <div class="goal"><small id="map-name"></small><strong id="objective"></strong><span id="stats"></span></div>
+      <nav class="map-nav" aria-label="地图控制">
+        <button id="overview" hidden>全岛</button><button id="orbit" hidden>转向</button><button id="leave">返回</button>
+      </nav>
+    </div>
+    <div id="feedback" class="feedback" role="status"></div>
+    <div class="controls">
+      <div id="pad" class="pad" role="group" aria-label="方向键，按住连续移动">
+        <button type="button" data-vector="0,-1" aria-label="向上">↑</button>
+        <button type="button" data-vector="-1,0" aria-label="向左">←</button>
+        <button type="button" data-vector="0,0" aria-label="互动">✦</button>
+        <button type="button" data-vector="1,0" aria-label="向右">→</button>
+        <button type="button" data-vector="0,1" aria-label="向下">↓</button>
+      </div>
+      <div class="commands">
+        <p id="focus" class="focus" aria-live="polite"></p>
+        <div class="buttons">
+          <button id="partner" hidden>队友</button><button id="tools">工具</button>
+          <button id="fight" hidden>攻击</button><button id="primary">互动</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <dialog id="launch" aria-labelledby="launch-title">
+    <form id="setup">
+      <div class="dialog-top"><small id="launch-kicker"></small><button type="button" data-dismiss aria-label="关闭">×</button></div>
+      <h2 id="launch-title"></h2>
+      <p id="launch-copy"></p>
+      <div id="relic-config">
+        <fieldset><legend>难度</legend><div class="choices">
+          <label><input type="radio" name="difficulty" value="EASY" checked>轻松</label>
+          <label><input type="radio" name="difficulty" value="NORMAL">标准</label>
+          <label><input type="radio" name="difficulty" value="HARD">险境</label>
+        </div><p id="difficulty-detail" class="selection-detail"></p></fieldset>
+        <fieldset><legend>起始武器</legend><div class="choices">
+          <label><input type="radio" name="weapon" value="blade" checked>短剑</label>
+          <label><input type="radio" name="weapon" value="spear">长矛</label>
+          <label><input type="radio" name="weapon" value="bow">弩弓</label>
+        </div></fieldset>
+        <fieldset><legend>职业</legend><div class="choices">
+          <label><input type="radio" name="profession" value="SCOUT" checked>探路者</label>
+          <label><input type="radio" name="profession" value="GUARDIAN">守护者</label>
+          <label><input type="radio" name="profession" value="MEDIC">医师</label>
+        </div></fieldset>
+      </div>
+      <label class="check"><input type="checkbox" id="with-partner"> 带手动操控的试玩队友</label>
+      <p id="launch-status" role="status"></p>
+      <div class="dialog-actions"><button id="resume" type="button" hidden>继续上次试玩</button><button type="submit" class="accent" id="start">开始</button></div>
+    </form>
+  </dialog>
+  <dialog id="options" class="game-dialog" aria-labelledby="options-title">
+    <div class="dialog-top"><small id="options-kicker"></small><button type="button" data-dismiss aria-label="关闭">×</button></div>
+    <h2 id="options-title"></h2>
+    <p id="options-desc"></p>
+    <div id="option-list" class="option-list"></div>
+  </dialog>
+</body>
+</html>
