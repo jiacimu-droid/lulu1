@@ -44,6 +44,48 @@ class LuluBackgroundPhoneContinuationYieldTest {
         assertFalse(LuluBackgroundPhoneContinuation.hasFreshExecutionReceipt(null))
     }
 
+    @Test fun rejectedTapWithoutSnapshotIsRecoverableOnlyByFreshReadOnlyObservation() {
+        val missingSnapshot = JSONObject()
+            .put("success", false).put("accepted", false)
+            .put("status", "failed").put("mode", "independent_virtual_display")
+            .put("errorCode", "invalid_action_arguments")
+            .put("verification", "看图点击或长按必须绑定当前screenSnapshotId")
+            .put("sessionPreserved", true)
+        assertTrue("No tap was dispatched; obtain a new owned observation",
+            LuluBackgroundPhoneContinuation.needsSnapshotReinspection("tap", missingSnapshot))
+        assertTrue(LuluBackgroundPhoneContinuation.needsSnapshotReinspection(
+            "long_press", missingSnapshot))
+        assertFalse("A new screenshot is not an excuse to repeat an outward send",
+            LuluBackgroundPhoneContinuation.needsSnapshotReinspection(
+                "send_chat_message", JSONObject(missingSnapshot.toString())
+                    .put("messageSendAttempted", true)))
+        assertFalse("Do not turn denied authorization into automatic read/gesture",
+            LuluBackgroundPhoneContinuation.needsSnapshotReinspection(
+                "tap", JSONObject(missingSnapshot.toString())
+                    .put("sessionPreserved", false)))
+        assertFalse(LuluBackgroundPhoneContinuation.needsSnapshotReinspection(
+            "tap", JSONObject(missingSnapshot.toString())
+                .put("verification", "坐标缺失或超出0到1000范围")))
+        assertFalse(LuluBackgroundPhoneContinuation.needsSnapshotReinspection(
+            "tap", JSONObject(missingSnapshot.toString())
+                .put("errorCode", "excluded_app")))
+        assertFalse(LuluBackgroundPhoneContinuation.needsSnapshotReinspection(
+            "observe", missingSnapshot))
+    }
+
+    @Test fun staleSnapshotAfterRealDecisionRequiresFreshReadNotOldToken() {
+        val expired = JSONObject().put("status", "unverified")
+            .put("accepted", false).put("errorCode", "virtual_snapshot_expired")
+        assertTrue(LuluBackgroundPhoneContinuation.needsSnapshotReinspection("tap", expired))
+        assertTrue(LuluBackgroundPhoneContinuation.needsSnapshotReinspection(
+            "tap_element", expired))
+        assertFalse(LuluBackgroundPhoneContinuation.needsSnapshotReinspection(
+            "search", expired))
+        assertFalse(LuluBackgroundPhoneContinuation.needsSnapshotReinspection(
+            "tap", JSONObject(expired.toString())
+                .put("messageSendClicked", true)))
+    }
+
     @Test fun phoneActionReceiptsStayDistinctBeyondFormerTwelveStepCutoff() {
         val ids = (1L..128L).map { ordinal ->
             LuluBackgroundPhoneContinuation.stepRequestId("owner-task", ordinal)
