@@ -1,11 +1,8 @@
 package com.jiacimu.lulu
 
 import android.content.Context
-import android.content.Intent
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.pager.HorizontalPager
@@ -25,11 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
@@ -50,15 +43,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.jiacimu.lulu.design.LocalLuluAppearance
 import com.jiacimu.lulu.design.JournalPatchIcon
-import com.jiacimu.lulu.design.JournalPressedFlower
-import com.jiacimu.lulu.design.JournalWashiTape
 import com.jiacimu.lulu.design.isJournal
 import com.jiacimu.lulu.design.journalLinen
-import com.jiacimu.lulu.design.journalPaper
-import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
@@ -91,74 +78,11 @@ internal fun desktopCssApps(): List<Pair<String, String>> =
     DesktopV2Launchers.map { it.id to it.title }
 
 
-private const val DESKTOP_COLUMNS = 4
-private const val DESKTOP_ROWS = 8
-private const val DESKTOP_SLOT_COUNT = DESKTOP_COLUMNS * DESKTOP_ROWS
-
-/** Every desktop page has the same four columns and eight rows. */
-internal fun desktopPageStart(page: Int): Int = page.coerceAtLeast(0) * DESKTOP_SLOT_COUNT
-internal fun desktopPageForSlot(slot: Int): Int = slot.coerceAtLeast(0) / DESKTOP_SLOT_COUNT
-internal fun desktopPageRows(page: Int): Int = DESKTOP_ROWS
-internal fun desktopSlotIndex(page: Int, row: Int, col: Int): Int =
-    desktopPageStart(page) + row * DESKTOP_COLUMNS + col
-internal fun desktopStoredPageCount(slotCount: Int): Int =
-    maxOf(1, (slotCount + DESKTOP_SLOT_COUNT - 1) / DESKTOP_SLOT_COUNT)
-
-/** Legacy 4x4 pages; home icons now start on row five. */
-internal fun desktopMigrateLegacySlots(legacy: List<String?>): List<String?> {
-    val pages = maxOf(2, (legacy.size + 15) / 16)
-    val result = MutableList<String?>(desktopPageStart(pages)) { null }
-    legacy.forEachIndexed { i, id ->
-        if (id != null) {
-            val page = i / 16
-            val row = (i % 16) / DESKTOP_COLUMNS + if (page == 0) 4 else 0
-            result[desktopSlotIndex(page, row, i % DESKTOP_COLUMNS)] = id
-        }
-    }
-    return result
-}
-
-/** Recent layout with 4x4 dashboard and 4x8 secondary pages. */
-internal fun desktopMigrateMixedSlots(mixed: List<String?>): List<String?> {
-    val pages = maxOf(2, if (mixed.size <= 16) 1 else 1 + (mixed.size - 16 + 31) / 32)
-    val result = MutableList<String?>(desktopPageStart(pages)) { null }
-    mixed.forEachIndexed { i, id ->
-        if (id != null) {
-            val page = if (i < 16) 0 else 1 + (i - 16) / 32
-            val local = if (i < 16) i else (i - 16) % 32
-            val row = local / DESKTOP_COLUMNS + if (page == 0) 4 else 0
-            result[desktopSlotIndex(page, row, local % DESKTOP_COLUMNS)] = id
-        }
-    }
-    return result
-}
-
-/** One shared layout for local and cross-page drag; moving to an empty slot leaves a hole. */
-internal fun desktopMoveLauncher(slots: List<String?>, from: Int, to: Int): List<String?> {
-    if (from !in slots.indices || to !in slots.indices || from == to || slots[from] == null) return slots
-    val updated = slots.toMutableList()
-    updated[from] = slots[to]
-    updated[to] = slots[from]
-    val lastOccupied = updated.indexOfLast { it != null } + 1
-    val wanted = desktopPageStart(desktopAllocatedPageCount(maxOf(DESKTOP_SLOT_COUNT, lastOccupied)))
-    return if (wanted <= updated.size) updated.take(wanted)
-        else updated + List<String?>(wanted - updated.size) { null }
-}
-
-
-// 至少保留一张空白桌面页；如果最后一张已经放了应用，就预留下一张。
-internal fun desktopAllocatedPageCount(neededSlots: Int): Int =
-    maxOf(2, desktopPageForSlot(maxOf(neededSlots - 1, 0)) + 2)
-
 // Resolve colors inside each composable, from the chosen desktop recipe.
-private val DesktopPaper: Color @Composable get() = MaterialTheme.colorScheme.background
-private val DesktopSoft: Color @Composable get() = MaterialTheme.colorScheme.surfaceVariant
 private val DesktopIconSurface: Color @Composable get() = MaterialTheme.colorScheme.surfaceVariant
-private val DesktopCard: Color @Composable get() = MaterialTheme.colorScheme.surface
 private val DesktopLine: Color @Composable get() = MaterialTheme.colorScheme.outline
 private val DesktopAccent: Color @Composable get() = MaterialTheme.colorScheme.primary
 private val DesktopInk: Color @Composable get() = MaterialTheme.colorScheme.onBackground
-private val DesktopMuted: Color @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 private val DesktopIcon: Color @Composable get() = MaterialTheme.colorScheme.onSurface
 
 @Composable
@@ -188,9 +112,6 @@ internal fun MigrationHomeV2(
         currentCharacter?.displayName?.take(1).orEmpty().ifBlank { "+" }
     }
     val today = rememberLuluDesktopDate()
-    val dateText = remember(today) {
-        today.format(DateTimeFormatter.ofPattern("M月d日 EEEE", Locale.SIMPLIFIED_CHINESE))
-    }
     val greeting = when (LocalTime.now().hour) {
         in 5..10 -> "早上好"
         in 11..13 -> "中午好"
@@ -242,16 +163,6 @@ internal fun MigrationHomeV2(
     }
     val widgetCharacterNames = characters.mapValues { it.value.displayName }
     val widgetConversationTexts = ownerChats.associate { it.characterId to it.lastMessage }
-    val desktopPrefs = remember { context.getSharedPreferences("lulu_desktop_moment", Context.MODE_PRIVATE) }
-    var momentPhotoUri by remember { mutableStateOf(desktopPrefs.getString("photo_uri", null)) }
-    val photoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        if (uri != null) {
-            runCatching { context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
-            momentPhotoUri = uri.toString()
-            desktopPrefs.edit().putString("photo_uri", momentPhotoUri).apply()
-        }
-    }
-
     val pageCount = maxOf(
         desktopStoredPageCount(slots.size),
         (widgets.maxOfOrNull { it.page } ?: 0) + 2,
@@ -263,9 +174,6 @@ internal fun MigrationHomeV2(
     var dragPosition by remember { mutableStateOf(Offset.Zero) }
     var dragGrabOffset by remember { mutableStateOf(Offset.Zero) }
     var edgePageHandled by remember { mutableIntStateOf(-1) }
-    var viewportTopInWindow by remember { mutableFloatStateOf(0f) }
-    var homeGridTopInWindow by remember { mutableFloatStateOf(0f) }
-    var homeGridHeightPx by remember { mutableFloatStateOf(0f) }
 
     Surface(modifier = Modifier.luluCssElement("page").fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Box(Modifier.fillMaxSize()) {
@@ -276,32 +184,18 @@ internal fun MigrationHomeV2(
                     .statusBarsPadding().navigationBarsPadding()
                     .padding(horizontal = 20.dp),
             ) {
-                // The pager owns the ENTIRE desktop content, not only the last 4x4
-                // icon grid. Page 0 is the familiar companion dashboard; subsequent
-                // pages have the full 4x8 canvas, with usable lower cells.
                 BoxWithConstraints(
                     Modifier.fillMaxWidth().weight(1f)
-                        .onGloballyPositioned {
-                            viewportTopInWindow = it.positionInWindow().y
-                        }
-                        .pointerInput(slots, widgets, homeGridTopInWindow, homeGridHeightPx, viewportTopInWindow) {
+                        .padding(top = 12.dp, bottom = 16.dp)
+                        .pointerInput(slots, widgets) {
                             val cellWidth = size.width.toFloat() / DESKTOP_COLUMNS
-                            if (cellWidth <= 0f) return@pointerInput
+                            val cellHeight = size.height.toFloat() / DESKTOP_ROWS
+                            if (cellWidth <= 0f || cellHeight <= 0f) return@pointerInput
                             val edgePx = 32.dp.toPx()
-                            val iconHeightPx = 86.dp.toPx()
 
-                            fun gridTop(page: Int): Float = 0f
-                            fun gridHeight(page: Int): Float =
-                                DESKTOP_ROWS.toFloat() * luluDesktopFullCellHeight(
-                                    size.width.toFloat(), size.height.toFloat(), DESKTOP_ROWS,
-                                )
                             fun slotAt(position: Offset, page: Int): Int? {
-                                val top = gridTop(page)
-                                val height = gridHeight(page)
-                                if (height <= 0f || position.y < top || position.y >= top + height) return null
-                                val rows = desktopPageRows(page)
-                                val cellHeight = height / rows
-                                val row = ((position.y - top) / cellHeight).toInt().coerceIn(0, rows - 1)
+                                if (position.y < 0f || position.y >= size.height) return null
+                                val row = (position.y / cellHeight).toInt()
                                 val col = (position.x / cellWidth).toInt().coerceIn(0, DESKTOP_COLUMNS - 1)
                                 return desktopSlotIndex(page, row, col)
                             }
@@ -310,34 +204,22 @@ internal fun MigrationHomeV2(
                                 onDragStart = { start ->
                                     val page = pagerState.currentPage
                                     val source = slotAt(start, page)
-                                    if (source != null && slots.getOrNull(source) != null) {
+                                    if (source != null) {
                                         val local = source - desktopPageStart(page)
                                         val row = local / DESKTOP_COLUMNS
                                         val col = local % DESKTOP_COLUMNS
-                                        val height = gridHeight(page) / desktopPageRows(page)
-                                        if (start.y - gridTop(page) - row * height <= iconHeightPx) {
-                                            draggingSource = source
-                                            dragPosition = start
-                                            dragGrabOffset = Offset(
-                                                start.x - col * cellWidth,
-                                                start.y - gridTop(page) - row * height,
-                                            )
-                                            edgePageHandled = -1
+                                        val widget = widgets.firstOrNull { candidate ->
+                                            candidate.page == page &&
+                                                col in candidate.col until candidate.col + candidate.columns &&
+                                                row in candidate.row until candidate.row + candidate.rows
                                         }
-                                    } else if (source != null) {
-                                        val x = (start.x / cellWidth).toInt().coerceIn(0, 3)
-                                        val y = ((start.y - gridTop(page)) /
-                                            (gridHeight(page) / desktopPageRows(page))).toInt().coerceIn(0, desktopPageRows(page) - 1)
-                                        widgets.firstOrNull { w ->
-                                            w.page == page && x in w.col until w.col + w.columns &&
-                                                y in w.row until w.row + w.rows
-                                        }?.let { w ->
-                                            draggingWidgetId = w.id
+                                        if (slots.getOrNull(source) != null || widget != null) {
+                                            draggingWidgetId = widget?.id
+                                            draggingSource = if (widget == null) source else null
                                             dragPosition = start
                                             dragGrabOffset = Offset(
-                                                start.x - w.col * cellWidth,
-                                                start.y - gridTop(page) -
-                                                    w.row * gridHeight(page) / desktopPageRows(page),
+                                                start.x - (widget?.col ?: col) * cellWidth,
+                                                start.y - (widget?.row ?: row) * cellHeight,
                                             )
                                             edgePageHandled = -1
                                         }
@@ -373,7 +255,9 @@ internal fun MigrationHomeV2(
                                                 x in w.col until w.col + w.columns &&
                                                 y in w.row until w.row + w.rows
                                         }) {
-                                            val updated = desktopMoveLauncher(slots, from, target)
+                                            val targetSlots = if (target in slots.indices) slots
+                                                else List(desktopPageStart(pageCount)) { slots.getOrNull(it) }
+                                            val updated = desktopMoveLauncher(targetSlots, from, target)
                                             if (updated != slots) {
                                                 slots = updated
                                                 saveDesktopSlots(context, updated)
@@ -381,13 +265,15 @@ internal fun MigrationHomeV2(
                                         }
                                     }
                                     draggingWidgetId?.let { id ->
-                                        val target = slotAt(dragPosition, pagerState.currentPage)
                                         val original = widgets.firstOrNull { it.id == id }
-                                        if (target != null && original != null) {
+                                        if (original != null && dragPosition.y in 0f..<size.height.toFloat()) {
+                                            val origin = dragPosition - dragGrabOffset
                                             val moved = original.copy(
-                                                page = desktopPageForSlot(target),
-                                                col = (target - desktopPageStart(desktopPageForSlot(target))) % DESKTOP_COLUMNS,
-                                                row = (target - desktopPageStart(desktopPageForSlot(target))) / DESKTOP_COLUMNS,
+                                                page = pagerState.currentPage,
+                                                col = kotlin.math.round(origin.x / cellWidth).toInt()
+                                                    .coerceIn(0, DESKTOP_COLUMNS - original.columns),
+                                                row = kotlin.math.round(origin.y / cellHeight).toInt()
+                                                    .coerceIn(0, DESKTOP_ROWS - original.rows),
                                             )
                                             if (luluWidgetFits(moved, widgets, slots)) {
                                                 val updated = widgets.map { if (it.id == id) moved else it }
@@ -407,11 +293,8 @@ internal fun MigrationHomeV2(
                             )
                         },
                 ) {
-                    val density = LocalDensity.current
-                    // Capture constraints before nested layout scopes hide this receiver.
-                    val desktopViewportWidth = maxWidth
-                    val desktopViewportHeight = maxHeight
-                    val cellWidth = desktopViewportWidth / DESKTOP_COLUMNS
+                    val cellWidth = maxWidth / DESKTOP_COLUMNS
+                    val cellHeight = maxHeight / DESKTOP_ROWS
                     // The page root is the drag surface so a long press can cross a
                     // page boundary without destroying its pointer gesture owner.
                     HorizontalPager(
@@ -422,7 +305,7 @@ internal fun MigrationHomeV2(
                     ) { page ->
                         Box(Modifier.fillMaxSize()) {
                             LuluDesktopWidgetCanvas(
-                                page = page, widgets = widgets,
+                                page = page, widgets = widgets, draggingWidgetId = draggingWidgetId,
                                 launcherSlots = slots, today = today,
                                 characterNames = widgetCharacterNames,
                                 conversationTexts = widgetConversationTexts,
@@ -432,11 +315,9 @@ internal fun MigrationHomeV2(
                                 modifier = Modifier.fillMaxSize(),
                                 onOpenWidget = { widget ->
                                     when (widget.kind) {
-                                        LuluWidgetKind.CHAT, LuluWidgetKind.BULLETIN,
-                                        LuluWidgetKind.HOROSCOPE -> Unit
+                                        LuluWidgetKind.CHAT, LuluWidgetKind.BULLETIN -> Unit
                                         LuluWidgetKind.PLANNER -> showingWidgetPlanner = true
-                                        LuluWidgetKind.NOTE, LuluWidgetKind.COUNTDOWN ->
-                                            editingWidgetId = widget.id
+                                        else -> editingWidgetId = widget.id
                                     }
                                 },
                                 specialContent = { widget, foreground ->
@@ -455,7 +336,7 @@ internal fun MigrationHomeV2(
                                                     ?: onOpen(MigrationRoute.Chat)
                                             },
                                             modifier = Modifier.fillMaxSize(),
-                                            embedded = true, foreground = foreground,
+                                            foreground = foreground,
                                         )
                                         LuluWidgetKind.BULLETIN -> DesktopWorldBulletinCard(
                                             modifier = Modifier.fillMaxSize(), embedded = true,
@@ -472,7 +353,6 @@ internal fun MigrationHomeV2(
                                 modifier = Modifier.fillMaxSize(),
                                 draggedLauncherId = draggingSource?.let(slots::get),
                                 onOpen = onOpen,
-                                fullPageGrid = true,
                             )
                         }
                     }
@@ -481,11 +361,6 @@ internal fun MigrationHomeV2(
                             DesktopV2Launchers.firstOrNull { it.id == id }
                         }
                     }?.let { active ->
-                        val activePage = pagerState.currentPage
-                        val cellHeight = minOf(
-                            desktopViewportHeight / DESKTOP_ROWS,
-                            cellWidth * LULU_DESKTOP_CELL_ASPECT,
-                        )
                         DesktopV2LauncherItem(
                             launcher = active,
                             modifier = Modifier.width(cellWidth).height(cellHeight)
@@ -503,11 +378,6 @@ internal fun MigrationHomeV2(
                     }
                     draggingWidgetId?.let { id ->
                         widgets.firstOrNull { it.id == id }?.let { w ->
-                            val cellWidth = desktopViewportWidth / DESKTOP_COLUMNS
-                            val cellHeight = minOf(
-                                desktopViewportHeight / DESKTOP_ROWS,
-                                cellWidth * LULU_DESKTOP_CELL_ASPECT,
-                            )
                             LuluDesktopWidgetCard(
                                 widget = w, today = today,
                                 characterName = widgetCharacterNames[w.characterId],
@@ -522,6 +392,11 @@ internal fun MigrationHomeV2(
                                         )
                                     }.graphicsLayer { alpha = .93f; shadowElevation = 8f },
                                 onOpen = {},
+                                specialContent = { item, ink ->
+                                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        Text(item.kind.title, color = ink, fontWeight = FontWeight.SemiBold)
+                                    }
+                                },
                             )
                         }
                     }
@@ -624,131 +499,62 @@ private fun DesktopCompanionCard(
     isGroup: Boolean,
     recentMessage: String,
     onClick: () -> Unit,
-    greeting: String = "",
+    greeting: String,
     modifier: Modifier = Modifier,
-    embedded: Boolean = false,
-    foreground: Color? = null,
+    foreground: Color,
 ) {
-    val journal = LocalLuluAppearance.current.isJournal()
-    val ink = foreground ?: DesktopInk
-    val secondary = foreground?.copy(alpha = .78f) ?: DesktopMuted
-    Surface(
-        modifier = modifier.fillMaxSize().luluCssElement("companion"),
-        color = if (embedded) Color.Transparent else MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(LocalLuluAppearance.current.corner.dp),
-        border = if (embedded) null else BorderStroke(1.dp, DesktopLine),
-        shadowElevation = if (embedded) 0.dp else 2.dp,
-        onClick = onClick,
-    ) {
-        BoxWithConstraints(Modifier.fillMaxSize()) {
-            val compact = maxWidth < 250.dp || maxHeight < 116.dp
+    val secondary = foreground.copy(alpha = .79f)
+    BoxWithConstraints(modifier.luluCssElement("companion").clickable(onClick = onClick)) {
+        val narrow = maxWidth < 232.dp
+        val short = maxHeight < 106.dp
+        if (narrow && maxHeight >= 210.dp) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 13.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                DesktopV2Avatar(avatarFallback, 60, avatarUri)
+                Spacer(Modifier.height(12.dp))
+                Text(displayName, color = foreground, fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Spacer(Modifier.height(6.dp))
+                Text(recentMessage.trim(), color = secondary, fontSize = 14.sp, lineHeight = 19.sp,
+                    maxLines = 3, overflow = TextOverflow.Ellipsis,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            }
+        } else {
+            val avatarSize = if (short) 42 else if (narrow) 48 else 60
             Row(
-                modifier = Modifier.fillMaxSize()
-                    .padding(horizontal = if (compact) 9.dp else 15.dp,
-                        vertical = if (compact) 7.dp else 13.dp),
+                modifier = Modifier.fillMaxSize().padding(
+                    start = if (narrow) 10.dp else 17.dp,
+                    end = if (narrow) 12.dp else 18.dp,
+                ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                DesktopV2Avatar(avatarFallback, if (compact) 42 else 62, avatarUri)
-                Spacer(Modifier.width(if (compact) 8.dp else 13.dp))
+                DesktopV2Avatar(avatarFallback, avatarSize, avatarUri)
+                Spacer(Modifier.width(if (narrow) 9.dp else 14.dp))
                 Column(Modifier.weight(1f)) {
-                    if (!compact && greeting.isNotBlank()) {
-                        Text(greeting, color = secondary, fontSize = 10.sp,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Spacer(Modifier.height(3.dp))
+                    if (!short && !narrow) {
+                        Text(if (isGroup) "群聊" else greeting, color = secondary,
+                            fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(end = 34.dp))
+                        Spacer(Modifier.height(4.dp))
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(displayName, color = ink,
-                            fontSize = if (compact) 14.sp else 18.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1, overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f, fill = false))
-                        if (!compact) {
-                            Spacer(Modifier.width(7.dp))
-                            Text(if (isGroup) "GROUP" else "ONLINE",
-                                color = secondary, fontSize = 8.sp)
-                        }
-                    }
-                    Spacer(Modifier.height(if (compact) 3.dp else 6.dp))
-                    Text("“${recentMessage.trim()}”", color = secondary,
-                        fontSize = if (compact) 10.sp else 12.sp,
-                        fontStyle = FontStyle.Italic, maxLines = if (compact) 2 else 1,
+                    Text(displayName, color = foreground,
+                        fontSize = if (short || narrow) 17.sp else 23.sp,
+                        fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        modifier = if (short) Modifier.padding(end = 22.dp) else Modifier)
+                    Spacer(Modifier.height(3.dp))
+                    Text(recentMessage.trim(), color = secondary, fontSize = if (short) 12.sp else 14.sp,
+                        lineHeight = if (short) 16.sp else 19.sp, maxLines = if (short) 1 else 2,
                         overflow = TextOverflow.Ellipsis)
-                    if (!compact) {
-                        Spacer(Modifier.height(7.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            DesktopTinyTag(if (isGroup) "群聊" else "陪伴中")
-                            DesktopTinyTag(if (isGroup) "进入群聊" else "点我聊天")
-                        }
-                    }
                 }
-                if (!compact) {
-                    Spacer(Modifier.width(5.dp))
-                    Icon(Icons.Outlined.ChevronRight, "进入聊天",
-                        tint = secondary, modifier = Modifier.size(18.dp))
+                if (!narrow && !short) {
+                    Spacer(Modifier.width(8.dp))
+                    Icon(Icons.Outlined.ChevronRight, "进入聊天", tint = secondary, modifier = Modifier.size(20.dp))
                 }
             }
-            if (journal && !embedded) {
-                JournalWashiTape(Modifier.align(Alignment.TopEnd).padding(end = 18.dp)
-                    .offset(y = (-2).dp).width(58.dp).height(13.dp))
-            }
         }
-    }
-}
-
-@Composable
-private fun DesktopMomentCard(
-    characterName: String,
-    dateLabel: String,
-    photoUri: String?,
-    onClick: () -> Unit,
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth().height(108.dp),
-        color = DesktopCard,
-        shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
-        border = BorderStroke(1.dp, DesktopLine),
-        shadowElevation = 1.dp,
-        onClick = onClick,
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize().padding(13.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text("TODAY MOMENT", color = DesktopMuted, fontSize = 8.sp, letterSpacing = 1.4.sp)
-                Spacer(Modifier.height(7.dp))
-                Text("给今天留一个位置", color = DesktopInk, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    "$characterName 想和你一起保存一点心情。",
-                    color = DesktopMuted,
-                    fontSize = 11.sp,
-                    lineHeight = 16.sp,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(Modifier.height(7.dp))
-                Text(dateLabel, color = DesktopInk, fontSize = 10.sp, letterSpacing = 1.2.sp)
-            }
-            Spacer(Modifier.width(12.dp))
-            DesktopPhotoPlaceholder(photoUri)
-        }
-    }
-}
-
-@Composable
-private fun DesktopPhotoPlaceholder(photoUri: String?) {
-    LuluSelectedPhoto(imageUri = photoUri, modifier = Modifier.width(96.dp).fillMaxHeight())
-}
-
-@Composable
-private fun DesktopTinyTag(text: String) {
-    Surface(
-        color = Color.Transparent,
-        shape = RoundedCornerShape(99.dp),
-        border = BorderStroke(1.dp, DesktopLine),
-    ) {
-        Text(text, color = DesktopMuted, fontSize = 9.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp))
     }
 }
 
@@ -758,13 +564,10 @@ private fun DesktopLauncherGrid(
     modifier: Modifier,
     draggedLauncherId: String?,
     onOpen: (MigrationRoute) -> Unit,
-    fullPageGrid: Boolean = false,
 ) {
     BoxWithConstraints(modifier) {
         val cellWidth = maxWidth / DESKTOP_COLUMNS
-        val cellHeight = if (fullPageGrid)
-            minOf(maxHeight / DESKTOP_ROWS, cellWidth * LULU_DESKTOP_CELL_ASPECT)
-            else maxHeight / DESKTOP_ROWS
+        val cellHeight = maxHeight / DESKTOP_ROWS
         slots.forEachIndexed { index, launcherId ->
             val launcher = DesktopV2Launchers.firstOrNull { it.id == launcherId } ?: return@forEachIndexed
             val column = index % DESKTOP_COLUMNS
@@ -773,7 +576,6 @@ private fun DesktopLauncherGrid(
                 launcher = launcher,
                 modifier = Modifier.width(cellWidth).height(cellHeight)
                     .offset { IntOffset((cellWidth * column).roundToPx(), (cellHeight * row).roundToPx()) }
-                    .padding(top = if (fullPageGrid) 2.dp else 0.dp)
                     .graphicsLayer { alpha = if (launcherId == draggedLauncherId) 0f else 1f },
                 onClick = { onOpen(launcher.route) },
             )
@@ -796,7 +598,7 @@ private fun DesktopV2LauncherItem(
     }
     BoxWithConstraints(modifier.luluCssDecor(tile, includeArtwork = false)) {
         // Reserve space for the label first: icon labels must not be clipped by
-        // a fixed 61dp icon box on compact or eight-row desktop pages.
+        // a fixed 61dp icon box on short desktop pages.
         val smallCell = maxHeight < 64.dp
         val twoLines = !smallCell && launcher.title.length > 4 && launcher.title != "Live2D"
         val labelSpace = if (smallCell) 12.dp else if (twoLines) 28.dp else 18.dp
@@ -804,7 +606,7 @@ private fun DesktopV2LauncherItem(
         val iconHeight = minOf(tile.cssDp("height") ?: 61.dp, (maxHeight - labelSpace - space).coerceAtLeast(12.dp))
         val iconWidth = minOf(tile.cssDp("width") ?: 57.dp, (maxWidth - 6.dp).coerceAtLeast(24.dp))
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top) {
+            verticalArrangement = Arrangement.Center) {
             val borderWidth = tile.cssDp("border-width") ?: 1.dp
             Surface(
                 shape = RoundedCornerShape(tile.cssDp("border-radius")
@@ -845,51 +647,24 @@ private fun DesktopV2Avatar(text: String, size: Int, imageUri: String? = null, m
     LuluProfileAvatar(imageUri = imageUri, fallback = text, size = size, modifier = modifier)
 
 private fun loadDesktopSlots(context: Context): List<String?> {
-    LuluDesktopWidgetStore.ensureHomeCards(context)
-    val known = DesktopV2Launchers.mapTo(mutableSetOf()) { it.id }
-    val prefs = context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
-    val version = when {
-        prefs.contains("slots_v3") -> 3
-        prefs.contains("slots_v2") -> 2
-        else -> 1
-    }
-    val raw = prefs.getString("slots_v" + version, null)
-    val saved = raw?.split('|')?.map { it.takeIf(String::isNotBlank) }
-        ?.map { it?.takeIf { id -> id in known } }.orEmpty()
-    val positioned = when (version) {
-        3 -> saved
-        2 -> desktopMigrateMixedSlots(saved)
-        else -> desktopMigrateLegacySlots(saved)
-    }
-    val widgetCells = LuluDesktopWidgetStore.load(context).flatMap { widget ->
-        (widget.row until widget.row + widget.rows).flatMap { row ->
-            (widget.col until widget.col + widget.columns).map { col ->
-                desktopSlotIndex(widget.page, row, col)
-            }
+    val launcherIds = DesktopV2Launchers.map { it.id }
+    val slots = LuluDesktopWidgetStore.loadOrMigrateGrid(context) { widgets ->
+        val prefs = context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
+        val version = when {
+            prefs.contains("slots_v3") -> 3
+            prefs.contains("slots_v2") -> 2
+            else -> 1
         }
-    }.toSet()
-    val lastOccupied = maxOf(positioned.indexOfLast { it != null }, widgetCells.maxOrNull() ?: -1)
-    val required = maxOf(DESKTOP_SLOT_COUNT, lastOccupied + 1, known.size + widgetCells.size)
-    val sized = MutableList<String?>(desktopPageStart(desktopAllocatedPageCount(required))) { null }
-    positioned.take(sized.size).forEachIndexed { index, id ->
-        if (id != null && index !in widgetCells) sized[index] = id
+        migrateDesktopGrid(
+            oldSlots = readDesktopSlots(prefs.getString("slots_v" + version, null)),
+            oldWidgets = widgets, version = version, launcherIds = launcherIds,
+        )
     }
-    val present = sized.filterNotNull().toSet()
-    DesktopV2Launchers.filterNot { it.id in present }.forEach { launcher ->
-        var empty = sized.indices.firstOrNull { sized[it] == null && it !in widgetCells }
-        if (empty == null) {
-            empty = sized.size
-            repeat(DESKTOP_SLOT_COUNT) { sized.add(null) }
-        }
-        sized[empty] = launcher.id
-    }
-    if (version != 3) saveDesktopSlots(context, sized)
-    return sized
+    val complete = completeDesktopSlots(slots, LuluDesktopWidgetStore.load(context), launcherIds)
+    if (complete != slots) saveDesktopSlots(context, complete)
+    return complete
 }
 
 private fun saveDesktopSlots(context: Context, slots: List<String?>) {
-    context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
-        .edit()
-        .putString("slots_v3", slots.joinToString("|") { it.orEmpty() })
-        .apply()
+    LuluDesktopWidgetStore.saveLauncherSlots(context, slots)
 }

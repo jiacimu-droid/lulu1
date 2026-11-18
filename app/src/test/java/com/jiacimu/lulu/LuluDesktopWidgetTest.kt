@@ -8,21 +8,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class LuluDesktopWidgetTest {
-    @Test fun desktopGridSizesUseWidthNotEntirePortraitHeight() {
-        // Redmi-like tall viewport: the old 4-row division gave 4×2 an almost square card.
-        val width = 360f
-        val tallPageHeight = 760f
-        val row = luluDesktopFullCellHeight(width, tallPageHeight)
-        assertEquals(93.6f, row, 0.1f)
-        val widget2x1Ratio = (2f * width / 4f) / row
-        val widget2x2Ratio = (2f * width / 4f) / (2 * row)
-        val widget4x2Ratio = width / (2 * row)
-        assertTrue("2×1 should be horizontal", widget2x1Ratio > 1.7f)
-        assertTrue("2×2 should be close to square", widget2x2Ratio in 0.85f..1.15f)
-        assertTrue("4×2 should be horizontal", widget4x2Ratio > 1.7f)
-        assertTrue("4 rows must stay within the page", row * 4 <= tallPageHeight)
-        // Landscape/small windows must not render card rows below the viewport.
-        assertEquals(65f, luluDesktopFullCellHeight(360f, 260f), 0.001f)
+    @Test fun newWidgetsAndDefaultShortcutUseDesktopPalette() {
+        assertEquals(LULU_WIDGET_DESKTOP_SKIN, LuluWidgetKind.CHAT.defaultSkin)
+        assertEquals(LULU_WIDGET_DESKTOP_SKIN, LuluWidgetKind.CALENDAR.defaultSkin)
+        assertEquals(2, LuluWidgetKind.CALENDAR.columns)
+        assertEquals(1, LuluWidgetKind.CALENDAR.rows)
+        assertEquals(2, LuluWidgetKind.PHOTO.rows)
+        assertNotEquals(LuluWidgetKind.CHAT.defaultSkin, LuluWidgetKind.PHOTO.defaultSkin)
     }
 
     @Test fun horoscopeCardReplacesDailyHeadingWithTheChosenSign() {
@@ -57,7 +49,7 @@ class LuluDesktopWidgetTest {
     }
 
     @Test fun addingWidgetsAvoidsEveryOccupiedLauncherCellAndWidget() {
-        val slots = MutableList<String?>(64) { null }
+        val slots = MutableList<String?>(desktopPageStart(2)) { null }
         slots[desktopSlotIndex(1, 0, 0)] = "chat"
         val first = luluPlaceWidget(LuluWidgetKind.NOTE, 1, emptyList(), slots)!!
         assertTrue(luluWidgetFits(first, emptyList(), slots))
@@ -69,36 +61,35 @@ class LuluDesktopWidgetTest {
         ), listOf(first), slots))
     }
 
-    @Test fun fourLargeWidgetsFitOneFullPageAndFifthGoesToNext() {
+    @Test fun threeLargeWidgetsFitOneFullPageAndFourthGoesToNext() {
         val slots = MutableList<String?>(desktopPageStart(2)) { null }
         val placed = mutableListOf<LuluDesktopWidget>()
-        repeat(4) {
+        repeat(3) {
             val added = luluPlaceWidget(LuluWidgetKind.HOROSCOPE, 1, placed, slots)!!
             assertEquals(1, added.page)
             placed.add(added)
         }
-        assertEquals(listOf(0, 2, 4, 6), placed.map { it.row })
-        val fifth = luluPlaceWidget(LuluWidgetKind.HOROSCOPE, 1, placed, slots)!!
-        assertEquals(2, fifth.page)
-        assertEquals(0, fifth.col)
-        assertEquals(0, fifth.row)
+        assertEquals(listOf(0, 2, 4), placed.map { it.row })
+        val fourth = luluPlaceWidget(LuluWidgetKind.HOROSCOPE, 1, placed, slots)!!
+        assertEquals(2, fourth.page)
+        assertEquals(0, fourth.col)
+        assertEquals(0, fourth.row)
     }
 
     @Test fun lowerRowVacanciesAcceptAppsButNeverOverwrittenByWidgets() {
         val slots = MutableList<String?>(desktopPageStart(2)) { null }
-        val lastRow = desktopSlotIndex(1, 7, 3)
+        val lastRow = desktopSlotIndex(1, 5, 3)
         slots[lastRow] = "games"
         val note = LuluDesktopWidget("bottom", LuluWidgetKind.NOTE,
-            page = 1, col = 2, row = 6)
+            page = 1, col = 2, row = 4)
         assertFalse(luluWidgetFits(note, emptyList(), slots))
         assertTrue(luluWidgetFits(note.copy(col = 0), emptyList(), slots))
-        assertEquals(8f * luluDesktopFullCellHeight(360f, 700f, 8),
-            minOf(700f, 8 * luluDesktopFullCellHeight(360f, 700f, 8)), 0.01f)
+        assertFalse(luluWidgetFits(note.copy(col = 0, row = 5), emptyList(), slots))
     }
 
     @Test fun homeChatAndBulletinAreMovableAndMayChangeSizeWithoutCoveringIcons() {
-        val slots = MutableList<String?>(64) { null }
-        for (row in 4..7) for (col in 0..3)
+        val slots = MutableList<String?>(desktopPageStart(2)) { null }
+        for (row in 4..5) for (col in 0..3)
             slots[desktopSlotIndex(0, row, col)] = "app-$row-$col"
         val chat = LuluDesktopWidget("home-chat", LuluWidgetKind.CHAT, 0, 0, 0)
         val bulletin = LuluDesktopWidget("home-bulletin", LuluWidgetKind.BULLETIN, 0, 0, 2)
@@ -106,7 +97,7 @@ class LuluDesktopWidgetTest {
         assertTrue(luluWidgetFits(bulletin, listOf(chat), slots))
         assertFalse(luluWidgetFits(chat.copy(row = 2), listOf(chat, bulletin), slots))
         assertFalse(luluWidgetFits(chat.copy(row = 4), listOf(chat, bulletin), slots))
-        assertTrue(luluWidgetFits(chat.copy(page = 1, row = 6, columns = 2, rows = 2),
+        assertTrue(luluWidgetFits(chat.copy(page = 1, row = 4, columns = 2, rows = 2),
             listOf(chat, bulletin), slots))
         assertFalse(luluWidgetFits(bulletin.copy(page = 0, row = 0),
             listOf(chat, bulletin), slots))

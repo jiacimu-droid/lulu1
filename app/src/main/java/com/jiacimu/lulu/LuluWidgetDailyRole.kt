@@ -114,7 +114,7 @@ internal object LuluWidgetDailyRole {
                         "；娱乐性忌：" + caution + "。\n" +
                         "允许通知：" + current.dailyNotifyEnabled +
                         "；允许角色装修：" + current.allowRoleStyle +
-                        "。候选皮肤0星夜/1植物信纸/2樱粉/3像素夜空。" +
+                        "。候选皮肤0星夜/1植物信纸/2樱粉/3像素夜空/4桌面原皮/5错落信笺/6相册叠片。" +
                         "这并不证明主人已经执行了任何行为。",
                     instruction = """
 你是现有的这个数字生命本人；沿用与私聊相同的人设、记忆、经历和关系。
@@ -123,7 +123,7 @@ internal object LuluWidgetDailyRole {
 可以建议做什么和避免什么，但不要编造今天已观察到的行为，
 不要断言星座能够预测未来，也不要替所有角色使用一种统一口吻。
 是否发一次通知由你自己选；可以不通知，用户开关会额外决定最终权限。
-如果用户授权自由装修，你可以选皮肤0至3，或者-1表示保持当前皮肤。
+如果用户授权自由装修，你可以选皮肤0至6，或者-1表示保持当前皮肤。
 只返回JSON：{"message":"你本人写的短话","notify":false,"skin":-1}。
 notify是布尔值，skin只能是-1或0/1/2/3。生成文字不代表通知已送达。
 """.trimIndent(),
@@ -166,7 +166,7 @@ notify是布尔值，skin只能是-1或0/1/2/3。生成文字不代表通知已�
             if (message.isBlank() || obj.opt("notify") !is Boolean ||
                 obj.opt("skin") !is Number) return@runCatching null
             val skin = obj.getInt("skin")
-            if (skin !in -1..3) return@runCatching null
+            if (skin != -1 && !isLuluWidgetSkin(skin)) return@runCatching null
             LuluWidgetDailyReading(date.toString(), widget.sign, widget.characterId,
                 message, obj.getBoolean("notify"), skin)
         }.getOrNull()

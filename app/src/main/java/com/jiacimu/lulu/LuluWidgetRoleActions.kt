@@ -48,7 +48,7 @@ internal object LuluWidgetRoleActions {
             }
             appendLine("- write_desktop_widget_note，args={\"widgetId\":\"已绑定你本人且类型为note的ID\",\"text\":\"你本人想留的话\"}：留一条真实桌面便签；不会自动发QQ，不得宣称已通知主人。")
             append("- decorate_desktop_widget，args={\"widgetId\":\"已绑定你本人且开放装修授权的ID\",")
-            appendLine("\"skin\":0到3,\"backgroundColor\":\"#RRGGBB\",\"textColor\":\"#RRGGBB\",\"cornerDp\":20}：可独立选择皮肤、字体色、卡片底色和圆角；属性可省略，不会覆盖主人导入的图片或其他组件。没有真实授权时执行器拒绝。")
+            appendLine("\"skin\":0到6（4 是桌面原皮、5 是错落信笺、6 是相册叠片）,\"backgroundColor\":\"#RRGGBB\",\"textColor\":\"#RRGGBB\",\"cornerDp\":20}：可独立选择皮肤、字体色、卡片底色和圆角；属性可省略，不会覆盖主人导入的图片或其他组件。没有真实授权时执行器拒绝。")
         }.trim()
     }
 
