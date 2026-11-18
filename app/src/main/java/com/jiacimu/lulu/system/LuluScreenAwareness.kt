@@ -145,11 +145,19 @@ object LuluScreenAwareness {
             else -> null
         }
 
-    /** An IME or activity transition can hide the owner window briefly. */
-    private suspend fun freshOwnerSnapshot(): AccessibilitySnapshot {
+    /**
+     * Android may briefly hand us an empty root or a transient SystemUI window
+     * while an IME/heads-up notice changes focus. Wait for stable owner-display
+     * evidence, but never substitute an old screenshot or another display.
+     */
+    private suspend fun freshOwnerSnapshot(expectedPackage: String? = null): AccessibilitySnapshot {
         var snapshot = withContext(Dispatchers.Main) { LuluAccessibilityService.observe() }
-        if (snapshot.connected && snapshot.packageName.isBlank()) {
-            delay(180)
+        repeat(3) { attempt ->
+            if (!snapshot.connected) return snapshot
+            if (snapshot.packageName.isNotBlank() &&
+                (expectedPackage == null || snapshot.packageName == expectedPackage))
+                return snapshot
+            delay(160L + attempt * 70L)
             snapshot = withContext(Dispatchers.Main) { LuluAccessibilityService.observe() }
         }
         return snapshot
@@ -348,7 +356,7 @@ object LuluScreenAwareness {
                 }
             val capturedAt = Instant.now()
             try {
-                val fresh = freshOwnerSnapshot()
+                val fresh = freshOwnerSnapshot(expectedPackage = first.packageName)
                 // Never deliver a frame when the owner app changed, the root
                 // is unknown, access was revoked, or a protected page appeared.
                 if (!onDemandAllowed(context, characterId) ||
