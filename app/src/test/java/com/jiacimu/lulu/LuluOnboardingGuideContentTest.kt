@@ -38,14 +38,21 @@ class LuluOnboardingGuideContentTest {
     @Test fun heroFocusesOnFourDistinctStrengths() {
         assertEquals(4, luluGuideHeroHighlights.size)
         assertEquals(
-            listOf("memory", "continuity", "search", "supervision"),
+            listOf("continuity", "phone", "memory", "supervision"),
             luluGuideHeroHighlights.map { it.featureKey },
         )
         assertTrue(luluGuideHeroHighlights.all { point ->
             point.title.isNotBlank() && point.subtitle.isNotBlank() &&
                 luluGuideFeatures.any { it.key == point.featureKey }
         })
-        assertTrue(luluGuideHeroHighlights.first().title.contains("自动记忆"))
+        assertTrue(luluGuideHeroHighlights.first().title.contains("跨应用"))
+        assertTrue(luluGuideHeroHighlights.any { it.title.contains("后台虚拟屏") })
+        assertTrue(luluGuideHeroHighlights.any { it.title.contains("学习监督") })
+        assertFalse(luluGuideHeroHighlights.any { it.featureKey == "games" })
+        assertEquals(luluGuideFeatures.size, luluGuideDirectoryFeatures.size)
+        assertEquals(luluGuideDirectoryFeatures.size, luluGuideDirectoryFeatures.map { it.key }.distinct().size)
+        assertTrue(luluGuideDirectoryFeatures.size % 2 == 0)
+        assertTrue(luluGuideDirectoryFeatures.map { it.key }.containsAll(luluGuideFeatures.map { it.key }))
     }
 
     @Test fun everyFeatureHasUsefulContentAndARealDestination() {
