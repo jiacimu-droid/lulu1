@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T14:00:22.801733+00:00",
-  "commit": "d12a478382a900cb320cacdaa57fc61e91b39ffa",
+  "generatedAt": "2026-11-18T14:25:19.487906+00:00",
+  "commit": "8018bc7c0d48df2ee321ae8bed87a265c854f10f",
   "branch": "main",
-  "sourceFingerprint": "68b74b0ed3636295dbf7648ef64b0dd7e8fc2188b334a10bfdc2f0cd71807170",
+  "sourceFingerprint": "40c917b11dfd4bb0e64c96fd4b78f3af58a057c4d731d5db6e156905eec348f2",
   "summary": {
-    "files": 1468,
-    "lines": 310222,
-    "symbols": 4435
+    "files": 1469,
+    "lines": 310604,
+    "symbols": 4437
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -547,7 +547,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 175
+        "line": 184
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -2445,7 +2445,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 2306
+        "line": 2320
       }
     ],
     "motionMetadata": [
@@ -6581,7 +6581,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 2312
+        "line": 2326
       }
     ],
     "recentSoloGames": [
@@ -6849,13 +6849,13 @@
     "screenVisionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 95
+        "line": 100
       }
     ],
     "phoneOperationContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 134
+        "line": 143
       }
     ],
     "isWakeExplanation": [
@@ -7469,7 +7469,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 2369
+        "line": 2383
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
@@ -11747,11 +11747,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 2315
+        "line": 2329
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 2378
+        "line": 2392
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversal.kt",
@@ -12888,6 +12888,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt",
         "line": 92
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluForegroundPhoneSession.kt",
+        "line": 34
       }
     ],
     "ProactiveMessageAutomation": [
@@ -18017,7 +18021,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 2292
+        "line": 2306
       }
     ],
     "liveRoot": [
@@ -18146,28 +18150,34 @@
         "line": 2272
       }
     ],
+    "focusedMainEditorMatches": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
+        "line": 2285
+      }
+    ],
     "scrollVisible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 2282
+        "line": 2296
       }
     ],
     "clickFirstText": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 2338
+        "line": 2352
       }
     ],
     "AccessibilitySnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 2348
+        "line": 2362
       }
     ],
     "LuluScreenAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-        "line": 2356
+        "line": 2370
       }
     ],
     "LuluAlarm": [
@@ -18715,97 +18725,97 @@
     "onDemandAllowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 84
+        "line": 91
       }
     ],
     "autonomousAllowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 88
+        "line": 97
       }
     ],
     "summonAllowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 90
+        "line": 100
       }
     ],
     "directReturnAllowed": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 95
+        "line": 105
       }
     ],
     "excluded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 97
+        "line": 107
       }
     ],
     "isExcluded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 101
+        "line": 111
       }
     ],
     "diagnostics": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 109
+        "line": 119
       }
     ],
     "decisionIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 151
+        "line": 161
       }
     ],
     "studySessionValid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 249
+        "line": 260
       }
     ],
     "withScreenRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 301
+        "line": 313
       }
     ],
     "summon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 474
+        "line": 487
       }
     ],
     "scheduledReminder": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 537
+        "line": 550
       }
     ],
     "recentAppActivity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 587
+        "line": 600
       }
     ],
     "addUntil": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 597
+        "line": 610
       }
     ],
     "LuluScreenRequestReceiver": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 627
+        "line": 640
       }
     ],
     "LuluApprovedScreenWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-        "line": 639
+        "line": 652
       }
     ],
     "take": [
@@ -30403,8 +30413,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 193,
-      "sha256": "79cbc44d92354c46ff2e5940511870190f0fce90c88fe685ae8e6b93a019f31f",
+      "lines": 202,
+      "sha256": "7b3073a4a345bb7a7603f21fcb444216de5a6c0a7b006d97a4d974ba374be5fb",
       "symbols": [
         {
           "name": "Capability",
@@ -30432,15 +30442,15 @@
         },
         {
           "name": "screenVisionContext",
-          "line": 95
+          "line": 100
         },
         {
           "name": "phoneOperationContext",
-          "line": 134
+          "line": 143
         },
         {
           "name": "context",
-          "line": 175
+          "line": 184
         }
       ]
     },
@@ -42533,8 +42543,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
-      "lines": 2392,
-      "sha256": "c9cc312709f50d0d0afc2b9d0c99fe4554aa42a88e5d0b8319933e3bbe1a5833",
+      "lines": 2406,
+      "sha256": "43994f982ab6222a049b34f2276cedbf1e5cda27ff91d73197c7a35899c5a6de",
       "symbols": [
         {
           "name": "LuluAccessibilityService",
@@ -42801,44 +42811,48 @@
           "line": 2272
         },
         {
+          "name": "focusedMainEditorMatches",
+          "line": 2285
+        },
+        {
           "name": "scrollVisible",
-          "line": 2282
+          "line": 2296
         },
         {
           "name": "scan",
-          "line": 2292
-        },
-        {
-          "name": "controls",
           "line": 2306
         },
         {
+          "name": "controls",
+          "line": 2320
+        },
+        {
           "name": "normalize",
-          "line": 2312
+          "line": 2326
         },
         {
           "name": "walk",
-          "line": 2315
+          "line": 2329
         },
         {
           "name": "clickFirstText",
-          "line": 2338
+          "line": 2352
         },
         {
           "name": "AccessibilitySnapshot",
-          "line": 2348
+          "line": 2362
         },
         {
           "name": "LuluScreenAction",
-          "line": 2356
+          "line": 2370
         },
         {
           "name": "add",
-          "line": 2369
+          "line": 2383
         },
         {
           "name": "walk",
-          "line": 2378
+          "line": 2392
         }
       ]
     },
@@ -43079,6 +43093,17 @@
         {
           "name": "staleReplyExpression",
           "line": 1613
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluForegroundPhoneSession.kt",
+      "lines": 346,
+      "sha256": "afb02abb0dcad93e2b10866564966dfaedefa36be7cbf3e14d95819f3abb4358",
+      "symbols": [
+        {
+          "name": "activeFor",
+          "line": 34
         }
       ]
     },
@@ -43456,8 +43481,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt",
-      "lines": 690,
-      "sha256": "3965efba4425dab7d1bdd66ae2c15d24831c8efc0b20d7315bc069dd9f9996a9",
+      "lines": 703,
+      "sha256": "d8d3e9afbafbdc8f0c00794a2dd03fa699f9324d7f2b1ecaf51d8f114b1052d7",
       "symbols": [
         {
           "name": "blockReason",
@@ -43481,67 +43506,67 @@
         },
         {
           "name": "onDemandAllowed",
-          "line": 84
+          "line": 91
         },
         {
           "name": "autonomousAllowed",
-          "line": 88
-        },
-        {
-          "name": "summonAllowed",
-          "line": 90
-        },
-        {
-          "name": "directReturnAllowed",
-          "line": 95
-        },
-        {
-          "name": "excluded",
           "line": 97
         },
         {
+          "name": "summonAllowed",
+          "line": 100
+        },
+        {
+          "name": "directReturnAllowed",
+          "line": 105
+        },
+        {
+          "name": "excluded",
+          "line": 107
+        },
+        {
           "name": "isExcluded",
-          "line": 101
+          "line": 111
         },
         {
           "name": "diagnostics",
-          "line": 109
+          "line": 119
         },
         {
           "name": "decisionIntent",
-          "line": 151
+          "line": 161
         },
         {
           "name": "studySessionValid",
-          "line": 249
+          "line": 260
         },
         {
           "name": "withScreenRecord",
-          "line": 301
+          "line": 313
         },
         {
           "name": "summon",
-          "line": 474
+          "line": 487
         },
         {
           "name": "scheduledReminder",
-          "line": 537
+          "line": 550
         },
         {
           "name": "recentAppActivity",
-          "line": 587
+          "line": 600
         },
         {
           "name": "addUntil",
-          "line": 597
+          "line": 610
         },
         {
           "name": "LuluScreenRequestReceiver",
-          "line": 627
+          "line": 640
         },
         {
           "name": "LuluApprovedScreenWorker",
-          "line": 639
+          "line": 652
         }
       ]
     },
