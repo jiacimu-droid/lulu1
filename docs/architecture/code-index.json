@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T02:56:00.955780+00:00",
-  "commit": "fb8b87e99ab8098cee2bdd642e0ceebdad9dc281",
+  "generatedAt": "2026-11-18T02:56:44.628961+00:00",
+  "commit": "9b25affbf42b9f5a57575b1469db38510619f018",
   "branch": "main",
-  "sourceFingerprint": "1275cbf78df9753b884dee19c74f5d779f30c9adf1d082c353024dcc7fa5d28a",
+  "sourceFingerprint": "a92daf0f6ff2595e53bc77ad3dd5e28c5371750fcfd973f899b504d4048fd364",
   "summary": {
     "files": 1444,
-    "lines": 304734,
+    "lines": 304772,
     "symbols": 4359
   },
   "symbolIndex": {
@@ -437,7 +437,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 352
+        "line": 375
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
@@ -445,7 +445,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1222
+        "line": 1236
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
@@ -1067,7 +1067,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 98
+        "line": 104
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
@@ -1175,11 +1175,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1214
+        "line": 1228
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1352
+        "line": 1366
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
@@ -2297,7 +2297,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2474
+        "line": 2475
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -3513,7 +3513,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1334
+        "line": 1348
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -5025,7 +5025,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1230
+        "line": 1244
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
@@ -7547,7 +7547,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 572
+        "line": 595
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityStateStore.kt",
@@ -7813,7 +7813,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1249
+        "line": 1263
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
@@ -7857,7 +7857,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1240
+        "line": 1254
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
@@ -8177,7 +8177,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 153
+        "line": 159
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
@@ -8929,7 +8929,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1341
+        "line": 1355
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
@@ -9625,103 +9625,103 @@
     "repeatsConfirmedAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 31
+        "line": 33
       }
     ],
     "CompanionPresenceState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 46
+        "line": 48
       }
     ],
     "CompanionPresenceMessageAnchor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 66
+        "line": 68
       }
     ],
     "CompanionPresenceStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 74
+        "line": 76
       }
     ],
     "isInCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 157
+        "line": 180
       }
     ],
     "beginCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 160
+        "line": 183
       }
     ],
     "finishCall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 167
+        "line": 190
       }
     ],
     "selectMessageAnchor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 227
+        "line": 250
       }
     ],
     "selectedMessageAnchor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 302
+        "line": 325
       }
     ],
     "clearMessageAnchor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 305
+        "line": 328
       }
     ],
     "lastPerceptionFailure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 312
+        "line": 335
       }
     ],
     "clearPerceptionFailure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 323
+        "line": 346
       }
     ],
     "recordPerceptionAttempt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 330
+        "line": 353
       }
     ],
     "rollbackMeetingProvenance": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 483
+        "line": 506
       }
     ],
     "forgetEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 514
+        "line": 537
       }
     ],
     "forgetTimelineMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 529
+        "line": 552
       }
     ],
     "deleteMoment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-        "line": 545
+        "line": 568
       }
     ],
     "planningGuidance": [
@@ -12327,49 +12327,49 @@
     "migrateUserFavorites": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 860
+        "line": 874
       }
     ],
     "removeUserFavorite": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 869
+        "line": 883
       }
     ],
     "CharacterContactPolicy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1181
+        "line": 1195
       }
     ],
     "CharacterSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1199
+        "line": 1213
       }
     ],
     "CharacterSettingsStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1208
+        "line": 1222
       }
     ],
     "CharacterWorldBookRule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1324
+        "line": 1338
       }
     ],
     "CharacterWorldBookRuleStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1330
+        "line": 1344
       }
     ],
     "MigratedDomainStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1347
+        "line": 1361
       }
     ],
     "objectOrNull": [
@@ -13565,13 +13565,13 @@
     "errorOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2328
+        "line": 2329
       }
     ],
     "refreshAfterActivityChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-        "line": 2468
+        "line": 2469
       }
     ],
     "maxResidents": [
@@ -32596,92 +32596,92 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
-      "lines": 708,
-      "sha256": "21ec396f4cf7292b0385bc87c63cbccf45d0ae25728c09e2a1f0254b5c9e8899",
+      "lines": 731,
+      "sha256": "6942d7865fea13669308cdc79bafff76923799d8d8a38b8360d52158eb3790e2",
       "symbols": [
         {
           "name": "repeatsConfirmedAction",
-          "line": 31
+          "line": 33
         },
         {
           "name": "CompanionPresenceState",
-          "line": 46
+          "line": 48
         },
         {
           "name": "CompanionPresenceMessageAnchor",
-          "line": 66
+          "line": 68
         },
         {
           "name": "CompanionPresenceStore",
-          "line": 74
+          "line": 76
         },
         {
           "name": "initialize",
-          "line": 98
+          "line": 104
         },
         {
           "name": "current",
-          "line": 153
+          "line": 159
         },
         {
           "name": "isInCall",
-          "line": 157
+          "line": 180
         },
         {
           "name": "beginCall",
-          "line": 160
+          "line": 183
         },
         {
           "name": "finishCall",
-          "line": 167
+          "line": 190
         },
         {
           "name": "selectMessageAnchor",
-          "line": 227
+          "line": 250
         },
         {
           "name": "selectedMessageAnchor",
-          "line": 302
+          "line": 325
         },
         {
           "name": "clearMessageAnchor",
-          "line": 305
+          "line": 328
         },
         {
           "name": "lastPerceptionFailure",
-          "line": 312
+          "line": 335
         },
         {
           "name": "clearPerceptionFailure",
-          "line": 323
+          "line": 346
         },
         {
           "name": "recordPerceptionAttempt",
-          "line": 330
+          "line": 353
         },
         {
           "name": "update",
-          "line": 352
+          "line": 375
         },
         {
           "name": "rollbackMeetingProvenance",
-          "line": 483
+          "line": 506
         },
         {
           "name": "forgetEvidence",
-          "line": 514
+          "line": 537
         },
         {
           "name": "forgetTimelineMoment",
-          "line": 529
+          "line": 552
         },
         {
           "name": "deleteMoment",
-          "line": 545
+          "line": 568
         },
         {
           "name": "clearCharacter",
-          "line": 572
+          "line": 595
         }
       ]
     },
@@ -35222,8 +35222,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-      "lines": 1374,
-      "sha256": "3b82f22ebbbf8579730ea8a2172ea95922c7e2baef9151f904ba57650f497461",
+      "lines": 1388,
+      "sha256": "da1f343889233790789186211d1e16a9bf2bad499c25bd84ab968eac5784f216",
       "symbols": [
         {
           "name": "LuluChatMessage",
@@ -35343,67 +35343,67 @@
         },
         {
           "name": "migrateUserFavorites",
-          "line": 860
+          "line": 874
         },
         {
           "name": "removeUserFavorite",
-          "line": 869
+          "line": 883
         },
         {
           "name": "CharacterContactPolicy",
-          "line": 1181
+          "line": 1195
         },
         {
           "name": "CharacterSettings",
-          "line": 1199
+          "line": 1213
         },
         {
           "name": "CharacterSettingsStore",
-          "line": 1208
-        },
-        {
-          "name": "initialize",
-          "line": 1214
-        },
-        {
-          "name": "update",
           "line": 1222
         },
         {
+          "name": "initialize",
+          "line": 1228
+        },
+        {
+          "name": "update",
+          "line": 1236
+        },
+        {
           "name": "create",
-          "line": 1230
+          "line": 1244
         },
         {
           "name": "delete",
-          "line": 1240
+          "line": 1254
         },
         {
           "name": "get",
-          "line": 1249
+          "line": 1263
         },
         {
           "name": "CharacterWorldBookRule",
-          "line": 1324
+          "line": 1338
         },
         {
           "name": "CharacterWorldBookRuleStore",
-          "line": 1330
+          "line": 1344
         },
         {
           "name": "setEnabled",
-          "line": 1334
+          "line": 1348
         },
         {
           "name": "isEnabled",
-          "line": 1341
+          "line": 1355
         },
         {
           "name": "MigratedDomainStores",
-          "line": 1347
+          "line": 1361
         },
         {
           "name": "initialize",
-          "line": 1352
+          "line": 1366
         }
       ]
     },
@@ -36502,8 +36502,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
-      "lines": 2540,
-      "sha256": "1350d15f0dc85aff993c9b3711611cefddb321fd238d3619bda48ee3f97ba367",
+      "lines": 2541,
+      "sha256": "74f7b87ff4c650c1c12eed29b73912d18e0bc5af0f843610e9f0e0f0d4590177",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -36579,15 +36579,15 @@
         },
         {
           "name": "errorOf",
-          "line": 2328
+          "line": 2329
         },
         {
           "name": "refreshAfterActivityChange",
-          "line": 2468
+          "line": 2469
         },
         {
           "name": "schedule",
-          "line": 2474
+          "line": 2475
         }
       ]
     },
