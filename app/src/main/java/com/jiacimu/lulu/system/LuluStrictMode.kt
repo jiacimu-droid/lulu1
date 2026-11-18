@@ -396,7 +396,7 @@ internal object LuluStrictMode {
             "strict_supervision 支持 start/adjust/stop/status；start 必须提供真实具体 goal，" +
             "mode=observe 只观察；mode=return 切回露露机；mode=home 将指定普通 App 切回桌面；" +
             "mode=lockdown 是单独的全面限制模式：当你认为主人现在不该使用其他普通 App 时，" +
-            "例如可根据当下真实督睡目标调用 strict_supervision，args={\\\"action\\\":\\\"start\\\",\\\"goal\\\":\\\"按约定结束刷手机并开始休息\\\",\\\"mode\\\":\\\"lockdown\\\"}；" +
+            "例如可根据当下真实督睡目标调用 strict_supervision，args={\"action\":\"start\",\"goal\":\"按约定结束刷手机并开始休息\",\"mode\":\"lockdown\"}；" +
             "任何非露露机、非桌面、非系统保护的普通 App 都立即尝试切回手机桌面，" +
             "忽略 blockedPackages 与 exceptPackages，不能当作真正的系统级 App 锁。" +
             "mode=home 必须给出非空 blockedPackages；mode=return 可以按名单或全部切回露露机。" +
