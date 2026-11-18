@@ -238,6 +238,11 @@ internal data class RelicRun(
                         (0 until a.length()).any { a.getJSONObject(it).optString("id")==id }
                     }
                 } ?: "")
+            // A restored expedition must never strand a real participant inside solid stone.
+            // Reject corrupt physical positions rather than teleporting actors or granting loot.
+            if(!result.walk(result.hero.x,result.hero.y) ||
+                result.allies.any { !result.walk(it.x,it.y) } ||
+                !result.walk(result.exitX,result.exitY))return@runCatching null
             val persistedTeamSteps=j.optInt("teamSteps",0)
                 .coerceIn(0,(Int.MAX_VALUE-result.turns).coerceAtLeast(0))
             val withClock=result.copy(teamSteps=persistedTeamSteps)
