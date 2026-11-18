@@ -86,8 +86,8 @@ internal object LuluShoppingLinkShare {
      * surrounding product descriptions, coupon instructions and send/payment
      * buttons cannot claim to be a Copy Link control. */
     private fun normalizedCopyLabel(label: String): String =
-        LuluMikaHant.fold(label).lowercase(Locale.ROOT)
-            .replace(Regex("""\\s+"""), "").trim('：', ':', '·')
+        LuluMikaHant.fold(label).replace("複製", "复制").replace("連结", "链接")
+            .lowercase(Locale.ROOT).replace(Regex("""\s+"""), "").trim('：', ':', '·')
 
     internal fun isCopyLabel(label: String): Boolean {
         val normalized = normalizedCopyLabel(label)
