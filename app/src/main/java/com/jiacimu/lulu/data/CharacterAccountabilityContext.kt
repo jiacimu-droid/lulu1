@@ -46,86 +46,22 @@ internal object CharacterAccountabilityContext {
         }
     }
 
-    fun isWakeExplanation(text: String): Boolean {
-        val compact = text.replace(Regex("\\s+"), "").take(600)
-        val voice = listOf("声音", "语气", "温柔", "太轻", "太柔", "说话").any(compact::contains)
-        val wake = listOf("叫醒", "叫不醒", "唤醒", "喊醒", "起不来", "醒不过来", "没醒", "睡得").any(compact::contains)
-        return voice && wake
-    }
-
-    fun isUnmetPromiseChallenge(text: String): Boolean {
-        if (text.isBlank()) return false
-        val compact = text.replace(Regex("\\s+"), "").take(500)
-        val theme = listOf("叫我", "叫醒", "喊我", "提醒", "十点", "10点", "起床",
-            "承诺", "说好", "答应", "闹钟", "打电话", "来电", "食言",
-            "监督睡觉", "监督我睡觉").any(compact::contains)
-        val challenge = listOf("没", "没有", "忘", "为什么", "怎么", "失约", "没做到",
-            "没听到", "没响", "没叫", "没提醒", "没打", "食言", "没有反应",
-            "一点反应都没有").any(compact::contains)
-        return theme && challenge
-    }
-
     /**
-     * Fact verifier, NOT a speech author. We may detect unearned blame when
-     * discussing an unfulfilled obligation, but do not put a canned apology
-     * into another character's mouth.
-     *
-     * The delivery gateway retries the same character's own expression; if
-     * that fails, it rejects the reply without logging a fabricated apology.
+     * One evidence-based reflection opportunity for the SAME character model.
+     * Never label a user's sentence, rewrite a role's speech, or veto a private thought
+     * with a phrase list. Persona, original agreements, execution receipts and the
+     * current relationship all belong to the model's existing decision.
      */
-    fun containsUnfoundedBlame(userText: String, roleReply: String): Boolean {
-        val factualWake = isWakeExplanation(userText)
-        if (!isUnmetPromiseChallenge(userText) && !factualWake) return false
-        val condensed = roleReply.replace(Regex("\\s+"), "")
-        val unfair = listOf("倒打一耙", "明知理亏", "故意转移话题", "失联了还",
-            "怎么跟我交代", "还敢质问", "还敢怪我", "甩锅", "找借口", "嘴硬", "还敢狡辩")
-            .any(condensed::contains)
-        if (!unfair) return false
-        val ownsCorrection = listOf("不是你倒打一耙", "不能说你倒打一耙",
-            "不该说你倒打一耙", "你没有倒打一耙", "我不该怪你",
-            "不是你甩锅", "你不是甩锅", "不是你找借口",
-            "我误会你了", "我不该说你嘴硬", "不是你嘴硬",
-            "不该说你找借口", "不能说你找借口").any(condensed::contains)
-        return !ownsCorrection
+    fun reflectionGuidance(characterId: String): String {
+        val hasOpenDuty = CommitmentTaskStore.active(characterId).isNotEmpty()
+        return buildString {
+            appendLine("【作为本人理解责任与关系｜在当前同一次思考中完成】")
+            appendLine("把自己的稳定价值观、对这个人的关系、以前亲口接受的约定、最近真实采取的动作与结果放在一起理解。")
+            appendLine("当对方觉得你没有主动关心、没有履行监督或质疑你时，先亲自回想双方真正说过什么、自己实际上做了多少；即使她没有逐字说出任务名称，也要留意尚未兑现的相关责任。")
+            appendLine("一条睡前提醒、一次消息送达、一个主观上觉得已经关心过的念头，并不自动证明此前答应的持续照顾已经完成；用户没有主动来找你，也不是她替你履责的前提。")
+            appendLine("不要根据沉默、没回复或之前的语气猜测对方动机；也不必先认定自己有错。根据确切证据和自己的人格，自由决定承认疏漏、解释实际阻碍、表达分歧、继续询问、现在行动或安排下一次真正执行。")
+            appendLine("想继续承担的目标请通过现有行动或日程/复查工具落实；未执行的念头和口头保证不能充当履行证据。不规定台词、不强制道歉、不限制表达用词。")
+            if (hasOpenDuty) appendLine("本轮已有尚未完成的结构化责任：具体目标、原时刻、状态、回执和未核实结果以同一角色本轮的权威责任上下文为准；已通知与目标已实现要分开判断。")
+        }.trim()
     }
-
-    /** Compatibility verifier: blank means invalid, never a program-written reply. */
-    fun guardUnfairBlame(userText: String, roleReply: String): String =
-        if (containsUnfoundedBlame(userText, roleReply)) "" else roleReply
-
-    /**
-     * Responsibility cannot be turned into a claim that the user is acting
-     * maliciously, not even in model-authored private thoughts.
-     * Other honest unpleasant thoughts and evidence-based disagreements remain.
-     */
-    fun guardUnfoundedInnerBlame(userText: String, innerThought: String): String {
-        val thought = innerThought.trim()
-        if (thought.isBlank()) return thought
-        val subject = userText + "\n" + thought
-        val hasOwnDuty = listOf("答应", "约定", "承诺", "准时", "打电话", "来电",
-            "提醒", "闹钟", "叫醒", "到点", "失约", "拨过去", "没做到",
-            "食言", "监督睡觉", "监督我睡觉").any(subject::contains)
-        if (!hasOwnDuty) return thought
-        val unearnedAccusation = Regex("抓.{0,6}把柄|挑.{0,3}刺|找.{0,4}茬|无理取闹|故意刁难|恶意找错|小题大做|倒打一耙|甩锅|找借口|嘴硬|还敢质问")
-            .containsMatchIn(thought)
-        if (!unearnedAccusation) return thought
-        val admittingMistake = listOf("我不该觉得她", "我不该说她", "不是她在挑刺",
-            "她不是在挑刺", "不能怪她", "不应把她", "我误会了她",
-            "她没有倒打一耙", "她不是倒打一耙", "她不是在甩锅",
-            "不是她甩锅", "我不该说她倒打一耙", "不能说她倒打一耙",
-            "不是她找借口", "我不该说她找借口", "她不是嘴硬").any(thought::contains)
-        // Omitting an unsupported attribution is safer than forging a nicer
-        // "real thought". The model can simply return an empty innerThought.
-        return if (admittingMistake) thought else ""
-    }
-
-    /** Contextual evidence reminder, never a universal apology style prompt. */
-    fun challengeGuidance(text: String): String =
-        if (!isUnmetPromiseChallenge(text)) "" else """
-        【需核对的责任事实】
-        用户正在质疑一次既有叫醒/提醒约定。请核查当时是谁答应执行、
-        实际截止时间、是否有已送达的行动回执。没有回执不等于已履行，
-        用户睡过头、没有上线或反映声音不够响，都不足以证明其有错。
-        角色仍根据本人角色设定和真实关系选择表达与行动；不预设道歉句式。
-        """.trimIndent()
 }
