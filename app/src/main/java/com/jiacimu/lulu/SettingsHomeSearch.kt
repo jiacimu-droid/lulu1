@@ -56,6 +56,11 @@ internal val settingsHomeEntries: List<SettingsHomeEntry> = listOf(
         "位置 应用感知 无障碍 电量 耗电 自动运行 唤醒",
     ),
     SettingsHomeEntry(
+        "strict", "角色与设备", "强制模式",
+        "角色目标监督、高频本机检查与随时结束",
+        "督睡 督学 学习 限制应用 高强度 感知 退出 返回桌面 强制 监督",
+    ),
+    SettingsHomeEntry(
         "backup", "数据与安全", "备份与恢复",
         "保存数据，管理自动与云备份",
         "导出 导入 数据迁移 恢复存档 保存 云端",
