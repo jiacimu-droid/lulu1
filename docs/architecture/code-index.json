@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T08:35:34.605191+00:00",
-  "commit": "f987fce499dfd90ff389cb266453d8c243546f4a",
+  "generatedAt": "2026-11-18T08:36:47.158069+00:00",
+  "commit": "cfc6d8cb4f869ed88787c3fb1e4078c6bdd979c2",
   "branch": "main",
-  "sourceFingerprint": "9bb99337058ee7a1988c295bf51de34316c5b3a091ab08a02d30e1b6a6bc4914",
+  "sourceFingerprint": "232b9c1006b855ed52a084b92d1fa9a3e39982fe019d1cca85d429d8facaa82b",
   "summary": {
     "files": 1461,
-    "lines": 309163,
+    "lines": 309182,
     "symbols": 4402
   },
   "symbolIndex": {
@@ -51510,8 +51510,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt",
-      "lines": 196,
-      "sha256": "976549a7da4738158456ef501d10c06ada9fedea4983ff0d355c9ed8179d8995",
+      "lines": 215,
+      "sha256": "62c8b77803245e807fd6105e8a67cf3b3ad83ff2998c86c34ddd2d48e548af12",
       "symbols": [
         {
           "name": "LuluShoppingLinkShareTest",
