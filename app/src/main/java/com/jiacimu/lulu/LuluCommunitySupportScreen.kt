@@ -44,6 +44,9 @@ internal object LuluCommunitySupportConfig {
 
     private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8")
 
+    fun wishesListUrl(): String =
+        "$WISHES_URL?q=${encode("is:issue in:title 许愿")}"
+
     fun wishTitle(title: String): String = "[许愿] " + title.trim().take(72)
 
     fun wishBody(kind: String, detail: String): String =
@@ -250,7 +253,7 @@ fun LuluWishCommunityScreen(onBack: () -> Unit) {
             onClick = {
                 openError = runCatching {
                     context.startActivity(Intent(Intent.ACTION_VIEW,
-                        Uri.parse(LuluCommunitySupportConfig.WISHES_URL)))
+                        Uri.parse(LuluCommunitySupportConfig.wishesListUrl())))
                 }.isFailure
             },
             modifier = Modifier.fillMaxWidth(),
