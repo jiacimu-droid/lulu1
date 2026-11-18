@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T16:55:31.406374+00:00",
-  "commit": "fa83727f3b1937c617cae3639bd1557ed17afb46",
+  "generatedAt": "2026-11-18T17:02:45.029128+00:00",
+  "commit": "6ce842fc240f5ada145145941704bc1f34cfc55b",
   "branch": "main",
-  "sourceFingerprint": "01a68664199c7fd8ba8d83cd81ccaa95ba0e670dae336fc0020d75263401368d",
+  "sourceFingerprint": "485b1ff98b2cec352bcb8454b8d705be84b926c29325037a34cdc4d97fb96669",
   "summary": {
     "files": 1479,
-    "lines": 312793,
+    "lines": 312859,
     "symbols": 4463
   },
   "symbolIndex": {
@@ -1973,7 +1973,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 551
+        "line": 617
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
@@ -2767,7 +2767,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 439
+        "line": 484
       }
     ],
     "record": [
@@ -15313,7 +15313,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 476
+        "line": 540
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
@@ -15375,7 +15375,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 282
+        "line": 325
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
@@ -15475,37 +15475,37 @@
     "nextRound": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 56
+        "line": 65
       }
     ],
     "generateCharacterDescription": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 69
+        "line": 79
       }
     ],
     "submitUserGuess": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 93
+        "line": 113
       }
     ],
     "submitDescriptionForCharacterGuess": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 129
+        "line": 158
       }
     ],
     "finishAdventure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 322
+        "line": 365
       }
     ],
     "answer": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-        "line": 467
+        "line": 522
       }
     ],
     "readIsland": [
@@ -39647,48 +39647,48 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
-      "lines": 596,
-      "sha256": "4a9d3d8b2729fb956e1e664b38c4f54dffc9f2e08c0f68edc9f50b93e21427c9",
+      "lines": 662,
+      "sha256": "d5cc2bf21b6e10c3fa49eab6965b31029a136830bfe87659465f6182314e93a7",
       "symbols": [
         {
           "name": "nextRound",
-          "line": 56
+          "line": 65
         },
         {
           "name": "generateCharacterDescription",
-          "line": 69
+          "line": 79
         },
         {
           "name": "submitUserGuess",
-          "line": 93
+          "line": 113
         },
         {
           "name": "submitDescriptionForCharacterGuess",
-          "line": 129
+          "line": 158
         },
         {
           "name": "act",
-          "line": 282
+          "line": 325
         },
         {
           "name": "finishAdventure",
-          "line": 322
+          "line": 365
         },
         {
           "name": "prepare",
-          "line": 439
+          "line": 484
         },
         {
           "name": "answer",
-          "line": 467
+          "line": 522
         },
         {
           "name": "next",
-          "line": 476
+          "line": 540
         },
         {
           "name": "play",
-          "line": 551
+          "line": 617
         }
       ]
     },
