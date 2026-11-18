@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T04:16:50.549127+00:00",
-  "commit": "e71e75861402bde5781e843e4a4640c4c120bfa5",
+  "generatedAt": "2026-11-18T04:18:25.479461+00:00",
+  "commit": "508adde389f66b86209fc52c763237da67725f7d",
   "branch": "main",
-  "sourceFingerprint": "8d473ed0f8fdbd6fbd72b62ecff4b7b4a901f743ed929da04188590e21430cd3",
+  "sourceFingerprint": "65a7b099aa09541694d3d324773b5c1704a89788310d0bc2db23968a97fc8640",
   "summary": {
     "files": 1445,
-    "lines": 305620,
+    "lines": 305634,
     "symbols": 4366
   },
   "symbolIndex": {
@@ -26856,7 +26856,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
       "lines": 645,
-      "sha256": "474b07c33a1db18affc20990385344c7fec3b6765dbefe5b8fbb01866a9a0a37",
+      "sha256": "503ed4546368fdfb84f7487048413b57ede1accf651f9aa80bd8977488de9db2",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
@@ -51133,8 +51133,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluStrictModeTest.kt",
-      "lines": 112,
-      "sha256": "1addb84a0f8d583a8c6f0e300f14c709af03266093be007c6b5bf834c826993e",
+      "lines": 126,
+      "sha256": "28144c7bab38b760954d73b42422f80b8d4ec969dc6c053d5427508581cd6035",
       "symbols": [
         {
           "name": "LuluStrictModeTest",
