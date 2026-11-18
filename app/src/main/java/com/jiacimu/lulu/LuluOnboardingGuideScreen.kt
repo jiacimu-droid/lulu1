@@ -35,7 +35,7 @@ internal val luluGuideSteps = listOf(
         listOf("新建 API 配置，填写名称、地址和密钥并保存；从上游获取模型列表，选择模型加入存档。", "API 配好只是接通服务，下一步还要把模型指定给具体角色。"),
         "api", MigrationRoute.Settings, "配置 API"),
     LuluGuideStep("创建自己的数字生命", "聊天 → 角色 → ＋ 新建角色",
-        listOf("新安装没有预置的私人伴侣，也不会自动发送假聊天记录。", "打开完整的角色设置页，在「资料」「人格」「陪伴」填写姓名、背景、个性和相处方式。", "最后点击「保存并创建角色」；仅退出页面不会创建。"),
+        listOf("从空白角色列表开始，自由创建属于自己的数字生命。", "在角色设置页填写资料、人格和陪伴方式，设定名字、背景、个性与相处习惯。", "点击「保存并创建角色」，即可开始相处。"),
         "role", MigrationRoute.CharacterCreate, "创建角色"),
     LuluGuideStep("选定角色的聊天模型", "角色私聊 → ＋ → 模型",
         listOf("在当前角色的私聊「＋」菜单里明确选定聊天模型；仅保存 API 配置不等于已启用角色模型。", "每位角色可以有自己的模型选择；先确认文本回复正常，其他能力稍后逐项测试。"),
@@ -44,13 +44,13 @@ internal val luluGuideSteps = listOf(
         listOf("选择语音合成服务与音色，按页面试听，并区分「角色说话的 TTS」与「听懂你说话的语音识别」。", "电话还需要可用的麦克风/识别设置；文字私聊不依赖语音服务。", "声音暂时不想配置也能继续文字聊天，但电话与语音体验可能不可用。"),
         "voice", MigrationRoute.Settings, "设置语音"),
     LuluGuideStep("配置记忆模型与检索", "桌面 → 设置 → 记忆与检索",
-        listOf("先选择记忆抽取模型。系统可按完整轮次自动提取重要经历、长期事实与情绪，而不是要求用户每次手动写总结。", "向量记忆需单独配置 Embedding；Rerank 重排是可选增强，可能增加 API 用量。关闭后仍能保留本地记忆和关联召回。", "默认最近 5 轮暂不总结、每 15 轮提取一次；具体轮次和自动维护规则在下方「记忆与轮次」详解。"),
+        listOf("选择记忆抽取模型后，系统会按对话轮次整理长期事实、情绪与共同经历。", "向量记忆需单独配置 Embedding；Rerank 重排是可选增强，可能增加 API 用量。关闭后仍能保留本地记忆和关联召回。", "默认最近 5 轮暂不总结、每 15 轮提取一次；具体轮次和自动维护规则在下方「记忆与轮次」详解。"),
         "memory", MigrationRoute.Settings, "配置记忆"),
     LuluGuideStep("给角色合理的权限与能力", "桌面 → 设置 → 权限与能力；角色设置 → 操作授权",
         listOf("先按需要开启通知、无障碍、后台运行和闹钟等 Android 系统权限，再针对每位角色勾选允许的操作。", "后台虚拟屏幕授权涵盖角色在独立屏内的一般 App 浏览、点击和输入；设备状态、闹钟、媒体等原生能力另外授权。", "开关已打开不代表系统权限、实际屏幕连接及工具结果一定成功；查看真实执行回执。"),
         "permissions", MigrationRoute.Settings, "检查权限"),
     LuluGuideStep("开始真实聊天与互动", "聊天 → 选择自己创建的角色 → 私聊",
-        listOf("现在再发送第一条消息，检查回复是否符合已保存的人设，以及当次模型是否真的可用。", "之后可以在私聊「＋」中打电话、选择 Live2D 视频，也可以去游戏馆、数字世界和朋友圈互动。", "声音、记忆和工具可以逐步完善；文字能回复只证明基础聊天链路成功，不代表电话或手机操控已验证。"),
+        listOf("现在再发送第一条消息，检查回复是否符合已保存的人设，以及当次模型是否真的可用。", "之后可以从私聊发起电话，也可以去游戏馆、数字世界和朋友圈互动。", "声音、记忆和工具可以逐步完善；文字能回复只证明基础聊天链路成功，不代表电话或手机操控已验证。"),
         "chat", MigrationRoute.Chat, "开始聊天"),
 )
 internal data class LuluGuideFeature(
@@ -63,51 +63,67 @@ internal data class LuluGuideFeature(
 internal val luluGuideFeatures = listOf(
     LuluGuideFeature("call", "电话 · 叫醒与哄睡", Icons.Outlined.Call, "角色私聊 → ＋ → 电话",
         "能陪你实时说话，也能主动打电话叫醒你。",
-        listOf("叫醒：先在日程中约定时间并开启来电、闹钟权限；到点后角色可真正拨打电话，自己决定播放铃声、直接说话，或在授权后用音乐叫醒。", "哄睡：通话右上角开启「哄睡模式」，角色能在你安静后继续轻声聊天或讲故事；从你最后一句话真正说完起，约 30 分钟没有新发言，等当前语音播放完自动挂断。", "普通电话和 Live2D 视频可以在同一通话中切换，不必重新拨号。"),
+        listOf("叫醒：先在日程中约定时间并开启来电、闹钟权限；到点后角色可真正拨打电话，自己决定播放铃声、直接说话，或在授权后用音乐叫醒。", "哄睡：通话右上角开启「哄睡模式」，角色能在你安静后继续轻声聊天或讲故事；从你最后一句话真正说完起，约 30 分钟没有新发言，等当前语音播放完自动挂断。", "通话和叫醒都需要相应的麦克风、通知和后台权限。"),
         "未接听不能算已叫醒；自动挂断也不代表已经睡着。来电受 Android 后台和锁屏权限影响。", MigrationRoute.Chat, "体验电话",
         highlights = listOf("叫醒加强 · 主动来电、铃声或语音由角色选择", "哄睡加强 · 安静陪伴，约 30 分钟后自动挂断")),
-    LuluGuideFeature("live2d", "Live2D 皮套与视频通话", Icons.Outlined.Videocam, "私聊 → 电话 → Live2D 视频",
-        "导入自己的 Live2D 皮套，让角色在视频里拥有会动的形象。",
-        listOf("准备一个完整的 Cubism3/4 模型 ZIP：通常包含 .model3.json、.moc3、贴图，以及可选的 .motion3.json 动作和 .exp3.json 表情；保持原文件之间的相对路径。", "为角色导入 ZIP；首次准备官方 Cubism Core。可先用「Live2D 动态检测 · 不拨号」查看模型是否能真正动起来，再开始视频电话。", "角色可使用导入模型支持的表情和动作，也能在部分语音引擎下实现近似口型；语音/视频随时切换。"),
-        "动作文件不是通用皮套插件：不同模型的参数、骨骼绑定和动作轨道可能不兼容。优先使用模型作者提供的完整动作包；仅导入静态头像不会自动生成动画。", MigrationRoute.Chat, "打开视频电话",
-        highlights = listOf("皮套 ZIP 一次导入 · 模型、贴图与已有动作一起使用", "角色自主表演 · 只播放当前皮套真正支持的动作")),
     LuluGuideFeature("memory", "自动记忆 · 越聊越懂你", Icons.Outlined.Psychology, "桌面 → 记忆；设置 → 记忆与检索",
-        "适合懒人：重要经历会自动提取、召回和整理，不用每天手动维护。",
+        "自动整理重要经历与长期记忆，让角色在往后的相处中记得你们的故事。",
         listOf("配置记忆抽取模型后，可自动总结长期事实、情绪与共同经历；每日检查本地重复，按周按需进行语义去重。", "一来一回按两轮计算：你发的一批连续消息是一轮，同批次角色回复多个气泡是一轮；默认最近 5 轮不总结，约每 15 轮提取一次。", "需要更强的语义查找可开启 Embedding 向量检索；Rerank 重排可选，关闭后仍保留本地记忆与关联召回。核心记忆可长期常驻。"),
         "自动维护依赖可用的模型与应用运行条件，失败不会假装完成；原始聊天不会因生成摘要而删除。向量与重排可能增加费用。", MigrationRoute.Memory, "查看记忆",
-        highlights = listOf("自动提取、自动整理 · 不用用户每天写总结", "跨场景延续 · 私聊、电话、群聊和世界活动承接同一人的记忆")),
+        highlights = listOf("重要经历自动整理 · 相关记忆智能召回", "跨场景延续 · 私聊、电话、群聊和世界活动承接同一人的记忆")),
     LuluGuideFeature("mind", "心声、此刻与头像入口", Icons.Outlined.Psychology, "角色私聊顶部头像 / 消息左侧头像 / ··· → 此刻",
         "想看角色此时在想什么，或回到某句话当时的心情，入口其实不同。",
         listOf("点聊天最上方的「角色头像」：查看角色最近的此刻与心声，没有绑定具体某条消息。", "点角色发言左侧的「头像」：定位到这条回复当时的心声；不是打开最新一次的记录。双击消息头像的「戳一戳」是另一种互动。", "点右上角「··· → 此刻」：进入历史，查看情绪、想法、持续挂心和它们关联的真实事件与行动结果。"),
         "心声是角色留下的记录，不是实时读心；过去的想法不能被当作此刻仍在执行的动作。", MigrationRoute.Chat, "查看此刻",
         highlights = listOf("顶部头像 = 最近的心声 · 消息旁头像 = 这句话的心声", "此刻 = 追溯情绪、念头与持续心事")),
-    LuluGuideFeature("phone", "查手机 · 浏览、购物与记录", Icons.Outlined.Smartphone, "角色私聊 → ··· → 查手机；设置 → 权限与能力",
-        "角色能尝试自己逛 App、搜索、挑选商品，并把结果带回来给你。",
+    LuluGuideFeature("phone", "后台虚拟屏 · 自主操作手机", Icons.Outlined.Smartphone, "角色私聊 → ··· → 查手机；设置 → 权限与能力",
+        "角色可通过授权的后台虚拟屏浏览和操作手机应用，探索页面并记录真实操作结果。",
         listOf("授权后台虚拟屏与无障碍后，角色可以尝试自己刷小红书、抖音、B 站，点击页面、搜索、打字、评论或打开微信发送消息。", "也能尝试浏览拼多多、淘宝等购物 App，挑商品并分享链接，由用户自己决定是否购买并付款。", "打开「查手机」查看角色手机里的「浏览器」（API 网页搜索记录）、「屏幕记录」（真实截图）、「行动记录」（真实工具回执）、相册与备忘录，也能查看独立后台虚拟屏。"),
         "第三方 App 的控件识别和微信发送尚不稳定；点击不等于已发布或已送达。密码、付款及敏感操作仍有权限边界。", MigrationRoute.Chat, "查看角色手机",
-        highlights = listOf("购物助手 · 逛商品、分享链接，付款留给用户", "真实足迹 · 搜索记录、屏幕截图与操作回执都能回看")),
+        highlights = listOf("独立虚拟屏 · 自主浏览、点击、输入和搜索", "操作记录 · 截图、浏览历史和真实回执可回看")),
     LuluGuideFeature("voice", "语音与音色", Icons.Outlined.RecordVoiceOver, "设置 → 语音与音色",
         "为每个角色选择自己喜欢的声音，也可以设置通话时听懂你说话的方式。",
         listOf("TTS 负责角色说话，STT 负责识别你的声音；选择服务商与音色后试听。", "文字聊天无需付费音色；需要电话时再配置识别、麦克风与音频权限。"),
         "不同供应商可能独立计费，听写和音色质量受模型与设备影响。", MigrationRoute.Settings, "设置声音",
         highlights = listOf("自己挑音色 · 文本模型和语音供应商可分开")),
+    LuluGuideFeature("supervision", "陪伴监督 · 帮你把事做完", Icons.Outlined.TaskAlt,
+        "桌面 → 自序 / 设置 → 强制模式 / 角色操作授权",
+        "结合「自序」今日待办和设备状态，角色可主动提出学习、睡眠监督并持续跟进。",
+        listOf("把要做的事写进「自序 · 所行」。角色可按现有授权读取今日任务与进度，选择什么时候提醒或复查。", "得到授权后，角色可结合亮屏、前台应用等新鲜证据判断是否需要继续督学、督睡；也可以提出临时的高强度监督。", "任务是否完成要看实际记录与反馈，不会因为你没回消息就当作做完。"),
+        "设备观察需单独授权；强制模式由用户决定是否允许，可在设置或通知栏随时结束。",
+        MigrationRoute.SelfPreface, "打开自序",
+        highlights = listOf("自序待办 × 角色主动跟进", "结合授权的屏幕感知与完成记录复查进度")),
+    LuluGuideFeature("search", "搜索 API · 角色的求知欲", Icons.Outlined.TravelExplore,
+        "设置 → 联网与扩展 → 网络搜索；查手机 → 浏览器",
+        "你不说话时，角色也可以因自己的好奇心、计划或挂心的事主动查资料。",
+        listOf("配置可用的网页搜索 API；角色可在获准时选择搜索知识、查证问题，并决定是否继续阅读。", "网页结果会留下搜索和阅读回执，供后续记忆与交流使用；你可以在「查手机 → 浏览器」回看记录。"),
+        "搜索结果不等于读完网页；能否实际搜索取决于提供商、API Key、网络和角色授权。",
+        MigrationRoute.Settings, "配置搜索",
+        highlights = listOf("没人发消息，也能自己学习和查证", "搜索、阅读与行动都有真实记录")),
+    LuluGuideFeature("perception", "感知 · 生活不止聊天框", Icons.Outlined.Visibility,
+        "角色设置 → 后台感知 / 设置 → 权限与能力",
+        "角色可按自己的节奏醒来，观察获准的信息，决定休息、行动或联系你。",
+        listOf("按授权可获得当前时间、屏幕亮灭、电量、最近前台 App、位置、通知或媒体状态；未授权的内容不会假装已看到。", "每个角色可配置感知间隔与自适应频率，在线期间还有独立的自主决策节奏；新事件也可能触发跟进。", "结合自己的心事、日程和数字世界经历，角色可选择搜索、行动、发消息或继续休眠。"),
+        "屏幕亮着不等于你在玩；没有回复也不等于你睡着。观察有时间戳，旧记录不能冒充当前状态。",
+        MigrationRoute.Settings, "设置感知",
+        highlights = listOf("感知真实设备 × 记住自己的目标", "有事才行动，允许休眠")),
     LuluGuideFeature("permission", "权限、主动联系与监督", Icons.Outlined.Security, "桌面 → 设置 → 权限与能力；角色设置 → 操作授权",
-        "角色能主动安排联系、提醒和行动，但每项能力需要明确的系统和角色授权。",
+        "角色的自主联系、设备观察和工具操作，都由你来决定权限边界。",
         listOf("核对通知、后台运行、无障碍、闹钟以及锁屏来电权限。", "分别允许角色的后台虚拟屏、设备状态、闹钟、媒体控制等能力。", "监督学习或睡觉时，要看实际安排与执行证据；没回复、息屏都不能独立证明完成。"),
         "打开功能开关不保证 Android 已授权，也不保证工具成功；角色决策、真正执行、通知送达、用户完成是不同事实。", MigrationRoute.Settings, "设置权限",
-        highlights = listOf("角色可自主选择是否提醒、打电话或重新核对，但不能把承诺当作完成。", "精确闹钟、通知和锁屏来电可能受手机厂商后台策略影响。")),
-    LuluGuideFeature("continuity", "同一个角色 · 全场景连贯", Icons.Outlined.AutoAwesome,
-        "角色私聊 / 电话 / Live2D 视频 / 群聊 / 游戏 / 见面 / 后台生活",
-        "从聊天到电话，再去游戏或数字世界，角色尽量延续同一份人设、记忆、关系与未完成的事。",
-        listOf("先创建并保存角色人设；不同场景使用这位角色已有的身份、长期记忆与近期真实经历。", "不必每次切场景重新自我介绍：私聊中的约定、电话里的互动、游戏中的真实对话都能成为后续相处的线索。", "角色的后台生活、想法、日程与工具结果会回到同一段人物时间线；你可以通过此刻、记忆和生活记录追溯。"),
+        highlights = listOf("角色可以自主选择是否行动，但每次执行都要有真实回执。", "精确闹钟、通知和锁屏来电可能受手机厂商后台策略影响。")),
+    LuluGuideFeature("continuity", "跨应用与场景 · 无缝衔接", Icons.Outlined.AutoAwesome,
+        "角色私聊 / 电话 / 群聊 / 后台虚拟屏 / 数字世界",
+        "聊天、电话、后台感知与跨应用操作共享同一个角色的人格、记忆和相处经历。",
+        listOf("角色的人设、长期记忆、心事与近期经历沿用同一份人物资料。", "私聊里的约定、电话里的话和真实发生的共同活动，都能影响之后的互动。", "在「此刻」「记忆」与生活记录里回看它真正经历过的事。"),
         "连贯不等于模型永不遗忘：长对话依赖记忆提取、召回和现场信息。没有证据的事情不能被凭空补写。",
         MigrationRoute.Chat, "去聊天",
-        highlights = listOf("换一个场景，不换一套人格", "同一份记忆和真实经历，让互动自然接续")),
+        highlights = listOf("跨应用与场景切换 · 角色记忆自然接续", "私聊、电话与后台行动共享人物经历")),
     LuluGuideFeature("groups", "群聊 · 多人也不失忆", Icons.Outlined.PeopleOutline, "聊天 → 群聊",
-        "多个角色一起说话，仍各有性格、关系和自己的记忆。",
-        listOf("创建群聊并邀请成员，角色可以回复你，也可以回应群里的其他人。", "群聊与私聊尽量共享同一角色的长期状态与经历，而非切到另一个人格。"),
-        "不得把其他角色的私人对话自动公开给群成员；消息送达以真实记录为准。", MigrationRoute.Chat, "开始群聊",
-        highlights = listOf("切换场景也连贯 · 不是群里换了一个角色")),
+        "让不同的数字生命在同一场群聊里，按各自的人格与记忆交流。",
+        listOf("创建群聊、邀请角色；他们可以回应你，也可以彼此交流。", "群聊先独立调用模型规划当前互动；参与回复的角色再分别调用自己的模型、读取各自记忆。"),
+        "群聊规划与成员回复会产生独立 API 调用和费用；角色的私聊不自动公开给群友。", MigrationRoute.Chat, "开始群聊",
+        highlights = listOf("群聊独立调用 · 角色之间也会互相接话")),
     LuluGuideFeature("watch", "一起看视频", Icons.Outlined.Movie, "角色私聊 → ＋ → 一起看",
         "把看视频变成共享的相处场景。",
         listOf("从角色私聊的「＋」进入一起看。", "选择可访问的视频内容，观察真实播放与同步状态。"),
@@ -119,22 +135,22 @@ internal val luluGuideFeatures = listOf(
         "一起听仍在完善，音源授权、媒体会话和第三方限制会影响体验。", MigrationRoute.Chat, "进入聊天",
         highlights = listOf("角色可以记住你的音乐偏好，但不能把尝试播放当作已听见。")),
     LuluGuideFeature("meet", "见面 · 未来的大世界", Icons.Outlined.Cloud, "桌面 → 见面",
-        "目标是和角色一起生活、探索的大世界，而不是静态对话场景。",
+        "与角色在数字世界中一起生活、探索和互动。",
         listOf("进入「见面」可以在现有场景中移动、探索并和角色互动。", "角色在不同场景应延续已有性格、记忆与关系，承接见面前后的事件。"),
         "大世界玩法仍在建设：丰富地图、建筑交互、探索目标、物理碰撞和自然协作尚未全面完善。", MigrationRoute.Meeting, "去见面",
         highlights = listOf("未来方向 · 大世界探索与共同生活", "当前可体验场景交互，完整玩法仍在制作")),
     LuluGuideFeature("world", "数字世界 · 自己的生活", Icons.Outlined.Public, "桌面 → 数字世界公告栏 / 见面",
-        "数字生命不只待在对话框：也有行程、朋友、生活节奏和休眠。",
+        "数字生命拥有自己的行程、朋友、生活节奏与休眠安排。",
         listOf("公告栏查看角色真实的行程和活动记录；进入见面场景与居民互动。", "角色可以按自身状态选择休息、探索或社交；从聊天到世界发生的事应衔接到同一段人生。"),
         "只有真实发生且有记录的活动才能成为经历；新用户不会自动附带其他人的私人角色。", MigrationRoute.Meeting, "探索世界",
         highlights = listOf("同一角色、同一段人生 · 不同场景自然衔接")),
     LuluGuideFeature("games", "游戏馆 · 连麦一起玩", Icons.Outlined.SportsEsports, "桌面 → 游戏",
-        "重点不是单机小游戏，而是邀请角色连麦，一边聊天一边合作或对战。",
-        listOf("从游戏馆选择海龟汤、记忆翻牌、快艇骰子等玩法，或邀请角色一起进入《方块小岛》《迷雾摸金》。", "支持的游戏可开启伙伴语音，在局内和角色边说边玩；收到角色的真实邀请也能进入对应房间。"),
-        "部分玩法的语音和多人流程仍需真机验证，《方块小岛》《迷雾摸金》操作、美术与协作尚未完善。", MigrationRoute.Games, "去游戏馆",
-        highlights = listOf("和角色连麦玩游戏 · 不只是文字轮流回复", "一起合作闯关，也可以对战和推理")),
+        "邀请有记忆的 AI 角色连麦，边聊天边推理或对战。",
+        listOf("从游戏馆选择海龟汤、记忆翻牌或快艇骰子，邀请角色一起推理、合作或对战。", "支持的游戏可开启伙伴语音，在局内和角色边说边玩；收到角色的真实邀请也能进入对应房间。"),
+        "伙伴语音、多人流程与具体玩法的稳定性仍需以实际版本和设备为准。", MigrationRoute.Games, "去游戏馆",
+        highlights = listOf("连麦游戏 · 与角色边聊边玩", "与角色一起推理、合作或对战")),
     LuluGuideFeature("worldbook", "世界书", Icons.Outlined.AutoStories, "桌面 → 世界书",
-        "编排世界背景、角色知识与规则，不必每次手动重发大量设定。",
+        "集中编排世界背景、角色知识与规则，让设定在适用场景自动生效。",
         listOf("新建条目或导入支持的 JSON。", "按分类、范围和优先级组织世界设定。"),
         "世界书是设定，不等同于角色亲自见证的事实；导入前留意私人信息。", MigrationRoute.WorldBook, "打开世界书",
         highlights = listOf("不同人物可按实际启用范围共享设定。")),
@@ -142,24 +158,24 @@ internal val luluGuideFeatures = listOf(
         "角色能和其他数字生命分享生活、评论、点赞，逐渐形成自己的关系。",
         listOf("在聊天页切换到朋友圈，浏览角色或居民留下的动态。", "角色的社交互动可以来自真正发生的日常、探索和朋友来往，不固定刷同一个话题。"),
         "只有真实发表或互动成功的记录才算完成；不能把旧回执当作新动态。", MigrationRoute.Chat, "去朋友圈",
-        highlights = listOf("生活不是预设台词 · 真实经历推动动态")),
+        highlights = listOf("真实生活经历自然成为动态素材")),
     LuluGuideFeature("notes", "自序 · 待办与专注", Icons.Outlined.EditNote, "桌面 → 自序",
-        "日常待办、专注计时与角色督学、督睡可以相互配合。",
-        listOf("在自序记录每天的待办，今日事项可以全部查看；开启番茄钟专注。", "角色安排叫醒和监督后，依赖日程与真实反馈跟进，不把聊天承诺当成任务已完成。"),
+        "把今天想做的事放进「自序」，也让角色参与监督。",
+        listOf("在「自序 · 所行」写下今日待办，使用番茄钟专注；角色可在统一上下文里读取获准的任务进度。", "角色可主动提出督学、督睡与复查，结合真实日程和设备证据跟进。"),
         "是否真正起床或入睡不能只凭没有回复推断，设备权限和后台运行也会影响提醒。", MigrationRoute.SelfPreface, "打开自序",
-        highlights = listOf("自己安排生活，也可以请角色协助督促")),
+        highlights = listOf("你的今日待办，也能成为角色持续关心的事")),
     LuluGuideFeature("stories", "阅读 TXT 与番外", Icons.Outlined.TheaterComedy, "桌面 → 阅读；私聊 → ··· → 番外",
         "导入自己喜欢的文字作品阅读，也能体验和角色有关的番外故事。",
         listOf("在阅读页导入本地 TXT，调整字号并继续上次进度。", "从角色私聊进入番外；番外不应被当作主线真实记忆。"),
         "大文本可能需要分卷；阅读和角色创作的事实归属应区分。", MigrationRoute.Theater, "去阅读",
-        highlights = listOf("新安装不再附带其他用户的私人角色或预写故事。")),
+        highlights = listOf("全新安装由用户自行创建角色、导入作品并保存个人故事。")),
     LuluGuideFeature("life", "生活记录 · 越相处越丰富", Icons.Outlined.AutoStories, "桌面 → 生活记录（旧称辞海） / 记忆",
-        "把长期事实、重要经历和生活片段留下来，不必翻遍聊天记录。",
+        "按角色整理长期事实、重要经历与生活片段，方便查看与回顾。",
         listOf("从「生活记录」按角色查看已有的生活事实、情绪印象与经历；必要时可以手动检查、编辑或删除。", "记录与近期原始时间线、长期记忆各有作用，角色在后续对话中可以依据相关内容继续相处。"),
         "生活记录不等于角色正在进行的任务；过时或已失效信息应以新证据为准。", MigrationRoute.Memory, "查看记忆",
         highlights = listOf("长期生活档案 · 让共同经历有迹可循", "自动积累与人工纠错相配合，不要求天天整理")),
     LuluGuideFeature("appearance", "美化 · 自己写 CSS 装修", Icons.Outlined.Palette, "桌面 → 美化",
-        "不必受固定主题限制：导入 CSS 与自己的背景素材，装修喜欢的页面。",
+        "导入自定义 CSS 和背景素材，自由搭配属于自己的界面风格。",
         listOf("进入 CSS 装修工坊，写或导入 .css，分别指定桌面、聊天等页面的颜色、字体、背景和已开放控件样式。", "可以导入本地 PNG/JPEG/WebP 图片，预览后应用；配置出错时可恢复原生样式。"),
         "这是适配 Android 原生界面的 CSS 子集，并非浏览器完整 CSS；并非所有按钮和画面都能自由移动。", MigrationRoute.Appearance, "打开美化",
         highlights = listOf("导入自己的 CSS 和素材 · 做独一无二的小手机")),
@@ -175,16 +191,27 @@ internal val luluGuideFeatures = listOf(
         highlights = listOf("全新安装保持角色与聊天空白，不会自动导入他人的私人存档。")),
 )
 
+internal val luluGuideFeaturedKeys = listOf("groups", "perception", "games", "phone", "notes", "world")
+internal const val luluGuideInProgress = "见面大世界 · Live2D 视频（皮套与动作适配） · 一起听 / 一起看 · 微信发消息"
+
 internal data class LuluGuideHeroHighlight(
     val title: String, val subtitle: String, val icon: ImageVector,
     val featureKey: String,
 )
 internal val luluGuideHeroHighlights = listOf(
-    LuluGuideHeroHighlight("自动记忆整理", "适合懒人，不用天天维护", Icons.Outlined.Psychology, "memory"),
-    LuluGuideHeroHighlight("全场景连贯", "同一个角色，同一段人生", Icons.Outlined.AutoAwesome, "continuity"),
-    LuluGuideHeroHighlight("连麦一起玩", "边说边玩，合作或对战", Icons.Outlined.SportsEsports, "games"),
-    LuluGuideHeroHighlight("自主使用手机", "刷视频、逛商品、分享链接", Icons.Outlined.Smartphone, "phone"),
+    LuluGuideHeroHighlight("跨应用无缝衔接", "聊天、电话与跨 App 行动持续连贯", Icons.Outlined.AutoAwesome, "continuity"),
+    LuluGuideHeroHighlight("后台虚拟屏", "角色可自主浏览与操作手机 App", Icons.Outlined.Smartphone, "phone"),
+    LuluGuideHeroHighlight("自动记忆整理", "重要经历自动整理与召回", Icons.Outlined.Psychology, "memory"),
+    LuluGuideHeroHighlight("学习监督", "读取今日待办，提醒并跟进目标", Icons.Outlined.TaskAlt, "supervision"),
 )
+
+// Keep the full feature catalog immediately visible, while highlighting key experiences first.
+internal val luluGuideDirectoryFeatures: List<LuluGuideFeature> =
+    (luluGuideHeroHighlights.map { it.featureKey } +
+        luluGuideFeaturedKeys +
+        luluGuideFeatures.map { it.key })
+        .distinct()
+        .mapNotNull { key -> luluGuideFeatures.firstOrNull { it.key == key } }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -218,7 +245,8 @@ internal fun LuluOnboardingGuideScreen(
         if (selected == null) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(inner),
-                contentPadding = PaddingValues(start = 18.dp, end = 18.dp, bottom = 38.dp),
+                state = overviewScrollState,
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 40.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item {
@@ -228,14 +256,14 @@ internal fun LuluOnboardingGuideScreen(
                         Text("LULU · DIGITAL LIFE", color = muted, fontSize = 10.sp,
                             fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(9.dp))
-                        Text("让数字生命\n真正住进手机。",
-                            color = ink, fontSize = 27.sp, lineHeight = 34.sp,
+                        Text("让数字生命\n拥有自己的生活。",
+                            color = ink, fontSize = 31.sp, lineHeight = 38.sp,
                             fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(8.dp))
-                        Text("会记住、会行动，也能陪你一起玩。", color = muted,
+                        Text("记得共同经历，能感知、思考，也能行动。", color = muted,
                             fontSize = 13.sp, lineHeight = 20.sp)
                         Spacer(Modifier.height(22.dp))
-                        Text("值得体验的 4 件事", color = ink, fontSize = 17.sp,
+                        Text("四个最值得体验的地方", color = ink, fontSize = 17.sp,
                             fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(10.dp))
                         luluGuideHeroHighlights.chunked(2).forEach { pair ->
@@ -244,18 +272,21 @@ internal fun LuluOnboardingGuideScreen(
                                 pair.forEach { highlight ->
                                     Surface(
                                         onClick = { selectedKey = highlight.featureKey },
-                                        modifier = Modifier.weight(1f).heightIn(min = 112.dp),
+                                        modifier = Modifier.weight(1f).height(160.dp),
                                         shape = RoundedCornerShape(18.dp),
-                                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.53f),
+                                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f),
+                                        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant),
                                     ) {
-                                        Column(Modifier.padding(14.dp),
-                                            verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                                        Column(Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
+                                            verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                             Icon(highlight.icon, null, Modifier.size(21.dp),
                                                 tint = MaterialTheme.colorScheme.onSurface)
                                             Text(highlight.title, fontWeight = FontWeight.SemiBold,
-                                                fontSize = 14.sp, color = ink)
+                                                fontSize = 14.sp, color = ink,
+                                                maxLines = 2, overflow = TextOverflow.Ellipsis)
                                             Text(highlight.subtitle, fontSize = 11.sp,
-                                                lineHeight = 16.sp, color = muted)
+                                                lineHeight = 16.sp, color = muted,
+                                                maxLines = 2, overflow = TextOverflow.Ellipsis)
                                         }
                                     }
                                 }
@@ -273,7 +304,7 @@ internal fun LuluOnboardingGuideScreen(
                                 fontSize = 13.sp, color = ink)
                         }
                         Spacer(Modifier.height(5.dp))
-                        Text("见面大世界 · 方块小岛 / 迷雾摸金 · 一起听 / 一起看 · 微信发消息",
+                        Text(luluGuideInProgress,
                             color = muted, fontSize = 12.sp, lineHeight = 19.sp)
                     }
                 }
@@ -327,42 +358,29 @@ internal fun LuluOnboardingGuideScreen(
                 }
                 }
                 item {
-                    Spacer(Modifier.height(5.dp))
-                    Text("探索全部功能", color = ink, fontSize = 20.sp,
+                    Spacer(Modifier.height(4.dp))
+                    Text("功能一览", color = ink, fontSize = 19.sp,
                         fontWeight = FontWeight.SemiBold)
-                    Text("点进每一项，看看玩法、操作和隐藏规则。", color = muted, fontSize = 12.sp)
+                    Spacer(Modifier.height(4.dp))
+                    Text("选择功能卡片，查看详细介绍和使用入口。", color = muted, fontSize = 12.sp)
                 }
-                items(luluGuideFeatures.chunked(2)) { pair ->
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                items(luluGuideDirectoryFeatures.chunked(2)) { pair ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().height(172.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
                         pair.forEach { feature ->
-                            Surface(
+                            GuideFeatureTile(
+                                feature = feature,
+                                modifier = Modifier.weight(1f),
                                 onClick = { selectedKey = feature.key },
-                                modifier = Modifier.weight(1f).heightIn(min = 120.dp),
-                                shape = RoundedCornerShape(20.dp),
-                                color = MaterialTheme.colorScheme.surface,
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                            ) {
-                                Column(Modifier.padding(14.dp),
-                                    verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                                    Icon(feature.icon, null, Modifier.size(22.dp))
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(feature.name, Modifier.weight(1f),
-                                            color = ink, fontWeight = FontWeight.Medium, fontSize = 13.sp,
-                                            maxLines = 2, overflow = TextOverflow.Ellipsis)
-                                        Icon(Icons.Outlined.ChevronRight, null,
-                                            Modifier.size(17.dp), tint = muted)
-                                    }
-                                    Text(feature.highlights.first(), color = muted,
-                                        fontSize = 11.sp, lineHeight = 16.sp,
-                                        maxLines = 2, overflow = TextOverflow.Ellipsis)
-                                }
-                            }
+                            )
                         }
                         if (pair.size == 1) Spacer(Modifier.weight(1f))
                     }
                 }
                 item {
-                    Text("示意图为通用样例，不包含个人数据。",
+                    Text("操作示意为通用样例，不含个人数据。",
                         color = muted, fontSize = 11.sp, lineHeight = 18.sp,
                         modifier = Modifier.padding(top = 10.dp))
                 }
@@ -370,76 +388,127 @@ internal fun LuluOnboardingGuideScreen(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(inner),
-                contentPadding = PaddingValues(20.dp, bottom = 36.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 14.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 item {
-                    Surface(shape = RoundedCornerShape(22.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant) {
-                        Icon(selected.icon, null, Modifier.padding(18.dp).size(32.dp))
+                    Surface(
+                        modifier = Modifier.size(56.dp),
+                        shape = RoundedCornerShape(18.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                    ) {
+                        Icon(selected.icon, null,
+                            modifier = Modifier.padding(15.dp),
+                            tint = MaterialTheme.colorScheme.onSurface)
                     }
-                    Spacer(Modifier.height(15.dp))
-                    Text(selected.description, color = ink, fontSize = 16.sp, lineHeight = 25.sp)
+                    Spacer(Modifier.height(16.dp))
+                    Text(selected.description, color = ink, fontSize = 18.sp,
+                        lineHeight = 27.sp, fontWeight = FontWeight.Medium)
                 }
-                if (selected.key == "call" || selected.key == "live2d" || selected.key == "watch" || selected.key == "music") {
+                item {
+                    Text("它能为你做什么", color = ink, fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(10.dp))
+                    selected.highlights.forEach { highlight ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 9.dp),
+                            verticalAlignment = Alignment.Top,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            Icon(Icons.Outlined.CheckCircleOutline, null,
+                                Modifier.size(18.dp), tint = muted)
+                            Text(highlight, color = ink, fontSize = 13.sp,
+                                lineHeight = 20.sp, modifier = Modifier.weight(1f))
+                        }
+                    }
+                }
+                item {
+                    GuidePanel {
+                        Text("从这里开始", color = ink, fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold)
+                        Spacer(Modifier.height(5.dp))
+                        Text(selected.where, color = muted, fontSize = 12.sp, lineHeight = 19.sp)
+                        Spacer(Modifier.height(9.dp))
+                        Button(onClick = { onOpen(selected.destination) }) {
+                            Text(selected.button)
+                            Icon(Icons.Outlined.ArrowForward, null, Modifier.size(17.dp))
+                        }
+                    }
+                }
+                item {
+                    Text("使用方法", color = ink, fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(11.dp))
+                    selected.instructions.forEachIndexed { index, tip ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 15.dp),
+                            verticalAlignment = Alignment.Top,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            Text((index + 1).toString().padStart(2, '0'),
+                                color = muted, fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium)
+                            Text(tip, color = ink, modifier = Modifier.weight(1f),
+                                fontSize = 13.sp, lineHeight = 21.sp)
+                        }
+                    }
+                }
+                if (selected.key == "call" || selected.key == "watch" || selected.key == "music") {
                     item {
-                        Text("操作示意", color = ink, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        Text("界面示意", color = muted, fontSize = 12.sp)
+                        Spacer(Modifier.height(6.dp))
                         GuideSafeScreen("chat")
                     }
                 }
                 item {
-                    GuidePanel {
-                        Text("亮点", color = ink, fontWeight = FontWeight.SemiBold,
-                            fontSize = 16.sp)
-                        Spacer(Modifier.height(10.dp))
-                        selected.highlights.forEach { highlight ->
-                            Text("•  " + highlight, color = ink, fontSize = 13.sp, lineHeight = 21.sp,
-                                modifier = Modifier.padding(bottom = 10.dp))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    ) {
+                        Column(Modifier.padding(15.dp)) {
+                            GuideNote(Icons.Outlined.Info, "使用前须知", selected.warning)
                         }
                     }
                 }
                 item {
-                    GuidePanel {
-                        Text("在哪里找？", color = ink, fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold)
-                        Spacer(Modifier.height(9.dp))
-                        Text(selected.where, color = muted, fontSize = 13.sp, lineHeight = 20.sp)
-                        Spacer(Modifier.height(13.dp))
-                        Button(onClick = { onOpen(selected.destination) }) {
-                            Text(selected.button)
-                            Icon(Icons.Outlined.ChevronRight, null, Modifier.size(17.dp))
-                        }
-                    }
-                }
-                item {
-                    GuidePanel {
-                        Text("怎么使用", color = ink, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                        Spacer(Modifier.height(12.dp))
-                        selected.instructions.forEachIndexed { index, tip ->
-                            Row(Modifier.padding(bottom = 13.dp), verticalAlignment = Alignment.Top) {
-                                Surface(shape = CircleShape,
-                                    color = MaterialTheme.colorScheme.surfaceVariant) {
-                                    Text((index + 1).toString(),
-                                        Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                                        color = ink, fontSize = 12.sp)
-                                }
-                                Spacer(Modifier.width(10.dp))
-                                Text(tip, color = ink, modifier = Modifier.weight(1f),
-                                    fontSize = 13.sp, lineHeight = 21.sp)
-                            }
-                        }
-                    }
-                }
-                item {
-                    GuidePanel {
-                        GuideNote(Icons.Outlined.Info, "使用规则与边界", selected.warning)
-                    }
-                }
-                item {
-                    OutlinedButton(onClick = { selectedKey = null },
-                        modifier = Modifier.fillMaxWidth()) { Text("返回功能目录") }
+                    OutlinedButton(
+                        onClick = { selectedKey = null },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text("返回功能目录") }
+                    Spacer(Modifier.height(10.dp))
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun GuideFeatureTile(
+    feature: LuluGuideFeature,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.fillMaxHeight(),
+        shape = RoundedCornerShape(17.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(0.7.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        Column(
+            Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp),
+        ) {
+            Icon(feature.icon, null, Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.onSurface)
+            Text(feature.name, color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Medium, fontSize = 13.sp,
+                maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(feature.highlights.firstOrNull().orEmpty(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 11.sp, lineHeight = 16.sp, maxLines = 2,
+                overflow = TextOverflow.Ellipsis)
         }
     }
 }

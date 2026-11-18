@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`4f30cc6cef4245c75cffd9d22bd628422fb52bb3`
+- 基准提交：`c86823a2ac173b45b69dc6df29f632231ee664ed`
 - 分支：`main`
 - 已索引文件：1454
-- 已索引代码/文本行：307316
-- 已发现符号：4376
+- 已索引代码/文本行：307616
+- 已发现符号：4377
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -204,11 +204,11 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 35 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt` | 862 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt` | 125 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt` | 185 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 483 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 299 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 612 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt` | 520 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt` | 589 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 402 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt` | 231 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 318 | 1 |
@@ -828,7 +828,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 677 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 2169 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 2212 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2388 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -967,7 +967,7 @@
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluDesktopWidgetTest.kt` | 93 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluFirstRunAgreementTest.kt` | 30 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt` | 92 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt` | 135 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluVoiceCallReplyActivityTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluWidgetLiveIntegrationTest.kt` | 157 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 85 | 1 |
@@ -1247,7 +1247,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticPromptTest.kt` | 94 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineIntegrationTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt` | 225 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 572 | 6 |
+| `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 642 | 7 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 133 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipRepairContinuityTest.kt` | 124 | 1 |
@@ -1353,7 +1353,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/RelicChestSwipeGateTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicCollectionGoalsTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicCombatSkillsTest.kt` | 153 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 1230 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt` | 1245 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicIdleCompanionLootTest.kt` | 27 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicLobbyInvitationTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicMapCameraTest.kt` | 129 | 1 |

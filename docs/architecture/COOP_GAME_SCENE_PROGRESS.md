@@ -1,5 +1,11 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+## 2026-11-18 · G-03.5 · 旧档重复实物 ID 单次丢弃/拾取守恒
+
+- 根因：正式 `RelicEscapeRules.act("drop"/"pickup")` 选中一件实体后使用 `filterNot(id)` 删除全部同 ID 物件；旧档/异常重复 ID 会一次丢弃多件、拾起一件时抹掉多件地面实物。生产 `d4fc879c` 改为只移除所选实体的首个位置，保留其他物件及权威背包/地面账；测试 `22b71c33` 构造两件同 ID 实物，验证丢弃、拾取前后数量守恒。生产 blob `3dab5180`，测试 blob `ad803b3d`。
+- CI：本轮尚未取得上述 push SHA 的 JVM/APK/index 终态；Redmi 触控、FPS、真实模型及美术独立待验。下一文件 `RelicEscapeRulesTest.kt` 的 `legacyDuplicateLootIdsNeverDeleteMoreThanOnePhysicalItem`，然后检查 `RelicEscapeScreen.kt` 实物落地触控与藏宝馆结算。
+
+
 ## 2026-11-18 · G-03 · 独立回放页面、摸金角色战术与迷雾边缘停滞修复
 
 - **本轮用户反馈**：游戏馆的「游戏记录/回放」不得再是占屏 BottomSheet，必须是独立全屏页面；现有迷雾摸金实体回放画面保留。回放反映的角色局内操作笨拙，期待角色可以在真实战斗与撤离中领路。

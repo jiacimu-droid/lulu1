@@ -1,0 +1,83 @@
+name: Sync main into game
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Also catch main updates whose commit messages skip CI.
+    - cron: '23 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: lulu-main-into-game
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Merge the latest main into game
+        id: merge
+        shell: bash
+        run: |
+          echo 'build=false' >> "$GITHUB_OUTPUT"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          for attempt in 1 2 3; do
+            git fetch --no-tags origin main:refs/remotes/origin/main game:refs/remotes/origin/game
+            git switch --detach origin/game
+            original=$(git rev-parse HEAD)
+            upstream=$(git rev-parse origin/main)
+
+            if git merge-base --is-ancestor "$upstream" "$original"; then
+              echo 'The game branch already contains the latest main.' >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+
+            if ! git merge --no-edit "$upstream"; then
+              {
+                echo '### Resolve these conflicts on the game branch'
+                printf '\n'
+                git diff --name-only --diff-filter=U | sed 's/^/- /'
+              } >> "$GITHUB_STEP_SUMMARY"
+              git merge --abort
+              exit 1
+            fi
+
+            if git push origin HEAD:refs/heads/game; then
+              printf 'Merged main `%s` into game `%s`.\n' "$upstream" "$(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+              if ! git diff --quiet "$original" HEAD -- app ci scripts services tools \
+                build.gradle.kts settings.gradle.kts gradle.properties .github/workflows/release.yml \
+                preview/arcade preview/world-joystick.js; then
+                echo 'build=true' >> "$GITHUB_OUTPUT"
+              fi
+              exit 0
+            fi
+
+            echo "::warning::Push attempt $attempt failed. Fetching the current branch before retrying."
+          done
+          exit 1
+
+      - name: Build the updated game APK
+        if: steps.merge.outputs.build == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # GITHUB_TOKEN pushes do not trigger another workflow's push event.
+          for attempt in 1 2 3; do
+            if gh workflow run release.yml --repo "$GITHUB_REPOSITORY" --ref game; then
+              exit 0
+            fi
+            sleep "$((attempt * 3))"
+          done
+          exit 1

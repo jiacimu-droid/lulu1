@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T05:21:27.689628+00:00",
-  "commit": "4f30cc6cef4245c75cffd9d22bd628422fb52bb3",
+  "generatedAt": "2026-11-18T05:57:54.866522+00:00",
+  "commit": "c86823a2ac173b45b69dc6df29f632231ee664ed",
   "branch": "main",
-  "sourceFingerprint": "7478a32420e1e287a0cea0d74fe425334231736c0739960d882c5b0d10667467",
+  "sourceFingerprint": "069eb24166a119a0fdec1e416607705811a93bb8eee48d2cc0cb953fdda46f40",
   "summary": {
     "files": 1454,
-    "lines": 307316,
-    "symbols": 4376
+    "lines": 307616,
+    "symbols": 4377
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -419,7 +419,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 282
+        "line": 352
       }
     ],
     "update": [
@@ -3629,13 +3629,13 @@
     "accepted": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt",
-        "line": 41
+        "line": 37
       }
     ],
     "accept": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt",
-        "line": 49
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt",
@@ -18079,7 +18079,7 @@
     "stillAuthorized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 1173
+        "line": 1169
       }
     ],
     "LuluDeviceToolBridge": [
@@ -22904,24 +22904,28 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
         "line": 147
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
+        "line": 220
       }
     ],
     "editedLongRelationshipSurvivesFailedPhoneTurnAndReachesNextExpression": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 230
+        "line": 300
       }
     ],
     "persistedAgreement": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 259
+        "line": 329
       }
     ],
     "assertCurrent": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-        "line": 301
+        "line": 371
       }
     ],
     "RelationshipPreferencePersistenceTest": [
@@ -26999,16 +27003,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt",
-      "lines": 125,
-      "sha256": "dfd33813609f3047325f0ac94453b063dc23f167e69e4b525d99534e384d3246",
+      "lines": 185,
+      "sha256": "42340258de110814cdfc056f8dcf66a5ccdc74bbf0949613183109c7a33ad067",
       "symbols": [
         {
           "name": "accepted",
-          "line": 41
+          "line": 37
         },
         {
           "name": "accept",
-          "line": 49
+          "line": 45
         }
       ]
     },
@@ -27078,8 +27082,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt",
-      "lines": 520,
-      "sha256": "68b5ef7d2c12a531aa263562783842b4c3836f52f4fb84d554fc887235d70525",
+      "lines": 589,
+      "sha256": "fe9c7300e75dc5006c33602c0e417285205a8b4d0af14654c4074d8833eaa030",
       "symbols": []
     },
     {
@@ -40497,7 +40501,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
       "lines": 944,
-      "sha256": "7adf8e8ae9c6205f20ef8dec9fee5999b200323547c8542307dee82b44143891",
+      "sha256": "8d381ca161996c8f3e90c2e62f7f8fb00444bda1e2cc21383045ff7da7bed183",
       "symbols": [
         {
           "name": "at",
@@ -42451,8 +42455,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 2169,
-      "sha256": "e907a4bbcff0015fd7e7a1d730915fac41ba04d5ac7f04ac487ae44dc9ce1047",
+      "lines": 2212,
+      "sha256": "b8fb43854d085e116ecc6689c52c8e7b96b7069ebef26f44748fa986b0fe8d35",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -42488,7 +42492,7 @@
         },
         {
           "name": "stillAuthorized",
-          "line": 1173
+          "line": 1169
         }
       ]
     },
@@ -45192,8 +45196,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt",
-      "lines": 92,
-      "sha256": "2b31f9f3a98feb233de045c993706449bcb7b7031456bc6ac3c759a149aef1c4",
+      "lines": 135,
+      "sha256": "c79fc4777535b5ee44945686e3c09318caece3df088202974b4ed68f9197a669",
       "symbols": [
         {
           "name": "LuluOnboardingGuideContentTest",
@@ -49160,8 +49164,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt",
-      "lines": 572,
-      "sha256": "217049b571aa25fcd6b0cebd8348582e7f982b26c6ff380e9cca0a882ffe05d2",
+      "lines": 642,
+      "sha256": "ad60bde2ac18a82c9cc00d92eb9d8ce365da2738ca4e95dd00280a03b027fce1",
       "symbols": [
         {
           "name": "RelationshipPreferenceGatewayTest",
@@ -49172,20 +49176,24 @@
           "line": 147
         },
         {
+          "name": "system",
+          "line": 220
+        },
+        {
           "name": "editedLongRelationshipSurvivesFailedPhoneTurnAndReachesNextExpression",
-          "line": 230
+          "line": 300
         },
         {
           "name": "persistedAgreement",
-          "line": 259
+          "line": 329
         },
         {
           "name": "prompt",
-          "line": 282
+          "line": 352
         },
         {
           "name": "assertCurrent",
-          "line": 301
+          "line": 371
         }
       ]
     },
@@ -50546,8 +50554,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicEscapeRulesTest.kt",
-      "lines": 1230,
-      "sha256": "8700574b6f9ed145267201d4d915abcd087b0bf8edc561b29bbba6663abc3a11",
+      "lines": 1245,
+      "sha256": "d81ae2aa47d6fbbf92f571d2115475febdc08414b16de1547d5d2837d8c448a5",
       "symbols": [
         {
           "name": "RelicEscapeRulesTest",
