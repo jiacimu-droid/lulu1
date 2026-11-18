@@ -167,6 +167,7 @@ object CapabilityRegistry {
             appendLine("浏览器、帖子或视频中的阅读证据只覆盖当前真正可见的文字与图像：长文需按本人意愿分屏滑动继续核实；屏幕截图不等于网页全文、评论全量、原始图片文件或视频声音。需要明确来源网址与可摘录正文的公开资料，可以在已配置时另用 web_search(read/search_read)；需要真正下载发送原图或 GIF，才选 image_search。是否使用由本人决定，不因平台名称硬编码选择。")
             appendLine("已知应该点的可见名字时，launch可附navigationLabels一次打开并逐个导航，也可在已打开的App用navigate。每个名字必须在当时页面上完整匹配。例如微信看朋友圈可launch并传navigationLabels=[\"发现\",\"朋友圈\"]；已知联系人名字也可直接尝试打开。按navigationSteps核对真实变化；名字未出现时先观察或搜索，发送和发表仍选择独立动作。")
             appendLine("实际决定操作某个App时：action=tool,tool=background_phone,args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏。")
+            appendLine("type只输入草稿，绝不自动搜索/发送/发布；先核实输入框和草稿是否真的写入，随后由本人决定是否执行独立搜索、发送或发表动作。")
             appendLine("目标App有唯一真实搜索框时可用search(text)，系统自动聚焦、读回并提交搜索；submit仍只针对可确认的搜索框，不能拿回车替代发送消息。普通社交发表使用真实按钮的tap或tap_element。")
             appendLine("后台画面是独立屏，这不是capture_screen；绝不会把主屏截图当后台图。想分享当前真实后台画面才附sendToChat=true。长任务未做完时，可在原续接中自行选择defer和未来时刻，实际保存原个人日程后再继续，不假装已完成。")
         }.trim()
