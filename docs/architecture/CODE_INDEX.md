@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`969413b5ccaa6b9e223ff5f1e3fd2b8641eb082e`
+- 基准提交：`85384c4299a65261e2030cd4999f1cad29124a2e`
 - 分支：`main`
 - 已索引文件：1461
-- 已索引代码/文本行：308896
+- 已索引代码/文本行：308922
 - 已发现符号：4399
 
 | 文件 | 行数 | 符号数 |
@@ -850,7 +850,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt` | 85 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneInteractionPolicy.kt` | 41 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneRepeatGuard.kt` | 58 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneRepeatGuard.kt` | 64 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneTaskDeferral.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt` | 154 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorization.kt` | 26 | 2 |
@@ -1409,7 +1409,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaScreenDiagnosisTest.kt` | 92 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMikaTextAccuracyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneInteractionPolicyTest.kt` | 33 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneRepeatGuardTest.kt` | 87 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneRepeatGuardTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneTaskDeferralTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneUiGeometryTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt` | 95 | 3 |
