@@ -842,31 +842,37 @@ private fun DesktopV2LauncherItem(
         JournalPatchIcon(launcher.title, launcher.icon, modifier.luluCssElement("launcher"), onClick)
         return
     }
-    Column(
-        modifier = modifier.luluCssElement("launcher"),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top,
-    ) {
-        Surface(
-            shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
-            color = DesktopIconSurface,
-            border = BorderStroke(1.dp, DesktopLine),
-            shadowElevation = 1.dp,
-            modifier = Modifier.width(57.dp).height(61.dp),
-            onClick = onClick,
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(launcher.icon, launcher.title, tint = DesktopIcon, modifier = Modifier.size(30.dp))
+    BoxWithConstraints(modifier.luluCssElement("launcher")) {
+        // Reserve space for the label first: icon labels must not be clipped by
+        // a fixed 61dp icon box on compact or eight-row desktop pages.
+        val twoLines = launcher.title.length > 4 && launcher.title != "Live2D"
+        val labelSpace = if (twoLines) 28.dp else 18.dp
+        val iconHeight = minOf(61.dp, (maxHeight - labelSpace - 3.dp).coerceAtLeast(30.dp))
+        val iconWidth = minOf(57.dp, (maxWidth - 6.dp).coerceAtLeast(32.dp))
+        Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top) {
+            Surface(
+                shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
+                color = DesktopIconSurface,
+                border = BorderStroke(1.dp, DesktopLine),
+                shadowElevation = 1.dp,
+                modifier = Modifier.width(iconWidth).height(iconHeight),
+                onClick = onClick,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(launcher.icon, launcher.title, tint = DesktopIcon,
+                        modifier = Modifier.size(minOf(30.dp, iconHeight - 8.dp)))
+                }
             }
+            Spacer(Modifier.height(3.dp))
+            Text(
+                launcher.title, color = DesktopInk, fontSize = 11.sp,
+                lineHeight = 13.sp, fontWeight = FontWeight.Medium,
+                maxLines = if (twoLines) 2 else 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
         }
-        Spacer(Modifier.height(3.dp))
-        Text(
-            launcher.title,
-            color = DesktopInk,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-            maxLines = 1,
-        )
     }
 }
 
