@@ -9,6 +9,22 @@ plugins {
 // Only explicit, licensed local SDK builds include Native Cubism Core.
 // Default CI/phone APKs remain independent of proprietary binary files.
 val localCubismSdkPath = providers.gradleProperty("luluNativeSdkDir").orNull
+val arcadeAssets = layout.buildDirectory.dir("generated/arcadeAssets")
+val bundleArcade by tasks.registering(Sync::class) {
+    into(arcadeAssets)
+    from(rootProject.file("preview/arcade")) {
+        include("index.html", "arcade.css", "arcade.js", "island-map.js", "relic-map.js", "chest-show.js",
+            "art/*.webp", "art/island-meshes.json")
+        into("arcade")
+    }
+    from(rootProject.file("preview/world-joystick.js"))
+    from("src/main/res/drawable-nodpi") {
+        include("game_island_lobby_art.png", "game_relic_camp.webp")
+        rename("game_island_lobby_art.png", "island.png")
+        rename("game_relic_camp.webp", "relic.webp")
+        into("arcade/art")
+    }
+}
 val fixedDebugKeystore = layout.buildDirectory.file("signing/lulu-debug.keystore").get().asFile
 val encodedDebugKeystore = rootProject.file("ci/lulu-debug.keystore.b64")
 if (encodedDebugKeystore.exists() && !fixedDebugKeystore.exists()) {
@@ -58,6 +74,7 @@ android {
 
     sourceSets {
         getByName("main").res.srcDir(generatedLauncherRes)
+        getByName("main").assets.srcDir(arcadeAssets)
     }
 
     externalNativeBuild {
@@ -155,6 +172,8 @@ android {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
 }
+
+tasks.named("preBuild").configure { dependsOn(bundleArcade) }
 
 
 // Native Cubism integration requires the official Core distribution.

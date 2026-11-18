@@ -1,5 +1,7 @@
+import { chestFrames } from './chest-show.js';
+
 const grades = ['#b9bbb2','#b8c9a1','#83bde0','#b3a7e0','#e3b875','#e69082','#f0eace'];
-const palette = ['#34464b','#45565d','#354b46','#54524b'];
+const palette = ['#3a4147','#48515a','#354b46','#65564a'];
 const clamp = (n, a, b) => Math.min(Math.max(n,a),b);
 const tileHash = (x,y) => ((x*2767 ^ y*1859) >>> 0) % 29 / 29;
 const rect = (c, fill, x,y,w,h) => { c.fillStyle=fill; c.fillRect(x,y,w,h); };
@@ -31,9 +33,14 @@ function pawn(c,x,y,s,coat,hood, down) {
   ellipse(c,'#e6be9b',x,y-s*.18,s*.091,s*.077);
   rect(c,'#bcaa82',x-s*.18,y+s*.02,s*.33,s*.043);
 }
-function chest(c,x,y,s,tone,open) {
+function chest(c,x,y,s,tone,open,model) {
   ellipse(c,'#111c24a8',x,y+s*.19,s*.35,s*.13);
   if(!open) glow(c,x,y,s*.85,tone+'39');
+  if(model?.complete&&model.naturalWidth){
+    c.drawImage(model,x-s*.63,y-s*.58,s*1.25,s*1.14);
+    if(!open)gem(c,x+s*.026,y+s*.068,s*.045,tone);
+    return;
+  }
   poly(c,'#443829',[[x-s*.30,y],[x+s*.30,y],[x+s*.27,y+s*.19],[x-s*.27,y+s*.19]]);
   poly(c,open?'#4c534e':'#776043',[[x-s*.33,y],[x-s*.22,y-s*(open?.25:.16)],[x+s*.24,y-s*(open?.25:.16)],[x+s*.32,y]]);
   rect(c,tone,x-s*.32,y-s*.025,s*.64,s*.042);
@@ -55,18 +62,82 @@ function guard(c,x,y,s,m) {
   rect(c,'#db9276',x-s*.22,y-s*.44,s*.44*Math.min(m.hp/12,1),s*.055);
 }
 
+function stoneTile(c,tile,x,y,s,col,row) {
+  const n=tileHash(col,row), warm=col>=16||row<=3, moss=tile===2||row>=11;
+  if(tile===1){
+    rect(c,'#1d252e',x,y,s,s);
+    const cap=c.createLinearGradient(x,y,x,y+s*.81);
+    cap.addColorStop(0,warm?'#756458':'#5d6870');
+    cap.addColorStop(.8,warm?'#514641':'#3d4953');
+    rect(c,cap,x+1,y,s-2,s*.82);
+    rect(c,'#a0a6a129',x+1,y,s-2,2);
+    const courses=4;
+    for(let r=0;r<courses;r++){
+      const line=y+1+r*s*.20, offset=(r%2)*s*.25;
+      rect(c,'#141b23a0',x,line+s*.18,s,1);
+      for(let k=0;k<3;k++){
+        const joint=offset+k*s*.36;
+        if(joint<s-1)rect(c,'#19232b93',x+joint,line,1,s*.19);
+        if(joint+2<s-1)rect(c,'#d9cbb82c',x+joint+2,line+1,Math.min(s*.34,s-joint-2),1);
+      }
+    }
+    rect(c,'#222930',x,y+s*.80,s,s*.20);
+    if(n>.52) {
+      rect(c,'#657d5c5f',x+s*.64,y+s*.59,s*.26,s*.19);
+      rect(c,'#7f93623c',x+s*.73,y+s*.55,s*.16,s*.21);
+    }
+    return;
+  }
+  const slab=warm ? ['#4e4746','#51494a','#544b49'] : moss ? ['#343f43','#3d4844','#454a42'] : ['#414952','#434a51','#3c4650'];
+  rect(c,tile===3?'#625348':slab[Math.floor(n*3)],x,y,s+.3,s+.3);
+  for(let j=0;j<3;j++){
+    const fy=y+s*j/3;
+    rect(c,'#19243190',x,fy+s*.315,s,1);
+    rect(c,'#d3c7ab24',x,fy+1,s,1);
+    rect(c,'#17223268',x+(j%2?.35:.65)*s,fy,1,s*.33);
+  }
+  for(let j=0;j<7;j++){
+    const dx=tileHash(col+j*13,row+.1),dy=tileHash(row+j*27,col+.7);
+    rect(c,j%3?'#171c252a':'#d4c6aa26',x+dx*s*.87,y+dy*s*.9,1+dx*3,1+dy*2);
+  }
+  if(tile===3){
+    poly(c,'#8c746055',[[x+3,y+s*.44],[x+s*.69,y+2],[x+s*.73,y+s*.37],[x+s*.92,y+s*.70]]);
+    c.strokeStyle='#251e288d';c.beginPath();c.moveTo(x+s*.14,y+s*.69);
+    c.lineTo(x+s*.35,y+s*.61);c.lineTo(x+s*.46,y+s*.26);c.lineTo(x+s*.83,y+s*.16);c.stroke();
+  }
+}
+function lantern(c,x,y,s,tone){
+  glow(c,x,y,s*1.06,tone+'61');
+  ellipse(c,'#22232b91',x,y+s*.13,s*.21,s*.077);
+  rect(c,'#473a38',x-s*.12,y+s*.10,s*.24,s*.08);
+  poly(c,'#a48b57',[[x-s*.14,y-s*.14],[x+s*.14,y-s*.14],[x+s*.09,y+s*.14],[x-s*.09,y+s*.14]]);
+  poly(c,tone,[[x-s*.06,y-s*.11],[x+s*.06,y-s*.11],[x+s*.05,y+s*.08],[x-s*.05,y+s*.08]]);
+  rect(c,'#ffe2accc',x-s*.019,y-s*.117,s*.038,s*.16);
+}
+
 export function relicMap(canvas) {
   const c=canvas.getContext('2d',{alpha:false});
   let view;
-  return {
-    paint(s, selected) {
+  const boxes=[0,8].map(index=>{
+    const image=new Image();image.src=chestFrames[index];return image;
+  });
+  const relayout=()=>{if(lastArgs)map.paint(...lastArgs);};
+  for(const img of boxes)img.addEventListener('load',relayout);
+  let lastArgs;
+  const map={
+    paint(s, selected, camera, overview, shot) {
+      lastArgs=[s,selected,camera,overview,shot];
       const width=canvas.clientWidth, height=canvas.clientHeight;
       if(!width || !height)return;
       const dpr=Math.min(devicePixelRatio||1,1.75);
-      canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
+      if(canvas.width!==Math.round(width*dpr)||canvas.height!==Math.round(height*dpr)){canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);}
       c.setTransform(dpr,0,0,dpr,0,0);
-      const size=clamp(Math.min(width/10,height/6.3),34,75);
-      const hero=s.hero, ox=width/2-(hero.x+.5)*size, oy=height*.46-(hero.y+.5)*size;
+      const regular=clamp(Math.min(width/10,height/6.5),34,76);
+      const size=shot?regular*1.09:regular;
+      const hero=s.hero;
+      const aimX=shot?(shot.x+hero.x)*.5:hero.x;
+      const aimY=shot?(shot.y+hero.y)*.5:hero.y;
+      const ox=width*(shot?.51:.50)-(aimX+.5)*size, oy=height*(shot?.37:.48)-(aimY+.5)*size;
       view={size,ox,oy,w:s.w,h:s.h};
       const air=c.createRadialGradient(width*.5,height*.45,4,width*.5,height*.45,Math.max(width,height)*.7);
       air.addColorStop(0,'#253944');air.addColorStop(.48,'#172630');air.addColorStop(1,'#101823');
@@ -79,30 +150,21 @@ export function relicMap(canvas) {
       for(let y=0;y<s.h;y++) for(let x=0;x<s.w;x++) {
         const tile=s.tiles[y*s.w+x];
         if(tile<0) continue;
-        const tx=ox+x*size, ty=oy+y*size,n=tileHash(x,y);
+        const tx=ox+x*size, ty=oy+y*size;
         if(tx+size<0||ty+size<0||tx>width||ty>height)continue;
-        rect(c,palette[tile]??palette[0],tx,ty,size+.4,size+.4);
-        if(tile===1){
-          rect(c,'#273941',tx,ty+size*.78,size,size*.22);
-          rect(c,'#73828165',tx,ty+size*.025,size,size*.045);
-          if(n>.61){
-            rect(c,'#63716d',tx+size*.14,ty+size*.09,size*.11,size*.62);
-            rect(c,'#34474a',tx+size*.24,ty+size*.09,size*.07,size*.66);
-            rect(c,'#81867a',tx+size*.11,ty+size*.065,size*.20,size*.055);
-          }
-          for(let row=0;row<3;row++) {
-            rect(c,'#273a4575',tx,ty+row*size*.25,size,1);
-            rect(c,'#2a3b457b',tx+size*(row===1?.60:.33),ty+row*size*.25,1,size*.22);
-          }
-        } else {
-          rect(c,'#1c30336e',tx,ty,size,1);
-          rect(c,'#1c30336e',tx,ty,1,size);
-          for(let j=0;j<3;j++) {
-            const a=tileHash(x+j*22,y), b=tileHash(y+j*34,x);
-            rect(c,n>.5?'#abc0a023':'#172b334b',tx+a*size*.9,ty+b*size*.92,2+n*4,1+n*2);
-          }
-          if(tile===3) poly(c,'#7e5e5079',[[tx+5,ty+size*.60],[tx+size*.66,ty+5],[tx+size*.63,ty+size*.51],[tx+size*.87,ty+size*.84]]);
-          if(tile===2) ellipse(c,'#77928148',tx+size*.53,ty+size*.55,size*.31,size*.19);
+        stoneTile(c,tile,tx,ty,size,x,y);
+      }
+      if(s.w===23) {
+        for(const [x,y,tone] of [[2,2,'#ebba75'],[6,3,'#e7a881'],[3,9,'#bbd0c4'],[11,5,'#eec78a'],[17,8,'#e9ab75'],[19,11,'#c5b3ec'],[6,12,'#89c3bb']]){
+          if(s.tiles[y*s.w+x]<0)continue;
+          lantern(c,...centre(x,y),size*.76,tone);
+        }
+        for(const [x,y] of [[4,5],[12,5],[20,7],[20,10]]){
+          if(s.tiles[y*s.w+x]<0)continue;
+          const [cx,cy]=centre(x,y);
+          ellipse(c,'#b2996550',cx,cy,size*.39,size*.40);
+          ellipse(c,'#332c32a5',cx,cy,size*.32,size*.33);
+          gem(c,cx,cy,size*.14,'#b6966d6d');
         }
       }
       if(s.tiles[2*s.w+2]>=0){
@@ -132,9 +194,23 @@ export function relicMap(canvas) {
         ellipse(c,'#16282f',x,y+size*.12,size*.29,size*.11);
         gem(c,x,y,size*.18,tone);
       }
-      for(const box of s.chests)chest(c,...centre(box.x,box.y),size,grades[box.grade]||grades[0],box.opened);
+      for(const box of s.chests){
+        if(shot&&shot.id===box.id)continue;
+        chest(c,...centre(box.x,box.y),size,grades[box.grade]||grades[0],box.opened,boxes[box.opened?1:0]);
+      }
       for(const drop of s.drops) gem(c,...centre(drop.x,drop.y),size*.13,grades[drop.loot.grade]||grades[0]);
-      for(const foe of s.mobs) guard(c,...centre(foe.x,foe.y),size,foe);
+      for(const foe of s.mobs) {
+        const [fx,fy]=centre(foe.x,foe.y);
+        guard(c,fx,fy,size,foe);
+        if(shot&&foe.alert>0) {
+          const edgeX=clamp(fx,20,width-20),edgeY=clamp(fy,20,height-20);
+          const threatening=foe.windup?'#ffd29d':'#e69f81';
+          c.font='600 '+Math.max(11,Math.min(size*.27,17))+'px system-ui';c.textAlign='center';
+          c.strokeStyle='#25222a';c.lineWidth=4;
+          const tag=foe.windup?'蓄力':'守卫';
+          c.strokeText(tag,edgeX,edgeY-size*.46);c.fillStyle=threatening;c.fillText(tag,edgeX,edgeY-size*.46);
+        }
+      }
       for(const mate of s.allies) pawn(c,...centre(mate.x,mate.y),size,'#65a6a9','#40606d',mate.hp===0);
       const [x,y]=centre(hero.x,hero.y);
       glow(c,x,y,size*.94,'#fff5c92f');
@@ -151,4 +227,5 @@ export function relicMap(canvas) {
       return x>=0&&y>=0&&x<view.w&&y<view.h?[x,y]:null;
     }
   };
+  return map;
 }

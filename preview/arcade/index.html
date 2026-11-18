@@ -20,12 +20,12 @@
       <article class="cover cover-island">
         <img src="./art/island.png" alt="正式版方块小岛场景原画">
         <div class="cover-copy"><small>采集 / 建造 / 守夜</small><h2>方块小岛</h2><p>从第一把木斧，到和伙伴亲手搭起来的家。</p>
-          <button data-launch="island">登岛试玩 <span aria-hidden="true">↗</span></button></div>
+          <button data-launch="island">进入海岸营地 <span aria-hidden="true">↗</span></button></div>
       </article>
       <article class="cover cover-relic">
         <img src="./art/relic.webp" alt="正式版迷雾摸金营地原画">
         <div class="cover-copy"><small>勘察 / 搜宝 / 撤离</small><h2>迷雾摸金</h2><p>开箱之后，决定带着宝物回去，还是再往深处走。</p>
-          <button data-launch="relic">进入营地 <span aria-hidden="true">↗</span></button></div>
+          <button data-launch="relic">进入遗迹营地 <span aria-hidden="true">↗</span></button></div>
       </article>
     </div>
     <section class="other" aria-labelledby="other-title">
@@ -40,15 +40,23 @@
     <footer>两款主试玩运行仓库的 Kotlin 游戏规则。试玩进度留在本地服务，队友由你指挥。</footer>
   </main>
   <main id="game" class="game" hidden>
-    <canvas id="map-3d" aria-label="方块小岛三维地图，点选地块"></canvas>
+    <canvas id="map-3d" aria-label="方块小岛第一人称地图，按住并拖动视野"></canvas>
     <canvas id="map-2d" aria-label="迷雾摸金地图，点选目标"></canvas>
     <div class="hud">
       <div class="goal"><small id="map-name"></small><strong id="objective"></strong><span id="stats"></span></div>
       <nav class="map-nav" aria-label="地图控制">
-        <button id="overview" hidden>全岛</button><button id="orbit" hidden>转向</button><button id="leave">返回</button>
+        <button id="overview" hidden>地图</button><button id="leave">返回</button>
       </nav>
     </div>
+    <span id="crosshair" hidden aria-hidden="true"></span>
     <div id="feedback" class="feedback" role="status"></div>
+    <section id="chest-scene" class="chest-scene" aria-label="开箱演出" hidden>
+      <div class="chest-telemetry"><small id="chest-quality"></small><strong id="chest-stage"></strong><p id="chest-threat"></p><progress id="chest-meter" max="1" value="0" aria-label="开箱进度"></progress></div>
+      <div class="chest-visual"><div id="chest-halo" aria-hidden="true"></div><canvas id="chest-fx" aria-hidden="true"></canvas><img id="chest-model" src="./art/chest-0.webp" alt="雕花铜边木宝箱"><img id="chest-loot" alt="" hidden></div>
+      <div class="chest-message" id="chest-message" role="status" hidden><small id="chest-rank"></small><strong id="chest-name"></strong><span id="chest-value"></span></div>
+      <button id="chest-cover" class="soft" hidden>队友掩护</button><button id="chest-stop" class="soft">停手</button><button id="chest-continue" class="accent" hidden>继续探索</button>
+    </section>
+    <nav id="hotbar" class="hotbar" aria-label="快捷栏" hidden></nav>
     <div class="controls">
       <div id="pad" class="pad" role="group" aria-label="方向键，按住连续移动">
         <button type="button" data-vector="0,-1" aria-label="向上">↑</button>
@@ -66,18 +74,25 @@
       </div>
     </div>
   </main>
-  <dialog id="launch" aria-labelledby="launch-title">
-    <form id="setup">
-      <div class="dialog-top"><small id="launch-kicker"></small><button type="button" data-dismiss aria-label="关闭">×</button></div>
-      <h2 id="launch-title"></h2>
-      <p id="launch-copy"></p>
+  <main id="launch" class="launch-page" aria-labelledby="launch-title" hidden>
+    <header class="launch-header"><button type="button" id="lobby-back">← 游戏馆</button><span id="lobby-location"></span><span id="lobby-preview">横屏试玩</span><button type="button" id="classic" hidden>经典界面</button></header>
+    <form id="setup" class="lobby-setup">
+      <div class="launch-story"><small id="launch-kicker"></small><h1 id="launch-title"></h1><p id="launch-copy"></p><div id="lobby-landmarks"></div></div>
+      <section class="launch-card" aria-label="小队与出发准备">
+      <header class="launch-card-title"><div><small>出发准备</small><h2>组队</h2></div><span id="crew-count">1 / 3</span></header>
+      <div class="party" id="lobby-party"></div>
+      <button type="button" id="invite">＋ 邀请试玩角色</button>
       <div id="relic-config">
         <fieldset><legend>难度</legend><div class="choices">
           <label><input type="radio" name="difficulty" value="EASY" checked>轻松</label>
           <label><input type="radio" name="difficulty" value="NORMAL">标准</label>
           <label><input type="radio" name="difficulty" value="HARD">险境</label>
         </div><p id="difficulty-detail" class="selection-detail"></p></fieldset>
-        <fieldset><legend>起始武器</legend><div class="choices">
+        <fieldset class="route-choices"><legend>入口</legend><div class="choices">
+          <label><input type="radio" name="route" value="cloister" checked>外廊搜宝</label>
+          <label><input type="radio" name="route" value="ambush">遭遇守卫</label>
+        </div></fieldset>
+        <details><summary>武器与职业</summary><fieldset><legend>起始武器</legend><div class="choices">
           <label><input type="radio" name="weapon" value="blade" checked>短剑</label>
           <label><input type="radio" name="weapon" value="spear">长矛</label>
           <label><input type="radio" name="weapon" value="bow">弩弓</label>
@@ -86,13 +101,18 @@
           <label><input type="radio" name="profession" value="SCOUT" checked>探路者</label>
           <label><input type="radio" name="profession" value="GUARDIAN">守护者</label>
           <label><input type="radio" name="profession" value="MEDIC">医师</label>
-        </div></fieldset>
+        </div></fieldset></details>
       </div>
-      <label class="check"><input type="checkbox" id="with-partner"> 带手动操控的试玩队友</label>
+
       <p id="launch-status" role="status"></p>
       <div class="dialog-actions"><button id="resume" type="button" hidden>继续上次试玩</button><button type="submit" class="accent" id="start">开始</button></div>
+      </section>
     </form>
-  </dialog>
+  </main>
+  <section id="orientation-gate" class="orientation-gate" hidden aria-labelledby="orientation-title">
+    <div><small id="orientation-game"></small><h2 id="orientation-title">请把手机转为横屏</h2><p>横拿手机后即可进入大厅或继续游戏。</p><button id="orientation-back" class="soft">返回游戏馆</button></div>
+  </section>
+  <dialog id="crew-picker" aria-labelledby="crew-title"><div class="dialog-top"><small>组队</small><button type="button" data-dismiss aria-label="关闭">×</button></div><h2 id="crew-title">邀请试玩角色</h2><p id="crew-status" aria-live="polite">最多邀请两位。入队后可在地图里指挥。</p><div id="crew-options" class="crew-options"></div></dialog>
   <dialog id="options" class="game-dialog" aria-labelledby="options-title">
     <div class="dialog-top"><small id="options-kicker"></small><button type="button" data-dismiss aria-label="关闭">×</button></div>
     <h2 id="options-title"></h2>

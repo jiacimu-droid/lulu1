@@ -126,10 +126,13 @@ fun LuluGamesApp(
     // Save the player's per-game manual toggle across orientation configuration changes.
     val context = LocalContext.current
     val hostActivity = remember(context) { context.gameHostActivity() }
+    val worldGame = worldGameOwnsSystemNavigation(route.savedGameId())
     val landscapeSupported = gameSupportsLandscape(route.savedGameId())
     var landscape by rememberSaveable(route.savedGameId()) { mutableStateOf(true) }
+    var classicWorld by rememberSaveable(route.savedGameId()) { mutableStateOf(false) }
     val requestedGameOrientation = gameRequestedOrientation(
-        replayLandscapeGameId ?: route.savedGameId(), selectionOpen = pendingRoute != null, preferLandscape = landscape,
+        replayLandscapeGameId ?: route.savedGameId(), selectionOpen = pendingRoute != null,
+        preferLandscape = worldGame || landscape,
     )
 
     // One owner for the orientation request, covering game, picker and lobby routes.
@@ -280,12 +283,15 @@ fun LuluGamesApp(
                     if (store.resumeSuspendedYachtMatch(matchId)) route = GameRoute.YachtDice
                 })
                 GameRoute.DeepSea -> DeepSeaJourneyScreen(store)
-                GameRoute.BlockIsland -> BlockIslandEntry(
-                    store, initialParty = invitedCompanionsForGame(initialGameId, "block_island", state),
-                )
-                GameRoute.RelicEscape -> RelicEscapeScreen(
-                    store, initialParty = invitedCompanionsForGame(initialGameId, "relic_escape", state),
-                )
+                GameRoute.BlockIsland, GameRoute.RelicEscape -> {
+                    val isIsland = current == GameRoute.BlockIsland
+                    val party = invitedCompanionsForGame(initialGameId, current.savedGameId(), state)
+                    if (classicWorld) {
+                        if (isIsland) BlockIslandEntry(store, initialParty = party)
+                        else RelicEscapeScreen(store, initialParty = party)
+                    } else ArcadeAndroidScreen(store, if (isIsland) "island" else "relic", party,
+                        onExit = ::stepBack, onClassic = { classicWorld = true })
+                }
                 GameRoute.PerfectMan -> PerfectManScreen(store)
                 GameRoute.Roleplay -> Unit
                 GameRoute.TurtleSoup -> TurtleSoupScreen(store)
@@ -300,7 +306,7 @@ fun LuluGamesApp(
                 )
             }
             }
-            if (route == GameRoute.BlockIsland || route == GameRoute.RelicEscape) {
+            if (worldGame && classicWorld) {
                 // Both world games render edge-to-edge; their controls float over a tiny corner
                 // instead of reserving the 54dp full-width bar on short landscape screens.
                 Row(
@@ -313,12 +319,8 @@ fun LuluGamesApp(
                     IconButton(onClick = ::stepBack, modifier = Modifier.size(40.dp)) {
                         Icon(Icons.Outlined.ArrowBack, "返回游戏馆", tint = Color.White)
                     }
-                    if (landscapeSupported) {
-                        TextButton(onClick = { landscape = !landscape },
-                            contentPadding = PaddingValues(horizontal = 6.dp)) {
-                            Text(if (landscape) "竖屏" else "横屏",
-                                color = if (route == GameRoute.RelicEscape) Color(0xFFFFD894) else Color(0xFFB9EBD6), fontSize = 11.sp)
-                        }
+                    TextButton(onClick = { classicWorld = false }, contentPadding = PaddingValues(horizontal = 6.dp)) {
+                        Text("新版界面", color = Color(0xFFFFD894), fontSize = 11.sp)
                     }
                     GameAmbientAudioButton(enabled = bgmEnabled, tint = Color.White)
                     ModelArchiveIconButton(
@@ -330,7 +332,7 @@ fun LuluGamesApp(
                         muted = Color(0xFFB8C2D3), border = Color.White.copy(alpha = .18f),
                     )
                 }
-            } else if (immersivePlay) {
+            } else if (immersivePlay && !worldGame) {
                 Row(
                     modifier = Modifier.fillMaxWidth().height(54.dp)
                         .background(Brush.horizontalGradient(listOf(Color(0xF00A1521), Color(0xC0182635))))

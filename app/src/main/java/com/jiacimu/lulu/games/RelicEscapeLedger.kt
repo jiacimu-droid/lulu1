@@ -93,7 +93,8 @@ internal class RelicEscapeLedger(context:Context) {
     @Synchronized fun begin(participants:List<String>,medkits:Int,
         difficulty:RelicDifficulty=RelicDifficulty.NORMAL,
         startingWeapon:String="blade",contract:RelicContract=RelicContract.NONE,
-        profession:RelicProfession=RelicProfession.SCOUT):RelicSnapshot {
+        profession:RelicProfession=RelicProfession.SCOUT,
+        prepare: (RelicRun) -> RelicRun = { it }):RelicSnapshot {
         val old=read()
         if(old.run?.phase in listOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
             return old
@@ -102,7 +103,7 @@ internal class RelicEscapeLedger(context:Context) {
         val run=RelicEscapeWorld.create(Random.nextInt(),level,participants,medkits,old.weapon,old.satchelLevel,
             difficulty,old.purchasedWeapons,startingWeapon).copy(contract=contract,
                 profession=profession)
-        return write(old.copy(run=run,kits=old.kits-medkits))
+        return write(old.copy(run=prepare(run),kits=old.kits-medkits))
     }
     @Synchronized fun buyKit():RelicSnapshot {
         val old=read()
@@ -161,6 +162,18 @@ internal class RelicEscapeLedger(context:Context) {
                 if(action in setOf("move","sneak","pry","open","channel","attack","weapon_skill","invoke","disarm","silence","lure","resupply","fountain"))x else current.hero.x,
                 if(action in setOf("move","sneak","pry","open","channel","attack","weapon_skill","invoke","disarm","silence","lure","resupply","fountain"))y else current.hero.y,
                 itemId,autonomousIds)
+        return saveRun(old, current, result)
+    }
+
+    @Synchronized fun playArcade(expectedRunId: String, input: ArcadeInput): Pair<RelicSnapshot, ArcadeRelicStep> {
+        val old = read()
+        val current = checkNotNull(old.run) { "本局已经结束，请回营地。" }
+        check(current.id == expectedRunId) { "对局已经更换，旧行动未执行。" }
+        val step = arcadeRelicAct(current, input, current.allies.map { it.id }.toSet())
+        return saveRun(old, current, step.run) to step
+    }
+
+    private fun saveRun(old: RelicSnapshot, current: RelicRun, result: RelicRun): RelicSnapshot {
         if(result==current)return old
         val next=if(result.phase in setOf(RelicPhase.SUCCESS,RelicPhase.FAILURE) && result.completedAtMs==0L)
             result.copy(completedAtMs=System.currentTimeMillis()) else result

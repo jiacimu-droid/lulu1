@@ -1,83 +1,260 @@
 import { islandMap } from './island-map.js';
 import { relicMap } from './relic-map.js';
+import { chestShow } from './chest-show.js';
 
 const $ = id => document.getElementById(id);
 const launch = $('launch'), options = $('options'), game = $('game'), form = $('setup');
 const islandCanvas = $('map-3d'), relicCanvas = $('map-2d'), pad = $('pad');
-const rotateMedia = matchMedia('(orientation:portrait) and (max-width:760px)');
+const browserMode = document.documentElement.dataset.runtime === 'browser';
+const nativeBridge = window.LuluArcade;
+const nativeMode = Boolean(nativeBridge);
+const nativePending = new Map();
+let requestId=0, nativeSession=null, inviting=false;
+if(nativeMode){
+  document.documentElement.dataset.runtime='android';
+  nativeBridge.onmessage=({data})=>{
+    const response=JSON.parse(data);
+    const pending=nativePending.get(response.requestId);
+    if(!pending)return;
+    nativePending.delete(response.requestId);
+    if(response.error)pending.reject(new Error(response.error));
+    else pending.resolve(response);
+  };
+}
+let rulesModule;
+const browserSessions = new Set();
+const landscape = matchMedia('(orientation:landscape)');
+const crewPicker=$('crew-picker');
+let crewProfiles=[
+  { name:'苔羽', title:'林地采集', desc:'能寻找近处资源，并能动手采集或参与建造。'},
+  { name:'砾灯', title:'营地护卫', desc:'可下达近身护卫和应战指令。'},
+  { name:'渡鸦', title:'遗迹探路', desc:'可前往指定区域，或者围堵附近威胁。'}
+].map(role=>({...role,id:role.name}));
+const roleName=id=>crewProfiles.find(role=>role.id===id)?.name||'队友';
+let crew=[], chestSession=null, ceremony;
+
 const names = { island:'方块小岛', relic:'迷雾摸金' };
 const counters = { EASY:'轻松', NORMAL:'标准', HARD:'险境' };
 const difficultyDetail = {EASY:'守卫更少，生命与伤害较低。',NORMAL:'常规守卫数量、生命与伤害。',HARD:'首层守卫更多，生命与伤害提高。'};
-const gamePreferences={island:{partner:false},relic:{partner:false}};
+const gamePreferences={island:[],relic:[]};
 const terminal = new Set(['SUCCESS','FAILURE','SETTLEMENT']);
 let kind = '', state, selected = null, facing = [0,1], recipe = '';
-let renderer, islandRenderer, angle = 0, overview = false, busy = false, epoch = 0;
+let renderer, islandRenderer, overview = false, busy = false, epoch = 0;
+let camera = { yaw: .48, pitch: -.21 }, lookDrag, redraw;
 let heldTimer, directionHeld = null, pressId = null, initialCentre = false;
 
 async function request(verb, payload = {}) {
+  const input={kind,verb,session:state?.session,...payload};
+  if(nativeMode){
+    return await new Promise((resolve,reject)=>{
+      const id=++requestId;
+      nativePending.set(id,{resolve,reject});
+      try { nativeBridge.postMessage(JSON.stringify({...input,requestId:id})); }
+      catch(error){nativePending.delete(id);reject(error);}
+    });
+  }
+  if (browserMode) {
+    rulesModule ??= import('./rules-browser.mjs');
+    const rules=await rulesModule;
+    if(input.session&&!browserSessions.has(input.session)){
+      const saved=localGet('lulu-arcade-save:'+kind);
+      if(saved) rules.arcadeRestore(input.session,saved);
+      browserSessions.add(input.session);
+    }
+    const result=JSON.parse(rules.arcadeRequest(JSON.stringify(input)));
+    if(result.error)throw new Error(result.error);
+    if(input.verb!=='view'){
+      browserSessions.add(result.session);
+      localSet('lulu-arcade-save:'+kind,rules.arcadeSave(result.session));
+    }
+    return result;
+  }
   const response = await fetch('./rules', {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({kind,verb,session:state?.session,...payload})
+    body:JSON.stringify(input)
   });
   const value = await response.json();
   if (!response.ok || value.error) throw new Error(value.error || '试玩引擎未能回应');
   return value;
 }
+function localGet(key) {
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+function localSet(key,value) {
+  try { localStorage.setItem(key,value); } catch { /* The session is still playable in this tab. */ }
+}
 function storage(mode, key, value) {
+  if(nativeMode)return nativeSession;
   try {
     const id = 'lulu-arcade-session:'+mode;
-    if (key === 'get') return sessionStorage.getItem(id);
-    if (key === 'delete') sessionStorage.removeItem(id);
-    else sessionStorage.setItem(id,value);
+    const database=browserMode?localStorage:sessionStorage;
+    if (key === 'get') return database.getItem(id);
+    if (key === 'delete') database.removeItem(id);
+    else database.setItem(id,value);
   } catch { return null; }
 }
 function setBusy(value, hint = '') {
   busy = value;
   $('start').disabled = value;
   $('resume').disabled = value;
-  if (launch.open) $('launch-status').textContent = hint;
+  if (!launch.hidden) $('launch-status').textContent = hint;
+}
+function orient() {
+  const gated=!landscape.matches && (!launch.hidden||!game.hidden);
+  $('orientation-game').textContent=names[kind]||'游戏馆';
+  $('orientation-gate').hidden=!gated;
+  launch.inert=gated;
+  game.inert=gated;
+  if(gated){stopHold();if(crewPicker.open)crewPicker.close();if(options.open)options.close();if(chestSession)cancelOpening();}
+  if(!gated)draw();
+}
+function showCrew() {
+  if(!landscape.matches)return;
+  drawCrewPicker();
+  crewPicker.showModal();
+}
+function drawCrewPicker() {
+  const list=$('crew-options');
+  list.replaceChildren();
+  for(const role of crewProfiles){
+    const joined=crew.includes(role.id);
+    const button=document.createElement('button');
+    button.type='button';
+    button.disabled=inviting||!joined&&crew.length>=2;
+    const copy=document.createElement('span');
+    copy.textContent=role.title?role.name+' · '+role.title:role.name;
+    if(role.desc){
+      const description=document.createElement('small');
+      description.textContent=role.desc;
+      copy.append(description);
+    }
+    const action=document.createElement('strong');
+    action.textContent=joined?'移出':'邀请';
+    button.append(copy,action);
+    button.addEventListener('click',async()=>{
+      if(nativeMode){
+        inviting=true;
+        drawCrewPicker();
+        $('crew-status').textContent=joined?'正在更新队伍…':`正在等${role.name}回复邀请…`;
+        try{
+          const result=await request(joined?'remove':'invite',{actor:role.id});
+          crew=result.party;
+          $('crew-status').textContent=joined?`${role.name}已离队。`:`${role.name} · ${result.message}`;
+        }catch(error){ $('crew-status').textContent=error.message; }
+        finally{ inviting=false; }
+      }else crew=joined?crew.filter(id=>id!==role.id):[...crew,role.id];
+      drawParty();
+      drawCrewPicker();
+      list.querySelectorAll('button')[crewProfiles.indexOf(role)]?.focus();
+    });
+    list.append(button);
+  }
+  if(nativeMode&&!crewProfiles.length)$('crew-status').textContent='还没有角色，可以先单人出发。';
+}
+function drawParty() {
+  const party=$('lobby-party');
+  party.replaceChildren();
+  const create=(label,detail,interactive)=>{
+    const el=document.createElement(interactive?'button':'div');
+    el.textContent=label;
+    if(interactive){el.type='button';el.addEventListener('click',showCrew);}
+    else el.className='party-player';
+    const sub=document.createElement('span');
+    sub.textContent=detail;el.append(sub);
+    return el;
+  };
+  party.append(create('你','领队',false));
+  for(let i=0;i<2;i++)party.append(create(crew[i]?roleName(crew[i]):'＋ 空位',crew[i]?'已入队':'邀请角色',true));
+  $('crew-count').textContent=`${crew.length+1} / 3`;
 }
 function setup(mode) {
   kind = mode;
-  $('launch-kicker').textContent = mode === 'island' ? '3D 斜俯视 · 持久家园' : '2D 俯视 · 迷雾遗迹';
+  if(!nativeMode)crew=[...gamePreferences[mode]];
+  const island=mode==='island';
+  launch.dataset.kind=mode;
+  launch.style.setProperty('--lobby-image',`url(${new URL(island?'./art/island.png':'./art/relic.webp',import.meta.url)})`);
+  $('lobby-location').textContent=island?'海岸营地':'回声遗迹 · 前哨营地';
+  $('launch-kicker').textContent=island?'海岸、雪松与灯塔':'外廊、钟楼与地下宝库';
   $('launch-title').textContent = names[mode];
-  $('launch-copy').textContent = mode === 'island'
-    ? '从徒手采集开始。在林地搭工作台，再用石剑守夜。'
-    : '挑好武器，从遗迹摸到一件宝物，再守住撤离门。';
-  $('relic-config').hidden = mode !== 'relic';
-  $('with-partner').checked=gamePreferences[mode].partner;
-  $('start').textContent = mode === 'island' ? '新建岛屿' : '开始搜宝';
+  $('launch-copy').textContent = island
+    ? '沿沙径进林子，备好木石和工具，选一块能看见海的地方起屋。'
+    : '外廊有一条稳妥的撤离路，钟楼后藏着丰厚的战利品。开箱时留意守卫。';
+  $('lobby-landmarks').textContent=island?'第一人称 3D　·　采集 / 建造 / 种植':'斜俯视　·　开箱 / 掩护 / 撤离';
+  $('relic-config').hidden = island;
+  $('start').textContent = island ? '登岛' : '进入遗迹';
   $('resume').hidden = !storage(mode,'get');
   $('launch-status').textContent = '';
+  drawParty();
   updateDifficulty();
-  launch.showModal();
+  $('hall').hidden=true;
+  launch.hidden=false;
+  orient();
+  if(landscape.matches)$('lobby-back').focus({preventScroll:true});
+  if(nativeMode)loadNativeLobby();
+}
+async function loadNativeLobby(){
+  setBusy(true,'正在读取本机存档…');
+  try{
+    const lobby=await request('lobby');
+    nativeSession=lobby.session;
+    crewProfiles=lobby.roles;
+    crew=lobby.party;
+    drawParty();
+    $('resume').hidden=!nativeSession;
+    $('start').hidden=lobby.activeRun;
+    if(kind==='relic'){
+      for(const input of form.querySelectorAll('[name="weapon"]'))input.disabled=!lobby.weapons.includes(input.value);
+    }
+  }catch(error){
+    $('launch-status').textContent=error.message;
+    busy=false;
+    return;
+  }
+  setBusy(false);
+}
+function closeLobby(){
+  if(nativeMode){ request('exit');return; }
+  ++epoch;
+  busy=false;
+  $('start').disabled=false;
+  $('resume').disabled=false;
+  launch.hidden=true;
+  $('hall').hidden=false;
+  if(crewPicker.open)crewPicker.close();
+  orient();
+  document.querySelector(`[data-launch="${kind}"]`)?.focus({preventScroll:true});
 }
 async function enter(resume) {
-  if (busy) return;
+  if (busy||!landscape.matches||launch.hidden) return;
   const activeEpoch = ++epoch;
-  setBusy(true,'正在启动 Kotlin 游戏引擎，首次需要编译。');
+  setBusy(true,nativeMode?'正在读取地图…':browserMode?'正在加载岛屿与遗迹规则…':'正在启动 Kotlin 游戏引擎，首次需要编译。');
   try {
-    if (kind==='island') islandRenderer ??= islandMap(islandCanvas);
+    if (kind==='island'&&!islandRenderer) islandRenderer = await islandMap(islandCanvas);
     const data = new FormData(form);
-    if(!resume)gamePreferences[kind].partner=$('with-partner').checked;
+    if(!resume)gamePreferences[kind]=[...crew];
     const next = resume
-      ? await request('view',{session:storage(kind,'get'), dx:0, dy:1})
+      ? await request(nativeMode?'resume':'view',{session:storage(kind,'get'), dx:0, dy:1})
       : await request('start', {difficulty:data.get('difficulty'),weapon:data.get('weapon'),profession:data.get('profession'),
-          partner:$('with-partner').checked,seed:Math.floor(Math.random()*100000)+1,dx:0,dy:1});
+          crew, map:kind==='island'?'coast':data.get('route'),seed:kind==='island'?4317:Math.floor(Math.random()*100000)+1,dx:0,dy:1});
     if (activeEpoch !== epoch) return;
     state=next;
+    if(nativeMode)nativeSession=state.session;
     storage(kind,'set',state.session);
-    selected=null; facing=[0,1]; recipe=''; angle=0; overview=false;
+    selected=null; facing=[0,1]; recipe=''; camera={yaw:next.world?.width===35?1.58:.48,pitch:-.15}; overview=false;
     game.dataset.kind=kind;
     islandCanvas.hidden=kind!=='island'; relicCanvas.hidden=kind!=='relic';
-    $('orbit').hidden=kind!=='island'; $('overview').hidden=kind!=='island';
-    $('overview').textContent='全岛';
+    $('overview').hidden=kind!=='island';
+    $('crosshair').hidden=kind!=='island';
+    $('overview').textContent='地图';
     renderer=kind==='island'?islandRenderer:relicMap(relicCanvas);
-    launch.close();
+    if(kind==='island')renderer.reset();
+    launch.hidden=true;
     $('hall').hidden=true;
     game.hidden=false;
+    orient();
     $('leave').focus({preventScroll:true});
     render();
+    setTimeout(syncAim,0);
   } catch(error) {
     if (activeEpoch!==epoch) return;
     const expired = resume && error.message.includes('试玩已结束');
@@ -96,6 +273,7 @@ async function enter(resume) {
   }
 }
 function leave() {
+  finishOpening();
   ++epoch;
   busy=false;
   $('start').disabled=false;
@@ -106,6 +284,11 @@ function leave() {
   $('hall').hidden=false;
   document.querySelector(`[data-launch="${kind}"]`)?.focus({preventScroll:true});
   state=null;
+  lookDrag=null;
+  if(redraw)cancelAnimationFrame(redraw);
+  redraw=null;
+  if(nativeMode){setup(kind);return;}
+  orient();
 }
 function snapshotInput() {
   return {dx:facing[0],dy:facing[1],build:recipe,
@@ -123,28 +306,34 @@ async function update(verb, payload, selectionAfter) {
       recipe='';
     if(selectionAfter!==undefined) selected=selectionAfter;
     render();
-    if (next.receipt) showReceipt(next.receipt);
+    if (next.receipt&&!chestSession) showReceipt(next.receipt);
     if (kind==='relic' && terminal.has(next.phase) && next.phase!==before.phase) showResult();
+    return next;
   } catch(error) {
     if(token===epoch)$('feedback').textContent=error.message;
   } finally {
-    if(token===epoch)busy=false;
+    if(token===epoch){
+      busy=false;
+      if(verb==='act'&&kind==='island')syncAim();
+    }
   }
 }
 function move(dx,dy) {
-  if(!state || busy || options.open || (kind==='relic' && terminal.has(state.phase)))return;
+  if(!state || busy || options.open || chestSession || !landscape.matches || (kind==='relic' && terminal.has(state.phase)))return;
   if(kind==='island'){
-    facing=renderer.direction(dx,dy,angle);
-    if(overview){overview=false;$('overview').textContent='全岛';}
+    facing=renderer.direction(dx,dy,camera);
+    if(overview)toggleOverview();
   } else facing=[dx,dy];
   update('act',{action:'move',dx:facing[0],dy:facing[1]},null);
 }
 function perform(item) {
-  if (!item || !item.enabled || busy) return;
+  if (!item || !item.enabled || busy || !landscape.matches) return;
+  if(kind==='relic'&&item.action==='open'){beginOpening(item);return;}
   if(item.action==='choose_build'){
     recipe=item.id;
     const w=state.world;
-    const x=w.x+facing[0],y=w.y+facing[1];
+    const aim=renderer.aim();
+    const x=aim?.[0]??w.x+facing[0],y=aim?.[1]??w.y+facing[1];
     selected=[Math.min(w.width-1,Math.max(0,x)),Math.min(w.height-1,Math.max(0,y))];
     options.close();
     update('view');
@@ -157,10 +346,10 @@ function perform(item) {
     update('act',{action:'move',dx:facing[0],dy:facing[1]},null);
     return;
   }
-  update('act',{action:item.action,id:item.id,x:item.x,y:item.y});
+  update('act',{action:item.action,id:item.id,x:item.x,y:item.y,actor:item.actor});
 }
 function draw(){
-  if(state && !game.hidden) renderer.paint(state,selected,angle,overview);
+  if(state && !game.hidden && landscape.matches) renderer.paint(state,selected,camera,overview,chestSession?.box);
 }
 function render() {
   if(!state) return;
@@ -169,18 +358,21 @@ function render() {
   const complete=!island&&terminal.has(s.phase);
   const active=s.actions.find(a=>a.section==='main');
   const fight=s.actions.find(a=>a.section==='combat'&&a.action==='attack');
-  $('map-name').textContent=island?'方块小岛 · 岸林':`迷雾摸金 · ${counters[s.difficulty]||'标准'}`;
+  const compass=['南','东','北','西'];
+  const heading=compass[((Math.round(camera.yaw/Math.PI*2)%4)+4)%4];
+  $('map-name').textContent=island?(overview?'方块小岛 · 全岛地图':`方块小岛 · 岸林 · ${heading}`):`迷雾摸金 · ${counters[s.difficulty]||'标准'}`;
   $('objective').textContent=complete ? (s.phase==='SUCCESS'?'撤离成功':'撤离失败') : s.objective;
   $('stats').textContent=island
     ? `生命 ${w.hp}/12　饱食 ${s.hunger}/10　木 ${w.wood}　石 ${w.stone}`
     : `生命 ${s.hero.hp}/10　负重 ${s.load}/${s.capacity}　宝物 ${s.carried}　估值 ${s.value}`;
   const message=s.notice || '';
   $('feedback').textContent=/^(走到了 \(.*|点击格子选中目标.*|前进一步)$/.test(message)?'':message;
-  const selectedField=selected && island ? `选中 ${selected[0]+1}, ${selected[1]+1} · ` : '';
+  game.dataset.overview=overview?'yes':'no';
+  $('crosshair').classList.toggle('ready',island&&!!active?.enabled);
   $('focus').textContent=complete?'点击查看本次实际带出的宝物。'
-    : recipe?(active?.hint||'点选要放置的地块。')
-    : active?.hint || (island?selectedField+'点选地图目标，靠近后互动。':'移动探索迷雾，或点选已发现的目标。');
-  $('primary').textContent=complete?'查看结算':active?(active.action==='open'?'撬开宝箱':active.label):'互动';
+    : recipe?(active?.hint||'把准星对准要放置的地块。')
+    : active?.hint || (island?'左手走路 · 拖动场景看四周':'移动探索迷雾，或点选已发现的目标。');
+  $('primary').textContent=complete?'查看结算':active?(active.action==='open'?'开始开箱':active.label):'互动';
   $('primary').disabled=!complete&&!active?.enabled;
   $('primary').onclick=complete?showResult:()=>perform(active);
   $('fight').hidden=!fight||complete;
@@ -188,8 +380,116 @@ function render() {
   $('tools').hidden=complete;
   $('tools').textContent=island?'建造 / 行囊':'战术';
   $('partner').hidden=complete || !(island?w.friends.length:s.allies.length);
+  updateHotbar(island);
   draw();
 }
+const quickRecipes=[
+  { id:'workbench',icon:'⚒',label:'工作台' }, { id:'house_warm',icon:'⌂',label:'木屋' },
+  { id:'garden',icon:'♧',label:'菜圃' }, { id:'campfire',icon:'♨',label:'篝火' },
+  { id:'bag',icon:'▤',label:'背包' }
+];
+let hotbarKey='';
+function updateHotbar(island) {
+  const bar=$('hotbar');
+  bar.hidden=!island;
+  if(!island||hotbarKey===recipe&&bar.children.length)return;
+  hotbarKey=recipe;
+  const fragment=document.createDocumentFragment();
+  for(const entry of quickRecipes){
+    const b=document.createElement('button');
+    b.type='button';b.setAttribute('aria-label',entry.label);
+    if(entry.id===recipe)b.classList.add('active');
+    b.textContent=entry.icon;
+    const label=document.createElement('small');label.textContent=entry.label;b.append(label);
+    b.onclick=()=>{
+      if(entry.id==='bag'){showBag();return;}
+      if(recipe===entry.id){
+        recipe='';
+        update('view');return;
+      }
+      perform(state.actions.find(a=>a.action==='choose_build'&&a.id===entry.id));
+    };
+    fragment.append(b);
+  }
+  bar.replaceChildren(fragment);
+}
+function showBag(){
+  const {world:w}=state;
+  const list=dialogPage('个人物品','背包',`生命 ${w.hp}/12 · 饱食 ${state.hunger}/10`);
+  for(const item of [`木材 × ${w.wood}`,`石材 × ${w.stone}`,`野果 × ${state.fruit}`,`晶石 × ${state.crystals}`,`鱼 × ${state.fish||0}`])
+    lootRow(list,item);
+  option(list,'查看配方和已有工具',state.tools?.length?state.tools.join('、'):'可在工作台附近制作',true,()=>showTools(true));
+  const eat=state.actions.find(a=>a.action==='eat');
+  option(list,'吃野果','恢复饱食',!!eat?.enabled,()=>{options.close();perform(eat);});
+}
+function guardOrder() {
+  return state?.actions.find(a=>a.action==='partner'&&a.id==='guard_player'&&a.enabled);
+}
+function finishOpening(){
+  if(!chestSession)return;
+  clearTimeout(chestSession.timer);
+  chestSession=null;
+  ceremony?.close();
+  draw();
+}
+async function cancelOpening(){
+  const opening=chestSession;
+  if(!opening)return;
+  if(opening.committed){finishOpening();return;}
+  if(busy){opening.cancelled=true;return;}
+  finishOpening();
+  await update('act',{action:'cancel_chest',x:opening.box.x,y:opening.box.y});
+}
+function beginOpening(item){
+  if(chestSession||!state||busy)return;
+  const box=state.chests.find(c=>c.x===item.x&&c.y===item.y&&!c.opened);
+  if(!box)return;
+  stopHold();
+  ceremony??=chestShow();
+  const opening={box,step:0,max:4+Math.floor(Math.max(0,box.grade)/2),committed:false};
+  chestSession=opening;
+  ceremony.begin(box);
+  draw();
+  const schedule=(ms)=>{opening.timer=setTimeout(pulse,ms);};
+  async function pulse(){
+    if(chestSession!==opening)return;
+    if(opening.cancelled||!landscape.matches){await cancelOpening();return;}
+    if(busy){schedule(75);return;}
+    const result=await update('act',{action:'cinematic_step',x:box.x,y:box.y});
+    if(chestSession!==opening)return;
+    if(!result){finishOpening();return;}
+    if(result.chestInterrupted||result.phase==='DOWNED'||terminal.has(result.phase)){
+      ceremony.interrupt();
+      finishOpening();
+      $('feedback').textContent=result.notice;
+      return;
+    }
+    if(result.receipt){
+      opening.committed=true;
+      ceremony.reveal(result.receipt);return;
+    }
+    if(opening.cancelled){await cancelOpening();return;}
+    opening.step++;
+    const attackers=result.mobs.filter(m=>Math.abs(m.x-result.hero.x)+Math.abs(m.y-result.hero.y)<=5);
+    const warning=attackers.some(m=>m.windup)?'守卫已蓄力 · 可以立刻停手':
+      attackers.some(m=>m.alert>0)?'听见脚步 · 守卫正在靠近':'留意来路 · 随时可以停手';
+    if(opening.step>opening.max+1){finishOpening();return;}
+    ceremony.step(opening.step/opening.max,warning,!!guardOrder());
+    schedule(opening.step>=opening.max-1?610:510);
+  }
+  ceremony.step(0,'留意来路 · 随时可以停手',!!guardOrder());
+  schedule(450);
+}
+$('chest-stop').onclick=cancelOpening;
+$('chest-continue').onclick=finishOpening;
+$('chest-cover').onclick=async()=>{
+  const opening=chestSession;
+  const action=guardOrder();
+  if(!opening||opening.committed||!action||busy)return;
+  const result=await update('act',{action:'partner',actor:action.actor,id:action.id});
+  if(result&&chestSession===opening&&!opening.committed)
+    ceremony.step(opening.step/opening.max,'队友已就位',false);
+};
 function dialogPage(kicker,title,desc) {
   stopHold();
   $('options-kicker').textContent=kicker;
@@ -225,11 +525,12 @@ function showTools(workbench=false){
     });
 }
 function showPartner(){
+  if(nativeMode){request('team').catch(error=>{$('feedback').textContent=error.message;});return;}
   const list=dialogPage('本地协作','试玩队友',
-    state.actorEvent || '你可以手动指挥队友。菜单只显示当前规则允许的有效动作。');
+    state.actorEvent || '你可以手动指挥你邀请进来的队友。');
   const actions=state.actions.filter(a=>a.section==='partner');
   if(!actions.length)option(list,'当前没有可执行的队友动作','先推进一个游戏回合。',false);
-  for(const action of actions)option(list,action.label,'',action.enabled,()=>{
+  for(const action of actions)option(list,`${action.actor?action.actor+' · ':''}${action.label}`,'',action.enabled,()=>{
     options.close();perform(action);
   });
 }
@@ -254,15 +555,46 @@ function showResult(){
   });
 }
 function pointerPoint(e,element) {
-  return window.LuluWorldJoystick.pointerLocal(e.clientX,e.clientY,element.getBoundingClientRect(),rotateMedia.matches);
+  return window.LuluWorldJoystick.pointerLocal(e.clientX,e.clientY,element.getBoundingClientRect(),false);
 }
 function hitMap(e){
-  if(!state||busy || (kind==='relic'&&terminal.has(state.phase)))return;
+  if(!state||busy || chestSession || !landscape.matches || (kind==='island'&&!overview) || (kind==='relic'&&terminal.has(state.phase)))return;
   const point=renderer.pick(...pointerPoint(e,e.currentTarget));
   if(!point || (kind==='relic'&&state.tiles[point[1]*state.w+point[0]]<0))return;
   selected=point;
   draw();
   update('view');
+}
+function syncAim(){
+  if(!state||busy||!landscape.matches||kind!=='island'||overview||options.open)return;
+  const aim=renderer.aim();
+  if(!aim&&recipe)return;
+  if(String(aim)===String(selected))return;
+  selected=aim;
+  update('view');
+}
+function toggleOverview(){
+  overview=!overview;
+  selected=null;
+  $('crosshair').hidden=overview;
+  $('overview').textContent=overview?'回到地面':'地图';
+  render();
+  if(!overview)syncAim();
+}
+function paintLook(){
+  if(redraw)return;
+  redraw=requestAnimationFrame(()=>{
+    redraw=null;
+    draw();
+    const compass=['南','东','北','西'];
+    const heading=compass[((Math.round(camera.yaw/Math.PI*2)%4)+4)%4];
+    $('map-name').textContent=`方块小岛 · 岸林 · ${heading}`;
+  });
+}
+function turnLook(dx,dy){
+  camera.yaw-=dx;
+  camera.pitch=Math.max(-1.09,Math.min(.80,camera.pitch-dy));
+  paintLook();
 }
 function stopHold(){
   clearInterval(heldTimer);heldTimer=null;
@@ -291,18 +623,35 @@ function updateDifficulty(){
 form.addEventListener('change',updateDifficulty);
 form.addEventListener('submit',e=>{e.preventDefault();enter(false);});
 $('resume').onclick=()=>enter(true);
-launch.addEventListener('close',()=>{
-  if(state||!busy)return;
-  ++epoch;setBusy(false);
-});
+$('lobby-back').onclick=closeLobby;
+$('orientation-back').onclick=()=>{ if(!game.hidden)leave();else closeLobby(); };
+$('invite').onclick=showCrew;
+landscape.addEventListener('change',orient);
 $('leave').onclick=leave;
 $('tools').onclick=()=>showTools();
 $('partner').onclick=showPartner;
-$('orbit').onclick=()=>{angle=(angle+1)%4;draw();};
-$('overview').onclick=()=>{overview=!overview;$('overview').textContent=overview?'跟随':'全岛';draw();};
+$('overview').onclick=toggleOverview;
+islandCanvas.addEventListener('pointerdown',e=>{
+  if(!state||overview||lookDrag||!landscape.matches||e.button!==0)return;
+  lookDrag={id:e.pointerId,x:e.clientX,y:e.clientY};
+  islandCanvas.setPointerCapture(e.pointerId);
+});
+islandCanvas.addEventListener('pointermove',e=>{
+  if(lookDrag?.id!==e.pointerId)return;
+  turnLook((e.clientX-lookDrag.x)*.006,(e.clientY-lookDrag.y)*.006);
+  lookDrag={id:e.pointerId,x:e.clientX,y:e.clientY};
+});
+function finishLook(e) {
+  if(lookDrag?.id!==e.pointerId)return;
+  lookDrag=null;
+  draw();
+  syncAim();
+}
+for(const type of ['pointerup','pointercancel','lostpointercapture'])
+  islandCanvas.addEventListener(type,finishLook);
 for(const canvas of [islandCanvas,relicCanvas])canvas.addEventListener('click',hitMap);
 pad.addEventListener('pointerdown',e=>{
-  if(pressId!==null)return;
+  if(pressId!==null||chestSession||!landscape.matches)return;
   pressId=e.pointerId;
   pad.setPointerCapture(e.pointerId);
   const next=padDirection(e);
@@ -331,9 +680,39 @@ pad.addEventListener('click',e=>{
 });
 const keyDirs={ArrowUp:[0,-1],ArrowLeft:[-1,0],ArrowDown:[0,1],ArrowRight:[1,0],w:[0,-1],a:[-1,0],s:[0,1],d:[1,0]};
 window.addEventListener('keydown',e=>{
-  if(game.hidden||options.open||e.ctrlKey||e.altKey||e.metaKey)return;
+  if(game.hidden||options.open||chestSession||!landscape.matches||e.ctrlKey||e.altKey||e.metaKey)return;
   if(e.key in keyDirs && !e.repeat){e.preventDefault();switchDirection(keyDirs[e.key]);}
+  if(kind==='island'&&!overview&&['q','e','r','f'].includes(e.key)){
+    e.preventDefault();
+    turnLook(e.key==='q'?-.16:e.key==='e'?.16:0,e.key==='r'?-.13:e.key==='f'?.13:0);
+    draw();
+    syncAim();
+  }
+  if(e.key===' '&&e.target===document.body){e.preventDefault();$('primary').click();}
 });
 window.addEventListener('keyup',e=>{if(String(keyDirs[e.key])===String(directionHeld))stopHold();});
 window.addEventListener('blur',stopHold);
-window.addEventListener('resize',draw);
+window.addEventListener('resize',orient);
+
+if(nativeMode){
+  $('classic').hidden=false;
+  $('classic').onclick=()=>request('classic');
+  $('lobby-preview').hidden=true;
+  $('invite').textContent='＋ 邀请角色';
+  $('crew-title').textContent='邀请角色';
+  $('crew-status').textContent='角色答应后入队，最多两位同行。';
+  $('resume').textContent='继续上次进度';
+  $('partner').textContent='语音与队友';
+  window.luluArcadeBack=()=>{
+    if(crewPicker.open)crewPicker.close();
+    else if(options.open)options.close();
+    else if(chestSession)cancelOpening();
+    else if(!game.hidden)leave();
+    else closeLobby();
+    return true;
+  };
+  window.luluArcadePing=(x,y)=>{ if(state&&!chestSession){selected=[x,y];update('view');} };
+  window.addEventListener('lulu:world',()=>{if(state&&!chestSession)update('view');});
+  window.addEventListener('lulu:pause',()=>{stopHold();if(chestSession)cancelOpening();});
+  setup(new URLSearchParams(location.search).get('scene')==='relic'?'relic':'island');
+}

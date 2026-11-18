@@ -2,7 +2,7 @@ name: Lulu APK
 
 on:
   push:
-    branches: [main]
+    branches: [main, game]
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
@@ -158,7 +158,20 @@ jobs:
           # rewriting the oversized unified-reply coroutine. Verify final
           # phone APK content, not just Gradle source configuration.
           python scripts/verify_phone_apk_bytecode.py "$phone_apk" | tee ci-logs/apk-bytecode-check.log
-          cp "$phone_apk" apk-artifacts/Lulu-arm64.apk
+          if [ "$GITHUB_REF_NAME" = game ]; then
+            python - "$phone_apk" <<'PY'
+          import sys, zipfile
+          with zipfile.ZipFile(sys.argv[1]) as apk:
+              required = {'assets/world-joystick.js', 'assets/arcade/index.html',
+                          'assets/arcade/art/island-meshes.json', 'assets/arcade/art/chest-8.webp'}
+              missing = required.difference(apk.namelist())
+              if missing:
+                  raise SystemExit(f'Bundled game resources missing: {sorted(missing)}')
+          PY
+            cp "$phone_apk" apk-artifacts/Lulu-Game-arm64.apk
+          else
+            cp "$phone_apk" apk-artifacts/Lulu-arm64.apk
+          fi
           python scripts/apk_size_report.py "$phone_apk" | tee ci-logs/apk-size.log
 
       - name: Upload temporary APK
@@ -171,6 +184,7 @@ jobs:
           retention-days: 7
 
       - name: Publish Lulu release
+        if: github.ref_name == 'main'
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_NUMBER: ${{ github.run_number }}
@@ -212,7 +226,7 @@ jobs:
       # A passing main build supersedes build-only tickets from older commits.
       # Do not touch feature/bug issues authored by humans.
       - name: Close superseded APK failure issues
-        if: success()
+        if: success() && github.ref_name == 'main'
         continue-on-error: true
         uses: actions/github-script@v7
         with:
@@ -267,7 +281,7 @@ jobs:
           retention-days: 7
 
       - name: Create failure issue
-        if: failure()
+        if: failure() && github.ref_name == 'main'
         uses: actions/github-script@v7
         with:
           script: |
