@@ -48,6 +48,13 @@
 - [b239286](https://github.com/jiacimu-droid/lulu1/commit/b2392865af0010f5a922657fc4319c642807ac31)、[8efc982](https://github.com/jiacimu-droid/lulu1/commit/8efc982a37a7cad6688b660b88aa761af480f193)：合场文学保留一次 Isolated 写作请求和各自角色章节；给每个角色带入本人的通知、原始会面及被该事件/前因锚定的已保存心声/选择，提示正文不能把另一个人的未说出的心声写成自己的或已公开的事实。写作仅产生非权威文学，不回填原世界事件、主人行为、关系或心理。证据 ID 按本人单独链接。
 - 回归源码 [e4710e4](https://github.com/jiacimu-droid/lulu1/commit/e4710e43623827ac59aa38b2b7ff7a2fc90d07f3)、[f991a19](https://github.com/jiacimu-droid/lulu1/commit/f991a194a2ad48d052454e4884ea7e970d646900)：覆盖到访→离场顺序、其他地点/未来/伪源隔离、没有通知不伪造在场、本人的证据心声能进入正文而他人的/未来的不能。**当前仅提交测试，未取得目标 SHA 的 JVM/APK 成功证明，且未在 Redmi 真机用两角色 + 真实模型重放。** 后续核 `WorldVisitorSceneContextTest`、`AutonomousEncounterCausalChapterTest`、`AutonomousEncounterPrivacyTest` 在当前 main push 的首错；真机还要验证从地点退出/强杀后离场通知是否真实到达、模型是否自主延续找人的目标、历史章节不应被静默重写。
 
+## 2026-11-18 · P-08b.1 相处观察按当前时间投影
+
+- 链路 `CharacterSpeechIdentity → CharacterAddressPreference/CharacterRelationshipPreferences → SharedExperienceTimeline.all` 实查：all 保留未来时间记录，原 fromEvents 不限观察时刻，较晚记录会提前替换称呼、拒称及条件约定；原缓存只有数据版本与出生边界，因此单加过滤也会在时间自然经过时继续返回旧快照。旧记录原文不等于当前已经发生的事实。
+- [064557c3](https://github.com/jiacimu-droid/lulu1/commit/064557c3a54db23cc9d9f1d73148f9027f8c11e8) 只修原关系偏好投影：按观察 now 读取已经发生的用户证据；缓存记本次时刻与下一 eligible 原证据时间，达到边界或时钟回拨则重算，数据修改仍沿原 invalidate。原始记录保留，已保存人格/关系及真正过去的偏好不作年龄截断，不另建权威 Store 或收费调用。
+- `RelationshipPreferencesTest.futureUserEvidenceCannotReplaceCurrentNameOrConditionalContract` 覆盖当前/未来称呼拒绝及相同条件约定；`RelationshipPreferencePersistenceTest.cachedProjectionAdvancesAtEvidenceTimeAndHandlesClockRollback` 经真实 SQLite 覆盖前一秒缓存复用、精确边界无数据修改刷新、回拨恢复、原始证据不丢。精确 [JVM/APK #44259465343](https://github.com/jiacimu-droid/lulu1/actions/runs/44259465343) 与 [原索引 #44259465365](https://github.com/jiacimu-droid/lulu1/actions/runs/44259465365) 待核。前轮 [#44245131129/job 134602883673](https://github.com/jiacimu-droid/lulu1/actions/runs/44245131129/job/134602883673) 已重新确认全量 JVM/APK 成功。
+- 真机/实际模型待验。本轮限定从原始用户记录投影当前相处偏好；核心记忆和习得表达记录仍沿各自来源验证。下一步打开 `CharacterRuntime.leanExpressionContext` 的 UserPreference/UserHabit 与 `CharacterSpeechIdentity` 的 ExpressionHabit 召回，核原证据修订后派生记录是否还保留旧条件，先用已有 source invalidation 回归定位真实未覆盖分界。
+
 ## 2026-11-18 · P-08b.1 失败电话表达后清空关系字段
 
 - 沿上轮固定入口核 `CharacterLifeStore.setRelationshipAgreement` 与 `CharacterSocialRelationship.agreement`，原 Store 已保存明确空条目，原网关每次请求重新读取当前定义。本轮未证实生产缓存残留，补此前缺失的失败后部分/全部清空反例。
