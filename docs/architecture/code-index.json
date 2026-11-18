@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:39:46.428445+00:00",
-  "commit": "ebde1b495364c16797dd70f782e22c61a9db95f1",
+  "generatedAt": "2026-11-18T07:40:15.379631+00:00",
+  "commit": "29a9d48c2b01d41dc5e03d303362a021816e15be",
   "branch": "main",
-  "sourceFingerprint": "7509fa0c5eab8b99762eb4a6cd51300b970d63ec63118899d2534cb17c9ea117",
+  "sourceFingerprint": "554716366c97b3fb5cd0902cbad90baf4977192762b334834e4ee70081810898",
   "summary": {
     "files": 1459,
-    "lines": 308473,
+    "lines": 308462,
     "symbols": 4399
   },
   "symbolIndex": {
@@ -46460,7 +46460,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
       "lines": 255,
-      "sha256": "6b38b2b82c03cfc671cd847a9ecd2d45b98de443da959e184facaf0e0ff3af3d",
+      "sha256": "1953f1f3e38468a1270a7f7870006019373f7477af706c616b5fe1c3c6195f43",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",
@@ -47528,8 +47528,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt",
-      "lines": 286,
-      "sha256": "6db160c0f611820fb721cdbb2214b152d0207aef9117e23ed7ca01dd727467be",
+      "lines": 269,
+      "sha256": "4069f80a0ee8cb5e55ca22746b3aefda43aa062cf29fec64dfdc648fa5b24dba",
       "symbols": [
         {
           "name": "CharacterSelfActivityRuntimeTest",
@@ -50373,8 +50373,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt",
-      "lines": 273,
-      "sha256": "bb300fda39a35651e2bedb6e875d880a5a345d56ab6dae29de0b9fbf7b09272e",
+      "lines": 277,
+      "sha256": "3fe5008689f363aa98f0a99dd53cc80487515fe978b0170e3d0512c3176fa46f",
       "symbols": [
         {
           "name": "CharacterSoloWorldPlayTest",
@@ -50450,8 +50450,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
-      "lines": 129,
-      "sha256": "39d53ad766a1b0ae1f5e7077a6e34e6f1f1de35ad875ee5bc6e0306975d0c104",
+      "lines": 131,
+      "sha256": "744340ef7f666b42e14ddb331f285ff1e95f6aa60123c2f3075ca344e9755a56",
       "symbols": [
         {
           "name": "GameInvitationContinuityTest",
