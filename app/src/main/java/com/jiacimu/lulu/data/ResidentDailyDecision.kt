@@ -1362,7 +1362,7 @@ internal object ResidentDailyDecision {
                 你本人预先安排的一项真实生活活动已经到点，它是当前优先要复议的原计划；看手机不等于完成、撤销或放弃它。
                 根据本人意愿可以执行、改期、取消或等待，也可以在同一次决定额外选多个真实生活行动，形成独立回执。
                 如果执行，只能选原定合法工具=${plan.activityAction}；从预选参数和当前事实给出真正可执行的 args。
-                私信必须是真实认识的人，面对面互动必须实际同场；对方没有回答不算聊过，去过地点不等于已经见面。
+                私信必须是真实认识的人，面对面互动必须实际同场；对方没有回答不算聊过，去过地点不等于已经见面。数字人物私信 args 可写 bubbles 字符串数组：每个元素是本人真实按发送的一泡，分段看本人此刻想法和性格，不能按固定长度截断；一次多泡仍是一次工具决策，旧 text 只兼容一泡，不能和 bubbles 同时写。
                 行动后由工具留下独立真实回执，禁止自行宣告结果或替另一人说话。
                 一次决策可同时选择原计划和额外 steps，全部是你本人真实想做的，不必为活跃而点赞或加好友。
                 最近真见过面但还未加好友的人，可考虑 send_friend_request；已有待处理申请就不要重复发，别人有权拒绝。也可用 digital_world_action 的 go_home/build_home_item 在家布置自己的家具，选择应来自本人此刻兴趣且必须满足世界实际位置与物品容量。
@@ -1965,7 +1965,7 @@ internal object ResidentDailyDecision {
                 你可以决定今天没有行程，也可根据生活需要自然安排多项。每项独立到点醒来、再判断是否执行；不要为了填满日程编造友谊或假设对方一定赴约。
                 今天每位居民最多安排${agendaLimit}项未来日程（主人在设置中统一调整，0表示今天不排未来日程）。这仅是可排程数量上限，并非必须做满；不限制本人主动选择的真实私信回应或应对突发事件。
                 agenda 最多${agendaLimit}项，每项需包含 at=今天当地HH:mm未来时刻、title=短活动、intent=本人的真实动机、activityAction、activityArgs 对象。字段缺失、非法时间或无效工具会请你本人补正，不会被系统悄悄丢弃。
-                真实发私信/群聊/动态时，在 activityArgs.text 写你本人准备说的内容；发私信需同时写真实 targetCharacterId，不留空。访问公共地点时 activityArgs.worldAction=visit_public_place 且 locationCode 要与日程地点一致。日程写下不是对方收到消息，计划到点仍需你重新选择并得到工具回执。
+                给其他数字人物发私信时，activityArgs 写真实 targetCharacterId 与你本人选定的 bubbles 字符串数组；每个元素就是你独立按一次发送的正文。依本人性格、关系、此刻想法和自然打字节奏决定几泡、每泡到哪里；可一泡、可多泡，不按字数/标点机械分段，不为凑数重复说话。历史 text 仍兼容单条气泡，但不能同时填 text 与 bubbles；群聊和动态依各自体裁使用 text。访问公共地点时 activityArgs.worldAction=visit_public_place 且 locationCode 要与日程地点一致。日程写下不是对方收到消息，计划到点仍需你重新选择并得到工具回执。
                 可用：invite_duel_game（仅yacht_dice/memory_match，需真实熟人targetCharacterId及本人text，发出不算对方已接受）；respond_duel_invite（需本人收到的challengeId和accept/decline，对方自主选择）；send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident 必须指定现场居民 itemId 和 activityId=greet|chat|ask_place|sit_together|share_text|co_write|exchange_views|continue_episode，其中分享文字/共同创作/交换观点需本人 text，继续事件需真实 incidentId；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game（可独玩 memory_match、yacht_dice、block_island 长期生存、relic_escape 探索撤离；后两款可选focus和turns，不要因旧说明只玩骰子）；本人实际入群才可 send_group_message。
                 真实熟人不必都加好友，已经舒适的家也不必添家具。确有想做的事可以立刻在 steps 执行，也可在 agenda 约定未来一刻；到点仍由本人重新判断，实际执行结果单独留回执。
                 各居民不是咖啡角的固定观众：家、庭院、游戏馆与已开放的真实公共地点都是平等选择；回家独处、在居所忙自己的事、和好友线上私聊也是真实生活。不因为模型知道有咖啡馆就反复选咖啡馆，不安排没有个人理由的集体聚会。
@@ -1985,10 +1985,11 @@ internal object ResidentDailyDecision {
                  "mood":"今天本人真实的心情，可为空",
                  "thought":"自己内心一闪而过的念头，可为空",
                  "post":"如果今天真的想发朋友圈，填自己的短文；否则留空",
-                 "messageTo":"上文列出的确实认识的角色ID，否则为空",
-                 "message":"给这位角色真正想说的私信，否则为空",
+                 "messageTo":"",
+                 "message":"",
                  "steps":[{"tool":"like_moment|comment_moment|send_friend_request|respond_friend_request|send_character_message|publish_moment|send_group_message|create_group_chat|invite_duel_game|respond_duel_invite|play_solo_game|digital_world_action|reschedule_personal_activity|cancel_personal_activity","args":{}}],
                  "innerLife":{"emotion":{"feeling":"确实发生变化时的情绪","cause":"本人真实经历的原因"},"social":{"targetId":"确实认识的对象ID","interpretation":"本人对其个人看法","reason":"双方实际来往的依据","dimensions":{"trust":"up|down|same","warmth":"up|down|same","ease":"up|down|same","friction":"up|down|same","boundarySafety":"up|down|same"}}}}}
+                新的即时私信只在 steps 选择一次 send_character_message，在同一个 args 中填 targetCharacterId 和本人亲自分好的 bubbles 数组；不要把每泡复制成独立步骤，更不要把同一段话同时放进顶层 message。顶层 message/messageTo 只留空供旧版存档兼容。
                 不能为了活跃指标强制发帖/发消息；不能凭空接触不在身边的人或替别人决定是否喜欢你。
                 发布只是你的选择，不代表对方一定读过；关系随各自真实来往慢慢改变，不能宣告双方已相爱。
                 用户只允许数字世界内社交与行动，禁止现实设备感知、联网、购买和自主联系现实用户。
@@ -2020,7 +2021,7 @@ internal object ResidentDailyDecision {
                 characterId = id,
                 facts = dailyFacts + "\n【上一条原始决定（尚未执行）】" + checkNotNull(originalInvalid).take(4_000) +
                     "\n【结构错误】" + firstError,
-                instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 ${leisureLocationOptions().joinToString("/")} 中的实际地点；cafeOrderLunch 和 cafeOrderEvening 若提供必须是 none 或真实咖啡角菜单项 ID；agenda 最多${agendaLimit}项，每项须有未来 HH:mm、title、intent、合法 activityAction、activityArgs 对象和该动作需要的目标/正文；steps 中每项须有合法 tool、args 对象；若本人想立即私信，message 与 messageTo 必须同时有真实正文和收件人，否则两个字段都留空；post 若有必须是文本。只输出完整的每日规划 JSON 对象。",
+                instruction = "请你本人根据同一事实修正上一条每日规划的 JSON 结构。保留你的兴趣、日程和社交选择，不要因格式错误被程序替你决定。lunch 和 evening 必须明确选 ${leisureLocationOptions().joinToString("/")} 中的实际地点；cafeOrderLunch 和 cafeOrderEvening 若提供必须是 none 或真实咖啡角菜单项 ID；agenda 最多${agendaLimit}项，每项须有未来 HH:mm、title、intent、合法 activityAction、activityArgs 对象和该动作需要的目标/正文；steps 中每项须有合法 tool、args 对象；新即时私信请走 steps 中一次 send_character_message，args 带真实 targetCharacterId 和本人自主决定的 bubbles 字符串数组；顶层 message/messageTo 本轮留空（旧存档兼容），不要重复发送同一段话；post 若有必须是文本。只输出完整的每日规划 JSON 对象。",
                 source = "数字世界原住民每日规划·结构补正",
                 title = "${native.name} · 日计划补正",
                 connectionOverride = selected, contextMode = CompanionContextMode.Full,
@@ -2300,7 +2301,7 @@ internal object ResidentDailyDecision {
                     只根据你的性格、关系、最近真实经历、未读私信和好友申请决定怎么做。
                     你可以回信、继续旧话题、发朋友圈、回应好友申请、点赞评论、
                     与真实熟人群聊、安排活动，也可以选择暂时不做任何事。
-                    不要替别人答应好友，不把已发的申请当成已成为好友。
+                    不要替别人答应好友，不把已发的申请当成已成为好友。给数字人物发私信时，同一个 send_character_message 的 args.bubbles 是你自己选择逐次按发送的台词数组；一泡或多泡都可以，不按字数机械切，不要把同一段话重复安排成两个发送动作。历史 text 兼容单泡，不与 bubbles 并存。
                     可以一次选择多项独立动作，各自由工具核验；不要求凑数量，
                     也不因为收件就必须回复。所有收件人、帖子和申请必须用实际ID。
                     如果这条真实来信或好友确认令你产生了新的心情、想法或对对方的印象，
