@@ -113,7 +113,7 @@ internal fun ApocalypsePlotMemoryManagerV5(
             Column(Modifier.fillMaxSize().padding(padding).padding(20.dp)) {
                 Text("还没有末世存档。进入游戏建立存档后，这里会出现剧情专用记忆。")
             }
-            return@Scaffold
+            return@LuluCssScaffold
         }
 
         val vectorized = cards.count { it.embedding.isNotEmpty() && it.embeddingDimension > 0 }
