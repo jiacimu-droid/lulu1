@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`65b7c8d61eadf219d83763fe6aebe2f226f58730`
+- 基准提交：`e2a383418cda8ca4510a1323a94e1b1fe2191671`
 - 分支：`main`
-- 已索引文件：1470
-- 已索引代码/文本行：310910
-- 已发现符号：4439
+- 已索引文件：1473
+- 已索引代码/文本行：311669
+- 已发现符号：4451
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -94,7 +94,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CallTimeFacts.kt` | 92 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CallTimedHangupTiming.kt` | 14 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 116 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterCreateScreen.kt` | 372 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterCreateScreen.kt` | 374 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterDevelopmentSettings.kt` | 66 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 209 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExpressionPreferencesSettings.kt` | 30 | 0 |
@@ -103,11 +103,11 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterMemoryFeatureScreen.kt` | 11 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterMomentHistoryCard.kt` | 129 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterMusicSensingSettings.kt` | 90 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt` | 513 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt` | 515 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSectionTabs.kt` | 33 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 643 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 645 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWirelessDebuggingSettings.kt` | 139 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 716 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 718 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 444 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ChatErrorNotice.kt` | 44 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ChatHubScreens.kt` | 240 | 3 |
@@ -128,15 +128,15 @@
 | `app/src/main/java/com/jiacimu/lulu/DigitalResidentFurniturePose.kt` | 35 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalStreetJourney.kt` | 37 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorld3DTrialRoom.kt` | 338 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldArcadeScreen.kt` | 103 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldArcadeScreen.kt` | 105 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldAtlas.kt` | 138 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldDiscoveredArt.kt` | 106 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldExplorationSpots.kt` | 105 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameArt.kt` | 670 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldGameScene.kt` | 1648 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapArt.kt` | 208 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 832 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 649 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMapLobby.kt` | 833 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingApp.kt` | 650 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingGenerationV2.kt` | 505 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingRuntimeV2.kt` | 429 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/DigitalWorldMeetingSceneExperience.kt` | 908 | 2 |
@@ -165,7 +165,7 @@
 | `app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt` | 193 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 39 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 713 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 715 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 313 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 977 | 3 |
@@ -182,7 +182,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DMotionCatalog.kt` | 305 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DMotionMetadata.kt` | 22 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DOfficialCoreInstaller.kt` | 123 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundActivity.kt` | 215 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundActivity.kt` | 222 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DPreviewPlaygroundDialog.kt` | 636 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSampleModel.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DSelfCameraPreview.kt` | 32 | 0 |
@@ -193,39 +193,39 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 552 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 985 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 989 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAlipayDonationQr.kt` | 96 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 289 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt` | 364 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 336 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt` | 365 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt` | 279 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 145 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 120 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 231 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 645 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt` | 319 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 648 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt` | 323 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 35 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt` | 968 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt` | 185 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 483 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 299 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 302 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 618 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt` | 621 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt` | 623 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 402 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt` | 231 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 328 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 342 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt` | 233 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 330 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 345 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 567 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/LuluStrictModeSettingsScreen.kt` | 150 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluStrictModeSettingsScreen.kt` | 153 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 145 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallScreen.kt` | 816 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVoiceCallSession.kt` | 2719 | 23 |
-| `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 750 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/LuluWebBrowserProbeScreen.kt` | 753 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt` | 305 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluWidgetRoleActions.kt` | 105 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 845 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/LuluXhsNativeReaderScreen.kt` | 847 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingLivingWorldRuntime.kt` | 210 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingPhysicalStateReducer.kt` | 57 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingReplyTaskManager.kt` | 80 | 5 |
@@ -233,17 +233,17 @@
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 198 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoiceSettingsUi.kt` | 60 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt` | 400 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 630 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 631 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 317 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 870 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 896 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 103 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 123 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 342 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentImageAttachment.kt` | 174 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 160 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 163 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 333 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 310 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
@@ -251,10 +251,10 @@
 | `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 62 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 498 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 499 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt` | 63 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt` | 41 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt` | 898 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt` | 902 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneMicSegmentPolicy.kt` | 78 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSpokenContentBoundary.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneSubtitleLayout.kt` | 128 | 8 |
@@ -264,24 +264,24 @@
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 255 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 557 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt` | 43 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 416 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 419 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 77 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 92 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 165 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageViewer.kt` | 121 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 1066 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt` | 1074 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatPhotoAttachmentStore.kt` | 87 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatReplyEngine.kt` | 953 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 84 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 669 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 675 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqPhotoTransform.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqSharedWebLinkCard.kt` | 147 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCodec.kt` | 36 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt` | 83 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1272 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1281 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 120 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 206 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt` | 782 | 6 |
@@ -290,24 +290,24 @@
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt` | 257 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneDesktop.kt` | 137 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt` | 569 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/RolePhoneLiveScreen.kt` | 573 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneMemos.kt` | 158 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt` | 216 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 411 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 413 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 241 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt` | 41 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt` | 703 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt` | 706 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceHomeHero.kt` | 177 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceKeyboard.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefacePalette.kt` | 28 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 604 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 607 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 445 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 180 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 339 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt` | 290 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt` | 147 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 651 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 653 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolderUi.kt` | 177 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt` | 103 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/SettingsHomeSearch.kt` | 96 | 0 |
@@ -320,7 +320,7 @@
 | `app/src/main/java/com/jiacimu/lulu/StickerPromptSelection.kt` | 120 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt` | 98 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt` | 73 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 154 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 157 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceAcousticAnalyzer.kt` | 175 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceCallSettings.kt` | 297 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceDeliveryLedger.kt` | 29 | 5 |
@@ -329,7 +329,7 @@
 | `app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/WatchPlaybackEvidence.kt` | 87 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt` | 849 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 271 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 274 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 195 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 115 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt` | 48 | 4 |
@@ -530,7 +530,9 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 110 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt` | 148 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt` | 227 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt` | 185 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluCssStore.kt` | 86 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt` | 97 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt` | 236 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 456 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 628 | 38 |
@@ -642,7 +644,8 @@
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAlertDialog.kt` | 50 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt` | 199 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 167 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt` | 54 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt` | 225 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/design/LuluCssScaffold.kt` | 193 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluEditorialComponents.kt` | 114 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt` | 311 | 9 |
@@ -669,7 +672,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarrativeGameOverlay.kt` | 291 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseNarrativeQualityV5.kt` | 64 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseNpcEcologyV5.kt` | 118 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryManagerV5.kt` | 311 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryManagerV5.kt` | 312 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt` | 460 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseRangeCompatV5.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSceneOutcomeV5.kt` | 718 | 1 |
@@ -679,14 +682,14 @@
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV3Screen.kt` | 1208 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt` | 1055 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4Engine.kt` | 235 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt` | 1675 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt` | 1683 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Engine.kt` | 865 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5Systems.kt` | 268 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeSystemV5.kt` | 367 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeUiV5.kt` | 181 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseVisualNovelPresentation.kt` | 247 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldEvolutionV5.kt` | 170 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt` | 723 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapPageV5.kt` | 724 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldMapV5.kt` | 377 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/ApocalypseWorldSimulationV5.kt` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/AutonomousDuelGames.kt` | 316 | 3 |
@@ -743,7 +746,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 860 | 31 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 965 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 981 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 935 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 382 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 94 | 10 |
@@ -785,14 +788,14 @@
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 660 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 907 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt` | 284 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 582 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/health/HealthFeatureScreen.kt` | 584 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthRolePerception.kt` | 187 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/LuluConversationParentCompatibility.kt` | 8 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 399 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/study/LuluReadingScreen.kt` | 401 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt` | 411 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 231 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt` | 277 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 690 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 692 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 275 | 29 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 181 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 189 | 8 |
@@ -801,14 +804,14 @@
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingStarterLibrary.kt` | 78 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingTxtLibrary.kt` | 105 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt` | 625 | 17 |
-| `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 74 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/study/StarWishMigratedScreen.kt` | 75 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt` | 204 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishScrollPanel.kt` | 160 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterExperienceV2.kt` | 1533 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt` | 875 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterPlanningEngine.kt` | 696 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt` | 82 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt` | 395 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt` | 398 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableCompat.kt` | 8 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudySaveableInputsCompat.kt` | 13 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/StudyStyledDropdownCompat.kt` | 61 | 0 |
@@ -1199,7 +1202,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/LocationAddressCacheTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt` | 216 | 8 |
-| `app/src/test/java/com/jiacimu/lulu/data/LuluCssRuntimeTest.kt` | 61 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/LuluCssRuntimeTest.kt` | 95 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt` | 113 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingCausalEvidenceTest.kt` | 154 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 31 | 1 |

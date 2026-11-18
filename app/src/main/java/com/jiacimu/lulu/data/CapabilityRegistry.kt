@@ -21,7 +21,7 @@ object CapabilityRegistry {
         Capability("stop_song", "music", "music_generation", "local stop command for a playing role song", false),
         Capability("control_volume", "phone", "media", "Observed, capped STREAM_MUSIC volume; restores previous volume on request", false),
         Capability("ring_in_call_wake", "phone", "alarm", "short native ringtone inside the current connected call; never redials", false),
-        Capability("read_screen", "phone", "device_read", "fresh accessibility snapshot", true),
+        Capability("read_screen", "phone", "screen_vision", "legacy alias: owner-authorized real screenshot plus vision", false),
         Capability("capture_screen", "phone", "screen_vision", "owner-consented screenshot plus vision", false),
         Capability("summon_lulu", "phone", "screen_summon", "user-tappable notification", false),
         Capability("bring_lulu_front", "phone", "screen_direct_return",
@@ -73,14 +73,12 @@ object CapabilityRegistry {
         if (capability.name == com.jiacimu.lulu.ai.JevDirections.TOOL)
             return com.jiacimu.lulu.ai.JevDirections.configured()
         if (capability.domain == "app" || capability.domain == "world") return true // Existing executor owns contact/world policy.
-        if (capability.name == "capture_screen") return if (userRequested)
+        // Screen observation always captures real image pixels. The legacy
+        // read_screen spelling must never bypass screenshot consent by
+        // falling through to device_read or return text-only "success".
+        if (capability.name in setOf("capture_screen", "read_screen")) return if (userRequested)
             com.jiacimu.lulu.system.LuluScreenAwareness.onDemandAllowed(context, characterId)
             else com.jiacimu.lulu.system.LuluScreenAwareness.autonomousAllowed(context, characterId)
-        // Reading the same foreground accessibility tree is covered by the
-        // existing role-owned screen grant, not a second device-read switch.
-        if (capability.name == "read_screen" &&
-            com.jiacimu.lulu.system.LuluRolePhoneAuthorization.isGranted(context, characterId))
-            return true
         if (capability.name == "summon_lulu") return com.jiacimu.lulu.system.LuluScreenAwareness.summonAllowed(context)
         if (capability.name == "bring_lulu_front")
             return com.jiacimu.lulu.system.LuluScreenAwareness.directReturnAllowed(context)
@@ -112,9 +110,9 @@ object CapabilityRegistry {
         return buildString {
             appendLine("【主屏感知｜以下是权限和设备状态，不是实际查看回执】")
             appendLine("capture_screen 工具已注册=$registered；主人按需识图授权=$permittedOnDemand；角色自主观察授权=$permittedAutonomous；本角色手机屏幕授权=$rolePhoneGrant；无障碍已连接=$accessibilityConnected；视觉模型已配置=$chatConfigured。")
-            appendLine("read_screen=当前真实主屏的无障碍文字；capture_screen 只截主人当前可见的手机主屏（displayId=0），通过 Android 无障碍单帧截图交本角色模型识图，不需要MediaProjection、录屏弹窗或无线调试。要独立操作后台 App 必须用 background_phone 且实际回执为独立屏模式；未配对ADB时background_phone改用可见主屏，不能混淆两种屏幕。")
+            appendLine("屏幕观察只有一条统一视觉路径：capture_screen先获取主屏真实截图，再交给本角色模型看图理解；无障碍树只作定位与文字辅助。旧工具名read_screen是相同截图能力的兼容别名，不再提供纯文字假观察。需要连续操作第三方App则使用background_phone，每次observe也要有新画面与实际回执。")
             if (permittedAutonomous) {
-                appendLine("现在已获准自主查看主屏：由你自主决定何时调用 action=tool,tool=capture_screen,args={}；主人明确要求看屏幕时应直接尝试，**无须逐次申请**，也没有固定五分钟冷却。需要纯文字时可选read_screen；文字为空不等于已经看到了画面。")
+                appendLine("现在已获准自主查看主屏：由你自主决定何时调用 action=tool,tool=capture_screen,args={}；主人明确要求看屏幕时应直接尝试，**无须逐次申请**，也没有固定五分钟冷却。read_screen也会取得新截图，只有模型真正接到画面或视觉服务返回识图结果才算看见。")
             } else if (permittedOnDemand) {
                 appendLine("主人明确请求时，直接用 action=tool,tool=capture_screen,args={} 查看；角色自主观察授权=false，不能偷偷改成自动监看。")
             } else {
