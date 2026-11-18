@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T13:50:13.023835+00:00",
-  "commit": "1e5fa553c8988f241d7554bb5c6f2867b1cb4e3f",
+  "generatedAt": "2026-11-18T13:50:41.546166+00:00",
+  "commit": "7e3f3cc61764ec280e74187d6e3a24b69eca9fb4",
   "branch": "main",
-  "sourceFingerprint": "743b905702b32599e958f230f4c00344f1751cce4b89faefc96185c54bf9b72f",
+  "sourceFingerprint": "f41897554302f5ba8164b40eb092d99ccc9d609659a61c13039eb0c458ae8243",
   "summary": {
     "files": 1468,
-    "lines": 310210,
+    "lines": 310220,
     "symbols": 4435
   },
   "symbolIndex": {
@@ -27366,8 +27366,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-      "lines": 965,
-      "sha256": "e90ee70baf77d3fff27572d6f2d941e2ec57f48137fc3489f3ca87ded5e016d3",
+      "lines": 968,
+      "sha256": "0139b424dc4f05bb73d49ea5c262744edbf6e705ffe025cc50c961cf7788c404",
       "symbols": [
         {
           "name": "profileSign",
@@ -28008,8 +28008,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 863,
-      "sha256": "497496e6f371c89330dfa749381158885f282071bbece3a01ebedb238377d923",
+      "lines": 870,
+      "sha256": "2cff725d876fc0b92a5db0af84f58b9b37b697d35445f97c0d75879142647179",
       "symbols": [
         {
           "name": "gridTop",
