@@ -31,6 +31,7 @@ import androidx.core.content.ContextCompat
 import com.jiacimu.lulu.ai.VisionModelService
 import java.time.Instant
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 import org.json.JSONObject
@@ -116,6 +117,30 @@ object LuluScreenAwareness {
         packageName.contains("password", ignoreCase = true) ||
         packageName.contains("authenticator", ignoreCase = true) ||
         packageName in excluded(context)
+
+    /**
+     * A missing accessibility root means the window is UNKNOWN, not private.
+     * Keeping those cases distinct prevents a role from falsely attributing
+     * a lost focus/window to the owner's privacy preferences.
+     */
+    internal fun screenWindowBlockReason(context: Context, packageName: String): String? =
+        when {
+            packageName.isBlank() ->
+                "暂时无法识别当前主屏窗口（无障碍窗口未就绪），并非隐私规则禁止；请重新观察"
+            isExcluded(context, packageName) ->
+                "当前 App 被隐私规则排除：$packageName"
+            else -> null
+        }
+
+    /** An IME or activity transition can hide the owner window briefly. */
+    private suspend fun freshOwnerSnapshot(): AccessibilitySnapshot {
+        var snapshot = withContext(Dispatchers.Main) { LuluAccessibilityService.observe() }
+        if (snapshot.connected && snapshot.packageName.isBlank()) {
+            delay(180)
+            snapshot = withContext(Dispatchers.Main) { LuluAccessibilityService.observe() }
+        }
+        return snapshot
+    }
 
     fun diagnostics(context: Context) =
         preferences(context).getString(LAST_DIAG, "尚未尝试获取屏幕图像").orEmpty()
@@ -268,9 +293,11 @@ object LuluScreenAwareness {
         if (Build.VERSION.SDK_INT < 30) return rejected(context, "Android 11 以下不支持", "failed")
         if (context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true)
             return rejected(context, "锁屏时禁止截图")
-        val first = LuluAccessibilityService.observe()
+        val first = freshOwnerSnapshot()
         if (!first.connected) return rejected(context, "无障碍服务未连接")
-        if (isExcluded(context, first.packageName)) return rejected(context, "当前 App 被隐私规则排除")
+        screenWindowBlockReason(context, first.packageName)?.let { reason ->
+            return rejected(context, reason, if (first.packageName.isBlank()) "unverified" else "denied")
+        }
         // Autonomous owner consent is durable: no second approval dialog or
         // arbitrary five-minute veto after the role elects to observe.
         // Every invocation still obtains one new frame, never a recording.
@@ -290,12 +317,15 @@ object LuluScreenAwareness {
                 }
             val capturedAt = Instant.now()
             try {
-                val fresh = LuluAccessibilityService.observe()
+                val fresh = freshOwnerSnapshot()
+                // Never deliver a frame when the owner app changed, the root
+                // is unknown, access was revoked, or a protected page appeared.
                 if (!onDemandAllowed(context, characterId) ||
                     (!userRequested && !autonomousAllowed(context, characterId)) ||
-                    first.packageName != fresh.packageName || isExcluded(context, fresh.packageName) ||
+                    first.packageName != fresh.packageName ||
+                    screenWindowBlockReason(context, fresh.packageName) != null ||
                     context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true)
-                    return rejected(context, "页面或授权在捕获期间发生变化，画面已丢弃")
+                    return rejected(context, "截图期间主屏窗口发生变化或授权撤销，画面已丢弃", "unverified")
                 if (!userRequested) preferences(context).edit()
                     .putLong(LAST_AUTO, System.currentTimeMillis()).apply()
                 if (!studySessionValid()) return rejected(context, "监督授权已结束，已丢弃截图")
