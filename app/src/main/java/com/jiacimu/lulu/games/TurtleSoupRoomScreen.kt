@@ -65,7 +65,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
         companions = if (state.playWithCharacter) state.selectedCharacterIds else emptyList(),
     ) }
     var room by remember { mutableStateOf(initial) }
-    val live = rememberGameLiveSession("turtle_soup", room.id, room.companions)
+    val live = rememberGameLiveSession("turtle_soup", room.id, room.companions, allowSoloHost = true)
     // Historic archive lines never masquerade as new audible speech on resume.
     var lastNarratedLine by remember(room.id) { mutableIntStateOf(room.lines.lastIndex) }
     var input by remember(room.id) { mutableStateOf("") }

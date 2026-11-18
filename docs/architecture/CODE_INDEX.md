@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`6485203aba02d8ec1e7ab9b6f19c464ed0a44bf0`
+- 基准提交：`698d5f2bf4e4b48271a5d8097ffe96314706e20d`
 - 分支：`main`
 - 已索引文件：1461
-- 已索引代码/文本行：308800
+- 已索引代码/文本行：308820
 - 已发现符号：4401
 
 | 文件 | 行数 | 符号数 |
@@ -1333,7 +1333,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/GameMicPermissionGateTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameRoleChoiceContractTest.kt` | 54 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/GameTeamConversationTimelineTest.kt` | 125 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameTeamConversationTimelineTest.kt` | 145 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameTeamSpeechPressureTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 174 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandCampRestTest.kt` | 47 | 1 |

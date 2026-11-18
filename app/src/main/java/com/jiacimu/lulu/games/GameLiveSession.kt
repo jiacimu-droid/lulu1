@@ -32,6 +32,7 @@ internal class GameLiveSession(
     private val gameId: String,
     private val runId: String,
     val participantIds: List<String>,
+    val allowSoloHost: Boolean,
     val mic: IslandGameOpenMic,
     private val voice: IslandCompanionVoice,
     private val toggleMic: () -> Unit,
@@ -46,7 +47,7 @@ internal class GameLiveSession(
     var onOwnerMessage: (String, Boolean) -> Unit = { _, _ -> }
 
     fun selectVoice(enabled: Boolean) {
-        if (participantIds.isEmpty()) return
+        if (participantIds.isEmpty() && !allowSoloHost) return
         voiceMode = enabled
         voice.setEnabled(enabled)
         if (enabled && !mic.active) toggleMic()
@@ -94,6 +95,7 @@ internal fun rememberGameLiveSession(
     gameId: String,
     runId: String,
     participantIds: List<String>,
+    allowSoloHost: Boolean = false,
 ): GameLiveSession {
     val context = LocalContext.current.applicationContext
     // The current session is assigned after composing the microphone; callbacks
@@ -103,8 +105,8 @@ internal fun rememberGameLiveSession(
         holder[0]?.receiveOwner(utterance, fromSpeech = true)
     }
     val voice = rememberIslandCompanionVoice()
-    val session = remember(gameId, runId, participantIds, mic, voice) {
-        GameLiveSession(context, gameId, runId, participantIds, mic, voice, toggleMic)
+    val session = remember(gameId, runId, participantIds, allowSoloHost, mic, voice) {
+        GameLiveSession(context, gameId, runId, participantIds, allowSoloHost, mic, voice, toggleMic)
     }
     SideEffect {
         holder[0] = session
@@ -125,7 +127,7 @@ internal fun GameTalkBar(
     modifier: Modifier = Modifier,
     showComposer: Boolean = true,
 ) {
-    if (session.participantIds.isEmpty()) return
+    if (session.participantIds.isEmpty() && !session.allowSoloHost) return
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(5.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FilterChip(
@@ -167,6 +169,9 @@ internal fun GameTalkBar(
                     enabled = session.draft.isNotBlank(),
                 ) { Text("发送") }
             }
+        }
+        if (session.lastOwnerLine.isNotBlank()) {
+            Text("你：${session.lastOwnerLine}", color = Color(0xFFB8CFE1))
         }
         if (session.lastCompanionLine.isNotBlank()) {
             Text("伙伴：${session.lastCompanionLine}", color = Color(0xFFD8E8F2))
