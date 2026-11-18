@@ -43,6 +43,16 @@ class LuluVisualChatDraftPolicyTest {
             "文件传输助手", "你好佳辞", 720, 1280))
     }
 
+    @Test fun meaningfulWhitespaceCannotBeSilentlyRemovedFromOutgoingDraft() {
+        val header = line("文件传输助手", 288, 58, 438, 99)
+        val send = line("发送", 631, 913, 692, 965)
+        val draft = line("你好 世界", 112, 905, 324, 950)
+        assertNull(LuluVisualChatDraftPolicy.verifiedDraft(
+            listOf(header, draft, send), "文件传输助手", "你好世界", 720, 1280))
+        assertNotNull(LuluVisualChatDraftPolicy.verifiedDraft(
+            listOf(header, draft, send), "文件传输助手", "你好 世界", 720, 1280))
+    }
+
     @Test fun longerComposerTextCannotAuthorizeSendingOnlyItsSubstring() {
         val header = line("文件传输助手", 288, 58, 438, 99)
         val send = line("发送", 631, 913, 692, 965)
