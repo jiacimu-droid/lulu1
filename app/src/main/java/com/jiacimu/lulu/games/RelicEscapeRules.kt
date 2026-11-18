@@ -625,13 +625,13 @@ internal object RelicEscapeRules {
                 val drop=s.drops.firstOrNull{it.loot.id==lootId && near(hero,it.x,it.y)}
                     ?:return s.copy(notice="找不到这件地面物品")
                 if(hero.load+drop.loot.weight>heroCapacity(s))return s.copy(notice="背包容量不足，先舍弃其他物品")
-                next=s.copy(hero=hero.copy(bag=hero.bag+drop.loot),drops=s.drops.filterNot{it.loot.id==lootId})
+                next=s.copy(hero=hero.copy(bag=hero.bag+drop.loot),drops=s.drops.filterIndexed{index, _ -> index!=s.drops.indexOf(drop)})
                     .log("player","pickup","拾起 "+drop.loot.name)
                 noise=1
             }
             "drop"->{
                 val item=hero.bag.firstOrNull{it.id==lootId}?:return s.copy(notice="背包里没有这件物品")
-                next=s.copy(hero=hero.copy(bag=hero.bag.filterNot{it.id==lootId}),
+                next=s.copy(hero=hero.copy(bag=hero.bag.filterIndexed{index, _ -> index!=hero.bag.indexOf(item)}),
                     drops=s.drops+RelicDrop(hero.x,hero.y,item)).log("player","drop","丢下 "+item.name)
             }
             "attack"->{
