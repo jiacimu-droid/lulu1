@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T17:02:45.029128+00:00",
-  "commit": "6ce842fc240f5ada145145941704bc1f34cfc55b",
+  "generatedAt": "2026-11-18T17:03:47.899619+00:00",
+  "commit": "3ebedbbc3d1ef82a6d580707b3ee9227654be135",
   "branch": "main",
-  "sourceFingerprint": "485b1ff98b2cec352bcb8454b8d705be84b926c29325037a34cdc4d97fb96669",
+  "sourceFingerprint": "2bec04ebf1360b6707aa9204c6c39b4d3928059cc5e8386610b1305a9dace57e",
   "summary": {
     "files": 1479,
     "lines": 312859,
@@ -36331,7 +36331,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
       "lines": 1143,
-      "sha256": "a6fd858a4c80d69ad6784c93f9e14cf23d7ec4872882d093da37416b7fab4cfb",
+      "sha256": "2c0b1baf537e17986605c0bee9a32867e7639890ee9e0ef9e5c07dabd3822e18",
       "symbols": [
         {
           "name": "MomentAuthorType",
@@ -39978,7 +39978,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt",
       "lines": 181,
-      "sha256": "bd15ec69ec44bdba30ab42f2600d4e75ed74743e68f438613836ac5a158f8629",
+      "sha256": "4e1aff4dd0a6844c06c763f83e0785b4ac4ad87824fd0097b4b6b67fe7293b28",
       "symbols": [
         {
           "name": "attach",
