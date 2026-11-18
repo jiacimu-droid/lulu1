@@ -3209,7 +3209,7 @@ object ProactivePerceptionRuntime {
                 appContext, character.characterId, tool, args,
                 requestId = requestId, intentionId = decision.intentionId,
                 goalReviewMode = goalReviewMode,
-                userRequested = (tool == "capture_screen" && explicitScreenRequest) ||
+                userRequested = (tool in setOf("capture_screen", "read_screen") && explicitScreenRequest) ||
                     CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, tool),
                 autonomousLifeTurn = !hasFreshUserMessage,
                 learningApplication = decision.learningApplication,
