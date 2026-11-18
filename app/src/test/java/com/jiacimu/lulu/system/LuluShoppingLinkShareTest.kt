@@ -79,8 +79,20 @@ class LuluShoppingLinkShareTest {
             "com.taobao.taobao", "复制宝贝链接", true, true))
         assertTrue(LuluShoppingLinkShare.eligibleCopy(
             "com.xunmeng.pinduoduo", "复制链接到剪贴板", true, true))
-        assertFalse(LuluShoppingLinkShare.eligibleCopy(
+        // A marketplace may name its genuine share button just "复制".
+        // The action still needs a fresh click and a validated merchant link.
+        assertTrue(LuluShoppingLinkShare.eligibleCopy(
             "com.taobao.idlefish", "复制", true, true))
+        assertTrue(LuluShoppingLinkShare.eligibleCopy(
+            pdd, "复制\\n链接", true, true))
+        assertTrue(LuluShoppingLinkShare.eligibleCopy(
+            pdd, "複製連結", true, true))
+        assertTrue(LuluShoppingLinkShare.eligibleCopy(
+            pdd, "复制口令", true, true))
+        assertFalse(LuluShoppingLinkShare.eligibleCopy(
+            pdd, "复制优惠券", true, true))
+        assertFalse(LuluShoppingLinkShare.eligibleCopy(
+            pdd, "复制后立即支付", true, true))
     }
 
     @Test fun flashInsideMainTaobaoAppHasCorrectMerchantAndLinkHandoff() {
