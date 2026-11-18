@@ -732,3 +732,7 @@
 - 正式 `RelicEscapeLedger.saveRun` 曾按旧馆内 ID 过滤本局已实际 `secured` 的实物。旧档跨局重用 ID 时，真实带出的珍宝被悄悄丢弃，但结算金币仍按该件计入；与物品守恒矛盾。改为本局成功撤离的 `secured` 全量入馆，重复结算仅由既有 `awarded` run ID 墓碑阻止；不制造未撤离的奖励。仅 game 分支生产 `489af28bf877b334e34fe19d70b1aeb4de3ba0b7`（blob `4fcade1b65f252b9b411287e8e644a753ede516f`）。
 - Robolectric `RelicVaultPersistenceTest.extractedPhysicalRelicSurvivesLegacyVaultIdCollisionAndSettlesOnce` 以旧馆一件、真实在场主角背包一件（相同旧 ID、不同价值）构造成功撤离，核两件同时入馆、跨重进保存、旧局重放不二次结算。测试 `8ba733cf7ba10b086208df10e4aa7288aebfb5cc`（blob `8c1468264e6b5b5818a8384c15de472cc1841801`）。
 - 对应 game SHA `8ba733cf` 的 Lulu APK Actions #44262195207 pending / #44262192628 queued（查询时）；未见同 SHA JVM/APK 成功，索引、Redmi 横屏/FPS、实际角色模型、藏宝馆视觉仍待验。下一入口本测试 JVM 首错、`RelicEscapeScreen.kt` 撤离后两件同 ID 展示/出售选择，以及真实开箱到重进的完整链路。
+
+## 2026-11-18 G-03.5 · 藏宝馆展出按钮与实体位置账本接通（待 CI/真机）
+- game 原生 `RelicVaultPage.kt` 以实际馆藏行及物品快照调用展出，并只给当前实体显示展出标记；`RelicEscapeLobby.kt` 传递实体参数，`RelicEscapeScreen.kt` 调用既有权威 `RelicEscapeLedger.featureLootAt(index,item)`，不再调用只按旧 ID 选择的接口。生产提交 `c9fc2a70`、`223e6734`、`9033a891`；对应 blob `776e2881`、`145f0e77`、`f998c87f`。旧存档无索引时仅对第一个匹配 ID 显示旧展品，用户重新选择后写入实体索引。
+- 复用现有 `RelicVaultPersistenceTest.duplicateMuseumExhibitTracksPhysicalRowThroughSaleAndReload` 的账本/重载回归，未重复造同类规则测试。尚无同 game SHA 的 JVM/APK 通过证据；需先核编译与该测试首错，再做 Compose 同 ID 两件展出/出售/重入触控，Redmi 横屏、FPS、原创美术与真实模型仍独立待验。只更新 game，不回写 main。
