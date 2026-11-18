@@ -115,6 +115,9 @@ fun LuluGamesApp(
     var route by rememberSaveable(initialGameId, stateSaver = savedGameRoute) {
         mutableStateOf(initialGameId.toGameRouteOrHome())
     }
+    LaunchedEffect(route) {
+        if (!LuluGameEdition.available(route.savedGameId())) route = GameRoute.Home
+    }
     val bgmEnabled = GameAmbientSoundscape(if (route == GameRoute.DeepSea) GameSoundscape.Ocean else GameSoundscape.Arcade)
     var pendingRoute by remember { mutableStateOf<GameRoute?>(null) }
 
@@ -280,12 +283,12 @@ fun LuluGamesApp(
                     if (store.resumeSuspendedYachtMatch(matchId)) route = GameRoute.YachtDice
                 })
                 GameRoute.DeepSea -> DeepSeaJourneyScreen(store)
-                GameRoute.BlockIsland -> BlockIslandEntry(
+                GameRoute.BlockIsland -> if (LuluGameEdition.worldGamesEnabled) BlockIslandEntry(
                     store, initialParty = invitedCompanionsForGame(initialGameId, "block_island", state),
-                )
-                GameRoute.RelicEscape -> RelicEscapeScreen(
+                ) else Text("本版本暂未提供该游戏")
+                GameRoute.RelicEscape -> if (LuluGameEdition.worldGamesEnabled) RelicEscapeScreen(
                     store, initialParty = invitedCompanionsForGame(initialGameId, "relic_escape", state),
-                )
+                ) else Text("本版本暂未提供该游戏")
                 GameRoute.PerfectMan -> PerfectManScreen(store)
                 GameRoute.Roleplay -> Unit
                 GameRoute.TurtleSoup -> TurtleSoupScreen(store)
@@ -380,7 +383,7 @@ private fun GameRoute.title(): String = when (this) {
     is GameRoute.Replay -> "游戏回放"
 }
 
-private fun String?.toGameRouteOrHome(): GameRoute = when (this?.trim()?.lowercase()) {
+private fun String?.toGameRouteOrHome(): GameRoute = when (this?.trim()?.lowercase()?.takeIf(LuluGameEdition::available)) {
     "home" -> GameRoute.Home
     "deep_sea", "deep_sea_journey" -> GameRoute.DeepSea
     "block_island" -> GameRoute.BlockIsland
@@ -413,10 +416,10 @@ private fun GameHome(
         maxCharacters = 1,
         accent = Color(0xFF66D7CC),
     )
-    val featured = listOf(
+    val featured = if (LuluGameEdition.worldGamesEnabled) listOf(
         GameLauncher("block_island", "方块小岛", "采集木石、搭房子、建基地；和角色一起打怪，家园退出后仍存在。", Icons.Outlined.Forest, GameRoute.BlockIsland, 0, 3, Color(0xFF8ED6A6)),
         GameLauncher("relic_escape", "迷雾摸金", "组队搜宝箱、对抗怪物，带战利品回撤离门；失败会失去本局宝物。", Icons.Outlined.Explore, GameRoute.RelicEscape, 0, 3, Color(0xFFF1C785)),
-    )
+    ) else emptyList()
     val classics = listOf(
         GameLauncher("memory_match", "记忆配对", "翻牌找出相同图案，保留真实对局与回放。", Icons.Outlined.GridView, GameRoute.MemoryMatch, 1, 1, Color(0xFF75658C)),
         GameLauncher("turtle_soup", "海龟汤", "提问、推理，和角色一起破解谜题。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup, 1, 3, Color(0xFF526E86)),
@@ -463,7 +466,7 @@ private fun GameHome(
             ItemYachtResumeCard(paused, onResumeYacht)
         }
         item { DeepSeaFeaturedEntry(deepSea, onOpen) }
-        item {
+        if (LuluGameEdition.worldGamesEnabled) item {
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text("合作探索", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Black)
                 Text("持久世界 · 共同战斗 · 实际战利品", color = Color(0xFF8E99AA), fontSize = 10.sp)
@@ -551,7 +554,7 @@ private fun GameHallHero() {
                     border = BorderStroke(.7.dp, Color.White.copy(alpha = .15f)),
                 ) {
                     Text(
-                        "2 座新世界 · 4 款保留游戏",
+                        if (LuluGameEdition.worldGamesEnabled) "2 座新世界 · 4 款保留游戏" else "4 款可玩游戏",
                         color = Color(0xFFD9DFED),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
@@ -560,7 +563,7 @@ private fun GameHallHero() {
                 }
                 Text("一起探索，才是真正的游戏", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Black)
                 Text(
-                    "主舞台拥有连续移动、碰撞、镜头、目标与空间音效；角色可加入，但不再强迫双人。",
+                    if (LuluGameEdition.worldGamesEnabled) "主舞台拥有连续移动、碰撞、镜头、目标与空间音效；角色可加入，但不再强迫双人。" else "深海回声、海龟汤、记忆配对和快艇骰子，和角色一起体验。",
                     color = Color(0xFFBBC4D8),
                     fontSize = 11.sp,
                     lineHeight = 17.sp,
