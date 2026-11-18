@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T02:48:59.748867+00:00",
-  "commit": "b7ecc5ea7a45f905eb589c7ff8c7ec6ea003cf13",
+  "generatedAt": "2026-11-18T02:53:01.634667+00:00",
+  "commit": "4338d648d0502834eac00d2ddc9b4b3d3243cce5",
   "branch": "main",
-  "sourceFingerprint": "962edbc878a246524f0ac6435e62a69bc4c26fe0cca54bae78262d476ae1b8be",
+  "sourceFingerprint": "49b6f31b9543c4f5c91cc8f92e482f2a836145b865276eb59c9c0dcd46a96bdc",
   "summary": {
     "files": 1444,
-    "lines": 304662,
-    "symbols": 4356
+    "lines": 304709,
+    "symbols": 4359
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2529,7 +2529,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 175
+        "line": 208
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
@@ -6556,6 +6556,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDirector.kt",
         "line": 21
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
+        "line": 48
       }
     ],
     "segments": [
@@ -13662,34 +13666,46 @@
         "line": 1172
       }
     ],
+    "texts": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
+        "line": 25
+      }
+    ],
     "contactsOf": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 47
+        "line": 80
       }
     ],
     "inbox": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 54
+        "line": 87
       }
     ],
     "evidenceId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 76
+        "line": 109
       }
     ],
     "canContact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 142
+        "line": 175
       }
     ],
     "visibleContacts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-        "line": 160
+        "line": 193
+      }
+    ],
+    "sendBubbles": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
+        "line": 219
       }
     ],
     "RoleDayPlan": [
@@ -36651,32 +36667,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
-      "lines": 236,
-      "sha256": "40dbbee484fcd942a2d7fc94d01d7d151cdb34f8101e8d5edc7f372e04c6141c",
+      "lines": 283,
+      "sha256": "be7f4478c3bb6a84864488212d38b87784cd57847086ef486f84a4f0f3167d02",
       "symbols": [
         {
+          "name": "texts",
+          "line": 25
+        },
+        {
+          "name": "contractError",
+          "line": 48
+        },
+        {
           "name": "contactsOf",
-          "line": 47
+          "line": 80
         },
         {
           "name": "inbox",
-          "line": 54
+          "line": 87
         },
         {
           "name": "evidenceId",
-          "line": 76
+          "line": 109
         },
         {
           "name": "canContact",
-          "line": 142
+          "line": 175
         },
         {
           "name": "visibleContacts",
-          "line": 160
+          "line": 193
         },
         {
           "name": "send",
-          "line": 175
+          "line": 208
+        },
+        {
+          "name": "sendBubbles",
+          "line": 219
         }
       ]
     },
