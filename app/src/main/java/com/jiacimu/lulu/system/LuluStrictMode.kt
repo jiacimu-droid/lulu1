@@ -272,8 +272,11 @@ internal object LuluStrictMode {
         val blocked = (session.optJSONArray("blockedPackages") ?: JSONArray()).let { array ->
             (0 until array.length()).map { array.optString(it) }.toSet()
         }
-        val interrupt = shouldReturn(session.optString("mode"), foreground,
-            context.packageName, except, false, blocked)
+        val homePackage = LuluAccessibilityService.ownerHomePackage(context)
+        // A launcher is a safe escape surface, never something to intercept.
+        val interrupt = foreground != homePackage &&
+            shouldReturn(session.optString("mode"), foreground,
+                context.packageName, except, false, blocked)
         val attempt = interrupt && (changed || now - lastReturnAttemptAt >= LOCAL_SAMPLE_GAP)
         if (attempt) lastReturnAttemptAt = now
         val accepted = when {
@@ -286,8 +289,12 @@ internal object LuluStrictMode {
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
             if (active(context)?.optString("id") != id) return@postDelayed
             val after = LuluAccessibilityService.ownerForegroundPackage().orEmpty()
-            val confirmed = attempt && accepted && after.isNotBlank() && after != foreground &&
-                (session.optString("mode") == "home" || after == context.packageName)
+            val confirmed = attempt && accepted && after.isNotBlank() &&
+                when (session.optString("mode")) {
+                    "home" -> homePackage != null && after == homePackage
+                    "return" -> after == context.packageName
+                    else -> false
+                }
             val detail = "前台应用=" + foreground + "；目标=" + session.optString("goal") +
                 "；监督=" + session.optString("mode") + "；尝试切回=" + accepted +
                 "；切回后核实=" + after + "；成功=" + confirmed
