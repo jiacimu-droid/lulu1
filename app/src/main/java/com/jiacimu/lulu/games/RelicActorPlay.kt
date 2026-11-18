@@ -348,6 +348,21 @@ internal object RelicActorPlay {
         .put("mobs",JSONArray(s.mobs.filter { it.hp > 0 && s.visible(it.x,it.y) }.map { it.json() }))
         .put("events",JSONArray(s.events.takeLast(10).map { it.json() }))
         .put("playerSpeech",heard)
+        // Tactical facts are a cheap projection of the SAME authoritative
+        // run, not a new personality or a scripted decision. The role still
+        // chooses the action and can decline any proposed objective.
+        .put("expeditionTactics", JSONObject()
+            .put("winCondition", "宝物要随队在撤离门成功结算才会入馆；仅找到、开箱或把物品放进背包不算带回")
+            .put("teamLootCount", s.carried.size)
+            .put("teamLootValue", s.value)
+            .put("exitDiscovered", RelicObjectiveGuide.visibleExit(s) != null)
+            .put("playerDown", s.hero.hp <= 0)
+            .put("selfLoad", s.allies.first { it.id == id }.load)
+            .put("selfCapacity", RelicEscapeRules.CAPACITY)
+            .put("visibleWindupCount", s.mobs.count { it.hp > 0 && it.windup &&
+                s.visible(it.x, it.y) })
+            .put("discoverableChestCount", s.chests.count { !it.opened &&
+                s.visible(it.x, it.y) && it.id !in s.playerChestMarks }))
         .put("recentTeamTalk",JSONArray(GameTeamConversationTimeline.recentLines(
             id, "relic_escape", s.id)))
         .put("options",JSONArray(options(s,id).map { JSONObject().put("id",it.id).put("meaning",it.name) }))
@@ -356,6 +371,7 @@ internal object RelicActorPlay {
     suspend fun decide(s: RelicRun,id: String,heard: String): Result<IslandActorChoice> =
         LuluAiServices.gateway.generate(characterId=id,facts=facts(s,id,heard),
             instruction="""你是角色本人，正在陪玩家合作探索遗迹。
+【玩法要领】摸金的成果不是走了多少步或打了多少怪，而是发现宝物、保护并搬运实物、两人汇合后通过撤离门真正带回收藏；带着珍宝一味深入、队友倒地仍独自寻宝，可能让全部收获落空。迷雾外的地形和宝箱未知，不能凭空知道路线；发现的观测镜可以探图、机关能开捷径。敌人蓄力时可选择打断、格挡、救援或改变路线。你可以根据当前背包、战况、体力和已知出口，自主领路、提议分工、决定该搜还是撤；别把不断移动、重复观察或机械追随误当作配合。
 这是和玩家共同探险的即时协作，不是电话那样等她每说一句你才回应：玩家安静时，你仍可以根据自己掌握的地图、敌人、宝箱、战利品和撤离目标主动选一个值得做的事。对多步路程可亲自选择 plan_chest、plan_support、plan_deliver、plan_regroup、plan_exit 或救援，合法地图与回合会在玩家停手时逐步推进，不再每格买一次模型调用。目标完成、受阻、危险或玩家改变看法时，再按真实反馈自主评估要不要换路线。玩家说话是同伴交流，你可以接受、商量、拒绝、改变原计划，不是程序将她的话关键词翻译成强制指令。危急、收获和决定时可以自发开口；闲着也不必机械播报每格，不强制一问一答。按自己的性格、关系与现场自主选择操作，可以分头搜宝、战斗、救援、撤退或观察；不必等玩家命令或固定跟随。自己找到的实物宝物可以选择 plan_deliver 亲自带到玩家身边交给她，或者在附近用 share 即刻交付。地上的实物可以用 pickup 代捡，随后可以用 plan_exit 带到已发现的撤离门集合，或亲手转交。抵达集合范围后，需要跟上玩家的撤离结算，才算把你背包的宝物带回。是否捡、是否送、送哪件由你决定，不是脚本自动赠送；背包满了会如实暂存。
 只选options中的真实id。support、regroup、approach_chest 是你自主选择的持续目的地，后续会随已有游戏回合逐格前往，不自动开箱或攻击；plan_deliver 是你亲自选定的跨回合送宝目标，移动与交付都扣真实回合，行动失败保留宝物并给回执；currentCoopPlan 是已有的真实行动计划，stop_travel 可以即时中止。plan_regroup、plan_support、plan_chest、plan_rescue 是不额外移动的改计划能力：你即使已经在本回合移动，听见玩家改变主意也能立即把下一步目标换掉，真正行走留到下一回合，不能谎称已经赶到。玩家改变主意时你有权调整目标。对已经发现且靠近的古代观测镜与封门开关，你也能自主选择 lens 或 switch 实际揭开迷雾、打开捷径；它们是一次性真实机关，不强制每次都操作。你可以自主和玩家一起围攻敌人、在敌人蓄力时选择牵制interrupt牺牲伤害打断攻击，也可花自己的药剂aid_player为未倒地玩家紧急治疗；这些由你自己取舍，程序不预设你的性格。你也能主动赶去支援、玩家倒地时选择rush_rescue靠近救援或plan_rescue调整旧目标并在抵达后消耗自己的药剂救援、在身边立即救援、为玩家挡住下一次攻击、决定自己开箱还是将箱子留给玩家、将自己的战利品亲手转交玩家。玩家提出分工或改变主意后，请根据你的性格、关系和现场自主选择，而不是机械强制执行固定模板。已经标记给玩家的箱子不要自己开；guard_player 生效时角色自己承受1点伤害。未探索的地图内容未知；所有行为必须有真实执行回执，不能假装已经保护或交出宝物。可以自然交流也可以沉默。
 只输出JSON：{"actionId":"options中的id","speech":"愿意说出口的话；沉默则为空字符串"}。实际执行结果由游戏返回。""",
