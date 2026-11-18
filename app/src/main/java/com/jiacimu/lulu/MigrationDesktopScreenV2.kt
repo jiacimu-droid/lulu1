@@ -177,7 +177,6 @@ internal fun MigrationHomeV2(
     var showWidgetPicker by remember { mutableStateOf(false) }
     var editingWidgetId by remember { mutableStateOf<String?>(null) }
     var showingWidgetPlanner by remember { mutableStateOf(false) }
-    var selectedHoroscopeWidgetId by remember { mutableStateOf<String?>(null) }
     val todoRevision by SelfTodoStore.revision.collectAsState()
     val widgetTodayTasks = remember(todoRevision, today) {
         SelfTodoStore.readForRole(context)?.let { saved ->
@@ -483,14 +482,13 @@ internal fun MigrationHomeV2(
                                     modifier = Modifier.fillMaxSize(),
                                     onOpenWidget = { widget ->
                                         when (widget.kind) {
-                                            LuluWidgetKind.HOROSCOPE -> selectedHoroscopeWidgetId = widget.id
+                                            LuluWidgetKind.HOROSCOPE -> Unit
                                             LuluWidgetKind.PLANNER -> showingWidgetPlanner = true
                                             LuluWidgetKind.NOTE, LuluWidgetKind.COUNTDOWN ->
                                                 editingWidgetId = widget.id
                                         }
                                     },
                                     onEditWidget = { editingWidgetId = it.id },
-                                    onAskHoroscope = { selectedHoroscopeWidgetId = it.id },
                                     onBlankLongPress = { showWidgetPicker = true },
                                 )
                                 // Draw the launchers over the widget canvas: transparent
@@ -617,20 +615,6 @@ internal fun MigrationHomeV2(
                 }
             },
             onClose = { editingWidgetId = null },
-        )
-    }
-    widgets.firstOrNull { it.id == selectedHoroscopeWidgetId &&
-        it.kind == LuluWidgetKind.HOROSCOPE }?.let { selected ->
-        LuluDesktopHoroscopeDialog(
-            widget = selected,
-            date = today,
-            characterName = widgetCharacterNames[selected.characterId],
-            reading = dailyReadings[selected.id],
-            onOpenEditor = {
-                selectedHoroscopeWidgetId = null
-                editingWidgetId = selected.id
-            },
-            onClose = { selectedHoroscopeWidgetId = null },
         )
     }
     if (showingWidgetPlanner) LuluDesktopPlannerDialog(
