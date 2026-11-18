@@ -2,6 +2,7 @@ package com.jiacimu.lulu
 
 import android.content.Context
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.time.ZoneId
 import org.json.JSONObject
 import org.junit.After
@@ -99,6 +100,19 @@ class LuluWidgetLiveIntegrationTest {
         assertEquals("#203044", LuluDesktopWidgetStore.load(app)
             .first { it.id == stars.id }.roleBackground)
 
+    }
+
+    @Test fun dailyMorningScheduleAnchorsToLocalDateInsteadOfDriftingTwentyFourHours() {
+        val zone = ZoneId.of("Asia/Shanghai")
+        val morning = ZonedDateTime.of(2026, 11, 18, 7, 59, 0, 0, zone)
+        val atEight = morning.plusMinutes(1)
+        val late = morning.plusHours(4)
+        val today = LocalDate.of(2026, 11, 18)
+        assertEquals(today, LuluWidgetDailyRole.plannedDate(morning, false))
+        assertEquals(today, LuluWidgetDailyRole.plannedDate(atEight, true))
+        assertEquals(today, LuluWidgetDailyRole.plannedDate(late, true))
+        assertEquals(today.plusDays(1), LuluWidgetDailyRole.plannedDate(atEight, false))
+        assertEquals(today.plusDays(1), LuluWidgetDailyRole.plannedDate(late, false))
     }
 
     @Test fun sameRoleSameSignHasOneDateScopedCachedReadingForMultipleCards() {
