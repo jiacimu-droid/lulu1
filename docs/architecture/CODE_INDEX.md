@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0859915321ff470dfbd0239228fed6559520032c`
+- 基准提交：`a46fb3c69aeb0f17ee0b5656f298e881d35ff652`
 - 分支：`main`
-- 已索引文件：1469
-- 已索引代码/文本行：310618
-- 已发现符号：4437
+- 已索引文件：1470
+- 已索引代码/文本行：310654
+- 已发现符号：4438
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -365,7 +365,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 209 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt` | 71 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 202 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 208 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 132 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 66 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
@@ -1404,6 +1404,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt` | 223 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGateTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluDirectReturnPolicyTest.kt` | 74 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluForegroundPhoneSessionTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluGroundingEvidenceTest.kt` | 73 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluInstalledAppResolverTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluMediaPlaybackEvidenceTest.kt` | 27 | 1 |

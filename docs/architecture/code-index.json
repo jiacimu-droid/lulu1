@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T14:26:34.093345+00:00",
-  "commit": "0859915321ff470dfbd0239228fed6559520032c",
+  "generatedAt": "2026-11-18T14:27:56.124415+00:00",
+  "commit": "a46fb3c69aeb0f17ee0b5656f298e881d35ff652",
   "branch": "main",
-  "sourceFingerprint": "a1c91405c21322063bc8b68b9e27d9644e2ecfa2a5605ebddaee53e9d435d872",
+  "sourceFingerprint": "829449a98dd0d71517394b2fabffe82e0a92db3124fbd6cdf454ceb0536f038c",
   "summary": {
-    "files": 1469,
-    "lines": 310618,
-    "symbols": 4437
+    "files": 1470,
+    "lines": 310654,
+    "symbols": 4438
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -547,7 +547,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 184
+        "line": 190
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -24282,6 +24282,12 @@
         "line": 14
       }
     ],
+    "LuluForegroundPhoneSessionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluForegroundPhoneSessionTest.kt",
+        "line": 8
+      }
+    ],
     "LuluGroundingEvidenceTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluGroundingEvidenceTest.kt",
@@ -30413,8 +30419,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 202,
-      "sha256": "7b3073a4a345bb7a7603f21fcb444216de5a6c0a7b006d97a4d974ba374be5fb",
+      "lines": 208,
+      "sha256": "b0992c1c02baa2c89e71f9674fa27dbe88a390b2e48e33b8f713d73bae1b352a",
       "symbols": [
         {
           "name": "Capability",
@@ -30450,7 +30456,7 @@
         },
         {
           "name": "context",
-          "line": 184
+          "line": 190
         }
       ]
     },
@@ -51656,6 +51662,17 @@
         {
           "name": "LuluDirectReturnPolicyTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluForegroundPhoneSessionTest.kt",
+      "lines": 30,
+      "sha256": "c05c3df8ba0d7ca096efb3caaee4c925e872433addf797f6f5f17993f7a5ec4e",
+      "symbols": [
+        {
+          "name": "LuluForegroundPhoneSessionTest",
+          "line": 8
         }
       ]
     },
