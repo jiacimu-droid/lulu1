@@ -40,7 +40,7 @@ import java.net.URLEncoder
 internal object LuluCommunitySupportConfig {
     const val WISHES_URL = "https://github.com/jiacimu-droid/lulu1/issues"
     const val FEEDBACK_EMAIL = "1187725424@qq.com" // Public feedback mailbox designated by the maintainer.
-    const val DONATION_URL = "" // Optional public HTTPS payment page, supplied by the maintainer.
+    const val DONATION_URL = LuluAlipayDonationQrData.expectedPayload // Owner-provided personal Alipay receiving QR.
 
     private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8")
 
@@ -296,6 +296,24 @@ fun LuluSupportCreatorScreen(onBack: () -> Unit) {
             }
         }
         if (paymentUrl != null) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(22.dp),
+                color = androidx.compose.ui.graphics.Color.White,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(18.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(11.dp),
+                ) {
+                    Text("支付宝", fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
+                        color = androidx.compose.ui.graphics.Color(0xFF1677FF))
+                    LuluAlipayDonationQr(modifier = Modifier.fillMaxWidth())
+                    Text("打开支付宝扫一扫 · 自愿赞赏",
+                        fontSize = 12.sp, color = androidx.compose.ui.graphics.Color(0xFF5F6167))
+                }
+            }
             Button(
                 onClick = {
                     openError = runCatching {
@@ -307,11 +325,11 @@ fun LuluSupportCreatorScreen(onBack: () -> Unit) {
             ) {
                 Icon(Icons.Outlined.CardGiftcard, null, Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("打开赞赏页面")
+                Text("打开支付宝付款页")
                 Spacer(Modifier.width(8.dp))
                 Icon(Icons.Outlined.ArrowForward, null, Modifier.size(18.dp))
             }
-            CommunityNote("将跳转到外部赞赏页面。付款前请自行核对收款方和金额；露露机不会读取支付密码或代扣费用。")
+            CommunityNote("请先在支付宝核对收款方与金额，再自行决定是否付款。此收款码来自作者本人，露露机不会读取支付信息或自动扣款。")
         } else {
             CommunityNote("作者尚未设置收款方式，赞赏入口暂不开放。")
         }
