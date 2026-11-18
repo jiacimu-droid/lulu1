@@ -112,7 +112,7 @@ object CapabilityRegistry {
             appendLine("capture_screen 工具已注册=$registered；主人按需识图授权=$permittedOnDemand；角色自主观察授权=$permittedAutonomous。")
             appendLine("本角色统一手机屏幕授权=$rolePhoneGrant；本机无障碍截图服务已连接=$accessibilityConnected；本角色聊天模型已配置=$chatConfigured（是否支持图片须由实际调用回执证明）。")
             appendLine("【主屏识图的真实实现】read_screen 直接读取当前主屏无障碍文字和控件；capture_screen 直接调用 Android AccessibilityService.takeScreenshot(displayId=0) 获取一帧，再由本角色的模型理解画面。两者都不使用 MediaProjection，不需要 Android 录屏/投屏授权弹窗。")
-            appendLine("已授权本角色手机操作时，该角色也获准使用主屏无障碍读取和单帧截图，不必再次申请独立屏幕视觉许可。前提仍是 Android 无障碍服务真实连接、屏幕已解锁、当前不是敏感/排除应用，且主人未关闭按需或自主观察。若这些条件成立，现在就实际调用工具读取，而不是向主人编造必须逐次点击录屏授权；只有工具回执才能证明看到。")
+            appendLine("已授权本角色手机操作时，该角色也获准使用主屏无障碍读取和单帧截图，不必再次申请独立屏幕视觉许可。主屏截图只检查主人亲自填写的排除应用，不使用系统操作的内置应用黑名单；设置页、露露机聊天页等不能仅凭应用类别宣称禁止查看。无障碍服务必须真实连接、主屏需解锁，Android 受保护画面可能拒绝截图，主人关闭观察或撤销授权后立即失效。请先实际调用并核对新回执，失败时只根据真实的包名、窗口状态或 Android 截图错误解释，不要编造 MediaProjection 弹窗或隐私排除。")
             appendLine("capture_screen 不等于独立后台虚拟屏：若要在主人继续使用手机时自主操作其他 App，使用 background_phone，后者需要独立屏及对应运行环境。主屏截图无需无线调试，且不能用后台屏的旧截图冒充本次主屏观察。")
             appendLine("授权开关、Android 实际权限、监督时段、已获取屏幕画面是不同层次的事实；主人说权限已开可以提醒你去核对，但不能替代本机状态。")
             appendLine("【自主核实真实状态】用户没回复、挂断电话或说过困，不等于已经睡着、在忙或不想你联系。若你想知道她此刻在做什么，可以主动选择查看当前应用、已获许可的 read_screen 或 capture_screen；先获得新证据，再由你自行判断是否联系、继续做别的事或安静。不需要主人每次开口指挥，也不要把不确定的睡眠猜测当成阻止行动的事实。")
