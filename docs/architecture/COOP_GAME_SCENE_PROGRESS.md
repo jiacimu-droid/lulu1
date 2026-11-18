@@ -715,3 +715,8 @@
 ## 2026-11-18 G-03.5 · game 分支藏宝馆旧档重复 ID 售卖实物守恒
 - 遵守 AGENTS 最新双分支规则：G-02/G-03 仅更新 `game`，不重新开放 `main` 游戏入口。检查正式 `RelicEscapeLedger.sellLoot` 发现旧档若两件藏品共用同一 ID，`filterNot` 会一次删除两件却只结算第一件售价；修复为只移除匹配的首件实体，原有展示位清空与单次同步 commit 保持不变。生产提交 `291e3de509e23eeb5523a5100dbb7e1e7b31180f`，blob `ec37c2000c5edee765029584d9727fe6ccb935af`。
 - 回归 `RelicVaultPersistenceTest.legacyDuplicateMuseumIdsSellExactlyOnePhysicalRelic` 以两件同 ID、不同价值藏品检查首次售卖只移除一件、钱只增加第一件价格、重进仍保留第二件、第二次卖完后重试不刷币。测试提交 `c6f4a3f51154c20f0ce751551961cb5bbeeb2021`，blob `42fd0bcd45db2f2f1f1bc04aac24e567d968897c`。此轮未本地运行 JVM/Gradle；需核 `game` push 的 JVM/APK/index 对应 head SHA，不能用 main 的绿灯代替。下一入口该测试 JVM 首错、`RelicEscapeScreen.kt` 藏宝馆售卖实体选中及重进显示；Redmi/FPS/模型/美术待验。
+
+## 2026-11-18 G-03.5 · 撤离实物与旧藏宝馆 ID 碰撞不吞宝
+- 正式 `RelicEscapeLedger.saveRun` 曾按旧馆内 ID 过滤本局已实际 `secured` 的实物。旧档跨局重用 ID 时，真实带出的珍宝被悄悄丢弃，但结算金币仍按该件计入；与物品守恒矛盾。改为本局成功撤离的 `secured` 全量入馆，重复结算仅由既有 `awarded` run ID 墓碑阻止；不制造未撤离的奖励。仅 game 分支生产 `489af28bf877b334e34fe19d70b1aeb4de3ba0b7`（blob `4fcade1b65f252b9b411287e8e644a753ede516f`）。
+- Robolectric `RelicVaultPersistenceTest.extractedPhysicalRelicSurvivesLegacyVaultIdCollisionAndSettlesOnce` 以旧馆一件、真实在场主角背包一件（相同旧 ID、不同价值）构造成功撤离，核两件同时入馆、跨重进保存、旧局重放不二次结算。测试 `8ba733cf7ba10b086208df10e4aa7288aebfb5cc`（blob `8c1468264e6b5b5818a8384c15de472cc1841801`）。
+- 对应 game SHA `8ba733cf` 的 Lulu APK Actions #44262195207 pending / #44262192628 queued（查询时）；未见同 SHA JVM/APK 成功，索引、Redmi 横屏/FPS、实际角色模型、藏宝馆视觉仍待验。下一入口本测试 JVM 首错、`RelicEscapeScreen.kt` 撤离后两件同 ID 展示/出售选择，以及真实开箱到重进的完整链路。
