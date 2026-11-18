@@ -84,6 +84,9 @@ class LuluStrictModeTest {
             emptySet(), false, blocked))
         assertFalse(LuluStrictMode.shouldReturn("home", video, lulu,
             setOf(video), false, blocked))
+        assertFalse("Explicit targeted-home mode must not become lockdown when empty",
+            LuluStrictMode.shouldReturn("home", video, lulu,
+                emptySet(), false, emptySet()))
         assertFalse(LuluStrictMode.shouldReturn("home", video, lulu,
             emptySet(), true, blocked))
         assertFalse(LuluStrictMode.shouldReturn("observe", video, lulu,
