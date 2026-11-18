@@ -11,7 +11,7 @@ internal object LuluVisualChatDraftPolicy {
     data class Proof(val sendX: Int, val sendY: Int, val previousOutgoing: Int)
 
     private fun normalize(value: String): String =
-        value.filterNot { it.isWhitespace() || it == '\u200b' || it == '\ufeff' }
+        value.filterNot { it == '\u200b' || it == '\ufeff' }
 
     /** A point chosen by the role from the last full-frame screenshot.
      * The center-left lower area can focus an editor but cannot be a
