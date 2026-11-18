@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T13:33:12.494592+00:00",
-  "commit": "d4ceeb5964c719c36cd7cecaa2662f9822af8833",
+  "generatedAt": "2026-11-18T13:35:06.612397+00:00",
+  "commit": "6ac91f4e98b134e7d60344d098154f8cc5b0f043",
   "branch": "main",
-  "sourceFingerprint": "5223bf7fa2a5cc59fa6b66096992298fc824035fb292c09a24e6591304d3ff9c",
+  "sourceFingerprint": "ef8b404bdd173e6d766d0e5af82ffd11f3bdb87e470206f21f340f557b16420b",
   "summary": {
     "files": 1468,
-    "lines": 310019,
+    "lines": 310074,
     "symbols": 4434
   },
   "symbolIndex": {
@@ -1639,7 +1639,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 250
+        "line": 253
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
@@ -3683,13 +3683,13 @@
     "profileSign": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 202
+        "line": 205
       }
     ],
     "load": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 210
+        "line": 213
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
@@ -3735,19 +3735,19 @@
     "roleApplySkin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 286
+        "line": 289
       }
     ],
     "roleApplyStyle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 295
+        "line": 298
       }
     ],
     "setProfileSign": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 320
+        "line": 323
       }
     ],
     "accepted": [
@@ -27360,32 +27360,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-      "lines": 863,
-      "sha256": "f61cffaf9194b8b2c38d794eceba29a30301eb78ee4d99dbd814e5446a4d94a2",
+      "lines": 918,
+      "sha256": "995df723a2459ee5e22b7017397e56dac7b8517e25ed01c014921af936ba287f",
       "symbols": [
         {
           "name": "profileSign",
-          "line": 202
+          "line": 205
         },
         {
           "name": "load",
-          "line": 210
+          "line": 213
         },
         {
           "name": "save",
-          "line": 250
+          "line": 253
         },
         {
           "name": "roleApplySkin",
-          "line": 286
+          "line": 289
         },
         {
           "name": "roleApplyStyle",
-          "line": 295
+          "line": 298
         },
         {
           "name": "setProfileSign",
-          "line": 320
+          "line": 323
         }
       ]
     },
