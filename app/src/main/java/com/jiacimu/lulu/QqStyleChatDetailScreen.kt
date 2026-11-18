@@ -1058,13 +1058,16 @@ fun QqStyleChatDetailScreen(
                                         context, inviterId, message.id, gameId,
                                     )) {
                                     val gameStore = com.jiacimu.lulu.games.LuluGames.store
-                                    gameStore.selectCharacters(listOf(inviterId))
-                                    if (gameId == "yacht_dice") {
-                                        // New invitations cannot relabel an unfinished match with another inviter.
-                                        gameStore.enterInvitedYachtMatch(inviterId)
-                                    }
-                                    if (gameId == "memory_match" && gameStore.state.value.memoryMatch.finished) {
-                                        gameStore.resetMemoryMatch()
+                                    if (gameId == "memory_match") {
+                                        // The invitation starts an actual two-player room, even after a solo run.
+                                        // The opponent is stored in the room rather than guessed from global selection.
+                                        gameStore.startMemoryMatch(inviterId)
+                                    } else {
+                                        gameStore.selectCharacters(listOf(inviterId))
+                                        if (gameId == "yacht_dice") {
+                                            // New invitations cannot relabel an unfinished match with another inviter.
+                                            gameStore.enterInvitedYachtMatch(inviterId)
+                                        }
                                     }
                                     onOpenGame(gameId)
                                 }
