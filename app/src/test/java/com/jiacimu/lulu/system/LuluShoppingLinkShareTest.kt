@@ -144,6 +144,24 @@ class LuluShoppingLinkShareTest {
         assertFalse(LuluShoppingLinkShare.freshCopyEvent(0L, 1200L, 0L))
     }
 
+    @Test fun shellCopyMustBeFreshMerchantOwnedAndBoundToThisTap() {
+        val url = "https://mobile.yangkeduo.com/goods.html?goods_id=123"
+        assertEquals(url, LuluShoppingLinkShare.merchantCopyLink(
+            pdd, 1000L, 1200L, 1201L, pdd, "看这个 " + url))
+        assertEquals(url, LuluShoppingLinkShare.merchantCopyLink(
+            pdd, 1000L, 1200L, 1201L, null, url))
+        assertNull(LuluShoppingLinkShare.merchantCopyLink(
+            pdd, 1201L, 1200L, 1201L, pdd, url))
+        assertNull(LuluShoppingLinkShare.merchantCopyLink(
+            pdd, 1000L, 1200L, 1199L, pdd, url))
+        assertNull(LuluShoppingLinkShare.merchantCopyLink(
+            pdd, 1000L, 1200L, 1201L, "com.android.chrome", url))
+        assertNull(LuluShoppingLinkShare.merchantCopyLink(
+            pdd, 1000L, 1200L, 1201L, pdd, "https://example.com"))
+        assertNull(LuluShoppingLinkShare.merchantCopyLink(
+            pdd, 1000L, 1200L, 12001L, pdd, url))
+    }
+
     @Test fun durableCardCodecRoundTripsWithoutTreatingOrdinaryTextAsLink() {
         val url = "https://p.pinduoduo.com/AbC123"
         val encoded = encodeQqShoppingProductLink("拼多多", url, "这款脆香米我觉得好吃～")
