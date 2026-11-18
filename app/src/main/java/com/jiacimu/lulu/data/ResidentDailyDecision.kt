@@ -1235,6 +1235,21 @@ internal object ResidentDailyDecision {
             return "agenda 不是数组"
         if (choice.has("steps") && choice.optJSONArray("steps") == null)
             return "steps 不是数组"
+        // A historical direct message remains valid, but it must not also be
+        // sent via the ordered steps of the same saved daily decision.
+        if (message.isNotBlank() && messageTo.isNotBlank()) {
+            val steps = choice.optJSONArray("steps")
+            for (index in 0 until (steps?.length() ?: 0)) {
+                val step = steps?.optJSONObject(index) ?: continue
+                val normalized = AutonomousActionWireProtocol.normalizeStep(step)
+                if (normalized.optString("tool") != "send_character_message") continue
+                val args = normalized.optJSONObject("args") ?: continue
+                if (args.optString("targetCharacterId").trim() == messageTo &&
+                    runCatching { ResidentMessageBubbles.texts(args) }.getOrNull()
+                        ?.joinToString("") == message)
+                    return "同一条私信不能同时放在每日 message 与 steps；请只选择一次发送"
+            }
+        }
         agendaContractError(choice.optJSONArray("agenda"), at, maxAgendaItems)?.let { return it }
         residentStepsContractError(choice.optJSONArray("steps"))?.let { return it }
         return null
