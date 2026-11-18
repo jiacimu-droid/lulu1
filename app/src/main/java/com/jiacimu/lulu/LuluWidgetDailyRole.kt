@@ -12,9 +12,10 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
-import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.BackoffPolicy
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.jiacimu.lulu.ai.CompanionContextMode
@@ -22,7 +23,11 @@ import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.initializeBackgroundRuntime
+import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -209,17 +214,48 @@ notify是布尔值，skin只能是-1或0/1/2/3。生成文字不代表通知已�
         }
     }
 
-    fun schedule(context: Context, widgets: List<LuluDesktopWidget>) {
-        val manager = WorkManager.getInstance(context.applicationContext)
-        if (widgets.none { it.kind == LuluWidgetKind.HOROSCOPE && it.dailyReadingEnabled &&
-                it.characterId.isNotBlank() }) {
-            manager.cancelUniqueWork(WORK)
-            return
-        }
-        val request = PeriodicWorkRequestBuilder<LuluWidgetDailyWorker>(24, TimeUnit.HOURS)
+    // 08:00 in the device's current local time zone. WorkManager may run later
+    // under Doze/offline restrictions; date-scoped cache prevents duplicate billing.
+    private val morning = LocalTime.of(8, 0)
+
+    internal fun plannedDate(now: ZonedDateTime, needsReadingToday: Boolean): LocalDate =
+        if (now.toLocalTime().isBefore(morning) || needsReadingToday)
+            now.toLocalDate() else now.toLocalDate().plusDays(1)
+
+    private fun enqueueMorning(context: Context, date: LocalDate) {
+        val app = context.applicationContext
+        val dueAt = date.atTime(morning).atZone(ZoneId.systemDefault()).toInstant()
+        val delayMillis = Duration.between(java.time.Instant.now(), dueAt).toMillis()
+            .coerceAtLeast(0L)
+        val request = OneTimeWorkRequestBuilder<LuluWidgetDailyWorker>()
+            .addTag(WORK)
+            .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
+            .setBackoffCriteria(BackoffPolicy.LINEAR, 65, TimeUnit.MINUTES)
             .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
             .build()
-        manager.enqueueUniquePeriodicWork(WORK, ExistingPeriodicWorkPolicy.KEEP, request)
+        WorkManager.getInstance(app).enqueueUniqueWork(
+            "$WORK-$date", ExistingWorkPolicy.KEEP, request,
+        )
+    }
+
+    /** Saving/enabling a card or reopening the desktop is a schedule check,
+     * not another direct AI call. Late app starts catch up on today's missing cards. */
+    fun schedule(context: Context, widgets: List<LuluDesktopWidget>) {
+        val active = widgets.filter { it.kind == LuluWidgetKind.HOROSCOPE &&
+            it.dailyReadingEnabled && it.characterId.isNotBlank() }
+        if (active.isEmpty()) {
+            WorkManager.getInstance(context.applicationContext).cancelAllWorkByTag(WORK)
+            return
+        }
+        val now = ZonedDateTime.now(ZoneId.systemDefault())
+        val needsReadingToday = active.any { read(context, it, now.toLocalDate()) == null }
+        enqueueMorning(context, plannedDate(now, needsReadingToday))
+    }
+
+    /** Run after this morning's worker has finished, even when one card failed.
+     * A different unique work name avoids KEEP swallowing the next day's job. */
+    internal fun scheduleNextMorning(context: Context, today: LocalDate) {
+        enqueueMorning(context, today.plusDays(1))
     }
 }
 
@@ -228,15 +264,36 @@ class LuluWidgetDailyWorker(context: Context, params: WorkerParameters) :
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
             initializeBackgroundRuntime(applicationContext)
+            val today = LocalDate.now()
             val cards = LuluDesktopWidgetStore.load(applicationContext)
                 .filter { it.kind == LuluWidgetKind.HOROSCOPE &&
                     it.dailyReadingEnabled && it.characterId.isNotBlank() }
-            cards.forEach { LuluWidgetDailyRole.refresh(applicationContext, it) }
-            Result.success()
+                .distinctBy { it.characterId to it.sign }
+            cards.forEach { LuluWidgetDailyRole.refresh(applicationContext, it, today) }
+            val incomplete = cards.any {
+                LuluWidgetDailyRole.read(applicationContext, it, today) == null
+            }
+            // Failed/invalid model output is never treated as a real reading.
+            // Two bounded retries, one hour apart, rather than paid polling.
+            if (incomplete && runAttemptCount < 2) {
+                Result.retry()
+            } else {
+                if (cards.isNotEmpty())
+                    LuluWidgetDailyRole.scheduleNextMorning(applicationContext, today)
+                Result.success()
+            }
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
-            Result.retry()
+            if (runAttemptCount < 2) Result.retry() else {
+                // A process/network fault today should not permanently stop tomorrow's card.
+                if (LuluDesktopWidgetStore.load(applicationContext).any {
+                        it.kind == LuluWidgetKind.HOROSCOPE &&
+                            it.dailyReadingEnabled && it.characterId.isNotBlank()
+                    })
+                    LuluWidgetDailyRole.scheduleNextMorning(applicationContext, LocalDate.now())
+                Result.success()
+            }
         }
     }
 }
