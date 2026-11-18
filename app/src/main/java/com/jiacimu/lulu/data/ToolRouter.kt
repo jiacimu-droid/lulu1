@@ -217,8 +217,16 @@ object ToolRouter {
             // never gain execution permission through an old request ID.
             val activeCap = cap ?: return@withLock rejected("未知能力：$name")
             if (activeCap.retired) return@withLock rejected("能力已停用：$name；历史记录保留，但不能再安排或执行")
-            if (!CapabilityRegistry.allows(context, characterId, activeCap, userRequested))
-                return@withLock rejected("此角色尚未获准主动使用 ${activeCap.permission}", "waiting_user")
+            if (!CapabilityRegistry.allows(context, characterId, activeCap, userRequested)) {
+                // Do not collapse a durable role grant, a disabled autonomy switch,
+                // and a single failed screenshot into an invented "expired permission".
+                val screenReason = if (name == "capture_screen" || name == "read_screen")
+                    LuluScreenAwareness.authorizationBlockReason(context, characterId, userRequested)
+                else null
+                return@withLock rejected(
+                    screenReason ?: "此角色尚未获准主动使用 ${activeCap.permission}",
+                    "waiting_user")
+            }
             // The same policy applies to primary and ordered side steps.
             GoalFollowUpPolicy.contactBlockReason(
                 CharacterLifeStore.state(characterId).optJSONObject("intention"),
