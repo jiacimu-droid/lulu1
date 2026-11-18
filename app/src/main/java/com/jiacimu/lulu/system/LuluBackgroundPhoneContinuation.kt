@@ -459,7 +459,7 @@ internal object LuluBackgroundPhoneContinuation {
                         (if (visibleMainScreen) "主屏模式使用真实前台控件与精确输入验证；不能把点击等同于发出消息。付款、密码、验证码与用户隐私排除目标必须拒绝。"
                         else LuluPhoneInteractionPolicy.modelGuide) else "本角色虚拟屏幕总授权未开启，不能操作。")
                     appendLine(if (LuluShoppingAssistPolicy.isEnabled(context, characterId))
-                        "主人已开启虚拟屏幕总授权，可自主帮忙选购；可挑商品、规格、加购物车、进入结算。付款、提交/确认订单、免密/货到付款不授权；购买相关按钮只用本轮可核实的tap_element。若想把商品链接给主人，先在真实商品页面操作“分享”，等看到可核实的“复制链接”控件后以tap_element+sendLinkToChat=true执行；只有linkSent=true说明链接已发私聊。付款阶段停下交给主人。"
+                        (if (visibleMainScreen) "主人授权的主屏购物可以查看、比较、搜索与按真实控件导航；如需分享链接，优先在商家界面选择系统分享并选露露机，收到的分享仍需确认收件人。当前无法在第三方App的后台读取剪贴板并自动回传；不要把复制成功冒充发送成功。不能自动付款或提交订单。" else "主人已开启虚拟屏幕总授权，可自主帮忙选购；可挑商品、规格、加购物车、进入结算。付款、提交/确认订单、免密/货到付款不授权；购买相关按钮只用本轮可核实的tap_element。若想把商品链接给主人，先在真实商品页面操作“分享”，等看到可核实的“复制链接”控件后以tap_element+sendLinkToChat=true执行；只有linkSent=true说明链接已发私聊。付款阶段停下交给主人。")
                         else "主人尚未开启本角色虚拟屏幕总授权；只能浏览比较商品，不能代点购买、加购或结算按钮。")
                     appendLine("手机操作没有按次数封顶的任务截止线。你可以按目标继续下一步，直到自己根据实际证据决定完成、求助或稍后续接；每次动作仍需真实核实，避免无意义重复付费。")
                     appendLine("若你本人确实想稍后继续而不是现在操作，可选择decision=defer，schedule={title:具体事项,intent:原目标、真实已完成进度与剩余事项,dueAt:本人选择的未来ISO8601时刻}。时间须含时区且晚于当前一分钟；仅成功日程回执代表已排程，到时重新观察而非重放旧截图。")
