@@ -120,6 +120,8 @@ class LuluBackgroundPhoneContinuationYieldTest {
                 .put("inputDispatched", true)))
         assertTrue(LuluBackgroundPhoneContinuation.mayRecoverUnsentChat(
             JSONObject().put("errorCode", "visual_chat_keyboard_not_on_display")))
+        assertTrue(LuluBackgroundPhoneContinuation.mayRecoverUnsentChat(
+            JSONObject().put("errorCode", "visual_input_focus_unverified")))
         assertFalse(LuluBackgroundPhoneContinuation.mayRecoverUnsentChat(
             JSONObject().put("errorCode", "visual_chat_send_click_unverified")
                 .put("messageSendAttempted", true)))

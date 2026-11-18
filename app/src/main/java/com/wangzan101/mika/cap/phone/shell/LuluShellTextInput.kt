@@ -27,7 +27,7 @@ internal object LuluShellTextInput {
     private const val VIRTUAL_KEYBOARD = -1
 
     /** One device-wide text transport, not a WeChat feature. Authorization,
-     * target-window ownership, privacy exclusions and live IME focus are
+     * target-window ownership, privacy exclusions and input focus evidence are
      * rechecked in the app session before the shell can ever receive this
      * private command. Shell additionally binds events to this display and
      * the launched package's UID; it never injects to display 0. */

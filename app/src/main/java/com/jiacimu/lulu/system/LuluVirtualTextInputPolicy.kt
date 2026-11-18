@@ -34,6 +34,22 @@ internal object LuluVirtualTextInputPolicy {
 
     fun requiresVisualSnapshot(hasX: Boolean, hasY: Boolean): Boolean = hasX && hasY
 
+    enum class VisualInputRoute { WAIT, SET_TEXT, TARGETED_PASTE }
+
+    /** Mika's explicit-point path can use a focused app window for a custom
+     * editor, even when Android does not list a soft keyboard on that display. */
+    fun visualInputRoute(
+        safeFocus: Boolean, hasKnownEditor: Boolean, matchesEditor: Boolean,
+        supportsSetText: Boolean, sameWindow: Boolean, targetWindowFocused: Boolean,
+        localImeVisible: Boolean,
+    ): VisualInputRoute = when {
+        !safeFocus || (hasKnownEditor && !matchesEditor) -> VisualInputRoute.WAIT
+        matchesEditor && supportsSetText -> VisualInputRoute.SET_TEXT
+        (sameWindow || matchesEditor) && (targetWindowFocused || localImeVisible) ->
+            VisualInputRoute.TARGETED_PASTE
+        else -> VisualInputRoute.WAIT
+    }
+
     fun stage(accepted: Boolean, exactReadback: Boolean): String = when {
         !accepted -> "input_not_dispatched"
         exactReadback -> "draft_verified"
