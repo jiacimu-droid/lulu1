@@ -17,6 +17,8 @@ internal object GameTeamConversationTimeline {
         "block_island" to "方块小岛",
         "relic_escape" to "迷雾摸金",
         "turtle_soup" to "海龟汤",
+        "yacht_dice" to "快艇骰子",
+        "memory_match" to "记忆配对",
     )
     private fun room(game: String, run: String) = "game-session-" + game + "-" + run
     private fun eventId(game: String, run: String, utterance: String, recipient: String) =
