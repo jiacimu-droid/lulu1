@@ -33,6 +33,16 @@ import java.time.Instant
  */
 class LuluAccessibilityService : AccessibilityService() {
     private val passiveEventBudget = LuluAccessibilityEventBudget()
+    // Only a local main-screen check; never a ten-second paid model loop.
+    private val strictPulseHandler = Handler(Looper.getMainLooper())
+    private val strictPulse = object : Runnable {
+        override fun run() {
+            if (instance !== this@LuluAccessibilityService) return
+            if (LuluStrictMode.active(applicationContext) != null)
+                LuluStrictMode.onPulse(applicationContext)
+            strictPulseHandler.postDelayed(this, LuluStrictMode.LOCAL_SAMPLE_GAP)
+        }
+    }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -52,6 +62,8 @@ class LuluAccessibilityService : AccessibilityService() {
         instance = this
         mutableState.value = mutableState.value.copy(connected = true)
         LuluStrictMode.restore(applicationContext)
+        strictPulseHandler.removeCallbacks(strictPulse)
+        strictPulseHandler.post(strictPulse)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -92,6 +104,7 @@ class LuluAccessibilityService : AccessibilityService() {
 
     override fun onDestroy() {
         passiveEventBudget.reset()
+        strictPulseHandler.removeCallbacks(strictPulse)
         if (instance === this) instance = null
         mutableState.value = AccessibilitySnapshot()
         super.onDestroy()
@@ -173,6 +186,15 @@ class LuluAccessibilityService : AccessibilityService() {
                         it.type == android.view.accessibility.AccessibilityWindowInfo.TYPE_SPLIT_SCREEN_DIVIDER
                 }.maxByOrNull { it.layer }
             return window?.root?.packageName?.toString()?.takeIf(String::isNotBlank)
+        }
+
+        /** Home is an accessibility global action, not force-stop or an
+         * application lock. A true return result still requires observation. */
+        fun requestOwnerHome(): Boolean {
+            val service = instance ?: return false
+            return runCatching {
+                service.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)
+            }.getOrDefault(false)
         }
 
         /** An authorized, single foreground switch, initiated FROM the bound
