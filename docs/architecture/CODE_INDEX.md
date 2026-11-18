@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ef19b5dbfd7cdcddd24a224236ae97ff89a7586d`
+- 基准提交：`cc02a80829446713d8e0b8fea6f13c05e5ba3ae9`
 - 分支：`main`
 - 已索引文件：1468
-- 已索引代码/文本行：310181
+- 已索引代码/文本行：310182
 - 已发现符号：4435
 
 | 文件 | 行数 | 符号数 |
@@ -237,7 +237,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 317 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 858 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 859 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 103 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 123 | 1 |
