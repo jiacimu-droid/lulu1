@@ -81,8 +81,8 @@ internal object RelicCampUpgrades {
     fun satchelCost(level:Int):Int?=when(level){0->260;1->620;else->null}
 }
 
-internal class RelicEscapeLedger(context:Context) {
-    private val prefs=context.applicationContext.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
+internal class RelicEscapeLedger(context:Context, preferenceName:String="relic_escape_v2") {
+    private val prefs=context.applicationContext.getSharedPreferences(preferenceName,Context.MODE_PRIVATE)
     @Synchronized fun read():RelicSnapshot=RelicSnapshot.read(prefs.getString("ledger",null))
     @Synchronized private fun write(snapshot:RelicSnapshot):RelicSnapshot {
         check(prefs.edit().putString("ledger",snapshot.json().toString()).commit()) {

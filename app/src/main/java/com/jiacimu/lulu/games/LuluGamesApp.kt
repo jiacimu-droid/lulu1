@@ -129,7 +129,6 @@ fun LuluGamesApp(
     val worldGame = worldGameOwnsSystemNavigation(route.savedGameId())
     val landscapeSupported = gameSupportsLandscape(route.savedGameId())
     var landscape by rememberSaveable(route.savedGameId()) { mutableStateOf(true) }
-    var classicWorld by rememberSaveable(route.savedGameId()) { mutableStateOf(false) }
     val requestedGameOrientation = gameRequestedOrientation(
         replayLandscapeGameId ?: route.savedGameId(), selectionOpen = pendingRoute != null,
         preferLandscape = worldGame || landscape,
@@ -286,11 +285,7 @@ fun LuluGamesApp(
                 GameRoute.BlockIsland, GameRoute.RelicEscape -> {
                     val isIsland = current == GameRoute.BlockIsland
                     val party = invitedCompanionsForGame(initialGameId, current.savedGameId(), state)
-                    if (classicWorld) {
-                        if (isIsland) BlockIslandEntry(store, initialParty = party)
-                        else RelicEscapeScreen(store, initialParty = party)
-                    } else ArcadeAndroidScreen(store, if (isIsland) "island" else "relic", party,
-                        onExit = ::stepBack, onClassic = { classicWorld = true })
+                    ArcadeAndroidScreen(store, if (isIsland) "island" else "relic", party, onExit = ::stepBack)
                 }
                 GameRoute.PerfectMan -> PerfectManScreen(store)
                 GameRoute.Roleplay -> Unit
@@ -306,33 +301,7 @@ fun LuluGamesApp(
                 )
             }
             }
-            if (worldGame && classicWorld) {
-                // Both world games render edge-to-edge; their controls float over a tiny corner
-                // instead of reserving the 54dp full-width bar on short landscape screens.
-                Row(
-                    modifier = Modifier.align(Alignment.TopEnd)
-                        .height(40.dp)
-                        .background(Color(0xA80A1521), androidx.compose.foundation.shape.RoundedCornerShape(bottomStart = 14.dp))
-                        .padding(horizontal = 3.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    IconButton(onClick = ::stepBack, modifier = Modifier.size(40.dp)) {
-                        Icon(Icons.Outlined.ArrowBack, "返回游戏馆", tint = Color.White)
-                    }
-                    TextButton(onClick = { classicWorld = false }, contentPadding = PaddingValues(horizontal = 6.dp)) {
-                        Text("新版界面", color = Color(0xFFFFD894), fontSize = 11.sp)
-                    }
-                    GameAmbientAudioButton(enabled = bgmEnabled, tint = Color.White)
-                    ModelArchiveIconButton(
-                        usage = ModelUsage.Game, title = "游戏模型",
-                        subtitle = "仅影响游戏内的角色生成，不影响其他对话模型。",
-                        icon = Icons.Outlined.Memory, contentDescription = "选择游戏模型",
-                        tint = Color.White, accent = Color.White,
-                        background = Color(0xFF111620), ink = Color.White,
-                        muted = Color(0xFFB8C2D3), border = Color.White.copy(alpha = .18f),
-                    )
-                }
-            } else if (immersivePlay && !worldGame) {
+            if (immersivePlay && !worldGame) {
                 Row(
                     modifier = Modifier.fillMaxWidth().height(54.dp)
                         .background(Brush.horizontalGradient(listOf(Color(0xF00A1521), Color(0xC0182635))))

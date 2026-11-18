@@ -5,9 +5,11 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
-import kotlin.random.Random
 
-/** The local renderer submits actions only. Existing app saves and the relic ledger own game state. */
+internal const val arcadeIslandSave = "lulu_block_island_game_v1"
+internal const val arcadeRelicSave = "lulu_relic_game_v1"
+
+/** The renderer submits actions. Kotlin owns the game edition's state and local saves. */
 internal class ArcadeNativeGame(
     context: Context,
     private val store: LuluGameStore,
@@ -15,8 +17,8 @@ internal class ArcadeNativeGame(
     initialParty: List<String>,
 ) {
     private val app = context.applicationContext
-    private val islandPrefs = app.getSharedPreferences("lulu_block_island_v2", Context.MODE_PRIVATE)
-    private val ledger = RelicEscapeLedger(app)
+    private val islandPrefs = app.getSharedPreferences(arcadeIslandSave, Context.MODE_PRIVATE)
+    private val ledger = RelicEscapeLedger(app, arcadeRelicSave)
     private val partySession = UUID.randomUUID().toString()
     private val firstParty = initialParty
     private val party = linkedSetOf<String>()
@@ -29,25 +31,8 @@ internal class ArcadeNativeGame(
 
     @Synchronized fun island(): BlockIslandState? =
         BlockIslandState.fromJson(islandPrefs.getString("world", "").orEmpty())
-            ?: ExpeditionState.fromJson(
-                app.getSharedPreferences("lulu_expedition_homestead_v1", Context.MODE_PRIVATE)
-                    .getString("world", "").orEmpty(), ExpeditionMode.HOMESTEAD,
-            )?.let(BlockIslandState::fromLegacy)
-
-    private fun alternateIsland(): BlockIslandState? =
-        BlockIslandState.fromJson(islandPrefs.getString("arcade_alternate_world", "").orEmpty())
 
     private fun islandSession(island: BlockIslandState) = with(island.world) { "$seed:$width:$height" }
-
-    private fun switchIsland(current: BlockIslandState, companions: List<String>): BlockIslandState {
-        val alternate = alternateIsland()
-            ?: if (ArcadeMaps.isCoast(current)) error("本机暂无旧岛存档。") else ArcadeMaps.coast(4317, companions)
-        check(islandPrefs.edit().putString("world", alternate.toJson())
-            .putString("arcade_alternate_world", current.toJson()).commit()) { "岛屿切换未保存，请重试。" }
-        party.clear()
-        party.addAll(alternate.world.friends.map { it.id }.filter(::validId).take(2))
-        return alternate
-    }
 
     @Synchronized fun relic(): RelicRun? = ledger.read().run
 
@@ -89,20 +74,12 @@ internal class ArcadeNativeGame(
         val snapshot = if (kind == "relic") ledger.read() else null
         val run = snapshot?.run
         val weapons = snapshot?.purchasedWeapons.orEmpty()
-        val home = if (kind == "island") island() else null
-        val saved = home?.let(::islandSession) ?: run?.id
-        val alternate = when {
-            home == null -> ""
-            !ArcadeMaps.isCoast(home) -> "coast"
-            alternateIsland() != null -> "classic"
-            else -> ""
-        }
+        val saved = if (kind == "island") island()?.let(::islandSession) else run?.id
         return JSONObject().put("party", JSONArray(party.toList()))
             .put("roles", JSONArray(profiles().values.sortedBy { it.displayName }.map { character ->
                 JSONObject().put("id", character.characterId).put("name", character.displayName)
             }))
             .put("session", saved ?: JSONObject.NULL)
-            .put("alternateIsland", alternate)
             .put("activeRun", run?.phase in listOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED))
             .put("weapons", JSONArray(weapons.sorted()))
     }
@@ -144,16 +121,11 @@ internal class ArcadeNativeGame(
                 "start" -> {
                     initialRoster()
                     val ids = party.filter(::validId)
-                    val switching = q.optBoolean("switchIsland") && before != null
-                    val next = if (switching) switchIsland(checkNotNull(before), ids) else {
-                        val active = if (before == null) ArcadeMaps.coast(4317, ids)
-                            else with(BlockIslandRules) { before.withPartners(ids) }
-                        saveIsland(active)
-                        active
-                    }
-                    val activeParty = next.world.friends.map { it.id }.filter(::validId)
-                    store.selectCharacters(activeParty)
-                    activeParty.forEach { GameInvitationContinuity.recordPartyStarted(app, it, gameId, partySession) }
+                    val next = if (before == null) ArcadeMaps.coast(4317, ids)
+                        else with(BlockIslandRules) { before.withPartners(ids) }
+                    saveIsland(next)
+                    store.selectCharacters(ids)
+                    ids.forEach { GameInvitationContinuity.recordPartyStarted(app, it, gameId, partySession) }
                     next
                 }
                 else -> {

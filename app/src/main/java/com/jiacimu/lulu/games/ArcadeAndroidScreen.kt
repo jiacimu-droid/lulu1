@@ -46,14 +46,12 @@ internal fun ArcadeAndroidScreen(
     kind: String,
     initialParty: List<String>,
     onExit: () -> Unit,
-    onClassic: () -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val game = remember(context, store, kind) { ArcadeNativeGame(context, store, kind, initialParty) }
     val scope = rememberCoroutineScope()
     val exit by rememberUpdatedState(onExit)
-    val classic by rememberUpdatedState(onClassic)
     var web by remember { mutableStateOf<WebView?>(null) }
     var fallback by remember { mutableStateOf<String?>(null) }
     var teamOpen by remember { mutableStateOf(false) }
@@ -76,9 +74,8 @@ internal fun ArcadeAndroidScreen(
     BackHandler { back() }
     if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
         AlertDialog(onDismissRequest = onExit, title = { Text("需要更新 Android System WebView") },
-            text = { Text("更新系统网页组件后即可使用新版画面。原有存档可以继续游玩。") },
-            confirmButton = { TextButton(onClick = onClassic) { Text("打开经典界面") } },
-            dismissButton = { TextButton(onClick = onExit) { Text("返回游戏馆") } })
+            text = { Text("更新系统网页组件后即可打开游戏。") },
+            confirmButton = { TextButton(onClick = onExit) { Text("返回游戏馆") } })
         return
     }
 
@@ -113,7 +110,7 @@ internal fun ArcadeAndroidScreen(
 
                     override fun onReceivedError(view: WebView, request: WebResourceRequest,
                         error: android.webkit.WebResourceError) {
-                        if (request.isForMainFrame) fallback = "游戏画面加载失败，请重新进入或继续使用经典界面。"
+                        if (request.isForMainFrame) fallback = "游戏画面加载失败，请重试。"
                     }
 
                     override fun onRenderProcessGone(view: WebView, detail: android.webkit.RenderProcessGoneDetail): Boolean {
@@ -131,7 +128,6 @@ internal fun ArcadeAndroidScreen(
                         val response = try {
                             when (input.optString("verb")) {
                                 "exit" -> { exit(); return@launch }
-                                "classic" -> { classic(); return@launch }
                                 "team" -> {
                                     island = if (kind == "island") game.island() else null
                                     relic = if (kind == "relic") game.relic() else null
@@ -179,7 +175,7 @@ internal fun ArcadeAndroidScreen(
 
     fallback?.let { message ->
         AlertDialog(onDismissRequest = onExit, title = { Text("游戏画面暂时不可用") }, text = { Text(message) },
-            confirmButton = { TextButton(onClick = onClassic) { Text("打开经典界面") } },
+            confirmButton = { TextButton(onClick = { fallback = null }) { Text("重试") } },
             dismissButton = { TextButton(onClick = onExit) { Text("返回游戏馆") } })
     }
 
