@@ -1019,6 +1019,7 @@ internal object ResidentDailyDecision {
      * effects. Real-world permissions remain the live executor's authority. */
     private fun residentStepsContractError(steps: JSONArray?): String? {
         if (steps == null) return null
+        val authoredLetters = mutableSetOf<Pair<String, List<String>>>()
         for (index in 0 until steps.length()) {
             val row = steps.optJSONObject(index)
                 ?: return "steps[${index}] 必须是动作对象"
@@ -1050,6 +1051,10 @@ internal object ResidentDailyDecision {
                 ResidentMessageBubbles.contractError(args)?.let {
                     return "steps[$index].args $it，须由本人补正"
                 }
+                val to = args.optString("targetCharacterId").trim()
+                if (to.isNotBlank() && !authoredLetters.add(
+                        to to ResidentMessageBubbles.texts(args)))
+                    return "steps[$index] 与之前步骤重复发送同一条私信；请在同一动作里写好 bubbles"
             }
             // The model's explicit choice must not be silently converted into
             // a failed/no-op tool by supplying empty defaults for required data.
