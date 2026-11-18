@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:53:40.362335+00:00",
-  "commit": "b64d42dc9e287d17e5dd260fc60ac84c0a9b2fc4",
+  "generatedAt": "2026-11-18T07:54:53.143683+00:00",
+  "commit": "4e169fe68dc8371c5066c3e38ff250251000fcc1",
   "branch": "main",
-  "sourceFingerprint": "84488228d0cff241f43030ea9faa11a16ca1a4044e39f3805c2b03b2bb2eebea",
+  "sourceFingerprint": "4fa95e70433d3bfc2a2c36604b7369273b7028e8a78c1abe8e4914b1452019e3",
   "summary": {
     "files": 1461,
-    "lines": 308825,
+    "lines": 308828,
     "symbols": 4401
   },
   "symbolIndex": {
@@ -483,7 +483,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 694
+        "line": 697
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
@@ -2981,7 +2981,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 737
+        "line": 740
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
@@ -15301,7 +15301,7 @@
     "place": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 713
+        "line": 716
       }
     ],
     "nextRound": [
@@ -39070,8 +39070,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-      "lines": 840,
-      "sha256": "8fe595e396f65abd2dee4e82866ee10d4faf243752f402ae3760bd218a162f25",
+      "lines": 843,
+      "sha256": "b1bd86b7c9ee0bedd27e3616d6c3a9254e8dff2f709c4013a51b2f34a049ba52",
       "symbols": [
         {
           "name": "persistMatch",
@@ -39095,15 +39095,15 @@
         },
         {
           "name": "finish",
-          "line": 694
+          "line": 697
         },
         {
           "name": "place",
-          "line": 713
+          "line": 716
         },
         {
           "name": "reset",
-          "line": 737
+          "line": 740
         }
       ]
     },
