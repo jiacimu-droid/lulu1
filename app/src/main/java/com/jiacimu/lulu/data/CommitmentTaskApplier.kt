@@ -163,6 +163,68 @@ internal fun resolvedCommitmentRepeatAfterReschedule(
     else -> draft.repeat ?: original.repeat
 }
 
+/** Previous occurrence and its verification must survive tomorrow's correction. */
+internal fun isUpcomingDailyOccurrenceCorrection(
+    original: CommitmentTask, draft: CommitmentTaskDraft,
+): Boolean {
+    if (original.repeat != "daily" || original.dailyNextDueAt == null ||
+        original.dailyNextAlarmId == null || original.dueAt == null || draft.dueAt == null)
+        return false
+    val zone = original.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
+        ?: java.time.ZoneId.systemDefault()
+    val nextDate = original.dailyNextDueAt.atZone(zone).toLocalDate()
+    return draft.dueAt.atZone(zone).toLocalDate() == nextDate &&
+        original.dueAt.atZone(zone).toLocalDate() != nextDate
+}
+
+private fun reviseNextDailyOccurrence(
+    oldTask: CommitmentTask, draft: CommitmentTaskDraft,
+    evidenceIds: List<String>, delivery: String,
+): CommitmentDraftOutcome {
+    val nextDue = draft.dueAt ?: return CommitmentDraftOutcome(
+        draft.action, draft.goal, null, "没有新时刻，未改变下一轮每日约定")
+    val now = Instant.now()
+    if (!nextDue.isAfter(now.plusSeconds(5))) return CommitmentDraftOutcome(
+        draft.action, draft.goal, null, "新时刻已到或已过，原每日闹钟仍保留；需本人重新判断")
+    if (delivery == "start_call" &&
+        !MigratedDomainStores.characters.get(oldTask.characterId).contactPolicy.proactiveCallsEnabled)
+        return CommitmentDraftOutcome(draft.action, draft.goal, null,
+            "未获主动来电授权，原每日闹钟仍保留")
+    val character = MigratedDomainStores.characters.get(oldTask.characterId)
+    val newAlarm = LuluAlarmSystem.create(oldTask.characterId, character.displayName,
+        nextDue, draft.goal.ifBlank { oldTask.goal }, commitmentTaskId = oldTask.id)
+        .getOrElse { error ->
+            return CommitmentDraftOutcome(draft.action, draft.goal, null,
+                "下一次每日提醒改期未登记：${error.message.orEmpty().take(130)}；原闹钟保持不变")
+        }
+    val saved = CommitmentTaskStore.update(oldTask.id) { current ->
+        if (current.dailyNextAlarmId != oldTask.dailyNextAlarmId ||
+            current.dailyNextDueAt != oldTask.dailyNextDueAt) current
+        else current.copy(
+            dailyNextDueAt = nextDue,
+            dailyNextAlarmId = newAlarm.id,
+            dailyBaseDueAt = if (draft.permanent) nextDue else
+                current.dailyBaseDueAt ?: current.dueAt,
+            deliveryAction = delivery,
+            sourceEventIds = (current.sourceEventIds + evidenceIds).distinct(),
+            // Do not erase yesterday's outcome, number of attempts, review
+            // callback, or the underlying long-term daily responsibility.
+            lastActionResult = current.readableLastResult().take(220) +
+                if (draft.permanent) "；从此每天改为新时刻" else "；只改下次每日提醒，原固定时刻不变",
+        )
+    }
+    if (saved == null || saved.dailyNextAlarmId != newAlarm.id) {
+        LuluAlarmSystem.cancel(newAlarm.id)
+        return CommitmentDraftOutcome(draft.action, draft.goal, null,
+            "原每日约定刚被其他决定修改；未覆盖新状态")
+    }
+    // The store cancelled the obsolete next-day alarm after writing the new
+    // token. Yesterday's pending result-check and evidence stay intact.
+    CommitmentLexiconSync.syncTask(saved)
+    return CommitmentDraftOutcome(draft.action, draft.goal, saved.id,
+        "已原位调整下一次每日提醒，保留上次真实回执；未新建责任")
+}
+
 private suspend fun updateCommitmentTask(
     characterId: String,
     draft: CommitmentTaskDraft,
@@ -204,6 +266,13 @@ private suspend fun updateCommitmentTask(
         return CommitmentDraftOutcome(draft.action, draft.goal, null,
             "定时叫醒不能改为普通文字；没有可保留的真实来电或本机铃声渠道，原约定保持不变")
     val resolvedRepeat = resolvedCommitmentRepeatAfterReschedule(target, draft)
+    // When yesterday's attempt is still waiting for proof, today's future
+    // daily alarm belongs to dailyNextDueAt, NOT yesterday's dueAt/receipt.
+    // Change the upcoming alarm atomically after registering its replacement.
+    if (reschedule && resolvedRepeat == "daily" &&
+        isUpcomingDailyOccurrenceCorrection(target, draft)) {
+        return reviseNextDailyOccurrence(target, draft, sourceEventIds, resolvedDelivery)
+    }
     // One-time versus permanent: a daily task's anchor is its usual time.
     // A plain postponement moves only this occurrence; only an explicit
     // permanent change moves the anchor, so tomorrow rolls back to usual.
