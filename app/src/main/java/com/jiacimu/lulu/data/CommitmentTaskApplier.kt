@@ -404,7 +404,7 @@ private fun String.sameTaskText(other: String): Boolean {
  * not create a second appointment. This is deliberately narrower than topic:
  * two separately described study/sleep duties at 23:00 are NOT necessarily
  * the same goal. The role must use targetTaskId to revise those. */
-private fun String.nearlySameTaskText(other: String): Boolean {
+internal fun String.nearlySameTaskText(other: String): Boolean {
     val calendarNote = Regex("[（(]\\s*(?:20\\d{2}年)?\\d{1,2}月\\d{1,2}日\\s*[)）]")
     fun normalized(value: String): String = value.lowercase()
         .replace(calendarNote, "")
