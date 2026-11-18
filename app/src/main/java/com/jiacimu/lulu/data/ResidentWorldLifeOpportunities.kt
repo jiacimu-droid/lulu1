@@ -38,9 +38,10 @@ internal object ResidentWorldLifeOpportunities {
             appendLine("【此刻地点的世界事件｜先辨别自己是否真正留意】")
             appendLine(sceneFacts)
             appendLine("若上面列出刚发生、尚未亲眼留意的 incidentId，可自选 " +
-                "digital_world_action(worldAction=observe_scene,incidentId=准确ID)；" +
-                "若有仍然持续的可处理事件，可自选 worldAction=handle_incident，并填写现场给出的 " +
-                "incidentId 和 approach。执行前要核实位置/状态，别假装处理已成功。")
+                "digital_world_action，args={worldAction:observe_scene,incidentId:现场准确ID}；" +
+                "若有仍然持续的可处理事件，可自选 digital_world_action，" +
+                "args={worldAction:handle_incident,incidentId:现场准确ID,approach:本人选择的处理方式}。" +
+                "执行前要核实位置/状态，别假装处理已成功。")
         }
         if (verifiedShareContext.isNotBlank()) {
             appendLine(verifiedShareContext)
