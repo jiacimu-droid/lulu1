@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T14:27:29.291061+00:00",
-  "commit": "6cee8d68d370864de00dd1c3fb981ffb057e7a0c",
+  "generatedAt": "2026-11-18T14:27:56.124415+00:00",
+  "commit": "a46fb3c69aeb0f17ee0b5656f298e881d35ff652",
   "branch": "main",
-  "sourceFingerprint": "bf61758b7a88540b9c68493006591d28c0091b549777a7d6e6c1b34fb32c7b48",
+  "sourceFingerprint": "829449a98dd0d71517394b2fabffe82e0a92db3124fbd6cdf454ceb0536f038c",
   "summary": {
-    "files": 1469,
-    "lines": 310624,
-    "symbols": 4437
+    "files": 1470,
+    "lines": 310654,
+    "symbols": 4438
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -24280,6 +24280,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluDirectReturnPolicyTest.kt",
         "line": 14
+      }
+    ],
+    "LuluForegroundPhoneSessionTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluForegroundPhoneSessionTest.kt",
+        "line": 8
       }
     ],
     "LuluGroundingEvidenceTest": [
@@ -51656,6 +51662,17 @@
         {
           "name": "LuluDirectReturnPolicyTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluForegroundPhoneSessionTest.kt",
+      "lines": 30,
+      "sha256": "c05c3df8ba0d7ca096efb3caaee4c925e872433addf797f6f5f17993f7a5ec4e",
+      "symbols": [
+        {
+          "name": "LuluForegroundPhoneSessionTest",
+          "line": 8
         }
       ]
     },
