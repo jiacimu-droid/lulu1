@@ -79,6 +79,8 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
         SettingsHomePage.Image -> LuluImageSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Vision -> LuluVisionSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Backup -> LuluBackupScreen(onBack = { page = SettingsHomePage.Home })
+        SettingsHomePage.Wishes -> LuluWishCommunityScreen(onBack = { page = SettingsHomePage.Home })
+        SettingsHomePage.Donate -> LuluSupportCreatorScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Home -> SettingsEntryScreen(
             onBack = onBack,
             searchQuery = settingsQuery,
@@ -93,11 +95,13 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
             onOpenImage = { page = SettingsHomePage.Image },
             onOpenVision = { page = SettingsHomePage.Vision },
             onOpenBackup = { page = SettingsHomePage.Backup },
+            onOpenWishes = { page = SettingsHomePage.Wishes },
+            onOpenDonate = { page = SettingsHomePage.Donate },
         )
     }
 }
 
-private enum class SettingsHomePage { Home, Api, Capabilities, Strict, Integrations, BrowserProbe, XhsNativeReader, Voice, Memory, Residents, Image, Vision, Backup }
+private enum class SettingsHomePage { Home, Api, Capabilities, Strict, Integrations, BrowserProbe, XhsNativeReader, Voice, Memory, Residents, Image, Vision, Backup, Wishes, Donate }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,6 +119,8 @@ private fun SettingsEntryScreen(
     onOpenImage: () -> Unit,
     onOpenVision: () -> Unit,
     onOpenBackup: () -> Unit,
+    onOpenWishes: () -> Unit,
+    onOpenDonate: () -> Unit,
 ) {
     val journal = LocalLuluAppearance.current.isJournal()
     val searchFocus = androidx.compose.ui.platform.LocalFocusManager.current
@@ -235,6 +241,8 @@ private fun SettingsEntryScreen(
                                 "image" -> Icons.Outlined.Image
                                 "capabilities" -> Icons.Outlined.Security
                                 "strict" -> Icons.Outlined.Security
+                                "wishes" -> Icons.Outlined.Lightbulb
+                                "donate" -> Icons.Outlined.FavoriteBorder
                                 else -> Icons.Outlined.Backup
                             }
                             SettingsEntryRow(
@@ -253,6 +261,8 @@ private fun SettingsEntryScreen(
                                         "capabilities" -> onOpenCapabilities()
                                         "strict" -> onOpenStrict()
                                         "backup" -> onOpenBackup()
+                                        "wishes" -> onOpenWishes()
+                                        "donate" -> onOpenDonate()
                                     }
                                 },
                             )
