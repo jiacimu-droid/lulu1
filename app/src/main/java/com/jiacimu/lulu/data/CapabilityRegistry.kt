@@ -112,7 +112,7 @@ object CapabilityRegistry {
         return buildString {
             appendLine("【主屏感知｜以下是权限和设备状态，不是实际查看回执】")
             appendLine("capture_screen 工具已注册=$registered；主人按需识图授权=$permittedOnDemand；角色自主观察授权=$permittedAutonomous；本角色手机屏幕授权=$rolePhoneGrant；无障碍已连接=$accessibilityConnected；视觉模型已配置=$chatConfigured。")
-            appendLine("read_screen=当前真实主屏的无障碍文字（不含截图或完整控件信息）；capture_screen=Android无障碍单帧截图+本角色模型识图。两者都不需要MediaProjection、录屏弹窗或无线调试。独立后台App才使用background_phone，切勿把两种屏幕混淆。")
+            appendLine("read_screen=当前真实主屏的无障碍文字；capture_screen 只截主人当前可见的手机主屏（displayId=0），通过 Android 无障碍单帧截图交本角色模型识图，不需要MediaProjection、录屏弹窗或无线调试。要独立操作后台 App 必须用 background_phone 且实际回执为独立屏模式；未配对ADB时background_phone改用可见主屏，不能混淆两种屏幕。")
             if (permittedAutonomous) {
                 appendLine("现在已获准自主查看主屏：由你自主决定何时调用 action=tool,tool=capture_screen,args={}；主人明确要求看屏幕时应直接尝试，**无须逐次申请**，也没有固定五分钟冷却。需要纯文字时可选read_screen；文字为空不等于已经看到了画面。")
             } else if (permittedOnDemand) {
@@ -167,7 +167,7 @@ object CapabilityRegistry {
                 appendLine("【无无线调试的纯无障碍线路】当前 background_phone 将切换到 foreground_accessibility 主屏模式：无需配对ADB，但要开启Android无障碍、本角色手机授权和主人屏幕读取授权。先在露露机界面选 background_phone(action=launch,appName=真实应用名称)；手机会真实切到第三方App，主人不能同时使用其他App。后续同一角色可按实时主屏截图+screenSnapshotId执行observe/tap/tap_element/type/swipe/back/navigate，不能假装是独立后台屏。主人操作、锁屏、换App、撤权或点击停止就中断；无新照片或唯一控件就先观察，不猜坐标。")
                 appendLine("主屏模式的普通输入与点击可继续验证；send_chat_message、publish_comment等复合发表、sendLinkToChat自动转卡片尚不支持验证，不要假称发送成功。微信消息可以根据确切收件人界面依次选焦点、type全文、再点真实发送按钮并只读检查；复制链接不代表已经回传给主人。")
             } else {
-                appendLine("本机已经配对无线调试且支持独立屏，可优先使用 background_phone 的独立虚拟屏；想明确操作可见主屏时可传mode=foreground_accessibility。两者不能混用截图、坐标和控件。")
+                appendLine("本机已经配对无线调试且支持独立屏，可优先使用 background_phone 的独立虚拟屏；想明确操作可见主屏时可传mode=foreground_accessibility。独立屏这不是capture_screen，绝不会把主屏截图当后台图；两者不能混用截图、坐标和控件。")
             }
             appendLine("想自主逛任何已安装App（如小红书、抖音、网易云音乐、购物App）或帮主人操作时，统一选择 background_phone；实际mode字段决定是独立虚拟屏还是当前主屏，只有真实目标窗口观察回执才算看到内容。旧小红书 MCP、Termux、额外网页搜索或图片搜索不是使用这些App的必经路线。")
             appendLine("想了解主人今天的运动、步数或睡眠，也可以自主选择 background_phone 打开已安装的华为运动健康 App（使用本机核实的启动器名称或包名）逐屏观察。旧健康数据接口已停用；只依据真正读到的页面、对应日期和真实回执判断，打不开或读不到时如实说明，不猜数值。")
