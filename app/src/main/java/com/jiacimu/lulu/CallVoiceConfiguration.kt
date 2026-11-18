@@ -75,7 +75,12 @@ internal object CallVoiceConfiguration {
         "elevenlabs" -> "ElevenLabs Scribe"
         else -> "尚未配置"
     }
-    fun label(provider: String): String = when (provider) { "minimax" -> "MiniMax"; "elevenlabs" -> "ElevenLabs"; else -> "系统语音" }
+    fun label(provider: String): String = when (provider) {
+        "minimax" -> "MiniMax"
+        "elevenlabs" -> "ElevenLabs"
+        "moss" -> "MOSS"
+        else -> "系统语音"
+    }
     fun miniAsrEndpoint(ttsEndpoint: String): String {
         val uri = URI(ttsEndpoint)
         require(uri.scheme == "https" && !uri.host.isNullOrBlank()) { "MiniMax 接口必须是 HTTPS 地址" }
@@ -106,8 +111,18 @@ internal object CallVoiceConfiguration {
         if (!p.getBoolean("tts_enabled", true)) return "语音服务已关闭，请在语音设置启用"
         sttPreflight(context)?.let { return it }
         val provider = provider(context)
-        val key = p.getString(if (provider == "minimax") "minimax_api_key" else "eleven_api_key", "").orEmpty()
-        val voice = CharacterVoicePreferenceStore.playbackVoiceId(characterId) ?: p.getString(if (provider == "minimax") "minimax_voice_id" else "eleven_voice_id", "")
+        val keyName = when (provider) {
+            "minimax" -> "minimax_api_key"
+            "moss" -> "moss_api_key"
+            else -> "eleven_api_key"
+        }
+        val voiceName = when (provider) {
+            "minimax" -> "minimax_voice_id"
+            "moss" -> "moss_voice_id"
+            else -> "eleven_voice_id"
+        }
+        val key = p.getString(keyName, "").orEmpty()
+        val voice = CharacterVoicePreferenceStore.playbackVoiceId(characterId) ?: p.getString(voiceName, "")
         if (provider != "system" && key.isBlank()) return "${label(provider)} API Key 未填写"
         if (provider != "system" && voice.isNullOrBlank()) return "${label(provider)} Voice ID 未填写"
         return null
