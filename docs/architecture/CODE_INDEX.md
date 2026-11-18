@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`781ae08ddfcabe51ba15b1cca4a285f076c1a393`
+- 基准提交：`5dfb99b16886f40c62c2ed52aff71dabe76a5bac`
 - 分支：`main`
 - 已索引文件：1443
-- 已索引代码/文本行：304592
+- 已索引代码/文本行：304593
 - 已发现符号：4353
 
 | 文件 | 行数 | 符号数 |
@@ -1411,7 +1411,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStrictModeTest.kt` | 87 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversalTest.kt` | 85 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualAccessibilityInputTest.kt` | 50 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualAccessibilityInputTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatSendPolicyTest.kt` | 229 | 7 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualChatTitleOcrTest.kt` | 76 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualCommentPolicyTest.kt` | 75 | 1 |
