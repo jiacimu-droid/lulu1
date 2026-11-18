@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T08:15:02.378677+00:00",
-  "commit": "9b7a31129b41f3bb71d4bf50a5a0ab0b20d139df",
+  "generatedAt": "2026-11-18T08:16:18.639274+00:00",
+  "commit": "969413b5ccaa6b9e223ff5f1e3fd2b8641eb082e",
   "branch": "main",
-  "sourceFingerprint": "5e17788b44a5ba371f7a5197f5ce41663fdb2d604db980522dfdb8c177e0fe95",
+  "sourceFingerprint": "3dd98dc6067a47db07c2a0d140335de13e32a7b6e2beb2bdf85fd07d2e4eb4c5",
   "summary": {
     "files": 1461,
-    "lines": 308875,
+    "lines": 308896,
     "symbols": 4399
   },
   "symbolIndex": {
@@ -12991,7 +12991,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3833
+        "line": 3834
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -18249,7 +18249,7 @@
     "staleReplyExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 1609
+        "line": 1612
       }
     ],
     "LaunchableApp": [
@@ -36271,8 +36271,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3900,
-      "sha256": "a2cdfca19d2c9e3fa94fc1a9710508d4143dc9baec7290950318976338bc1031",
+      "lines": 3901,
+      "sha256": "efb73ac0d9c0dada13538a258d019dae42b1d8d6c4604dabdec6339f29739281",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -36304,7 +36304,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3833
+          "line": 3834
         }
       ]
     },
@@ -42734,8 +42734,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2388,
-      "sha256": "fc24d2c8da39eef1bac0132bb8611002f86c94358be119965b13ffc618482dcd",
+      "lines": 2391,
+      "sha256": "4bd2c3e88ed22567429af591994f6204e8624287cada6768ce5f7af832e29425",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -42779,7 +42779,7 @@
         },
         {
           "name": "staleReplyExpression",
-          "line": 1609
+          "line": 1612
         }
       ]
     },
@@ -51210,8 +51210,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt",
-      "lines": 128,
-      "sha256": "83756497f0350a482ba563c94f705f9a018d506d4e01233c9e760fbffaa7371b",
+      "lines": 145,
+      "sha256": "6fe2dee96f2acc98811b4cecb4386f2b9f7b2484bf04a770964a62aa882a93b6",
       "symbols": [
         {
           "name": "LuluBackgroundPhoneContinuationYieldTest",
