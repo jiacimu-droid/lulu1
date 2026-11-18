@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`f0d6748ed96f2c25ff915de11195261a6e9fcdfb`
+- 基准提交：`14e85a64eb1ca862a00e5bbe4ea2b56354a9cc2f`
 - 分支：`main`
 - 已索引文件：1470
-- 已索引代码/文本行：310842
+- 已索引代码/文本行：310850
 - 已发现符号：4439
 
 | 文件 | 行数 | 符号数 |
@@ -855,7 +855,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneTaskDeferral.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt` | 154 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorization.kt` | 26 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 742 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 750 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt` | 64 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt` | 61 | 5 |
