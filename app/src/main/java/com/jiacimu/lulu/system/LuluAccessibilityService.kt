@@ -1881,6 +1881,60 @@ class LuluAccessibilityService : AccessibilityService() {
             .singleOrNull()
             ?.takeIf { it.refresh() && it.isFocused && safeEditable(it) }
 
+        /**
+         * After a model-chosen virtual screenshot tap, Android may expose the
+         * exact focused EditText even when HyperOS does not enumerate a
+         * virtual-display IME window. Try ACTION_SET_TEXT on that ONE field,
+         * provided its actual bounds contain the just-tapped coordinates.
+         *
+         * Null = no matching editor was found and NO write was attempted;
+         * non-null = attempted or already-verified, so callers MUST NOT also
+         * send a shell Unicode paste on the same uncertain action.
+         */
+        fun typeFocusedVirtualEditorAtPoint(
+            displayId: Int, packageName: String, x: Int, y: Int, text: String,
+        ): JSONObject? {
+            val service = instance ?: return null
+            if (Build.VERSION.SDK_INT < 30 || displayId <= 0 || packageName.isBlank() ||
+                text.isBlank() || text.length > LuluVirtualTextInputPolicy.MAX_TEXT_CHARS ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target")
+                return null
+            val (width, height) = virtualDimensions(service, displayId) ?: return null
+            val field = focusedVirtualEditor(service, displayId, packageName) ?: return null
+            val bounds = Rect().also(field::getBoundsInScreen)
+            if (!LuluVirtualTextInputPolicy.focusedFieldContainsSelectedPoint(
+                    x, y, width, height, bounds.left, bounds.top, bounds.right, bounds.bottom))
+                return null
+            fun receipt(accepted: Boolean, verified: Boolean, code: String) =
+                JSONObject().put("accepted", accepted)
+                    .put("inputTextReadbackVerified", verified)
+                    .put("inputVerification", if (verified) "match" else "unverified")
+                    .put("inputMethod", "visual_point_focused_accessibility")
+                    .put("actionMethod", "accessibility_exact_point_set_text")
+                    .put("inputDispatched", accepted)
+                    .put("errorCode", code)
+                    .put("taskCompleted", false)
+            if (!field.isShowingHintText && field.text?.toString() == text &&
+                virtualWindowStatus(displayId, packageName).optString("kind") == "target") {
+                return receipt(true, true, "")
+                    .put("inputDispatched", false)
+                    .put("verification", "本次目标输入框已有完全匹配的文字，未再次输入")
+            }
+            val arguments = Bundle().apply {
+                putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
+            }
+            if (!field.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments))
+                return receipt(false, false, "virtual_input_set_text_rejected")
+                    .put("verification", "当前点选的输入框拒绝ACTION_SET_TEXT；没有切换到可能重复的Unicode粘贴")
+            val exact = field.refresh() && field.isFocused && safeEditable(field) &&
+                !field.isShowingHintText && field.text?.toString() == text &&
+                virtualWindowStatus(displayId, packageName).optString("kind") == "target"
+            return receipt(true, exact, if (exact) "" else "virtual_input_readback_unverified")
+                .put("verification", if (exact)
+                    "当前后台屏点选的真实输入框已写入文字并精确读回；仅是草稿，尚未提交"
+                    else "已向同一输入框派发文字，但没有精确读回；不能重复粘贴")
+        }
+
         fun hasFocusedVirtualEditor(displayId: Int, packageName: String): Boolean {
             val service = instance ?: return false
             return virtualWindowStatus(displayId, packageName).optString("kind") == "target" &&

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`c6ab80a9cb1772537bd0ec2a5efa39be9bbb1e23`
+- 基准提交：`9d5cc489bcc376eaea172836679eec26d8c45aac`
 - 分支：`main`
 - 已索引文件：1461
-- 已索引代码/文本行：309016
-- 已发现符号：4399
+- 已索引代码/文本行：309031
+- 已发现符号：4400
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -872,7 +872,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicy.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcome.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 37 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt` | 26 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt` | 41 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextReadbackOcr.kt` | 77 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 51 | 7 |

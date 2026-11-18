@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T08:30:28.043365+00:00",
-  "commit": "c6ab80a9cb1772537bd0ec2a5efa39be9bbb1e23",
+  "generatedAt": "2026-11-18T08:31:09.053449+00:00",
+  "commit": "9d5cc489bcc376eaea172836679eec26d8c45aac",
   "branch": "main",
-  "sourceFingerprint": "e3860b0d5162bfb01d7d50897a69e347583f166e2c908b69fbf0d246ca731134",
+  "sourceFingerprint": "4b2aee97389673c052899d22879c12b648a1771f3b29d1b444142fff38769e05",
   "summary": {
     "files": 1461,
-    "lines": 309016,
-    "symbols": 4399
+    "lines": 309031,
+    "symbols": 4400
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5329,7 +5329,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt",
-        "line": 19
+        "line": 34
       }
     ],
     "ready": [
@@ -19148,10 +19148,16 @@
         "line": 13
       }
     ],
+    "focusedFieldContainsSelectedPoint": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt",
+        "line": 21
+      }
+    ],
     "requiresVisualSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt",
-        "line": 17
+        "line": 32
       }
     ],
     "TextLine": [
@@ -43791,20 +43797,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt",
-      "lines": 26,
-      "sha256": "8200b8030ca17fcdcf89f429c92672963653a548c64c7500cc95171e59926c09",
+      "lines": 41,
+      "sha256": "142ac15711fc06e1d8fee5ce6079452eeedb9f4e32c79b41f8973889d22f562d",
       "symbols": [
         {
           "name": "inputPointSafe",
           "line": 13
         },
         {
+          "name": "focusedFieldContainsSelectedPoint",
+          "line": 21
+        },
+        {
           "name": "requiresVisualSnapshot",
-          "line": 17
+          "line": 32
         },
         {
           "name": "stage",
-          "line": 19
+          "line": 34
         }
       ]
     },
