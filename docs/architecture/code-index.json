@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T06:26:03.131331+00:00",
-  "commit": "4e2f1bb92fc24d5772abe2f1268f614209182e30",
+  "generatedAt": "2026-11-18T06:26:28.712505+00:00",
+  "commit": "75ae2bf0c91dbf8306912384d44ad491a9db1389",
   "branch": "main",
-  "sourceFingerprint": "ea7eb11dfd5821ef7b5042c81f50dbc4e068796978b069f2217dd9cfb76890b1",
+  "sourceFingerprint": "acb6cd8e2a6b18c95617e79b7ed56e4af6a15ec75e43d52502456110ad801b2c",
   "summary": {
-    "files": 1454,
-    "lines": 307616,
-    "symbols": 4377
+    "files": 1455,
+    "lines": 307934,
+    "symbols": 4388
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1632,6 +1632,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
         "line": 713
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
+        "line": 77
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
@@ -3494,6 +3498,122 @@
         "line": 146
       }
     ],
+    "wishTitle": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
+        "line": 46
+      }
+    ],
+    "wishBody": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
+        "line": 48
+      }
+    ],
+    "issueComposerUrl": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
+        "line": 53
+      }
+    ],
+    "safeDonationUrl": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
+        "line": 56
+      }
+    ],
+    "emailAddress": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
+        "line": 64
+      }
+    ],
+    "clear": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
+        "line": 80
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceAcousticAnalyzer.kt",
+        "line": 159
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
+        "line": 197
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
+        "line": 39
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
+        "line": 159
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
+        "line": 70
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
+        "line": 133
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
+        "line": 196
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
+        "line": 63
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
+        "line": 143
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
+        "line": 110
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt",
+        "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt",
+        "line": 80
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt",
+        "line": 60
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
+        "line": 186
+      }
+    ],
+    "LuluWishCommunityScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
+        "line": 143
+      }
+    ],
+    "saveDraft": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
+        "line": 153
+      }
+    ],
+    "issueUrl": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
+        "line": 155
+      }
+    ],
+    "LuluSupportCreatorScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
+        "line": 266
+      }
+    ],
     "setEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt",
@@ -5342,64 +5462,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
         "line": 31
-      }
-    ],
-    "clear": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/VoiceAcousticAnalyzer.kt",
-        "line": 159
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
-        "line": 197
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEvaluationLedger.kt",
-        "line": 39
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
-        "line": 159
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
-        "line": 70
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseIsolationHistoryV5.kt",
-        "line": 133
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypsePlotMemoryV5.kt",
-        "line": 196
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV4App.kt",
-        "line": 63
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseSurvivalV5App.kt",
-        "line": 143
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt",
-        "line": 110
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt",
-        "line": 16
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt",
-        "line": 80
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt",
-        "line": 60
-      },
-      {
-        "path": "app/src/main/java/com/wangzan101/mika/core/adb/AdbIdentity.kt",
-        "line": 186
       }
     ],
     "generated": [
@@ -26933,6 +26995,57 @@
         {
           "name": "read",
           "line": 454
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
+      "lines": 318,
+      "sha256": "04d122bc5d2394039be1aa53973ae48ad5c0601beca4601ae0c284349463bb6e",
+      "symbols": [
+        {
+          "name": "wishTitle",
+          "line": 46
+        },
+        {
+          "name": "wishBody",
+          "line": 48
+        },
+        {
+          "name": "issueComposerUrl",
+          "line": 53
+        },
+        {
+          "name": "safeDonationUrl",
+          "line": 56
+        },
+        {
+          "name": "emailAddress",
+          "line": 64
+        },
+        {
+          "name": "save",
+          "line": 77
+        },
+        {
+          "name": "clear",
+          "line": 80
+        },
+        {
+          "name": "LuluWishCommunityScreen",
+          "line": 143
+        },
+        {
+          "name": "saveDraft",
+          "line": 153
+        },
+        {
+          "name": "issueUrl",
+          "line": 155
+        },
+        {
+          "name": "LuluSupportCreatorScreen",
+          "line": 266
         }
       ]
     },
