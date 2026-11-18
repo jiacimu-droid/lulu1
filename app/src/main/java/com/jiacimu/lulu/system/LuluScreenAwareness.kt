@@ -87,13 +87,9 @@ object LuluScreenAwareness {
     fun consented(context: Context) = preferences(context).getBoolean(CONSENT, false)
     fun appTracking(context: Context) = preferences(context).getBoolean(TRACK_APPS, true)
     /**
-     * A role's existing screen-operation grant also authorizes ONE foreground
-     * accessibility screenshot for that SAME role. The older global vision
-     * consent remains valid for installs using that flow. Neither Android's
-     * accessibility switch alone nor another role's grant grants model access.
-     * The owner's on-demand / autonomous switches still disable captures.
-     */
-    /**
+     * A role's existing screen-operation grant also authorizes foreground
+     * accessibility screenshots for that SAME role. Older global consent
+     * remains valid. The owner's switches can still disable observation.
      * The owner's role grant is persistent, not a timed screenshot session.
      * A previous screenshot, a stopped request, or an expired pending dialog
      * cannot revoke it. Report exactly which saved switch prevents execution.

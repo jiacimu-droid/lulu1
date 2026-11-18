@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`8afcba73a6ca39e42050aa61ff2970b2c55e782d`
+- 基准提交：`48a542d8a09faade0461bf43c6b8233aa9d7e5af`
 - 分支：`main`
 - 已索引文件：1475
-- 已索引代码/文本行：312051
-- 已发现符号：4451
+- 已索引代码/文本行：312132
+- 已发现符号：4452
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -367,7 +367,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 209 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt` | 71 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 205 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 207 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 132 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 66 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
@@ -612,7 +612,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 92 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 176 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 738 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 746 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 377 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
@@ -860,7 +860,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneTaskDeferral.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt` | 154 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorization.kt` | 26 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 791 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 806 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt` | 64 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt` | 61 | 5 |
@@ -1284,7 +1284,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 591 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledSocialEncounterVenueTest.kt` | 200 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 122 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 178 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 239 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt` | 215 | 2 |
