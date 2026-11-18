@@ -236,7 +236,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         // Speech is a separate, ordered interaction; it never waits for the player's turn.
         for ((actor, facts) in spokenReplies) {
             if (actor !in session.companionIds) continue
-            live.conversationStatus = "伙伴正在回应…"
+            live.conversationStatus = "${players.firstOrNull { it.characterId == actor }?.name ?: "角色"}正在回应…"
             val completed = CompletableDeferred<GameRoleResponse>()
             requestGameRoleResponse(
                 scope, store, null, facts,
@@ -256,7 +256,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                     live.companionSaid(actor, answer.text, "owner-reply-${System.nanoTime()}")
                     live.conversationStatus = ""
                 }
-                else -> live.conversationStatus = "伙伴这次没有说话"
+                else -> live.conversationStatus = "${players.firstOrNull { it.characterId == actor }?.name ?: "角色"}这次没有说话"
             }
         }
     }
@@ -301,7 +301,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         )
         deciding = false
         val choice = decision.getOrElse { failure ->
-            decisionError = failure.message ?: "伙伴暂时没有做出有效决定"
+            decisionError = failure.message ?: "${currentPlayer.name}暂时没有做出有效决定"
             return@LaunchedEffect
         }
         if (choice.speech.isNotBlank()) {
