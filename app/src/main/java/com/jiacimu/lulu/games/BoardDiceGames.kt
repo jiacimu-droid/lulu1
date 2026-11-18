@@ -73,6 +73,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     var decisionError by remember(session.id) { mutableStateOf("") }
     var decisionRetry by remember(session.id) { mutableIntStateOf(0) }
     var deciding by remember(session.id) { mutableStateOf(false) }
+    var scoreBoardExpanded by remember(session.id) { mutableStateOf(false) }
     val currentPlayer = players[currentPlayerIndex.coerceIn(players.indices)]
     val currentScores = scores[currentPlayer.id].orEmpty()
     val gameOver = players.all { scores[it.id].orEmpty().size == YachtCategory.entries.size }
@@ -354,6 +355,41 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                                 color = if (active) ocean else Color(0xFFE1EBF4),
                                 fontWeight = FontWeight.Bold, fontSize = 12.sp,
                             )
+                        }
+                    }
+                }
+            }
+        }
+        item {
+            TextButton(onClick = { scoreBoardExpanded = !scoreBoardExpanded }) {
+                Text(if (scoreBoardExpanded) "收起完整计分表" else "查看所有玩家的13格计分表", color = mint)
+            }
+            if (scoreBoardExpanded) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()),
+                ) {
+                    Row(Modifier.padding(vertical = 6.dp)) {
+                        Text("计分项目", Modifier.width(80.dp), color = mint, fontSize = 12.sp)
+                        players.forEach { player ->
+                            Text(player.name, Modifier.width(82.dp), color = mint, fontSize = 12.sp)
+                        }
+                    }
+                    YachtCategory.entries.forEach { category ->
+                        Row(Modifier.padding(vertical = 5.dp)) {
+                            Text(category.label, Modifier.width(80.dp), color = Color.White, fontSize = 11.sp)
+                            players.forEach { player ->
+                                val points = scores[player.id]?.get(category)
+                                Text(points?.toString() ?: "—", Modifier.width(82.dp),
+                                    color = if (points == null) Color(0xFF8595A5) else Color.White,
+                                    fontSize = 12.sp)
+                            }
+                        }
+                    }
+                    Row(Modifier.padding(top = 5.dp)) {
+                        Text("当前总分", Modifier.width(80.dp), color = mint, fontSize = 12.sp)
+                        players.forEach { player ->
+                            Text(scores[player.id].orEmpty().values.sum().toString(),
+                                Modifier.width(82.dp), color = mint, fontSize = 12.sp)
                         }
                     }
                 }
