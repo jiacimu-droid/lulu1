@@ -219,7 +219,7 @@ internal fun GameTalkBar(
             if (session.lastCompanionLine.isNotBlank()) {
                 Text(
                     if (session.lastSpeakerId == null) session.lastCompanionLine
-                    else "${roster[session.lastSpeakerId]?.displayName ?: "角色"}：${session.lastCompanionLine}",
+                    else "${roster[session.lastSpeakerId.orEmpty()]?.displayName ?: "角色"}：${session.lastCompanionLine}",
                     color = talkInk, fontSize = 12.sp, maxLines = 2, lineHeight = 17.sp,
                 )
             }
