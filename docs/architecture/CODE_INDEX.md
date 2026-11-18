@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`d5600a63266cd4527ac21f7c7c9e1c84e239823f`
+- 基准提交：`1b054eb376cf3228147507a93c3be0cbadaebf54`
 - 分支：`main`
 - 已索引文件：1456
-- 已索引代码/文本行：307992
-- 已发现符号：4389
+- 已索引代码/文本行：307999
+- 已发现符号：4390
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -201,7 +201,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 120 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 231 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 645 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt` | 318 | 11 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt` | 321 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 35 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt` | 862 | 6 |
@@ -966,7 +966,7 @@
 | `app/src/test/java/com/jiacimu/lulu/Live2DVisualActionBusTest.kt` | 355 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LocalWhisperScriptTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/LuluCommunitySupportConfigTest.kt` | 36 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/LuluCommunitySupportConfigTest.kt` | 40 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluDesktopWidgetTest.kt` | 93 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluFirstRunAgreementTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt` | 135 | 1 |
