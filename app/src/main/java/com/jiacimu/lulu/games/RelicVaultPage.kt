@@ -37,7 +37,7 @@ internal fun RelicVaultPage(
     val context=LocalContext.current
     var grade by remember { mutableStateOf("全部") }
     var museumTab by remember { mutableStateOf("藏品") }
-    var selectedIndex by remember { mutableIntStateOf((snapshot.featuredLootIndex ?: snapshot.vault.indexOfLast { it.id==snapshot.featuredLootId }.takeIf { it>=0 }) ?: snapshot.vault.lastIndex) }
+    // A vault mutation (sale, extraction or reload) invalidates positional selection.\n    // Do not silently reuse the same index for a different physical relic.\n    var selectedIndex by remember(snapshot.vault) { mutableIntStateOf((snapshot.featuredLootIndex ?: snapshot.vault.indexOfLast { it.id==snapshot.featuredLootId }.takeIf { it>=0 }) ?: snapshot.vault.lastIndex) }
     var pendingSale by remember { mutableStateOf<Pair<Int,RelicLoot>?>(null) }
     val inventory=remember(snapshot.vault,grade) {
         snapshot.vault.indices.reversed().filter { index ->
