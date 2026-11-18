@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T03:05:54.858741+00:00",
-  "commit": "d237dcf61066d888fbfee27f34ab386c97af8a17",
+  "generatedAt": "2026-11-18T03:06:23.781383+00:00",
+  "commit": "a12570a4ad272db0aa438337db766350a02a5913",
   "branch": "main",
-  "sourceFingerprint": "dd1f17926610bfcb0f94a0dba854ee85aa89c0621294c7c954671204234d3613",
+  "sourceFingerprint": "4a5c4d45dbbda4d30dc6ad7a6a74d71326961e897a426194c10b75ee2f570f51",
   "summary": {
     "files": 1444,
-    "lines": 305017,
+    "lines": 305074,
     "symbols": 4359
   },
   "symbolIndex": {
@@ -2281,7 +2281,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt",
-        "line": 211
+        "line": 243
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
@@ -2867,7 +2867,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt",
-        "line": 56
+        "line": 61
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
@@ -3921,7 +3921,7 @@
     "LuluWidgetDailyWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt",
-        "line": 225
+        "line": 261
       }
     ],
     "AuthoredNote": [
@@ -27204,20 +27204,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt",
-      "lines": 243,
-      "sha256": "4497916fb229f584781d129a69350fb2be92f91fc28e7ee462ead720085c165c",
+      "lines": 300,
+      "sha256": "866256dba7f9559f753c76fefee207e841421cc3158a27330f3165a0f6994d94",
       "symbols": [
         {
           "name": "read",
-          "line": 56
+          "line": 61
         },
         {
           "name": "schedule",
-          "line": 211
+          "line": 243
         },
         {
           "name": "LuluWidgetDailyWorker",
-          "line": 225
+          "line": 261
         }
       ]
     },
