@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b94838d3ca38926657c91b52db9f57a735420796`
+- 基准提交：`89bcd9f6e8f85aecf392d24df6cd6c22107feaaf`
 - 分支：`main`
 - 已索引文件：1476
-- 已索引代码/文本行：312385
+- 已索引代码/文本行：312404
 - 已发现符号：4456
 
 | 文件 | 行数 | 符号数 |
@@ -194,7 +194,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 552 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 989 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 1008 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAlipayDonationQr.kt` | 96 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 336 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt` | 365 | 4 |
