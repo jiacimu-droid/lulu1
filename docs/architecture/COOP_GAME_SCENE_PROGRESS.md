@@ -1,5 +1,11 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+## 2026-11-18 · G-03.5 · 展出实体索引存档（界面接线与 CI 待验）
+
+- 生产 `0574b3b6`：`RelicSnapshot` 新增可选 `featuredLootIndex`，旧 ID-only 存档保持可读；`featureLootAt(index,expected)` 拒绝过期实体选择，出售前方藏品时展出索引随实体左移，出售展品时清空展出。测试 `7b9c0db1` 检查重复 ID 两件实物的展出、重进、出售索引变化和最终撤展。
+- 本轮尚未把 `RelicVaultPage` 展出按钮改为按行回调，现有按 ID 按钮仍有重复 ID 展出歧义；不得称完整 UI 闭环。下一步改 `RelicVaultPage.kt` / `RelicEscapeLobby.kt` / `RelicEscapeScreen.kt` 的展出接线并补 Compose 交互回归。JVM/APK、Redmi 触控、帧率、真实模型及美术均待验。
+
+
 ## 2026-11-18 · G-03.5 · 藏宝馆实际行选择与出售接通（CI/设备待验）
 
 - 正式 `RelicVaultPage` 旧版仅用物品 ID 保存选择与确认出售；重复 ID 的两件实物无法分别点选，且经大厅仍调用按 ID 卖第一件。现以原始 vault 索引+实物快照保存列表选择/待确认出售，跨 `RelicEscapeLobby` 到 `RelicEscapeScreen` 调用既有 `RelicEscapeLedger.sellLootAt(index,item)`，过期行由账本拒绝，不新造奖励。三处生产提交 `82d8b395`、`1bbf6ae4`、`7b39e9fa`；沿用已有 `RelicVaultPersistenceTest.museumRowSelectionSellsSecondDuplicateAndRejectsStaleTapAfterReload`，不重复增加同一账本测试。
