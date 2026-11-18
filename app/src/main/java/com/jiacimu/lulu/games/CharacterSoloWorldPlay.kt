@@ -61,10 +61,10 @@ internal class CharacterSoloWorldPlay(context: Context) {
         val initial=run.turns
         val replayStart = RelicSoloReplay.start(run)
         val replayFrames = JSONArray()
-        repeat(turns) {
+        for (turn in 0 until turns) {
             if(run.phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
-                return@repeat
-            val cmd=chooseRelic(run,focus) ?: return@repeat
+                break
+            val cmd=chooseRelic(run,focus) ?: break
             val next=RelicEscapeRules.act(run,cmd.first,cmd.second.first,cmd.second.second)
             if(next.turns>run.turns || next.phase!=run.phase) {
                 replayFrames.put(RelicSoloReplay.delta(run, next))
@@ -113,66 +113,118 @@ internal class CharacterSoloWorldPlay(context: Context) {
             if(run.phase==RelicPhase.SUCCESS)run.secured.sumOf{it.value}else 0,summary,details)
     }
 
-    /** Only revealed landmarks enter navigation. The engine validates every move. */
-    private fun chooseRelic(s:RelicRun,focus:String):Pair<String,Pair<Int,Int>>? {
-        val h=s.hero
-        val here=h.x to h.y
-        fun dist(x:Int,y:Int)=RelicEscapeRules.distance(h.x,h.y,x,y)
-        if(s.phase in setOf(RelicPhase.DOWNED,RelicPhase.EXTRACT))return "wait" to here
-        if(h.hp<=5 && h.kits>0)return "heal" to here
-        s.mobs.filter {it.hp>0 && s.visible(it.x,it.y) &&
-            dist(it.x,it.y)<=2 && RelicArsenal.canHit(s,it.x,it.y)}
-            .minByOrNull{dist(it.x,it.y)}?.let{return "attack" to (it.x to it.y)}
-        val exitGoal=h.bag.isNotEmpty() && (focus in setOf("safe","extract") ||
-            h.load>=RelicEscapeRules.heroCapacity(s)-2 || h.hp<=5 || s.turns>=60)
-        if(exitGoal && s.visible(s.exitX,s.exitY) && dist(s.exitX,s.exitY)<=1)
-            return "extract" to here
-        if(!exitGoal){
-            s.chests.filter{!it.opened && s.visible(it.x,it.y) && dist(it.x,it.y)<=1}
-                .sortedByDescending{if(focus=="rare")it.tier.ordinal else 0}.firstOrNull()?.let {
-                    return (if(focus=="rare" && it.tier==RelicTier.RARE &&
-                        s.tools>0 && h.hp>=7)"channel"else"open") to (it.x to it.y)
+    /**
+     * The role's model chooses an expedition focus; this executor must carry
+     * out its physical turns on real, observed, safe tiles. No fake replay.
+     */
+    internal fun chooseRelic(s: RelicRun, focus: String): Pair<String, Pair<Int, Int>>? {
+        val hero = s.hero
+        val here = hero.x to hero.y
+        fun distance(x: Int, y: Int) =
+            RelicEscapeRules.distance(hero.x, hero.y, x, y)
+        if (s.phase == RelicPhase.DOWNED || s.phase == RelicPhase.EXTRACT)
+            return "wait" to here
+        if (hero.hp <= 5 && hero.kits > 0) return "heal" to here
+
+        // Use the real reach of the currently equipped blade, spear or bow.
+        // Do not keep wasting single-target attacks when a sweep is legal.
+        if (RelicArsenal.canSweep(s)) return "sweep" to here
+        s.mobs.asSequence().filter { it.hp > 0 && RelicArsenal.canHit(s, it.x, it.y) }
+            .sortedWith(compareByDescending<RelicMob> { it.windup }
+                .thenByDescending { it.hp <= RelicArsenal.damage(s, it) }
+                .thenBy { distance(it.x, it.y) })
+            .firstOrNull()?.let { return "attack" to (it.x to it.y) }
+
+        val capacity = RelicEscapeRules.heroCapacity(s)
+        // Only a successful extraction puts these treasures into the museum.
+        val goingHome = hero.bag.isNotEmpty() &&
+            (focus in setOf("safe", "extract") || hero.load >= capacity - 2 ||
+                hero.hp <= 5 || s.turns >= 60)
+        if (goingHome) {
+            val exit = RelicObjectiveGuide.visibleExit(s)
+            if (exit != null) {
+                val path = RelicObjectiveGuide.knownRouteTiles(s, exit)
+                if (path != null) {
+                    if (path.size <= 1) return "extract" to here
+                    return "sneak" to path[1]
                 }
+            }
+        } else {
+            // Rank accessible discovered chests. The path ends beside a chest,
+            // and never crosses an unrevealed cell, live guard or visible trap.
+            val candidates = s.chests.asSequence()
+                .filter { !it.opened && s.visible(it.x, it.y) &&
+                    hero.load + it.tier.weight <= capacity }
+                .mapNotNull { chest ->
+                    val route = RelicObjectiveGuide.knownRouteTiles(
+                        s, RelicObjectiveTarget(chest.x, chest.y, "宝箱"))
+                    if (route == null) null else chest to route
+                }.toList()
+            val best = candidates.minWithOrNull(
+                compareBy<Pair<RelicChest, List<Pair<Int, Int>>>> {
+                    if (focus == "rare") -it.first.tier.ordinal else 0
+                }.thenBy { it.second.size }.thenBy { it.first.id }
+            )
+            if (best != null) {
+                val (chest, route) = best
+                if (route.size <= 1) {
+                    return (if (focus == "rare" && chest.tier == RelicTier.RARE &&
+                        s.tools > 0 && hero.hp >= 7) "channel" else "open") to
+                        (chest.x to chest.y)
+                }
+                return "sneak" to route[1]
+            }
         }
-        s.sites.firstOrNull{!it.spent && it.kind=="supply" &&
-            s.visible(it.x,it.y) && dist(it.x,it.y)<=1}?.let {
+
+        s.sites.firstOrNull { !it.spent && it.kind == "supply" &&
+            s.visible(it.x, it.y) && distance(it.x, it.y) <= 1 &&
+            (hero.kits < 5 || s.bolts < 12) }?.let {
             return "resupply" to (it.x to it.y)
         }
-        s.sites.firstOrNull{!it.spent && it.kind=="fountain" && h.hp<=6 &&
-            s.visible(it.x,it.y) && dist(it.x,it.y)<=1}?.let {
+        s.sites.firstOrNull { !it.spent && it.kind == "fountain" &&
+            s.visible(it.x, it.y) && hero.hp <= 6 &&
+            distance(it.x, it.y) <= 1 }?.let {
             return "fountain" to (it.x to it.y)
         }
-        if(focus=="rare"){
-            s.sites.firstOrNull{!it.spent && it.kind=="altar" && h.hp>=7 &&
-                s.visible(it.x,it.y) && dist(it.x,it.y)<=1}?.let {
+        if (!goingHome && focus == "rare") {
+            s.sites.firstOrNull { !it.spent && it.kind == "altar" &&
+                s.visible(it.x, it.y) && hero.hp >= 7 &&
+                distance(it.x, it.y) <= 1 }?.let {
                 return "invoke" to (it.x to it.y)
             }
         }
-        val targets=if(exitGoal && s.visible(s.exitX,s.exitY))
-            listOf(s.exitX to s.exitY)
-        else s.chests.filter{!it.opened && s.visible(it.x,it.y)}
-            .sortedWith(compareBy<RelicChest> {
-                if(focus=="rare")-it.tier.ordinal else 0
-            }.thenBy{dist(it.x,it.y)}).map{it.x to it.y}
-        for((x,y)in targets) {
-            val step=RelicEscapeRules.path(s,h.x,h.y,x,y)?:continue
-            if(s.visible(step.first,step.second) &&
-                s.mobs.none{it.hp>0 && it.x==step.first && it.y==step.second})
-                return "sneak" to step
+
+        // The old shortest-path helper could choose unrevealed/acidic tiles
+        // and stall forever. Scout on known safe floor with a real BFS.
+        val start = s.index(hero.x, hero.y)
+        val parents = IntArray(s.w * s.h) { -1 }
+        val queue = java.util.ArrayDeque<Int>()
+        queue.add(start)
+        parents[start] = start
+        val blocked = s.mobs.filter { it.hp > 0 }.map { s.index(it.x, it.y) }.toSet() +
+            s.sites.filter { it.kind == "trap" && !it.spent }
+                .map { s.index(it.x, it.y) }
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+            val x = current % s.w
+            val y = current / s.w
+            val frontier = listOf(x + 1 to y, x - 1 to y, x to y + 1, x to y - 1)
+                .any { (nx, ny) -> s.bounds(nx, ny) && !s.visible(nx, ny) }
+            if (current != start && frontier) {
+                var cursor = current
+                while (parents[cursor] != start) cursor = parents[cursor]
+                return "sneak" to (cursor % s.w to cursor / s.w)
+            }
+            for ((nx, ny) in listOf(x + 1 to y, x - 1 to y, x to y + 1, x to y - 1)) {
+                if (!s.bounds(nx, ny)) continue
+                val cell = s.index(nx, ny)
+                if (parents[cell] != -1 || !s.visible(nx, ny) ||
+                    !s.walk(nx, ny) || s.tile(nx, ny) == 2 || cell in blocked) continue
+                parents[cell] = current
+                queue.add(cell)
+            }
         }
-        if(RelicEscapeRules.canSurvey(s))return "survey" to here
-        val frontiers=(0 until s.h).flatMap{y->(0 until s.w).map{x->x to y}}
-            .filter{(x,y)->s.visible(x,y) && s.walk(x,y) && dist(x,y)>0 &&
-                listOf(x+1 to y,x-1 to y,x to y+1,x to y-1).any{(nx,ny)->
-                    s.bounds(nx,ny) && !s.visible(nx,ny)
-                }}
-            .sortedBy{dist(it.first,it.second)}
-        for((x,y)in frontiers){
-            val step=RelicEscapeRules.path(s,h.x,h.y,x,y)?:continue
-            if(s.visible(step.first,step.second) &&
-                s.mobs.none{it.hp>0 && it.x==step.first && it.y==step.second})
-                return "sneak" to step
-        }
+        if (RelicEscapeRules.canSurvey(s)) return "survey" to here
         return null
     }
 
