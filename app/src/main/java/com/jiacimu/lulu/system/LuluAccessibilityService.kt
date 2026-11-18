@@ -2280,6 +2280,20 @@ class LuluAccessibilityService : AccessibilityService() {
             return node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, extras)
         }
 
+        /** Read back ONLY the currently focused ordinary main-screen editor.
+         * A matching word elsewhere in chat history is never proof of typing. */
+        fun focusedMainEditorMatches(packageName: String, expected: String): Boolean {
+            val service = instance ?: return false
+            if (packageName.isBlank() || expected.isBlank()) return false
+            val root = service.rootInActiveWindow ?: return false
+            if (root.packageName?.toString() != packageName) return false
+            val field = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return false
+            return field.refresh() && field.isFocused && field.isEditable &&
+                !field.isPassword && field.isVisibleToUser &&
+                field.packageName?.toString() == packageName &&
+                !field.isShowingHintText && field.text?.toString() == expected
+        }
+
         fun scrollVisible(direction: String): Boolean {
             val service = instance ?: return false
             val action = when (direction) {

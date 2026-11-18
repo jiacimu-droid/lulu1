@@ -119,7 +119,7 @@ internal object LuluForegroundPhoneSession {
             if (!shown) return rejection(action, "已请求打开App，但主屏尚未确认目标窗口；不能继续点击", "launch_unverified")
             owner = role; target = pkg; screen = null
             LuluBackgroundPhoneNotice.show(context)
-            return observe(context, role, requestId, action, accepted = true)
+            return observe(context, role, requestId, action, accepted = true).toString()
         }
 
         if (owner != role || target.isBlank())
