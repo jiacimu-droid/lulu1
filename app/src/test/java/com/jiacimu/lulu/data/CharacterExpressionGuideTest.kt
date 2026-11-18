@@ -227,9 +227,24 @@ class CharacterExpressionGuideTest {
             assertFalse(CharacterSpeechIdentity.promptSection(other, includeRelationship = false)
                 .contains(learned))
 
+            // A user edit changes the live persona, even while the original
+            // supporting evidence remains valid and stored.
+            val edited = "用户新改：先给简短结论，不沿用原来的接话习惯。"
+            CharacterLifeStore.setProfile(role, "speechHabits", edited)
+            assertNotEquals(persona, CharacterRuntime.personaConstraintSnapshot(role))
+            val editedVoice = CharacterSpeechIdentity.promptSection(role, includeRelationship = false)
+            assertTrue(editedVoice.contains(edited))
+            assertFalse(editedVoice.contains(authored))
+            assertFalse(editedVoice.contains(learned))
+            assertEquals(evidence.toSet(), SharedExperienceTimeline.eventsByIds(role, evidence)
+                .map { it.id }.toSet())
+
             SharedExperienceTimeline.record(evidence.first(), role, "私聊", "用户",
                 "那只是当时的情境，不是我的长期表达偏好。", java.time.Instant.now(),
                 triggerExtraction = false, evidenceKind = EventEvidenceKind.UserStatement)
+            // Restoring the old authored setting must not resurrect a learned
+            // record whose supporting source changed while it was out of view.
+            CharacterLifeStore.setProfile(role, "speechHabits", authored)
             val after = CharacterSpeechIdentity.promptSection(role, includeRelationship = false)
             assertFalse(after.contains(learned))
             assertTrue(after.contains(authored))
