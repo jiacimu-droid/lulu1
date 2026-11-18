@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T15:03:24.642070+00:00",
-  "commit": "3925d261cba6e274a71d4c4be5cfb2893f0f1776",
+  "generatedAt": "2026-11-18T15:04:12.569856+00:00",
+  "commit": "f2dbc46096daf94ba74465a80d8211c679dbd94e",
   "branch": "main",
-  "sourceFingerprint": "51bf0e9e878dd15ea1f500797b918eb2620055bc727e9f56b281b98741201a0a",
+  "sourceFingerprint": "4d05b92c93a7a1de2ac3e32ddedc2adc896439ac4766d1cd77a6657747649f96",
   "summary": {
     "files": 1473,
-    "lines": 311712,
+    "lines": 311727,
     "symbols": 4451
   },
   "symbolIndex": {
@@ -43253,8 +43253,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluForegroundPhoneSession.kt",
-      "lines": 415,
-      "sha256": "5772bac082c2e404d4debbd6be93e3e91fe1a799bc92dd68e3b22b29ba5ffa49",
+      "lines": 430,
+      "sha256": "30f020a227d3871ae351f258706f902340c1d2f3f4bf2c777c8a7fa906bcd1c1",
       "symbols": [
         {
           "name": "activeFor",
