@@ -75,6 +75,38 @@ class LuluVirtualTextInputPolicyTest {
                 460, 750, 720, 1280, 0, 0, 720, 1280))
     }
 
+    @Test fun customEditorCanPasteWithoutAnImeWindowOnlyWithOwnedWindowFocus() {
+        val policy = LuluVirtualTextInputPolicy
+        val paste = LuluVirtualTextInputPolicy.VisualInputRoute.TARGETED_PASTE
+        val wait = LuluVirtualTextInputPolicy.VisualInputRoute.WAIT
+        assertEquals(paste, policy.visualInputRoute(
+            safeFocus = true, hasKnownEditor = false, matchesEditor = false, supportsSetText = false,
+            sameWindow = true, targetWindowFocused = true, localImeVisible = false))
+        assertEquals(wait, policy.visualInputRoute(
+            safeFocus = true, hasKnownEditor = false, matchesEditor = false, supportsSetText = false,
+            sameWindow = true, targetWindowFocused = false, localImeVisible = false))
+        assertEquals(wait, policy.visualInputRoute(
+            safeFocus = true, hasKnownEditor = false, matchesEditor = false, supportsSetText = false,
+            sameWindow = false, targetWindowFocused = true, localImeVisible = true))
+    }
+
+    @Test fun knownEditorMustMatchTheTappedFieldEvenWithAnImeWindow() {
+        val policy = LuluVirtualTextInputPolicy
+        val wait = LuluVirtualTextInputPolicy.VisualInputRoute.WAIT
+        assertEquals(wait, policy.visualInputRoute(
+            safeFocus = true, hasKnownEditor = true, matchesEditor = false, supportsSetText = true,
+            sameWindow = true, targetWindowFocused = true, localImeVisible = true))
+        assertEquals(wait, policy.visualInputRoute(
+            safeFocus = false, hasKnownEditor = true, matchesEditor = true, supportsSetText = true,
+            sameWindow = true, targetWindowFocused = true, localImeVisible = true))
+        assertEquals(LuluVirtualTextInputPolicy.VisualInputRoute.SET_TEXT, policy.visualInputRoute(
+            safeFocus = true, hasKnownEditor = true, matchesEditor = true, supportsSetText = true,
+            sameWindow = true, targetWindowFocused = true, localImeVisible = false))
+        assertEquals(LuluVirtualTextInputPolicy.VisualInputRoute.TARGETED_PASTE, policy.visualInputRoute(
+            safeFocus = true, hasKnownEditor = true, matchesEditor = true, supportsSetText = false,
+            sameWindow = true, targetWindowFocused = true, localImeVisible = false))
+    }
+
     @Test fun inputPointMustStayOnOwnedAppAboveIme() {
         assertTrue(LuluVirtualTextInputPolicy.inputPointSafe(450, 70, null))
         assertTrue(LuluVirtualTextInputPolicy.inputPointSafe(450, 760, 900))

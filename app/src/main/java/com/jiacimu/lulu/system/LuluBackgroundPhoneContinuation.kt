@@ -65,6 +65,9 @@ internal object LuluBackgroundPhoneContinuation {
             "visual_chat_composer_point_invalid", "visual_chat_window_unverified",
             "visual_chat_frame_barrier_missing", "visual_chat_focus_tap_unverified",
             "visual_chat_keyboard_not_on_display", "visual_chat_window_changed",
+            "visual_input_window_unverified", "visual_input_field_point_invalid",
+            "visual_input_focus_tap_unverified", "visual_input_focus_unverified",
+            "virtual_input_set_text_rejected", "visual_chat_draft_input_unverified",
             "visual_chat_draft_or_send_unverified", "visual_chat_changed_before_send",
             "visual_chat_send_barrier_missing",
         )

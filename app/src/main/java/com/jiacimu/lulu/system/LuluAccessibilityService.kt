@@ -1330,10 +1330,6 @@ class LuluAccessibilityService : AccessibilityService() {
             }
         }
 
-        fun virtualChatKeyboardVisible(displayId: Int, packageName: String): Boolean =
-            packageName == LuluVirtualChatSendPolicy.WECHAT &&
-                virtualInputKeyboardVisible(displayId, packageName)
-
         /** Upper boundary of the ACTUAL virtual-display IME, in permille.
          * The visual Send button must belong to WeChat ABOVE this boundary,
          * never a keyboard action key such as Next / Search / Send. */
@@ -1881,29 +1877,75 @@ class LuluAccessibilityService : AccessibilityService() {
             .singleOrNull()
             ?.takeIf { it.refresh() && it.isFocused && safeEditable(it) }
 
-        /**
-         * After a model-chosen virtual screenshot tap, Android may expose the
-         * exact focused EditText even when HyperOS does not enumerate a
-         * virtual-display IME window. Try ACTION_SET_TEXT on that ONE field,
-         * provided its actual bounds contain the just-tapped coordinates.
-         *
-         * Null = no matching editor was found and NO write was attempted;
-         * non-null = attempted or already-verified, so callers MUST NOT also
-         * send a shell Unicode paste on the same uncertain action.
-         */
-        fun typeFocusedVirtualEditorAtPoint(
-            displayId: Int, packageName: String, x: Int, y: Int, text: String,
+        private fun editorContainsPoint(
+            field: AccessibilityNodeInfo, width: Int, height: Int, x: Int, y: Int,
+        ): Boolean {
+            val bounds = Rect().also(field::getBoundsInScreen)
+            return LuluVirtualTextInputPolicy.focusedFieldContainsSelectedPoint(
+                x, y, width, height, bounds.left, bounds.top, bounds.right, bounds.bottom)
+        }
+
+        fun visualEditorAtPoint(
+            displayId: Int, packageName: String, x: Int, y: Int,
+        ): AccessibilityNodeInfo? {
+            val service = instance ?: return null
+            val (width, height) = virtualDimensions(service, displayId) ?: return null
+            val root = topVirtualAppWindow(service, displayId, packageName)?.root ?: return null
+            return visibleEditors(root).singleOrNull { editorContainsPoint(it, width, height, x, y) }
+        }
+
+        internal data class VisualInputFocus(
+            val route: LuluVirtualTextInputPolicy.VisualInputRoute,
+            val editor: AccessibilityNodeInfo? = null,
+        )
+
+        /** Resolve focus on the top window of the owned display. Retaining the
+         * pre-tap node lets the same editor move when the keyboard resizes the page. */
+        internal fun visualInputFocus(
+            displayId: Int, packageName: String, x: Int, y: Int,
+            selectedEditor: AccessibilityNodeInfo?, previousWindow: String,
+        ): VisualInputFocus {
+            val retry = VisualInputFocus(LuluVirtualTextInputPolicy.VisualInputRoute.WAIT)
+            val service = instance ?: return retry
+            val identity = virtualChatWindowIdentity(displayId, packageName)
+            if (identity.isBlank()) return retry
+            val window = topVirtualAppWindow(service, displayId, packageName) ?: return retry
+            val root = window.root ?: return retry
+            val (width, height) = virtualDimensions(service, displayId) ?: return retry
+            val focus = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT)
+            if (focus != null && !focus.refresh()) return retry
+            val offersSetText = focus?.actionList?.any { it.id == AccessibilityNodeInfo.ACTION_SET_TEXT } == true
+            val editable = focus?.isEditable == true || offersSetText
+            val safeFocus = focus == null || (focus.packageName?.toString() == packageName &&
+                focus.windowId == window.id && !focus.isPassword && focus.isEnabled && focus.isVisibleToUser)
+            val matches = editable && focus != null && focus.isFocused && (
+                if (selectedEditor != null) identity == previousWindow && focus == selectedEditor
+                else editorContainsPoint(focus, width, height, x, y)
+            )
+            val route = LuluVirtualTextInputPolicy.visualInputRoute(
+                safeFocus = safeFocus,
+                hasKnownEditor = editable || selectedEditor != null,
+                matchesEditor = matches,
+                supportsSetText = offersSetText,
+                sameWindow = identity == previousWindow,
+                targetWindowFocused = window.isFocused || focus?.isFocused == true,
+                localImeVisible = virtualInputKeyboardVisible(displayId, packageName),
+            )
+            return VisualInputFocus(route, focus?.takeIf { matches })
+        }
+
+        /** This editor was matched to the tapped point before or after focus.
+         * A rejected SET_TEXT is still an attempt and must not trigger a paste. */
+        fun typeFocusedVisualEditor(
+            displayId: Int, packageName: String, field: AccessibilityNodeInfo, text: String,
+            authorized: () -> Boolean,
         ): JSONObject? {
             val service = instance ?: return null
             if (Build.VERSION.SDK_INT < 30 || displayId <= 0 || packageName.isBlank() ||
                 text.isBlank() || text.length > LuluVirtualTextInputPolicy.MAX_TEXT_CHARS ||
-                virtualWindowStatus(displayId, packageName).optString("kind") != "target")
-                return null
-            val (width, height) = virtualDimensions(service, displayId) ?: return null
-            val field = focusedVirtualEditor(service, displayId, packageName) ?: return null
-            val bounds = Rect().also(field::getBoundsInScreen)
-            if (!LuluVirtualTextInputPolicy.focusedFieldContainsSelectedPoint(
-                    x, y, width, height, bounds.left, bounds.top, bounds.right, bounds.bottom))
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target" ||
+                topVirtualAppWindow(service, displayId, packageName)?.id != field.windowId ||
+                !field.refresh() || !field.isFocused || !safeEditable(field) || !authorized())
                 return null
             fun receipt(accepted: Boolean, verified: Boolean, code: String) =
                 JSONObject().put("accepted", accepted)
@@ -1925,6 +1967,7 @@ class LuluAccessibilityService : AccessibilityService() {
             }
             if (!field.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments))
                 return receipt(false, false, "virtual_input_set_text_rejected")
+                    .put("inputAttempted", true)
                     .put("verification", "当前点选的输入框拒绝ACTION_SET_TEXT；没有切换到可能重复的Unicode粘贴")
             val exact = field.refresh() && field.isFocused && safeEditable(field) &&
                 !field.isShowingHintText && field.text?.toString() == text &&
@@ -1955,11 +1998,13 @@ class LuluAccessibilityService : AccessibilityService() {
                 packageName.isBlank() || expected.isBlank() ||
                 virtualWindowStatus(displayId, packageName).optString("kind") != "target"
             ) return false
-            val field = focusedVirtualEditor(service, displayId, packageName)
-                ?: return false
+            val window = topVirtualAppWindow(service, displayId, packageName) ?: return false
+            val field = window.root?.findFocus(AccessibilityNodeInfo.FOCUS_INPUT) ?: return false
             return field.refresh() && field.isFocused && safeEditable(field) &&
+                field.windowId == window.id && field.packageName?.toString() == packageName &&
                 !field.isShowingHintText && field.text?.toString() == expected &&
-                virtualWindowStatus(displayId, packageName).optString("kind") == "target"
+                virtualWindowStatus(displayId, packageName).optString("kind") == "target" &&
+                topVirtualAppWindow(service, displayId, packageName)?.id == window.id
         }
 
         /** Type into the ACTUALLY focused editor of any owned app. This

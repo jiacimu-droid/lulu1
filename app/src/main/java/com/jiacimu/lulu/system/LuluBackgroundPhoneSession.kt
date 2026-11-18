@@ -521,87 +521,106 @@ internal object LuluBackgroundPhoneSession {
             .apply { if (holdMs != null) put("durationMs", holdMs) })
     }
 
-    /**
-     * Shared visual typing for ALL owner-authorized third-party apps.
-     * Unlike a chat send, this only writes a draft. It never presses Enter,
-     * Send, Publish, Search or any purchase/confirmation action.
-     *
-     * For zero-tree WebViews/HyperOS the model chooses a field point from
-     * its latest real screenshot. The platform then proves this display's
-     * actual IME and targets only the verified App UID for a Unicode paste.
-     * Key injection is not equivalent to a successful text readback.
-     */
+    /** A snapshot-selected point can only write a draft on the owned display.
+     * A keyboard window is useful evidence, but custom editors may accept
+     * targeted paste without ever showing a soft keyboard (Mika typeAt). */
     private suspend fun typeVisualVirtualField(
         id: Int, packageName: String, text: String,
-        x: Int, y: Int, authorized: () -> Boolean,
+        x: Int, y: Int, authorized: () -> Boolean, requiredWindow: String? = null,
     ): JSONObject {
         fun stopped(code: String, detail: String): JSONObject = JSONObject()
             .put("accepted", false).put("inputTextReadbackVerified", false)
             .put("inputVerification", "unverified")
-            .put("inputMethod", "visual_target_uid_unicode")
             .put("errorCode", code).put("taskCompleted", false)
             .put("verification", detail)
-        if (!authorized() || windowGate(id, packageName).optString("kind") != "target")
-            return stopped("visual_input_window_unverified",
-                "未核实当前独立屏目标App归属或主人授权，未输入")
+
+        suspend fun windowIdentity() = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.virtualChatWindowIdentity(id, packageName)
+        }
+        val previousWindow = windowIdentity()
+        if (!authorized() || previousWindow.isBlank() ||
+            (requiredWindow != null && previousWindow != requiredWindow))
+            return stopped("visual_input_window_unverified", "当前独立屏的目标窗口或授权未核实，未输入")
         val imeBefore = withContext(Dispatchers.Main) {
             LuluAccessibilityService.virtualInputImeTopPermille(id, packageName)
         }
         if (!LuluVirtualTextInputPolicy.inputPointSafe(x, y, imeBefore))
             return stopped("visual_input_field_point_invalid",
                 "本次真实截图的输入点落在状态栏、键盘或屏幕外，未输入")
-        // If Android exposes controls, avoid clicking a protected password,
-        // payment or irreversible button. If OEM hides ALL nodes, ownership,
-        // fresh snapshot, role-selected input point and live IME remain mandatory.
-        val ui = withContext(Dispatchers.Main) {
-            LuluAccessibilityService.virtualUiSnapshot(id, packageName)
+        val selectedEditor = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.visualEditorAtPoint(id, packageName, x, y)
         }
-        if ((ui.optJSONArray("elements")?.length() ?: 0) > 0 &&
-            withContext(Dispatchers.Main) {
+        val protected = withContext(Dispatchers.Main) {
+            val elements = LuluAccessibilityService.virtualUiSnapshot(id, packageName).optJSONArray("elements")
+            (elements?.length() ?: 0) > 0 &&
                 LuluAccessibilityService.isSensitiveVirtualTap(id, packageName, x, y)
-            }) return stopped("visual_input_sensitive_field",
+        }
+        if (protected) return stopped("visual_input_sensitive_field",
             "当前输入位置与受保护控件重合，拒绝按文字输入处理")
-        if (!authorized() || windowGate(id, packageName).optString("kind") != "target")
-            return stopped("visual_input_window_unverified",
-                "聚焦前独立屏窗口或授权已变化，未输入")
+        if (windowIdentity() != previousWindow || !authorized())
+            return stopped("visual_input_window_unverified", "聚焦前独立屏窗口或授权已变化，未输入")
         val tap = pressVisualTarget(id, packageName, x, y, holdMs = null, authorized = authorized)
         if (!tap.optBoolean("accepted")) return stopped("visual_input_focus_tap_unverified",
-            "目标输入位置的单次聚焦手势未完成，没有粘贴文字")
-        // An exact, uniquely focused node at the role-selected point is
-        // stronger evidence than an IME window that some ROMs do not expose
-        // on an independent display. This direct path never also shell-pastes.
-        for (attempt in 0 until 3) {
-            if (!authorized() || windowGate(id, packageName).optString("kind") != "target") break
-            val focused = withContext(Dispatchers.Main) {
-                LuluAccessibilityService.typeFocusedVirtualEditorAtPoint(
-                    id, packageName, x, y, text)
-            }
-            if (focused != null) return focused
-            if (attempt < 2) kotlinx.coroutines.delay(120)
+            "目标输入位置的聚焦点击未核实，未派发文字")
+
+        var pasteWindow = ""
+        suspend fun resolveFocus() = withContext(Dispatchers.Main) {
+            LuluAccessibilityService.visualInputFocus(id, packageName, x, y, selectedEditor, previousWindow)
         }
-        var imeVisible = false
+        // Give the accessibility editor time to appear or move before using the
+        // hardware fallback. Once text was attempted, only read back.
         for (attempt in 0 until 8) {
-            if (!authorized() || windowGate(id, packageName).optString("kind") != "target")
-                break
-            imeVisible = withContext(Dispatchers.Main) {
-                LuluAccessibilityService.virtualInputKeyboardVisible(id, packageName)
+            if (!authorized() || (requiredWindow != null && windowIdentity() != requiredWindow)) break
+            val focus = resolveFocus()
+            if (focus.route == LuluVirtualTextInputPolicy.VisualInputRoute.SET_TEXT) {
+                if (humanOnlyPage(id, packageName) != null) break
+                val typed = withContext(Dispatchers.Main) {
+                    val current = resolveFocus()
+                    if (current.editor != focus.editor ||
+                        current.route != LuluVirtualTextInputPolicy.VisualInputRoute.SET_TEXT ||
+                        (requiredWindow != null && windowIdentity() != requiredWindow)) null
+                    else LuluAccessibilityService.typeFocusedVisualEditor(
+                        id, packageName, checkNotNull(current.editor), text, authorized)
+                }
+                if (typed != null) {
+                    if (typed.optBoolean("accepted") && !typed.optBoolean("inputTextReadbackVerified")) {
+                        repeat(2) {
+                            kotlinx.coroutines.delay(120)
+                            if (!authorized() || resolveFocus().editor != focus.editor) return typed
+                            val matched = withContext(Dispatchers.Main) {
+                                LuluAccessibilityService.focusedVirtualDraftMatches(id, packageName, text)
+                            }
+                            if (matched) return typed.put("inputTextReadbackVerified", true)
+                                .put("inputVerification", "match").put("errorCode", "")
+                                .put("verification", "当前后台输入框已精确读回文字；草稿尚未提交")
+                        }
+                    }
+                    return typed
+                }
             }
-            if (imeVisible) break
+            if (attempt >= 2 && focus.route == LuluVirtualTextInputPolicy.VisualInputRoute.TARGETED_PASTE) {
+                val focusedWindow = windowIdentity()
+                if (focusedWindow.isBlank() || humanOnlyPage(id, packageName) != null) break
+                if (authorized() && (requiredWindow == null || focusedWindow == requiredWindow) &&
+                    resolveFocus().route == LuluVirtualTextInputPolicy.VisualInputRoute.TARGETED_PASTE &&
+                    windowIdentity() == focusedWindow) {
+                    pasteWindow = focusedWindow
+                    break
+                }
+            }
             if (attempt < 7) kotlinx.coroutines.delay(150)
         }
-        if (!imeVisible || !authorized()) return stopped("visual_input_ime_unverified",
-            "独立屏没有出现可确认的本地输入法窗口，拒绝向其他焦点粘贴")
-        // This is an internal shell command, never a raw model capability.
-        // It also checks display > 0, the launched package and target UID.
+        if (pasteWindow.isBlank() || !authorized()) return stopped("visual_input_focus_unverified",
+            "点击后未能核实独立屏目标输入框或目标窗口的焦点，未派发文字")
+
+        // The shell binds the shortcut to THIS display and target UID. Focus
+        // evidence authorizes a single attempt, never proves it inserted text.
         val pasted = command(JSONObject().put("action", "paste_text")
             .put("packageName", packageName).put("text", text))
-        // On some ROMs the editor becomes accessibility-readable only AFTER
-        // keyboard focus. Prefer its exact content over OCR; do not paste a
-        // second time just because the view update is asynchronous.
         var exactDraft = false
-        if (pasted.optBoolean("accepted")) {
+        if (pasted.optBoolean("inputDispatched")) {
             for (attempt in 0 until 3) {
-                if (!authorized() || windowGate(id, packageName).optString("kind") != "target") break
+                if (!authorized() || windowIdentity() != pasteWindow) break
                 exactDraft = withContext(Dispatchers.Main) {
                     LuluAccessibilityService.focusedVirtualDraftMatches(id, packageName, text)
                 }
@@ -618,12 +637,10 @@ internal object LuluBackgroundPhoneSession {
             .put("errorCode", pasted.optString("errorCode"))
             .put("taskCompleted", false)
             .put("verification", when {
-                exactDraft ->
-                    "已从本角色独立屏目标App的唯一焦点输入框核对到完整文字；只是草稿，未发送或提交"
+                exactDraft -> "已从独立屏目标输入框精确读回文字；只是草稿，未发送或提交"
                 pasted.optBoolean("accepted") ->
-                    "已向独立屏指定App派发一次Unicode草稿，但焦点输入框未能精确读回；须检查新画面，未发送或提交"
-                else ->
-                    "定向输入未被完整核实，不会自动重复输入，也未发送或提交"
+                    "已向独立屏目标App派发一次Unicode草稿；请核对新画面，未发送或提交"
+                else -> "定向输入未被完整核实；请核对当前画面，未发送或提交"
             })
     }
 
@@ -631,13 +648,12 @@ internal object LuluBackgroundPhoneSession {
      * One verified visual WeChat transaction for ROMs where a real virtual
      * screenshot exists but no chat EditText / ACTION_SET_TEXT node does.
      *
-     * The model supplies ONLY an input tap from its last owned screenshot.
-     * Shell pastes Unicode using target-UID keyboard events on that same
-     * display. The outgoing Send point comes exclusively from local OCR of
+     * The model supplies an input point from its last owned screenshot.
+     * The outgoing Send point comes exclusively from local OCR of
      * a fresh screenshot showing title + exact draft + Send together.
      *
-     * Never paste into an unverified app/IME, never infer success from injected
-     * events, never re-send on a possibly dispatched click.
+     * The complete draft and app Send control must be verified before any
+     * send. An ambiguous send attempt can only be followed by observation.
      */
     private suspend fun visualWeChatSend(
         id: Int, packageName: String, recipient: String, message: String,
@@ -668,48 +684,40 @@ internal object LuluBackgroundPhoneSession {
         if (!title || !authorized()) return denied("chat_recipient_unverified",
             "没有从本次后台微信真实截图核实唯一收件人标题；未输入")
         titleVerified = true
-        if (!command(JSONObject().put("action", "prepare_type")).optBoolean("accepted"))
-            return denied("visual_chat_frame_barrier_missing", "输入前的独立屏图像屏障失败")
-        val tapped = withContext(Dispatchers.Main) {
-            LuluAccessibilityService.tapVirtualDisplay(id, packageName, composerX, composerY, authorized)
-        }
-        if (!tapped.optBoolean("accepted"))
-            return denied("visual_chat_focus_tap_unverified",
-                "未核实输入栏聚焦点击已完成；没有注入文字")
-        var keyboard = false
-        for (attempt in 0 until 6) {
-            if (!authorized() || windowGate(id, packageName).optString("kind") != "target") break
-            keyboard = withContext(Dispatchers.Main) {
-                LuluAccessibilityService.virtualChatKeyboardVisible(id, packageName)
-            }
-            if (keyboard) break
-            if (attempt < 5) kotlinx.coroutines.delay(150)
-        }
-        if (!keyboard || !authorized()) return denied("visual_chat_keyboard_not_on_display",
-            "独立屏没有观察到微信输入法窗口，不能保证文字输入目标，未粘贴")
-        if (withContext(Dispatchers.Main) {
-                LuluAccessibilityService.virtualChatWindowIdentity(id, packageName)
-            } != before) return denied("visual_chat_window_changed",
-            "输入框聚焦后微信窗口身份已变，未粘贴")
-        // If a previous PRE-SEND attempt left precisely this text in the
-        // verified composer, never paste it twice. Only an exact fresh visual
-        // proof (recipient + full draft + app Send button) can reuse it.
+        // An exact current draft can be reused, including after a pre-send
+        // interruption. Otherwise use the same input transport as every app.
         val existingDraft = LuluVirtualChatTitleOcr.inspectVisualDraft(
             id, packageName, recipient, message, frameSource)
         val proof = if (existingDraft != null) existingDraft else {
-            val paste = command(JSONObject().put("action", "paste_text")
-                .put("packageName", packageName).put("text", message))
-            if (!paste.optBoolean("accepted")) {
-                // Even partial injection is unknown: read before doing more.
-                return denied(paste.optString("errorCode").ifBlank { "visual_chat_paste_unverified" },
-                    "指定微信进程的文字派发未核实；不重复输入或发送")
-                    .put("inputDispatched", paste.optBoolean("inputDispatched"))
-            }
-            LuluVirtualChatTitleOcr.inspectVisualDraft(
+            val typed = typeVisualVirtualField(
+                id, packageName, message, composerX, composerY, authorized, requiredWindow = before)
+            if (!typed.optBoolean("accepted")) return denied(
+                typed.optString("errorCode").ifBlank { "visual_chat_draft_input_unverified" },
+                typed.optString("verification"),
+            ).put("inputDispatched", typed.optBoolean("inputDispatched"))
+                .put("inputAttempted", typed.optBoolean("inputAttempted"))
+            val visualDraft = LuluVirtualChatTitleOcr.inspectVisualDraft(
                 id, packageName, recipient, message, frameSource)
-                ?: return denied("visual_chat_draft_or_send_unverified",
-                    "指定后台微信已接收文字，但截图未同时确认顶部收件人、全文和唯一发送键，未点发送")
-                    .put("inputDispatched", true)
+            if (visualDraft == null && typed.optBoolean("inputTextReadbackVerified") && authorized()) {
+                // Some ROMs hide the IME bounds needed to distinguish an OCR
+                // Send label from the keyboard. An actual app-owned control
+                // can still be verified. This route may only reuse the draft.
+                return withContext(Dispatchers.Main) {
+                    val snapshot = LuluAccessibilityService.virtualUiSnapshot(id, packageName)
+                    LuluAccessibilityService.sendVirtualChatMessage(
+                        id, packageName, recipient, message, snapshot.optString("fingerprint"),
+                        frameSource = frameSource, beforeTextInput = { false },
+                        stillAuthorized = {
+                            authorized() &&
+                                LuluAccessibilityService.virtualChatWindowIdentity(id, packageName) == before
+                        },
+                    )
+                }.put("inputDispatched", typed.optBoolean("inputDispatched"))
+            }
+            visualDraft ?: return denied("visual_chat_draft_or_send_unverified",
+                    "已处理后台微信草稿；当前画面未同时核实收件人、全文和应用自己的发送键，未点发送")
+                    .put("inputDispatched", typed.optBoolean("inputDispatched"))
+                    .put("messageInputReadbackVerified", typed.optBoolean("inputTextReadbackVerified"))
         }
         if (!authorized() || windowGate(id, packageName).optString("kind") != "target" ||
             withContext(Dispatchers.Main) {
@@ -1418,8 +1426,8 @@ internal object LuluBackgroundPhoneSession {
                     // One generic phone text operation across apps.
                     // Standard focused editors use ACTION_SET_TEXT and exact
                     // field readback. Zero-tree apps use a model-chosen point
-                    // in the currently observed frame, then the isolated
-                    // keyboard + shell target UID, without auto-submitting.
+                    // in the currently observed frame, then a display- and
+                    // UID-targeted paste, without auto-submitting.
                     if (visualType) {
                         lastObservedUi = null
                         typeVisualVirtualField(id, activeApp, value,
@@ -2003,6 +2011,7 @@ internal object LuluBackgroundPhoneSession {
                     else "")
                 .put("inputMethod", applied?.optString("inputMethod").orEmpty())
                 .put("inputDispatched", applied?.optBoolean("inputDispatched") == true)
+                .put("inputAttempted", applied?.optBoolean("inputAttempted") == true)
                     .put("frameValidated", false).put("taskCompleted", false)
                     .put("frameBlack", frame.optBoolean("frameBlack", false))
                     .put("screenCaptureStatus", if (frame.optBoolean("frameBlack", false))
@@ -2189,6 +2198,8 @@ internal object LuluBackgroundPhoneSession {
                 .put("inputTextReadbackVerified", textReadbackVerified)
                 .put("inputVerification", if (action == "type" && textReadbackVerified)
                     "match" else applied?.optString("inputVerification").orEmpty())
+                .put("inputDispatched", applied?.optBoolean("inputDispatched") == true)
+                .put("inputAttempted", applied?.optBoolean("inputAttempted") == true)
                 .put("inputStage", if (action == "type")
                     LuluVirtualTextInputPolicy.stage(
                         applied?.optBoolean("accepted") == true, textReadbackVerified)
