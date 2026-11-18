@@ -58,14 +58,14 @@ import kotlin.random.Random
 internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
     val state by store.state.collectAsState()
     val game = state.memoryMatch
-    val character = MigratedDomainStores.characters.get(state.selectedCharacterId)
+    val opponentId = game.opponentId
+    val character = opponentId?.let { MigratedDomainStores.characters.get(it) }
+    val solo = opponentId == null
+    val personalBest = store.memorySoloBestMoves()
     val context = LocalContext.current
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val roomId = remember(game.cards) { java.util.UUID.randomUUID().toString() }
-    val participants = remember(state.playWithCharacter, state.selectedCharacterId) {
-        if (state.playWithCharacter && state.selectedCharacterId.isNotBlank())
-            listOf(state.selectedCharacterId) else emptyList()
-    }
+    val participants = remember(opponentId) { listOfNotNull(opponentId) }
     val live = rememberGameLiveSession("memory_match", roomId, participants)
     var ownerSpeech by remember(roomId) { mutableStateOf("") }
     var roleError by remember(roomId) { mutableStateOf("") }
@@ -109,10 +109,10 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
         roleError = ""
         delay(450)
         deciding = true
-        val decision = requestMemoryRoleChoice(state.selectedCharacterId, game, ownerSpeech)
+        val decision = requestMemoryRoleChoice(opponentId ?: return@LaunchedEffect, game, ownerSpeech)
         deciding = false
         val choice = decision.getOrElse { failure ->
-            roleError = failure.message ?: "伙伴选牌失败，请重试"
+            roleError = failure.message ?: "选牌失败，请重试"
             return@LaunchedEffect
         }
         // The model might finish after the user has left the turn or changed the deck.
@@ -120,7 +120,7 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
         if (now.cards != game.cards || now.turn != game.turn || now.opened != game.opened ||
             now.matched != game.matched || now.finished) return@LaunchedEffect
         if (choice.speech.isNotBlank()) {
-            live.companionSaid(state.selectedCharacterId, choice.speech,
+            live.companionSaid(opponentId ?: return@LaunchedEffect, choice.speech,
                 "flip-${game.moves}-${game.opened.size}")
         }
         GameSoundEffects.play(GameSoundEffect.Interact)
@@ -147,8 +147,10 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
             MemoryArenaScoreboard(
                 userPairs = game.userPairs,
                 characterPairs = game.characterPairs,
-                characterName = character.displayName,
-                characterAvatar = character.avatarUri,
+                characterName = character?.displayName.orEmpty(),
+                characterAvatar = character?.avatarUri,
+                solo = solo,
+                bestMoves = personalBest,
                 turn = game.turn,
                 moves = game.moves,
             )
@@ -165,22 +167,22 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
                 modifier = Modifier.weight(1f),
             )
             if (participants.isNotEmpty()) {
-                Surface(color = Color(0xA0192030), shape = RoundedCornerShape(12.dp)) {
+                Surface(color = Color(0xEFFFFFF9), shape = RoundedCornerShape(12.dp)) {
                     Column(Modifier.padding(7.dp)) {
                         GameTalkBar(live)
-                        if (deciding) Text("伙伴正在回忆刚才翻到的牌…",
-                            color = Color(0xFFD6C8FF), fontSize = 11.sp)
+                        if (deciding) Text("${character?.displayName ?: "对手"}正在回忆刚才翻到的牌…",
+                            color = Color(0xFF6C5989), fontSize = 11.sp)
                         if (roleError.isNotBlank()) {
-                            Text(roleError, color = Color(0xFFFFB7B7), fontSize = 11.sp)
+                            Text(roleError, color = Color(0xFFB24F53), fontSize = 11.sp)
                             Button(onClick = { choiceRetry++ }) { Text("重新选牌") }
                         }
                     }
                 }
             }
             Surface(
-                color = Color(0xC20C1220),
+                color = Color(0xF9FFFFFF),
                 shape = RoundedCornerShape(14.dp),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = .10f)),
+                border = BorderStroke(1.dp, Color(0xFFDED8CC)),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Row(
@@ -190,11 +192,11 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
                     Box(
                         Modifier.size(7.dp).graphicsLayer { alpha = .62f + .38f * sin(phase * 6.283f) },
                     ) {
-                        Surface(Modifier.fillMaxSize(), shape = CircleShape, color = Color(0xFFBCA8FF)) {}
+                        Surface(Modifier.fillMaxSize(), shape = CircleShape, color = Color(0xFF846A9B)) {}
                     }
                     Spacer(Modifier.size(8.dp))
-                    Text(game.lastEvent, color = Color(0xFFD5D9E8), fontSize = 10.sp, modifier = Modifier.weight(1f))
-                    Text("配对 ${game.matched.size / 2}/6", color = Color(0xFF9EA8BF), fontSize = 9.sp)
+                    Text(game.lastEvent, color = Color(0xFF495367), fontSize = 10.sp, modifier = Modifier.weight(1f))
+                    Text("配对 ${game.matched.size / 2}/6", color = Color(0xFF657184), fontSize = 9.sp)
                 }
             }
         }
@@ -206,14 +208,15 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
             modifier = Modifier.align(Alignment.Center).padding(28.dp),
         ) {
             val result = when {
+                solo -> "挑战完成！"
                 game.userPairs > game.characterPairs -> "你赢下了这局"
-                game.userPairs < game.characterPairs -> "${character.displayName}赢下了这局"
+                game.userPairs < game.characterPairs -> "${character?.displayName}赢下了这局"
                 else -> "这局平手"
             }
             Surface(
-                color = Color(0xF20D1320),
+                color = Color(0xFFFFFDF9),
                 shape = RoundedCornerShape(27.dp),
-                border = BorderStroke(1.dp, Color(0xFFCCB9FF).copy(alpha = .42f)),
+                border = BorderStroke(1.dp, Color(0xFFD2BADD).copy(alpha = .42f)),
                 shadowElevation = 22.dp,
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -222,14 +225,15 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    Icon(Icons.Outlined.AutoAwesome, null, tint = Color(0xFFE9D59A), modifier = Modifier.size(36.dp))
-                    Text(result, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Black)
-                    Text("${game.moves} 轮 · 你 ${game.userPairs} : ${game.characterPairs} ${character.displayName}", color = Color(0xFFABB4C9), fontSize = 11.sp)
+                    Icon(Icons.Outlined.AutoAwesome, null, tint = Color(0xFFB58A4C), modifier = Modifier.size(36.dp))
+                    Text(result, color = GameDesign.ink, fontSize = 22.sp, fontWeight = FontWeight.Black)
+                    Text(if (solo) "${game.moves} 轮找齐全部 6 对 · 最佳 ${personalBest ?: game.moves} 轮"
+                        else "${game.moves} 轮 · 你 ${game.userPairs} : ${game.characterPairs} ${character?.displayName}", color = Color(0xFF657184), fontSize = 11.sp)
                     Button(
                         onClick = store::resetMemoryMatch,
                         modifier = Modifier.fillMaxWidth().height(48.dp),
                         shape = RoundedCornerShape(15.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBCA8FF), contentColor = Color(0xFF181226)),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF846A9B), contentColor = Color.White),
                     ) {
                         Icon(Icons.Outlined.Replay, null)
                         Spacer(Modifier.size(7.dp))
@@ -244,27 +248,27 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
 @Composable
 private fun MemoryArenaBackground(phase: Float) {
     Canvas(Modifier.fillMaxSize()) {
-        drawRect(Brush.verticalGradient(listOf(Color(0xFF090D17), Color(0xFF131224), Color(0xFF080C13))))
+        drawRect(Brush.verticalGradient(listOf(Color(0xFFF8F1EA), Color(0xFFF7F4F5), Color(0xFFECF3EF))))
         val drift = sin(phase * 6.283f)
         drawCircle(
-            Brush.radialGradient(listOf(Color(0xFF7966BF).copy(alpha = .22f), Color.Transparent)),
+            Brush.radialGradient(listOf(Color(0xFFCEB1C5).copy(alpha = .22f), Color.Transparent)),
             radius = size.minDimension * .65f,
             center = Offset(size.width * (.28f + drift * .04f), size.height * .26f),
         )
         drawCircle(
-            Brush.radialGradient(listOf(Color(0xFF4FA7B7).copy(alpha = .15f), Color.Transparent)),
+            Brush.radialGradient(listOf(Color(0xFFA6CDBB).copy(alpha = .15f), Color.Transparent)),
             radius = size.minDimension * .58f,
             center = Offset(size.width * (.76f - drift * .05f), size.height * .74f),
         )
         val horizon = size.height * .54f
         repeat(8) { index ->
             val y = horizon + (index * index) * size.height * .0075f
-            drawLine(Color.White.copy(alpha = .035f), Offset(0f, y), Offset(size.width, y), 1f)
+            drawLine(Color(0xFF929E96).copy(alpha = .12f), Offset(0f, y), Offset(size.width, y), 1f)
         }
         repeat(9) { index ->
             val bottomX = size.width * index / 8f
             val topX = size.width * .5f + (bottomX - size.width * .5f) * .16f
-            drawLine(Color.White.copy(alpha = .028f), Offset(topX, horizon), Offset(bottomX, size.height), 1f)
+            drawLine(Color(0xFF929E96).copy(alpha = .11f), Offset(topX, horizon), Offset(bottomX, size.height), 1f)
         }
     }
 }
@@ -277,11 +281,36 @@ private fun MemoryArenaScoreboard(
     characterAvatar: String?,
     turn: MemoryTurn,
     moves: Int,
+    solo: Boolean,
+    bestMoves: Int?,
 ) {
+    if (solo) {
+        Surface(
+            color = Color(0xFFFFFDF9), shape = RoundedCornerShape(20.dp),
+            border = BorderStroke(1.dp, Color(0xFFDED8CC)),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Row(Modifier.padding(horizontal = 17.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween) {
+                Column {
+                    Text("单人挑战 · 找齐 6 对", color = GameDesign.muted, fontSize = 11.sp)
+                    Text("已翻 ${moves} 轮", color = GameDesign.ink,
+                        fontSize = 23.sp, fontWeight = FontWeight.Black)
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text("个人最佳", color = GameDesign.muted, fontSize = 11.sp)
+                    Text(if (bestMoves == null) "等待第一局" else "${bestMoves} 轮",
+                        color = Color(0xFF7C6495), fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+        return
+    }
     Surface(
-        color = Color(0xC70B111D),
+        color = Color(0xF9FFFFFF),
         shape = RoundedCornerShape(20.dp),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = .12f)),
+        border = BorderStroke(1.dp, Color(0xFFDED8CC)),
         shadowElevation = 10.dp,
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -289,22 +318,22 @@ private fun MemoryArenaScoreboard(
             Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Surface(shape = CircleShape, color = Color(0xFF252A3B), modifier = Modifier.size(38.dp)) {
-                Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Person, null, tint = Color(0xFFE3E7F4), modifier = Modifier.size(21.dp)) }
+            Surface(shape = CircleShape, color = Color(0xFFECE6F1), modifier = Modifier.size(38.dp)) {
+                Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.Person, null, tint = Color(0xFF61596C), modifier = Modifier.size(21.dp)) }
             }
             Column(Modifier.padding(start = 8.dp)) {
-                Text("你", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                Text(userPairs.toString().padStart(2, '0'), color = Color(0xFFCAAFFF), fontSize = 22.sp, fontWeight = FontWeight.Black)
+                Text("你", color = GameDesign.ink, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                Text(userPairs.toString().padStart(2, '0'), color = Color(0xFF74558D), fontSize = 22.sp, fontWeight = FontWeight.Black)
             }
             Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                Surface(shape = RoundedCornerShape(9.dp), color = Color(0xFFBCA8FF).copy(alpha = .12f)) {
-                    Text(if (turn == MemoryTurn.User) "你的回合" else "$characterName 思考中", color = Color(0xFFD8CBFF), fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp))
+                Surface(shape = RoundedCornerShape(9.dp), color = Color(0xFF846A9B).copy(alpha = .12f)) {
+                    Text(if (turn == MemoryTurn.User) "你的回合" else "$characterName 思考中", color = Color(0xFF634F7D), fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp))
                 }
-                Text("ROUND ${moves + 1}", color = Color(0xFF747D94), fontSize = 7.5.sp, modifier = Modifier.padding(top = 4.dp))
+                Text("ROUND ${moves + 1}", color = Color(0xFF7B8191), fontSize = 7.5.sp, modifier = Modifier.padding(top = 4.dp))
             }
             Column(Modifier.padding(end = 8.dp), horizontalAlignment = Alignment.End) {
-                Text(characterName, color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                Text(characterPairs.toString().padStart(2, '0'), color = Color(0xFF8EE4E7), fontSize = 22.sp, fontWeight = FontWeight.Black)
+                Text(characterName, color = GameDesign.ink, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                Text(characterPairs.toString().padStart(2, '0'), color = Color(0xFF367F7A), fontSize = 22.sp, fontWeight = FontWeight.Black)
             }
             LuluProfileAvatar(characterAvatar, characterName.take(1).ifBlank { "角" }, 38)
         }
@@ -343,14 +372,14 @@ private fun MemoryArenaBoard(
                             }
                             .clickable(enabled = enabled && !visible) { onOpen(index) },
                         color = when {
-                            matchedCard -> Color(0xFF304B55)
-                            visible -> Color(0xFF322B48)
-                            else -> Color(0xFF161C2A)
+                            matchedCard -> Color(0xFFE0F0EA)
+                            visible -> Color(0xFFF7EBD7)
+                            else -> Color(0xFFFFFFFF)
                         },
                         shape = RoundedCornerShape(17.dp),
                         border = BorderStroke(
                             if (visible) 1.4.dp else 1.dp,
-                            if (matchedCard) Color(0xFF91F0E7).copy(alpha = .65f) else Color(0xFFBCA8FF).copy(alpha = if (visible) .55f else .20f),
+                            if (matchedCard) Color(0xFF6EA696).copy(alpha = .65f) else Color(0xFF846A9B).copy(alpha = if (visible) .55f else .20f),
                         ),
                         shadowElevation = if (visible) 12.dp else 4.dp,
                     ) {
@@ -362,8 +391,8 @@ private fun MemoryArenaBoard(
                                 Text(cards[index], fontSize = 29.sp, textAlign = TextAlign.Center)
                             } else {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text("◇", color = Color(0xFFBCA8FF), fontSize = 25.sp, fontWeight = FontWeight.Light)
-                                    Text("${rowIndex + 1}·${index % 4 + 1}", color = Color(0xFF687188), fontSize = 7.sp, letterSpacing = 1.sp)
+                                    Text("◇", color = Color(0xFF846A9B), fontSize = 25.sp, fontWeight = FontWeight.Light)
+                                    Text("${rowIndex + 1}·${index % 4 + 1}", color = Color(0xFF7D8492), fontSize = 7.sp, letterSpacing = 1.sp)
                                 }
                             }
                         }
