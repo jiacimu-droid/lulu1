@@ -682,12 +682,13 @@ internal fun RelicEscapeScreen(store:LuluGameStore, initialParty:List<String> = 
                         color=relicMuted,fontSize=11.sp)
                 }
                 if(snapshot.vault.isEmpty())Text("尚未有成功带回的实物",color=relicMuted)
-                snapshot.vault.takeLast(30).reversed().forEach{item->
+                snapshot.vault.indices.reversed().take(30).forEach{vaultIndex->
+                    val item=snapshot.vault[vaultIndex]
                     Row(verticalAlignment=Alignment.CenterVertically) {
                         Text(RelicCollectibles.displayRank(item)+" · "+item.name+" · "+item.value,
                             color=when(item.tier){RelicTier.PRECIOUS->relicGold;RelicTier.RARE->relicGreen;else->Color.White},
                             fontSize=12.sp,modifier=Modifier.weight(1f))
-                        TextButton(onClick={change{ledger.sellLoot(item.id)}}){Text("兑换铜币")}
+                        TextButton(onClick={change{ledger.sellLootAt(vaultIndex,item)}}){Text("兑换铜币")}
                     }
                 }
             }
