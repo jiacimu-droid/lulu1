@@ -58,16 +58,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 internal object SoupTableColors {
-    val background = Color(0xFF121B19)
-    val panel = Color(0xFF1E2A25)
-    val border = Color(0xFF3D4D44)
-    val text = Color(0xFFF4EDE0)
-    val muted = Color(0xFFB5C4B9)
-    val gold = Color(0xFFE7C697)
-    val green = Color(0xFFBBDCC6)
-    val paper = Color(0xFFF2E4CB)
-    val ink = Color(0xFF282821)
-    val error = Color(0xFFFFB9AC)
+    val background = Color(0xFFF7F4ED)
+    val panel = Color(0xFFFFFDF7)
+    val border = Color(0xFFE0D7CA)
+    val text = Color(0xFF2F3D37)
+    val muted = Color(0xFF657970)
+    val gold = Color(0xFF946C3C)
+    val green = Color(0xFF397C62)
+    val paper = Color(0xFFFFF3DA)
+    val ink = Color(0xFF273C31)
+    val error = Color(0xFFAD4D4C)
 }
 
 @Composable
@@ -133,7 +133,7 @@ internal fun SoupTranscriptLine(line: SoupLine, related: SoupLine?) {
     if (line.kind == SoupKind.ANSWER) {
         Row(Modifier.fillMaxWidth().padding(start = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically) {
-            Surface(color = if (line.text == "是") Color(0xFF304639) else SoupTableColors.panel,
+            Surface(color = if (line.text == "是") Color(0xFFE4F3EA) else SoupTableColors.panel,
                 shape = CircleShape, border = BorderStroke(1.dp, SoupTableColors.border)) {
                 Text(line.text, Modifier.padding(horizontal = 11.dp, vertical = 4.dp),
                     color = if (line.text == "是") SoupTableColors.green else SoupTableColors.gold,
@@ -163,7 +163,7 @@ internal fun SoupTranscriptLine(line: SoupLine, related: SoupLine?) {
         Text(line.speaker + detail, Modifier.padding(horizontal = 5.dp),
             fontSize = 11.sp, color = if (owner) SoupTableColors.muted else SoupTableColors.gold,
             fontWeight = FontWeight.SemiBold)
-        Surface(color = if (owner) Color(0xFF314238) else SoupTableColors.panel,
+        Surface(color = if (owner) Color(0xFFDFEDE5) else SoupTableColors.panel,
             shape = RoundedCornerShape(15.dp, 15.dp, if (owner) 4.dp else 15.dp, if (owner) 15.dp else 4.dp)) {
             Text(line.text, Modifier.padding(horizontal = 13.dp, vertical = 8.dp),
                 color = SoupTableColors.text, fontSize = 15.sp, lineHeight = 23.sp)
@@ -284,7 +284,7 @@ internal fun SoupComposer(
                         Box(contentAlignment = Alignment.Center) {
                             Icon(if (micActive) Icons.Outlined.Mic else Icons.Outlined.MicOff,
                                 if (micActive) "静音麦克风" else "开启连麦",
-                                tint = if (micActive) SoupTableColors.ink else SoupTableColors.gold)
+                                tint = if (micActive) Color.White else SoupTableColors.gold)
                         }
                     }
                     if (voicePanel) {
@@ -425,7 +425,7 @@ internal fun SoupSetup(
         Button(
             onClick = { onChange(room.copy(started = true)) },
             modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = SoupTableColors.gold, contentColor = SoupTableColors.ink),
+            colors = ButtonDefaults.buttonColors(containerColor = SoupTableColors.gold, contentColor = Color.White),
         ) { Text("开始推理", fontWeight = FontWeight.SemiBold) }
     }
     if (showCases) {
