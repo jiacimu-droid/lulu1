@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:51:35.181966+00:00",
-  "commit": "68f631db7e2700fb86c6f69c355ee294f1765e53",
+  "generatedAt": "2026-11-18T11:57:10.731944+00:00",
+  "commit": "c1dbf4e9d47183a29a5a4717b7071a2526fa3596",
   "branch": "main",
-  "sourceFingerprint": "366d28d1abd7a0d6890ad1c5c69f6f20125954e577009a2941dacec96d6ca447",
+  "sourceFingerprint": "5e006880a74aa8048d7f6a679a3766a0319f91e65e82ba144460e061506ea65a",
   "summary": {
     "files": 1467,
-    "lines": 309835,
+    "lines": 309895,
     "symbols": 4433
   },
   "symbolIndex": {
@@ -1223,7 +1223,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 814
+        "line": 856
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
@@ -16167,127 +16167,127 @@
     "MemoryTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 116
+        "line": 122
       }
     ],
     "MoodGuessRound": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 148
+        "line": 156
       }
     ],
     "LuluGameState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 156
+        "line": 164
       }
     ],
     "LuluGameStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 167
+        "line": 175
       }
     ],
     "activeGameContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 261
+        "line": 269
       }
     ],
     "setPlayWithCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 263
+        "line": 271
       }
     ],
     "selectCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 265
+        "line": 273
       }
     ],
     "selectCharacters": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 270
+        "line": 278
       }
     ],
     "startMemoryMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 283
+        "line": 291
       }
     ],
     "memorySoloBestMoves": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 296
+        "line": 304
       }
     ],
     "openMemoryCard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 304
+        "line": 312
       }
     ],
     "openCharacterMemoryCard": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 309
+        "line": 317
       }
     ],
     "closeUnmatchedCards": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 375
+        "line": 412
       }
     ],
     "resetMemoryMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 391
+        "line": 433
       }
     ],
     "answerMood": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 393
+        "line": 435
       }
     ],
     "resetMoodGuess": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 407
+        "line": 449
       }
     ],
     "recordExternalGame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 409
+        "line": 451
       }
     ],
     "playAutonomousGame": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 492
+        "line": 534
       }
     ],
     "attachCharacterReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 660
+        "line": 702
       }
     ],
     "clearRecords": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 678
+        "line": 720
       }
     ],
     "LuluGames": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-        "line": 807
+        "line": 849
       }
     ],
     "Home": [
@@ -39785,8 +39785,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt",
-      "lines": 405,
-      "sha256": "6e020294ecb84970e1d6aeb99f985d5c4a1afecc0a99424418493b0bab885546",
+      "lines": 423,
+      "sha256": "58da564462fb5348dfb4a7b6def1156486afcd7ae127874879c579d35886d4a1",
       "symbols": []
     },
     {
@@ -40401,8 +40401,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
-      "lines": 818,
-      "sha256": "4ea660d9f5b1231dddd8d00311a11423d28c827ecd08692070873a6abadf67f4",
+      "lines": 860,
+      "sha256": "6d44f7edcbe679bb6f240d8bd092c2e005291030114f3c9ab6f16cc4cdacc414",
       "symbols": [
         {
           "name": "available",
@@ -40442,91 +40442,91 @@
         },
         {
           "name": "MemoryTurn",
-          "line": 116
+          "line": 122
         },
         {
           "name": "MoodGuessRound",
-          "line": 148
-        },
-        {
-          "name": "LuluGameState",
           "line": 156
         },
         {
+          "name": "LuluGameState",
+          "line": 164
+        },
+        {
           "name": "LuluGameStore",
-          "line": 167
+          "line": 175
         },
         {
           "name": "activeGameContext",
-          "line": 261
+          "line": 269
         },
         {
           "name": "setPlayWithCharacter",
-          "line": 263
+          "line": 271
         },
         {
           "name": "selectCharacter",
-          "line": 265
+          "line": 273
         },
         {
           "name": "selectCharacters",
-          "line": 270
+          "line": 278
         },
         {
           "name": "startMemoryMatch",
-          "line": 283
+          "line": 291
         },
         {
           "name": "memorySoloBestMoves",
-          "line": 296
-        },
-        {
-          "name": "openMemoryCard",
           "line": 304
         },
         {
+          "name": "openMemoryCard",
+          "line": 312
+        },
+        {
           "name": "openCharacterMemoryCard",
-          "line": 309
+          "line": 317
         },
         {
           "name": "closeUnmatchedCards",
-          "line": 375
+          "line": 412
         },
         {
           "name": "resetMemoryMatch",
-          "line": 391
+          "line": 433
         },
         {
           "name": "answerMood",
-          "line": 393
+          "line": 435
         },
         {
           "name": "resetMoodGuess",
-          "line": 407
+          "line": 449
         },
         {
           "name": "recordExternalGame",
-          "line": 409
+          "line": 451
         },
         {
           "name": "playAutonomousGame",
-          "line": 492
+          "line": 534
         },
         {
           "name": "attachCharacterReply",
-          "line": 660
+          "line": 702
         },
         {
           "name": "clearRecords",
-          "line": 678
+          "line": 720
         },
         {
           "name": "LuluGames",
-          "line": 807
+          "line": 849
         },
         {
           "name": "initialize",
-          "line": 814
+          "line": 856
         }
       ]
     },

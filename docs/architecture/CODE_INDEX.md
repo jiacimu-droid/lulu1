@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`68f631db7e2700fb86c6f69c355ee294f1765e53`
+- 基准提交：`c1dbf4e9d47183a29a5a4717b7071a2526fa3596`
 - 分支：`main`
 - 已索引文件：1467
-- 已索引代码/文本行：309835
+- 已索引代码/文本行：309895
 - 已发现符号：4433
 
 | 文件 | 行数 | 符号数 |
@@ -717,7 +717,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt` | 92 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 405 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 423 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 382 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 81 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandChallengeBoard.kt` | 75 | 1 |
@@ -742,7 +742,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 818 | 31 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 860 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 965 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 935 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 382 | 4 |
