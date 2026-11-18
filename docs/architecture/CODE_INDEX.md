@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`795d984d6a2ebb38660f67b729d6cac9f6756481`
+- 基准提交：`f4f402580339b73a3e9f5f10ff80cfbd8a7a8946`
 - 分支：`main`
 - 已索引文件：1476
-- 已索引代码/文本行：312323
-- 已发现符号：4453
+- 已索引代码/文本行：312357
+- 已发现符号：4456
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -93,8 +93,8 @@
 | `app/src/main/java/com/jiacimu/lulu/CallSpokenHangupPolicy.kt` | 44 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CallTimeFacts.kt` | 92 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CallTimedHangupTiming.kt` | 14 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 116 | 16 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterCreateScreen.kt` | 374 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/CallVoiceConfiguration.kt` | 131 | 16 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterCreateScreen.kt` | 370 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterDevelopmentSettings.kt` | 66 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExecutionSettings.kt` | 209 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterExpressionPreferencesSettings.kt` | 30 | 0 |
@@ -105,7 +105,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterMusicSensingSettings.kt` | 90 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt` | 515 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSectionTabs.kt` | 33 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 645 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 648 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWirelessDebuggingSettings.kt` | 139 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWorldBookScreenV2.kt` | 718 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ChatAutoVoicePlayback.kt` | 444 | 9 |
@@ -440,7 +440,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterThoughtActionHandoff.kt` | 303 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt` | 89 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt` | 162 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 121 | 14 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 141 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 72 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 664 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 125 | 2 |
