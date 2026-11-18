@@ -32,24 +32,25 @@ private val museumGold=Color(0xFFE6CDA0)
 @Composable
 internal fun RelicVaultPage(
     snapshot:RelicSnapshot,live:Boolean,onClose:()->Unit,
-    onFeature:(String)->Unit,onSell:(String)->Unit,
+    onFeature:(String)->Unit,onSell:(Int,RelicLoot)->Unit,
 ) {
     val context=LocalContext.current
     var grade by remember { mutableStateOf("全部") }
     var museumTab by remember { mutableStateOf("藏品") }
-    var selectedId by remember { mutableStateOf(snapshot.featuredLootId ?: snapshot.vault.lastOrNull()?.id) }
-    var pendingSale by remember { mutableStateOf<RelicLoot?>(null) }
+    var selectedIndex by remember { mutableIntStateOf(snapshot.vault.indexOfLast { it.id==snapshot.featuredLootId }.takeIf { it>=0 } ?: snapshot.vault.lastIndex) }
+    var pendingSale by remember { mutableStateOf<Pair<Int,RelicLoot>?>(null) }
     val inventory=remember(snapshot.vault,grade) {
-        snapshot.vault.asReversed().filter {
-            grade=="全部" || RelicCollectibles.displayRank(it)==grade
-        }
+        snapshot.vault.indices.reversed().filter { index ->
+            grade=="全部" || RelicCollectibles.displayRank(snapshot.vault[index])==grade
+        }.map { index -> index to snapshot.vault[index] }
     }
     // The exhibit and its actions must belong to the visible filtered collection.
     // A remembered selection from another rank must not appear as an owned
     // item of the newly selected rank, especially when that rank is empty.
-    val selected=inventory.firstOrNull { it.id==selectedId }
-        ?: inventory.firstOrNull { it.id==snapshot.featuredLootId }
+    val selectedEntry=inventory.firstOrNull { it.first==selectedIndex }
+        ?: inventory.firstOrNull { it.second.id==snapshot.featuredLootId }
         ?: inventory.firstOrNull()
+    val selected=selectedEntry?.second
     val share:(RelicLoot)->Unit = { item ->
         val intent=Intent(Intent.ACTION_SEND).apply {
             type="text/plain"
@@ -75,7 +76,7 @@ internal fun RelicVaultPage(
                     contentPadding=PaddingValues(horizontal=4.dp)) {
                     Text("分享",color=museumGold,fontSize=11.sp)
                 }
-                OutlinedButton(onClick={pendingSale=selected},enabled=!live,
+                OutlinedButton(onClick={pendingSale=selectedEntry},enabled=!live,
                     modifier=Modifier.weight(1f),contentPadding=PaddingValues(horizontal=4.dp)) {
                     Text("出售",color=Color(0xFFE9B4A8),fontSize=11.sp)
                 }
@@ -103,13 +104,14 @@ internal fun RelicVaultPage(
                 Text("这个品级还没有实物。去遗迹发现下一件珍宝吧。",
                     color=museumMuted,fontSize=12.sp,modifier=Modifier.padding(10.dp))
             }
-            itemsIndexed(inventory,key={ index, _ -> index }) { _, item ->
+            itemsIndexed(inventory,key={ _, entry -> entry.first }) { _, entry ->
+                val (vaultIndex,item)=entry
                 val color=RelicTreasureGallery.accent(item)
-                Surface(onClick={selectedId=item.id},
-                    color=if(selected?.id==item.id) Color(0xFF283A46) else Color(0xFF1C2A36),
+                Surface(onClick={selectedIndex=vaultIndex},
+                    color=if(selectedEntry?.first==vaultIndex) Color(0xFF283A46) else Color(0xFF1C2A36),
                     shape=RoundedCornerShape(11.dp),
                     border=BorderStroke(1.dp,color.copy(
-                        alpha=if(selected?.id==item.id).78f else .18f))) {
+                        alpha=if(selectedEntry?.first==vaultIndex).78f else .18f))) {
                     Row(Modifier.fillMaxWidth().heightIn(min=72.dp)
                         .padding(horizontal=10.dp,vertical=8.dp),
                         verticalAlignment=Alignment.CenterVertically) {
@@ -207,15 +209,15 @@ internal fun RelicVaultPage(
                 }
             }
         }
-    pendingSale?.let { item ->
+    pendingSale?.let { (index,item) ->
         AlertDialog(onDismissRequest={pendingSale=null},
             containerColor=Color(0xFF1D2935),
             title={Text("确认出售实物？",color=museumInk)},
             text={Text("「${item.name}」 · ${RelicCollectibles.displayRank(item)}\n"+
                 "可得 ◇${item.value}；永久图鉴仍保留。",
                 color=museumMuted)},
-            confirmButton={TextButton(onClick={pendingSale=null;onSell(item.id)},
-                enabled=!live && snapshot.vault.any { it.id==item.id }) {
+            confirmButton={TextButton(onClick={pendingSale=null;onSell(index,item)},
+                enabled=!live && snapshot.vault.getOrNull(index)==item) {
                 Text("确认出售",color=museumGold)
             }},
             dismissButton={TextButton(onClick={pendingSale=null}) {
