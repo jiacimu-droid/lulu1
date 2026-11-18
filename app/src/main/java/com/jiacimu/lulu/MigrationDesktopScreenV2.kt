@@ -613,61 +613,62 @@ private fun DesktopCompanionCard(
     foreground: Color? = null,
 ) {
     val journal = LocalLuluAppearance.current.isJournal()
-    val appearance = LocalLuluAppearance.current
+    val ink = foreground ?: DesktopInk
+    val secondary = foreground?.copy(alpha = .78f) ?: DesktopMuted
     Surface(
         modifier = modifier.fillMaxSize().luluCssElement("companion"),
         color = if (embedded) Color.Transparent else MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
+        shape = RoundedCornerShape(LocalLuluAppearance.current.corner.dp),
         border = if (embedded) null else BorderStroke(1.dp, DesktopLine),
         shadowElevation = if (embedded) 0.dp else 2.dp,
         onClick = onClick,
     ) {
-        Box {
-        Row(
-            modifier = Modifier.fillMaxSize()
-                .then(if (journal) Modifier.journalPaper(appearance) else Modifier)
-                .padding(horizontal = 17.dp, vertical = 15.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            DesktopV2Avatar(avatarFallback, 72, avatarUri)
-            Spacer(Modifier.width(15.dp))
-            Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(displayName, color = foreground ?: DesktopInk, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        if (isGroup) "GROUP" else "ONLINE",
-                        color = foreground?.copy(alpha = .75f) ?: DesktopMuted,
-                        fontSize = 8.sp,
-                        letterSpacing = 1.1.sp,
-                    )
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            val compact = maxWidth < 250.dp || maxHeight < 116.dp
+            Row(
+                modifier = Modifier.fillMaxSize()
+                    .padding(horizontal = if (compact) 9.dp else 15.dp,
+                        vertical = if (compact) 7.dp else 13.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                DesktopV2Avatar(avatarFallback, if (compact) 42 else 62, avatarUri)
+                Spacer(Modifier.width(if (compact) 8.dp else 13.dp))
+                Column(Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(displayName, color = ink,
+                            fontSize = if (compact) 14.sp else 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false))
+                        if (!compact) {
+                            Spacer(Modifier.width(7.dp))
+                            Text(if (isGroup) "GROUP" else "ONLINE",
+                                color = secondary, fontSize = 8.sp)
+                        }
+                    }
+                    Spacer(Modifier.height(if (compact) 3.dp else 6.dp))
+                    Text("“${recentMessage.trim()}”", color = secondary,
+                        fontSize = if (compact) 10.sp else 12.sp,
+                        fontStyle = FontStyle.Italic, maxLines = if (compact) 2 else 1,
+                        overflow = TextOverflow.Ellipsis)
+                    if (!compact) {
+                        Spacer(Modifier.height(7.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            DesktopTinyTag(if (isGroup) "群聊" else "陪伴中")
+                            DesktopTinyTag(if (isGroup) "进入群聊" else "点我聊天")
+                        }
+                    }
                 }
-                Spacer(Modifier.height(3.dp))
-                Text(
-                    "“${recentMessage.trim()}”",
-                    color = foreground?.copy(alpha = .75f) ?: DesktopMuted,
-                    fontSize = 12.sp,
-                    fontStyle = FontStyle.Italic,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Spacer(Modifier.height(6.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    DesktopTinyTag(if (isGroup) "群聊" else "陪伴中")
-                    DesktopTinyTag(if (isGroup) "进入群聊" else "点我聊天")
+                if (!compact) {
+                    Spacer(Modifier.width(5.dp))
+                    Icon(Icons.Outlined.ChevronRight, "进入聊天",
+                        tint = secondary, modifier = Modifier.size(18.dp))
                 }
             }
-            Icon(
-                Icons.Outlined.ChevronRight,
-                if (isGroup) "进入群聊" else "进入聊天",
-                tint = DesktopMuted,
-                modifier = Modifier.size(20.dp),
-            )
-        }
-        if (journal) {
-            JournalWashiTape(Modifier.align(Alignment.TopEnd).padding(end = 18.dp)
-                .offset(y = (-2).dp).width(58.dp).height(13.dp))
-        }
+            if (journal && !embedded) {
+                JournalWashiTape(Modifier.align(Alignment.TopEnd).padding(end = 18.dp)
+                    .offset(y = (-2).dp).width(58.dp).height(13.dp))
+            }
         }
     }
 }
