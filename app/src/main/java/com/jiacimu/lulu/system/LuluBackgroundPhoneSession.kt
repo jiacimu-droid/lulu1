@@ -561,9 +561,12 @@ internal object LuluBackgroundPhoneSession {
             return stopped("visual_input_window_unverified", "聚焦前独立屏窗口或授权已变化，未输入")
         val tap = pressVisualTarget(id, packageName, x, y, holdMs = null, authorized = authorized)
         if (!tap.optBoolean("accepted")) return stopped("visual_input_focus_tap_unverified",
-            "目标输入位置的聚焦点击未核实，未派发文字")
+            tap.optString("verification").ifBlank { "设备未确认完成对输入框的触摸" })
+            .put("inputFocusTapCompleted", false)
+            .put("inputFocusTapError", tap.optString("errorCode"))
 
         var pasteWindow = ""
+        var focusRecoveryAttempted = false
         suspend fun resolveFocus() = withContext(Dispatchers.Main) {
             LuluAccessibilityService.visualInputFocus(id, packageName, x, y, selectedEditor, previousWindow)
         }
@@ -572,6 +575,14 @@ internal object LuluBackgroundPhoneSession {
         for (attempt in 0 until 8) {
             if (!authorized() || (requiredWindow != null && windowIdentity() != requiredWindow)) break
             val focus = resolveFocus()
+            if (attempt == 2 && focus.route == LuluVirtualTextInputPolicy.VisualInputRoute.WAIT &&
+                selectedEditor != null && windowIdentity() == previousWindow &&
+                humanOnlyPage(id, packageName) == null) {
+                focusRecoveryAttempted = withContext(Dispatchers.Main) {
+                    LuluAccessibilityService.requestVisualEditorFocus(
+                        id, packageName, selectedEditor, previousWindow, authorized)
+                }
+            }
             if (focus.route == LuluVirtualTextInputPolicy.VisualInputRoute.SET_TEXT) {
                 if (humanOnlyPage(id, packageName) != null) break
                 val typed = withContext(Dispatchers.Main) {
@@ -583,6 +594,8 @@ internal object LuluBackgroundPhoneSession {
                         id, packageName, checkNotNull(current.editor), text, authorized)
                 }
                 if (typed != null) {
+                    typed.put("inputFocusTapCompleted", true)
+                        .put("inputFocusRecoveryAttempted", focusRecoveryAttempted)
                     if (typed.optBoolean("accepted") && !typed.optBoolean("inputTextReadbackVerified")) {
                         repeat(2) {
                             kotlinx.coroutines.delay(120)
@@ -611,7 +624,9 @@ internal object LuluBackgroundPhoneSession {
             if (attempt < 7) kotlinx.coroutines.delay(150)
         }
         if (pasteWindow.isBlank() || !authorized()) return stopped("visual_input_focus_unverified",
-            "点击后未能核实独立屏目标输入框或目标窗口的焦点，未派发文字")
+            "设备已回报触摸完成，但未确认目标文字框取得焦点，文字未派发。请从新画面核对输入栏和光标。")
+            .put("inputFocusTapCompleted", true)
+            .put("inputFocusRecoveryAttempted", focusRecoveryAttempted)
 
         // The shell binds the shortcut to THIS display and target UID. Focus
         // evidence authorizes a single attempt, never proves it inserted text.
@@ -629,6 +644,8 @@ internal object LuluBackgroundPhoneSession {
             }
         }
         return JSONObject().put("accepted", pasted.optBoolean("accepted"))
+            .put("inputFocusTapCompleted", true)
+            .put("inputFocusRecoveryAttempted", focusRecoveryAttempted)
             .put("inputDispatched", pasted.optBoolean("inputDispatched"))
             .put("inputTextReadbackVerified", exactDraft)
             .put("inputVerification", if (exactDraft) "match" else "unverified")
@@ -813,6 +830,13 @@ internal object LuluBackgroundPhoneSession {
                 "已读回关键词并提交搜索；请核对页面里的实际搜索结果。"
             else "已读回关键词，但设备未接受搜索提交。")
         return SearchDispatch(receipt, beforeSubmit)
+    }
+
+    private fun JSONObject.attachInputFocusReceipt(applied: JSONObject?): JSONObject {
+        if (applied?.has("inputFocusTapCompleted") != true) return this
+        return put("inputFocusTapCompleted", applied.optBoolean("inputFocusTapCompleted"))
+            .put("inputFocusTapError", applied.optString("inputFocusTapError"))
+            .put("inputFocusRecoveryAttempted", applied.optBoolean("inputFocusRecoveryAttempted"))
     }
 
     private fun JSONObject.attachSearchReceipt(applied: JSONObject?): JSONObject {
@@ -2012,6 +2036,7 @@ internal object LuluBackgroundPhoneSession {
                 .put("inputMethod", applied?.optString("inputMethod").orEmpty())
                 .put("inputDispatched", applied?.optBoolean("inputDispatched") == true)
                 .put("inputAttempted", applied?.optBoolean("inputAttempted") == true)
+                .attachInputFocusReceipt(applied)
                     .put("frameValidated", false).put("taskCompleted", false)
                     .put("frameBlack", frame.optBoolean("frameBlack", false))
                     .put("screenCaptureStatus", if (frame.optBoolean("frameBlack", false))
@@ -2200,6 +2225,7 @@ internal object LuluBackgroundPhoneSession {
                     "match" else applied?.optString("inputVerification").orEmpty())
                 .put("inputDispatched", applied?.optBoolean("inputDispatched") == true)
                 .put("inputAttempted", applied?.optBoolean("inputAttempted") == true)
+                .attachInputFocusReceipt(applied)
                 .put("inputStage", if (action == "type")
                     LuluVirtualTextInputPolicy.stage(
                         applied?.optBoolean("accepted") == true, textReadbackVerified)

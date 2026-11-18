@@ -353,6 +353,11 @@ class LuluAccessibilityService : AccessibilityService() {
                             LuluPhoneInteractionPolicy.hardBlocked(
                                 if (safeEditable(node)) node.hintText?.toString().orEmpty() else ownLabel,
                                 node.viewIdResourceName.orEmpty())) blocked = true
+                    } else if (safeEditable(node)) {
+                        // A draft such as “发送给我” is ordinary editor content.
+                        if (LuluPhoneInteractionPolicy.hardBlocked(
+                                node.hintText?.toString().orEmpty(), node.viewIdResourceName.orEmpty()))
+                            blocked = true
                     } else if (!commentEntry && (risky.containsMatchIn(label) ||
                             LuluVirtualCommentPolicy.isSubmitLabel(ownLabel))) blocked = true
                     for (i in 0 until node.childCount) checkNode(node.getChild(i), depth + 1)
@@ -1894,6 +1899,25 @@ class LuluAccessibilityService : AccessibilityService() {
             return visibleEditors(root).singleOrNull { editorContainsPoint(it, width, height, x, y) }
         }
 
+        /** The original editable node is the only eligible focus target after a tap.
+         * ACTION_FOCUS changes input focus without clicking a second time. */
+        fun requestVisualEditorFocus(
+            displayId: Int, packageName: String, field: AccessibilityNodeInfo,
+            expectedWindow: String, authorized: () -> Boolean,
+        ): Boolean {
+            val service = instance ?: return false
+            if (expectedWindow.isBlank() || virtualChatWindowIdentity(displayId, packageName) != expectedWindow ||
+                topVirtualAppWindow(service, displayId, packageName)?.id != field.windowId ||
+                !field.refresh() || field.packageName?.toString() != packageName ||
+                !safeEditable(field) || field.isFocused || !field.isFocusable ||
+                field.actionList.none { it.id == AccessibilityNodeInfo.ACTION_FOCUS } ||
+                LuluPhoneInteractionPolicy.hardBlocked(
+                    field.hintText?.toString().orEmpty(), field.viewIdResourceName.orEmpty()) || !authorized())
+                return false
+            field.performAction(AccessibilityNodeInfo.ACTION_FOCUS)
+            return true // Attempted; the caller must check that focus actually changed.
+        }
+
         internal data class VisualInputFocus(
             val route: LuluVirtualTextInputPolicy.VisualInputRoute,
             val editor: AccessibilityNodeInfo? = null,
@@ -2028,6 +2052,7 @@ class LuluAccessibilityService : AccessibilityService() {
                 return result(false, false, "virtual_input_target_unverified")
             val field = focusedVirtualEditor(service, displayId, packageName)
                 ?: return result(false, false, "virtual_input_focused_editor_missing")
+                    .put("verification", "当前未看到已聚焦的输入框。请按新画面点进文字框，或用该输入框的坐标执行type。")
             val arguments = Bundle().apply {
                 putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text)
             }
