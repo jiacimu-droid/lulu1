@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T10:30:52.783808+00:00",
-  "commit": "319ac73cb5b0c350bb12d28223c8b13b9e421c4e",
+  "generatedAt": "2026-11-18T10:38:21.020429+00:00",
+  "commit": "dd0ad582322824108f7e83909645207cabea31d8",
   "branch": "main",
-  "sourceFingerprint": "c4c9b425428f8abba4ddabd2a461f1735f40325e0ffd81483dd8062415756004",
+  "sourceFingerprint": "8529afa867b9c8716b51e9f36adb2aa93b9f2a838908e154e4032032c3c83555",
   "summary": {
     "files": 1465,
-    "lines": 310174,
+    "lines": 310185,
     "symbols": 4421
   },
   "symbolIndex": {
@@ -7725,7 +7725,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 736
+        "line": 739
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -7765,7 +7765,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 752
+        "line": 755
       }
     ],
     "informativeAction": [
@@ -11255,7 +11255,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 865
+        "line": 876
       }
     ],
     "LegacyLuluImportResult": [
@@ -14075,13 +14075,13 @@
     "sessionStatementEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 732
+        "line": 735
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 847
+        "line": 858
       }
     ],
     "Limits": [
@@ -37302,8 +37302,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 979,
-      "sha256": "c01016227469dc8391767be1dca0f5c3caf906740fcb0e87631b53a92b63a045",
+      "lines": 990,
+      "sha256": "537afd082d002bb9487c60ed31b5b279ab876b94a8b5953e766415456d1c1da6",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -37379,23 +37379,23 @@
         },
         {
           "name": "sessionStatementEvents",
-          "line": 732
+          "line": 735
         },
         {
           "name": "recentContext",
-          "line": 736
+          "line": 739
         },
         {
           "name": "remember",
-          "line": 752
+          "line": 755
         },
         {
           "name": "exportBackup",
-          "line": 847
+          "line": 858
         },
         {
           "name": "importBackup",
-          "line": 865
+          "line": 876
         }
       ]
     },
