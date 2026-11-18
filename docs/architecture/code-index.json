@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:45:30.251541+00:00",
-  "commit": "275c3d48a081aa8ab2ec30af7600c0cba84efa69",
+  "generatedAt": "2026-11-18T07:48:35.793352+00:00",
+  "commit": "9c9741bcff62ed25fa3d6e1e1cecbb1db004a73a",
   "branch": "main",
-  "sourceFingerprint": "d4f34b3f89b6a374c92fe4c49bad1eb25a3bfc60bac101702646c0543d669931",
+  "sourceFingerprint": "db36de0c97cafeca02e07f41fb1bf7bc28ac058a917d790616fbf8b6af978182",
   "summary": {
     "files": 1461,
-    "lines": 308762,
+    "lines": 308798,
     "symbols": 4401
   },
   "symbolIndex": {
@@ -483,7 +483,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 658
+        "line": 694
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
@@ -2977,11 +2977,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 95
+        "line": 96
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 701
+        "line": 737
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt",
@@ -15277,31 +15277,31 @@
     "persistMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 79
+        "line": 80
       }
     ],
     "recordFinalResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 100
+        "line": 101
       }
     ],
     "saveTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 170
+        "line": 171
       }
     ],
     "rollForUser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 191
+        "line": 192
       }
     ],
     "place": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 677
+        "line": 713
       }
     ],
     "nextRound": [
@@ -39070,40 +39070,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-      "lines": 804,
-      "sha256": "3d3e350f690cb4f2446ff188103e87e5424b0c1c3085c18b8d88ed2be4ae0142",
+      "lines": 840,
+      "sha256": "8fe595e396f65abd2dee4e82866ee10d4faf243752f402ae3760bd218a162f25",
       "symbols": [
         {
           "name": "persistMatch",
-          "line": 79
+          "line": 80
         },
         {
           "name": "reset",
-          "line": 95
+          "line": 96
         },
         {
           "name": "recordFinalResult",
-          "line": 100
+          "line": 101
         },
         {
           "name": "saveTurn",
-          "line": 170
+          "line": 171
         },
         {
           "name": "rollForUser",
-          "line": 191
+          "line": 192
         },
         {
           "name": "finish",
-          "line": 658
+          "line": 694
         },
         {
           "name": "place",
-          "line": 677
+          "line": 713
         },
         {
           "name": "reset",
-          "line": 701
+          "line": 737
         }
       ]
     },
