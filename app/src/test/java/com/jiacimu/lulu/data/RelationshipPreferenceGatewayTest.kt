@@ -191,6 +191,76 @@ class RelationshipPreferenceGatewayTest {
         }
     }
 
+    @Test(timeout = 60_000) fun failedPhoneExpressionDoesNotRestoreClearedRelationshipFields() = runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(context)
+        SharedExperienceTimeline.initialize(context)
+        CharacterLifeStore.initialize(context)
+        LuluAiServices.initialize(context)
+        val actor = MigratedDomainStores.characters.create("电话清空约定样本", "保留自己的性格标记")
+        val peer = MigratedDomainStores.characters.create("另一人的电话约定", "另一人的性格标记")
+        val title = "清空前的独有关系标题"
+        val details = "仅按双方当前明确的约定相处。".repeat(90) +
+            "尾部条件：除非用户明确提出，否则不要沿用旧称呼。"
+        val peerDetails = "另一人的独有约定：不要把对方关系当成自己的。"
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(actor.characterId, "user", title, details))
+        assertTrue(CharacterLifeStore.setRelationshipAgreement(peer.characterId, "user", "另一人的关系", peerDetails))
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setResponseCode(401).setBody("invalid test credential"))
+            repeat(3) {
+                server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                    .setBody("""{"choices":[{"message":{"content":"测试响应"},"finish_reason":"stop"}]}"""))
+            }
+            server.start()
+            val connection = ModelConnection(server.url("/").toString(), "test-only", "test")
+            suspend fun request(role: String) = LuluAiServices.gateway.generate(
+                role, "仍然在同一通电话中", "只表达本轮已经选定的回应",
+                "电话表达渲染", "test", connectionOverride = connection,
+                contextMode = CompanionContextMode.CharacterAndScenario)
+            fun system(): String = JSONObject(checkNotNull(server.takeRequest(5, TimeUnit.SECONDS))
+                .body.readUtf8()).getJSONArray("messages").getJSONObject(0).getString("content")
+            assertTrue(request(actor.characterId).isFailure)
+            val failed = system()
+            assertTrue(failed.contains(title))
+            assertTrue(failed.contains(details))
+            assertEquals(1, server.requestCount)
+
+            assertTrue(CharacterLifeStore.setRelationshipAgreement(actor.characterId, "user", "", details))
+            request(actor.characterId).getOrThrow()
+            val titleCleared = system()
+            assertFalse(titleCleared.contains(title))
+            assertTrue(titleCleared.contains(details))
+            assertTrue(titleCleared.contains(actor.persona))
+
+            assertTrue(CharacterLifeStore.setRelationshipAgreement(actor.characterId, "user", "", ""))
+            assertNull(CharacterSocialRelationship.agreement(actor.characterId, "user"))
+            // Recreate the gateway after failure/edit. The saved empty entry is intentional.
+            MemoryTestEnvironment.release()
+            LuluRepositories.initialize(context)
+            SharedExperienceTimeline.initialize(context)
+            CharacterLifeStore.initialize(context)
+            LuluAiServices.initialize(context)
+            request(actor.characterId).getOrThrow()
+            val allCleared = system()
+            assertFalse(allCleared.contains(title))
+            assertFalse(allCleared.contains(details))
+            assertFalse(allCleared.contains(peerDetails))
+            assertTrue(allCleared.contains(actor.persona))
+            val saved = CharacterLifeStore.state(actor.characterId)
+                .getJSONObject("relationshipAgreements").getJSONObject("user")
+            assertEquals("", saved.getString("title"))
+            assertEquals("", saved.getString("details"))
+
+            request(peer.characterId).getOrThrow()
+            val peerPrompt = system()
+            assertTrue(peerPrompt.contains(peerDetails))
+            assertFalse(peerPrompt.contains(title))
+            assertFalse(peerPrompt.contains(details))
+            assertEquals(peerDetails, CharacterSocialRelationship.agreement(peer.characterId, "user")?.details)
+            assertEquals(4, server.requestCount)
+        }
+    }
+
     @Test fun leanExpressionActuallyReceivesEnduringPreferencesAndCoreButIsolatedTasksDoNot() = runBlocking {
         val context = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(context)
