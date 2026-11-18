@@ -42,6 +42,13 @@ internal object LuluBackgroundPhoneContinuation {
         if (receipt == null || receipt.optBoolean("messageSendAttempted") ||
             receipt.optBoolean("messageSendClicked") ||
             receipt.optBoolean("messageAppearedInChat")) return false
+        // An invalid snapshot argument is rejected before any chat Send
+        // operation. It is safe to inspect the current page again, but not to
+        // synthesize a token or replay a possibly clicked message.
+        if (receipt.optString("errorCode") == "invalid_action_arguments")
+            return receipt.optBoolean("sessionPreserved") &&
+                !receipt.optBoolean("accepted") &&
+                receipt.optString("verification").contains("screenSnapshotId")
         return receipt.optString("errorCode") in setOf(
             "chat_snapshot_expired", "chat_recipient_unverified",
             "chat_voice_mode_requires_text_switch", "chat_editor_ambiguous",
