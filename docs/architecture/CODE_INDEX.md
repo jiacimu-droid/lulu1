@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a12570a4ad272db0aa438337db766350a02a5913`
+- 基准提交：`cbcd5b13b01d6f2a4120a213c1791d3b3a329f47`
 - 分支：`main`
 - 已索引文件：1444
-- 已索引代码/文本行：305074
+- 已索引代码/文本行：305064
 - 已发现符号：4359
 
 | 文件 | 行数 | 符号数 |
@@ -203,7 +203,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 645 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 35 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt` | 963 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt` | 943 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 483 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 299 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 612 | 9 |
@@ -233,7 +233,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 305 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 910 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 906 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 103 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 123 | 1 |
@@ -966,7 +966,7 @@
 | `app/src/test/java/com/jiacimu/lulu/LuluDesktopWidgetTest.kt` | 82 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluOnboardingGuideContentTest.kt` | 92 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/LuluVoiceCallReplyActivityTest.kt` | 29 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/LuluWidgetLiveIntegrationTest.kt` | 134 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/LuluWidgetLiveIntegrationTest.kt` | 148 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingPhysicalStateReducerTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingSceneConcurrencyTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingSceneConsentTest.kt` | 45 | 1 |

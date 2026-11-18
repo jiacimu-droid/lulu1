@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T03:06:23.781383+00:00",
-  "commit": "a12570a4ad272db0aa438337db766350a02a5913",
+  "generatedAt": "2026-11-18T03:07:40.585970+00:00",
+  "commit": "cbcd5b13b01d6f2a4120a213c1791d3b3a329f47",
   "branch": "main",
-  "sourceFingerprint": "4a5c4d45dbbda4d30dc6ad7a6a74d71326961e897a426194c10b75ee2f570f51",
+  "sourceFingerprint": "a6e937ad3c309406337a7bd60ee9c9452acaeed4ac57b9d2270c5b39e93315c1",
   "summary": {
     "files": 1444,
-    "lines": 305074,
+    "lines": 305064,
     "symbols": 4359
   },
   "symbolIndex": {
@@ -4167,19 +4167,19 @@
     "gridTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 246
+        "line": 242
       }
     ],
     "gridHeight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 249
+        "line": 245
       }
     ],
     "slotAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 254
+        "line": 250
       }
     ],
     "MigrationRoute": [
@@ -20115,7 +20115,7 @@
     "LuluWidgetLiveIntegrationTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/LuluWidgetLiveIntegrationTest.kt",
-        "line": 18
+        "line": 19
       }
     ],
     "MeetingPhysicalStateReducerTest": [
@@ -26870,8 +26870,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-      "lines": 963,
-      "sha256": "4bd7f70a5c190f3beffe4570df2a9265d631882511958c25462054e5278bff33",
+      "lines": 943,
+      "sha256": "1c60cdeb1044b54b7abd4561787419f54917b9cb0fc2c850146c5fdb611088f9",
       "symbols": [
         {
           "name": "profileSign",
@@ -27482,20 +27482,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 910,
-      "sha256": "c9365debecf18467da49749e3f83cba08a9f9d080753c958e3adabf4569aa9a3",
+      "lines": 906,
+      "sha256": "e7f04ef7f321fb96f0b2ec1d93521f35653189851acb884961422f655e2eba4a",
       "symbols": [
         {
           "name": "gridTop",
-          "line": 246
+          "line": 242
         },
         {
           "name": "gridHeight",
-          "line": 249
+          "line": 245
         },
         {
           "name": "slotAt",
-          "line": 254
+          "line": 250
         }
       ]
     },
@@ -45051,12 +45051,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/LuluWidgetLiveIntegrationTest.kt",
-      "lines": 134,
-      "sha256": "8aa4e17a2dfcd2a082a87763c4b2654a513c0b9d9dd9c7409236b8ccd0591949",
+      "lines": 148,
+      "sha256": "766ce7fd945c265e534d502c8570630371370ff568e9306e6f4adf12edff075a",
       "symbols": [
         {
           "name": "LuluWidgetLiveIntegrationTest",
-          "line": 18
+          "line": 19
         }
       ]
     },
