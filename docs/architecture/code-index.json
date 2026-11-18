@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T14:30:23.495532+00:00",
-  "commit": "81978f7d26e3ca0aa1c99c83b04c87f20e25138a",
+  "generatedAt": "2026-11-18T14:31:33.941896+00:00",
+  "commit": "a901c422731e7645628b39e5f32bf517db14e619",
   "branch": "main",
-  "sourceFingerprint": "3f9366bc9cfc3991357ecd3ddc50a413687788d04575ce80d5f8d800e94ed637",
+  "sourceFingerprint": "f15ec454dff27f5b361458ee7f0866695828e7129a8a7d4b80e6e32e09afd202",
   "summary": {
     "files": 1470,
-    "lines": 310759,
+    "lines": 310763,
     "symbols": 4439
   },
   "symbolIndex": {
@@ -18249,25 +18249,25 @@
     "ownerHasNewInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 291
+        "line": 292
       }
     ],
     "rememberCompletionReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 301
+        "line": 302
       }
     ],
     "linkDeliveryCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 308
+        "line": 309
       }
     ],
     "rememberGesture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 333
+        "line": 334
       }
     ],
     "showForeground": [
@@ -42955,8 +42955,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 857,
-      "sha256": "5aa8a23cc897449ffbeb94c8afaba1107912a0d51dd41e5f7dcaa792b9afadf1",
+      "lines": 861,
+      "sha256": "f57410f2f67e696b9515176a980cf7a59f1b6fc3679433b041c8ba06a1539d94",
       "symbols": [
         {
           "name": "Outcome",
@@ -42968,19 +42968,19 @@
         },
         {
           "name": "ownerHasNewInput",
-          "line": 291
+          "line": 292
         },
         {
           "name": "rememberCompletionReceipt",
-          "line": 301
+          "line": 302
         },
         {
           "name": "linkDeliveryCompletion",
-          "line": 308
+          "line": 309
         },
         {
           "name": "rememberGesture",
-          "line": 333
+          "line": 334
         }
       ]
     },
