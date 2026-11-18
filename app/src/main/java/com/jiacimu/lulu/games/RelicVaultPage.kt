@@ -7,6 +7,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -102,7 +103,7 @@ internal fun RelicVaultPage(
                 Text("这个品级还没有实物。去遗迹发现下一件珍宝吧。",
                     color=museumMuted,fontSize=12.sp,modifier=Modifier.padding(10.dp))
             }
-            items(inventory,key={it.id}) { item ->
+            itemsIndexed(inventory,key={ index, _ -> index }) { _, item ->
                 val color=RelicTreasureGallery.accent(item)
                 Surface(onClick={selectedId=item.id},
                     color=if(selected?.id==item.id) Color(0xFF283A46) else Color(0xFF1C2A36),
