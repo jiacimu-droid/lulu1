@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T06:33:07.224823+00:00",
-  "commit": "0523b943de431ea0d9027d3a412bc1643a4cd0a2",
+  "generatedAt": "2026-11-18T06:37:26.957784+00:00",
+  "commit": "8e31a35119999ebe11d9bba9f0d7f390f01f0853",
   "branch": "main",
-  "sourceFingerprint": "8a5b89e6bf19d01dd554754b3ee5124cf19e6e291a5d340e902dae1a00bafc2b",
+  "sourceFingerprint": "962754980c9c7784167db574467fcd607b784a72b53fb6b15c103ab5cfb5796a",
   "summary": {
     "files": 1456,
-    "lines": 308000,
+    "lines": 308005,
     "symbols": 4390
   },
   "symbolIndex": {
@@ -5577,7 +5577,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 188
+        "line": 193
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
@@ -8619,7 +8619,7 @@
     "modelContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 145
+        "line": 150
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt",
@@ -8629,7 +8629,7 @@
     "requestContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 168
+        "line": 173
       }
     ],
     "groupedFields": [
@@ -31661,20 +31661,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-      "lines": 197,
-      "sha256": "8e69958c8b1ec28d2eb049ec0857c7055505ae125362e698e85768b91b0ad85c",
+      "lines": 202,
+      "sha256": "88e88989cf1ea25aca77da255658efb69086c12eb27080e282cfdba76d1bc853",
       "symbols": [
         {
           "name": "modelContext",
-          "line": 145
+          "line": 150
         },
         {
           "name": "requestContext",
-          "line": 168
+          "line": 173
         },
         {
           "name": "summary",
-          "line": 188
+          "line": 193
         }
       ]
     },
