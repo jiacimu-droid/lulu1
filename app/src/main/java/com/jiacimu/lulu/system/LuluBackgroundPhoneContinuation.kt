@@ -11,12 +11,16 @@ import kotlinx.coroutines.ensureActive
 import org.json.JSONObject
 
 /**
- * Bounded continuation of the original character's own phone task.
- * Same chat model + persona, same ToolRouter, same evidence ledger.
- * No separate agent, autonomous persona, tool bypass, or vision model.
+ * Continuous, evidence-led execution of the original character's phone goal.
+ * Step numbers are receipt identities, not a quota or a reason to abandon a goal.
+ * Same chat model + persona, same ToolRouter and evidence ledger; STOP, owner
+ * revisions, human gates and anti-repeat checks remain active every step.
  */
 internal object LuluBackgroundPhoneContinuation {
-    const val MAX_ACTIONS = 12
+    internal fun stepRequestId(requestId: String, ordinal: Long): String {
+        require(ordinal > 0) { "操作序号必须为正数" }
+        return "$requestId-phone-$ordinal"
+    }
 
     /** A fresh user message yields priority at a SAFE step boundary, not a
      * hard cancellation of a possibly billed HTTP call or a device gesture. */
@@ -298,10 +302,14 @@ internal object LuluBackgroundPhoneContinuation {
         var failedAttempts = runCatching {
             if (JSONObject(initialReceipt).optString("status") == "failed") 1 else 0
         }.getOrDefault(0)
-        // One closing decision may durably defer an unfinished goal. It cannot
-        // dispatch a thirteenth phone action or silently renew paid browsing.
-        for (index in 1..(MAX_ACTIONS + 1)) {
+        // A live goal is not completed by an arbitrary number of model/tool turns.
+        // The role decides finish/ask/defer/continue after each actual receipt;
+        // resource failures and owner interruption still exit with an unfinished result.
+        var decisionOrdinal = 0L
+        while (true) {
             currentCoroutineContext().ensureActive()
+            decisionOrdinal++
+            val index = decisionOrdinal
             if (LuluBackgroundPhoneSession.ownerHasPaused(context)) {
                 history.appendLine("主人已停止后台手机任务")
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
@@ -326,10 +334,8 @@ internal object LuluBackgroundPhoneContinuation {
                     appendLine(if (LuluShoppingAssistPolicy.isEnabled(context, characterId))
                         "主人已开启虚拟屏幕总授权，可自主帮忙选购；可挑商品、规格、加购物车、进入结算。付款、提交/确认订单、免密/货到付款不授权；购买相关按钮只用本轮可核实的tap_element。若想把商品链接给主人，先在真实商品页面操作“分享”，等看到可核实的“复制链接”控件后以tap_element+sendProductLinkToChat=true执行；只有productLinkSent=true说明链接已发私聊。付款阶段停下交给主人。"
                         else "主人尚未开启本角色虚拟屏幕总授权；只能浏览比较商品，不能代点购买、加购或结算按钮。")
-                    appendLine(if (index <= MAX_ACTIONS)
-                        "本轮还可操作 ${MAX_ACTIONS - index + 1} 步；未做完可自行选择defer保存续接，不把步数耗尽当目标完成。"
-                        else "本轮设备操作额度已用完。这一次只决定finish、ask或defer；不能继续点击。")
-                    appendLine("以后继续用decision=defer，schedule={title:具体事项,intent:原目标、真实已完成进度与剩余事项,dueAt:本人选择的未来ISO8601时刻}，时间必须含时区且晚于当前一分钟。只有日程工具成功回执才算保存，到时先重新打开当前已核实App、重新观察再决定，旧截图和控件不可重放。")
+                    appendLine("手机操作没有按次数封顶的任务截止线。你可以按目标继续下一步，直到自己根据实际证据决定完成、求助或稍后续接；每次动作仍需真实核实，避免无意义重复付费。")
+                    appendLine("若你本人确实想稍后继续而不是现在操作，可选择decision=defer，schedule={title:具体事项,intent:原目标、真实已完成进度与剩余事项,dueAt:本人选择的未来ISO8601时刻}。时间须含时区且晚于当前一分钟；仅成功日程回执代表已排程，到时重新观察而非重放旧截图。")
                 },
                 instruction = """
                     这是你本人上一行动的直接下一刻。结合原本人设、关系、目标与真实设备回执决定是否继续。
@@ -345,6 +351,8 @@ internal object LuluBackgroundPhoneContinuation {
                     若App首页无障碍控件树为空、但已有实际图片与screenSnapshotId，不要卡在寻找“搜索”控件编号：你可以根据图中放大镜的位置选tap打开，再按新画面找结果。微信或抖音进了准确会话后，若显示语音栏可先点键盘切换。focusedEditorVerified=true时可直接type；否则从当前图像选真实输入框，给type附inputX/inputY。发出前核对当前联系人、草稿及发送键；点过后看会话中新出现的己方消息。标题编号或专用发送核验失败时仍可依据实际画面操作。所有坐标都必须来自本次图像。
                     或 {"decision":"finish","reason":"任务为什么可以结束，未完成时要明确说明"}
                     或 {"decision":"ask","reason":"需要主人确认的事项或设备障碍"}
+                    或 {"decision":"defer","schedule":{"title":"具体目标","intent":"已完成进度与剩余工作","dueAt":"本人选定的未来ISO8601时间"},"reason":"本人为何想稍后继续"}
+                    不得因为操作步数、模型调用轮数或系统自己设定的所谓单轮额度选择finish/ask/defer；目标未完成而仍有真实可行的下一步时，可以继续选择continue。
                     如果上一步失败而仍有新的可行办法，由你根据真实页面选择；同一错误反复发生才说明真实阻碍。没有图像时不能用坐标盲点，但可用当前可核实控件ref。某个专用工具缺少标题/编辑框证据时，不把它当成整个App不能使用；有真实图片可切换到通用tap/long_press/type。一次触摸结果不明不能自动补点；先观察并结合实际内容判断。
                     launch可同时附navigationLabels，或在已打开的App里选择navigate。比如已知微信「发现」和「朋友圈」两个入口时，可以给出["发现","朋友圈"]；已看到联系人则直接给一个完整昵称。每步独立核实目标和界面变化，停在首个未核实的步骤。根据navigationSteps判断真实进度，找不到名字可以打开搜索结果后再选；打开应用或点击被接收不能当作已进入会话、已发送或已发表。
                     chatRecipientVerified=true 表示已核实在目标会话；键盘切换、输入正文、发送是三项不同的操作。若输入或发送没核实，向主人说明真正停止的阶段。chat_recipient_unverified 只表示标题无法核实，不能据此声称页面没跳进去。
@@ -417,12 +425,7 @@ internal object LuluBackgroundPhoneContinuation {
                     history.appendLine("原目标仍未完成；排程不等于已继续操作，执行时必须重新观察页面。")
                     return Outcome(history.toString().takeLast(5_000), image, false, count, deferred = saved)
                 }
-                "continue" -> {
-                    if (index > MAX_ACTIONS) {
-                        history.appendLine("本轮操作额度已用完且本人未保存续接；目标尚未完成，未执行额外动作")
-                        return Outcome(history.toString().takeLast(5_000), image, false, count)
-                    }
-                }
+                "continue" -> Unit
                 else -> {
                     history.appendLine("未知的下一步决定；没有执行")
                     return Outcome(history.toString().takeLast(5_000), image, false, count)
@@ -510,7 +513,7 @@ internal object LuluBackgroundPhoneContinuation {
                 history.appendLine("工具派发前主人已停止、撤权或更新指令；本步未执行，之前的真实回执保留")
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             }
-            val nextId = requestId + "-phone-" + index
+            val nextId = stepRequestId(requestId, index)
             val receipt = ToolRouter.execute(
                 context = context,
                 characterId = characterId,
@@ -666,7 +669,5 @@ internal object LuluBackgroundPhoneContinuation {
                 history.appendLine("验证条件尚未满足，虽有真实后台画面也不可声称成功；由本人观察决定下一步")
             }
         }
-        history.appendLine("本轮后台手机的下一步决定额度已用完；只汇报已经核实的结果和仍未完成的部分")
-        return Outcome(history.toString().takeLast(5_000), image, false, count)
     }
 }
