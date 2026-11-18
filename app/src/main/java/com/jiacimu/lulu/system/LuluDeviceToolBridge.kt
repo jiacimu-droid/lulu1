@@ -1736,7 +1736,8 @@ object LuluDeviceToolBridge {
                 remove("_turnTraceId")
                 put("_turnTraceId", turnTraceId)
             }
-        else if (plan.tool in setOf("capture_screen", "read_screen") &&
+        else if ((plan.tool in setOf("capture_screen", "read_screen") ||
+            (plan.tool == "phone_ui" && plan.args.optString("action") == "inspect")) &&
             !plan.args.optBoolean("saveToAlbum")) {
             // Private control metadata from the executor, not model-supplied
             // screen content. Other capture callers retain their old receipts.
@@ -1771,7 +1772,8 @@ object LuluDeviceToolBridge {
         // can survive an earlier use of this request ID, but reusing it here
         // would make an old screen appear to have been captured this turn.
         val roleScreenImage = if (!recoveredHistoricalReceipt &&
-            plan.tool in setOf("capture_screen", "read_screen", "background_phone"))
+            (plan.tool in setOf("capture_screen", "read_screen", "background_phone") ||
+                (plan.tool == "phone_ui" && actualToolArgs.optString("action") == "inspect")))
             LuluScreenFrameHandoff.take(characterId, requestId) else null
         // The role already selected a genuine phone action in the original
         // planner. Its own selected chat model may continue on the SAME task

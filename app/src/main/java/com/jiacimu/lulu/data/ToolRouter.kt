@@ -355,6 +355,23 @@ object ToolRouter {
                             handoffToRole = args.optBoolean("_handoffToRole", false),
                             sendToChat = args.optBoolean("sendToChat", false),
                             chatCaption = args.optString("caption"))
+                    } else if (name == "phone_ui" &&
+                        args.optString("action").trim().lowercase() == "inspect") {
+                        // A role asked to INSPECT the real display: give it pixels,
+                        // not only a successful accessibility-text/control dump.
+                        // Preserve the current controls as optional action hints.
+                        val ui = JSONObject(LuluDeviceToolBridge.executeRegistered(
+                            context, characterId, name, args, requestId))
+                        if (!ui.optBoolean("success")) ui.toString()
+                        else {
+                            val visual = JSONObject(LuluScreenAwareness.capture(
+                                context, userRequested, characterId, requestId,
+                                handoffToRole = args.optBoolean("_handoffToRole", false)))
+                            visual.put("mode", "foreground_accessibility")
+                            if (visual.optBoolean("success"))
+                                visual.put("controls", ui.optJSONArray("controls") ?: org.json.JSONArray())
+                            visual.toString()
+                        }
                     } else if (name == "read_self_todo") {
                         com.jiacimu.lulu.SelfTodoRoleRead.execute(context, args).toString()
                     } else if (name == "write_desktop_widget_note" ||
