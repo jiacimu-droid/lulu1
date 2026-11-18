@@ -24,7 +24,9 @@ internal object LuluVirtualTextInputPolicy {
     ): Boolean {
         if (displayWidth <= 1 || displayHeight <= 1 ||
             !inputPointSafe(x, y, null) || left >= right || top >= bottom ||
-            left < 0 || top < 0 || right > displayWidth || bottom > displayHeight) return false
+            left < 0 || top < 0 || right > displayWidth || bottom > displayHeight ||
+            ((right - left) >= displayWidth * 95L / 100L &&
+                (bottom - top) >= displayHeight * 70L / 100L)) return false
         val px = ((displayWidth - 1L) * x / 1000L).toInt()
         val py = ((displayHeight - 1L) * y / 1000L).toInt()
         return px >= left && px < right && py >= top && py < bottom
