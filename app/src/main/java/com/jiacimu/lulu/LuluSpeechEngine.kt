@@ -43,6 +43,7 @@ internal class LuluSpeechEngine(context: Context) {
     private val positionHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private val minimaxStream = MiniMaxStreamingSpeech(appContext)
     private val elevenSpeech = ElevenLabsSpeech(appContext)
+    private val mossSpeech = MossSpeech(appContext)
     private var player: MediaPlayer? = null
     private var playbackWavLevel: CallSpeechWavLevel? = null
     private var synthesisJob: Job? = null
@@ -123,6 +124,16 @@ internal class LuluSpeechEngine(context: Context) {
                     onPosition = { if (requestGeneration == playbackGeneration) onPlaybackPosition?.invoke(it) }) }.onSuccess { complete -> if (requestGeneration == playbackGeneration) finishPlayback(complete) }
                     .onFailure { error -> if (requestGeneration == playbackGeneration) reportVoiceFailure(error) }
             }
+        } else if (prefs.getString("tts_provider", "system") == "moss") {
+            scope.launch {
+                runCatching {
+                    mossSpeech.speak(text, voiceIdOverride ?: resolveCharacterVoiceId(text),
+                        onAudioStarted = { if (requestGeneration == playbackGeneration) onPlaybackState?.invoke(true) },
+                        recordingTarget = recordingTarget, source = source, onPcmFrame = onPcmFrame,
+                        onPosition = { if (requestGeneration == playbackGeneration) onPlaybackPosition?.invoke(it) })
+                }.onSuccess { complete -> if (requestGeneration == playbackGeneration) finishPlayback(complete) }
+                    .onFailure { error -> if (requestGeneration == playbackGeneration) reportVoiceFailure(error) }
+            }
         } else {
             speakWithSystem(text, requestGeneration)
         }
@@ -158,16 +169,18 @@ internal class LuluSpeechEngine(context: Context) {
             return
         }
 
-        if (prefs.getString("tts_provider", "system") in setOf("minimax", "elevenlabs")) {
+        if (prefs.getString("tts_provider", "system") in setOf("minimax", "elevenlabs", "moss")) {
             val target = File(cacheBaseFile.parentFile, "${cacheBaseFile.name}.mp3")
             synthesisJob = scope.launch {
                 runCatching {
                     ensureActive()
                     check(allowGeneration() && requestGeneration == playbackGeneration) { "语音生成已关闭" }
-                    val result = if (prefs.getString("tts_provider", "system") == "elevenlabs") {
-                        elevenSpeech.synthesize(text, voiceIdOverride, source)
-                    } else requestMiniMaxAudio(text, voiceIdOverride) {
-                        allowGeneration() && requestGeneration == playbackGeneration
+                    val result = when (prefs.getString("tts_provider", "system")) {
+                        "elevenlabs" -> elevenSpeech.synthesize(text, voiceIdOverride, source)
+                        "moss" -> mossSpeech.synthesize(text, voiceIdOverride, source)
+                        else -> requestMiniMaxAudio(text, voiceIdOverride) {
+                            allowGeneration() && requestGeneration == playbackGeneration
+                        }
                     }
                     check(allowGeneration() && prefs.getBoolean("tts_enabled", true) &&
                         requestGeneration == playbackGeneration) { "语音播放已关闭，丢弃未播放的合成结果" }
@@ -200,7 +213,7 @@ internal class LuluSpeechEngine(context: Context) {
         if (cachedAudioFile(base) != null) return true
         base.parentFile?.mkdirs()
         val provider = prefs.getString("tts_provider", "system")
-        val extension = if (provider in setOf("elevenlabs", "minimax")) "mp3" else "wav"
+        val extension = if (provider in setOf("elevenlabs", "minimax", "moss")) "mp3" else "wav"
         val target = File(base.parentFile, "${base.name}.$extension")
         val temporary = File(base.parentFile, "${base.name}.$extension.partial")
         return try {
@@ -223,8 +236,11 @@ internal class LuluSpeechEngine(context: Context) {
                         kotlinx.coroutines.withTimeoutOrNull(45_000L) { completed.await() } != true) return false
                 } finally { voice.shutdown() }
             } else {
-                val bytes = if (provider == "elevenlabs") elevenSpeech.synthesize(text, voiceId, "chat_voice_note")
-                    else requestMiniMaxAudio(text, voiceId)
+                val bytes = when (provider) {
+                    "elevenlabs" -> elevenSpeech.synthesize(text, voiceId, "chat_voice_note")
+                    "moss" -> mossSpeech.synthesize(text, voiceId, "chat_voice_note")
+                    else -> requestMiniMaxAudio(text, voiceId)
+                }
                 if (bytes.isEmpty()) return false
                 withContext(Dispatchers.IO) { temporary.writeBytes(bytes) }
             }
@@ -276,6 +292,17 @@ internal class LuluSpeechEngine(context: Context) {
         playAudioFile(audioFile, requestGeneration, deleteAfterPlayback = true)
     }
 
+    suspend fun previewMoss(text: String): Result<Unit> = runCatching {
+        stop()
+        lastPlaybackSucceeded = false
+        val id = ++playbackGeneration
+        val bytes = mossSpeech.synthesize(text, null, "voice_preview")
+        check(id == playbackGeneration) { "试听已取消" }
+        val file = File.createTempFile("moss-preview-", ".mp3", appContext.cacheDir)
+        file.writeBytes(bytes)
+        playAudioFile(file, id, deleteAfterPlayback = true)
+    }
+
     fun stop() {
         playbackGeneration++
         positionHandler.removeCallbacksAndMessages(null)
@@ -285,6 +312,7 @@ internal class LuluSpeechEngine(context: Context) {
         audioConnection = null
         minimaxStream.stop()
         elevenSpeech.stop()
+        mossSpeech.stop()
         activeUtteranceId = null
         pendingSynthesis?.file?.delete()
         pendingSynthesis = null
