@@ -26,6 +26,7 @@ internal data class RelicSnapshot(
     val purchasedWeapons:Set<String> = setOf("blade"),
     /** One actual owned trophy displayed on the museum pedestal; no phantom item. */
     val featuredLootId:String?=null,
+    val featuredLootIndex:Int?=null,
 ) {
     fun json()=JSONObject().put("v",1).put("run",run?.json()?:JSONObject.NULL)
         .put("vault",JSONArray(vault.map{it.json()})).put("coins",coins).put("kits",kits)
@@ -35,6 +36,7 @@ internal data class RelicSnapshot(
         .put("newDiscoveries",JSONArray(newDiscoveries.sorted()))
         .put("purchasedWeapons",JSONArray(purchasedWeapons.sorted()))
         .put("featuredLootId",featuredLootId?:JSONObject.NULL)
+        .put("featuredLootIndex",featuredLootIndex?:JSONObject.NULL)
     companion object {
         fun read(raw:String?):RelicSnapshot=runCatching {
             if(raw.isNullOrBlank())return@runCatching RelicSnapshot()
@@ -58,6 +60,10 @@ internal data class RelicSnapshot(
                         a.optString(i).takeIf { it in RelicCollectibles.names }
                     }.toSet()
                 } ?: emptySet(),
+                featuredLootIndex=j.optInt("featuredLootIndex",-1).takeIf { index ->
+                    index>=0 && index<j.getJSONArray("vault").length() &&
+                        j.getJSONArray("vault").lootList()[index].id==j.optString("featuredLootId")
+                },
                 featuredLootId=j.optString("featuredLootId").takeIf { id ->
                     id.isNotBlank() && id!="null" &&
                         j.getJSONArray("vault").lootList().any { it.id==id }
@@ -139,7 +145,15 @@ internal class RelicEscapeLedger(context:Context, preferenceName:String="relic_e
         // pedestal tap must not mutate the permanent collection mid-run.
         if(old.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))return old
         if(old.vault.none { it.id==id })return old
-        return write(old.copy(featuredLootId=id))
+        return write(old.copy(featuredLootId=id,
+            featuredLootIndex=old.vault.indexOfFirst { it.id==id }))
+    }
+    /** Select a physical museum item, not all items sharing its legacy ID. */
+    @Synchronized fun featureLootAt(index:Int,expected:RelicLoot):RelicSnapshot {
+        val old=read()
+        if(old.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))return old
+        if(old.vault.getOrNull(index)!=expected)return old
+        return write(old.copy(featuredLootId=expected.id,featuredLootIndex=index))
     }
     @Synchronized fun sellLoot(id:String):RelicSnapshot {
         val old=read()
@@ -149,6 +163,10 @@ internal class RelicEscapeLedger(context:Context, preferenceName:String="relic_e
         val item=old.vault.firstOrNull{it.id==id}?:return old
         return write(old.copy(vault=old.vault.toMutableList().apply { removeAt(indexOfFirst { it.id==id }) },
             featuredLootId=old.featuredLootId?.takeUnless { it==id },
+            featuredLootIndex=old.featuredLootIndex?.let { selected ->
+                val removed=old.vault.indexOfFirst { it.id==id }
+                if(selected==removed) null else if(selected>removed) selected-1 else selected
+            },
             coins=old.coins+item.value))
     }
     /** Sell the exact museum row the player tapped, even for legacy duplicate IDs.
@@ -159,7 +177,11 @@ internal class RelicEscapeLedger(context:Context, preferenceName:String="relic_e
         if(old.vault.getOrNull(index)!=expected)return old
         val remaining=old.vault.toMutableList().apply { removeAt(index) }
         return write(old.copy(vault=remaining,
-            featuredLootId=old.featuredLootId?.takeUnless { id->id==expected.id && remaining.none { it.id==id } },
+            featuredLootId=if(old.featuredLootIndex==index ||
+                (old.featuredLootIndex==null && old.featuredLootId==expected.id)) null else old.featuredLootId,
+            featuredLootIndex=old.featuredLootIndex?.let { selected ->
+                if(selected==index) null else if(selected>index) selected-1 else selected
+            },
             coins=old.coins+expected.value))
     }
     @Synchronized fun perform(action:String,x:Int=0,y:Int=0,itemId:String="",autonomousIds:Set<String> = emptySet(),
