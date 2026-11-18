@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:40:40.721403+00:00",
-  "commit": "4c1f3e353a4f0388910f0c0a10c352da3bc5ce47",
+  "generatedAt": "2026-11-18T11:42:15.214141+00:00",
+  "commit": "8c8bd770250fe250b745a74a7c6316b5b8da2083",
   "branch": "main",
-  "sourceFingerprint": "33566ee478b8dfffc2e38dfecb9e3f96a1283bbba538673193504a8c6e9abdde",
+  "sourceFingerprint": "2e063b902e09d714d044c0cdbb83d289623a644c2d5274f77f87da4c2fba32bc",
   "summary": {
     "files": 1464,
-    "lines": 309626,
+    "lines": 309630,
     "symbols": 4429
   },
   "symbolIndex": {
@@ -10165,7 +10165,7 @@
     "locationActivitySummary": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-        "line": 208
+        "line": 212
       }
     ],
     "briefContextFor": [
@@ -33555,8 +33555,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldActivityCatalog.kt",
-      "lines": 267,
-      "sha256": "6acfc5a562d3476527c28522de50ce0f429262b5ddc0229b2d0bca803d99777f",
+      "lines": 271,
+      "sha256": "15ff195329b907de72bc492a7b5d519bf06c0ad0ec6f825579a99c3a31ff1ba7",
       "symbols": [
         {
           "name": "optionsFor",
@@ -33576,7 +33576,7 @@
         },
         {
           "name": "locationActivitySummary",
-          "line": 208
+          "line": 212
         }
       ]
     },
@@ -39270,7 +39270,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
       "lines": 896,
-      "sha256": "8d267e90978b0132cb1e4f2d33da0f9f8cf5cf2e2f44f824a33281be9a5d3c58",
+      "sha256": "dae3ed5845bd2da99af12bddb1616db06199058ff5f760eded56d475001e9ff8",
       "symbols": [
         {
           "name": "persistMatch",
@@ -39596,7 +39596,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
       "lines": 252,
-      "sha256": "71e0b625360ed885b2a7bbb9487916551208dc45728e6e64e936aa72e943862d",
+      "sha256": "eb0d5c340680f136731edd982bd1395d81c17178580b2b6c7977c6a78b56a48c",
       "symbols": [
         {
           "name": "selectVoice",
