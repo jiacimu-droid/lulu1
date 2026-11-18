@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9d5cc489bcc376eaea172836679eec26d8c45aac`
+- 基准提交：`44bd91c4bc22dfe7ea225843cc0a1187bf103e65`
 - 分支：`main`
 - 已索引文件：1461
-- 已索引代码/文本行：309031
-- 已发现符号：4400
+- 已索引代码/文本行：309140
+- 已发现符号：4402
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -826,14 +826,14 @@
 | `app/src/main/java/com/jiacimu/lulu/system/CommitmentAlarmService.kt` | 106 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/Live2DPhoneMotionRepair.kt` | 78 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt` | 32 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 2268 | 73 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt` | 2322 | 75 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 136 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 700 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 2253 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 2265 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2392 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 51 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -858,7 +858,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt` | 64 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt` | 45 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt` | 175 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt` | 184 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStrictMode.kt` | 467 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatch.kt` | 486 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt` | 179 | 3 |
@@ -872,7 +872,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualNoFramePolicy.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcome.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicy.kt` | 37 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt` | 41 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicy.kt` | 43 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextReadbackOcr.kt` | 77 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualUiPolicy.kt` | 158 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicy.kt` | 51 | 7 |
@@ -1418,7 +1418,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShellDisplayCommandTest.kt` | 42 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistConsentTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicyTest.kt` | 34 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt` | 184 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluShoppingLinkShareTest.kt` | 196 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStrictModeTest.kt` | 149 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluStudyWatchTest.kt` | 233 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualA11yTraversalTest.kt` | 85 | 1 |
@@ -1433,7 +1433,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcomeTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicyTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSocialActionsTest.kt` | 126 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt` | 101 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt` | 121 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt` | 111 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicyTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicyTest.kt` | 99 | 1 |
