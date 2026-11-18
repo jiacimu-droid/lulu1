@@ -2021,6 +2021,10 @@ internal object LuluBackgroundPhoneSession {
                 .put("inputTextReadbackVerified", textReadbackVerified)
                 .put("inputVerification", if (action == "type" && textReadbackVerified)
                     "match" else applied?.optString("inputVerification").orEmpty())
+                .put("inputStage", if (action == "type")
+                    LuluVirtualTextInputPolicy.stage(
+                        applied?.optBoolean("accepted") == true, textReadbackVerified)
+                    else "")
                 .put("targetWindowVerified", true)
                 .put("searchEditorStatus", searchStatus)
                 .put("uiSettled", uiSettled)
