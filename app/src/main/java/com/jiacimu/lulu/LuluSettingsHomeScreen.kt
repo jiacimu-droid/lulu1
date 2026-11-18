@@ -54,6 +54,11 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
     when (page) {
         SettingsHomePage.Api -> LuluSettingsScreen(onBack = { page = SettingsHomePage.Home })
         SettingsHomePage.Capabilities -> LuluCapabilitiesScreen(onBack = { page = SettingsHomePage.Home })
+        SettingsHomePage.Strict -> LuluStrictModeSettingsScreen(
+            onBack = { page = SettingsHomePage.Home },
+            onOpenCapabilities = { page = SettingsHomePage.Capabilities },
+            onOpenStrict = { page = SettingsHomePage.Strict },
+        )
         SettingsHomePage.Integrations -> LuluIntegrationsSettingsScreen(
             onBack = { page = SettingsHomePage.Home },
             onOpenBrowserProbe = { page = SettingsHomePage.BrowserProbe },
@@ -92,7 +97,7 @@ fun LuluSettingsHomeScreen(onBack: () -> Unit) {
     }
 }
 
-private enum class SettingsHomePage { Home, Api, Capabilities, Integrations, BrowserProbe, XhsNativeReader, Voice, Memory, Residents, Image, Vision, Backup }
+private enum class SettingsHomePage { Home, Api, Capabilities, Strict, Integrations, BrowserProbe, XhsNativeReader, Voice, Memory, Residents, Image, Vision, Backup }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,6 +107,7 @@ private fun SettingsEntryScreen(
     onSearchQueryChange: (String) -> Unit,
     onOpenApi: () -> Unit,
     onOpenCapabilities: () -> Unit,
+    onOpenStrict: () -> Unit,
     onOpenIntegrations: () -> Unit,
     onOpenVoice: () -> Unit,
     onOpenMemory: () -> Unit,
@@ -244,6 +250,7 @@ private fun SettingsEntryScreen(
                                         "vision" -> onOpenVision()
                                         "image" -> onOpenImage()
                                         "capabilities" -> onOpenCapabilities()
+                                        "strict" -> onOpenStrict()
                                         "backup" -> onOpenBackup()
                                     }
                                 },
