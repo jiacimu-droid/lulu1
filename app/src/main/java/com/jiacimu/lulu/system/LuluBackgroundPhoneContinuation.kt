@@ -210,8 +210,9 @@ internal object LuluBackgroundPhoneContinuation {
         return if (visualOnly) {
             "当前后台屏幕截图快照编号=$token$headerText；设备已核实真实画面，但无障碍控件树为空。" +
                 "这不代表屏幕没按钮：可根据此刻附带的真实截图，用tap/long_press传实际画面坐标与target；" +
-                "若见到文字输入区，可用type附inputX/inputY及本次快照编号。" +
-                "点击完成只表示触摸送达；请根据新画面确认光标或输入焦点，再核对文字。"
+                "若见到文字输入区，可用type附inputX/inputY及本次快照编号；" +
+                "若已核实处于目标聊天会话，send_chat_message也可附composerX/composerY指向本次真实画面中的输入区。" +
+                "点击完成只表示触摸送达；请根据新画面确认光标或输入焦点，再核对文字，未核实不得宣称已发送。"
         } else "当前后台屏幕控件快照编号=$token$headerText；可识别控件：" +
             items.joinToString("；").take(1_800) +
             "。编号只在刚观察到的这块后台屏上有效，页面变化必须重观察."
