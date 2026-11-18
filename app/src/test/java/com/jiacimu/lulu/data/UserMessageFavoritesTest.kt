@@ -536,4 +536,64 @@ class UserMessageFavoritesTest {
         CompanionPresenceStore.clearMessageAnchor()
         CompanionPresenceStore.clearCharacter(role)
     }
+
+    @Test fun inFlightPhoneTaskBindsEachBubbleBeforeItsToolHasFinished() = kotlinx.coroutines.runBlocking {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        CompanionPresenceStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("未结束任务的消息锚点测试").characterId
+        val otherRole = MigratedDomainStores.characters.create("另一角色消息锚点隔离").characterId
+        CompanionPresenceStore.clearCharacter(role)
+        CompanionPresenceStore.clearCharacter(otherRole)
+        val conversation = MigratedDomainStores.chat.ensureConversation(role, "发言测试")
+        val otherConversation = MigratedDomainStores.chat.ensureConversation(otherRole, "隔离测试")
+        val snapshot = CompanionPresenceState(
+            characterId = role,
+            innerThought = "想先告诉她实情，再继续操作手机",
+            mood = "在意",
+            updatedAt = Instant.now(),
+            source = CompanionPresenceStore.DELIVERY_MOMENT_SOURCE,
+            momentReflection = "想法：先送达这句话；工具完成再核对",
+        )
+        // The parent task is still alive; the actual message is sent from a
+        // suspended, possibly different thread. No current presence was written.
+        assertNull(CompanionPresenceStore.current(role))
+        val sentId = CompanionPresenceStore.withDecisionDeliveryMoment(snapshot) {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) {
+                val sent = MigratedDomainStores.chat.appendCharacterMessage(
+                    conversation.id, "我先跟你说一声，马上继续查看。", role,
+                )
+                assertTrue(CompanionPresenceStore.isFrozenDecisionDelivery(role, sent.id))
+                CompanionPresenceStore.selectMessageAnchor(role, sent.createdAt, sent.id)
+                val bound = CompanionPresenceStore.selectedMessageAnchor(role)!!.state!!
+                assertEquals(snapshot.innerThought, bound.innerThought)
+                assertEquals(snapshot.momentReflection, bound.momentReflection)
+                assertEquals(snapshot.updatedAt, bound.updatedAt)
+                // A different role cannot borrow this coroutine's snapshot.
+                val foreign = MigratedDomainStores.chat.appendCharacterMessage(
+                    otherConversation.id, "另一人自己的回复", otherRole,
+                )
+                CompanionPresenceStore.selectMessageAnchor(otherRole, foreign.createdAt, foreign.id)
+                assertNull(CompanionPresenceStore.selectedMessageAnchor(otherRole)!!.state)
+                sent.id
+            }
+        }
+        // Leaving the scope cannot leak a private state into later independent
+        // sends, even when they share the same conversation.
+        val later = MigratedDomainStores.chat.appendCharacterMessage(
+            conversation.id, "另一次独立回复", role,
+        )
+        CompanionPresenceStore.selectMessageAnchor(role, later.createdAt, later.id)
+        assertNull(CompanionPresenceStore.selectedMessageAnchor(role)!!.state)
+        // Finishing the phone action later must not rewrite the first bubble.
+        CompanionPresenceStore.update(role, "操作完成", null, "现在有新的想法",
+            "放心", "后台主动感知", Instant.now().plusSeconds(10))
+        assertTrue(CompanionPresenceStore.isFrozenDecisionDelivery(role, sentId))
+        CompanionPresenceStore.selectMessageAnchor(role, Instant.now(), sentId)
+        assertEquals(snapshot.innerThought,
+            CompanionPresenceStore.selectedMessageAnchor(role)!!.state!!.innerThought)
+        CompanionPresenceStore.clearMessageAnchor()
+        CompanionPresenceStore.clearCharacter(role)
+        CompanionPresenceStore.clearCharacter(otherRole)
+    }
 }
