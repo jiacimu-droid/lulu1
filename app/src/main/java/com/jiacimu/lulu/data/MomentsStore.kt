@@ -406,7 +406,7 @@ object MomentsStore {
         if (!MomentFriendAccess.canView(visiblePost, character.characterId) ||
             momentContext(visiblePost) != momentContext(post)) return
         CharacterObservedMoment.recordScene(character.characterId, reactionReply, "朋友圈", post.id,
-            "read", "本人看到了$authorName在朋友圈发布的内容：${momentContext(post).take(350)}", plan.comment)
+            "read", "本人看到了${authorName}在朋友圈发布的内容：${momentContext(post).take(350)}", plan.comment)
         if (plan.wantsLike) addCharacterLike(post, character, authorName)
         if (plan.comment.isNotBlank()) addCharacterComment(post, character, authorName,
             plan.comment, automaticReaction = true)
