@@ -129,9 +129,9 @@ internal class LuluCallSpeechQueue(
         val providerAtStart = appContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
             .getString("tts_provider", "system").orEmpty()
         var audible = false
-        // Both supported streaming providers use 24kHz PCM16 mono.
+        // Cloud speech providers share the 24kHz PCM16 mono call clock.
         // PCM writes can run ahead of AudioTrack's actual playback.
-        val pcmEnvelope = if (providerAtStart in setOf("elevenlabs", "minimax"))
+        val pcmEnvelope = if (providerAtStart in setOf("elevenlabs", "minimax", "moss"))
             CallSpeechPcmEnvelope(24_000) else null
         // Report real PCM playback, not the HTTP TTS preparation interval.
         engine.onPlaybackState = { playing ->
