@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:42:51.869842+00:00",
-  "commit": "8dbb84a4cc9ab578e2897f2629c72233bd43b0c3",
+  "generatedAt": "2026-11-18T07:43:50.121257+00:00",
+  "commit": "febdb1942495d51ce977f3af918dff192501df51",
   "branch": "main",
-  "sourceFingerprint": "3f043d4874a550ad3ec1e06b169a3da0978d44059f47fe200caa0860cf79ae4b",
+  "sourceFingerprint": "9706b67db2a6c978ad644f625dda80bcd5320b690b4f46de450804670146c16e",
   "summary": {
     "files": 1460,
-    "lines": 308671,
-    "symbols": 4399
+    "lines": 308679,
+    "symbols": 4400
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2269,7 +2269,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 73
+        "line": 81
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
@@ -15540,10 +15540,16 @@
         "line": 64
       }
     ],
+    "fixedHostSaid": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
+        "line": 75
+      }
+    ],
     "connectAudio": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 78
+        "line": 86
       }
     ],
     "attach": [
@@ -39419,8 +39425,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-      "lines": 168,
-      "sha256": "ca9026fd4c22cfdf8c03588fb0bdd844b4684c337e1dbec4b0d58e1693163879",
+      "lines": 176,
+      "sha256": "2080283c768e331bfffa9eb33f4c6ac4770f36a0535712e170a433b083a09b96",
       "symbols": [
         {
           "name": "selectVoice",
@@ -39435,12 +39441,16 @@
           "line": 64
         },
         {
+          "name": "fixedHostSaid",
+          "line": 75
+        },
+        {
           "name": "close",
-          "line": 73
+          "line": 81
         },
         {
           "name": "connectAudio",
-          "line": 78
+          "line": 86
         }
       ]
     },
