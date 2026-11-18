@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:23:34.018752+00:00",
-  "commit": "a98e276b87dca0944800429858c63d99425a6ebb",
+  "generatedAt": "2026-11-18T11:24:06.803303+00:00",
+  "commit": "72f2dae65b969f29515adfa2f8b2eca2670bc762",
   "branch": "main",
-  "sourceFingerprint": "6b745762ba4b8aba8819b755305bf004a1b865fffea6afd7b221d1c87337c100",
+  "sourceFingerprint": "fec931772faaa4b2ae2f4e27fc5cbe5ca113a6d3dfe6ec0385d603b2a50de80c",
   "summary": {
     "files": 1465,
-    "lines": 310451,
+    "lines": 310464,
     "symbols": 4422
   },
   "symbolIndex": {
@@ -3215,7 +3215,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-        "line": 409
+        "line": 422
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -6579,7 +6579,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-        "line": 395
+        "line": 408
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -32723,16 +32723,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-      "lines": 494,
-      "sha256": "717a09911a6d208d3783dc46a63bd79b5509ae35da233586156ab21507006b1b",
+      "lines": 507,
+      "sha256": "621580959e2f501344c8fb7dc63a91344d022020661bb2a27b15d1c1ed5094a6",
       "symbols": [
         {
           "name": "normalize",
-          "line": 395
+          "line": 408
         },
         {
           "name": "normalized",
-          "line": 409
+          "line": 422
         }
       ]
     },
