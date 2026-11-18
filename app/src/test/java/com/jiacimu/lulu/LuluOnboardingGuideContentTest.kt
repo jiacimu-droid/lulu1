@@ -94,6 +94,26 @@ class LuluOnboardingGuideContentTest {
         })
     }
 
+    @Test fun backgroundPhoneGuideShowsPairingAuthorizationTryAndEvidence() {
+        val phone = luluGuideFeatures.first { it.key == "phone" }
+        assertEquals(6, phone.instructions.size)
+        assertTrue(phone.instructions[0].contains("无线调试"))
+        assertTrue(phone.instructions[0].contains("开发者选项"))
+        assertTrue(phone.instructions[1].contains("6 位配对码"))
+        assertTrue(phone.instructions[1].contains("检查连接"))
+        assertTrue(phone.instructions[2].contains("无障碍"))
+        assertTrue(phone.instructions[2].contains("允许自主操作虚拟屏幕"))
+        assertTrue(phone.instructions[3].contains("拼多多"))
+        assertTrue(phone.instructions[4].contains("查手机"))
+        assertTrue(phone.instructions[4].contains("行动记录"))
+        assertTrue(phone.instructions[5].contains("重新观察"))
+        assertTrue(luluBackgroundPhoneTryPrompt.contains("打开拼多多"))
+        assertTrue(luluBackgroundPhoneTryPrompt.contains("自己挑"))
+        assertTrue(luluBackgroundPhoneTryPrompt.contains("链接发给我"))
+        assertTrue(luluBackgroundPhoneTryPrompt.contains("不要下单或付款"))
+        assertTrue(phone.warning.contains("待真机验证"))
+    }
+
     @Test fun publicGuideDoesNotAdvertiseRestrictedGamesOrUnreadyVideo() {
         val directory = luluGuideFeatures.associateBy { it.key }
         val allText = buildString {
