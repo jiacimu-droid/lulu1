@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T03:07:40.585970+00:00",
-  "commit": "cbcd5b13b01d6f2a4120a213c1791d3b3a329f47",
+  "generatedAt": "2026-11-18T03:10:06.201599+00:00",
+  "commit": "87ad0a0d67ee5be4f0c3955dfbd9fdcc1d4ebcd8",
   "branch": "main",
-  "sourceFingerprint": "a6e937ad3c309406337a7bd60ee9c9452acaeed4ac57b9d2270c5b39e93315c1",
+  "sourceFingerprint": "3249563496e4db8a8128cdd15c7f43f05cbb3fd083f02c717ffa54783653523f",
   "summary": {
     "files": 1444,
     "lines": 305064,
@@ -2281,7 +2281,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt",
-        "line": 243
+        "line": 242
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveReview.kt",
@@ -3921,7 +3921,7 @@
     "LuluWidgetDailyWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt",
-        "line": 261
+        "line": 260
       }
     ],
     "AuthoredNote": [
@@ -27204,8 +27204,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluWidgetDailyRole.kt",
-      "lines": 300,
-      "sha256": "866256dba7f9559f753c76fefee207e841421cc3158a27330f3165a0f6994d94",
+      "lines": 299,
+      "sha256": "7f9dbcdc039351ad66cd50a12eaa04b861a93c7494f2c09b3922347395ef1cb9",
       "symbols": [
         {
           "name": "read",
@@ -27213,11 +27213,11 @@
         },
         {
           "name": "schedule",
-          "line": 243
+          "line": 242
         },
         {
           "name": "LuluWidgetDailyWorker",
-          "line": 261
+          "line": 260
         }
       ]
     },
@@ -45051,8 +45051,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/LuluWidgetLiveIntegrationTest.kt",
-      "lines": 148,
-      "sha256": "766ce7fd945c265e534d502c8570630371370ff568e9306e6f4adf12edff075a",
+      "lines": 149,
+      "sha256": "7faf4e63cceff61f545944cc783c75608b977bf497fd2a71f186ef9d8af92aab",
       "symbols": [
         {
           "name": "LuluWidgetLiveIntegrationTest",
