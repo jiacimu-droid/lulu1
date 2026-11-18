@@ -6,12 +6,17 @@ import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,8 +27,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -431,8 +436,9 @@ internal fun LuluDesktopWidgetCard(
     onCompleteTask: (TodoOccurrence) -> Unit = {},
     modifier: Modifier = Modifier,
     onOpen: () -> Unit,
-    onEdit: () -> Unit = onOpen,
-    specialContent: @Composable ((LuluDesktopWidget, Color) -> Unit)? = null,
+    onEdit: (() -> Unit)? = onOpen,
+    activeOnDesktop: Boolean = false,
+    specialContent: @Composable ((LuluDesktopWidget, Color, MutableInteractionSource) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val css = LocalLuluCssSheet.current.element("Home", "widget-" + widget.kind.code)
@@ -462,12 +468,21 @@ internal fun LuluDesktopWidgetCard(
     }.value
     val artworkToken = (LuluCssSheet.assetToken(css["background-image"])
         ?: widget.imageToken.takeIf(String::isNotBlank))?.takeIf { LuluCssStore.assetFile(it) != null }
-    val shape = RoundedCornerShape((LuluCssSheet.dp(css["border-radius"])
+    val radius = (LuluCssSheet.dp(css["border-radius"])
         ?: widget.roleCornerDp.takeIf { it >= 0 }?.toFloat()
-        ?: LocalLuluAppearance.current.corner.toFloat()).coerceIn(0f, 60f).dp)
+        ?: LocalLuluAppearance.current.corner.toFloat()).coerceIn(0f, 60f).dp
+    val shape = RoundedCornerShape(radius)
     val outline = LuluCssSheet.parseColor(css["border-color"])?.let { Color(it.toInt()) }
         ?: if (themeSkin) colors.outline else foreground.copy(alpha = .15f)
     val borderWidth = (LuluCssSheet.dp(css["border-width"]) ?: 1f).coerceIn(0f, 12f).dp
+    val interaction = remember { MutableInteractionSource() }
+    val pressed by interaction.collectIsPressedAsState()
+    val press = animateFloatAsState(
+        if (pressed && activeOnDesktop) 1f else 0f,
+        tween(if (pressed) 115 else 190, easing = FastOutSlowInEasing),
+        label = "widget press",
+    )
+    val edge = rememberWidgetEdgeMotion(widget.id, activeOnDesktop, roleReading?.message ?: roleNote)
     val outer = modifier.luluCssDecor(css, includeArtwork = false)
     BoxWithConstraints(outer.clipToBounds()) {
         val slimChat = widget.kind == LuluWidgetKind.CHAT && widget.rows == 2
@@ -477,20 +492,33 @@ internal fun LuluDesktopWidgetCard(
         if (layered && maxHeight >= 94.dp) {
             Surface(
                 Modifier.align(Alignment.Center).fillMaxSize().padding(horizontal = 13.dp, vertical = 11.dp)
-                    .offset(x = 5.dp, y = 4.dp).rotate(if (widget.skin == WIDGET_ALBUM_SKIN) 4f else -3f),
+                    .offset(x = 5.dp, y = 4.dp).graphicsLayer {
+                        val movement = press.value
+                        rotationZ = if (widget.skin == WIDGET_ALBUM_SKIN) 4f - movement * 1.7f else -3f + movement
+                        translationX = movement * 2.dp.toPx()
+                    },
                 shape = shape, color = colors.surfaceVariant, border = BorderStroke(1.dp, outline),
             ) {}
             if (widget.skin == WIDGET_ALBUM_SKIN) {
                 Surface(
                     Modifier.align(Alignment.Center).fillMaxSize().padding(horizontal = 13.dp, vertical = 10.dp)
-                        .offset(x = (-4).dp, y = 4.dp).rotate(-4f),
+                        .offset(x = (-4).dp, y = 4.dp).graphicsLayer {
+                            rotationZ = -4f + press.value * 1.7f
+                            translationX = -press.value * 2.dp.toPx()
+                        },
                     shape = shape, color = colors.primaryContainer, border = BorderStroke(1.dp, outline),
                 ) {}
             }
         }
         Surface(
             modifier = Modifier.align(Alignment.Center).fillMaxWidth().height(surfaceHeight)
-                .padding(horizontal = inset, vertical = verticalInset),
+                .padding(horizontal = inset, vertical = verticalInset)
+                .graphicsLayer {
+                    val amount = press.value
+                    scaleX = 1f - amount * .016f
+                    scaleY = scaleX
+                    translationY = amount * 1.5.dp.toPx()
+                },
             shape = shape,
             color = backing,
             border = if (borderWidth > 0.dp) BorderStroke(borderWidth, outline) else null,
@@ -498,13 +526,19 @@ internal fun LuluDesktopWidgetCard(
         ) {
             BoxWithConstraints(Modifier.fillMaxSize().then(
                 if (widget.kind == LuluWidgetKind.CHAT || widget.kind == LuluWidgetKind.BULLETIN)
-                    Modifier else Modifier.clickable(onClick = onOpen),
+                    Modifier else Modifier.clickable(interactionSource = interaction, indication = null, onClick = onOpen),
             )) {
                 val compact = maxHeight < 140.dp
                 val short = maxHeight < 95.dp
-                LuluCssArtwork(artworkToken, Modifier.matchParentSize(), css, maxEdge = 1024) {
+                val framedPhoto = widget.kind == LuluWidgetKind.PHOTO && borderWidth > 0.dp
+                val photoInset = if (framedPhoto) 7.dp else 0.dp
+                val photoShape = RoundedCornerShape((radius - photoInset).coerceAtLeast(0.dp))
+                val artPosition = if (framedPhoto) {
+                    Modifier.matchParentSize().padding(photoInset).clip(photoShape)
+                } else Modifier.matchParentSize()
+                LuluCssArtwork(artworkToken, artPosition, css, maxEdge = 1024) {
                     artwork?.let { image ->
-                        Image(image, null, Modifier.matchParentSize(), contentScale = ContentScale.Crop)
+                        Image(image, null, artPosition, contentScale = ContentScale.Crop)
                     }
                 }
                 if (widget.kind != LuluWidgetKind.PHOTO && (artworkToken != null || artwork != null)) {
@@ -513,16 +547,22 @@ internal fun LuluDesktopWidgetCard(
                     )))
                 }
 
+                if (borderWidth > 0.dp) {
+                    LuluWidgetFrame(widget.kind, foreground, outline, radius, press, edge, Modifier.matchParentSize())
+                }
                 when (widget.kind) {
-                    LuluWidgetKind.CHAT, LuluWidgetKind.BULLETIN -> specialContent?.invoke(widget, foreground)
+                    LuluWidgetKind.CHAT, LuluWidgetKind.BULLETIN -> specialContent?.invoke(widget, foreground, interaction)
                     LuluWidgetKind.CALENDAR -> LuluWidgetCalendar(today, foreground, short)
-                    LuluWidgetKind.PHOTO -> LuluWidgetPhoto(widget, artworkToken != null || artwork != null, foreground)
+                    LuluWidgetKind.PHOTO -> LuluWidgetPhoto(
+                        widget, artworkToken != null || artwork != null, foreground,
+                        Modifier.fillMaxSize().padding(photoInset).clip(photoShape),
+                    )
                     else -> LuluWidgetTextContent(
                         widget, today, foreground, maxWidth, compact, short,
                         characterName, lastConversationText, roleReading, roleNote, plannerTasks, onCompleteTask,
                     )
                 }
-                IconButton(
+                if (onEdit != null) IconButton(
                     onClick = onEdit,
                     modifier = Modifier.align(Alignment.TopEnd).padding(2.dp).size(40.dp),
                     colors = IconButtonDefaults.iconButtonColors(
@@ -677,8 +717,8 @@ private fun LuluWidgetCalendar(today: LocalDate, ink: Color, short: Boolean) {
 }
 
 @Composable
-private fun LuluWidgetPhoto(widget: LuluDesktopWidget, hasArtwork: Boolean, ink: Color) {
-    Box(Modifier.fillMaxSize()) {
+private fun LuluWidgetPhoto(widget: LuluDesktopWidget, hasArtwork: Boolean, ink: Color, modifier: Modifier) {
+    Box(modifier) {
         if (hasArtwork && widget.title.isNotBlank()) {
             Text(widget.title, modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth()
                 .background(Color.Black.copy(alpha = .56f)).padding(horizontal = 10.dp, vertical = 7.dp),
@@ -697,6 +737,7 @@ private fun LuluWidgetPhoto(widget: LuluDesktopWidget, hasArtwork: Boolean, ink:
 @Composable
 internal fun LuluDesktopWidgetCanvas(
     page: Int,
+    isSettledPage: Boolean,
     widgets: List<LuluDesktopWidget>,
     draggingWidgetId: String?,
     launcherSlots: List<String?>,
@@ -708,7 +749,7 @@ internal fun LuluDesktopWidgetCanvas(
     plannerTasks: List<TodoOccurrence> = emptyList(),
     onCompleteTask: (TodoOccurrence) -> Unit = {},
     modifier: Modifier = Modifier,
-    specialContent: @Composable ((LuluDesktopWidget, Color) -> Unit)? = null,
+    specialContent: @Composable ((LuluDesktopWidget, Color, MutableInteractionSource) -> Unit)? = null,
     onOpenWidget: (LuluDesktopWidget) -> Unit,
     onEditWidget: (LuluDesktopWidget) -> Unit,
     onBlankLongPress: () -> Unit,
@@ -746,6 +787,7 @@ internal fun LuluDesktopWidgetCanvas(
                         ).graphicsLayer { alpha = if (widget.id == draggingWidgetId) 0f else 1f },
                     onOpen = { onOpenWidget(widget) },
                     onEdit = { onEditWidget(widget) },
+                    activeOnDesktop = isSettledPage && draggingWidgetId == null,
                     specialContent = specialContent,
                 )
             }
@@ -923,7 +965,8 @@ internal fun LuluDesktopWidgetEditor(
                         lastConversationText = null,
                         modifier = Modifier.width(sampleWidth).height(if (draft.rows == 1) 78.dp else 138.dp),
                         onOpen = {},
-                        specialContent = { item, ink ->
+                        onEdit = null,
+                        specialContent = { item, ink, _ ->
                             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 Text(item.kind.title, color = ink, fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold)
