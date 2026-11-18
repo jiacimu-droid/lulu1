@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,8 +15,6 @@ import androidx.compose.material.icons.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.CardGiftcard
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Lightbulb
-import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -38,14 +35,11 @@ import java.net.URLEncoder
  * release; do not use an end user's own settings as the community recipient.
  */
 internal object LuluCommunitySupportConfig {
-    const val WISHES_URL = "https://github.com/jiacimu-droid/lulu1/issues"
     const val FEEDBACK_EMAIL = "1187725424@qq.com" // Public feedback mailbox designated by the maintainer.
     const val DONATION_URL = LuluAlipayDonationQrData.expectedPayload // Owner-provided personal Alipay receiving QR.
 
-    private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8")
-
-    fun wishesListUrl(): String =
-        "$WISHES_URL?q=${encode("is:issue in:title 许愿")}"
+    private fun encode(value: String): String =
+        URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 
     fun wishTitle(title: String): String = "[许愿] " + title.trim().take(72)
 
@@ -54,8 +48,11 @@ internal object LuluCommunitySupportConfig {
             "\n\n### 愿望\n" + detail.trim().take(1_800) +
             "\n\n---\n此内容由提交者主动填写。请勿包含 API Key、密码、聊天记录或个人联系方式。"
 
-    fun issueComposerUrl(title: String, kind: String, detail: String): String =
-        "$WISHES_URL/new?title=${encode(wishTitle(title))}&body=${encode(wishBody(kind, detail))}"
+    /** Compose a user-reviewed email draft; it cannot send messages silently. */
+    fun emailComposerUrl(title: String, kind: String, detail: String): String? =
+        emailAddress()?.let { recipient ->
+            "mailto:$recipient?subject=${encode(wishTitle(title))}&body=${encode(wishBody(kind, detail))}"
+        }
 
     fun safeDonationUrl(): String? = DONATION_URL.trim().takeIf { url ->
         try {
@@ -71,7 +68,7 @@ internal object LuluCommunitySupportConfig {
 
 private val wishKinds = listOf("功能许愿", "体验优化", "界面美化", "其他想法")
 
-/** Local draft only: sending requires the user to press GitHub's submit button. */
+/** A local draft; only the user's mail app can actually send the message. */
 private class WishDraft(context: Context) {
     private val prefs = context.applicationContext.getSharedPreferences("lulu_community_wish_draft", Context.MODE_PRIVATE)
     val initialTitle: String get() = prefs.getString("title", "").orEmpty()
@@ -153,10 +150,10 @@ fun LuluWishCommunityScreen(onBack: () -> Unit) {
     var kind by rememberSaveable { mutableStateOf(draft.initialKind.takeIf(wishKinds::contains) ?: wishKinds[0]) }
     var openError by remember { mutableStateOf(false) }
     var copied by remember { mutableStateOf(false) }
-    val valid = title.isNotBlank() && detail.isNotBlank()
+    val recipient = LuluCommunitySupportConfig.emailAddress()
+    val valid = title.isNotBlank() && detail.isNotBlank() && recipient != null
 
     fun saveDraft() { draft.save(title, detail, kind) }
-    fun issueUrl() = LuluCommunitySupportConfig.issueComposerUrl(title, kind, detail)
 
     CommunityScaffold("许愿", onBack) {
         CommunityEyebrow(
@@ -198,27 +195,36 @@ fun LuluWishCommunityScreen(onBack: () -> Unit) {
             shape = RoundedCornerShape(15.dp),
             supportingText = { Text("${detail.length} / 1800") },
         )
-        CommunityNote("只会提交你主动填写的内容。愿望会发布到公开的 GitHub Issues，请勿填写密钥、联系方式或私人聊天内容。")
+        CommunityNote("只会使用你主动填写的内容。点击下方按钮会打开手机邮件应用，预填收件人、标题和正文；请在邮件应用内确认发送。不会公开发布，也不会读取角色、聊天记录或密钥。")
         Button(
             onClick = {
                 saveDraft()
                 openError = runCatching {
-                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(issueUrl())))
+                    val mailtoUrl = requireNotNull(LuluCommunitySupportConfig.emailComposerUrl(title, kind, detail))
+                    val intent = Intent(Intent.ACTION_SENDTO, Uri.parse(mailtoUrl)).apply {
+                        putExtra(Intent.EXTRA_SUBJECT, LuluCommunitySupportConfig.wishTitle(title))
+                        putExtra(Intent.EXTRA_TEXT, LuluCommunitySupportConfig.wishBody(kind, detail))
+                    }
+                    context.startActivity(intent)
                 }.isFailure
             },
             enabled = valid,
             modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp),
             shape = RoundedCornerShape(15.dp),
         ) {
-            Text("前往提交愿望")
+            Text("用邮箱发送愿望")
             Spacer(Modifier.width(8.dp))
             Icon(Icons.Outlined.ArrowForward, null, Modifier.size(18.dp))
         }
-        Text("会打开 GitHub 页面，登录并点击「Submit new issue」后，作者才会收到愿望。",
+        Text(
+            "收件邮箱：${recipient ?: "作者尚未设置邮箱"} · 打开邮件草稿不代表已发送成功",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 12.sp, lineHeight = 19.sp)
-        if (openError) Text("无法打开浏览器，可复制愿望文本后手动提交。",
-            color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+            fontSize = 12.sp, lineHeight = 19.sp,
+        )
+        if (openError) Text(
+            "无法打开邮件应用。请先配置手机邮箱，或复制愿望内容后自行发送至上面的地址。",
+            color = MaterialTheme.colorScheme.error, fontSize = 12.sp,
+        )
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             TextButton(
                 onClick = {
@@ -235,33 +241,6 @@ fun LuluWishCommunityScreen(onBack: () -> Unit) {
             TextButton(onClick = { title = ""; detail = ""; kind = wishKinds[0]; draft.clear() }) {
                 Text("清空草稿")
             }
-        }
-        val email = LuluCommunitySupportConfig.emailAddress()
-        if (email != null) {
-            TextButton(
-                enabled = valid,
-                onClick = {
-                    saveDraft()
-                    val intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$email")).apply {
-                        putExtra(Intent.EXTRA_SUBJECT, LuluCommunitySupportConfig.wishTitle(title))
-                        putExtra(Intent.EXTRA_TEXT, LuluCommunitySupportConfig.wishBody(kind, detail))
-                    }
-                    openError = runCatching { context.startActivity(intent) }.isFailure
-                },
-            ) { Text("改用邮件发送") }
-        }
-        OutlinedButton(
-            onClick = {
-                openError = runCatching {
-                    context.startActivity(Intent(Intent.ACTION_VIEW,
-                        Uri.parse(LuluCommunitySupportConfig.wishesListUrl())))
-                }.isFailure
-            },
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Icon(Icons.Outlined.OpenInNew, null, Modifier.size(17.dp))
-            Spacer(Modifier.width(8.dp))
-            Text("查看社区愿望")
         }
     }
 }

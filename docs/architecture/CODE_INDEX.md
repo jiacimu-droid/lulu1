@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`4e169fe68dc8371c5066c3e38ff250251000fcc1`
+- 基准提交：`d3fd373b26242bf8cbf16714409748d729c2cbd6`
 - 分支：`main`
 - 已索引文件：1461
-- 已索引代码/文本行：308828
-- 已发现符号：4401
+- 已索引代码/文本行：308811
+- 已发现符号：4399
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -202,7 +202,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluCallRingtone.kt` | 120 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallSpeechQueue.kt` | 231 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt` | 645 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt` | 340 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt` | 319 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/LuluContinuousSpeechRecognizer.kt` | 172 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCrashApplication.kt` | 35 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt` | 862 | 6 |
@@ -707,7 +707,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt` | 107 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 98 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt` | 181 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt` | 185 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 288 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameMemoryDecision.kt` | 57 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 161 | 3 |
