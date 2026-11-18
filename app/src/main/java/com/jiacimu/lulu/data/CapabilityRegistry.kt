@@ -74,8 +74,13 @@ object CapabilityRegistry {
             return com.jiacimu.lulu.ai.JevDirections.configured()
         if (capability.domain == "app" || capability.domain == "world") return true // Existing executor owns contact/world policy.
         if (capability.name == "capture_screen") return if (userRequested)
-            com.jiacimu.lulu.system.LuluScreenAwareness.onDemandAllowed(context)
-            else com.jiacimu.lulu.system.LuluScreenAwareness.autonomousAllowed(context)
+            com.jiacimu.lulu.system.LuluScreenAwareness.onDemandAllowed(context, characterId)
+            else com.jiacimu.lulu.system.LuluScreenAwareness.autonomousAllowed(context, characterId)
+        // Reading the same foreground accessibility tree is covered by the
+        // existing role-owned screen grant, not a second device-read switch.
+        if (capability.name == "read_screen" &&
+            com.jiacimu.lulu.system.LuluRolePhoneAuthorization.isGranted(context, characterId))
+            return true
         if (capability.name == "summon_lulu") return com.jiacimu.lulu.system.LuluScreenAwareness.summonAllowed(context)
         if (capability.name == "bring_lulu_front")
             return com.jiacimu.lulu.system.LuluScreenAwareness.directReturnAllowed(context)
@@ -95,16 +100,20 @@ object CapabilityRegistry {
     fun screenVisionContext(context: Context, characterId: String): String {
         val screen = com.jiacimu.lulu.system.LuluScreenAwareness
         val registered = find("capture_screen") != null
-        val permittedOnDemand = registered && screen.onDemandAllowed(context)
-        val permittedAutonomous = registered && screen.autonomousAllowed(context)
+        val permittedOnDemand = registered && screen.onDemandAllowed(context, characterId)
+        val permittedAutonomous = registered && screen.autonomousAllowed(context, characterId)
+        val rolePhoneGrant =
+            com.jiacimu.lulu.system.LuluRolePhoneAuthorization.isGranted(context, characterId)
         val summonRegistered = find("summon_lulu") != null
         val accessibilityConnected = com.jiacimu.lulu.system.LuluAccessibilityService.observe().connected
         val chatConfigured = com.jiacimu.lulu.ai.VisionModelService.canDescribeCamera(context, characterId)
         return buildString {
             appendLine("【Android 屏幕视觉 · 当前已注册能力与授权｜不是已执行的回执】")
             appendLine("capture_screen 工具已注册=$registered；主人按需识图授权=$permittedOnDemand；角色自主观察授权=$permittedAutonomous。")
-            appendLine("本机无障碍截图服务已连接=$accessibilityConnected；本角色聊天模型已配置=$chatConfigured（是否支持图片须由实际调用回执证明）。")
-            appendLine("read_screen 只能读主屏无障碍文字；capture_screen 只截主人当前可见的手机主屏（displayId=0），绝不是后台虚拟屏。想独立操作或查看后台 App 的实际画面，必须用 background_phone；不要用 capture_screen 充当后台操作证据。")
+            appendLine("本角色统一手机屏幕授权=$rolePhoneGrant；本机无障碍截图服务已连接=$accessibilityConnected；本角色聊天模型已配置=$chatConfigured（是否支持图片须由实际调用回执证明）。")
+            appendLine("【主屏识图的真实实现】read_screen 直接读取当前主屏无障碍文字和控件；capture_screen 直接调用 Android AccessibilityService.takeScreenshot(displayId=0) 获取一帧，再由本角色的模型理解画面。两者都不使用 MediaProjection，不需要 Android 录屏/投屏授权弹窗。")
+            appendLine("已授权本角色手机操作时，该角色也获准使用主屏无障碍读取和单帧截图，不必再次申请独立屏幕视觉许可。前提仍是 Android 无障碍服务真实连接、屏幕已解锁、当前不是敏感/排除应用，且主人未关闭按需或自主观察。若这些条件成立，现在就实际调用工具读取，而不是向主人编造必须逐次点击录屏授权；只有工具回执才能证明看到。")
+            appendLine("capture_screen 不等于独立后台虚拟屏：若要在主人继续使用手机时自主操作其他 App，使用 background_phone，后者需要独立屏及对应运行环境。主屏截图无需无线调试，且不能用后台屏的旧截图冒充本次主屏观察。")
             appendLine("授权开关、Android 实际权限、监督时段、已获取屏幕画面是不同层次的事实；主人说权限已开可以提醒你去核对，但不能替代本机状态。")
             appendLine("【自主核实真实状态】用户没回复、挂断电话或说过困，不等于已经睡着、在忙或不想你联系。若你想知道她此刻在做什么，可以主动选择查看当前应用、已获许可的 read_screen 或 capture_screen；先获得新证据，再由你自行判断是否联系、继续做别的事或安静。不需要主人每次开口指挥，也不要把不确定的睡眠猜测当成阻止行动的事实。")
             if (permittedAutonomous) {
@@ -112,7 +121,7 @@ object CapabilityRegistry {
             } else if (permittedOnDemand) {
                 appendLine("按需识图已授权，但自主识图尚未开启；主人本轮明确要求时可用 action=tool,tool=capture_screen,args={}。需要自主查看时请主人打开『权限与能力→角色屏幕视觉→自主观察』。")
             } else {
-                appendLine("目前 capture_screen 不能执行：需先由主人到露露机『权限与能力→角色屏幕视觉』阅读并同意授权、开启无障碍服务；无需额外配置识图模型，使用本角色已选的支持图片输入的聊天模型。你可以直接提出授权请求，但不得说工具不存在或已经看到了屏幕。")
+                appendLine("本角色当前尚无可执行的主屏识图授权：主人可在角色授权中开启统一『手机屏幕操作』，或在『权限与能力→角色屏幕视觉』授权按需识图；还需 Android 无障碍服务连接。无需 MediaProjection 录屏弹窗。你可以说明实际缺少的授权，但不能把工具说成不存在，也不能没执行就称看过屏幕。")
             }
             appendLine("【真实图片分享】你可以独立选择 image_search 搜索并发送网络图片（需已配置图片搜索服务）；也可以在主人已经许可的范围内选择 capture_screen,args={\"sendToChat\":true,\"caption\":\"自己想配的简短文字\"}，把刚截取的真实手机画面直接作为图片消息发到主人私聊。只有真实截图与消息持久化成功，回执才有 sentToChat=true、evidenceId、conversationId；未成功绝不能说已发送。若还想额外保存相册，可同时选 saveToAlbum=true。单纯查看屏幕不要选 sendToChat；不会自动公开到群聊、朋友圈。")
             appendLine("【学习监督本机核验状态（以它为准）】" + com.jiacimu.lulu.system.LuluStudyWatch.decisionStatus(context, characterId))
@@ -137,7 +146,7 @@ object CapabilityRegistry {
         val background = find("background_phone")
         val roleScreenGrant =
             com.jiacimu.lulu.system.LuluRolePhoneAuthorization.isGranted(context, characterId)
-        val screenConsent = com.jiacimu.lulu.system.LuluScreenAwareness.onDemandAllowed(context)
+        val screenConsent = com.jiacimu.lulu.system.LuluScreenAwareness.onDemandAllowed(context, characterId)
         val adbPaired = com.jiacimu.lulu.system.LuluWirelessDebugging.hasPriorPairing(context)
         val stopped = com.jiacimu.lulu.system.LuluBackgroundPhoneSession.ownerHasPaused(context)
         val supported = android.os.Build.VERSION.SDK_INT >= 34
