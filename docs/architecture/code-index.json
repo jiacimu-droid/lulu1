@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T10:06:32.566784+00:00",
-  "commit": "724b0a23d92901079740ca31ba73436d8519a5e1",
+  "generatedAt": "2026-11-18T10:09:20.348344+00:00",
+  "commit": "e67411e238886ebe424a3c476ff5dab395148015",
   "branch": "main",
-  "sourceFingerprint": "d99a4fe1d85317afeca22b0df586aaef6791ae2ecf34be217b111a1a353e0df6",
+  "sourceFingerprint": "9cb8bde036d5db08e0f8fcdb00868ffbda56bf5b62d977b30f88f66c9a5181be",
   "summary": {
-    "files": 1461,
-    "lines": 309521,
-    "symbols": 4405
+    "files": 1463,
+    "lines": 309781,
+    "symbols": 4411
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -755,7 +755,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt",
-        "line": 32
+        "line": 74
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
@@ -3311,7 +3311,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1574
+        "line": 1569
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -4745,7 +4745,7 @@
     "openReceiptLink": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-        "line": 919
+        "line": 944
       }
     ],
     "import": [
@@ -4775,7 +4775,7 @@
     "Result": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt",
-        "line": 15
+        "line": 14
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentOutcomeVerification.kt",
@@ -4784,12 +4784,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
         "line": 1039
-      }
-    ],
-    "viewIntent": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt",
-        "line": 22
       }
     ],
     "QqStyleChatDetailScreen": [
@@ -5994,6 +5988,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
         "line": 599
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt",
+        "line": 34
       }
     ],
     "asUserMessages": [
@@ -9519,49 +9517,49 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1467
+        "line": 1462
       }
     ],
     "requestsPrivateReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1525
+        "line": 1520
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1536
+        "line": 1531
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1543
+        "line": 1538
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1557
+        "line": 1552
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1567
+        "line": 1562
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1621
+        "line": 1616
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1997
+        "line": 1992
       }
     ],
     "age": [
@@ -14633,7 +14631,7 @@
     "parseDirect": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsSharedLink.kt",
-        "line": 41
+        "line": 39
       }
     ],
     "LuluAppearanceTheme": [
@@ -18754,6 +18752,30 @@
         "line": 69
       }
     ],
+    "Link": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt",
+        "line": 14
+      }
+    ],
+    "Message": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt",
+        "line": 15
+      }
+    ],
+    "uri": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt",
+        "line": 16
+      }
+    ],
+    "xhsUrl": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt",
+        "line": 24
+      }
+    ],
     "mayNavigate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
@@ -18763,7 +18785,7 @@
     "clipboardTimestamp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
-        "line": 121
+        "line": 151
       }
     ],
     "ownerGranted": [
@@ -20489,7 +20511,7 @@
     "QqShoppingProductLinkOpenerTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqShoppingProductLinkOpenerTest.kt",
-        "line": 18
+        "line": 19
       }
     ],
     "QqXhsShareCodecTest": [
@@ -24218,6 +24240,18 @@
         "line": 6
       }
     ],
+    "LuluSharedWebLinksTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluSharedWebLinksTest.kt",
+        "line": 6
+      }
+    ],
+    "copy": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluSharedWebLinksTest.kt",
+        "line": 31
+      }
+    ],
     "LuluShellDisplayCommandTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluShellDisplayCommandTest.kt",
@@ -24463,7 +24497,7 @@
     {
       "path": "app/src/main/AndroidManifest.xml",
       "lines": 206,
-      "sha256": "f6569e1e927578e63045edf2412bbdd66e34695e279c2d2ff44675cbbeb7b187",
+      "sha256": "f20b8cd5e89b5c4beb9c9fd009b45b216cafc019d141baff0584baec05ac6836",
       "symbols": []
     },
     {
@@ -27253,8 +27287,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 612,
-      "sha256": "1a5856fbe78f008923b83ac0c4a757ba947fb690f5e9e87c3c13188d483eb1d1",
+      "lines": 618,
+      "sha256": "d3f17625b55862ddf88d0e2e6d6121756aa6dc99d075a70953fc4c05028acdac",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
@@ -27296,8 +27330,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt",
-      "lines": 589,
-      "sha256": "a0ef6894b640b403f49b61670b5d15698068eba6722a268f2c4a1aba0a853153",
+      "lines": 621,
+      "sha256": "a78b9c111846710da5786577b2b313defe70cc95c523245fd5a3a550253eadc9",
       "symbols": []
     },
     {
@@ -27813,8 +27847,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt",
-      "lines": 324,
-      "sha256": "859aafe7c134706438353e77e428927ed8477e9c940e8f1166f24ff78f06bf43",
+      "lines": 317,
+      "sha256": "31d5ac5fd3d43089ab3c03ea75dd604b1d3fdc46946fcee224962782b5b3e160",
       "symbols": [
         {
           "name": "MigrationActivity",
@@ -28312,12 +28346,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 1045,
-      "sha256": "52341a54a37d42a6fa002404e62b6e8513a9f98c4d70e141bc1b8dfe24a8aa95",
+      "lines": 1070,
+      "sha256": "32dab8ed5f1f82c05b75297d6bd8a77ea63d0d4a6d95325492540d0fdcd6b861",
       "symbols": [
         {
           "name": "openReceiptLink",
-          "line": 919
+          "line": 944
         }
       ]
     },
@@ -28386,9 +28420,9 @@
       "symbols": []
     },
     {
-      "path": "app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCard.kt",
-      "lines": 139,
-      "sha256": "b0c955430eb269c84d1ac5f18cc349c0be11a9ad72a404a1cd677b165a38fb33",
+      "path": "app/src/main/java/com/jiacimu/lulu/QqSharedWebLinkCard.kt",
+      "lines": 147,
+      "sha256": "376ad74f744991aa7da86db536b1daaed1d08b5f1eb380266d6d60542ef2d6cb",
       "symbols": []
     },
     {
@@ -28399,20 +28433,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt",
-      "lines": 48,
-      "sha256": "501e55b44010e5c2cc6eb2a7329bb250031b01564f1ad426a465f5f9eeef59cc",
+      "lines": 83,
+      "sha256": "57c4240617238cf3171b54c814291f70d57e64fdfe62b3a26e6012d14b371bf8",
       "symbols": [
         {
           "name": "Result",
-          "line": 15
-        },
-        {
-          "name": "viewIntent",
-          "line": 22
+          "line": 14
         },
         {
           "name": "open",
-          "line": 32
+          "line": 74
         }
       ]
     },
@@ -28475,14 +28505,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt",
-      "lines": 130,
-      "sha256": "a201ceef59e5f7ff55466355afc89780b1b7bc1fe4cd0fa7501ff75e7d60e26d",
+      "lines": 120,
+      "sha256": "4f10f1f55f35aea4296bc5eb1abdcf70cb4a34e4e7bdfc588a73904cc112e906",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt",
-      "lines": 189,
-      "sha256": "5040fa11af6a8b4bc350b7420876359d2a6e6cca74522ebc1b26a7490b4a0364",
+      "lines": 206,
+      "sha256": "c141bb0e3d7d2b7ad77bec620705955f32710d699021a975cdaeae2b0ea79fb6",
       "symbols": []
     },
     {
@@ -29349,8 +29379,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt",
-      "lines": 114,
-      "sha256": "8b02381edb2e61187e4c041ab60245fb2b19041993bbbf98446a31930d8daf97",
+      "lines": 115,
+      "sha256": "e5a52452b3fdfca08ed8b1ad1b0cc92188e1916128b83555c683aa9a92785435",
       "symbols": []
     },
     {
@@ -30002,7 +30032,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
       "lines": 469,
-      "sha256": "828e616e301bbdba5fed5df6aebaab85759b8db580d12517ff7808b23401e906",
+      "sha256": "e81089c8451032d20b92104803d62bb4e9a18b081892115440acf273a7f833f9",
       "symbols": [
         {
           "name": "normalizeStep",
@@ -30224,7 +30254,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 192,
-      "sha256": "a8404fccffafd3678ee3e17930a82ff413001931b60768b0b7a237910c5287ad",
+      "sha256": "df482fefe18b30b875682ef7aa3ae84989ec9f0cadc171d619eb9e5fab5e940a",
       "symbols": [
         {
           "name": "Capability",
@@ -32754,8 +32784,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 2045,
-      "sha256": "2dd01ef5294dd7e272f222a2c0dd17a0434e7c607ca10755e1b8c35692e198ef",
+      "lines": 2040,
+      "sha256": "6f3f1d137aaf264ae8a7e77bc07e64a62111a3156ea8f064fb5d71f9625c4b5d",
       "symbols": [
         {
           "name": "asJson",
@@ -32771,39 +32801,39 @@
         },
         {
           "name": "world",
-          "line": 1467
+          "line": 1462
         },
         {
           "name": "requestsPrivateReply",
-          "line": 1525
+          "line": 1520
         },
         {
           "name": "recordedReceiptId",
-          "line": 1536
+          "line": 1531
         },
         {
           "name": "completedEvidence",
-          "line": 1543
+          "line": 1538
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1557
+          "line": 1552
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1567
+          "line": 1562
         },
         {
           "name": "from",
-          "line": 1574
+          "line": 1569
         },
         {
           "name": "requiresCompletion",
-          "line": 1621
+          "line": 1616
         },
         {
           "name": "availableContext",
-          "line": 1997
+          "line": 1992
         }
       ]
     },
@@ -36306,7 +36336,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 3903,
-      "sha256": "526da1bc45e6b7eba64694cea37de496cf32bf98386176b75c1c7f6ae08827db",
+      "sha256": "64dc05d687bb940c30d45d8425e48657f51a36089ee3bf2654a038fff48ed365",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -38109,12 +38139,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/XhsSharedLink.kt",
-      "lines": 83,
-      "sha256": "18f3b6777090a82b648c7bd87e9f066e10fdfc5470fce48bbde5da9d8263d3ec",
+      "lines": 81,
+      "sha256": "a6ea89ce830f31644adcf45b7c5200348cb49d3c1dc7d81a20738889eaf3e3e0",
       "symbols": [
         {
           "name": "parseDirect",
-          "line": 41
+          "line": 39
         }
       ]
     },
@@ -42685,7 +42715,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
       "lines": 812,
-      "sha256": "5a2b3706fb00770b60f80581a9b90dace2506435ac581c78b66fd60c9fe68d01",
+      "sha256": "b86430d6379f61f3e4960918a0e92813a6ab8b4f53fb402e31997b07c4e8f83a",
       "symbols": [
         {
           "name": "Outcome",
@@ -42738,7 +42768,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
       "lines": 2318,
-      "sha256": "5ad74260748b9003a8e6f1c50b6f50431e58183c71e91dd54764aee7be9bb55c",
+      "sha256": "749102af9f8be0a73696236698d1ac234c4f4108e865048b0f6409b0201364de",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -43367,6 +43397,33 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt",
+      "lines": 61,
+      "sha256": "63cbee0a39e10167299c244f95866830fe66d164899f4b9cf47551bb88427bc3",
+      "symbols": [
+        {
+          "name": "Link",
+          "line": 14
+        },
+        {
+          "name": "Message",
+          "line": 15
+        },
+        {
+          "name": "uri",
+          "line": 16
+        },
+        {
+          "name": "xhsUrl",
+          "line": 24
+        },
+        {
+          "name": "project",
+          "line": 34
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
       "lines": 45,
       "sha256": "dff759f7a2fdc0171fcdad9e0b4ebd83334f72038bddddaa6f645b6d55aa413a",
@@ -43383,12 +43440,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingLinkShare.kt",
-      "lines": 191,
-      "sha256": "928b04d3693ff03648cbe2ec838a3684ce6ff65c0b797a2cc1651f3b879a926a",
+      "lines": 225,
+      "sha256": "37a34106f125c44b014687f54a85695b8b3eb5126dede95b4fd15b8a35474bfb",
       "symbols": [
         {
           "name": "clipboardTimestamp",
-          "line": 121
+          "line": 151
         }
       ]
     },
@@ -44162,8 +44219,8 @@
     },
     {
       "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellDisplayMain.kt",
-      "lines": 501,
-      "sha256": "f7e4573291b37cad0081c26059d8f0b1e983842250e0217e5eaf513cf15bddc5",
+      "lines": 509,
+      "sha256": "3c7e9bdf7cc50ca9f35c32d4511d725bdf4de9e616be4c5320276805587dc3ae",
       "symbols": [
         {
           "name": "LuluShellDisplayMain",
@@ -45809,12 +45866,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqShoppingProductLinkOpenerTest.kt",
-      "lines": 107,
-      "sha256": "9be2b905bfe961bffba37e182fc9183c2dd4dc9a7d1f88bc97d3e755129e9c6f",
+      "lines": 123,
+      "sha256": "483885c06042ce1b9badf03984d39efcfcd362c6c2b05f5008538c37da2f56c3",
       "symbols": [
         {
           "name": "QqShoppingProductLinkOpenerTest",
-          "line": 18
+          "line": 19
         }
       ]
     },
@@ -51502,6 +51559,21 @@
         {
           "name": "LuluScreenFrameHandoffTest",
           "line": 6
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluSharedWebLinksTest.kt",
+      "lines": 41,
+      "sha256": "28ad831f57ea63d1115a991188940fcaf9a1b5000f3d3b85e6b38694851ca71b",
+      "symbols": [
+        {
+          "name": "LuluSharedWebLinksTest",
+          "line": 6
+        },
+        {
+          "name": "copy",
+          "line": 31
         }
       ]
     },
