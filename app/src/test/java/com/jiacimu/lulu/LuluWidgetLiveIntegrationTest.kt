@@ -102,18 +102,26 @@ class LuluWidgetLiveIntegrationTest {
 
     }
 
-    @Test fun dailyMorningScheduleAnchorsToLocalDateInsteadOfDriftingTwentyFourHours() {
+    @Test fun dailyMidnightScheduleUsesFirstInstantOfEveryLocalDay() {
         val zone = ZoneId.of("Asia/Shanghai")
-        val morning = ZonedDateTime.of(2026, 11, 18, 7, 59, 0, 0, zone)
-        val atEight = morning.plusMinutes(1)
-        val late = morning.plusHours(4)
+        val before = ZonedDateTime.of(2026, 11, 18, 23, 59, 59, 0, zone)
+        val midnight = before.plusSeconds(1)
         val today = LocalDate.of(2026, 11, 18)
-        assertEquals(today, LuluWidgetDailyRole.plannedDate(morning, true))
-        assertEquals(today.plusDays(1), LuluWidgetDailyRole.plannedDate(morning, false))
-        assertEquals(today, LuluWidgetDailyRole.plannedDate(atEight, true))
-        assertEquals(today, LuluWidgetDailyRole.plannedDate(late, true))
-        assertEquals(today.plusDays(1), LuluWidgetDailyRole.plannedDate(atEight, false))
-        assertEquals(today.plusDays(1), LuluWidgetDailyRole.plannedDate(late, false))
+        val tomorrow = today.plusDays(1)
+        // New day begins immediately at 00:00, not 08:00 the next morning.
+        assertEquals(tomorrow, LuluWidgetDailyRole.plannedDate(midnight, true))
+        assertEquals(tomorrow.plusDays(1), LuluWidgetDailyRole.plannedDate(midnight, false))
+        assertEquals(tomorrow, LuluWidgetDailyRole.plannedDate(before, false))
+        assertEquals(midnight.toInstant(), LuluWidgetDailyRole.scheduledAt(tomorrow, zone))
+        assertEquals(1L, java.time.Duration.between(before.toInstant(),
+            LuluWidgetDailyRole.scheduledAt(tomorrow, zone)).seconds)
+        assertEquals(today, LuluWidgetDailyRole.plannedDate(before, true))
+        assertEquals(today.atStartOfDay(zone).toInstant(),
+            LuluWidgetDailyRole.scheduledAt(today, zone))
+        // The device zone, not a hard-coded UTC midnight, determines the day.
+        val tokyo = ZoneId.of("Asia/Tokyo")
+        assertEquals(tomorrow.atStartOfDay(tokyo).toInstant(),
+            LuluWidgetDailyRole.scheduledAt(tomorrow, tokyo))
     }
 
     @Test fun sameRoleSameSignHasOneDateScopedCachedReadingForMultipleCards() {
