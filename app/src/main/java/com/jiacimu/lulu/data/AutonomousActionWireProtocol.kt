@@ -40,7 +40,7 @@ internal object AutonomousActionWireProtocol {
     }
 
     private val argumentKeys = setOf(
-        "text", "groupId", "stickerId", "gameId", "location", "locationCode",
+        "text", "bubbles", "groupId", "stickerId", "gameId", "location", "locationCode",
         "readingBookId", "worldAction", "itemId", "activityId",
         "incidentId", "approach", "targetCharacterId",
         "title", "content", "nickname", "messageId", "reason", "name", "appearance",
