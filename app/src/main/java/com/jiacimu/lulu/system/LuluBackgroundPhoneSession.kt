@@ -1959,6 +1959,10 @@ internal object LuluBackgroundPhoneSession {
                     .put("dispatchAttempted", applied?.optBoolean("dispatchAttempted") == true)
                     .put("outwardEffectUnverified", applied?.optBoolean("outwardEffectUnverified") == true)
                     .put("actionErrorCode", applied?.optString("errorCode").orEmpty())
+                    .put("errorCode", if (action == "type" && !typed)
+                        applied?.optString("errorCode").orEmpty()
+                            .ifBlank { "virtual_input_no_fresh_frame" }
+                        else "")
                     .put("verification", listOfNotNull(
                         applied?.optString("verification")?.takeIf(String::isNotBlank),
                         frame.optString("verification", "后台屏幕暂无可确认画面"),
