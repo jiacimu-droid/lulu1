@@ -184,7 +184,7 @@ internal object CompanionActionRuntime {
                     else -> "尚无可验证的私信或好友申请联系依据"
                 }
                 val message = if (canWrite)
-                    "可用 send_character_message(targetCharacterId,text) 发送本人写的私信"
+                    "可用 send_character_message(targetCharacterId,bubbles) 发送本人逐条决定按发送的私信，历史 text 仍兼容单条气泡"
                 else "当前不能凭空发私信"
                 val presence = if (CompanionOnlineStore.residentIsAwake(context, peer, now))
                     "当前清醒，可选择当面互动"
@@ -230,7 +230,7 @@ internal object CompanionActionRuntime {
             appendLine("- send_group_message，args={\"groupId\":\"自己实际加入的群\",\"text\":\"实际要说的话\"}：数字人物的真实群聊。")
             appendLine(ownQqGroupsContext(characterId))
             appendLine("- create_group_chat，args={\"groupName\":\"自己取的群名\",\"memberIds\":[\"确认好友的角色ID\"]}：主动邀请真实好友组成自己的群聊，至少邀请一位。无需主人加入；仅在自己确实想组织共同讨论时选择，不能凭空拉陌生人。")
-            appendLine("- send_character_message，args={\"targetCharacterId\":\"实际已认识的角色ID\",\"text\":\"要说的话\"}：给已认识的数字人物发真实私信，并写入双方独立手机记录。未见过也无交集时不可隔空搭话。")
+            appendLine("- send_character_message，args={\"targetCharacterId\":\"实际已认识的角色ID\",\"bubbles\":[\"这一拍想发送的话\",\"之后确实想补充的另一拍\"]}：本人根据性格、关系和此刻想法决定每次按发送的真实气泡；不按字数或标点机械切分，不为凑多泡添加重复话，发一泡也可以。旧 text 兼容单泡，不要同时给 text 和 bubbles。只发给真正认识的人。")
             appendLine("- like_moment，args={\"postId\":\"本轮手机可见的真实postId\"}：本人决定给好友真实动态点赞。")
             appendLine("- comment_moment，args={\"postId\":\"真实postId\",\"text\":\"自己的评论\",\"replyToCommentId\":\"可选，本帖真实commentId\"}：评论原帖或接一条已看到的评论，不限共同好友；回复目标取原评论作者。")
             appendLine("- send_friend_request，args={\"targetCharacterId\":\"真实已认识的ID\",\"greeting\":\"自己的申请招呼\"}：申请加好友，对方未同意之前不会成为好友。")
@@ -323,7 +323,7 @@ internal object CompanionActionRuntime {
         if (DigitalLifeProfileStore.isEnabled(characterId)) {
             ResidentSocialMailbox.initialize(context)
             val contacts = ResidentSocialMailbox.visibleContacts(characterId)
-            appendLine("- send_character_message，args={\"targetCharacterId\":\"真实认识的数字角色ID\",\"text\":\"发给他的一句话\"}：通过人物自己的手机向另一位已认识或确实同处公共地点的数字生命发私信；真实接收者是对方，不是用户。")
+            appendLine("- send_character_message，args={\"targetCharacterId\":\"真实认识的数字角色ID\",\"bubbles\":[\"本人这一拍想发送的话\",\"之后想继续时再发一泡\"]}：本人按自己的说话节奏选择气泡数量和边界，不按句号或字数自动分割；一次多泡仍为同一次决策和工具动作。历史 text 仅兼容单泡，不要同时填 text 和 bubbles。真实收件者是对方，不是用户。")
             if (contacts.isNotEmpty()) appendLine("本人确实能私信的数字人物：${contacts.joinToString("、") { id -> "$id=${MigratedDomainStores.characters.get(id).displayName}" }}")
             else appendLine("目前还没有可私信的数字人物，可以先实际在世界中认识对方。")
             friendCandidateContext(context, characterId).takeIf(String::isNotBlank)?.let { appendLine(it) }
@@ -707,11 +707,12 @@ internal object CompanionActionRuntime {
             "send_character_message" -> {
                 ResidentSocialMailbox.initialize(context)
                 val target = args.optString("targetCharacterId").trim()
-                val words = args.optString("text").trim()
-                val sent = ResidentSocialMailbox.send(characterId, target, words, at = now,
-                    requestPeerReview = requestPeerReview)
-                CompanionActionResult(true, "已真正向${MigratedDomainStores.characters.get(target).displayName}发送私人消息，双方各自的数字手机保留通信记录",
-                    evidenceId = "native-mail-${sent.id}-viewer-$characterId")
+                val authoredBubbles = ResidentMessageBubbles.texts(args)
+                val sent = ResidentSocialMailbox.sendBubbles(characterId, target, authoredBubbles,
+                    at = now, requestPeerReview = requestPeerReview)
+                CompanionActionResult(true,
+                    "已真正向${MigratedDomainStores.characters.get(target).displayName}发送${sent.size}条本人选择的私信气泡，双方各自的数字手机保留通信记录",
+                    evidenceId = ResidentSocialMailbox.evidenceId(sent.last(), characterId))
             }
             "favorite_user_message" -> {
                 val messageId = args.optString("messageId").trim()
