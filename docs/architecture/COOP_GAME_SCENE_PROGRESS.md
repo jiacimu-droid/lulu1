@@ -673,3 +673,7 @@
 ## 2026-11-18 G-03.5 · 倒地后不绘制虚假可走目标路线（CI/真机待验）
 - 正式 `RelicObjectiveGuide.knownRouteTiles` 原只检查 phase 与地图，英雄 hp=0 倒地时仍可能给出可行走的路径；`prompt` 也继续显示“点击定位/已探明路线”，与当前无法移动的物理事实不符。生产提交 `9bf64776eed4bdbc36248950760644edf2a25a02`，源码 blob `4666016178ea19e94e8c229226f171e623d69512`：倒地只隐藏可走路线并明确等待真实救援，不自动救起、不移动、不改变掉落或存档。测试提交 `2d9670c1286298014d1b176be67fdab745defe02`，测试 blob `ea915125b2394fbb67d27bc78f1714a07131ee9f`：倒地前有三步已知路线→hp0 不再显示路线→真实生命恢复后路线重新可见，宝箱仍未打开。
 - 连接器对 main push 的工作流查询返回空（仅支持 PR 触发关联）；未执行 Gradle/JVM/APK/index，也未进行 Redmi/模型/FPS/审图。下一入口 `RelicObjectiveRouteTest.downedHeroCannotReceiveAFalseWalkableObjectiveRoute` 的 JVM 首错与 `RelicEscapeArt.kt` 实际倒地路线叠层、救援后重显真机截图。该轮不是完整玩法闭环。
+
+## 2026-11-18 G-03.5 · 倒地路线回归改用真实药剂救援
+- 原 `RelicObjectiveRouteTest.downedHeroCannotReceiveAFalseWalkableObjectiveRoute` 通过直接复制 hero.hp=1 模拟复活，未覆盖真实伙伴消耗药剂和规则状态转换。测试提交 `bc9ef961e7ff2d6c5dc62950600918fbd8bb07c5`，测试 blob `90884cd30007ad01326d7e156a8b10682616950f`：无药伙伴等待后仍倒地、无路线；有药伙伴通过 `RelicEscapeRules.act(wait)` 真实救援，药剂-1、救援次数+1、生命4、phase 恢复 EXPLORE 后才显示路线，宝箱仍未开启。生产规则/画面未改；这只是可运行根因回归，尚无 JVM 实跑通过证据。
+- 最近可核 main push `568a2e736` APK/JVM #44200642594 completed/failure（Test and build phone APK），同 SHA 索引 #44200642542 success；不能视为本次新测试通过。下一入口：`RelicObjectiveRouteTest.downedHeroCannotReceiveAFalseWalkableObjectiveRoute` 的新 main JVM 首错，再测正式 `RelicEscapeScreen.kt` 倒地→伙伴药剂救援→路线重现、横屏 HUD 和帧时间；真机/真实模型/美术审图仍待验。
