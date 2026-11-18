@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:46:00.744580+00:00",
-  "commit": "e0175b6679b0ee9504a6e6c3badc88755eff130f",
+  "generatedAt": "2026-11-18T11:47:16.605689+00:00",
+  "commit": "f836184d0ed9705166007d8ee1a4c792f9fbe13d",
   "branch": "main",
-  "sourceFingerprint": "74d76db7cf959e7786076b19429381b6b73322b3d60726e1a3c0ba59bb4bcc45",
+  "sourceFingerprint": "cc1aafd8337dea3ced65c14a7daa02adab3ea3d9741cd3eb5db220a9566ae36d",
   "summary": {
     "files": 1467,
-    "lines": 309817,
-    "symbols": 4432
+    "lines": 309828,
+    "symbols": 4433
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -10197,7 +10197,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentWorldLifeOpportunities.kt",
-        "line": 52
+        "line": 63
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
@@ -13836,6 +13836,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt",
         "line": 219
+      }
+    ],
+    "noticeOnWake": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentWorldLifeOpportunities.kt",
+        "line": 56
       }
     ],
     "RoleDayPlan": [
@@ -37046,7 +37052,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt",
       "lines": 2560,
-      "sha256": "c8583f4b6a4ddfe92b54af2812566d2eba61ecd76d765022741a347d93facd6b",
+      "sha256": "d1e7cf4c66437be53f1e4fbeda132689a70e083e9832bac201f4fcc461971a47",
       "symbols": [
         {
           "name": "DayRecovery",
@@ -37253,12 +37259,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentWorldLifeOpportunities.kt",
-      "lines": 72,
-      "sha256": "3f82dd40b2e1ec9bd6dbace9893709bec9e22f5f676f32a6bde0041bc2a15277",
+      "lines": 83,
+      "sha256": "a5ee36c599e479b46c26c1db44fcebea19f4f73c75ad639e6424aa37bffefcf5",
       "symbols": [
         {
+          "name": "noticeOnWake",
+          "line": 56
+        },
+        {
           "name": "contextFor",
-          "line": 52
+          "line": 63
         }
       ]
     },

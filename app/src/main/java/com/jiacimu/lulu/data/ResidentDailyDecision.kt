@@ -1348,7 +1348,7 @@ internal object ResidentDailyDecision {
             // Due-time life is another actual awake opportunity. Reuse the
             // world's persisted slot, not a resident-only random story roll.
             CharacterLifeFollowThroughStore.initialize(app)
-            DigitalWorldLifeEventStore.tick(app, plan.characterId, at)
+            ResidentWorldLifeOpportunities.noticeOnWake(app, plan.characterId, at)
         }
         CharacterPhoneInbox.initialize(app)
         val pending = if (savedChoice == null) ResidentSocialMailbox.pendingIncoming(plan.characterId) else emptyList()
@@ -1957,7 +1957,7 @@ internal object ResidentDailyDecision {
             // Residents now encounter the same persisted world clock as other
             // digital people during an actual wake. A slot is claimed by the
             // world store; resuming a paid decision cannot reroll the scene.
-            DigitalWorldLifeEventStore.tick(app, id, now)
+            ResidentWorldLifeOpportunities.noticeOnWake(app, id, now)
         }
         val pending = if (savedDecision == null) ResidentSocialMailbox.pendingIncoming(id) else emptyList()
         val unread = if (savedDecision == null) CharacterPhoneInbox.unreadMoments(id) else emptyList()
