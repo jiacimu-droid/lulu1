@@ -5,7 +5,8 @@ import org.junit.Test
 
 class DesktopLauncherMoveTest {
     private fun pages(vararg ids: Pair<Int, String>): List<String?> =
-        MutableList<String?>(32) { null }.apply { ids.forEach { (i, id) -> this[i] = id } }
+        MutableList<String?>(desktopPageStart(2)) { null }
+            .apply { ids.forEach { (i, id) -> this[i] = id } }
 
     @Test fun canMoveAnIconWithinThePage() {
         val original = pages(0 to "chat", 1 to "memory")
@@ -16,11 +17,12 @@ class DesktopLauncherMoveTest {
 
     @Test fun canMoveAcrossPagesIntoAnEmptySlotAndGrowsNextPage() {
         val original = pages(0 to "chat", 2 to "memory")
-        val updated = desktopMoveLauncher(original, 0, 18)
+        val target = desktopSlotIndex(1, 5, 2)
+        val updated = desktopMoveLauncher(original, 0, target)
         assertNull(updated[0])
         assertEquals("memory", updated[2])
-        assertEquals("chat", updated[18])
-        assertEquals(48, updated.size)
+        assertEquals("chat", updated[target])
+        assertEquals(desktopPageStart(3), updated.size)
     }
 
     @Test fun invalidDragCannotDeleteIcons() {
