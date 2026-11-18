@@ -46,6 +46,27 @@ class RelationshipPreferencePersistenceTest {
         assertTrue(CharacterRelationshipPreferences.snapshot("preference-role").preferences.isEmpty())
     }
 
+    @Test fun cachedProjectionAdvancesAtEvidenceTimeAndHandlesClockRollback() {
+        initialize()
+        val at = Instant.parse("2026-01-01T00:00:00Z")
+        record("old-time", "以后叫我宝宝吧。以后每次抛飞吻的时候都要发mwah")
+        record("future-time", "别叫我宝宝，以后叫我佳辞吧。以后每次抛飞吻的时候不用发mwah", 60)
+        val before = CharacterRelationshipPreferences.snapshot("preference-role", at)
+        assertEquals("宝宝", before.preferredAddress?.first)
+        assertEquals(listOf("mwah"), before.preferences.single().requiredForms)
+        assertSame(before, CharacterRelationshipPreferences.snapshot("preference-role", at.plusSeconds(59)))
+        // No ledger mutation or invalidation occurs as the timestamp becomes current.
+        val due = CharacterRelationshipPreferences.snapshot("preference-role", at.plusSeconds(60))
+        assertEquals("佳辞", due.preferredAddress?.first)
+        assertTrue(due.preferences.single().requiredForms.isEmpty())
+        val rolledBack = CharacterRelationshipPreferences.snapshot("preference-role", at.plusSeconds(30))
+        assertEquals("宝宝", rolledBack.preferredAddress?.first)
+        assertTrue(rolledBack.rejectedAddresses.isEmpty())
+        assertEquals(listOf("mwah"), rolledBack.preferences.single().requiredForms)
+        assertEquals(setOf("old-time", "future-time"), SharedExperienceTimeline.all("preference-role")
+            .map { it.id }.toSet())
+    }
+
     @Test fun importedDeletionCannotLeaveAnOldCachedContractActive() {
         initialize()
         record("contract", "以后每次抛飞吻的时候都要发mwah")

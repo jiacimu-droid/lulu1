@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9412683f0bfbe581d97b907116e167e885a8aa9a`
+- 基准提交：`064557c3a54db23cc9d9f1d73148f9027f8c11e8`
 - 分支：`main`
 - 已索引文件：1457
-- 已索引代码/文本行：308142
+- 已索引代码/文本行：308191
 - 已发现符号：4391
 
 | 文件 | 行数 | 符号数 |
@@ -425,7 +425,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordProjection.kt` | 128 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRecordReset.kt` | 61 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationalInitiative.kt` | 228 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt` | 130 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt` | 143 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt` | 253 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSceneCadence.kt` | 43 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 431 | 5 |
@@ -1251,8 +1251,8 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineIntegrationTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RecentSemanticTimelineTest.kt` | 225 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferenceGatewayTest.kt` | 642 | 7 |
-| `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 60 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 133 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt` | 81 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt` | 148 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipRepairContinuityTest.kt` | 124 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelationshipRhythmPerceptionTest.kt` | 110 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RelativeContactCommitmentParserTest.kt` | 45 | 1 |
