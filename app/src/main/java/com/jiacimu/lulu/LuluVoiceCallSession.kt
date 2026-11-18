@@ -1746,6 +1746,7 @@ internal object LuluVoiceCallSession {
             var interactionReceipt: String? = null
             var bedtimeContinuation: String? = null
             var lastDeliveredMessageId = ""
+            var replyMoment: com.jiacimu.lulu.data.CompanionPresenceState? = null
             fun sameReply() = generation == replyGeneration && mutableState.value.connected &&
                 mutableState.value.callExperienceId == latest.callExperienceId
             fun clearWhenHeard() {
@@ -1844,6 +1845,11 @@ internal object LuluVoiceCallSession {
                                 sleepFailures = 0
                                 MigratedDomainStores.chat.appendVoiceMessage(latest.conversationId,
                                     voiceMessageId, plainSpeech, true)
+                                replyMoment?.let { moment ->
+                                    com.jiacimu.lulu.data.CompanionPresenceStore.bindVerifiedDeliveredMessageMoment(
+                                        latest.characterId, voiceMessageId, moment,
+                                    )
+                                }
                                 // Commit read ownership only after audible speech reached
                                 // the transcript; do not consume unspoken/cancelled turns.
                                 if (callTextTurnIds.isNotEmpty()) {
@@ -1946,6 +1952,8 @@ internal object LuluVoiceCallSession {
                 userEvidenceIds = turnUserEvidenceIds,
                 phoneCallId = latest.callExperienceId,
                 phoneSleepMode = latest.sleepMode,
+                phoneOpening = opening && scheduledWakeReason == null,
+                onPhonePresence = { moment -> if (sameReply()) replyMoment = moment },
                 turnContext = buildString {
                     append(videoTurnContext)
                     if (responsibilityContext.isNotBlank()) {

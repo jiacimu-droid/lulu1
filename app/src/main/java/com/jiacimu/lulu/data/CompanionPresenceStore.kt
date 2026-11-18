@@ -183,7 +183,8 @@ object CompanionPresenceStore {
     fun beginCall(characterId: String) {
         if (characterId.isBlank()) return
         activeCalls += characterId
-        update(characterId, "通话中", "正在接听电话", null, null, source = "通话")
+        // A new call starts its own current moment; earlier thoughts stay in history.
+        update(characterId, "通话中", "正在接听电话", "", null, source = "通话")
     }
 
     @Synchronized

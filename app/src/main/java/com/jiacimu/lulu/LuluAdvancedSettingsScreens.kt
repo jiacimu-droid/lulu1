@@ -200,7 +200,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     AdvancedSettingsScaffold(cssPage = "VoiceSettings", title = "语音设置", onBack = onBack) {
         item {
             SettingsSectionCard("语音服务") {
-                Text("选择电话与语音回复的供应商", color = AdvancedMuted, fontSize = 13.sp)
                 AdvancedChoiceField("语音服务商", provider, listOf(
                     "系统语音 · 离线" to "system",
                     "MiniMax" to "minimax",
@@ -374,7 +373,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         item {
             SettingsSwitchCard(
                 title = "启用 TTS",
-                subtitle = "关闭后停止当前语音与电话，手动朗读也不可用。",
                 checked = enabled,
                 onCheckedChange = {
                     enabled = it
@@ -389,7 +387,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         item {
             SettingsSwitchCard(
                 title = "自动朗读",
-                subtitle = "默认关闭。开启后聊天新消息才可能自动朗读。",
                 checked = autoSpeak,
                 enabled = enabled,
                 onCheckedChange = {
@@ -408,10 +405,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         }
         if (musicOptionsOpen) item {
             SettingsSectionCard("角色直接试唱 · ElevenLabs v4") {
-                Text("直接用角色自己已有的 ElevenLabs Voice ID 试唱，音频在露露机内生成、播放和保存；" +
-                    "不用网页、不用 GPU、不把陌生歌手的声音硬换过来。" +
-                    "这是无伴奏短句实验，不代表已经支持指定旋律的完整歌曲。",
-                    color = AdvancedMuted, fontSize = 12.sp)
                 AdvancedChoiceField("试唱角色", selectedVoiceRole, voiceRoleOptions) {
                     selectedVoiceRole = it
                 }
@@ -423,9 +416,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 AdvancedTextField("让角色唱的歌词", directSingingLyrics,
                     { directSingingLyrics = it },
                     "写2～240字原创歌词；模型会即兴决定旋律", minLines = 3)
-                Text("使用 Eleven v4 的实验性唱歌指令。单次请求消耗 Text to Speech 字符额度，" +
-                    "不会发起 Eleven Music 生成，也不会偷偷调用普通变声。",
-                    color = AdvancedMuted, fontSize = 12.sp)
                 OutlinedButton(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !directSingingBusy && elevenKey.isNotBlank() &&
@@ -530,9 +520,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                         )
                     }
                     if (singingAdvancedOpen && singingEngine == ElevenLabsSingingSvc.ENGINE_SVC) {
-                        Text("保留原唱旋律、节奏与音高曲线；首次自动用角色现有 ElevenLabs Voice ID 生成短参考音频。" +
-                            "需要独立 GPU 服务，未配置绝不偷偷调用旧变声或扣音乐生成费。",
-                            color = AdvancedMuted, fontSize = 12.sp)
                         AdvancedTextField("歌声转换服务 HTTPS 地址", singingServiceUrl,
                             { singingServiceUrl = it },
                             "https://你的GPU域名/v1/singing/convert")
@@ -540,18 +527,9 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                             { singingServiceToken = it },
                             "部署服务时设置的 SVC_API_TOKEN", password = true)
                         if (!readyForRoleSong) {
-                            Text("尚未接通歌声 GPU 服务：请按仓库 tools/singing-svc/README.md 部署并配置。" +
-                                "目前不可生成角色原声；仍可关闭角色音色开关试听 Eleven Music 原唱。",
-                                color = AdvancedMuted, fontSize = 12.sp)
-                        } else {
-                            Text("已填写服务地址与密钥，实际可用性需在首次 30 秒试听时验证。" +
-                                "首次音色参考会少量消耗 ElevenLabs TTS 额度。",
-                                color = AdvancedMuted, fontSize = 12.sp)
+                            Text("歌声转换服务未配置", color = AdvancedMuted, fontSize = 12.sp)
                         }
                     } else if (singingAdvancedOpen && singingEngine == ElevenLabsSingingSvc.ENGINE_LEGACY) {
-                        Text("Speech-to-Speech 是说话变声，可能产生跑调、压嗓和水牛音；" +
-                            "仅供对比实验，不再作为推荐的歌声转换方式。",
-                            color = AdvancedMuted, fontSize = 12.sp)
                         AdvancedChoiceField(
                             "旧版变声实验参数",
                             singingVoiceStyle,
@@ -574,8 +552,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                         musicFinetune = it
                         prefs.edit().putString("eleven_music_finetune:" + selectedVoiceRole, it.trim()).apply()
                     }, "与普通 ElevenLabs Voice ID 不同")
-                    Text("用于训练和固定曲风、人声风格；不能自动修正跑调。没有单独训练过就留空。",
-                        color = AdvancedMuted, fontSize = 12.sp)
                 }
                 Spacer(Modifier.height(10.dp))
                 AdvancedTextField("试听歌曲描述", musicPrompt, { musicPrompt = it },
@@ -684,8 +660,6 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                     ) { Text("只重试换声（不重新生成歌曲）") }
                 }
                 if (musicNotice.isNotBlank()) Text(musicNotice, color = AdvancedMuted, fontSize = 12.sp)
-                Text("现成热门歌曲翻唱不属于此生成接口；请使用原创或确有授权的歌词与素材。",
-                    color = AdvancedMuted, fontSize = 12.sp)
             }
         }
         if (provider == "elevenlabs") item {
@@ -776,7 +750,6 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
         item {
             SettingsSwitchCard(
                 title = "向量记忆",
-                subtitle = "可增强语义搜索，但每次新查询及新增记忆的向量索引都可能额外请求 API；关闭后仍保留本地记忆与关联召回",
                 checked = vectorEnabled,
                 onCheckedChange = { vectorEnabled = it },
             )
@@ -797,7 +770,6 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
         item {
             SettingsSwitchCard(
                 title = "Rerank 重排",
-                subtitle = "仅对需要比较的向量候选额外调用重排服务；静默后台感知不单独付费重排。优先省钱可关闭",
                 checked = rerankEnabled,
                 onCheckedChange = { rerankEnabled = it },
             )
@@ -843,7 +815,6 @@ fun LuluImageSettingsScreen(onBack: () -> Unit) {
         item {
             SettingsSwitchCard(
                 title = "启用生图",
-                subtitle = "允许角色和功能页调用独立的图片生成接口",
                 checked = enabled,
                 onCheckedChange = { enabled = it },
             )
@@ -915,7 +886,6 @@ private fun SettingsSectionCard(title: String, content: @Composable ColumnScope.
 @Composable
 private fun SettingsSwitchCard(
     title: String,
-    subtitle: String,
     checked: Boolean,
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit,
@@ -930,11 +900,8 @@ private fun SettingsSwitchCard(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(Modifier.weight(1f)) {
-                Text(title, color = if (enabled) AdvancedInk else AdvancedMuted, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(3.dp))
-                Text(subtitle, color = AdvancedMuted, fontSize = 12.sp)
-            }
+            Text(title, modifier = Modifier.weight(1f), color = if (enabled) AdvancedInk else AdvancedMuted,
+                fontWeight = FontWeight.Bold)
             Switch(
                 checked = checked,
                 onCheckedChange = onCheckedChange,

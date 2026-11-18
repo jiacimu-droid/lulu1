@@ -301,35 +301,6 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-            item {
-                HorizontalDivider()
-                Text("选择器和已支持的属性", style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    ":root  全局基础配色\n#Home / #Chat / #Settings 等  单页覆盖\n" +
-                        "#Home .launcher  桌面图标\n#Home .companion  桌面角色卡\n" +
-                        "#Home .widget-horoscope / .widget-note / .widget-countdown / .widget-planner / .widget-calendar / .widget-photo  桌面小组件\n" +
-                        "#Chat .bubble  聊天气泡\n\n" +
-                        "--paper、--card、--ink、--accent、--on-accent、--border 等颜色\n" +
-                        "每页 .header / .body / .footer / .floating\n" +
-                        "标题栏 .navigation / .title / .actions\n" +
-                        "#ChatDetail .composer / .composer-input / .composer-send\n" +
-                        "#Home .app-chat  聊天封面，以此类推\n\n" +
-                        "font-family: serif / sans-serif / monospace\n" +
-                        "width: 80%; height: 120dp; align: center;\n" +
-                        "padding-inline: 16dp; margin-block: 8dp; z-index: 2;\n" +
-                        ".header 和 .footer 可用 dock: top / bottom;\n" +
-                        "background-size: cover / contain / stretch;\n" +
-                        "border-radius: 18dp; offset-x: 8dp; offset-y: -4dp;\n" +
-                        "background-image: url(\"asset://已导入的图片\")",
-                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(10.dp))
-                Text("布局规则作用于列出的原生区域。每页实际有哪些区域取决于该页面的控件。",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
         }
     }
 }

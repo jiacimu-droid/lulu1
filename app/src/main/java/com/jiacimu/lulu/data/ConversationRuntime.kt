@@ -199,6 +199,7 @@ internal object PrivateStateDeltaEngine {
         thought: String,
         hasChosenToolAction: Boolean = false,
         hasFreshUserMessage: Boolean = false,
+        hasFreshDirectObservation: Boolean = false,
     ): PrivateStateDelta {
         val previousEmotion = previous.optJSONObject("emotion")
         val proposedEmotion = proposal?.optJSONObject("emotion")
@@ -241,13 +242,13 @@ internal object PrivateStateDeltaEngine {
             basis?.optString("unsaidWhy").orEmpty().isNotBlank() ||
                 basis?.optString("conflict").orEmpty().isNotBlank() ||
                 emotionChanged || motiveChanged || conflictChanged ||
-                // A new user utterance may change a private interpretation
+                // A new user utterance or a verified direct interaction may change a private interpretation
                 // without a new emotion, motive, tool, or verbose appraisal.
                 // Require the character to author both a new focus and HOW
                 // their private view changed; the user's message alone never
                 // manufactures a thought. Ambient ticks keep the stricter gate.
                 (focusChanged && (appraisalChanged || hasChosenToolAction ||
-                    hasFreshUserMessage) &&
+                    hasFreshUserMessage || hasFreshDirectObservation) &&
                     basis?.optString("change").orEmpty().isNotBlank())
             )
 

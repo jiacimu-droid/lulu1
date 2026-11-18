@@ -16,7 +16,9 @@ import com.jiacimu.lulu.ai.ModelReply
 import com.jiacimu.lulu.data.CommitmentTask
 import com.jiacimu.lulu.data.CommitmentTaskStore
 import com.jiacimu.lulu.data.CommitmentTaskStatus
+import com.jiacimu.lulu.data.CompanionPresenceState
 import com.jiacimu.lulu.data.CompanionPresenceStore
+import com.jiacimu.lulu.data.InteractionSignalBridge
 import com.jiacimu.lulu.data.CompanionActionRuntime
 import com.jiacimu.lulu.data.CharacterDecisionProtocol
 import com.jiacimu.lulu.data.CharacterRuntime
@@ -199,12 +201,15 @@ object LuluDeviceToolBridge {
         diagnosticTurnTraceId: String = "",
         recalledGroupEventIds: Set<String> = emptySet(),
         externalObservationRevision: Long? = null,
+        phoneOpening: Boolean = false,
+        onPhonePresence: ((CompanionPresenceState) -> Unit)? = null,
     ): Result<ModelReply> {
         val turnTraceId = diagnosticTurnTraceId.ifBlank { java.util.UUID.randomUUID().toString() }
         val preparationStartedNanos = System.nanoTime()
         val callSilence = silenceObservationId.isNotBlank() && sceneContext.contains("电话")
         // Mode is a live call fact, never inferred from words in task or silence context.
         val bedtimePromptActive = PhoneSleepPromptMode.active(phoneCallId, phoneSleepMode)
+        val ordinaryPhone = phoneCallId.isNotBlank() && !bedtimePromptActive
         val rewriting = reconsiderationEvidenceId.isNotBlank()
         val appContext = context ?: return Result.failure(IllegalStateException("手机能力尚未初始化"))
         val externalCallEvent = if (callSilence)
@@ -216,6 +221,13 @@ object LuluDeviceToolBridge {
         if (externalObservationRevision != null && externalCallEvent?.revision != externalObservationRevision) {
             return Result.failure(IllegalStateException("外部通话观察已失效或修订，未发起通话观察"))
         }
+        val openingCallEvent = if (ordinaryPhone && phoneOpening) {
+            com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(
+                characterId, listOf(InteractionSignalBridge.callStartEvidenceId(phoneCallId)),
+            ).firstOrNull { it.sessionId == phoneCallId }
+        } else null
+        val freshPhoneObservation = openingCallEvent ?: externalCallEvent?.takeIf { ordinaryPhone &&
+            externalObservationRevision != null }
         val externalCallResult = externalCallEvent?.takeIf {
             it.source == "tool-router" && it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.ToolResult
         }
@@ -313,7 +325,7 @@ object LuluDeviceToolBridge {
         // repeated messages and quoted fragments must not inherit another turn's cause.
         val groundingEvidenceId = selectGroundingEvidenceId(
             reconsiderationEvidenceId, callSilence, silenceObservationId,
-            originalUserEvidence.lastOrNull()?.id.orEmpty(),
+            originalUserEvidence.lastOrNull()?.id ?: openingCallEvent?.id.orEmpty(),
         )
         val commitmentEvidence = originalUserEvidence.ifEmpty {
             if (groundingEvidenceId.isBlank()) emptyList() else
@@ -460,7 +472,7 @@ object LuluDeviceToolBridge {
                 """.trimIndent() else if (callSilence) """
             【电话观察轮次输出协议】本轮没有新增用户发言，实际观察内容见上下文；它没有预设陪伴目的或角色心理。
             由本人结合当前目标、关系和实际结果选择 action=reply 或 silent。reply 时 text 为真实要说的口语；silent 时没有语音输出，reason 保存本人实际理由。两者均可附 steps/sideActions 执行已授权工具，以及 commitmentChanges 更新原责任或安排下一次结果复查。
-            例如结构：{"action":"reply|silent","text":"选择说话时填写","reason":"本人决定依据","steps":[],"commitmentChanges":[]}。心理字段只在本人确有新变化时按原协议填写，不需为凑字段生成感受。
+            例如结构：{"action":"reply|silent","text":"选择说话时填写","reason":"本人决定依据","steps":[],"commitmentChanges":[]}。有未说出口的真实念头时，即使选择沉默也使用下方心声协议。
             说话、音乐、音量与短铃声均是可选真实动作，不预先指定哪种优先；依据现有音频状态、原任务与用户要求自行决定。每个动作须有实际执行回执，不机械重放旧工具；没有回应不能证明已醒或未醒。内部状态与心声不朗读给用户。
         """.trimIndent() else if (separateExpression) """
             只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时写 speechIntent 和 dialogueMove；speechIntent 是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿，不要提前写 text。
@@ -489,7 +501,7 @@ object LuluDeviceToolBridge {
             或 {"action":"silent","reason":"此刻为什么不想接话"}。
         """.trimIndent() else """
             这是电话的低延迟通道，纯语音通话可以直接给可朗读的 text；若本轮提供了真实 Live2D 视频动作目录，则改用该目录约定的 speech 数组，每个实际说出的片段同时包含台词与本人选择的 Motion3，不再同时返回 text 或 bubbles。若确实想不说话而操作已授权的设备，允许 silent 配合 sideActions，不能返回仅有 speechIntent 的空发言。
-            {"action":"reply","text":"自然的电话口语","statusText":"持续状态","gesture":"神态","innerThought":"未说出的念头","mood":"心情"}
+            {"action":"reply","text":"自然的电话口语","statusText":"持续状态","gesture":"神态","mood":"心情"}
             【电话里可以当场收藏，无需先挂断或先回复另一次电话】
             你若真正决定把提供的某条准确用户消息保存在生活记录的「收藏」，可以在正常的电话回复里同时写
             {"action":"reply","text":"不预言执行结果的自然口语","phoneFavorite":{"messageId":"真实用户消息ID","reason":"自己为何想收藏这句原话"}}。
@@ -517,12 +529,19 @@ object LuluDeviceToolBridge {
                     it.evidenceKind == original.evidenceKind } ||
                 !com.jiacimu.lulu.CallExternalResultPolicy.hasLiveReceiptEvidence(original)
         } == true
-        fun phoneDecisionInvalidated() = phoneReceiptChanged() ||
+        fun phoneObservationChanged() = freshPhoneObservation?.let { original ->
+            com.jiacimu.lulu.data.SharedExperienceTimeline.eventsByIds(characterId, listOf(original.id))
+                .none { it.revision == original.revision }
+        } == true
+        fun phoneDecisionInvalidated() = phoneReceiptChanged() || phoneObservationChanged() ||
             phoneDecisionDefinition?.let { original ->
                 !original.hasSameConfiguration(CharacterRuntime.definition(characterId))
             } == true
-        fun phoneInvalidationReason() = if (phoneReceiptChanged()) "原工具回执已撤回或修订"
-            else "角色设定或关系已更新"
+        fun phoneInvalidationReason() = when {
+            phoneReceiptChanged() -> "原工具回执已撤回或修订"
+            phoneObservationChanged() -> "原通话观察已撤回或修订"
+            else -> "角色设定或关系已更新"
+        }
         fun stalePhoneTurn(toolResultAvailable: Boolean = false) =
             Result.failure<ModelReply>(IllegalStateException(
                 if (toolResultAvailable)
@@ -678,6 +697,7 @@ object LuluDeviceToolBridge {
                 关系随经历缓慢改变，可继续介意、牵挂、好奇，不能凭一句好话就剧烈升温，也不能把他人的真实意图当已知事实。
                 状态字段只在本轮确实更新时填写：gesture 为可见动作，statusText 为持续处境，mood 为当前感受，innerThought 为未出口的个人念头；不复制 text、工具结果或互相复述。若填写 innerThought，必须同时填写 innerThoughtBasis={"focus":"真正触发它的具体刺激/矛盾","change":"相比上一刻新增或改变了什么","conflict":"可选内部冲突","unsaidWhy":"为什么没有说出口"}；focus 不能为空，change/conflict/unsaidWhy 至少一项非空，否则程序会把心声清空。
                 ${com.jiacimu.lulu.data.spontaneousInnerVoiceGuide}
+                ${if (ordinaryPhone) phoneInnerVoiceInstruction else ""}
                 ${if (separateExpression) "" else onlineChatBubbleRule}
                 $voicePerformanceRule
                 $phoneSleepRule
@@ -1058,6 +1078,8 @@ object LuluDeviceToolBridge {
             // requiring an invented emotion or a spoken chat bubble.
             hasChosenToolAction = plan.action == "tool" ||
                 (authoredSideActions?.length() ?: 0) > 0,
+            hasFreshUserMessage = originalUserEvidence.isNotEmpty() && userText.isNotBlank(),
+            hasFreshDirectObservation = freshPhoneObservation != null,
         )
         // Do not treat a decision envelope as spoken content. In particular,
         // a phone model returning only a brief must never read JSON aloud.
@@ -1068,20 +1090,27 @@ object LuluDeviceToolBridge {
             ) else ""
         // A corrected visible sentence must not leave abusive hidden state behind.
         val invalidBlame = proposedSpeech.isNotBlank() && checkedText != proposedSpeech
+        var phoneMoment: CompanionPresenceState? = null
         if (!invalidBlame && !rewriting) {
             com.jiacimu.lulu.data.CharacterMotivationOwnership.updateLegacyIfPresent(characterId, plan.intention)
-            val verifiedSources = originalUserEvidence.ifEmpty {
+            val verifiedSources = if (ordinaryPhone) originalUserEvidence else originalUserEvidence.ifEmpty {
                 com.jiacimu.lulu.data.SharedExperienceTimeline.recentEvents(characterId, 40)
                 .filter { userText.isNotBlank() && it.evidenceKind == com.jiacimu.lulu.data.EventEvidenceKind.UserStatement &&
                     it.content.isNotBlank() && (userText.contains(it.content.trim().take(60)) ||
                         it.content.contains(userText.trim().take(60))) }.takeLast(12)
             }
             val userSources = if (externalCallResult != null) emptyList()
-            else if (callSilence) listOf(com.jiacimu.lulu.data.PerceptionStimulus(
-                silenceObservationId, "电话持续接通；本轮没有新增用户发言", setOf("user"),
-            )) else verifiedSources.map {
+            else if (freshPhoneObservation != null) listOf(com.jiacimu.lulu.data.PerceptionStimulus(
+                freshPhoneObservation.id, freshPhoneObservation.content.take(260), emptySet(),
+                freshPhoneObservation.revision,
+            ))
+            else if (callSilence) listOfNotNull(externalCallEvent?.let {
+                com.jiacimu.lulu.data.PerceptionStimulus(
+                    it.id, it.content.take(260), emptySet(), it.revision,
+                )
+            }) else verifiedSources.map {
                 com.jiacimu.lulu.data.PerceptionStimulus(it.id, it.content.take(260), setOf("user"), it.revision)
-            }.ifEmpty { if (userText.isBlank()) emptyList() else listOf(com.jiacimu.lulu.data.PerceptionStimulus(
+            }.ifEmpty { if (userText.isBlank() || ordinaryPhone) emptyList() else listOf(com.jiacimu.lulu.data.PerceptionStimulus(
                 "chat:${now.toEpochMilli()}:${userText.hashCode()}", userText, setOf("user"))) }
             val perceptionInput = com.jiacimu.lulu.data.CharacterPerceptionContext.integrate(
                 context = appContext,
@@ -1097,7 +1126,8 @@ object LuluDeviceToolBridge {
             val combined = perceptionInput.combined
             val interactionEvidenceId = when {
                 reconsiderationEvidenceId.isNotBlank() -> reconsiderationEvidenceId
-                callSilence -> silenceObservationId
+                freshPhoneObservation != null -> freshPhoneObservation.id
+                callSilence -> externalCallEvent?.id.orEmpty()
                 verifiedSources.isNotEmpty() -> verifiedSources.last().id
                 else -> ""
             }
@@ -1114,15 +1144,18 @@ object LuluDeviceToolBridge {
                 appraisal = plan.appraisal,
                 now = now,
             )
-            // Heart voice is a sparse private residue, not a mandatory second answer.
-            // A normal user message is fresh evidence; phone silence alone is not.
+            // A real call observation can ground an authored thought. The
+            // passage of time alone does not prove a change in the owner's state.
             plan = plan.copy(innerThought = com.jiacimu.lulu.data.CharacterHeartVoicePolicy.keepOrBlank(
                 thought = plan.innerThought,
-                outward = plan.speechIntent.ifBlank { plan.text },
+                outward = if (ordinaryPhone) plan.text.ifBlank { plan.speechIntent }
+                    else plan.speechIntent.ifBlank { plan.text },
                 innerLife = plan.innerLife,
                 basis = plan.innerThoughtBasis,
                 delta = privateDelta,
-                hasFreshEvidence = (!callSilence && userText.isNotBlank()) || observedSources.isNotEmpty(),
+                hasFreshEvidence = freshPhoneObservation != null ||
+                    (!callSilence && userText.isNotBlank() && (!ordinaryPhone || originalUserEvidence.isNotEmpty())) ||
+                    observedSources.isNotEmpty(),
             ))
             // The combined perception token is a *synthetic* multi-source ID.
             // Anchor enduring psychological changes to a REAL deletable user
@@ -1183,6 +1216,15 @@ object LuluDeviceToolBridge {
                 alternatives = plan.alternatives,
                 voiceFingerprint = privateDelta.fingerprint,
             )
+            if (ordinaryPhone) {
+                // The real perception already happened, including when the
+                // role stays silent or its later audio is never delivered.
+                phoneMoment = savePresence(
+                    characterId, plan, "电话感知",
+                    preserveQuietThought = true, heartVoiceFingerprint = privateDelta.fingerprint,
+                    momentChanged = privateDelta.meaningful, provenanceId = causalEvidenceId,
+                )
+            }
         }
         // Persist the model's phone-step choice BEFORE any real side effect.
         // These pre-existing phone request IDs differ from the ordered executor's
@@ -1408,8 +1450,8 @@ object LuluDeviceToolBridge {
                 executionHasPrimary = false,
                 executionState = if (chatSilentHasSteps) "pending" else "reported",
             )
-            savePresence(
-                characterId, plan, if (callSilence) "通话沉默感知" else "聊天沉默",
+            if (!ordinaryPhone && !bedtimePromptActive) savePresence(
+                characterId, plan, "聊天沉默",
                 preserveQuietThought = true, heartVoiceFingerprint = privateDelta.fingerprint,
                 momentChanged = privateDelta.meaningful,
                 provenanceId = groundingEvidenceId.takeIf { userEvidenceIds.isNotEmpty() }.orEmpty(),
@@ -1663,9 +1705,12 @@ object LuluDeviceToolBridge {
                     if (phoneDecisionInvalidated()) return staleReplyExpression()
                 } else plan.live2d?.let { chosen -> onLive2DAction?.invoke(chosen) }
             }
-            if (!invalidBlame && safeText == naturalText && !rewriting) {
-                savePresence(
-                    characterId, plan, if (callSilence) "通话沉默感知" else "聊天",
+            if (!invalidBlame && !bedtimePromptActive && !rewriting &&
+                (if (ordinaryPhone) verifiedSpeech == naturalText else safeText == naturalText)) {
+                if (ordinaryPhone) phoneMoment?.let { moment ->
+                    onPhonePresence?.invoke(moment)
+                } else savePresence(
+                    characterId, plan, "聊天",
                     heartVoiceFingerprint = privateDelta.fingerprint,
                     momentChanged = privateDelta.meaningful,
                     provenanceId = groundingEvidenceId.takeIf { userEvidenceIds.isNotEmpty() }.orEmpty(),
@@ -1945,12 +1990,15 @@ object LuluDeviceToolBridge {
                 if (phoneDecisionInvalidated()) return stalePhoneTurn(toolResultAvailable = true)
             }
             if (finalPlan != null && checkedResultText == naturalText) {
-                savePresence(
-                    characterId, finalPlan, "聊天·工具",
+                val moment = savePresence(
+                    characterId, finalPlan, if (ordinaryPhone) "通话工具感知" else "聊天·工具",
+                    preserveQuietThought = ordinaryPhone,
                     heartVoiceFingerprint = toolResultPrivateDelta?.fingerprint.orEmpty(),
                     momentChanged = toolResultPrivateDelta?.meaningful == true,
-                    provenanceId = groundingEvidenceId.takeIf { userEvidenceIds.isNotEmpty() }.orEmpty(),
+                    provenanceId = if (ordinaryPhone) actionReceipt
+                        else groundingEvidenceId.takeIf { userEvidenceIds.isNotEmpty() }.orEmpty(),
                 )
+                if (ordinaryPhone && moment != null) onPhonePresence?.invoke(moment)
                 com.jiacimu.lulu.data.CharacterLifeStore.recordAfterglow(characterId,
                     "本轮用户消息：${userText.take(120)}；工具真实结果：${toolResult.take(120)}", finalPlan.afterglow, evidenceId = actionReceipt)
                 runCatching { com.jiacimu.lulu.data.CharacterExplorationContinuity.returned(appContext, characterId,
@@ -2340,9 +2388,11 @@ object LuluDeviceToolBridge {
         heartVoiceFingerprint: String = "",
         momentChanged: Boolean = true,
         provenanceId: String = "",
-    ) {
+    ): CompanionPresenceState? {
+        val now = Instant.now()
         CompanionPresenceStore.update(
             characterId = characterId,
+            now = now,
             statusText = plan.statusText,
             gesture = plan.gesture,
             innerThought = if (preserveQuietThought) plan.innerThought.takeIf(String::isNotBlank) else plan.innerThought,
@@ -2359,8 +2409,23 @@ object LuluDeviceToolBridge {
                 innerThought = plan.innerThought,
             ) else "",
         )
+        // A delivered segment may outlive later perceptions. The frozen
+        // snapshot belongs to this decision only, including an empty thought.
+        return CompanionPresenceStore.current(characterId)?.takeIf { it.updatedAt == now }
+            ?.let { saved ->
+                if (preserveQuietThought && plan.innerThought.isBlank())
+                    saved.copy(innerThought = "", innerThoughtFingerprint = "")
+                else saved
+            }
     }
 }
+
+private const val phoneInnerVoiceInstruction = """
+    【电话和视频通话的心声】先从刚感知到的事实出发，留意自己此刻没说出口的反应，再决定说什么、做什么或沉默。一个很短的新念头也可以有心声，不必硬写成长分析、关系变化或情绪总结。
+    若本人确有这样的念头，把它用第一人称放在 innerThought，同时写 innerThoughtBasis 的 focus（具体触发）以及 change、conflict 或 unsaidWhy。心声独立于 text、speech、reason 和工具动作。
+    示例结构（文字只作字段示意）：{"action":"silent","reason":"等她说完","innerThought":"我刚才差点接得太快","innerThoughtBasis":{"focus":"听见她停顿前还有半句","change":"想接话转为想等一拍","unsaidWhy":"不想打断她"}}。
+    心声只进入此刻，绝不能写进台词、字幕或朗读出来。本人没有新念头时留空；用户没有出声不等于她怎样了。
+"""
 
 private data class ToolPlan(
     val action: String,

@@ -22,7 +22,7 @@ internal val settingsHomeEntries: List<SettingsHomeEntry> = listOf(
     ),
     SettingsHomeEntry(
         "integrations", "模型与连接", "联网与扩展",
-        "MCP、小红书与外部服务连接",
+        "阅读记录、网页和图片搜索",
         "搜索 网页 阅读 浏览器 小红书 设备 手环 插件 网络 MCP",
     ),
     SettingsHomeEntry(

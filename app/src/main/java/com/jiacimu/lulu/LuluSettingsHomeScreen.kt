@@ -214,8 +214,6 @@ private fun SettingsEntryScreen(
                             tint = SettingsHomeMuted, modifier = Modifier.size(28.dp))
                         Text("没有找到相关设置",
                             style = MaterialTheme.typography.titleMedium, color = SettingsHomeInk)
-                        Text("换个关键词试试，或查看全部设置",
-                            style = MaterialTheme.typography.bodyMedium, color = SettingsHomeMuted)
                         TextButton(onClick = { onSearchQueryChange("") }) { Text("查看全部设置") }
                     }
                 }
@@ -250,7 +248,6 @@ private fun SettingsEntryScreen(
                             SettingsEntryRow(
                                 icon = icon,
                                 title = entry.title,
-                                subtitle = entry.subtitle,
                                 onClick = {
                                     when (entry.id) {
                                         "api" -> onOpenApi()
@@ -290,7 +287,6 @@ private fun SettingsEntryScreen(
 private fun SettingsEntryRow(
     icon: ImageVector,
     title: String,
-    subtitle: String,
     onClick: () -> Unit,
 ) {
     Surface(
@@ -318,11 +314,8 @@ private fun SettingsEntryRow(
                 )
             }
             Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text(title, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = SettingsHomeInk)
-                Spacer(Modifier.height(2.dp))
-                Text(subtitle, color = SettingsHomeMuted, fontSize = 12.sp, lineHeight = 18.sp)
-            }
+            Text(title, modifier = Modifier.weight(1f), fontWeight = FontWeight.SemiBold,
+                fontSize = 15.sp, color = SettingsHomeInk)
             Icon(Icons.Outlined.ChevronRight, null, tint = SettingsHomeMuted)
         }
     }

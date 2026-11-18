@@ -34,16 +34,12 @@ internal fun OptionalModelRolesSettings() {
             }
             TextButton(onClick = { choosing = true; error = "" }) { Text("更换") }
         }
-        Text("哄睡和未单独指定模型的功能使用它；角色聊天、居民与游戏等独立选择不受影响。",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (error.isNotBlank()) Text(error, color = MaterialTheme.colorScheme.error)
     }
 
     if (choosing) {
         ModelArchivePickerSheet(
             title = "默认兜底模型",
-            subtitle = "只有在这里主动更换才会改变兜底；新增模型存档不会自动切换。",
             selectedArchiveId = fallbackId,
             onSelect = { id ->
                 runCatching { store.selectArchive(id) }

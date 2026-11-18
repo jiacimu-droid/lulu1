@@ -23,8 +23,6 @@ internal fun CharacterExecutionSettings(characterId: String) {
     val prefs = remember { context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE) }
     Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Text("操作授权", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-        Text("打开虚拟屏幕后，角色可自主使用已安装的 App，包括浏览、选品和微信发消息，无需再逐项授权购物或聊天。媒体音量等原生设备功能不属于虚拟屏幕授权。", style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
         val permissionGroups = listOf(
             "后台虚拟屏幕" to listOf(
                 "screen" to "允许自主操作虚拟屏幕",
@@ -103,7 +101,6 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 }) { Text("设置") }
             }
         }
-        Text("音乐控制需要在手机权限页开启「通知读取」，并让音乐 App 建立播放会话；角色获媒体授权后可按实际情况播放、暂停、切歌及有限度调节媒体音量。", style = MaterialTheme.typography.bodySmall)
         var wakeMusic by remember(characterId) { mutableStateOf(prefs.getBoolean("$characterId:wake_music_enabled", false)) }
         Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Text("允许角色自主选择音乐叫醒", modifier = Modifier.weight(1f))
@@ -113,8 +110,6 @@ internal fun CharacterExecutionSettings(characterId: String) {
                 }
             })
         }
-        Text("开启表示允许选择，并不意味着每次叫醒都放音乐。角色会依据当时情况选择铃声、自然叫醒或已有播放器；正在通话时优先沿用原电话。媒体音量会受安全上限约束。",
-            style = MaterialTheme.typography.bodySmall)
         CharacterMusicSensingSettings(characterId)
         var packages by remember(characterId) { mutableStateOf(prefs.getString("$characterId:notification_packages", "").orEmpty()) }
         // Non-critical notification filters: avoid synchronous disk writes on each IME keystroke.

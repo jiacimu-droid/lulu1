@@ -185,7 +185,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                 )
             }
 
-            item { CapabilitySectionTitle("授权信息", "允许角色读取真实信息，但不会因此修改手机内容") }
+            item { CapabilitySectionTitle("授权信息") }
             item {
                 CapabilityRow(
                     Icons.Outlined.LocationOn,
@@ -208,7 +208,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                 CapabilityRow(
                     Icons.Outlined.NotificationsActive,
                     "通知读取",
-                    "读取近期通知，也用于音乐 App 的系统媒体会话访问",
+                    "",
                     snapshot.notificationAccess,
                 ) { open(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
             }
@@ -216,7 +216,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                 CapabilityRow(
                     Icons.Outlined.MusicNote,
                     "音乐播放识别 / 控制",
-                    musicDiagnostic + "\n当前只控制支持 Android MediaSession 的播放器；没有会话不代表没有声音。点击可检查通知使用权。",
+                    musicDiagnostic,
                     snapshot.notificationAccess,
                 ) { open(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
             }
@@ -241,8 +241,6 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                     if (musicTestReport.isNotBlank()) {
                         Text(musicTestReport, color = CapabilityMuted, fontSize = 12.sp)
                     }
-                    Text("直接调用系统媒体控制，不产生模型费用。",
-                        color = CapabilityMuted, fontSize = 11.sp)
                 }
             }
             item {
@@ -267,7 +265,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                 }
             }
 
-            item { CapabilitySectionTitle("授权工具", "允许角色执行动作，或保障主动能力在后台运行") }
+            item { CapabilitySectionTitle("授权工具") }
             item {
                 CapabilityRow(
                     Icons.Outlined.Alarm,
@@ -289,7 +287,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                 CapabilityRow(
                     Icons.Outlined.PictureInPictureAlt,
                     "悬浮窗",
-                    "用于屏幕查看申请、返回邀请及学习监督时的常驻小窗",
+                    "",
                     snapshot.overlay,
                 ) { open(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))) }
             }
@@ -297,7 +295,7 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
                 CapabilityRow(
                     Icons.Outlined.Notifications,
                     "发送通知",
-                    "主动消息、来电和闹钟提醒",
+                    "",
                     snapshot.notifications,
                 ) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !snapshot.notifications) {
@@ -369,10 +367,9 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
 }
 
 @Composable
-private fun CapabilitySectionTitle(title: String, subtitle: String) {
+private fun CapabilitySectionTitle(title: String) {
     Column(Modifier.padding(top = 10.dp, start = 2.dp, end = 2.dp, bottom = 2.dp)) {
         Text(title, color = CapabilityInk, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Text(subtitle, color = CapabilityMuted, fontSize = 11.sp, lineHeight = 16.sp)
     }
 }
 
@@ -429,7 +426,7 @@ private fun CapabilityRow(
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(title, color = CapabilityInk, fontWeight = FontWeight.Bold)
-                Text(subtitle, color = CapabilityMuted, fontSize = 12.sp, lineHeight = 16.sp)
+                if (subtitle.isNotBlank()) Text(subtitle, color = CapabilityMuted, fontSize = 12.sp, lineHeight = 16.sp)
             }
             Text(if (enabled) "已开启" else "去开启", color = if (enabled) CapabilityInk else CapabilityMuted, fontSize = 12.sp)
             Spacer(Modifier.width(4.dp))
@@ -556,8 +553,6 @@ private fun LuluScreenAwarenessSettings() {
         border = BorderStroke(1.dp, CapabilityBorder)) {
         Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("角色屏幕视觉", fontWeight = FontWeight.Bold, color = CapabilityInk)
-            Text("一次截图会发送到你配置的识图模型提供商；原图仅在内存中使用。",
-                fontSize = 12.sp, color = CapabilityMuted)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("应用使用感知", Modifier.weight(1f), color = CapabilityInk)
                 Switch(tracking, { tracking = it; prefs.edit().putBoolean(LuluScreenAwareness.TRACK_APPS, it).commit() })
@@ -577,8 +572,6 @@ private fun LuluScreenAwarenessSettings() {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("允许角色直接切回露露机", color = CapabilityInk)
-                    Text("默认关闭。角色可在你使用其他 App 时主动把露露机切到前台；不会结束其他 App。需要无障碍、解锁状态及本项单独授权。",
-                        fontSize = 11.sp, lineHeight = 15.sp, color = CapabilityMuted)
                 }
                 Switch(
                     checked = consent && directReturn,
@@ -592,8 +585,6 @@ private fun LuluScreenAwarenessSettings() {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("允许角色临时开启强制模式", color = CapabilityInk)
-                    Text("默认关闭。角色按真实目标启用高频监督；单次安全租约最多120分钟，但目标完成后应自行停止。通知栏随时可撤销，系统及敏感应用不拦截。",
-                        fontSize = 11.sp, lineHeight = 15.sp, color = CapabilityMuted)
                 }
                 Switch(checked = consent && strictGrant, onCheckedChange = {
                     if (!it) LuluStrictMode.ownerStop(context, reason = "主人关闭强制模式授权")

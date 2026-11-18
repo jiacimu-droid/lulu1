@@ -196,9 +196,6 @@ internal fun CharacterLifeSettings(
                     if (dialogueGenerationError.isNotBlank()) Text(dialogueGenerationError,
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall)
-                    Text("示例只是可编辑的假设对话；审核保存后才影响这个角色，不会变成聊天历史。",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 if (field.key == "speechHabits") {
                     Text("表情偏好",

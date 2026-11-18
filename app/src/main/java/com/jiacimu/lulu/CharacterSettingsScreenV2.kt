@@ -275,11 +275,9 @@ fun CharacterSettingsScreenV2(
             item {
                 CharacterV2Card { CharacterSocialNamesSettings(characterId) }
             }
-            item {
+            if (digitalLife.bornAt != null) item {
                 CharacterV2Card {
                     Text("数字生命", fontWeight = FontWeight.Bold, fontSize = 19.sp)
-                    Text("所有角色都生活在露露机的数字世界。不同角色可以拥有自己的背景、职业和性格，但共享同一套世界规则。",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp, lineHeight = 18.sp)
                     digitalLife.bornAt?.let { bornAt ->
                         val day = (Duration.between(bornAt, Instant.now()).toDays() + 1L).coerceAtLeast(1L)
                         val bornLabel = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(ZoneId.systemDefault()).format(bornAt)
@@ -317,7 +315,7 @@ fun CharacterSettingsScreenV2(
                             },
                             onUnitChange = { unit -> ProactivePerceptionPolicyStore.update(characterId) { it.copy(intervalUnit = unit) } },
                         )
-                        Text("在线期间自主思考间隔 · 新消息与真实事件不受此间隔限制", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+                        Text("在线思考间隔", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedButton(onClick = {
                                 ProactivePerceptionPolicyStore.update(characterId) { it.copy(onlinePulseSeconds = 150) }
@@ -326,7 +324,6 @@ fun CharacterSettingsScreenV2(
                                 ProactivePerceptionPolicyStore.update(characterId) { it.copy(onlinePulseSeconds = 300) }
                             }) { Text(if (perceptionPolicy.onlinePulseSeconds == 300) "✓ 5分钟" else "5分钟") }
                         }
-                        Text("使用同一角色聊天模型；生活后续感知合并排队，避免重复花费。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
                     }
                     if (perceptionPolicy.enabled) wakePlans[characterId]?.let { plan ->
                         Text("下次预计醒来 · ${plan.dueAt.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("MM-dd HH:mm"))} · 本轮 ${plan.intervalMinutes} 分钟",
@@ -382,16 +379,16 @@ fun CharacterSettingsScreenV2(
                         ) { managementPage = 1 }
                     }
                     item("manage-permission") {
-                        CharacterManageEntry("操作权限", "设备、闹钟和音乐") { managementPage = 2 }
+                        CharacterManageEntry("操作权限") { managementPage = 2 }
                     }
                     item("manage-learning") {
-                        CharacterManageEntry("学习与成长", "计划与额度") { managementPage = 3 }
+                        CharacterManageEntry("学习与成长") { managementPage = 3 }
                     }
                     if (nativeResident != null) item("manage-resident") {
-                        CharacterManageEntry("居民运行", "工作与行程") { managementPage = 4 }
+                        CharacterManageEntry("居民运行") { managementPage = 4 }
                     }
                     item("manage-records") {
-                        CharacterManageEntry("记录管理", "清除历史记录") { managementPage = 5 }
+                        CharacterManageEntry("记录管理") { managementPage = 5 }
                     }
                 }
             if (nativeResident != null && managementPage == 4) item {
@@ -626,7 +623,7 @@ internal fun CharacterV2Card(content: @Composable ColumnScope.() -> Unit) {
 }
 
 @Composable
-private fun CharacterManageEntry(label: String, summary: String, onClick: () -> Unit) {
+private fun CharacterManageEntry(label: String, summary: String? = null, onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().heightIn(min = 72.dp),
@@ -639,7 +636,7 @@ private fun CharacterManageEntry(label: String, summary: String, onClick: () -> 
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(label, style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold)
-                Text(summary, style = MaterialTheme.typography.bodySmall,
+                if (summary != null) Text(summary, style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Icon(Icons.Outlined.ChevronRight, contentDescription = null,

@@ -86,15 +86,6 @@ internal fun LuluIntegrationsSettingsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             IntegrationSettingsCard {
-                Text("角色浏览手机 App", style = MaterialTheme.typography.titleMedium)
-                Text(
-                    "角色打开小红书、抖音、网易云音乐、华为运动健康或购物 App，统一通过「查手机→后台画面」的独立虚拟屏操作。旧版 MCP 路径已停用，无需再启动 Termux/Chromium；操作前仍须无线调试配对与角色授权，具体结果以真实屏幕回执为准。",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-
-            IntegrationSettingsCard {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Text("阅读记录", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                     TextButton(onClick = {

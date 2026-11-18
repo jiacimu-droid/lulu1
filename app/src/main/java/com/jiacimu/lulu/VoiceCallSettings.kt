@@ -57,7 +57,6 @@ internal fun VoiceCallSettings(provider: String) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Column(modifier = Modifier.weight(1f)) {
                 Text("来电 / 呼叫铃声", style = MaterialTheme.typography.bodyMedium)
-                Text("接通、拒绝或挂断后停止铃声。", style = MaterialTheme.typography.bodySmall)
             }
             Switch(checked = ringing, onCheckedChange = { enabled ->
                 ringing = enabled
@@ -69,7 +68,6 @@ internal fun VoiceCallSettings(provider: String) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Column(modifier = Modifier.weight(1f)) {
                 Text("本地声音线索", style = MaterialTheme.typography.bodyMedium)
-                Text("通话中分析音高、录音电平与停顿；不判断情绪、不保存录音、不额外调用 API。", style = MaterialTheme.typography.bodySmall)
             }
             Switch(checked = acousticCuesEnabled, onCheckedChange = { enabled ->
                 acousticCuesEnabled = enabled
@@ -105,7 +103,7 @@ internal fun VoiceCallSettings(provider: String) {
                     prefs.edit().putString("groq_asr_model", id).apply()
                 },
             )
-            Text("Groq 提供有限免费层；用量超过免费限额后的扣费规则取决于你的账号。只有使用 Groq 时才向它上传录音片段。",
+            Text("录音片段会发送到 Groq。",
                 style = MaterialTheme.typography.bodySmall)
         }
         if (sttMode == "elevenlabs") {
@@ -144,8 +142,6 @@ internal fun VoiceCallSettings(provider: String) {
                 },
                 style = MaterialTheme.typography.bodySmall,
             )
-            Text("官方 API 标价：普通 v2 / v3 均 $0.20/小时；实时 v2 / v3 Live 均 $0.22/小时。额外功能与账户优惠另计。",
-                style = MaterialTheme.typography.bodySmall)
             Text(
                 if (prefs.getString("eleven_api_key", "").orEmpty().isNotBlank())
                     "ElevenLabs Scribe 已配置 API Key，不需要 Voice ID。"
@@ -154,8 +150,6 @@ internal fun VoiceCallSettings(provider: String) {
             )
         }
         if (sttMode == "local") {
-            Text("完全离线识别，不上传你的录音，不扣除 ElevenLabs 识别额度。模型只需下载一次。",
-                style = MaterialTheme.typography.bodySmall)
             SttSettingsDropdown(
                 label = "本地 Whisper 模型",
                 selectedId = selectedLocalModel.id,
@@ -223,12 +217,8 @@ internal fun VoiceCallSettings(provider: String) {
             }
             if (downloadNotice.isNotBlank()) Text(downloadNotice,
                 style = MaterialTheme.typography.bodySmall)
-            Text("选择的模型会在下一通电话生效；模型未下载时不会暗中改用付费识别。",
-                style = MaterialTheme.typography.bodySmall)
         }
         if (sttMode == "minimax") {
-            Text("沿用 MiniMax API Key，仅作为语音识别；角色声音可以来自 ElevenLabs。",
-                style = MaterialTheme.typography.bodySmall)
             TextButton(onClick = { advanced = !advanced }) { Text("MiniMax 识别接口") }
             if (advanced) OutlinedTextField(endpoint, {
                 endpoint = it
@@ -239,18 +229,16 @@ internal fun VoiceCallSettings(provider: String) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Column(modifier = Modifier.weight(1f)) {
                 Text("哄睡 · 无人回应也继续轻声聊天", style = MaterialTheme.typography.bodyMedium)
-                Text("角色会主动持续轻声说话；从你最后一句真正说完的话起计时，约30分钟未收到你的新发言后，在当前语音播完时自动结束电话，无需起床挂断。模型和语音生成可能消耗 API 积分。",
-                    style = MaterialTheme.typography.bodySmall)
             }
         }
         if (activeEngine != "system") {
-            Text("思考停顿宽容：${silence.toInt()} 毫秒（说话断续时可调高，停下后的回复也会稍晚）")
+            Text("思考停顿宽容 · ${silence.toInt()} 毫秒")
             Slider(value = silence, onValueChange = { silence = it },
                 onValueChangeFinished = {
                     prefs.edit().putInt("voice_end_silence_ms", silence.toInt()).apply()
                 }, valueRange = 1_450f..4_500f)
             if (sttMode != "elevenlabs" || !CallVoiceConfiguration.isElevenRealtime(elevenSttModel)) {
-            Text("本地分段收音灵敏度（普通 Scribe 也使用；调低可能更容易拾取轻声，但也可能捕获噪声）")
+            Text("本地分段收音灵敏度")
             Slider(value = threshold, onValueChange = { threshold = it },
                 onValueChangeFinished = {
                     prefs.edit().putFloat("voice_vad_threshold", threshold).apply()
