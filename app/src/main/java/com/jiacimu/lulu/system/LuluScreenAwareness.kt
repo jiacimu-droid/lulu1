@@ -119,6 +119,15 @@ object LuluScreenAwareness {
         packageName in excluded(context)
 
     /**
+     * Viewing a screen is distinct from acting inside a protected application.
+     * For owner-authorized one-shot screenshots, honor the owner's own app
+     * exclusions. Android may still reject secure or locked screenshots.
+     * Device operations keep stronger system/password/payment guards.
+     */
+    internal fun isCaptureExcluded(context: Context, packageName: String): Boolean =
+        packageName.isNotBlank() && packageName in excluded(context)
+
+    /**
      * A missing accessibility root means the window is UNKNOWN, not private.
      * Keeping those cases distinct prevents a role from falsely attributing
      * a lost focus/window to the owner's privacy preferences.
@@ -127,8 +136,8 @@ object LuluScreenAwareness {
         when {
             packageName.isBlank() ->
                 "暂时无法识别当前主屏窗口（无障碍窗口未就绪），并非隐私规则禁止；请重新观察"
-            isExcluded(context, packageName) ->
-                "当前 App 被隐私规则排除：$packageName"
+            isCaptureExcluded(context, packageName) ->
+                "主人在屏幕视觉设置中明确排除了这个 App：$packageName"
             else -> null
         }
 
