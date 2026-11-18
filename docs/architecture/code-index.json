@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T02:31:14.291984+00:00",
-  "commit": "5dfb99b16886f40c62c2ed52aff71dabe76a5bac",
+  "generatedAt": "2026-11-18T02:47:05.983835+00:00",
+  "commit": "60fc605bc2633ccf26494bd32d2d61a82b7cf16a",
   "branch": "main",
-  "sourceFingerprint": "5e878777226b9ca4723b1b879e13c5753606c3ae9c5d8b6dc103b86f2baaf9dc",
+  "sourceFingerprint": "fa121678afa0e69fb3e9ab9944f35415809ce4ef7e191085f5c759a83c9523a6",
   "summary": {
-    "files": 1443,
-    "lines": 304593,
-    "symbols": 4353
+    "files": 1444,
+    "lines": 304636,
+    "symbols": 4356
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17669,7 +17669,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 579
+        "line": 597
       }
     ],
     "box": [
@@ -18019,17 +18019,17 @@
     "stopped": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 499
+        "line": 517
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 701
+        "line": 719
       }
     ],
     "stillAuthorized": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-        "line": 1115
+        "line": 1133
       }
     ],
     "LuluDeviceToolBridge": [
@@ -23809,6 +23809,24 @@
     "LuluBackgroundPhoneArgumentPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt",
+        "line": 16
+      }
+    ],
+    "LuluBackgroundPhoneCommandOutcomeTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneCommandOutcomeTest.kt",
+        "line": 5
+      }
+    ],
+    "missingHelperReplyIsUnknownRatherThanSafeToRetry": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneCommandOutcomeTest.kt",
+        "line": 8
+      }
+    ],
+    "rejectedBeforeDispatchRemainsFailure": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneCommandOutcomeTest.kt",
         "line": 16
       }
     ],
@@ -42269,8 +42287,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt",
-      "lines": 2050,
-      "sha256": "98e47533afa895cd480df1b76fbc36e9838b58540855357770339b254a002acf",
+      "lines": 2072,
+      "sha256": "06822fca5439bbecf9d4ce11874623cddff5475b0eb8bf97328b86bb28ce50ad",
       "symbols": [
         {
           "name": "resumeByOwner",
@@ -42294,19 +42312,19 @@
         },
         {
           "name": "stopped",
-          "line": 499
+          "line": 517
         },
         {
           "name": "denied",
-          "line": 579
+          "line": 597
         },
         {
           "name": "stopped",
-          "line": 701
+          "line": 719
         },
         {
           "name": "stillAuthorized",
-          "line": 1115
+          "line": 1133
         }
       ]
     },
@@ -50702,6 +50720,25 @@
       "symbols": [
         {
           "name": "LuluBackgroundPhoneArgumentPolicyTest",
+          "line": 16
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneCommandOutcomeTest.kt",
+      "lines": 21,
+      "sha256": "6028dd06a6b19da4117a90368fe7ab5cc55de350b3632956a88abcfc95aefda8",
+      "symbols": [
+        {
+          "name": "LuluBackgroundPhoneCommandOutcomeTest",
+          "line": 5
+        },
+        {
+          "name": "missingHelperReplyIsUnknownRatherThanSafeToRetry",
+          "line": 8
+        },
+        {
+          "name": "rejectedBeforeDispatchRemainsFailure",
           "line": 16
         }
       ]
