@@ -680,3 +680,7 @@
 
 ## 2026-11-18 G-03.5 · 终局不再误报待救援（CI/真机待验）
 - 正式 `RelicObjectiveGuide.prompt` 之前先看 hp<=0，导致已 FAILURE/SUCCESS/SETTLEMENT 的遗迹仍显示“等待真实救援”，与终局结算冲突。生产 `77f80195f2328eb409dbfcc210af3beead5f5781`（blob `4d84ea13a1a0335c379b2a28226f88432b15060c`）先判可继续探索/倒地阶段，再提示救援；终局返回空提示，不动实物、生命、救援或结算。测试 `34a3478329382fa7d9bd05cb929f8a1ae86b231b`（blob `37853d4bc1fae8b6c0aa04e0111f1c07cc53e99b`）覆盖 SUCCESS/FAILURE 的 hp0 终局、无路线/目标及 DOWNED 真救援提示。未实际执行 JVM/APK/索引或 Redmi；下一入口 `RelicObjectiveRouteTest.finishedExpeditionNeverAsksForRescueOrFurtherExploration` 的新 main push JVM 首错，随后 `RelicEscapeScreen.kt` 终局 HUD 和藏宝馆重进。
+
+## 2026-11-18 G-03.5 · 真救援跨存档回执与路线恢复回归
+- 新增正式 JVM 测试 `RelicObjectiveRouteTest.actualRescuePersistsAcrossReloadWithoutDuplicatingKitOrRescue`：DOWNED 存档重读后路线不可走；`RelicEscapeRules.act(wait)` 由有药伙伴实际救援，再序列化重读，核药剂消耗、救援计数、生命、已知路线恢复、宝箱未开与重复重读不重复结算。测试提交 `81922cfc1ff75d01a9606f0eefc4c2149cdb0121`，blob `74c51781212887584a696d8f1257de02b9f946cc`；未修改生产规则、掉落或角色选择。
+- 本轮未本地运行 Gradle；提交后需按该 SHA 的 main push 读取 JVM/APK/index 的真实终态，失败按首错修。Redmi 横屏救援动画、实际模型队友选择、帧时间及美术审图仍独立待验。下一入口 `RelicObjectiveRouteTest.kt` 本测试及 `RelicEscapeScreen.kt` 倒地→药剂救援→藏宝馆重进。
