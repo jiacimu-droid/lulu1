@@ -170,13 +170,9 @@ internal fun MigrationHomeV2(
     }
     LaunchedEffect(today, widgets.map { listOf(it.id, it.characterId, it.sign.toString(),
         it.dailyReadingEnabled.toString()) }) {
-        // Reopening and midnight rollover are cache checks, not extra paid turns.
-        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            runCatching { LuluWidgetDailyRole.schedule(context, widgets) }
-            widgets.filter { it.kind == LuluWidgetKind.HOROSCOPE &&
-                it.dailyReadingEnabled && it.characterId.isNotBlank() }
-                .forEach { card -> LuluWidgetDailyRole.refresh(context, card, today) }
-        }
+        // Opening the desktop must never issue a second paid horoscope request.
+        // WorkManager handles today's missing reading and each next local morning.
+        runCatching { LuluWidgetDailyRole.schedule(context, widgets) }
     }
     var showWidgetPicker by remember { mutableStateOf(false) }
     var editingWidgetId by remember { mutableStateOf<String?>(null) }
