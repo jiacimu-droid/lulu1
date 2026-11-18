@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T04:14:16.046511+00:00",
-  "commit": "127f2f313a27fb036706dd373d06c12a2c44edd7",
+  "generatedAt": "2026-11-18T04:14:52.296907+00:00",
+  "commit": "d9289193a031bc17095cbf154a0859ece2631edd",
   "branch": "main",
-  "sourceFingerprint": "5ce279f11ba6598201c351e37e721b7bdb95f1858b488e8df6bff60eb6c4e754",
+  "sourceFingerprint": "95750bd334f8b5812939b45e3b29c95105016f6497b6dadfa7fafb42c0effb2b",
   "summary": {
-    "files": 1444,
-    "lines": 305422,
-    "symbols": 4365
+    "files": 1445,
+    "lines": 305586,
+    "symbols": 4366
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3748,6 +3748,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt",
         "line": 251
+      }
+    ],
+    "LuluStrictModeSettingsScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluStrictModeSettingsScreen.kt",
+        "line": 28
       }
     ],
     "LuluVisionSettingsScreen": [
@@ -27019,8 +27025,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt",
-      "lines": 310,
-      "sha256": "e9ead9644ade67dfeff2d1bc61915bab34aa1bd839417c56aa30074ab47b4ca2",
+      "lines": 317,
+      "sha256": "e1aa5f076884efac52013d176796b788eced0fad2e8a82ef3911c9875d667c15",
       "symbols": [
         {
           "name": "LuluSettingsHomeScreen",
@@ -27079,6 +27085,17 @@
         {
           "name": "shutdown",
           "line": 301
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/LuluStrictModeSettingsScreen.kt",
+      "lines": 147,
+      "sha256": "ccb6747d4f947a715a49b7e504c30631e792c0cbbc27847b7461a432c67e2e86",
+      "symbols": [
+        {
+          "name": "LuluStrictModeSettingsScreen",
+          "line": 28
         }
       ]
     },
@@ -50009,8 +50026,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt",
-      "lines": 263,
-      "sha256": "ff7f930b38f67f043a53a3a4045b7a8dd003b0d283e389d685936f635280fd0c",
+      "lines": 273,
+      "sha256": "bb300fda39a35651e2bedb6e875d880a5a345d56ab6dae29de0b9fbf7b09272e",
       "symbols": [
         {
           "name": "CharacterSoloWorldPlayTest",

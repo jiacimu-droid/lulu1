@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`127f2f313a27fb036706dd373d06c12a2c44edd7`
+- 基准提交：`d9289193a031bc17095cbf154a0859ece2631edd`
 - 分支：`main`
-- 已索引文件：1444
-- 已索引代码/文本行：305422
-- 已发现符号：4365
+- 已索引文件：1445
+- 已索引代码/文本行：305586
+- 已发现符号：4366
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -210,9 +210,10 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt` | 520 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 402 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt` | 231 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 310 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluSettingsHomeScreen.kt` | 317 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSettingsScreen.kt` | 342 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluSpeechEngine.kt` | 567 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/LuluStrictModeSettingsScreen.kt` | 147 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluStyledDropdownCompat.kt` | 98 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluUpdateNotesDialog.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluVisionSettingsScreen.kt` | 142 | 1 |
@@ -1312,7 +1313,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/AutonomousDuelGamesTest.kt` | 165 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 748 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt` | 263 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt` | 273 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CompanionCoopCombatTest.kt` | 136 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt` | 269 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
