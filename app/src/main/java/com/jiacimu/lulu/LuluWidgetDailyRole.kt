@@ -219,8 +219,7 @@ notify是布尔值，skin只能是-1或0/1/2/3。生成文字不代表通知已�
     private val morning = LocalTime.of(8, 0)
 
     internal fun plannedDate(now: ZonedDateTime, needsReadingToday: Boolean): LocalDate =
-        if (now.toLocalTime().isBefore(morning) || needsReadingToday)
-            now.toLocalDate() else now.toLocalDate().plusDays(1)
+        if (needsReadingToday) now.toLocalDate() else now.toLocalDate().plusDays(1)
 
     private fun enqueueMorning(context: Context, date: LocalDate) {
         val app = context.applicationContext
