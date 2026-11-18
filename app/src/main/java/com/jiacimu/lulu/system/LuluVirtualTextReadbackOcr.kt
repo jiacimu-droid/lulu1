@@ -43,14 +43,29 @@ internal object LuluVirtualTextReadbackOcr {
         // Wrapped composer lines must be one compact text block. Do not
         // concatenate unrelated chat bubbles into a false draft proof.
         if (nearby.size < 2) return false
-        val oneBlock = nearby.zipWithNext().all { (a, b) ->
-            val lineHeight = maxOf(1, a.bottom - a.top, b.bottom - b.top)
-            val overlap = minOf(a.right, b.right) - maxOf(a.left, b.left)
-            b.top >= a.top &&
-                b.top - a.bottom <= maxOf(16, lineHeight) &&
-                overlap > 0
+        // Nearby OCR may include a separate label or chat bubble. Look for a
+        // contiguous wrapped block instead of requiring every nearby line to
+        // belong to the composer. Never bridge a spatial gap or reorder lines.
+        for (start in 0 until nearby.lastIndex) {
+            val draft = StringBuilder()
+            var previous: TextLine? = null
+            for (index in start until nearby.size) {
+                val line = nearby[index]
+                if (previous != null) {
+                    val prior = previous
+                    val lineHeight = maxOf(1, prior.bottom - prior.top, line.bottom - line.top)
+                    val overlap = minOf(prior.right, line.right) - maxOf(prior.left, line.left)
+                    if (line.top < prior.top ||
+                        line.top - prior.bottom > maxOf(16, lineHeight) ||
+                        overlap <= 0) break
+                }
+                draft.append(normalized(line.text))
+                if (index > start && draft.toString() == wanted) return true
+                if (!wanted.startsWith(draft.toString())) break
+                previous = line
+            }
         }
-        return oneBlock && nearby.joinToString("") { normalized(it.text) } == wanted
+        return false
     }
 
     suspend fun verify(

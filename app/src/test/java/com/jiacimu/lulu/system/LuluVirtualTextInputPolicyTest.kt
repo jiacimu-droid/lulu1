@@ -152,6 +152,19 @@ class LuluVirtualTextInputPolicyTest {
             wrapped, "你好世界", 720, 1280, 280, 900))
     }
 
+    @Test fun wrappedDraftCanBeVerifiedBesideUnrelatedNearbyOcr() {
+        val lines = listOf(
+            LuluVirtualTextReadbackOcr.TextLine("聊天记录", 100, 760, 300, 790),
+            LuluVirtualTextReadbackOcr.TextLine("你好", 100, 850, 300, 880),
+            LuluVirtualTextReadbackOcr.TextLine("世界", 100, 884, 300, 914),
+            LuluVirtualTextReadbackOcr.TextLine("发送", 550, 900, 650, 930),
+        )
+        assertTrue(LuluVirtualTextReadbackOcr.exactNearField(
+            lines, "你好世界", 720, 1280, 280, 900))
+        assertFalse(LuluVirtualTextReadbackOcr.exactNearField(
+            listOf(lines[0], lines[2]), "聊天记录世界", 720, 1280, 280, 900))
+    }
+
     @Test fun pixelReadbackMustMatchNearSelectedFieldNotOldTextElsewhere() {
         val oldMessage = LuluVirtualTextReadbackOcr.TextLine("打字成功",
             300, 250, 690, 300)
