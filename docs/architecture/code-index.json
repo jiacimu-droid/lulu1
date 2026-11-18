@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T08:19:14.220904+00:00",
-  "commit": "271b08bcdd82d73a27f3bbfa9214546881cb2d6d",
+  "generatedAt": "2026-11-18T08:20:00.066931+00:00",
+  "commit": "52a157f3ad23b62210de4a5dccd45cdf6131fb11",
   "branch": "main",
-  "sourceFingerprint": "6ea74169199073d5d6bbaf7bb2eb2b05a3633ec5fe78b49531670c0d193bf2f3",
+  "sourceFingerprint": "5d68759dc9839c6083593601f1584d8db18703d36dcac9902ca8e831f207a4de",
   "summary": {
     "files": 1461,
-    "lines": 308927,
+    "lines": 308930,
     "symbols": 4399
   },
   "symbolIndex": {
@@ -51375,8 +51375,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluPhoneRepeatGuardTest.kt",
-      "lines": 107,
-      "sha256": "85c0d6c5f1cc9d666c9ebc30067cfd2f939797bf9445a45cfa460c370b075e27",
+      "lines": 110,
+      "sha256": "622f684e7354d6cef6115fc31f34d98065e19a48702c679899a3d7bc20b3a27b",
       "symbols": [
         {
           "name": "LuluPhoneRepeatGuardTest",
