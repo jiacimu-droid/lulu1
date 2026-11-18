@@ -55,14 +55,10 @@ private suspend fun createCommitmentTask(
     // days are not duplicates. A user asking for daily recurrence may upgrade
     // the existing one-off record rather than registering another alarm.
     val existing = CommitmentTaskStore.active(characterId).firstOrNull { task ->
-        // A clock and broad topic are not a task identity: "remind me to study"
-        // and "check how studying went" can share both yet remain independent.
-        // The model should name targetTaskId to update an existing obligation.
-        task.goal.sameTaskText(draft.goal) && task.startNow == draft.startNow &&
-            task.deliveryAction == draft.deliveryAction.ifBlank { "send_private_message" } && (
-            (task.dueAt == null && draft.dueAt == null) ||
-                (task.dueAt != null && draft.dueAt != null && sameTimedReminderTask(task, draft))
-        )
+        // Do not duplicate a real alarm merely because the model rephrased
+        // the same appointment or changed "once" to "daily". A different
+        // outcome at the same clock is still an independent responsibility.
+        matchesExistingCommitmentCreation(task, draft)
     }
     if (existing != null) {
         if (draft.startNow && sourceEventIds.any { it !in existing.sourceEventIds }) {
@@ -404,16 +400,58 @@ private fun String.sameTaskText(other: String): Boolean {
     return left.isNotBlank() && left == right
 }
 
+/** A short appended clarification ("准备哄睡", date annotation, etc.) does
+ * not create a second appointment. This is deliberately narrower than topic:
+ * two separately described study/sleep duties at 23:00 are NOT necessarily
+ * the same goal. The role must use targetTaskId to revise those. */
+private fun String.nearlySameTaskText(other: String): Boolean {
+    val calendarNote = Regex("[（(]\\s*(?:20\\d{2}年)?\\d{1,2}月\\d{1,2}日\\s*[)）]")
+    fun normalized(value: String): String = value.lowercase()
+        .replace(calendarNote, "")
+        .replace("今夜", "今晚")
+        .replace(Regex("[\\p{P}\\p{S}\\s]+"), "")
+    val a = normalized(this)
+    val b = normalized(other)
+    val shorter = if (a.length <= b.length) a else b
+    val longer = if (a.length > b.length) a else b
+    return shorter.length >= 10 && shorter.length * 5 >= longer.length * 3 &&
+        longer.startsWith(shorter)
+}
+
+/** The repeat mode is NOT the identity of a single concrete promise.
+ * One daily reminder and today's once-only copy must share one task/alarm.
+ * Plain "same topic" is intentionally insufficient to suppress another
+ * independently verifiable action at that clock time. */
+internal fun matchesExistingCommitmentCreation(
+    existing: CommitmentTask, draft: CommitmentTaskDraft,
+): Boolean {
+    if (existing.startNow != draft.startNow ||
+        existing.deliveryAction != draft.deliveryAction.ifBlank { "send_private_message" }) return false
+    val oldAt = existing.dueAt
+    val newAt = draft.dueAt
+    if (oldAt == null || newAt == null)
+        return oldAt == null && newAt == null && existing.goal.sameTaskText(draft.goal)
+    val sameSlot = oldAt == newAt || sameTimedReminderTask(existing, draft)
+    if (!sameSlot) return false
+    return existing.goal.sameTaskText(draft.goal) ||
+        (sameTimedReminderTask(existing, draft) &&
+            existing.goal.nearlySameTaskText(draft.goal))
+}
+
 /** Conservative identity for persisted legacy rows. Do not merge two different
  * outcomes/intentions merely because they both mention studying or sleeping. */
 internal fun sameRecordedTimedCommitment(first: CommitmentTask, second: CommitmentTask): Boolean =
     first.id != second.id &&
     first.characterId == second.characterId &&
     first.dueAt != null && first.dueAt == second.dueAt &&
-    first.repeat == second.repeat &&
     first.deliveryAction == second.deliveryAction &&
     first.verificationMode == second.verificationMode &&
-    first.goal.sameTaskText(second.goal)
+    first.startNow == second.startNow &&
+    (first.goal.sameTaskText(second.goal) ||
+        (sameDailyClockAndPurpose(first.goal, first.dueAt, second.goal, second.dueAt,
+            first.timezone?.let { runCatching { java.time.ZoneId.of(it) }.getOrNull() }
+                ?: java.time.ZoneId.systemDefault()) &&
+            first.goal.nearlySameTaskText(second.goal)))
 
 /** Exact local clock slot and shared subject; unrelated appointments stay independent. */
 internal fun sameDailyClockAndPurpose(
