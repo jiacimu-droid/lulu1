@@ -781,7 +781,10 @@ internal fun LuluDesktopWidgetEditor(
                 Text("尺寸", fontWeight = FontWeight.Medium)
                 Row(Modifier.horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    listOf(2 to 1, 2 to 2, 2 to 3, 4 to 1, 4 to 2, 4 to 3, 4 to 4).forEach { (width, height) ->
+                    (if (initial.kind == LuluWidgetKind.CHAT || initial.kind == LuluWidgetKind.BULLETIN)
+                        listOf(2 to 2, 2 to 3, 2 to 4, 4 to 1, 4 to 2, 4 to 3, 4 to 4)
+                    else listOf(2 to 1, 2 to 2, 2 to 3, 2 to 4, 4 to 1, 4 to 2, 4 to 3, 4 to 4))
+                    .forEach { (width, height) ->
                         FilterChip(
                             selected = draft.columns == width && draft.rows == height,
                             onClick = {
