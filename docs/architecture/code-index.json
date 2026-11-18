@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T13:38:37.391696+00:00",
-  "commit": "ea7980a0186b1e43ffbda935fe8594cc7671f4f8",
+  "generatedAt": "2026-11-18T13:40:54.367294+00:00",
+  "commit": "5c277098228697700e849faf5357a759fed43861",
   "branch": "main",
-  "sourceFingerprint": "f227d64b4b790bf96f0aa51af30f9041e20903d024b0a6eadba68a0dd1faa694",
+  "sourceFingerprint": "e851c2f305b258afe99554f9fac5570e76bbca4c1e35e2170fe1691abd0d6bca",
   "summary": {
     "files": 1468,
-    "lines": 310165,
-    "symbols": 4434
+    "lines": 310230,
+    "symbols": 4435
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1639,7 +1639,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 253
+        "line": 256
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
@@ -3683,13 +3683,13 @@
     "profileSign": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 205
+        "line": 208
       }
     ],
     "load": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 213
+        "line": 216
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
@@ -3732,22 +3732,28 @@
         "line": 9
       }
     ],
+    "ensureHomeCards": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
+        "line": 292
+      }
+    ],
     "roleApplySkin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 289
+        "line": 310
       }
     ],
     "roleApplyStyle": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 298
+        "line": 319
       }
     ],
     "setProfileSign": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-        "line": 323
+        "line": 344
       }
     ],
     "accepted": [
@@ -4317,19 +4323,19 @@
     "gridTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 269
+        "line": 279
       }
     ],
     "gridHeight": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 272
+        "line": 282
       }
     ],
     "slotAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-        "line": 277
+        "line": 287
       }
     ],
     "MigrationRoute": [
@@ -27360,32 +27366,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluDesktopWidgets.kt",
-      "lines": 918,
-      "sha256": "995df723a2459ee5e22b7017397e56dac7b8517e25ed01c014921af936ba287f",
+      "lines": 965,
+      "sha256": "e90ee70baf77d3fff27572d6f2d941e2ec57f48137fc3489f3ca87ded5e016d3",
       "symbols": [
         {
           "name": "profileSign",
-          "line": 205
+          "line": 208
         },
         {
           "name": "load",
-          "line": 213
+          "line": 216
         },
         {
           "name": "save",
-          "line": 253
+          "line": 256
+        },
+        {
+          "name": "ensureHomeCards",
+          "line": 292
         },
         {
           "name": "roleApplySkin",
-          "line": 289
+          "line": 310
         },
         {
           "name": "roleApplyStyle",
-          "line": 298
+          "line": 319
         },
         {
           "name": "setProfileSign",
-          "line": 323
+          "line": 344
         }
       ]
     },
@@ -27998,20 +28008,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
-      "lines": 924,
-      "sha256": "c9320f0f925c6f89924de0cbf069fd2a20b279cd566302515c01dcabcedcb559",
+      "lines": 942,
+      "sha256": "4f94296178c6abe6ac26a75fbf9787cf5220e539a6e96e6706068a2d28943eae",
       "symbols": [
         {
           "name": "gridTop",
-          "line": 269
+          "line": 279
         },
         {
           "name": "gridHeight",
-          "line": 272
+          "line": 282
         },
         {
           "name": "slotAt",
-          "line": 277
+          "line": 287
         }
       ]
     },
