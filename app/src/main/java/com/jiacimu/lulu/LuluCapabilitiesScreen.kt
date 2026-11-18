@@ -589,18 +589,18 @@ private fun LuluScreenAwarenessSettings() {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text("允许角色临时开启强制模式", color = CapabilityInk)
-                    Text("默认关闭。角色可临时只观察或按已选规则即时切回；最多120分钟。通知栏始终提供「立即结束」，系统及敏感应用不会被拦截。",
+                    Text("默认关闭。角色按真实目标启用高频监督；单次安全租约最多120分钟，但目标完成后应自行停止。通知栏随时可撤销，系统及敏感应用不拦截。",
                         fontSize = 11.sp, lineHeight = 15.sp, color = CapabilityMuted)
                 }
                 Switch(checked = consent && strictGrant, onCheckedChange = {
-                    if (!it) LuluStrictMode.stop(context, reason = "主人关闭强制模式授权")
+                    if (!it) LuluStrictMode.ownerStop(context, reason = "主人关闭强制模式授权")
                     strictGrant = it
                     prefs.edit().putBoolean(LuluStrictMode.GRANT, it).commit()
                 }, enabled = consent)
             }
             if (LuluStrictMode.active(context) != null) {
                 OutlinedButton(onClick = {
-                    LuluStrictMode.stop(context, reason = "主人手动结束临时监督")
+                    LuluStrictMode.ownerStop(context, reason = "主人手动结束临时监督")
                     strictGrant = false
                     prefs.edit().putBoolean(LuluStrictMode.GRANT, false).commit()
                 }) { Text("立即结束强制监督") }
@@ -616,7 +616,7 @@ private fun LuluScreenAwarenessSettings() {
                     color = CapabilityInk, modifier = Modifier.weight(1f), fontSize = 13.sp)
                 OutlinedButton(onClick = {
                     if (consent) {
-                        LuluStrictMode.stop(context, reason = "主人撤销屏幕授权")
+                        LuluStrictMode.ownerStop(context, reason = "主人撤销屏幕授权")
                         prefs.edit()
                             .putBoolean(LuluStrictMode.GRANT, false)
                             .putBoolean(LuluScreenAwareness.CONSENT, false)
