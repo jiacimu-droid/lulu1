@@ -12,6 +12,23 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [30])
 class CharacterExpressionGuideTest {
+    @Test fun impliedAffectionCanPromptInitiativeWithoutRewritingActualRefusals() {
+        val decision = CharacterDecisionProtocol.runtimePrinciples
+        val full = CharacterExpressionGuide.forGeneration("普通聊天")
+        val rendering = CharacterExpressionGuide.forGeneration("聊天表达渲染")
+        assertTrue(decision.contains("【言外之意与真实边界】"))
+        assertTrue(decision.contains("可以主动表达在意、哄慰、争取和好"))
+        assertTrue(decision.contains("明确拒绝的通话、接触"))
+        for (prompt in listOf(full, rendering)) {
+            assertTrue(prompt.contains("理解言外之意"))
+            assertTrue(prompt.contains("期待被哄"))
+            assertTrue(prompt.contains("可以主动哄、表达想念"))
+            assertTrue(prompt.contains("双方认可的亲密互动"))
+            assertTrue(prompt.contains("明确拒绝就不做"))
+            assertFalse(prompt.contains("所有角色都必须强势"))
+        }
+    }
+
     @Test fun rendererReceivesTheSelectedPersonRatherThanAnInvitationToPlanAgain() {
         for (source in listOf("聊天表达渲染", "聊天表达自然度修复", "工具结果·聊天自然表达修复")) {
             val guide = CharacterExpressionGuide.forGeneration(source)
