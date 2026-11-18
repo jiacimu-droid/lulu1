@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0afa5e7b90807288e5d4fbab75d512e6cef32141`
+- 基准提交：`dea0508f67b23f14002cff7387708777c8f017c3`
 - 分支：`main`
 - 已索引文件：1444
-- 已索引代码/文本行：305253
+- 已索引代码/文本行：305264
 - 已发现符号：4361
 
 | 文件 | 行数 | 符号数 |
@@ -282,7 +282,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 189 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RainyConvenienceDiorama.kt` | 782 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/ResidentDecisionRecoveryControl.kt` | 196 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt` | 182 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/RolePhoneActivity.kt` | 193 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneAlbum.kt` | 257 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneBrowserHistory.kt` | 151 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneDesktop.kt` | 137 | 0 |
