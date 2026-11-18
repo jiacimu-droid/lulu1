@@ -81,12 +81,22 @@ object LuluScreenAwareness {
     fun preferences(context: Context) = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
     fun consented(context: Context) = preferences(context).getBoolean(CONSENT, false)
     fun appTracking(context: Context) = preferences(context).getBoolean(TRACK_APPS, true)
-    fun onDemandAllowed(context: Context): Boolean {
+    /**
+     * A role's existing screen-operation grant also authorizes ONE foreground
+     * accessibility screenshot for that SAME role. The older global vision
+     * consent remains valid for installs using that flow. Neither Android's
+     * accessibility switch alone nor another role's grant grants model access.
+     * The owner's on-demand / autonomous switches still disable captures.
+     */
+    fun onDemandAllowed(context: Context, characterId: String = ""): Boolean {
         val p = preferences(context)
-        return p.getBoolean(CONSENT, false) && p.getBoolean(ON_DEMAND, true)
+        val ownerAuthorized = p.getBoolean(CONSENT, false) ||
+            (characterId.isNotBlank() && LuluRolePhoneAuthorization.isGranted(context, characterId))
+        return ownerAuthorized && p.getBoolean(ON_DEMAND, true)
     }
-    fun autonomousAllowed(context: Context) = onDemandAllowed(context) &&
-        preferences(context).getBoolean(AUTONOMOUS, true)
+    fun autonomousAllowed(context: Context, characterId: String = "") =
+        onDemandAllowed(context, characterId) &&
+            preferences(context).getBoolean(AUTONOMOUS, true)
     fun summonAllowed(context: Context) = consented(context) &&
         preferences(context).getBoolean(SUMMON, true)
 
@@ -245,15 +255,16 @@ object LuluScreenAwareness {
         sessionId: String = "", saveToAlbum: Boolean = false,
         handoffToRole: Boolean = false, sendToChat: Boolean = false,
         chatCaption: String = ""): String {
-        if (!onDemandAllowed(context)) return rejected(context, "请先在权限与能力页同意屏幕视觉")
+        if (!onDemandAllowed(context, characterId))
+            return rejected(context, "尚未授予本角色屏幕操作或屏幕视觉授权（无需MediaProjection录屏弹窗）")
         fun studySessionValid(): Boolean = sessionId.isBlank() ||
             LuluStudyWatch.canObserve(context, characterId, sessionId)
         if (!studySessionValid()) return rejected(context, "学习监督已停止或到期，禁止继续截图")
         if (sendToChat && (characterId.isBlank() || characterId.startsWith("resident:") ||
             sessionId.isNotBlank()))
             return rejected(context, "屏幕分享仅限真实角色主动选择的一次私聊截图", "failed")
-        if (!userRequested && !autonomousAllowed(context))
-            return rejected(context, "角色自主屏幕观察尚未获授权")
+        if (!userRequested && !autonomousAllowed(context, characterId))
+            return rejected(context, "主人已关闭自主屏幕观察；可在权限与能力中调整")
         if (Build.VERSION.SDK_INT < 30) return rejected(context, "Android 11 以下不支持", "failed")
         if (context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true)
             return rejected(context, "锁屏时禁止截图")
@@ -280,7 +291,8 @@ object LuluScreenAwareness {
             val capturedAt = Instant.now()
             try {
                 val fresh = LuluAccessibilityService.observe()
-                if (!onDemandAllowed(context) || (!userRequested && !autonomousAllowed(context)) ||
+                if (!onDemandAllowed(context, characterId) ||
+                    (!userRequested && !autonomousAllowed(context, characterId)) ||
                     first.packageName != fresh.packageName || isExcluded(context, fresh.packageName) ||
                     context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true)
                     return rejected(context, "页面或授权在捕获期间发生变化，画面已丢弃")
@@ -397,7 +409,8 @@ object LuluScreenAwareness {
     internal fun describedCapture(context: Context, userRequested: Boolean,
         characterId: String, sessionId: String, packageName: String,
         capturedAt: Instant, description: String, analyzedAt: Instant = Instant.now()): String {
-        if (!onDemandAllowed(context) || (!userRequested && !autonomousAllowed(context)) ||
+        if (!onDemandAllowed(context, characterId) ||
+            (!userRequested && !autonomousAllowed(context, characterId)) ||
             (sessionId.isNotBlank() && !LuluStudyWatch.canObserve(context, characterId, sessionId)))
             return rejected(context, "屏幕授权或学习监督已结束，丢弃本次识图结果")
         report(context, "识图完成")
