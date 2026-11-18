@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`9535410434e5612d886a94b9989cc485aa8d1cd5`
+- 基准提交：`a8530be041c192de3d04eaa6d095589a4c7fbdf2`
 - 分支：`main`
 - 已索引文件：1470
-- 已索引代码/文本行：310821
+- 已索引代码/文本行：310835
 - 已发现符号：4439
 
 | 文件 | 行数 | 符号数 |
@@ -855,7 +855,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneTaskDeferral.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt` | 154 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorization.kt` | 26 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 733 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 742 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt` | 64 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt` | 61 | 5 |
@@ -1421,7 +1421,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneTaskDeferralTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluPhoneUiGeometryTest.kt` | 26 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorizationTest.kt` | 95 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 150 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluScreenAwarenessTest.kt` | 155 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluScreenFrameHandoffTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluSharedWebLinksTest.kt` | 41 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluShellDisplayCommandTest.kt` | 42 | 1 |
