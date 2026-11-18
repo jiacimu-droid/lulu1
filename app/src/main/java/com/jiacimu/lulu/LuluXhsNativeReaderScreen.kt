@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.webkit.WebResourceError
 import android.graphics.Bitmap
 import android.webkit.CookieManager
@@ -477,8 +479,8 @@ internal fun LuluXhsNativeReaderScreen(
             showTechnicalDiagnostic = false
         }) { Text("关闭") } })
 
-    Scaffold(modifier = Modifier.imePadding(), topBar = {
-        TopAppBar(
+    LuluCssScaffold(cssPage = if (initialShowWebsite) "Browser" else "NoteReader", modifier = Modifier.imePadding(), topBar = {
+        LuluCssTopAppBar(
             title = {
                 Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
                     Text(if (selected == null) "小红书 · 探索" else "小红书 · 笔记",

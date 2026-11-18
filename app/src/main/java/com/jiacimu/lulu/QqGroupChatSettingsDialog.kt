@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.activity.compose.BackHandler
@@ -102,10 +104,11 @@ internal fun QqGroupChatSettingsScreen(
     }
 
     BackHandler(onBack = onBack)
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "GroupSettings",
         containerColor = LuluColors.Paper,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("群聊设置", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 actions = {
@@ -362,10 +365,11 @@ private fun GroupMemberPickerScreen(
     }
 
     BackHandler(onBack = onBack)
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "GroupMemberPicker",
         containerColor = LuluColors.Paper,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("添加群成员", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 actions = {
@@ -457,10 +461,11 @@ private fun GroupMemberManagementScreen(
         characters.firstOrNull { it.characterId == member.characterId }?.let { character -> member to character }
     }
     BackHandler(onBack = onBack)
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "GroupMembers",
         containerColor = LuluColors.Paper,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("群成员管理", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 actions = {
@@ -575,10 +580,11 @@ private fun GroupChatRecordSearchScreen(
         if (query.isBlank()) emptyList() else messages.filter { it.content.contains(query.trim(), ignoreCase = true) }
     }
     BackHandler(onBack = onBack)
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "GroupSearch",
         containerColor = LuluColors.Paper,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("查找聊天记录", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper),

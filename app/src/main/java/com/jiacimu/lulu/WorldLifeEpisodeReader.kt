@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import com.jiacimu.lulu.data.MigratedDomainStores
 
 import androidx.compose.foundation.background
@@ -190,10 +192,11 @@ internal fun WorldLifeEpisodeFullPage(
     )
     val name = MigratedDomainStores.characters.settings.collectAsState().value[episode.characterId]
         ?.displayName ?: "角色"
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "WorldEpisode",
         containerColor = StoryPaper,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("生活小剧场", fontSize = 16.sp, fontWeight = FontWeight.Medium,
                     color = StoryInk) },
                 navigationIcon = {

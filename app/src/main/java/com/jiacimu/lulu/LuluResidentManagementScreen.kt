@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -47,8 +49,8 @@ internal fun LuluResidentManagementScreen(onBack: () -> Unit) {
     var editingId by remember { mutableStateOf<String?>(null) }
     var deletingId by remember { mutableStateOf<String?>(null) }
     var error by remember { mutableStateOf("") }
-    Scaffold(topBar = {
-        TopAppBar(title = { Text("居民管理") }, navigationIcon = {
+    LuluCssScaffold(cssPage = "Residents", topBar = {
+        LuluCssTopAppBar(title = { Text("居民管理") }, navigationIcon = {
             IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }
         })
     }) { padding ->

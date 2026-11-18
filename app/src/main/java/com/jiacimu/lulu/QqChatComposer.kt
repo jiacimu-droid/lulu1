@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LocalLuluCssFooterAtTop
+import com.jiacimu.lulu.design.luluCssElement
 import android.app.Activity
 import android.content.Intent
 import android.speech.RecognizerIntent
@@ -127,7 +129,8 @@ internal fun QqChatComposer(
         }
     }
 
-    Column(Modifier.fillMaxWidth().navigationBarsPadding()) {
+    Column(Modifier.luluCssElement("composer").fillMaxWidth()
+        .then(if (LocalLuluCssFooterAtTop.current) Modifier else Modifier.navigationBarsPadding())) {
         if (importingPhoto) {
             Text("正在准备图片，完成后才能发送…", color = QqMuted,
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp), fontSize = 12.sp)
@@ -193,7 +196,7 @@ internal fun QqChatComposer(
                         showStickerShelf = false
                     }
                 },
-                modifier = Modifier.weight(1f).onFocusChanged { state ->
+                modifier = Modifier.weight(1f).luluCssElement("composer-input").onFocusChanged { state ->
                     onInputFocusChanged(state.isFocused)
                     if (state.isFocused) {
                         showTools = false
@@ -246,7 +249,7 @@ internal fun QqChatComposer(
                         }
                     },
                     enabled = canSend,
-                    modifier = Modifier.height(48.dp),
+                    modifier = Modifier.luluCssElement("composer-send").height(48.dp),
                     contentPadding = PaddingValues(horizontal = 13.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -262,7 +265,7 @@ internal fun QqChatComposer(
                         showStickerShelf = false
                         showTools = opening
                     },
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier.luluCssElement("composer-tools").size(48.dp),
                 ) {
                     Icon(
                         Icons.Outlined.AddCircleOutline,

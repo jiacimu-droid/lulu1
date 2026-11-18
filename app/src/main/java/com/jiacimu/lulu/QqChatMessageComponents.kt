@@ -1,5 +1,10 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.luluCssStyle
+import com.jiacimu.lulu.design.cssColor
+import com.jiacimu.lulu.design.cssDp
+import com.jiacimu.lulu.design.cssFontSize
+import com.jiacimu.lulu.design.luluCssDecor
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import android.content.Context
@@ -49,7 +54,6 @@ import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.design.LocalLuluAppearance
-import com.jiacimu.lulu.design.luluCssElement
 import com.jiacimu.lulu.design.JournalChatBubble
 import com.jiacimu.lulu.design.isJournal
 import com.jiacimu.lulu.data.LuluGroupChat
@@ -241,6 +245,8 @@ internal fun QqMessageRow(
                     val isLastBubble = index == bubbles.lastIndex
                     MessageLineWithTime(mine, showTime && isLastBubble && sharedLinks.links.isEmpty() && gameInvite == null, timeText) { bubbleModifier ->
                         val journal = LocalLuluAppearance.current.isJournal()
+                        val variant = if (mine) "bubble-user" else "bubble-role"
+                        val bubbleStyle = luluCssStyle("bubble", variant)
                         val bubbleContent: @Composable () -> Unit = {
                             Column(Modifier.padding(horizontal = 12.dp, vertical = 7.dp)) {
                                 repliedMessageContent?.let { quoted ->
@@ -258,20 +264,22 @@ internal fun QqMessageRow(
                                     }
                                     Spacer(Modifier.height(6.dp))
                                 }
-                                Text(bubble, color = if (mine && !journal) QqMineInk else QqInk, fontSize = if (message.voiceNote) 13.sp else 15.sp, lineHeight = 21.sp)
+                                Text(bubble, color = bubbleStyle.cssColor("color") ?: if (mine && !journal) QqMineInk else QqInk,
+                                    fontSize = bubbleStyle.cssFontSize() ?: if (message.voiceNote) 13.sp else 15.sp,
+                                    lineHeight = bubbleStyle.cssFontSize()?.let { (it.value + 6).sp } ?: 21.sp)
                                 if (message.favorite && isLastBubble) {
                                     Spacer(Modifier.height(4.dp))
                                     Text("★ 已收藏", color = if (mine && !journal) Color.White.copy(alpha = 0.68f) else QqMuted, fontSize = 10.sp)
                                 }
                             }
                         }
-                        val interactiveModifier = bubbleModifier.luluCssElement("bubble").combinedClickable(
+                        val interactiveModifier = bubbleModifier.luluCssDecor(bubbleStyle, includeArtwork = false).combinedClickable(
                             onClick = {}, onLongClick = onLongClick,
                         )
                         if (message.voiceNote && !mine) {
                             // Keep the voice control compact even when the automatic transcript is long.
                             // Both surfaces belong to this one message, retaining its reply/long-press/time.
-                            Column(bubbleModifier.luluCssElement("bubble"), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Column(bubbleModifier.luluCssDecor(bubbleStyle, includeArtwork = false), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                                 QqVoicePlaybackBar(message.id, onLongClick)
                                 if (journal) {
                                     JournalChatBubble(mine = mine, modifier = Modifier.combinedClickable(
@@ -282,8 +290,8 @@ internal fun QqMessageRow(
                                         modifier = Modifier.combinedClickable(
                                             onClick = {}, onLongClick = onLongClick,
                                         ),
-                                        color = QqOther,
-                                        shape = RoundedCornerShape(15.dp),
+                                        color = bubbleStyle.cssColor("background-color") ?: QqOther,
+                                        shape = RoundedCornerShape(bubbleStyle.cssDp("border-radius") ?: 15.dp),
                                         border = BorderStroke(1.dp, QqBorder),
                                         shadowElevation = 0.dp,
                                     ) { bubbleContent() }
@@ -296,8 +304,8 @@ internal fun QqMessageRow(
                         } else {
                             Surface(
                                 modifier = interactiveModifier,
-                                color = if (mine) QqMine else QqOther,
-                                shape = RoundedCornerShape(15.dp),
+                                color = bubbleStyle.cssColor("background-color") ?: if (mine) QqMine else QqOther,
+                                shape = RoundedCornerShape(bubbleStyle.cssDp("border-radius") ?: 15.dp),
                                 border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
                                 shadowElevation = 0.dp,
                             ) { bubbleContent() }

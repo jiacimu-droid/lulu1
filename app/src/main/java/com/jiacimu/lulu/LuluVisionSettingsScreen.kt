@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -41,10 +43,11 @@ fun LuluVisionSettingsScreen(onBack: () -> Unit) {
             .apply()
     }
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "Vision",
         containerColor = Color.White,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("识图设置", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),

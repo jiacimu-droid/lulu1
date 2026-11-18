@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -154,11 +156,11 @@ fun CharacterWorldBookScreenV2(
         }
     }
 
-    Scaffold(
+    LuluCssScaffold(
         containerColor = LuluColors.Paper,
         snackbarHost = { SnackbarHost(notices) },
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("世界书", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 actions = {

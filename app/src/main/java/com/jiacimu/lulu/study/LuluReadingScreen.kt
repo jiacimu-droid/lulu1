@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.study
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -164,8 +166,8 @@ fun LuluReadingScreen(
             }
         }
     }
-    Scaffold(containerColor = ReadingInk.paper, topBar = {
-        TopAppBar(
+    LuluCssScaffold(containerColor = ReadingInk.paper, topBar = {
+        LuluCssTopAppBar(
             title = {
                 Text(if (selected == null) "阅读" else "正在阅读",
                     fontWeight = FontWeight.Medium, fontSize = 17.sp,

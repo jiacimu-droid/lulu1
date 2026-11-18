@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -141,7 +142,8 @@ internal fun SelfCompassScreen(
         val fulfilled = pages.count {
             !values && SelfCompassRules.state(it) == SelfCompassRules.FULFILLED
         }
-        Scaffold(
+        LuluCssScaffold(
+            cssPage = if (values) "SelfValues" else "SelfWishes",
             containerColor = colors.bg,
             topBar = {
                 Surface(color = colors.bg) {
@@ -545,7 +547,8 @@ private fun CompassEditor(
     }
     var folderMenu by remember { mutableStateOf(false) }
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "CompassEditor",
         modifier = Modifier.imePadding(),
         containerColor = colors.bg,
         topBar = {

@@ -26,6 +26,11 @@ import androidx.compose.ui.unit.dp
 import com.jiacimu.lulu.data.LuluAppearanceCatalog
 import com.jiacimu.lulu.data.LuluCssSheet
 import com.jiacimu.lulu.data.LuluCssStore
+import com.jiacimu.lulu.data.LuluCssTargets
+import com.jiacimu.lulu.design.LuluCssArtwork
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import com.jiacimu.lulu.design.LuluAppearanceTheme
 import com.jiacimu.lulu.design.LuluCssBackground
 
@@ -41,12 +46,14 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
     var source by rememberSaveable { mutableStateOf(saved) }
     var scope by rememberSaveable { mutableStateOf("Home") }
     var selectScope by remember { mutableStateOf(false) }
+    var selectCover by remember { mutableStateOf(false) }
+    var pendingImageSelector by rememberSaveable { mutableStateOf<String?>(null) }
+    val importScope = rememberCoroutineScope()
+    val apps = remember { desktopCssApps() }
     var scopeSearch by remember { mutableStateOf("") }
     var status by remember { mutableStateOf<String?>(null) }
     val sheet = remember(source) { LuluCssSheet.parse(source) }
-    val preview = remember(source, scope) {
-        sheet.profile(scope, LuluAppearanceCatalog.builtIns.first())
-    }
+    val preview = LuluAppearanceCatalog.builtIns.first()
 
     val importCss = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
@@ -81,14 +88,47 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
         }
     }
     val importImage = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri != null) {
-            runCatching { LuluCssStore.importImage(context, uri) }
+        val selector = pendingImageSelector
+        pendingImageSelector = null
+        if (uri != null && selector != null) importScope.launch {
+            runCatching { withContext(Dispatchers.IO) { LuluCssStore.importImage(context, uri) } }
                 .onSuccess { asset ->
-                    source += "\n#" + scope + " {\n  background-image: url(\"" +
-                        asset + "\");\n}\n"
-                    status = "图片已保存在本机，并加入当前页面的草稿"
+                    source += "\n$selector { background-image: url(\"$asset\"); }\n"
+                    status = "图片已加入草稿，点「应用到页面」生效"
                 }
                 .onFailure { status = it.message ?: "图片导入失败" }
+        }
+    }
+
+    if (selectCover) {
+        ModalBottomSheet(onDismissRequest = { selectCover = false }) {
+            Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                Text("桌面应用封面", style = MaterialTheme.typography.titleLarge)
+                LazyColumn(Modifier.fillMaxWidth().heightIn(max = 460.dp)) {
+                    items(apps, key = { it.first }) { (id, title) ->
+                        val selector = LuluCssTargets.coverSelector(id)
+                        val style = sheet.element("Home", "launcher", "app-$id")
+                        val token = LuluCssSheet.assetToken(style["background-image"])
+                        ListItem(
+                            headlineContent = { Text(title) },
+                            supportingContent = { Text(selector) },
+                            leadingContent = if (token == null) null else ({
+                                LuluCssArtwork(token, Modifier.size(42.dp), style, maxEdge = 256)
+                            }),
+                            trailingContent = {
+                                if (token != null) TextButton(onClick = {
+                                    source += "\n$selector { background-image: none; }\n"
+                                    status = "已在草稿中恢复封面"
+                                }) { Text("恢复") }
+                            },
+                            modifier = Modifier.clickable {
+                                pendingImageSelector = selector
+                                importImage.launch("image/*")
+                            },
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -105,10 +145,10 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                 )
                 LazyColumn(Modifier.fillMaxWidth().heightIn(max = 420.dp)) {
-                    items(LuluAppearanceCatalog.scopes.filter {
-                        scopeSearch.isBlank() || it.second.contains(scopeSearch, true) ||
-                            it.first.contains(scopeSearch, true)
-                    }) { (id, name) ->
+                    items(LuluCssTargets.pages.filter {
+                        scopeSearch.isBlank() || it.label.contains(scopeSearch, true) ||
+                            it.id.contains(scopeSearch, true)
+                    }, key = { it.id }) { (id, name) ->
                         ListItem(
                             headlineContent = { Text(name) },
                             supportingContent = { Text("#" + id) },
@@ -147,12 +187,9 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
-                Text("每个页面，由你定义。", style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(5.dp))
-                Text("不再提供固定风格套装。写 CSS、导入图片，然后把它应用到真正的原生界面。",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium)
+                OutlinedButton(onClick = { selectCover = true }, modifier = Modifier.fillMaxWidth()) {
+                    Text("更换应用封面")
+                }
             }
             item {
                 OutlinedButton(
@@ -160,7 +197,7 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                     modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                 ) {
                     Text(
-                        LuluAppearanceCatalog.scopes.firstOrNull { it.first == scope }?.second
+                        LuluCssTargets.pages.firstOrNull { it.id == scope }?.label
                             ?: scope,
                         modifier = Modifier.weight(1f),
                     )
@@ -233,7 +270,10 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                     OutlinedButton(onClick = {
                         importCss.launch(arrayOf("text/css", "text/plain", "application/octet-stream"))
                     }) { Text("导入 CSS") }
-                    OutlinedButton(onClick = { importImage.launch("image/*") }) { Text("导入背景图片") }
+                    OutlinedButton(onClick = {
+                        pendingImageSelector = "#$scope"
+                        importImage.launch("image/*")
+                    }) { Text("导入背景图片") }
                     OutlinedButton(onClick = { exportCss.launch("lulu-theme.css") }) { Text("导出 CSS") }
                 }
             }
@@ -271,15 +311,22 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                         "#Home .widget-horoscope / .widget-note / .widget-countdown / .widget-planner  桌面小组件\n" +
                         "#Chat .bubble  聊天气泡\n\n" +
                         "--paper、--card、--ink、--accent、--on-accent、--border 等颜色\n" +
+                        "每页 .header / .body / .footer / .floating\n" +
+                        "标题栏 .navigation / .title / .actions\n" +
+                        "#ChatDetail .composer / .composer-input / .composer-send\n" +
+                        "#Home .app-chat  聊天封面，以此类推\n\n" +
                         "font-family: serif / sans-serif / monospace\n" +
+                        "width: 80%; height: 120dp; align: center;\n" +
+                        "padding-inline: 16dp; margin-block: 8dp; z-index: 2;\n" +
+                        ".header 和 .footer 可用 dock: top / bottom;\n" +
+                        "background-size: cover / contain / stretch;\n" +
                         "border-radius: 18dp; offset-x: 8dp; offset-y: -4dp;\n" +
                         "background-image: url(\"asset://已导入的图片\")",
                     style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.height(10.dp))
-                Text("这里是受控的原生 CSS 子集，不支持网页选择器、脚本、外链或任意 HTML。" +
-                    "目前仅已开放样式接口的组件能改位置；更多控件需要逐页接入，游戏画面不会被 CSS 重排。",
+                Text("布局规则作用于列出的原生区域。每页实际有哪些区域取决于该页面的控件。",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

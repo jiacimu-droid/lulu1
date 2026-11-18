@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -65,9 +67,10 @@ internal fun LuluIntegrationsSettingsScreen(
     var imageStatus by remember { mutableStateOf("") }
 
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "Integrations",
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("联网与阅读") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

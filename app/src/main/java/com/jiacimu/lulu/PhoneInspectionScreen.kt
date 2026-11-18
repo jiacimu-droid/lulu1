@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -284,12 +286,14 @@ fun PhoneInspectionScreen(initialRoleId: String?, onBack: () -> Unit) {
         return
     }
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "PhoneInspection",
         containerColor = QqPage,
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             if (phoneApp == "messages" && selectedThread != null && !showMessageFavorites) {
-                CenterAlignedTopAppBar(
+                LuluCssTopAppBar(
+                    centered = true,
                     title = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             if (!selectedThread.isGroup) {

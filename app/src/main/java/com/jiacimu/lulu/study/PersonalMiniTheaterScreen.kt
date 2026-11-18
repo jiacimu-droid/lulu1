@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.study
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -145,8 +147,8 @@ internal fun PersonalMiniTheaterScreen(characterId: String, onBack: () -> Unit) 
 
     BackHandler { if (work != null) { opened = null; error = "" } else onBack() }
 
-    Scaffold(containerColor = MaterialTheme.colorScheme.background, topBar = {
-        TopAppBar(title = { Text("番外", maxLines = 1) },
+    LuluCssScaffold(cssPage = "PersonalTheater", containerColor = MaterialTheme.colorScheme.background, topBar = {
+        LuluCssTopAppBar(title = { Text("番外", maxLines = 1) },
             navigationIcon = { IconButton(onClick = {
                 if (work != null) { opened = null; error = "" } else onBack()
             }) { Icon(Icons.Outlined.ArrowBack, "返回") } },

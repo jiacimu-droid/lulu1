@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
@@ -424,7 +425,8 @@ internal fun SelfTodoScreen(
             .sortedByDescending { it.second.completedAt }
     }
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "SelfTodo",
         containerColor = TodoInk.background,
         topBar = {
             Surface(color = TodoInk.background) {

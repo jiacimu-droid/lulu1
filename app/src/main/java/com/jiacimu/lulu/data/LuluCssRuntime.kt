@@ -1,64 +1,54 @@
 package com.jiacimu.lulu.data
 
-import android.content.Context
-import android.graphics.BitmapFactory
-import android.net.Uri
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import java.io.File
-import java.util.UUID
-
-/** Native Compose CSS subset: parsed as data. No JavaScript, imports, URLs or WebView. */
-data class LuluCssRule(val selectors: List<String>, val values: Map<String, String>)
-
+/** Native Compose CSS subset. Rules style existing controls and local assets. */
 class LuluCssSheet private constructor(
-    private val rules: List<LuluCssRule>,
+    private val rules: Map<String, Map<String, String>>,
     val errors: List<String>,
     val warnings: List<String>,
 ) {
-    fun page(scope: String): Map<String, String> {
-        val values = linkedMapOf<String, String>()
-        rules.forEach { if (":root" in it.selectors) values.putAll(it.values) }
-        rules.forEach { if ("#" + scope in it.selectors) values.putAll(it.values) }
-        return values
+    fun page(scope: String): Map<String, String> = buildMap {
+        putAll(rules[":root"].orEmpty())
+        LuluCssTargets.lineage(scope).forEach { putAll(rules["#$it"].orEmpty()) }
     }
 
-    fun element(scope: String, element: String): Map<String, String> {
-        val values = linkedMapOf<String, String>()
-        rules.forEach { if ("." + element in it.selectors) values.putAll(it.values) }
-        rules.forEach { if ("#" + scope + " ." + element in it.selectors) values.putAll(it.values) }
-        return values
+    fun element(scope: String, vararg elements: String): Map<String, String> = buildMap {
+        elements.forEach { putAll(rules[".$it"].orEmpty()) }
+        LuluCssTargets.lineage(scope).forEach { page ->
+            elements.forEach { putAll(rules["#$page .$it"].orEmpty()) }
+        }
     }
 
-    fun imageToken(scope: String): String? =
-        IMAGE.matchEntire(page(scope)["background-image"]?.trim().orEmpty())?.groupValues?.get(1)
+    fun imageToken(scope: String): String? = assetToken(page(scope)["background-image"])
 
     fun profile(scope: String, base: LuluAppearance): LuluAppearance {
         val values = page(scope)
+        if (values.isEmpty()) return base
         val baseColors = base.palette
         fun color(name: String, fallback: Long): Long = parseColor(values[name]) ?: fallback
-        val paper = parseColor(values["--paper"] ?: values["background-color"]) ?: baseColors.paper
+        val paper = color("--paper", baseColors.paper)
         val colors = baseColors.copy(
             paper = paper, card = color("--card", baseColors.card),
             cardStrong = color("--card-strong", baseColors.cardStrong),
-            ink = parseColor(values["--ink"] ?: values["color"]) ?: baseColors.ink,
-            muted = color("--muted", baseColors.muted),
-            border = color("--border", baseColors.border),
+            ink = color("--ink", baseColors.ink),
+            muted = color("--muted", baseColors.muted), border = color("--border", baseColors.border),
             accent = color("--accent", baseColors.accent),
-            onAccent = color("--on-accent", baseColors.onAccent),
-            soft = color("--soft", baseColors.soft),
+            onAccent = color("--on-accent", baseColors.onAccent), soft = color("--soft", baseColors.soft),
         )
-        val font = when (values["font-family"]?.trim()?.lowercase()) {
+        val font = when (values["font-family"]?.lowercase()) {
             "serif", "songti" -> LuluAppearanceFont.SERIF
             "mono", "monospace" -> LuluAppearanceFont.MONO
-            else -> LuluAppearanceFont.SANS
+            "sans-serif", "sans" -> LuluAppearanceFont.SANS
+            else -> base.font
         }
         val darkness = ((paper shr 16 and 255) * 299 +
             (paper shr 8 and 255) * 587 + (paper and 255) * 114) < 128000
         return base.copy(
-            palette = colors, font = font, motif = LuluAppearanceMotif.CLEAN,
-            dark = values["color-scheme"]?.trim() == "dark" ||
-                (values["color-scheme"] == null && darkness),
+            palette = colors, font = font,
+            dark = when (values["color-scheme"]) {
+                "dark" -> true
+                "light" -> false
+                else -> if ("--paper" in values) darkness else base.dark
+            },
             corner = dp(values["border-radius"])?.toInt()?.coerceIn(0, 60) ?: base.corner,
         )
     }
@@ -67,16 +57,26 @@ class LuluCssSheet private constructor(
         const val MAX_LENGTH = 65536
         private val COMMENTS = Regex("""/\*[\s\S]*?\*/""")
         private val BLOCK = Regex("""([^{}]+)\{([^{}]*)\}""")
-        private val IMAGE = Regex(
-            """url\(\s*["']?(asset://[a-f0-9-]{36}\.(?:png|jpg|webp))["']?\s*\)""",
-            RegexOption.IGNORE_CASE,
-        )
+        private val IMAGE = Regex("""url\(\s*(?:(["'])([^"']+)\1|([^"'\s]+))\s*\)""")
+        private val ASSET = Regex("""asset://[a-f0-9-]{36}\.(png|jpg|webp)""")
         private val SELECTOR = Regex("""(:root|#[A-Za-z][A-Za-z0-9]*|(?:#[A-Za-z][A-Za-z0-9]* )?\.[a-z][a-z0-9-]*)""")
-        private val PROPERTIES = setOf(
-            "--paper", "--card", "--card-strong", "--ink", "--muted",
-            "--border", "--accent", "--on-accent", "--soft", "background-color",
-            "background-image", "color", "color-scheme", "font-family",
-            "border-radius", "offset-x", "offset-y", "left", "top", "padding",
+        private val COLORS = setOf(
+            "--paper", "--card", "--card-strong", "--ink", "--muted", "--border",
+            "--accent", "--on-accent", "--soft", "background-color", "color", "border-color",
+        )
+        private val LENGTHS = setOf(
+            "width", "height", "min-width", "min-height", "max-width", "max-height",
+            "offset-x", "offset-y", "left", "top", "padding", "padding-inline", "padding-block",
+            "margin", "margin-inline", "margin-block", "border-radius", "border-width",
+        )
+        private val PERCENT_LENGTHS = setOf("width", "height", "offset-x", "offset-y", "left", "top")
+        private val KEYWORDS = mapOf(
+            "background-size" to setOf("cover", "contain", "stretch"),
+            "font-family" to setOf("serif", "songti", "sans", "sans-serif", "mono", "monospace"),
+            "color-scheme" to setOf("light", "dark"),
+            "align" to setOf("start", "center", "end", "top-start", "top-center", "top-end",
+                "center-start", "center-end", "bottom-start", "bottom-center", "bottom-end"),
+            "dock" to setOf("top", "bottom"),
         )
 
         fun parse(css: String): LuluCssSheet {
@@ -84,143 +84,101 @@ class LuluCssSheet private constructor(
             val warnings = mutableListOf<String>()
             if (css.length > MAX_LENGTH) errors += "CSS 不能超过 64 KB"
             val clean = COMMENTS.replace(css.take(MAX_LENGTH), "")
-            if (clean.count { it == '{' } != clean.count { it == '}' }) {
-                errors += "CSS 花括号不成对"
-            }
-            val rules = mutableListOf<LuluCssRule>()
-            BLOCK.findAll(clean).take(300).forEach { block ->
-                val selectors = block.groupValues[1].trim()
-                    .split(',').map(String::trim).filter(String::isNotEmpty)
-                val knownPages = LuluAppearanceCatalog.scopes.map { "#" + it.first }.toSet()
-                val knownElements = setOf(
-                    ".launcher", ".companion", ".bubble",
-                    "#Home .launcher", "#Home .companion", "#Chat .bubble",
-                )
-                if (selectors.any { selector ->
-                        !SELECTOR.matches(selector) ||
-                            (selector != ":root" && selector !in knownPages &&
-                                selector !in knownElements)
-                    }) {
-                    warnings += "尚未映射到原生控件的选择器：" + selectors.joinToString()
+            val rules = linkedMapOf<String, MutableMap<String, String>>()
+            var end = 0
+            for (block in BLOCK.findAll(clean)) {
+                if (clean.substring(end, block.range.first).isNotBlank()) errors += "CSS 花括号不成对"
+                end = block.range.last + 1
+                val selectors = block.groupValues[1].split(',').map { it.trim().replace(Regex("\\s+"), " ") }
+                val supported = selectors.filter { selector ->
+                    when {
+                        !SELECTOR.matches(selector) -> {
+                            warnings += "暂不支持的选择器：$selector"
+                            false
+                        }
+                        !LuluCssTargets.knowsSelector(selector) -> {
+                            warnings += "目前没有对应的原生控件：$selector"
+                            false
+                        }
+                        else -> true
+                    }
                 }
-                val values = linkedMapOf<String, String>()
-                block.groupValues[2].split(';').forEach { declaration ->
-                    if (declaration.isBlank()) return@forEach
+                for (declaration in block.groupValues[2].split(';')) {
+                    if (declaration.isBlank()) continue
                     val index = declaration.indexOf(':')
                     if (index < 1) {
                         errors += "属性缺少冒号：" + declaration.trim().take(32)
-                        return@forEach
+                        continue
                     }
                     val name = declaration.substring(0, index).trim().lowercase()
-                    val value = declaration.substring(index + 1).trim()
-                    if (name !in PROPERTIES) {
-                        warnings += "暂不支持：" + name
-                    } else if (name == "background-image" &&
-                        value != "none" && IMAGE.matchEntire(value) == null) {
-                        errors += "背景图片只能使用本地导入的 asset:// 路径"
-                    } else if ((name.startsWith("--") || name == "color" ||
-                            name == "background-color") && parseColor(value) == null) {
-                        errors += "颜色格式需要 #RRGGBB 或 #RRGGBBAA：" + name
-                    } else if (name in setOf("offset-x", "offset-y", "left", "top",
-                            "padding", "border-radius") && dp(value) == null) {
-                        errors += name + " 需要 dp 数值"
-                    } else {
-                        values[name] = value
+                    val raw = declaration.substring(index + 1).trim()
+                    val value = raw.takeIf { name == "background-image" } ?: raw.lowercase()
+                    when {
+                        name == "background-image" -> if (value != "none" && assetToken(value) == null) {
+                            errors += "图片只能使用本机导入的 asset:// 路径"
+                        }
+                        name in COLORS -> if (parseColor(value) == null) {
+                            errors += "$name 需要 #RGB、#RGBA、#RRGGBB、#RRGGBBAA 或 transparent"
+                        }
+                        name in LENGTHS -> if (dp(value) == null &&
+                            !(name in PERCENT_LENGTHS && percent(value) != null)
+                        ) {
+                            errors += "$name 需要 dp 数值" + if (name in PERCENT_LENGTHS) "或百分比" else ""
+                        }
+                        name == "font-size" -> if (value.removeSuffix("sp").toFloatOrNull()
+                                ?.let { it.isFinite() && it > 0 } != true) {
+                            errors += "font-size 需要正的 sp 数值"
+                        }
+                        name == "z-index" -> if (value.toIntOrNull() == null) errors += "z-index 需要整数"
+                        name in KEYWORDS -> if (value !in KEYWORDS.getValue(name)) {
+                            errors += "$name 可用值：" + KEYWORDS.getValue(name).joinToString()
+                        }
+                        else -> {
+                            warnings += "暂不支持的属性：$name"
+                            continue
+                        }
+                    }
+                    for (selector in supported) {
+                        val key = when (name) {
+                            "left" -> "offset-x"
+                            "top" -> "offset-y"
+                            "background-color" -> if ('.' in selector) name else "--paper"
+                            "color" -> if ('.' in selector) name else "--ink"
+                            else -> name
+                        }
+                        rules.getOrPut(selector) { linkedMapOf() }[key] = value
                     }
                 }
-                if (selectors.isNotEmpty()) rules += LuluCssRule(selectors, values)
             }
+            if (clean.substring(end).isNotBlank()) errors += "CSS 需要选择器及成对的花括号"
             return LuluCssSheet(rules, errors.distinct(), warnings.distinct())
+        }
+
+        fun assetToken(raw: String?): String? {
+            val match = IMAGE.matchEntire(raw?.trim().orEmpty()) ?: return null
+            return match.groupValues.drop(2).firstOrNull { ASSET.matches(it) }
         }
 
         /** CSS hex RGB/RGBA -> Android ARGB. */
         fun parseColor(raw: String?): Long? {
             val text = raw?.trim() ?: return null
-            if (!text.startsWith("#")) return null
-            return when (text.length) {
-                7 -> text.drop(1).toLongOrNull(16)?.let { 0xFF000000L or it }
-                9 -> text.drop(1).toLongOrNull(16)?.let { (it shr 8) or ((it and 255) shl 24) }
+            if (text.equals("transparent", ignoreCase = true)) return 0
+            if (!text.startsWith('#')) return null
+            val hex = text.drop(1)
+            if (hex.any { it !in "0123456789abcdefABCDEF" }) return null
+            val expanded = if (hex.length in 3..4) hex.map { "$it$it" }.joinToString("") else hex
+            val number = expanded.toLongOrNull(16) ?: return null
+            return when (expanded.length) {
+                6 -> 0xFF000000L or number
+                8 -> (number shr 8) or ((number and 255) shl 24)
                 else -> null
             }
         }
 
         fun dp(raw: String?): Float? =
             raw?.trim()?.removeSuffix("dp")?.trim()?.toFloatOrNull()?.takeIf(Float::isFinite)
-    }
-}
 
-/** The stylesheet and imported assets never leave app-private storage unless exported. */
-object LuluCssStore {
-    private const val PREFS = "lulu_css_studio_v1"
-    private const val KEY = "style"
-    private val lock = Any()
-    private val mutable = MutableStateFlow("")
-    val css = mutable.asStateFlow()
-    private var context: Context? = null
-
-    fun initialize(app: Context) {
-        synchronized(lock) {
-            if (context != null) return
-            context = app.applicationContext
-            mutable.value = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .getString(KEY, "")?.take(LuluCssSheet.MAX_LENGTH).orEmpty()
-        }
-    }
-
-    fun save(source: String): Boolean {
-        if (LuluCssSheet.parse(source).errors.isNotEmpty()) return false
-        synchronized(lock) {
-            val app = context ?: return false
-            val ok = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-                .edit().putString(KEY, source).commit()
-            if (ok) mutable.value = source
-            return ok
-        }
-    }
-
-    fun importImage(app: Context, uri: Uri): String {
-        val extension = when (app.contentResolver.getType(uri)?.lowercase()) {
-            "image/png" -> "png"
-            "image/jpeg", "image/jpg" -> "jpg"
-            "image/webp" -> "webp"
-            else -> throw IllegalArgumentException("请选择 PNG、JPG 或 WebP")
-        }
-        val folder = File(app.filesDir, "lulu_css_assets")
-        check(folder.isDirectory || folder.mkdirs()) { "无法创建素材目录" }
-        val name = UUID.randomUUID().toString() + "." + extension
-        val file = File(folder, name)
-        try {
-            val stream = app.contentResolver.openInputStream(uri) ?: error("无法读取图片")
-            stream.use { input ->
-                file.outputStream().use { output ->
-                    val buffer = ByteArray(8192)
-                    var total = 0L
-                    while (true) {
-                        val n = input.read(buffer)
-                        if (n < 0) break
-                        total += n
-                        require(total <= 8L * 1024 * 1024) { "单张图片不能超过 8 MB" }
-                        output.write(buffer, 0, n)
-                    }
-                    require(total > 0) { "图片为空" }
-                }
-            }
-            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            BitmapFactory.decodeFile(file.path, bounds)
-            require(bounds.outWidth in 1..8192 && bounds.outHeight in 1..8192) {
-                "图片无法解码或尺寸过大"
-            }
-        } catch (e: Exception) {
-            file.delete()
-            throw e
-        }
-        return "asset://" + name
-    }
-
-    fun assetFile(token: String?): File? {
-        val name = token?.removePrefix("asset://") ?: return null
-        if (!name.matches(Regex("""[a-f0-9-]{36}\.(png|jpg|webp)"""))) return null
-        return context?.let { File(File(it.filesDir, "lulu_css_assets"), name) }
-            ?.takeIf { it.isFile }
+        fun percent(raw: String?): Float? =
+            raw?.takeIf { it.endsWith('%') }?.dropLast(1)?.toFloatOrNull()?.takeIf(Float::isFinite)
     }
 }

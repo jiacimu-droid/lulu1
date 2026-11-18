@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.health
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import android.Manifest
@@ -112,12 +114,12 @@ fun HealthFeatureScreen(onBack: () -> Unit) {
             }
         },
     ) {
-        Scaffold(
+        LuluCssScaffold(
             modifier = if (LocalLuluAppearance.current.isJournal())
                 Modifier.journalLinen(LocalLuluAppearance.current) else Modifier,
             containerColor = if (LocalLuluAppearance.current.isJournal()) Color.Transparent else HealthPaper,
             topBar = {
-                TopAppBar(
+                LuluCssTopAppBar(
                     title = {
                         Column {
                             Text("健康", color = HealthInk, fontWeight = FontWeight.SemiBold)

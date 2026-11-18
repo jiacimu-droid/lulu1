@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -112,10 +114,11 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
         noticeIsError = true
     }.getOrNull()
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "Models",
         containerColor = SettingsPaper,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("API 设置", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = SettingsPaper),

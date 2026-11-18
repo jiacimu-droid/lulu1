@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
 import android.widget.Toast
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
@@ -110,7 +111,7 @@ fun MigratedChatHubScreenV2(
         return
     }
 
-    Scaffold(
+    LuluCssScaffold(
         containerColor = LuluColors.Paper,
         topBar = {
                 MigratedChatTopBar(

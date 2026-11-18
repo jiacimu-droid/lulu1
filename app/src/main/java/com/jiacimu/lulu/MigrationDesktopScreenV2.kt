@@ -38,7 +38,16 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.LuluConversation
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluAppearancePattern
+import com.jiacimu.lulu.data.LuluCssSheet
+import com.jiacimu.lulu.design.LuluCssArtwork
+import com.jiacimu.lulu.design.cssColor
+import com.jiacimu.lulu.design.cssDp
+import com.jiacimu.lulu.design.cssFontSize
+import com.jiacimu.lulu.design.luluCssDecor
 import com.jiacimu.lulu.design.luluCssElement
+import com.jiacimu.lulu.design.luluCssStyle
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.jiacimu.lulu.design.LocalLuluAppearance
 import com.jiacimu.lulu.design.JournalPatchIcon
 import com.jiacimu.lulu.design.JournalPressedFlower
@@ -77,6 +86,10 @@ private val DesktopV2Launchers = listOf(
     DesktopV2Launcher("playground", "Live2D", Icons.Outlined.Face, MigrationRoute.Playground),
     DesktopV2Launcher("guide", "指南", Icons.Outlined.MenuBook, MigrationRoute.Guide),
 )
+
+internal fun desktopCssApps(): List<Pair<String, String>> =
+    DesktopV2Launchers.map { it.id to it.title }
+
 
 private const val DESKTOP_COLUMNS = 4
 private const val DESKTOP_ROWS = 8
@@ -254,7 +267,7 @@ internal fun MigrationHomeV2(
     var homeGridTopInWindow by remember { mutableFloatStateOf(0f) }
     var homeGridHeightPx by remember { mutableFloatStateOf(0f) }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+    Surface(modifier = Modifier.luluCssElement("page").fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Box(Modifier.fillMaxSize()) {
             if (!journal) LuluAppearancePattern(Modifier.fillMaxSize())
             Column(
@@ -515,7 +528,9 @@ internal fun MigrationHomeV2(
                 }
                 // PagerState.currentPage changes during a swipe. The indicator must
                 // own that observation, not invalidate the entire desktop dashboard.
-                if (pageCount > 1) DesktopV2PageIndicator(pagerState, pageCount)
+                if (pageCount > 1) Box(Modifier.luluCssElement("desktop-dock")) {
+                    DesktopV2PageIndicator(pagerState, pageCount)
+                }
             }
         }
     }
@@ -772,39 +787,50 @@ private fun DesktopV2LauncherItem(
     modifier: Modifier,
     onClick: () -> Unit,
 ) {
-    if (LocalLuluAppearance.current.isJournal()) {
-        JournalPatchIcon(launcher.title, launcher.icon, modifier.luluCssElement("launcher"), onClick)
+    val tile = luluCssStyle("launcher", "app-" + launcher.id)
+    val label = luluCssStyle("launcher-label")
+    val cover = LuluCssSheet.assetToken(tile["background-image"])
+    if (LocalLuluAppearance.current.isJournal() && tile.isEmpty() && label.isEmpty()) {
+        JournalPatchIcon(launcher.title, launcher.icon, modifier, onClick)
         return
     }
-    BoxWithConstraints(modifier.luluCssElement("launcher")) {
+    BoxWithConstraints(modifier.luluCssDecor(tile, includeArtwork = false)) {
         // Reserve space for the label first: icon labels must not be clipped by
         // a fixed 61dp icon box on compact or eight-row desktop pages.
         val smallCell = maxHeight < 64.dp
         val twoLines = !smallCell && launcher.title.length > 4 && launcher.title != "Live2D"
         val labelSpace = if (smallCell) 12.dp else if (twoLines) 28.dp else 18.dp
         val space = if (smallCell) 1.dp else 3.dp
-        val iconHeight = minOf(61.dp, (maxHeight - labelSpace - space).coerceAtLeast(12.dp))
-        val iconWidth = minOf(57.dp, (maxWidth - 6.dp).coerceAtLeast(24.dp))
+        val iconHeight = minOf(tile.cssDp("height") ?: 61.dp, (maxHeight - labelSpace - space).coerceAtLeast(12.dp))
+        val iconWidth = minOf(tile.cssDp("width") ?: 57.dp, (maxWidth - 6.dp).coerceAtLeast(24.dp))
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top) {
+            val borderWidth = tile.cssDp("border-width") ?: 1.dp
             Surface(
-                shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
-                color = DesktopIconSurface,
-                border = BorderStroke(1.dp, DesktopLine),
+                shape = RoundedCornerShape(tile.cssDp("border-radius")
+                    ?: LocalLuluAppearance.current.corner.dp),
+                color = tile.cssColor("background-color") ?: DesktopIconSurface,
+                border = if (borderWidth > 0.dp) BorderStroke(borderWidth,
+                    tile.cssColor("border-color") ?: DesktopLine) else null,
                 shadowElevation = 1.dp,
-                modifier = Modifier.width(iconWidth).height(iconHeight),
+                modifier = Modifier.width(iconWidth).height(iconHeight)
+                    .semantics { contentDescription = launcher.title },
                 onClick = onClick,
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(launcher.icon, launcher.title, tint = DesktopIcon,
-                        modifier = Modifier.size(minOf(30.dp, iconHeight - 8.dp)))
+                    LuluCssArtwork(cover, Modifier.matchParentSize(), tile, maxEdge = 256) {
+                        Icon(launcher.icon, null, tint = tile.cssColor("color") ?: DesktopIcon,
+                            modifier = Modifier.size(minOf(30.dp, (iconHeight - 8.dp).coerceAtLeast(0.dp))))
+                    }
                 }
             }
             Spacer(Modifier.height(space))
             Text(
-                launcher.title, color = DesktopInk,
-                fontSize = if (smallCell) 8.sp else 11.sp,
-                lineHeight = if (smallCell) 11.sp else 13.sp,
+                launcher.title, modifier = Modifier.luluCssDecor(label),
+                color = label.cssColor("color") ?: DesktopInk,
+                fontSize = label.cssFontSize() ?: if (smallCell) 8.sp else 11.sp,
+                lineHeight = label.cssFontSize()?.let { (it.value + 2).sp }
+                    ?: if (smallCell) 11.sp else 13.sp,
                 fontWeight = FontWeight.Medium,
                 maxLines = if (twoLines) 2 else 1,
                 overflow = TextOverflow.Ellipsis,

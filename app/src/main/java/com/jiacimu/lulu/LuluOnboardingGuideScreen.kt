@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -239,10 +241,10 @@ internal fun LuluOnboardingGuideScreen(
     val clipboard = LocalClipboardManager.current
     val ink = MaterialTheme.colorScheme.onBackground
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
-    Scaffold(
+    LuluCssScaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text(selected?.name ?: "新手指南",
                     fontWeight = FontWeight.SemiBold, fontSize = 23.sp) },
                 navigationIcon = {

@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -181,7 +183,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         singingEngine, singingServiceUrl, singingServiceToken,
     ) { saveVoiceSettings() }
 
-    AdvancedSettingsScaffold(title = "语音设置", onBack = onBack) {
+    AdvancedSettingsScaffold(cssPage = "VoiceSettings", title = "语音设置", onBack = onBack) {
         item {
             SettingsSectionCard("语音服务") {
                 Text("选择电话与语音回复的供应商", color = AdvancedMuted, fontSize = 13.sp)
@@ -731,7 +733,7 @@ fun LuluMemorySettingsScreen(onBack: () -> Unit) {
         embeddingUrl, embeddingKey, embeddingModel, rerankUrl, rerankKey, rerankModel,
     ) { save() }
 
-    AdvancedSettingsScaffold(title = "记忆设置", onBack = onBack) {
+    AdvancedSettingsScaffold(cssPage = "MemorySettings", title = "记忆设置", onBack = onBack) {
         item {
             SettingsSectionCard("记忆抽取模型") {
                 SavedConfigurationModelPicker(
@@ -809,7 +811,7 @@ fun LuluImageSettingsScreen(onBack: () -> Unit) {
             .apply()
     }
 
-    AdvancedSettingsScaffold(title = "生图设置", onBack = onBack) {
+    AdvancedSettingsScaffold(cssPage = "ImageSettings", title = "生图设置", onBack = onBack) {
         item {
             SettingsSwitchCard(
                 title = "启用生图",
@@ -839,14 +841,16 @@ fun LuluImageSettingsScreen(onBack: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AdvancedSettingsScaffold(
+    cssPage: String,
     title: String,
     onBack: () -> Unit,
     content: androidx.compose.foundation.lazy.LazyListScope.() -> Unit,
 ) {
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = cssPage,
         containerColor = AdvancedPage,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text(title, color = AdvancedInk, fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回", tint = AdvancedInk) }

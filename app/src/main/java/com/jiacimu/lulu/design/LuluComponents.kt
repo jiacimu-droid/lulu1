@@ -21,10 +21,10 @@ fun LuluPageScaffold(
     actions: @Composable RowScope.() -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    Scaffold(
+    LuluCssScaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -55,7 +55,7 @@ fun LuluSectionCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.luluCssElement("card").fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
@@ -85,7 +85,7 @@ fun LuluPrimaryButton(
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.luluCssElement("primary-button").fillMaxWidth(),
         shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
@@ -113,7 +113,7 @@ fun LuluTextInput(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.luluCssElement("text-input").fillMaxWidth(),
         singleLine = singleLine,
         minLines = minLines,
         shape = RoundedCornerShape(com.jiacimu.lulu.design.LocalLuluAppearance.current.corner.dp),

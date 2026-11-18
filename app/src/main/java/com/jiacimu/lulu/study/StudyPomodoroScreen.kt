@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.study
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -106,10 +108,11 @@ internal fun StudyPomodoroScreen(
         return
     }
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "FocusTimer",
         containerColor = Color.White,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("番茄钟", fontWeight = FontWeight.Bold, color = StudyDesign.ink) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回", tint = StudyDesign.ink) } },
                 actions = {

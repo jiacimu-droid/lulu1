@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -64,9 +66,10 @@ fun LuluStrictModeSettingsScreen(
         (0 until array.length()).map { array.optString(it) }.joinToString("、")
     }.orEmpty()
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "StrictMode",
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("强制模式", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }

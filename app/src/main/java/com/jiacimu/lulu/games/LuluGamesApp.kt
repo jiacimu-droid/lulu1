@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.games
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.content.Context
@@ -228,10 +230,11 @@ fun LuluGamesApp(
         return
     }
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = route.cssPage(),
         containerColor = if (darkChrome) Color(0xFF0B111B) else GameDesign.paper,
         topBar = {
-            if (!immersivePlay) TopAppBar(
+            if (!immersivePlay) LuluCssTopAppBar(
                 title = { Text(route.title(), fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = ::stepBack) {
@@ -341,6 +344,18 @@ fun LuluGamesApp(
             }
         }
     }
+}
+
+private fun GameRoute.cssPage(): String = when (this) {
+    GameRoute.TurtleSoup -> "GameTurtleSoup"
+    GameRoute.YachtDice -> "GameYachtDice"
+    GameRoute.MemoryMatch -> "GameMemoryMatch"
+    GameRoute.Gomoku -> "GameGomoku"
+    GameRoute.PerfectMan -> "GamePerfectMan"
+    GameRoute.RapportQuiz -> "GameRapportQuiz"
+    GameRoute.Records -> "GameRecords"
+    is GameRoute.Replay -> "GameReplay"
+    else -> "Games"
 }
 
 private fun GameRoute.title(): String = when (this) {
@@ -555,10 +570,11 @@ private fun GameParticipantPickerScreen(
     LaunchedEffect(characters.keys, route) {
         if (limits.first > 0 && selected.isEmpty() && characters.isNotEmpty()) selected = setOf(characters.keys.first())
     }
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "GameParticipants",
         containerColor = if (dark) Color(0xFF071824) else GameDesign.paper,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text(if (route == GameRoute.MemoryMatch) "选择对手 · 或独自挑战" else "选择同行角色", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 colors = TopAppBarDefaults.topAppBarColors(
