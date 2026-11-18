@@ -1057,12 +1057,12 @@ internal object LuluBackgroundPhoneSession {
             var beforeProductCopyTimestamp = 0L
             var productCopyStartedAt = 0L
             var shellMerchantCopyPrepared = false
-            if (wantsProductLink && action != "tap_element") {
+            if (wantsProductLink && action !in setOf("tap_element", "tap")) {
                 return JSONObject().put("success", false).put("status", "denied")
                     .put("accepted", false).put("productLinkSent", false)
                     .put("errorCode", "product_link_requires_verified_control")
                     .put("sessionPreserved", true).put("taskCompleted", false)
-                    .put("verification", "分享商品链接必须选择刚观察到的复制链接控件，不能通过坐标或其他动作读取剪贴板")
+                    .put("verification", "分享商品链接需要刚观察到的真实复制控件，或同一后台画面核实的复制按钮坐标；两种路径都必须重新验证本次商家链接，不允许直接读取任意剪贴板")
                     .toString()
             }
             if (LuluBackgroundPhoneArgumentPolicy.needsSnapshot(action) ||
@@ -1111,6 +1111,20 @@ internal object LuluBackgroundPhoneSession {
                         .toString()
                 }
                 if (wantsProductLink) {
+                    if (action == "tap") {
+                        if (!LuluShoppingLinkShare.eligibleVisualCopy(
+                                activeApp, args.optString("target"),
+                                LuluShoppingAssistPolicy.isEnabled(context, characterId))) {
+                            return JSONObject().put("success", false).put("accepted", false)
+                                .put("status", "unverified")
+                                .put("mode", "independent_virtual_display").put("displayId", id)
+                                .put("packageName", activeApp).put("targetWindowVerified", true)
+                                .put("productLinkSent", false).put("taskCompleted", false)
+                                .put("errorCode", "product_copy_visual_target_unverified")
+                                .put("verification", "本次画面没有明确选择复制操作；未触碰剪贴板或发商品，重新看图后可选择真实复制按钮")
+                                .toString()
+                        }
+                    } else {
                     val live = withContext(Dispatchers.Main) {
                         LuluAccessibilityService.virtualUiSnapshot(id, activeApp)
                     }
@@ -1156,6 +1170,7 @@ internal object LuluBackgroundPhoneSession {
                                 "后台手机授权已失效；未执行复制或读取剪贴板"
                             else "复制动作尚未执行（$code）；请重新观察当前分享页并选择真实复制控件，不要把本次当作商品已分享")
                             .toString()
+                    }
                     }
                     beforeProductCopyTimestamp = withContext(Dispatchers.Main) {
                         LuluShoppingLinkShare.clipboardTimestamp(context)
@@ -1297,6 +1312,18 @@ internal object LuluBackgroundPhoneSession {
                 }
                 if (visualPress) beforeTouchPixels = freshPixels
             }
+            // Arm the one-shot merchant clipboard boundary only AFTER the
+            // visual target/snapshot has been independently revalidated. This
+            // covers both Mika-style image clicks and semantic element taps.
+            if (wantsProductLink && stillAuthorized()) {
+                val marker = try {
+                    command(JSONObject().put("action", "prepare_product_copy")
+                        .put("packageName", activeApp))
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) { null }
+                shellMerchantCopyPrepared = marker?.optBoolean("accepted") == true
+            }
             receipts.failureStage = "command_" + action
             val applied = when (action) {
                 "adopt_app" -> checkNotNull(adoptedApp)
@@ -1318,17 +1345,6 @@ internal object LuluBackgroundPhoneSession {
                     // keeps an old image from claiming the click succeeded.
                     val prepared = command(JSONObject().put("action", "prepare_type"))
                     check(prepared.optBoolean("accepted")) { "无法核实本次点击前的后台画面" }
-                    // The one-shot shell clipboard marker is armed only for
-                    // the role's freshly verified merchant Copy Link control.
-                    if (wantsProductLink && stillAuthorized()) {
-                        val marker = try {
-                            command(JSONObject().put("action", "prepare_product_copy")
-                                .put("packageName", activeApp))
-                        } catch (cancelled: kotlinx.coroutines.CancellationException) {
-                            throw cancelled
-                        } catch (_: Exception) { null }
-                        shellMerchantCopyPrepared = marker?.optBoolean("accepted") == true
-                    }
                     val clicked = withContext(Dispatchers.Main) {
                         LuluAccessibilityService.tapVirtualUiElement(
                             id, activeApp, prior.fingerprint, args.optString("elementRef"),
