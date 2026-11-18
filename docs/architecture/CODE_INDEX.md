@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`badf4371c200223a17bc7188b22491757894758d`
+- 基准提交：`5d462d022a21b2b946799402a4f5f85c2b1fe9e4`
 - 分支：`main`
-- 已索引文件：1465
-- 已索引代码/文本行：309714
-- 已发现符号：4430
+- 已索引文件：1467
+- 已索引代码/文本行：309817
+- 已发现符号：4432
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -593,7 +593,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 596 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 95 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 2549 | 21 |
+| `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 2560 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt` | 132 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 196 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 283 | 9 |
@@ -742,7 +742,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/IslandWorkbenchRecipes.kt` | 39 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/LegacyGameModelConnection.kt` | 52 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluConversationParentCompatibility.kt` | 8 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 812 | 31 |
+| `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 818 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 965 | 14 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 935 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 382 | 4 |
@@ -1273,6 +1273,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPhoneWakeIntegrationTest.kt` | 455 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentPlanRevisionTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentSocialMailboxWakeTest.kt` | 31 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentWorldLifeOpportunitiesTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RetiredHealthMcpRouteTest.kt` | 43 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 591 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt` | 34 | 1 |
@@ -1356,6 +1357,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTeamSpeechWakeTest.kt` | 16 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandTravelTest.kt` | 148 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandWorkbenchRecipesTest.kt` | 136 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/games/MemoryMatchModeTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/MemoryMatchOpponentFairnessTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicActorPlayTest.kt` | 351 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicCeremonyLayoutTest.kt` | 37 | 1 |
