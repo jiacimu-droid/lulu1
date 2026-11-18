@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T14:51:48.211860+00:00",
-  "commit": "e2a383418cda8ca4510a1323a94e1b1fe2191671",
+  "generatedAt": "2026-11-18T14:56:10.168377+00:00",
+  "commit": "1e983ea209c0c38bd33685fa64d1c67b5128f6bb",
   "branch": "main",
-  "sourceFingerprint": "89abc30c8e4bec7ab49c0aa06f8381156f651037099a0e3d87ae274633a9f606",
+  "sourceFingerprint": "ee4579a5347678a77e5b8bb06b89c989cc8d21a21d20830657cf0d27a5e40c12",
   "summary": {
     "files": 1473,
-    "lines": 311669,
+    "lines": 311670,
     "symbols": 4451
   },
   "symbolIndex": {
@@ -547,7 +547,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 188
+        "line": 186
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -5985,7 +5985,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 599
+        "line": 602
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt",
@@ -6849,13 +6849,13 @@
     "screenVisionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 100
+        "line": 98
       }
     ],
     "phoneOperationContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 141
+        "line": 139
       }
     ],
     "isWakeExplanation": [
@@ -30495,8 +30495,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 206,
-      "sha256": "f76cd106bb14473359355721256477799f675d4c86e2fb30ce8f153e6b404d9a",
+      "lines": 204,
+      "sha256": "27c33ac92a04cc8efc0f67fd64dab198bfcc2e29e635d041d45b2133d8a6ab1a",
       "symbols": [
         {
           "name": "Capability",
@@ -30524,15 +30524,15 @@
         },
         {
           "name": "screenVisionContext",
-          "line": 100
+          "line": 98
         },
         {
           "name": "phoneOperationContext",
-          "line": 141
+          "line": 139
         },
         {
           "name": "context",
-          "line": 188
+          "line": 186
         }
       ]
     },
@@ -37781,8 +37781,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 718,
-      "sha256": "695d20b27bf2423f7a9c55aa952355042fa91878b6af33d02970f0ce9e3360ad",
+      "lines": 721,
+      "sha256": "cfa87572f6388e29028606909cb897ef1628883f300a02b37d1f7d05512be6ad",
       "symbols": [
         {
           "name": "completed",
@@ -37814,7 +37814,7 @@
         },
         {
           "name": "project",
-          "line": 599
+          "line": 602
         }
       ]
     },
