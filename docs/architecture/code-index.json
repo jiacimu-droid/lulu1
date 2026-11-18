@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T14:34:30.836924+00:00",
-  "commit": "a8530be041c192de3d04eaa6d095589a4c7fbdf2",
+  "generatedAt": "2026-11-18T14:35:41.783868+00:00",
+  "commit": "5a8ff281ef988a3be97c277fa7a0e4164bc2bf0c",
   "branch": "main",
-  "sourceFingerprint": "e7f63e2c34092014b4c248b3141af91ee6a65d2a85e58112c9a2016682895aab",
+  "sourceFingerprint": "c43cb03cafc937e640775425d2295aaaf95a15523da5fbe67895879d1373a8b4",
   "summary": {
     "files": 1470,
     "lines": 310835,
@@ -27285,7 +27285,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCapabilitiesScreen.kt",
       "lines": 645,
-      "sha256": "503ed4546368fdfb84f7487048413b57ede1accf651f9aa80bd8977488de9db2",
+      "sha256": "f32a34ee40d6e52ec423bcf491f61f640889d32ff155a3052ae946524a38f1a3",
       "symbols": [
         {
           "name": "LuluCapabilitiesScreen",
@@ -27503,7 +27503,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt",
       "lines": 621,
-      "sha256": "a78b9c111846710da5786577b2b313defe70cc95c523245fd5a3a550253eadc9",
+      "sha256": "77af0be3c5797f33afdeb3ed18f7b683064b6a58b4d45dae89a3640a08744b37",
       "symbols": []
     },
     {
@@ -30426,7 +30426,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 208,
-      "sha256": "b0992c1c02baa2c89e71f9674fa27dbe88a390b2e48e33b8f713d73bae1b352a",
+      "sha256": "3d7d08c7811bc51d0325596c9f514ff91ecbf70beb8900ac95cb3055e786ac1a",
       "symbols": [
         {
           "name": "Capability",
