@@ -1855,6 +1855,27 @@ class LuluAccessibilityService : AccessibilityService() {
                 focusedVirtualEditor(service, displayId, packageName) != null
         }
 
+        /** Exact, read-only draft receipt for the visual Unicode input route.
+         * A screenshot tap may open a real editable node only AFTER the IME
+         * appears. Check the sole currently focused safe editor of the owned
+         * virtual App; never accept text from IME suggestions, message
+         * history, display 0, password fields or a stale target window.
+         * No node text is returned to the model; only a boolean match. */
+        fun focusedVirtualDraftMatches(
+            displayId: Int, packageName: String, expected: String,
+        ): Boolean {
+            val service = instance ?: return false
+            if (Build.VERSION.SDK_INT < 30 || displayId <= 0 ||
+                packageName.isBlank() || expected.isBlank() ||
+                virtualWindowStatus(displayId, packageName).optString("kind") != "target"
+            ) return false
+            val field = focusedVirtualEditor(service, displayId, packageName)
+                ?: return false
+            return field.refresh() && field.isFocused && safeEditable(field) &&
+                !field.isShowingHintText && field.text?.toString() == expected &&
+                virtualWindowStatus(displayId, packageName).optString("kind") == "target"
+        }
+
         /** Type into the ACTUALLY focused editor of any owned app. This
          * does not submit a form, send a message, or invent a focus target.
          * For custom WebViews/ROMs with no accessible editor, the session may
