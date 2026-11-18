@@ -354,9 +354,9 @@ object LuluScreenAwareness {
             return rejected(context, "屏幕分享仅限真实角色主动选择的一次私聊截图", "failed")
         if (Build.VERSION.SDK_INT < 30) return rejected(context, "Android 11 以下不支持", "failed")
         if (context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true)
-            return rejected(context, "锁屏时禁止截图")
+            return rejected(context, "手机已锁屏，本次未截图", "failed")
         val first = freshOwnerSnapshot()
-        if (!first.connected) return rejected(context, "无障碍服务未连接")
+        if (!first.connected) return rejected(context, "Android 无障碍服务未连接，本次未截图", "failed")
         captureWindowReason(context, first.packageName)?.let { reason ->
             return rejected(context, reason,
                 if (first.packageName.isBlank()) "unverified" else "denied")
@@ -368,7 +368,7 @@ object LuluScreenAwareness {
         // Do not gate approved monitoring on the unrelated one-off screenshot request channel.
         if (sessionId.isBlank() && !progressNotificationsAvailable(context) &&
             !LuluScreenRequestPopup.available(context))
-            return rejected(context, "屏幕查看状态通知与悬浮提示都不可用；请开启其中一种提醒方式")
+            return rejected(context, "屏幕查看状态通知与悬浮提示都不可用；请开启其中一种提醒方式", "failed")
         if (!busy.compareAndSet(false, true)) return rejected(context, "当前已有识图请求", "busy")
         // The approved study session already has an ongoing, stoppable indicator.
         // Do not pop up another notice over the very screen we are capturing.

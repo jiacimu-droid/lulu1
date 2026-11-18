@@ -67,6 +67,8 @@ class ScreenVisionCapabilityContextTest {
             assertTrue(screen.contains("角色自主观察授权=true"))
             assertTrue(screen.contains("action=tool,tool=capture_screen,args={}"))
             assertTrue(screen.contains("无须逐次申请"))
+            assertTrue(screen.contains("无论主人有没有发消息或要求查看、是否正在学习监督"))
+            assertFalse(screen.contains("主人确认之前不得查看屏幕"))
             assertTrue(screen.contains("旧工具名read_screen是相同截图能力的兼容别名"))
             assertTrue(screen.contains("不再提供纯文字假观察"))
             assertTrue(screen.contains("read_screen也会取得新截图"))

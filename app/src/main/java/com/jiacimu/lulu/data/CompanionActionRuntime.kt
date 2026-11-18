@@ -1780,7 +1780,6 @@ internal object OrderedCharacterActions {
         // no fresh user message exists. It is provenance, never tool permission.
         causeEvidenceId: String = "",
         userText: String = "",
-        explicitScreenRequest: Boolean = false,
         autonomousLifeTurn: Boolean = false,
         // An accepted long-running turn may become stale while a newer user
         // bubble arrives. Stop only its NOT-YET-STARTED steps; the next regular
@@ -1905,8 +1904,7 @@ internal object OrderedCharacterActions {
                 JSONObject(ToolRouter.execute(context, characterId, name, args,
                     requestId = stepRequestId,
                     intentionId = intentionId, goalReviewMode = goalReviewMode,
-                    userRequested = if (name in setOf("capture_screen", "read_screen")) explicitScreenRequest
-                        else CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, name),
+                    userRequested = CharacterInitiativeRuntime.isExplicitUserToolRequest(userText, name),
                     autonomousLifeTurn = autonomousLifeTurn,
                     learningApplication = normalized.optJSONObject("learningApplication"),
                     causeEvidenceId = userEvidenceIds.lastOrNull().orEmpty()
