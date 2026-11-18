@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:41:01.485116+00:00",
-  "commit": "ec971bfbfcac5ccbf68531216cd84e192bb66fec",
+  "generatedAt": "2026-11-18T07:42:08.488580+00:00",
+  "commit": "c63a3955bd6de19d7cbaa6d0445248ac6aae942a",
   "branch": "main",
-  "sourceFingerprint": "8767ec31f4858853aaa4331307026a3f6918517862747a8c44ea952fedc8dd13",
+  "sourceFingerprint": "f08a50e4c7410032f76f2d12527ad0c47695848e074733a5264fd3916dff1cd6",
   "summary": {
-    "files": 1459,
-    "lines": 308542,
+    "files": 1460,
+    "lines": 308599,
     "symbols": 4399
   },
   "symbolIndex": {
@@ -39448,6 +39448,12 @@
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt",
       "lines": 288,
       "sha256": "0766761579135a49b116996e1caa78b32a333e676db76c21b1d72c6c7fb0e8ff",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/GameMemoryDecision.kt",
+      "lines": 57,
+      "sha256": "2e6e4499cc7099a6873d02e54e49098c6dc76a0851f218f53132bb500182dea4",
       "symbols": []
     },
     {
