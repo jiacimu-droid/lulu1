@@ -25,6 +25,17 @@ class LuluDesktopWidgetTest {
         assertEquals(65f, luluDesktopFullCellHeight(360f, 260f), 0.001f)
     }
 
+    @Test fun horoscopeCardReplacesDailyHeadingWithTheChosenSign() {
+        val horoscope = LuluDesktopWidget("daily", LuluWidgetKind.HOROSCOPE, 1, 0, 0,
+            characterId = "example-role", sign = 0)
+        assertEquals("♑  摩羯座", luluWidgetCardHeading(horoscope))
+        assertNotEquals("每日星座", luluWidgetCardHeading(horoscope))
+        assertEquals("角色便签", luluWidgetCardHeading(
+            horoscope.copy(kind = LuluWidgetKind.NOTE)))
+        // Only the in-card heading changes; the component is still discoverable by name.
+        assertEquals("每日星座", LuluWidgetKind.HOROSCOPE.title)
+    }
+
     @Test fun profileBirthdayMapsToExactSignsAndBadInputNeverGuesses() {
         assertEquals(0, luluSignFromBirthday("2001-01-19"))
         assertEquals(1, luluSignFromBirthday("2001-01-20"))
