@@ -51,6 +51,9 @@ internal object LuluVisualChatDraftPolicy {
         return lines.count {
             val b = it.bounds
             normalize(it.text) == expected &&
+                // Long incoming bubbles may extend past the midpoint.
+                // Only right-column OCR hits can be outgoing evidence.
+                b.right >= width * 75 / 100 &&
                 b.centerX >= width * 48 / 100 &&
                 b.centerY in (height * 18 / 100)..(height * 87 / 100)
         }
