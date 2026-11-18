@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`076d7016cba9d3be886005ba9dc51e6dfd407594`
+- 基准提交：`c028805e75d4124d47a40d94aed7358edfead9c8`
 - 分支：`main`
 - 已索引文件：1470
-- 已索引代码/文本行：310893
+- 已索引代码/文本行：310905
 - 已发现符号：4439
 
 | 文件 | 行数 | 符号数 |
@@ -1279,7 +1279,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt` | 591 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledReminderDeliveryTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ScheduledSocialEncounterVenueTest.kt` | 200 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 104 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 116 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 239 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt` | 215 | 2 |

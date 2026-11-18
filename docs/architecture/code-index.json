@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T14:50:07.224305+00:00",
-  "commit": "076d7016cba9d3be886005ba9dc51e6dfd407594",
+  "generatedAt": "2026-11-18T14:50:31.277710+00:00",
+  "commit": "c028805e75d4124d47a40d94aed7358edfead9c8",
   "branch": "main",
-  "sourceFingerprint": "4b5c789b57952fb0a390435cee05fb9460c821921ea46c5e40b3ddb712d2ec02",
+  "sourceFingerprint": "027e1b1661a3a5196dce788cf6ed9b8d42c17ef68aca49d6cdba320d76ace940",
   "summary": {
     "files": 1470,
-    "lines": 310893,
+    "lines": 310905,
     "symbols": 4439
   },
   "symbolIndex": {
@@ -50194,8 +50194,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt",
-      "lines": 104,
-      "sha256": "3ac6d085be52393ed778d096488d83ab378041fff61e3d4eba0d7a3c50877c78",
+      "lines": 116,
+      "sha256": "288418acc609a88d525a7df8fde7241f4a330be6d4b5b6675dac7eb5a2e5fcb9",
       "symbols": [
         {
           "name": "ScreenVisionCapabilityContextTest",
