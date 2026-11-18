@@ -14,6 +14,26 @@ class LuluPhoneRepeatGuardTest {
         assertFalse(LuluPhoneRepeatGuard.shouldBlock(attempted.copy(effect = "tree_changed"), "back", target))
     }
 
+    @Test fun unverifiedUnicodePasteCannotBeDuplicatedOnSameEditor() {
+        val original = mapOf(
+            "text" to "给你找到的商品链接", "inputX" to "480", "inputY" to "880")
+        val target = LuluPhoneRepeatGuard.target("type", original)
+        val pending = LuluPhoneRepeatGuard.Attempt("type", target, true, "unknown")
+        assertTrue(LuluPhoneRepeatGuard.shouldBlock(pending, "type", target))
+        assertTrue(LuluPhoneRepeatGuard.shouldBlock(
+            pending.copy(effect = "tree_unchanged"), "type", target))
+        assertFalse("A rejected paste was never dispatched",
+            LuluPhoneRepeatGuard.shouldBlock(pending.copy(accepted = false), "type", target))
+        assertFalse("Verified input is not an ambiguous pending paste",
+            LuluPhoneRepeatGuard.shouldBlock(pending.copy(effect = "input_verified"), "type", target))
+        assertFalse("A different input field is an independent action",
+            LuluPhoneRepeatGuard.shouldBlock(pending, "type",
+                LuluPhoneRepeatGuard.target("type", original + ("inputY" to "600"))))
+        assertFalse("A role may deliberately change the draft",
+            LuluPhoneRepeatGuard.shouldBlock(pending, "type",
+                LuluPhoneRepeatGuard.target("type", original + ("text" to "法硕资料"))))
+    }
+
     @Test fun sameTapCannotBeRepeatedAfterUnverifiedEffect() {
         val last = LuluPhoneRepeatGuard.Attempt("tap", "500:300", true, "unknown")
         assertTrue(LuluPhoneRepeatGuard.shouldBlock(last, "tap", "500:300"))
