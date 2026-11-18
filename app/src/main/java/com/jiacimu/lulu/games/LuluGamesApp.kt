@@ -45,7 +45,6 @@ import java.time.format.DateTimeFormatter
 
 private sealed interface GameRoute {
     data object Home : GameRoute
-    data object DeepSea : GameRoute
     data object BlockIsland : GameRoute
     data object RelicEscape : GameRoute
     data object PerfectMan : GameRoute
@@ -67,7 +66,6 @@ private val savedGameRoute = Saver<GameRoute, String>(
 
 private fun GameRoute.savedGameId(): String = when (this) {
     GameRoute.Home -> "home"
-    GameRoute.DeepSea -> "deep_sea_journey"
     GameRoute.BlockIsland -> "block_island"
     GameRoute.RelicEscape -> "relic_escape"
     GameRoute.PerfectMan -> "perfect_man"
@@ -118,14 +116,14 @@ fun LuluGamesApp(
     LaunchedEffect(route) {
         if (!LuluGameEdition.available(route.savedGameId())) route = GameRoute.Home
     }
-    val bgmEnabled = GameAmbientSoundscape(if (route == GameRoute.DeepSea) GameSoundscape.Ocean else GameSoundscape.Arcade)
+    val bgmEnabled = GameAmbientSoundscape(GameSoundscape.Arcade)
     var pendingRoute by remember { mutableStateOf<GameRoute?>(null) }
 
     fun stepBack() {
         if (route == GameRoute.Home || returnToCaller) onBack() else route = GameRoute.Home
     }
 
-    // The game hall is portrait; only the three world-map games opt into landscape.
+    // The game hall is portrait; only the two world-map games opt into landscape.
     // Save the player's per-game manual toggle across orientation configuration changes.
     val context = LocalContext.current
     val hostActivity = remember(context) { context.gameHostActivity() }
@@ -182,9 +180,9 @@ fun LuluGamesApp(
         return
     }
 
-    val darkChrome = route in setOf(GameRoute.Home, GameRoute.DeepSea, GameRoute.MemoryMatch, GameRoute.BlockIsland, GameRoute.RelicEscape)
+    val darkChrome = route in setOf(GameRoute.Home, GameRoute.MemoryMatch, GameRoute.BlockIsland, GameRoute.RelicEscape)
     val immersivePlay = fullscreenReplayId != null ||
-        route in setOf(GameRoute.DeepSea, GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.MemoryMatch, GameRoute.TurtleSoup, GameRoute.YachtDice)
+        route in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.MemoryMatch, GameRoute.TurtleSoup, GameRoute.YachtDice)
     val immersiveWorld = worldGameOwnsSystemNavigation(route.savedGameId()) ||
         (fullscreenReplayId != null && replayLandscapeGameId == "relic_escape")
 
@@ -340,7 +338,6 @@ fun LuluGamesApp(
 
 private fun GameRoute.title(): String = when (this) {
     GameRoute.Home -> "游戏"
-    GameRoute.DeepSea -> "深海回声"
     GameRoute.BlockIsland -> "方块小岛"
     GameRoute.RelicEscape -> "迷雾摸金"
     GameRoute.PerfectMan -> "满分男"
@@ -356,7 +353,6 @@ private fun GameRoute.title(): String = when (this) {
 
 private fun String?.toGameRouteOrHome(): GameRoute = when (this?.trim()?.lowercase()?.takeIf(LuluGameEdition::available)) {
     "home" -> GameRoute.Home
-    "deep_sea", "deep_sea_journey" -> GameRoute.DeepSea
     "block_island" -> GameRoute.BlockIsland
     "relic_escape" -> GameRoute.RelicEscape
     "perfect_man" -> GameRoute.PerfectMan
@@ -377,16 +373,6 @@ private fun GameHome(
     onOpen: (GameRoute) -> Unit,
     onResumeYacht: (String) -> Unit,
 ) {
-    val deepSea = GameLauncher(
-        "deep_sea_journey",
-        "深海回声",
-        "驾驶潜航器穿越海沟，躲避礁体、收集五段回声并开启归航门。",
-        Icons.Outlined.Waves,
-        GameRoute.DeepSea,
-        minCharacters = 0,
-        maxCharacters = 1,
-        accent = Color(0xFF66D7CC),
-    )
     val featured = if (LuluGameEdition.worldGamesEnabled) listOf(
         GameLauncher("block_island", "方块小岛", "采集木石、搭房子、建基地；和角色一起打怪，家园退出后仍存在。", Icons.Outlined.Forest, GameRoute.BlockIsland, 0, 3, Color(0xFF8ED6A6)),
         GameLauncher("relic_escape", "迷雾摸金", "组队搜宝箱、对抗怪物，带战利品回撤离门；失败会失去本局宝物。", Icons.Outlined.Explore, GameRoute.RelicEscape, 0, 3, Color(0xFFF1C785)),
@@ -436,7 +422,6 @@ private fun GameHome(
         items(suspendedYacht, key = { "paused-yacht-" + it.id }) { paused ->
             ItemYachtResumeCard(paused, onResumeYacht)
         }
-        item { DeepSeaFeaturedEntry(deepSea, onOpen) }
         if (LuluGameEdition.worldGamesEnabled) item {
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text("合作探索", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Black)
@@ -525,7 +510,7 @@ private fun GameHallHero() {
                     border = BorderStroke(.7.dp, Color.White.copy(alpha = .15f)),
                 ) {
                     Text(
-                        if (LuluGameEdition.worldGamesEnabled) "2 座新世界 · 4 款保留游戏" else "4 款可玩游戏",
+                        if (LuluGameEdition.worldGamesEnabled) "2 座新世界 · 3 款经典游戏" else "3 款可玩游戏",
                         color = Color(0xFFD9DFED),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
@@ -534,83 +519,11 @@ private fun GameHallHero() {
                 }
                 Text("一起探索，才是真正的游戏", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Black)
                 Text(
-                    if (LuluGameEdition.worldGamesEnabled) "主舞台拥有连续移动、碰撞、镜头、目标与空间音效；角色可加入，但不再强迫双人。" else "深海回声、海龟汤、记忆配对和快艇骰子，和角色一起体验。",
+                    if (LuluGameEdition.worldGamesEnabled) "主舞台拥有连续移动、碰撞、镜头、目标与空间音效；角色可加入，但不再强迫双人。" else "海龟汤、记忆配对和快艇骰子，和角色一起体验。",
                     color = Color(0xFFBBC4D8),
                     fontSize = 11.sp,
                     lineHeight = 17.sp,
                 )
-            }
-        }
-    }
-}
-
-@Composable
-private fun DeepSeaFeaturedEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
-    val interaction = remember { MutableInteractionSource() }
-    val pressed by interaction.collectIsPressedAsState()
-    val scale by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (pressed) .982f else 1f,
-        animationSpec = tween(120),
-        label = "deep-sea-featured-press",
-    )
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(232.dp)
-            .graphicsLayer { scaleX = scale; scaleY = scale }
-            .clickable(interactionSource = interaction, indication = null) { onOpen(launcher.route) },
-        color = Color(0xFF082936),
-        shape = RoundedCornerShape(30.dp),
-        border = BorderStroke(1.dp, Color(0xFF83E4D8).copy(alpha = .38f)),
-        shadowElevation = if (pressed) 3.dp else 12.dp,
-    ) {
-        Box(
-            Modifier.fillMaxSize().background(
-                Brush.linearGradient(
-                    listOf(Color(0xFF0C4655), Color(0xFF08283A), Color(0xFF071824)),
-                ),
-            ),
-        ) {
-            Box(
-                Modifier
-                    .size(210.dp)
-                    .align(Alignment.TopEnd)
-                    .offset(x = 50.dp, y = (-58).dp)
-                    .background(
-                        Brush.radialGradient(listOf(Color(0xFF8FFFF0).copy(alpha = .28f), Color.Transparent)),
-                        CircleShape,
-                    ),
-            )
-            Icon(
-                Icons.Outlined.Waves,
-                null,
-                tint = Color(0xFF9AFFF0).copy(alpha = .15f),
-                modifier = Modifier.align(Alignment.BottomEnd).offset(x = 20.dp, y = 22.dp).size(174.dp),
-            )
-            Column(
-                Modifier.fillMaxSize().padding(19.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Surface(color = Color(0xFF9AFFF0).copy(alpha = .15f), shape = RoundedCornerShape(99.dp), border = BorderStroke(1.dp, Color(0xFF9AFFF0).copy(alpha = .28f))) {
-                        Text("深海探索 · 继续游玩", color = Color(0xFFB9FFF2), fontSize = 9.sp, fontWeight = FontWeight.Black, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
-                    }
-                    Spacer(Modifier.weight(1f))
-                    Surface(shape = CircleShape, color = Color.White.copy(alpha = .10f), modifier = Modifier.size(38.dp)) {
-                        Box(contentAlignment = Alignment.Center) { Icon(Icons.Outlined.NorthEast, null, tint = Color.White, modifier = Modifier.size(20.dp)) }
-                    }
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                    Text(launcher.title, color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.Black)
-                    Text(launcher.subtitle, color = Color(0xFFB5D8D5), fontSize = 11.sp, lineHeight = 17.sp, modifier = Modifier.widthIn(max = 285.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                        listOf("自由移动", "真实碰撞", "单人可玩").forEach { label ->
-                            Surface(color = Color.Black.copy(alpha = .18f), shape = RoundedCornerShape(8.dp)) {
-                                Text(label, color = Color(0xFFAEE9E2), fontSize = 8.sp, modifier = Modifier.padding(horizontal = 7.dp, vertical = 4.dp))
-                            }
-                        }
-                    }
-                }
             }
         }
     }
@@ -626,7 +539,7 @@ private fun GameParticipantPickerScreen(
 ) {
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val limits = route.playerLimits()
-    val dark = route == GameRoute.DeepSea
+    val dark = false
     var selected by remember(route) {
         mutableStateOf(
             if (limits.first == 0) emptySet()
@@ -723,7 +636,6 @@ private fun GameParticipantPickerScreen(
 }
 
 private fun GameRoute.playerLimits(): Pair<Int, Int> = when (this) {
-    GameRoute.DeepSea -> 0 to 1
     GameRoute.BlockIsland, GameRoute.RelicEscape -> 0 to 3
     GameRoute.Roleplay -> 1 to 4
     GameRoute.TurtleSoup -> 0 to 3
@@ -995,7 +907,7 @@ internal fun worldGameOwnsSystemNavigation(routeId: String): Boolean =
 
 /** Pure display contract: every non-world screen, including pickers, must be portrait. */
 internal fun gameSupportsLandscape(routeId: String): Boolean =
-    routeId in setOf("deep_sea_journey", "block_island", "relic_escape")
+    routeId in setOf("block_island", "relic_escape")
 
 internal fun gameRequestedOrientation(
     routeId: String,
