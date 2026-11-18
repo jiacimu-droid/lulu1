@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T08:37:34.745567+00:00",
-  "commit": "670c5c20177931153849e091b11a6e812a60c1f5",
+  "generatedAt": "2026-11-18T09:26:17.154756+00:00",
+  "commit": "740acb1c8b73482dfaa65d4a68da5d5517d89f0d",
   "branch": "main",
-  "sourceFingerprint": "34b81b57329b556432f06d44b6142a81e0fc25648225cd295cc30fc53f6144d8",
+  "sourceFingerprint": "8bd5938938217f0fd320585ac4e51be38226a33be24d0ec464303aaf08ca2812",
   "summary": {
     "files": 1461,
-    "lines": 309182,
+    "lines": 309236,
     "symbols": 4402
   },
   "symbolIndex": {
@@ -6635,7 +6635,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 82
+        "line": 103
       }
     ],
     "contractError": [
@@ -18125,19 +18125,19 @@
     "decodeDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 90
+        "line": 111
       }
     ],
     "ownerHasNewInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 253
+        "line": 274
       }
     ],
     "rememberGesture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 277
+        "line": 298
       }
     ],
     "showPaymentHandoff": [
@@ -42662,24 +42662,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 700,
-      "sha256": "07adb5f4bb8adddfe57206b3ed78a8b04b2fffeb46e5b564066d9dea14149aba",
+      "lines": 754,
+      "sha256": "92a0d1f4c8881065967acbb16dd5afc360c2ee35107a403551eb64ef936cc91e",
       "symbols": [
         {
           "name": "Outcome",
-          "line": 82
+          "line": 103
         },
         {
           "name": "decodeDecision",
-          "line": 90
+          "line": 111
         },
         {
           "name": "ownerHasNewInput",
-          "line": 253
+          "line": 274
         },
         {
           "name": "rememberGesture",
-          "line": 277
+          "line": 298
         }
       ]
     },
