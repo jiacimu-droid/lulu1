@@ -44,7 +44,7 @@ internal val luluGuideSteps = listOf(
         listOf("选择语音合成服务与音色，按页面试听，并区分「角色说话的 TTS」与「听懂你说话的语音识别」。", "电话还需要可用的麦克风/识别设置；文字私聊不依赖语音服务。", "声音暂时不想配置也能继续文字聊天，但电话与语音体验可能不可用。"),
         "voice", MigrationRoute.Settings, "设置语音"),
     LuluGuideStep("配置记忆模型与检索", "桌面 → 设置 → 记忆与检索",
-        listOf("先选择记忆抽取模型。系统可按完整轮次自动提取重要经历、长期事实与情绪，而不是要求用户每次手动写总结。", "向量记忆需单独配置 Embedding；Rerank 重排是可选增强，可能增加 API 用量。关闭后仍能保留本地记忆和关联召回。", "默认最近 5 轮暂不总结、每 15 轮提取一次；具体轮次和自动维护规则在下方「记忆与轮次」详解。"),
+        listOf("选择记忆抽取模型后，系统会按对话轮次整理长期事实、情绪与共同经历。", "向量记忆需单独配置 Embedding；Rerank 重排是可选增强，可能增加 API 用量。关闭后仍能保留本地记忆和关联召回。", "默认最近 5 轮暂不总结、每 15 轮提取一次；具体轮次和自动维护规则在下方「记忆与轮次」详解。"),
         "memory", MigrationRoute.Settings, "配置记忆"),
     LuluGuideStep("给角色合理的权限与能力", "桌面 → 设置 → 权限与能力；角色设置 → 操作授权",
         listOf("先按需要开启通知、无障碍、后台运行和闹钟等 Android 系统权限，再针对每位角色勾选允许的操作。", "后台虚拟屏幕授权涵盖角色在独立屏内的一般 App 浏览、点击和输入；设备状态、闹钟、媒体等原生能力另外授权。", "开关已打开不代表系统权限、实际屏幕连接及工具结果一定成功；查看真实执行回执。"),
@@ -168,7 +168,7 @@ internal val luluGuideFeatures = listOf(
         "导入自己喜欢的文字作品阅读，也能体验和角色有关的番外故事。",
         listOf("在阅读页导入本地 TXT，调整字号并继续上次进度。", "从角色私聊进入番外；番外不应被当作主线真实记忆。"),
         "大文本可能需要分卷；阅读和角色创作的事实归属应区分。", MigrationRoute.Theater, "去阅读",
-        highlights = listOf("新安装不再附带其他用户的私人角色或预写故事。")),
+        highlights = listOf("全新安装由用户自行创建角色、导入作品并保存个人故事。")),
     LuluGuideFeature("life", "生活记录 · 越相处越丰富", Icons.Outlined.AutoStories, "桌面 → 生活记录（旧称辞海） / 记忆",
         "按角色整理长期事实、重要经历与生活片段，方便查看与回顾。",
         listOf("从「生活记录」按角色查看已有的生活事实、情绪印象与经历；必要时可以手动检查、编辑或删除。", "记录与近期原始时间线、长期记忆各有作用，角色在后续对话中可以依据相关内容继续相处。"),
@@ -199,7 +199,7 @@ internal data class LuluGuideHeroHighlight(
     val featureKey: String,
 )
 internal val luluGuideHeroHighlights = listOf(
-    LuluGuideHeroHighlight("跨应用无缝衔接", "聊天、电话、后台行动连续衔接", Icons.Outlined.AutoAwesome, "continuity"),
+    LuluGuideHeroHighlight("跨应用无缝衔接", "聊天、电话与跨 App 行动持续连贯", Icons.Outlined.AutoAwesome, "continuity"),
     LuluGuideHeroHighlight("后台虚拟屏", "角色可自主浏览与操作手机 App", Icons.Outlined.Smartphone, "phone"),
     LuluGuideHeroHighlight("自动记忆整理", "重要经历自动整理与召回", Icons.Outlined.Psychology, "memory"),
     LuluGuideHeroHighlight("学习监督", "读取今日待办，提醒并跟进目标", Icons.Outlined.TaskAlt, "supervision"),
@@ -260,7 +260,7 @@ internal fun LuluOnboardingGuideScreen(
                             color = ink, fontSize = 31.sp, lineHeight = 38.sp,
                             fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(8.dp))
-                        Text("记得你的故事，也会自己观察、思考与行动。", color = muted,
+                        Text("记得共同经历，能感知、思考，也能行动。", color = muted,
                             fontSize = 13.sp, lineHeight = 20.sp)
                         Spacer(Modifier.height(22.dp))
                         Text("四个最值得体验的地方", color = ink, fontSize = 17.sp,
@@ -272,7 +272,7 @@ internal fun LuluOnboardingGuideScreen(
                                 pair.forEach { highlight ->
                                     Surface(
                                         onClick = { selectedKey = highlight.featureKey },
-                                        modifier = Modifier.weight(1f).height(144.dp),
+                                        modifier = Modifier.weight(1f).height(160.dp),
                                         shape = RoundedCornerShape(18.dp),
                                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f),
                                         border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant),
@@ -286,7 +286,7 @@ internal fun LuluOnboardingGuideScreen(
                                                 maxLines = 2, overflow = TextOverflow.Ellipsis)
                                             Text(highlight.subtitle, fontSize = 11.sp,
                                                 lineHeight = 16.sp, color = muted,
-                                                maxLines = 3, overflow = TextOverflow.Ellipsis)
+                                                maxLines = 2, overflow = TextOverflow.Ellipsis)
                                         }
                                     }
                                 }
@@ -366,7 +366,7 @@ internal fun LuluOnboardingGuideScreen(
                 }
                 items(luluGuideDirectoryFeatures.chunked(2)) { pair ->
                     Row(
-                        modifier = Modifier.fillMaxWidth().height(156.dp),
+                        modifier = Modifier.fillMaxWidth().height(172.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         pair.forEach { feature ->
