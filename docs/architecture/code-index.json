@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:12:59.836480+00:00",
-  "commit": "3d5a82fbc70b892eba0ab8f1dc1b454fc442ccad",
+  "generatedAt": "2026-11-18T11:13:40.051361+00:00",
+  "commit": "1b6a6a09823fe05818632c3e1f2d3fc2e5b9e061",
   "branch": "main",
-  "sourceFingerprint": "e5937e539ca5b994e1b833f24f7c65ff14052e00b48720405668a8252aa79d98",
+  "sourceFingerprint": "efd965790567520f1a7393f47e52fe5dac2665a4ac7266f548af25e21aef0af0",
   "summary": {
     "files": 1465,
-    "lines": 310359,
+    "lines": 310366,
     "symbols": 4422
   },
   "symbolIndex": {
@@ -3315,7 +3315,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1569
+        "line": 1579
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -4749,7 +4749,7 @@
     "openReceiptLink": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-        "line": 944
+        "line": 941
       }
     ],
     "import": [
@@ -6735,7 +6735,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 214
+        "line": 222
       }
     ],
     "Attempt": [
@@ -9509,61 +9509,61 @@
     "asJson": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 30
+        "line": 37
       }
     ],
     "autonomousDiscoveryContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 110
+        "line": 118
       }
     ],
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1462
+        "line": 1472
       }
     ],
     "requestsPrivateReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1520
+        "line": 1530
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1531
+        "line": 1541
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1538
+        "line": 1548
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1552
+        "line": 1562
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1562
+        "line": 1572
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1616
+        "line": 1626
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1992
+        "line": 2002
       }
     ],
     "age": [
@@ -28410,12 +28410,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 1070,
-      "sha256": "32dab8ed5f1f82c05b75297d6bd8a77ea63d0d4a6d95325492540d0fdcd6b861",
+      "lines": 1067,
+      "sha256": "f56a29bb8df528ff9dc2ea5c911db302aaf7dd656fdbefe565ad5a1964bad01f",
       "symbols": [
         {
           "name": "openReceiptLink",
-          "line": 944
+          "line": 941
         }
       ]
     },
@@ -32852,56 +32852,56 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 2040,
-      "sha256": "6f3f1d137aaf264ae8a7e77bc07e64a62111a3156ea8f064fb5d71f9625c4b5d",
+      "lines": 2050,
+      "sha256": "71e0dd0c87ebda493cc71ad89c0be80f6ede1d6804ba0616261af967b57d8b14",
       "symbols": [
         {
           "name": "asJson",
-          "line": 30
+          "line": 37
         },
         {
           "name": "autonomousDiscoveryContext",
-          "line": 110
+          "line": 118
         },
         {
           "name": "capabilityContext",
-          "line": 214
+          "line": 222
         },
         {
           "name": "world",
-          "line": 1462
+          "line": 1472
         },
         {
           "name": "requestsPrivateReply",
-          "line": 1520
+          "line": 1530
         },
         {
           "name": "recordedReceiptId",
-          "line": 1531
+          "line": 1541
         },
         {
           "name": "completedEvidence",
-          "line": 1538
+          "line": 1548
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1552
-        },
-        {
-          "name": "awaitsPrimaryConversation",
           "line": 1562
         },
         {
+          "name": "awaitsPrimaryConversation",
+          "line": 1572
+        },
+        {
           "name": "from",
-          "line": 1569
+          "line": 1579
         },
         {
           "name": "requiresCompletion",
-          "line": 1616
+          "line": 1626
         },
         {
           "name": "availableContext",
-          "line": 1992
+          "line": 2002
         }
       ]
     },
