@@ -40,11 +40,15 @@ internal object LuluStrictMode {
     private const val ACTIVE = "active"
     private const val CHANNEL = "lulu_strict_mode"
     private const val NOTICE_ID = 42081
-    private const val REVIEW_GAP = 120_000L
+    internal const val REVIEW_GAP = 20_000L
+    internal const val LOCAL_SAMPLE_GAP = 10_000L
+    private const val MAX_LEASE_MINUTES = 120
     private val writer = Executors.newSingleThreadExecutor { task ->
         Thread(task, "lulu-strict-receipts").apply { isDaemon = true }
     }
     private var lastPackage = ""
+    private var lastObservationAt = 0L
+    private var lastReturnAttemptAt = 0L
 
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -66,8 +70,10 @@ internal object LuluStrictMode {
     internal fun shouldReturn(
         mode: String, foreground: String, lulu: String,
         exceptions: Set<String>, isProtected: Boolean,
-    ): Boolean = mode == "return" && foreground.isNotBlank() &&
-        foreground != lulu && foreground !in exceptions && !isProtected
+        blockedPackages: Set<String> = emptySet(),
+    ): Boolean = mode in setOf("return", "home") && foreground.isNotBlank() &&
+        foreground != lulu && foreground !in exceptions && !isProtected &&
+        (blockedPackages.isEmpty() || foreground in blockedPackages)
 
     private fun notificationsReady(context: Context): Boolean {
         if (Build.VERSION.SDK_INT >= 33 &&
@@ -86,12 +92,16 @@ internal object LuluStrictMode {
             Intent(context, LuluStrictModeReceiver::class.java)
                 .setAction("lulu.strict.STOP").putExtra("sessionId", id),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        val label = if (value.optString("mode") == "return") "即时切回已启用" else "仅观察应用切换"
+        val label = when (value.optString("mode")) {
+            "return" -> "即时切回露露机"
+            "home" -> "即时返回桌面"
+            else -> "高频观察应用"
+        }
         context.getSystemService(NotificationManager::class.java).notify(
             NOTICE_ID, Notification.Builder(context, CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
                 .setContentTitle("露露机 · 临时强制监督")
-                .setContentText(label + " · 可随时点击结束")
+                .setContentText(label + " · " + value.optString("goal").take(30) + " · 可随时结束")
                 .setOngoing(true).setOnlyAlertOnce(true)
                 .setCategory(Notification.CATEGORY_SERVICE)
                 .addAction(Notification.Action.Builder(
@@ -131,13 +141,17 @@ internal object LuluStrictMode {
         if (action == "adjust" && previous == null)
             return response(false, "inactive", "没有可以调整的监督会话")
         val mode = args.optString("mode", previous?.optString("mode") ?: "observe")
-        if (mode !in setOf("observe", "return"))
-            return response(false, "invalid", "mode 仅支持 observe 或 return")
-        if (mode == "return" && !LuluScreenAwareness.directReturnAllowed(context))
-            return response(false, "denied", "主人未开启直接切回露露机授权")
-        val duration = args.optInt("minutes", 30)
-        if (duration !in 5..120)
-            return response(false, "invalid", "强制模式时长应为5至120分钟")
+        if (mode !in setOf("observe", "return", "home"))
+            return response(false, "invalid", "mode 仅支持 observe/return/home")
+        if (mode != "observe" && !LuluScreenAwareness.directReturnAllowed(context))
+            return response(false, "denied", "主人未开启直接切回授权")
+        val goal = args.optString("goal", previous?.optString("goal").orEmpty()).trim()
+        if (goal.isBlank() || goal.length > 160)
+            return response(false, "invalid", "请由角色提供本次具体监督目标（1至160字）")
+        // The lease is a safety backstop, never evidence of goal completion.
+        val duration = args.optInt("minutes", MAX_LEASE_MINUTES)
+        if (duration !in 5..MAX_LEASE_MINUTES)
+            return response(false, "invalid", "单次安全租约为5至120分钟，角色可再评估后重新开启")
         val exceptions = mutableSetOf<String>()
         val chosen: JSONArray = if (args.has("exceptPackages")) {
             args.optJSONArray("exceptPackages")
@@ -150,17 +164,34 @@ internal object LuluStrictMode {
                 return response(false, "invalid", "例外应用必须是真实包名")
             exceptions.add(pkg)
         }
+        val blocked = mutableSetOf<String>()
+        val blockedArray = if (args.has("blockedPackages")) {
+            args.optJSONArray("blockedPackages")
+                ?: return response(false, "invalid", "blockedPackages 需要应用包名数组")
+        } else previous?.optJSONArray("blockedPackages") ?: JSONArray()
+        if (blockedArray.length() > 32) return response(false, "invalid", "禁止应用不能超过32个")
+        for (index in 0 until blockedArray.length()) {
+            val pkg = blockedArray.optString(index)
+            if (!pkg.matches(Regex("[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)+")))
+                return response(false, "invalid", "禁止应用必须是真实包名")
+            if (LuluScreenAwareness.isExcluded(context, pkg) || pkg == context.packageName)
+                return response(false, "denied", "系统、隐私或露露机自身不能加入禁止应用")
+            blocked.add(pkg)
+        }
         val now = System.currentTimeMillis()
         val session = JSONObject()
             .put("id", previous?.optString("id") ?: UUID.randomUUID().toString())
-            .put("characterId", role).put("mode", mode)
+            .put("characterId", role).put("mode", mode).put("goal", goal)
             .put("startedAt", previous?.optLong("startedAt") ?: now)
             .put("endsAt", minOf(now + duration * 60_000L,
                 (previous?.optLong("startedAt") ?: now) + 120L * 60_000L))
             .put("exceptPackages", JSONArray(exceptions.toList()))
+            .put("blockedPackages", JSONArray(blocked.toList()))
         if (!prefs(context).edit().putString(ACTIVE, session.toString()).commit())
             return response(false, "failed", "无法持久化强制监督会话")
         lastPackage = ""
+        lastObservationAt = 0L
+        lastReturnAttemptAt = 0L
         if (previous == null) prefs(context).edit().putLong("lastReview", 0L).apply()
         showNotice(context, session)
         // Expiry is a local time limit, not a character decision to continue watching.
@@ -172,16 +203,16 @@ internal object LuluStrictMode {
             "lulu-strict-expiry-" + session.optString("id"), ExistingWorkPolicy.REPLACE, expiry)
         writer.execute {
             record(role, "strict-mode-" + session.optString("id") + "-" + now,
-                "角色选定监督方式=" + mode + "；到期=" +
+                "角色目标=" + goal + "；监督方式=" + mode + "；安全租约到期=" +
                     Instant.ofEpochMilli(session.optLong("endsAt")) +
-                    "；例外应用=" + exceptions.joinToString() +
+                    "；禁止应用=" + blocked.joinToString() + "；例外应用=" + exceptions.joinToString() +
                     "。主人可随时退出", EventEvidenceKind.ToolResult)
         }
         return JSONObject().put("success", true).put("status", "active")
             .put("sessionId", session.optString("id"))
-            .put("mode", mode)
+            .put("mode", mode).put("goal", goal)
             .put("endsAt", Instant.ofEpochMilli(session.optLong("endsAt")).toString())
-            .put("summary", "限时监督已启动或调整；尚不代表任何应用已被切回").toString()
+            .put("summary", "目标监督已启动或调整；安全租约到期不代表目标已完成").toString()
     }
 
     fun status(context: Context, role: String): String {
@@ -190,20 +221,31 @@ internal object LuluStrictMode {
             return response(true, "inactive", "本角色当前没有有效强制模式")
         return JSONObject().put("success", true).put("status", "active")
             .put("mode", state.optString("mode"))
+            .put("goal", state.optString("goal"))
+            .put("blockedPackages", state.optJSONArray("blockedPackages") ?: JSONArray())
             .put("endsAt", Instant.ofEpochMilli(state.optLong("endsAt")).toString())
             .put("recent", prefs(context).getString("recent_" + state.optString("id"), "[]"))
             .toString()
     }
 
-    /** Called on AccessibilityService's main thread, before passive event throttling.
-     * This is an app-state event, never a hidden screenshot or per-event LLM call. */
+    /** Window events and ten-second local pulse use the same owner-screen policy.
+     * The model is NOT called for each observation or accessibility event. */
     @Synchronized
     fun onWindowChanged(context: Context, event: AccessibilityEvent) {
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
             event.eventType != AccessibilityEvent.TYPE_WINDOWS_CHANGED) return
         if (Build.VERSION.SDK_INT >= 30 && event.displayId > Display.DEFAULT_DISPLAY) return
+        observeForeground(context, event.packageName?.toString())
+    }
+
+    @Synchronized
+    fun onPulse(context: Context) {
+        observeForeground(context, null)
+    }
+
+    private fun observeForeground(context: Context, expectedPackage: String?) {
         val session = active(context) ?: return
-        if (session.optString("mode") == "return" &&
+        if (session.optString("mode") != "observe" &&
             !LuluScreenAwareness.directReturnAllowed(context)) {
             stop(context, session.optString("id"), "切回授权已撤销")
             return
@@ -216,30 +258,41 @@ internal object LuluStrictMode {
         val power = context.getSystemService(PowerManager::class.java)
         if (keyguard?.isKeyguardLocked != false || power?.isInteractive != true) return
         val foreground = LuluAccessibilityService.ownerForegroundPackage().orEmpty()
-        if (foreground == context.packageName) { lastPackage = ""; return }
-        if (foreground.isBlank() || event.packageName?.toString() != foreground ||
+        if (foreground.isBlank() ||
+            (expectedPackage != null && expectedPackage != foreground) ||
             LuluScreenAwareness.isExcluded(context, foreground)) return
-        // A redraw in the same app is not a new launch.
-        if (lastPackage == foreground) return
+        val now = System.currentTimeMillis()
+        val changed = lastPackage != foreground
+        if (!changed && now - lastObservationAt < LOCAL_SAMPLE_GAP) return
         lastPackage = foreground
-        val exceptions = (session.optJSONArray("exceptPackages") ?: JSONArray()).let { array ->
+        lastObservationAt = now
+        val except = (session.optJSONArray("exceptPackages") ?: JSONArray()).let { array ->
             (0 until array.length()).map { array.optString(it) }.toSet()
         }
-        val doReturn = shouldReturn(session.optString("mode"), foreground,
-            context.packageName, exceptions, false) &&
-            LuluScreenAwareness.directReturnAllowed(context)
-        val accepted = if (doReturn) LuluAccessibilityService.requestLuluForeground(context) else false
+        val blocked = (session.optJSONArray("blockedPackages") ?: JSONArray()).let { array ->
+            (0 until array.length()).map { array.optString(it) }.toSet()
+        }
+        val interrupt = shouldReturn(session.optString("mode"), foreground,
+            context.packageName, except, false, blocked)
+        val attempt = interrupt && (changed || now - lastReturnAttemptAt >= LOCAL_SAMPLE_GAP)
+        if (attempt) lastReturnAttemptAt = now
+        val accepted = when {
+            !attempt -> false
+            session.optString("mode") == "home" ->
+                LuluAccessibilityService.requestOwnerHome()
+            else -> LuluAccessibilityService.requestLuluForeground(context)
+        }
         val id = session.optString("id")
         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
             if (active(context)?.optString("id") != id) return@postDelayed
             val after = LuluAccessibilityService.ownerForegroundPackage().orEmpty()
-            val confirmed = doReturn && accepted && after == context.packageName
-            if (confirmed && lastPackage == foreground) lastPackage = ""
-            val detail = "前台应用=" + foreground + "；监督=" +
-                session.optString("mode") + "；尝试切回=" + accepted +
+            val confirmed = attempt && accepted && after.isNotBlank() && after != foreground &&
+                (session.optString("mode") == "home" || after == context.packageName)
+            val detail = "前台应用=" + foreground + "；目标=" + session.optString("goal") +
+                "；监督=" + session.optString("mode") + "；尝试切回=" + accepted +
                 "；切回后核实=" + after + "；成功=" + confirmed
             writer.execute { storeObservation(context, id, session.optString("characterId"), detail) }
-        }, if (doReturn) 650L else 100L)
+        }, if (attempt) 650L else 100L)
     }
 
     private fun storeObservation(context: Context, id: String, role: String, detail: String) {
@@ -281,6 +334,8 @@ internal object LuluStrictMode {
         if (!prefs(context).edit().remove(ACTIVE)
                 .remove("recent_" + sessionId).commit()) return false
         lastPackage = ""
+        lastObservationAt = 0L
+        lastReturnAttemptAt = 0L
         context.getSystemService(NotificationManager::class.java).cancel(NOTICE_ID)
         WorkManager.getInstance(context.applicationContext)
             .cancelUniqueWork("lulu-strict-review-" + sessionId)
@@ -293,11 +348,17 @@ internal object LuluStrictMode {
         return true
     }
 
+    /** Explicit owner stop revokes future automatic role restarts. */
+    fun ownerStop(context: Context, reason: String = "主人结束强制监督") {
+        LuluScreenAwareness.preferences(context).edit().putBoolean(GRANT, false).commit()
+        stop(context, reason = reason)
+    }
+
     fun restore(context: Context) {
         val value = stored(context)
         if (value.optString("id").isBlank()) return
         if (active(context) == null || !notificationsReady(context) ||
-            (value.optString("mode") == "return" &&
+            (value.optString("mode") != "observe" &&
                 !LuluScreenAwareness.directReturnAllowed(context)))
             stop(context, value.optString("id"), "授权、通知或时限失效")
         else showNotice(context, value)
@@ -305,16 +366,20 @@ internal object LuluStrictMode {
 
     fun modelContext(context: Context, role: String): String {
         if (role.startsWith("resident:")) return ""
-        return "【临时强制模式】主人单独授权=" + ownerGranted(context) +
+        return "【角色自主目标监督】主人授权=" + ownerGranted(context) +
             "；直接切回授权=" + LuluScreenAwareness.directReturnAllowed(context) +
-            "；当前本角色状态=" + status(context, role) + "。" +
-            "你可以根据真实情境自主调用 strict_supervision，" +
-            "args={\"action\":\"start\",\"mode\":\"observe\",\"minutes\":30,\"exceptPackages\":[]}。" +
-            "mode=observe 只记录主屏应用变化；mode=return 则让本机在打开普通应用时即时尝试切回露露机；" +
-            "action=adjust 可更换力度或例外包名，stop 停止，status 查询。" +
-            "不会拦截隐私/系统/通话等受保护应用；主人通知栏始终有立即结束按钮。" +
-            "既有五分钟感知继续；新应用变化可能额外唤醒你一次（最短约两分钟），由你决定发消息、" +
-            "再次查看证据、调整规则或保持安静。切回请求不等于已切回，旧记录不等于当前结果。"
+            "；本角色状态=" + status(context, role) + "。" +
+            "strict_supervision 支持 start/adjust/stop/status；start 必须提供真实具体 goal，" +
+            "mode=observe 只观察；mode=return 切回露露机；mode=home 返回手机桌面。" +
+            "可选 blockedPackages 为需限制的普通 App 包名数组，留空时所有非例外普通 App 都会切回；" +
+            "exceptPackages 为不拦截名单。由你依实际目标选择，不预设用户任何应用违规。" +
+            "你可决定何时停止或重新启动；安全租约默认最多120分钟，并不代表任务完成。" +
+            "目标确证达成后主动 stop，未证实可继续或安排稍后复查。" +
+            "已获得授权时本机约10秒检查前台应用、约20秒交同一角色模型复议（系统后台可能延迟），" +
+            "不是每10秒截图或付费；锁屏、无回复并不能证明睡着。" +
+            "这里只能切换前台，不能真正强停或系统级锁死第三方 App；" +
+            "系统/支付/通话/隐私应用受保护，主人可从设置或通知随时关闭并撤销未来重启权。" +
+            "操作成功需新证据验证，旧回执不能充当现在的状态。"
     }
 }
 
@@ -322,12 +387,8 @@ class LuluStrictModeReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == "lulu.strict.STOP") {
             val id = intent.getStringExtra("sessionId").orEmpty()
-            if (id.isNotBlank() &&
-                LuluStrictMode.stop(context, id, "主人从通知栏主动停止")) {
-                // An explicit STOP also revokes future auto-restarts by the role.
-                LuluScreenAwareness.preferences(context).edit()
-                    .putBoolean(LuluStrictMode.GRANT, false).commit()
-            }
+            if (id.isNotBlank() && LuluStrictMode.active(context)?.optString("id") == id)
+                LuluStrictMode.ownerStop(context, "主人从通知栏主动停止")
         }
     }
 }
@@ -353,7 +414,7 @@ class LuluStrictReviewWorker(context: Context, params: WorkerParameters) :
                 source = "strict-mode", evidenceKind = EventEvidenceKind.Observation,
                 triggerExtraction = false)
             ProactivePerceptionRuntime.runDueCycle(applicationContext,
-                "强制模式有新的真实前台应用记录与切回结果，请由本人决定是否联系主人、继续观察、调整监督或沉默",
+                "目标监督本次真实应用证据不是入睡或专注成果证明。请本人决定是否达成、继续、改变力度、结束或安排稍后复查，不要仅凭无回复结案",
                 targetCharacterId = role, force = true)
             Result.success()
         }.getOrElse { Result.retry() }
