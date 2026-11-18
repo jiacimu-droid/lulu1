@@ -1,5 +1,11 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+## 2026-11-18 · G-03.5 · 藏宝馆实际行选择与出售接通（CI/设备待验）
+
+- 正式 `RelicVaultPage` 旧版仅用物品 ID 保存选择与确认出售；重复 ID 的两件实物无法分别点选，且经大厅仍调用按 ID 卖第一件。现以原始 vault 索引+实物快照保存列表选择/待确认出售，跨 `RelicEscapeLobby` 到 `RelicEscapeScreen` 调用既有 `RelicEscapeLedger.sellLootAt(index,item)`，过期行由账本拒绝，不新造奖励。三处生产提交 `82d8b395`、`1bbf6ae4`、`7b39e9fa`；沿用已有 `RelicVaultPersistenceTest.museumRowSelectionSellsSecondDuplicateAndRejectsStaleTapAfterReload`，不重复增加同一账本测试。
+- 待验：`game` push 对应 JVM/APK（连接器当前仅提供 PR runs，不能据空结果判断无 CI）；Redmi 横屏在同 ID 不同价值馆藏中选择第二件、确认出售、列表刷新、返回再进、帧率/美术。下一文件 `RelicVaultPage.kt` 进行 Compose 点击回归与真实设备截图。
+
+
 ## 2026-11-18 · G-03.5 · 地面同 ID 实物按实际触点拾取（源码/回归已提交，CI 待验）
 
 - 根因：上一轮修正同 ID 实物只删除一件，但正式背包「拾取」按钮仍仅传 `loot.id`；同 ID 旧档的两件地面物分处邻格时，点击第二件仍会拾起第一件，可能拿错价值/重量。正式 `RelicEscapeScreen.kt` 现在传入所点击地面实体坐标，`RelicEscapeRules.act("pickup")` 优先匹配同 ID、同位置且邻近的真实物件；保留旧调用者未指定目标时的邻近兼容行为。没有增加奖励、移动或角色决策。
