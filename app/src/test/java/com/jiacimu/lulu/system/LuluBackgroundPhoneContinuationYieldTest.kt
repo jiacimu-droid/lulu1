@@ -11,6 +11,16 @@ import org.json.JSONObject
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class LuluBackgroundPhoneContinuationYieldTest {
+    @Test fun phoneActionReceiptsStayDistinctBeyondFormerTwelveStepCutoff() {
+        val ids = (1L..128L).map { ordinal ->
+            LuluBackgroundPhoneContinuation.stepRequestId("owner-task", ordinal)
+        }
+        assertTrue(ids.distinct().size == ids.size)
+        assertTrue(ids[11] == "owner-task-phone-12")
+        assertTrue(ids[12] == "owner-task-phone-13")
+        assertTrue(ids.last() == "owner-task-phone-128")
+    }
+
     @Test fun visualWechatPreSendFailurePermitsOnlySafeReinspection() {
         assertTrue(LuluBackgroundPhoneContinuation.mayRecoverUnsentChat(
             JSONObject().put("errorCode", "visual_chat_draft_or_send_unverified")
