@@ -67,6 +67,51 @@ class CharacterSoloWorldPlayTest {
         assertEquals(beforeOwner,owner.all.toMap())
     }
 
+    @Test fun soloRelicUsesRealRangedWeaponReachInsteadOfBladeOnlyRadius() {
+        val executor = CharacterSoloWorldPlay(context)
+        val initial = RelicEscapeWorld.create(402, 1, emptyList(), 1, 1)
+        val enemy = initial.mobs.first().copy(x = 4, y = 7, hp = 8, windup = true)
+        val board = initial.copy(
+            hero = initial.hero.copy(x = 4, y = 4),
+            tiles = List(initial.w * initial.h) { 0 },
+            seen = (0 until initial.w * initial.h).toSet(),
+            mobs = listOf(enemy), chests = emptyList(), sites = emptyList(),
+            equipped = "bow", weapons = setOf("blade", "bow"), bolts = 5,
+        )
+        assertTrue(RelicArsenal.canHit(board, enemy.x, enemy.y))
+        assertEquals("attack", executor.chooseRelic(board, "treasure")?.first)
+        // Three tiles away cannot be struck by a starter blade.
+        assertFalse(RelicArsenal.canHit(board.copy(equipped = "blade"), enemy.x, enemy.y))
+        assertNotEquals("attack",
+            executor.chooseRelic(board.copy(equipped = "blade"), "treasure")?.first)
+    }
+
+    @Test fun soloRelicCarriesRealLootTowardVisibleExitWithoutCrossingAcid() {
+        val executor = CharacterSoloWorldPlay(context)
+        val initial = RelicEscapeWorld.create(403, 1, emptyList(), 1, 1)
+        val treasure = RelicLoot("earned-before-extraction", "月银胸针", RelicTier.COMMON, 90)
+        val board = initial.copy(
+            hero = initial.hero.copy(x = 4, y = 4, bag = listOf(treasure)),
+            tiles = List(initial.w * initial.h) { index ->
+                if (index == initial.index(5, 4)) 2 else 0
+            },
+            seen = (0 until initial.w * initial.h).toSet(),
+            exitX = 7, exitY = 4,
+            mobs = emptyList(), chests = emptyList(), sites = emptyList(),
+        )
+        val exit = requireNotNull(RelicObjectiveGuide.visibleExit(board))
+        val knownPath = requireNotNull(RelicObjectiveGuide.knownRouteTiles(board, exit))
+        assertTrue(knownPath.size > 1)
+        val choice = requireNotNull(executor.chooseRelic(board, "safe"))
+        assertEquals("sneak", choice.first)
+        assertEquals(knownPath[1], choice.second)
+        assertNotEquals(5 to 4, choice.second)
+        assertEquals(0, board.hero.bag.count { it.id in initial.secured.map { loot -> loot.id } })
+        val nearExit = board.copy(exitX = 5, exitY = 4,
+            tiles = List(initial.w * initial.h) { 0 })
+        assertEquals("extract", executor.chooseRelic(nearExit, "safe")?.first)
+    }
+
     @Test fun invalidFocusAndTurnBudgetCannotChangePersonalSave() {
         val executor=CharacterSoloWorldPlay(context)
         val id="solo-invalid-settings"
