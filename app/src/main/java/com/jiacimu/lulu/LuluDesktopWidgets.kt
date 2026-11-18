@@ -54,8 +54,9 @@ import org.json.JSONObject
  */
 /** Full desktop pages use near-square cells rather than stretching four rows over a tall screen. */
 internal const val LULU_DESKTOP_CELL_ASPECT = 1.04f
-internal fun luluDesktopFullCellHeight(viewportWidth: Float, viewportHeight: Float): Float =
-    minOf(viewportHeight / 4f, viewportWidth / 4f * LULU_DESKTOP_CELL_ASPECT)
+internal fun luluDesktopFullCellHeight(viewportWidth: Float, viewportHeight: Float, rows: Int = 4): Float =
+    minOf(viewportHeight / rows.coerceAtLeast(1).toFloat(),
+        viewportWidth / 4f * LULU_DESKTOP_CELL_ASPECT)
         .coerceAtLeast(0f)
 
 internal enum class LuluWidgetKind(val code: String, val title: String, val columns: Int, val rows: Int) {
@@ -149,11 +150,11 @@ internal fun luluWidgetFits(
     launcherSlots: List<String?>,
 ): Boolean {
     if (candidate.page < 1 || candidate.col < 0 || candidate.row < 0 ||
-        candidate.columns !in 1..4 || candidate.rows !in 1..4 ||
-        candidate.col + candidate.columns > 4 || candidate.row + candidate.rows > 4) return false
+        candidate.columns !in 1..4 || candidate.rows !in 1..8 ||
+        candidate.col + candidate.columns > 4 || candidate.row + candidate.rows > 8) return false
     for (y in candidate.row until candidate.row + candidate.rows) {
         for (x in candidate.col until candidate.col + candidate.columns) {
-            if (launcherSlots.getOrNull(candidate.page * 16 + y * 4 + x) != null) return false
+            if (launcherSlots.getOrNull(desktopSlotIndex(candidate.page, y, x)) != null) return false
         }
     }
     return widgets.none { other ->
@@ -174,7 +175,7 @@ internal fun luluPlaceWidget(
     val first = startPage.coerceAtLeast(1)
     val last = maxOf(first + 2, widgets.maxOfOrNull { it.page }?.plus(2) ?: 2)
     for (page in first..last) {
-        for (y in 0..4 - kind.rows) for (x in 0..4 - kind.columns) {
+        for (y in 0..8 - kind.rows) for (x in 0..4 - kind.columns) {
             val candidate = LuluDesktopWidget(
                 id = UUID.randomUUID().toString(), kind = kind,
                 page = page, col = x, row = y, sign = sign,
@@ -547,14 +548,14 @@ internal fun LuluDesktopWidgetCanvas(
     BoxWithConstraints(modifier.pointerInput(page, widgets, launcherSlots) {
         detectTapGestures(onLongPress = { p ->
             val x = (p.x / (size.width / 4f)).toInt().coerceIn(0, 3)
-            val rowHeight = luluDesktopFullCellHeight(size.width.toFloat(), size.height.toFloat())
+            val rowHeight = luluDesktopFullCellHeight(size.width.toFloat(), size.height.toFloat(), 8)
             val y = if (rowHeight > 0f) (p.y / rowHeight).toInt() else 4
             // Empty space below the four-row grid is still desktop; long-press
             // opens the picker without falsely selecting a clamped last-row icon.
-            if (y !in 0..3) {
+            if (y !in 0..7) {
                 onBlankLongPress()
             } else {
-                val occupiedByIcon = launcherSlots.getOrNull(page * 16 + y * 4 + x) != null
+                val occupiedByIcon = launcherSlots.getOrNull(desktopSlotIndex(page, y, x)) != null
                 val occupiedByWidget = widgets.any {
                     it.page == page && x in it.col until it.col + it.columns &&
                         y in it.row until it.row + it.rows
@@ -564,7 +565,7 @@ internal fun LuluDesktopWidgetCanvas(
         })
     }) {
         val cellWidth = maxWidth / 4
-        val cellHeight = minOf(maxHeight / 4, cellWidth * LULU_DESKTOP_CELL_ASPECT)
+        val cellHeight = minOf(maxHeight / 8, cellWidth * LULU_DESKTOP_CELL_ASPECT)
         widgets.filter { it.page == page }.forEach { widget ->
             key(widget.id) {
                 LuluDesktopWidgetCard(
