@@ -79,8 +79,36 @@ private val DesktopV2Launchers = listOf(
 )
 
 private const val DESKTOP_COLUMNS = 4
-private const val DESKTOP_ROWS = 4
+private const val DESKTOP_HOME_ROWS = 4
+private const val DESKTOP_ROWS = 8
+private const val DESKTOP_HOME_SLOT_COUNT = DESKTOP_COLUMNS * DESKTOP_HOME_ROWS
 private const val DESKTOP_SLOT_COUNT = DESKTOP_COLUMNS * DESKTOP_ROWS
+
+/** Dashboard 4x4; subsequent full canvas pages 4x8. */
+internal fun desktopPageStart(page: Int): Int =
+    if (page <= 0) 0 else DESKTOP_HOME_SLOT_COUNT + (page - 1) * DESKTOP_SLOT_COUNT
+internal fun desktopPageForSlot(slot: Int): Int =
+    if (slot < DESKTOP_HOME_SLOT_COUNT) 0
+    else 1 + (slot - DESKTOP_HOME_SLOT_COUNT) / DESKTOP_SLOT_COUNT
+internal fun desktopPageRows(page: Int): Int = if (page == 0) DESKTOP_HOME_ROWS else DESKTOP_ROWS
+internal fun desktopSlotIndex(page: Int, row: Int, col: Int): Int =
+    desktopPageStart(page) + row * DESKTOP_COLUMNS + col
+internal fun desktopStoredPageCount(slotCount: Int): Int =
+    if (slotCount <= DESKTOP_HOME_SLOT_COUNT) 1
+    else 1 + (slotCount - DESKTOP_HOME_SLOT_COUNT + DESKTOP_SLOT_COUNT - 1) / DESKTOP_SLOT_COUNT
+
+/** Migrate legacy 4x4 page icons without changing visible row or column. */
+internal fun desktopMigrateLegacySlots(legacy: List<String?>): List<String?> {
+    val pages = maxOf(2, (legacy.size + DESKTOP_HOME_SLOT_COUNT - 1) / DESKTOP_HOME_SLOT_COUNT)
+    val result = MutableList<String?>(desktopPageStart(pages)) { null }
+    legacy.forEachIndexed { i, id ->
+        if (id != null) result[desktopSlotIndex(
+            i / DESKTOP_HOME_SLOT_COUNT,
+            (i % DESKTOP_HOME_SLOT_COUNT) / DESKTOP_COLUMNS,
+            i % DESKTOP_COLUMNS)] = id
+    }
+    return result
+}
 
 /** One shared layout for local and cross-page drag; moving to an empty slot leaves a hole. */
 internal fun desktopMoveLauncher(slots: List<String?>, from: Int, to: Int): List<String?> {
@@ -89,7 +117,7 @@ internal fun desktopMoveLauncher(slots: List<String?>, from: Int, to: Int): List
     updated[from] = slots[to]
     updated[to] = slots[from]
     val lastOccupied = updated.indexOfLast { it != null } + 1
-    val wanted = desktopAllocatedPageCount(maxOf(DESKTOP_SLOT_COUNT, lastOccupied)) * DESKTOP_SLOT_COUNT
+    val wanted = desktopPageStart(desktopAllocatedPageCount(maxOf(DESKTOP_HOME_SLOT_COUNT, lastOccupied)))
     return if (wanted <= updated.size) updated.take(wanted)
         else updated + List<String?>(wanted - updated.size) { null }
 }
@@ -97,7 +125,7 @@ internal fun desktopMoveLauncher(slots: List<String?>, from: Int, to: Int): List
 
 // 至少保留一张空白桌面页；如果最后一张已经放了应用，就预留下一张。
 internal fun desktopAllocatedPageCount(neededSlots: Int): Int =
-    maxOf(2, (neededSlots + DESKTOP_SLOT_COUNT - 1) / DESKTOP_SLOT_COUNT + 1)
+    maxOf(2, desktopPageForSlot(maxOf(neededSlots - 1, 0)) + 2)
 
 // Resolve colors inside each composable, from the chosen desktop recipe.
 private val DesktopPaper: Color @Composable get() = MaterialTheme.colorScheme.background
@@ -202,7 +230,7 @@ internal fun MigrationHomeV2(
     }
 
     val pageCount = maxOf(
-        slots.size / DESKTOP_SLOT_COUNT,
+        desktopStoredPageCount(slots.size),
         (widgets.maxOfOrNull { it.page } ?: 0) + 2,
     )
     val pagerState = rememberPagerState(pageCount = { pageCount })
@@ -227,7 +255,7 @@ internal fun MigrationHomeV2(
             ) {
                 // The pager owns the ENTIRE desktop content, not only the last 4x4
                 // icon grid. Page 0 is the familiar companion dashboard; subsequent
-                // pages each receive their own independent full-height 4x4 grid.
+                // pages have the full 4x8 canvas, with usable lower cells.
                 BoxWithConstraints(
                     Modifier.fillMaxWidth().weight(1f)
                         .onGloballyPositioned {
@@ -243,17 +271,18 @@ internal fun MigrationHomeV2(
                                 if (page == 0) homeGridTopInWindow - viewportTopInWindow else 0f
                             fun gridHeight(page: Int): Float =
                                 if (page == 0) homeGridHeightPx else
-                                    4f * luluDesktopFullCellHeight(
-                                        size.width.toFloat(), size.height.toFloat(),
+                                    DESKTOP_ROWS.toFloat() * luluDesktopFullCellHeight(
+                                        size.width.toFloat(), size.height.toFloat(), DESKTOP_ROWS,
                                     )
                             fun slotAt(position: Offset, page: Int): Int? {
                                 val top = gridTop(page)
                                 val height = gridHeight(page)
                                 if (height <= 0f || position.y < top || position.y >= top + height) return null
-                                val cellHeight = height / DESKTOP_ROWS
-                                val row = ((position.y - top) / cellHeight).toInt().coerceIn(0, DESKTOP_ROWS - 1)
+                                val rows = desktopPageRows(page)
+                                val cellHeight = height / rows
+                                val row = ((position.y - top) / cellHeight).toInt().coerceIn(0, rows - 1)
                                 val col = (position.x / cellWidth).toInt().coerceIn(0, DESKTOP_COLUMNS - 1)
-                                return page * DESKTOP_SLOT_COUNT + row * DESKTOP_COLUMNS + col
+                                return desktopSlotIndex(page, row, col)
                             }
 
                             detectDragGesturesAfterLongPress(
@@ -261,9 +290,10 @@ internal fun MigrationHomeV2(
                                     val page = pagerState.currentPage
                                     val source = slotAt(start, page)
                                     if (source != null && slots.getOrNull(source) != null) {
-                                        val row = (source % DESKTOP_SLOT_COUNT) / DESKTOP_COLUMNS
-                                        val col = source % DESKTOP_COLUMNS
-                                        val height = gridHeight(page) / DESKTOP_ROWS
+                                        val local = source - desktopPageStart(page)
+                                        val row = local / DESKTOP_COLUMNS
+                                        val col = local % DESKTOP_COLUMNS
+                                        val height = gridHeight(page) / desktopPageRows(page)
                                         if (start.y - gridTop(page) - row * height <= iconHeightPx) {
                                             draggingSource = source
                                             dragPosition = start
@@ -276,7 +306,7 @@ internal fun MigrationHomeV2(
                                     } else if (source != null) {
                                         val x = (start.x / cellWidth).toInt().coerceIn(0, 3)
                                         val y = ((start.y - gridTop(page)) /
-                                            (gridHeight(page) / DESKTOP_ROWS)).toInt().coerceIn(0, 3)
+                                            (gridHeight(page) / desktopPageRows(page))).toInt().coerceIn(0, desktopPageRows(page) - 1)
                                         widgets.firstOrNull { w ->
                                             w.page == page && x in w.col until w.col + w.columns &&
                                                 y in w.row until w.row + w.rows
@@ -286,7 +316,7 @@ internal fun MigrationHomeV2(
                                             dragGrabOffset = Offset(
                                                 start.x - w.col * cellWidth,
                                                 start.y - gridTop(page) -
-                                                    w.row * gridHeight(page) / DESKTOP_ROWS,
+                                                    w.row * gridHeight(page) / desktopPageRows(page),
                                             )
                                             edgePageHandled = -1
                                         }
@@ -314,9 +344,11 @@ internal fun MigrationHomeV2(
                                     draggingSource?.let { from ->
                                         val target = slotAt(dragPosition, pagerState.currentPage)
                                         if (target != null && widgets.none { w ->
-                                            val x = target % DESKTOP_COLUMNS
-                                            val y = (target % DESKTOP_SLOT_COUNT) / DESKTOP_COLUMNS
-                                            w.page == target / DESKTOP_SLOT_COUNT &&
+                                            val destPage = desktopPageForSlot(target)
+                                            val local = target - desktopPageStart(destPage)
+                                            val x = local % DESKTOP_COLUMNS
+                                            val y = local / DESKTOP_COLUMNS
+                                            w.page == destPage &&
                                                 x in w.col until w.col + w.columns &&
                                                 y in w.row until w.row + w.rows
                                         }) {
@@ -332,9 +364,9 @@ internal fun MigrationHomeV2(
                                         val original = widgets.firstOrNull { it.id == id }
                                         if (target != null && original != null) {
                                             val moved = original.copy(
-                                                page = target / DESKTOP_SLOT_COUNT,
-                                                col = target % DESKTOP_COLUMNS,
-                                                row = (target % DESKTOP_SLOT_COUNT) / DESKTOP_COLUMNS,
+                                                page = desktopPageForSlot(target),
+                                                col = (target - desktopPageStart(desktopPageForSlot(target))) % DESKTOP_COLUMNS,
+                                                row = (target - desktopPageStart(desktopPageForSlot(target))) / DESKTOP_COLUMNS,
                                             )
                                             if (luluWidgetFits(moved, widgets, slots)) {
                                                 val updated = widgets.map { if (it.id == id) moved else it }
@@ -460,7 +492,7 @@ internal fun MigrationHomeV2(
                                         },
                                 ) {
                                     DesktopLauncherGrid(
-                                        slots = slots.take(DESKTOP_SLOT_COUNT),
+                                        slots = slots.take(DESKTOP_HOME_SLOT_COUNT),
                                         modifier = Modifier.fillMaxSize(),
                                         draggedLauncherId = draggingSource?.let(slots::get),
                                         onOpen = onOpen,
@@ -494,7 +526,7 @@ internal fun MigrationHomeV2(
                                 // Draw the launchers over the widget canvas: transparent
                                 // background long-press handling must not steal icon taps.
                                 DesktopLauncherGrid(
-                                    slots = slots.drop(page * DESKTOP_SLOT_COUNT).take(DESKTOP_SLOT_COUNT),
+                                    slots = slots.drop(desktopPageStart(page)).take(DESKTOP_SLOT_COUNT),
                                     modifier = Modifier.fillMaxSize(),
                                     draggedLauncherId = draggingSource?.let(slots::get),
                                     onOpen = onOpen,
@@ -510,7 +542,7 @@ internal fun MigrationHomeV2(
                     }?.let { active ->
                         val activePage = pagerState.currentPage
                         val cellHeight = if (activePage == 0) {
-                            with(density) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
+                            with(density) { (homeGridHeightPx / DESKTOP_HOME_ROWS).toDp() }
                         } else minOf(
                             desktopViewportHeight / DESKTOP_ROWS,
                             cellWidth * LULU_DESKTOP_CELL_ASPECT,
@@ -534,7 +566,7 @@ internal fun MigrationHomeV2(
                         widgets.firstOrNull { it.id == id }?.let { w ->
                             val cellWidth = desktopViewportWidth / DESKTOP_COLUMNS
                             val cellHeight = if (pagerState.currentPage == 0) {
-                                with(LocalDensity.current) { (homeGridHeightPx / DESKTOP_ROWS).toDp() }
+                                with(LocalDensity.current) { (homeGridHeightPx / DESKTOP_HOME_ROWS).toDp() }
                             } else minOf(
                                 desktopViewportHeight / DESKTOP_ROWS,
                                 cellWidth * LULU_DESKTOP_CELL_ASPECT,
@@ -575,9 +607,9 @@ internal fun MigrationHomeV2(
                 if (LuluDesktopWidgetStore.save(context, next)) {
                     widgets = next
                     // A widget page remains a first-class desktop page for later icon moves.
-                    if (slots.size < (fresh.page + 1) * DESKTOP_SLOT_COUNT) {
+                    if (slots.size < desktopPageStart(fresh.page + 1)) {
                         slots = slots + List<String?>(
-                            (fresh.page + 1) * DESKTOP_SLOT_COUNT - slots.size,
+                            desktopPageStart(fresh.page + 1) - slots.size,
                         ) { null }
                         saveDesktopSlots(context, slots)
                     }
@@ -783,7 +815,7 @@ private fun DesktopLauncherGrid(
         val cellWidth = maxWidth / DESKTOP_COLUMNS
         val cellHeight = if (fullPageGrid)
             minOf(maxHeight / DESKTOP_ROWS, cellWidth * LULU_DESKTOP_CELL_ASPECT)
-            else maxHeight / DESKTOP_ROWS
+            else maxHeight / DESKTOP_HOME_ROWS
         slots.forEachIndexed { index, launcherId ->
             val launcher = DesktopV2Launchers.firstOrNull { it.id == launcherId } ?: return@forEachIndexed
             val column = index % DESKTOP_COLUMNS
@@ -792,7 +824,7 @@ private fun DesktopLauncherGrid(
                 launcher = launcher,
                 modifier = Modifier.width(cellWidth).height(cellHeight)
                     .offset { IntOffset((cellWidth * column).roundToPx(), (cellHeight * row).roundToPx()) }
-                    .padding(top = if (fullPageGrid) 13.dp else 0.dp)
+                    .padding(top = if (fullPageGrid) 2.dp else 0.dp)
                     .graphicsLayer { alpha = if (launcherId == draggedLauncherId) 0f else 1f },
                 onClick = { onOpen(launcher.route) },
             )
@@ -844,46 +876,42 @@ private fun DesktopV2Avatar(text: String, size: Int, imageUri: String? = null, m
 
 private fun loadDesktopSlots(context: Context): List<String?> {
     val known = DesktopV2Launchers.mapTo(mutableSetOf()) { it.id }
-    val raw = context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
-        .getString("slots_v1", null)
+    val prefs = context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
+    val upgraded = prefs.contains("slots_v2")
+    val raw = prefs.getString(if (upgraded) "slots_v2" else "slots_v1", null)
     val saved = raw?.split('|')
         ?.map { value -> value.takeIf(String::isNotBlank) }
         ?.map { id -> id?.takeIf { it in known } }
-        ?.toMutableList()
-        ?: mutableListOf()
-    // 旧版只有一页 16 格；新版按页扩：已有格子保持原位，新应用往后排进空位，
-    // 格子不够就加一页，绝不丢应用。位置以最远已有格子为准，避免后页应用被裁掉。
-    val existing = saved.filterNotNull().toMutableSet()
-    val missing = DesktopV2Launchers.filterNot { it.id in existing }
-    // An upgrade can add more apps after the owner installed widgets. New
-    // launchers must never silently spawn underneath those saved widgets.
+        .orEmpty()
+    val positioned = if (upgraded) saved else desktopMigrateLegacySlots(saved)
     val widgetCells = LuluDesktopWidgetStore.load(context).flatMap { widget ->
         (widget.row until widget.row + widget.rows).flatMap { row ->
             (widget.col until widget.col + widget.columns).map { col ->
-                widget.page * DESKTOP_SLOT_COUNT + row * DESKTOP_COLUMNS + col
+                desktopSlotIndex(widget.page, row, col)
             }
         }
     }.toSet()
-    val lastOccupied = saved.indexOfLast { it != null }
-    val totalNeeded = maxOf(
-        maxOf(existing.size + missing.size + widgetCells.size,
-            DESKTOP_SLOT_COUNT, lastOccupied + 1),
-        (widgetCells.maxOrNull() ?: -1) + 1,
-    )
-    val pageCount = desktopAllocatedPageCount(totalNeeded)
-    val sized = MutableList<String?>(pageCount * DESKTOP_SLOT_COUNT) { null }
-    saved.take(sized.size).forEachIndexed { index, id -> sized[index] = id }
-    missing.forEach { launcher ->
-        val empty = sized.indices.firstOrNull { sized[it] == null && it !in widgetCells } ?: -1
-        if (empty >= 0) sized[empty] = launcher.id
+    val lastOccupied = maxOf(positioned.indexOfLast { it != null }, widgetCells.maxOrNull() ?: -1)
+    val required = maxOf(DESKTOP_HOME_SLOT_COUNT, lastOccupied + 1,
+        known.size + widgetCells.size)
+    val sized = MutableList<String?>(desktopPageStart(desktopAllocatedPageCount(required))) { null }
+    positioned.take(sized.size).forEachIndexed { index, id -> sized[index] = id }
+    val existing = sized.filterNotNull().toSet()
+    DesktopV2Launchers.filterNot { it.id in existing }.forEach { launcher ->
+        var empty = sized.indices.firstOrNull { sized[it] == null && it !in widgetCells }
+        if (empty == null) {
+            empty = sized.size
+            repeat(DESKTOP_SLOT_COUNT) { sized.add(null) }
+        }
+        sized[empty] = launcher.id
     }
-    // 不丢弃最后一张空白桌面；保存的历史位置仍保持不变。
+    if (!upgraded) saveDesktopSlots(context, sized)
     return sized
 }
 
 private fun saveDesktopSlots(context: Context, slots: List<String?>) {
     context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
         .edit()
-        .putString("slots_v1", slots.joinToString("|") { it.orEmpty() })
+        .putString("slots_v2", slots.joinToString("|") { it.orEmpty() })
         .apply()
 }
