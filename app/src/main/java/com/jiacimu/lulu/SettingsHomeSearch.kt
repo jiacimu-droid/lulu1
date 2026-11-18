@@ -68,7 +68,7 @@ internal val settingsHomeEntries: List<SettingsHomeEntry> = listOf(
     SettingsHomeEntry(
         "wishes", "社区与支持", "许愿",
         "分享想要的功能与体验建议",
-        "提建议 反馈 建议 功能需求 意见 许愿 GitHub Issues",
+        "提建议 反馈 建议 功能需求 意见 许愿 邮箱 邮件",
     ),
     SettingsHomeEntry(
         "donate", "社区与支持", "打赏作者",
