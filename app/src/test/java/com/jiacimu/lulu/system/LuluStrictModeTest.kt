@@ -51,6 +51,31 @@ class LuluStrictModeTest {
         assertFalse(LuluStrictMode.shouldReturn("return", "", lulu, emptySet(), false))
     }
 
+    @Test fun highIntensityIsLocalAndBoundedBySeparatePaidReviewGap() {
+        assertEquals(10_000L, LuluStrictMode.LOCAL_SAMPLE_GAP)
+        assertEquals(20_000L, LuluStrictMode.REVIEW_GAP)
+        assertTrue(LuluStrictMode.REVIEW_GAP > LuluStrictMode.LOCAL_SAMPLE_GAP)
+    }
+
+    @Test fun blockedAppsAndHomeModeRespectExplicitExceptions() {
+        val lulu = "com.jiacimu.lulu"
+        val video = "com.ss.android.ugc.aweme"
+        val study = "com.reader.books"
+        val blocked = setOf(video)
+        assertTrue(LuluStrictMode.shouldReturn("home", video, lulu,
+            emptySet(), false, blocked))
+        assertTrue(LuluStrictMode.shouldReturn("return", video, lulu,
+            emptySet(), false, blocked))
+        assertFalse(LuluStrictMode.shouldReturn("return", study, lulu,
+            emptySet(), false, blocked))
+        assertFalse(LuluStrictMode.shouldReturn("home", video, lulu,
+            setOf(video), false, blocked))
+        assertFalse(LuluStrictMode.shouldReturn("home", video, lulu,
+            emptySet(), true, blocked))
+        assertFalse(LuluStrictMode.shouldReturn("observe", video, lulu,
+            emptySet(), false, blocked))
+    }
+
     @Test fun expiredRevokedAndOtherRolesCannotAdoptStoredSession() {
         val context = app
         val settings = LuluScreenAwareness.preferences(context)
