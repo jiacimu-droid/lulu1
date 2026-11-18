@@ -121,4 +121,24 @@ class GameTeamConversationTimelineTest {
         assertTrue(SharedExperienceTimeline.sessionEvents(
             stranger, "game-session-turtle_soup-" + room).isEmpty())
     }
+
+    @Test fun classicGamesCommitSpokenOwnerAndCharacterLinesToTheirOwnMatch() {
+        val context = RuntimeEnvironment.getApplication() as android.content.Context
+        val actor = "classic-role-" + UUID.randomUUID()
+        for (game in listOf("yacht_dice", "memory_match")) {
+            val room = UUID.randomUUID().toString()
+            assertTrue(GameTeamConversationTimeline.recordOwner(
+                context, game, room, listOf(actor), "我再看看这局的比分", true, "owner-1",
+            ))
+            assertTrue(GameTeamConversationTimeline.recordCompanion(
+                context, game, room, listOf(actor), actor, "我知道你在追分啦", "role-1",
+            ))
+            val actual = SharedExperienceTimeline.sessionEvents(actor, "game-session-" + game + "-" + room)
+            assertEquals(2, actual.size)
+            assertEquals("game-team-owner-stt", actual[0].source)
+            assertEquals("game-team-companion", actual[1].source)
+            assertEquals(EventEvidenceKind.UserStatement, actual[0].evidenceKind)
+            assertEquals(EventEvidenceKind.CharacterStatement, actual[1].evidenceKind)
+        }
+    }
 }
