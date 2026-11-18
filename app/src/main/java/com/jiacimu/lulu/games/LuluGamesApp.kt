@@ -423,7 +423,7 @@ private fun GameHome(
     val suspendedYacht = LuluGames.store.suspendedYachtMatches()
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize().background(Color(0xFF111620)),
+        modifier = Modifier.fillMaxSize().background(Color(0xFFF7F5F0)),
         contentPadding = PaddingValues(start = 14.dp, end = 14.dp, top = 10.dp, bottom = 110.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
@@ -435,21 +435,21 @@ private fun GameHome(
                 Surface(
                     onClick = { onOpen(GameRoute.YachtDice) },
                     modifier = Modifier.fillMaxWidth(),
-                    color = Color(0xFF233A3D),
+                    color = Color(0xFFE2F1EA),
                     shape = RoundedCornerShape(20.dp),
-                    border = BorderStroke(1.dp, Color(0xFF9BE6D8).copy(alpha = .45f)),
+                    border = BorderStroke(1.dp, Color(0xFF315E4D).copy(alpha = .45f)),
                 ) {
                     Row(
                         Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 15.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text("未完待续 · 快艇骰子", color = Color(0xFF9BE6D8),
+                            Text("未完待续 · 快艇骰子", color = Color(0xFF315E4D),
                                 fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             Text("你已完成 $played/13 轮 · ${if (opponentCount == 0) "单人" else "与 $opponentCount 位角色对战"}",
-                                color = Color.White, fontSize = 12.sp)
+                                color = GameDesign.ink, fontSize = 12.sp)
                         }
-                        Text("继续对局 ›", color = Color(0xFF9BE6D8),
+                        Text("继续对局 ›", color = Color(0xFF315E4D),
                             fontWeight = FontWeight.Bold, fontSize = 14.sp)
                     }
                 }
@@ -460,8 +460,8 @@ private fun GameHome(
         }
         if (LuluGameEdition.worldGamesEnabled) item {
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text("合作探索", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Black)
-                Text("持久世界 · 共同战斗 · 实际战利品", color = Color(0xFF8E99AA), fontSize = 10.sp)
+                Text("合作探索", color = GameDesign.ink, fontSize = 18.sp, fontWeight = FontWeight.Black)
+                Text("持久世界 · 共同战斗 · 实际战利品", color = GameDesign.muted, fontSize = 10.sp)
             }
         }
         items(featured, key = { it.id }) { launcher -> GameEntry(launcher, onOpen) }
@@ -469,15 +469,15 @@ private fun GameHome(
             Surface(
                 onClick = { showClassics = !showClassics },
                 modifier = Modifier.fillMaxWidth(),
-                color = Color.White.copy(alpha = .055f),
+                color = Color.White,
                 shape = RoundedCornerShape(18.dp),
-                border = BorderStroke(1.dp, Color.White.copy(alpha = .12f)),
+                border = BorderStroke(1.dp, Color(0xFFDAD5CB)),
             ) {
                 Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.SportsEsports, null, tint = Color(0xFFB9C3D5), modifier = Modifier.size(20.dp))
+                    Icon(Icons.Outlined.SportsEsports, null, tint = GameDesign.muted, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(9.dp))
-                    Text("保留的小游戏 · ${classics.size}", color = Color(0xFFDCE2EE), fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                    Icon(if (showClassics) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, null, tint = Color(0xFF9CA7BA))
+                    Text("保留的小游戏 · ${classics.size}", color = GameDesign.ink, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Icon(if (showClassics) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore, null, tint = GameDesign.muted)
                 }
             }
         }
@@ -496,21 +496,21 @@ private fun ItemYachtResumeCard(
     Surface(
         onClick = { onResumeYacht(paused.id) },
         modifier = Modifier.fillMaxWidth(),
-        color = Color(0xFF24303F),
+        color = Color(0xFFFFFFFF),
         shape = RoundedCornerShape(18.dp),
-        border = BorderStroke(1.dp, Color(0xFF7789A4).copy(alpha = .45f)),
+        border = BorderStroke(1.dp, Color(0xFFCBCBD4).copy(alpha = .45f)),
     ) {
         Row(
             Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text("保留的旧局 · 快艇骰子", color = Color.White, fontSize = 13.sp,
+                Text("保留的旧局 · 快艇骰子", color = GameDesign.ink, fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold)
                 Text("你已完成 $round/13 轮 · ${paused.companionIds.size} 位同行角色",
-                    color = Color(0xFFC5CBD8), fontSize = 11.sp)
+                    color = GameDesign.muted, fontSize = 11.sp)
             }
-            Text("恢复旧局 ›", color = Color(0xFFB8E6DB), fontSize = 12.sp,
+            Text("恢复旧局 ›", color = Color(0xFF427A70), fontSize = 12.sp,
                 fontWeight = FontWeight.Bold)
         }
     }
@@ -520,9 +520,9 @@ private fun ItemYachtResumeCard(
 private fun GameHallHero() {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = Color(0xFF202734),
+        color = Color(0xFFFFF9EF),
         shape = RoundedCornerShape(28.dp),
-        border = BorderStroke(1.dp, Color(0xFF3B4658)),
+        border = BorderStroke(1.dp, Color(0xFFE9DECA)),
         shadowElevation = 8.dp,
     ) {
         Box(
@@ -531,32 +531,31 @@ private fun GameHallHero() {
                 .heightIn(min = 154.dp)
                 .background(
                     Brush.linearGradient(
-                        listOf(Color(0xFF171C27), Color(0xFF293347), Color(0xFF121A26)),
+                        listOf(Color(0xFFFFE9DB), Color(0xFFFFF5E7), Color(0xFFE7F1EC)),
                     ),
                 ),
         ) {
-            ArcadeAtmosphere(Modifier.matchParentSize())
             Column(
                 Modifier.fillMaxWidth().padding(18.dp),
                 verticalArrangement = Arrangement.spacedBy(9.dp),
             ) {
                 Surface(
-                    color = Color.White.copy(alpha = .08f),
+                    color = Color.White.copy(alpha = .72f),
                     shape = RoundedCornerShape(10.dp),
-                    border = BorderStroke(.7.dp, Color.White.copy(alpha = .15f)),
+                    border = BorderStroke(.7.dp, Color(0xFFD9C9B5)),
                 ) {
                     Text(
                         if (LuluGameEdition.worldGamesEnabled) "2 座新世界 · 3 款经典游戏" else "3 款可玩游戏",
-                        color = Color(0xFFD9DFED),
+                        color = Color(0xFF665D54),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
                     )
                 }
-                Text("一起探索，才是真正的游戏", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Black)
+                Text("今天想玩哪一局？", color = GameDesign.ink, fontSize = 24.sp, fontWeight = FontWeight.Black)
                 Text(
-                    if (LuluGameEdition.worldGamesEnabled) "主舞台拥有连续移动、碰撞、镜头、目标与空间音效；角色可加入，但不再强迫双人。" else "海龟汤、记忆配对和快艇骰子，和角色一起体验。",
-                    color = Color(0xFFBBC4D8),
+                    if (LuluGameEdition.worldGamesEnabled) "主舞台拥有连续移动、碰撞、镜头、目标与空间音效；角色可加入，但不再强迫双人。" else "一个人挑战纪录，也能邀请喜欢的人一起玩。",
+                    color = GameDesign.muted,
                     fontSize = 11.sp,
                     lineHeight = 17.sp,
                 )
@@ -877,17 +876,17 @@ private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
         modifier = Modifier.fillMaxWidth().heightIn(min = 132.dp)
             .graphicsLayer { scaleX = scale; scaleY = scale }
             .clickable(interactionSource = interaction, indication = null) { onOpen(launcher.route) },
-        color = Color(0xFF182231),
+        color = Color.White,
         shape = RoundedCornerShape(26.dp),
-        border = BorderStroke(1.dp, launcher.accent.copy(alpha = .38f)),
+        border = BorderStroke(1.dp, launcher.accent.copy(alpha = .14f)),
         shadowElevation = if (pressed) 2.dp else 8.dp,
     ) {
         Box(
             Modifier.fillMaxWidth().background(
                 Brush.horizontalGradient(listOf(
-                    launcher.accent.copy(alpha = .29f),
-                    Color(0xFF1A2534),
-                    Color(0xFF101824),
+                    launcher.accent.copy(alpha = .15f),
+                    Color(0xFFFFFDFB),
+                    Color.White,
                 )),
             ),
         ) {
@@ -900,7 +899,7 @@ private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
             )
             Icon(
                 launcher.icon, null,
-                tint = launcher.accent.copy(alpha = .11f),
+                tint = launcher.accent.copy(alpha = .10f),
                 modifier = Modifier.align(Alignment.CenterEnd).offset(x = 11.dp).size(128.dp),
             )
             Row(Modifier.fillMaxWidth().padding(16.dp),
@@ -916,16 +915,16 @@ private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
                 }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(tag, color = launcher.accent, fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                    Text(launcher.title, color = Color.White, fontSize = 21.sp,
+                    Text(launcher.title, color = GameDesign.ink, fontSize = 21.sp,
                         fontWeight = FontWeight.Black)
-                    Text(launcher.subtitle, color = Color(0xFFCBD5E2), fontSize = 11.sp,
+                    Text(launcher.subtitle, color = GameDesign.muted, fontSize = 11.sp,
                         lineHeight = 17.sp, maxLines = 2)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             if (launcher.minCharacters == 0) "单人或同行"
                             else if (launcher.maxCharacters > 1) "多人一起玩"
-                            else "双人合作",
-                            color = Color(0xFF9EADBF), fontSize = 10.sp,
+                            else "双人游玩",
+                            color = GameDesign.muted, fontSize = 10.sp,
                             modifier = Modifier.weight(1f),
                         )
                         Text("开始玩", color = launcher.accent, fontSize = 12.sp,
