@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:26:42.874872+00:00",
-  "commit": "410cbf52c5f32829956e0c65ea2d7cdd83003c9e",
+  "generatedAt": "2026-11-18T11:28:05.180843+00:00",
+  "commit": "47241327dd9c7a4f1f729f0a3938f5cfe8100e39",
   "branch": "main",
-  "sourceFingerprint": "c6918f4e8783e04130caca8700782f26f981bf8353143c0fc5b08f4ab2bcd7b2",
+  "sourceFingerprint": "84a7c3bb5ab0ebdd69c23da592b23f93546f1a1ffbe624cd209558060f439530",
   "summary": {
     "files": 1465,
-    "lines": 310527,
+    "lines": 310617,
     "symbols": 4422
   },
   "symbolIndex": {
@@ -3215,7 +3215,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-        "line": 422
+        "line": 491
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -6579,7 +6579,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-        "line": 408
+        "line": 477
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -32723,16 +32723,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-      "lines": 507,
-      "sha256": "621580959e2f501344c8fb7dc63a91344d022020661bb2a27b15d1c1ed5094a6",
+      "lines": 576,
+      "sha256": "8a3b10975dba9581b39094f3441f8aadb5ce790f10421618b66cf15d94c818d8",
       "symbols": [
         {
           "name": "normalize",
-          "line": 408
+          "line": 477
         },
         {
           "name": "normalized",
-          "line": 422
+          "line": 491
         }
       ]
     },
@@ -48346,8 +48346,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DailyCommitmentRecurrenceTest.kt",
-      "lines": 345,
-      "sha256": "6fa7f1243c523d0ae1600cdf78f826fb46df52e197e0f86a5ce72c098c57d139",
+      "lines": 366,
+      "sha256": "f5675033852c2ae33dbcae8b250a43b43d9e9b77551dbe82b606acaa2cca724a",
       "symbols": [
         {
           "name": "DailyCommitmentRecurrenceTest",
