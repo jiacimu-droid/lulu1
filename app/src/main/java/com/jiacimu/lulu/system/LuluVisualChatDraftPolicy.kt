@@ -75,7 +75,9 @@ internal object LuluVisualChatDraftPolicy {
                 r.centerY in (b.centerY - height * 19 / 100)..(b.centerY + height * 5 / 100)
         }.sortedWith(compareBy({ it.bounds.top }, { it.bounds.left }))
             .joinToString("") { normalize(it.text) }
-        // A substring is not proof that the editor contains exactly this draft.\n        // Otherwise a longer stale/quoted message could authorize Send.\n        if (draft != normalize(message)) return null
+        // A substring is not proof that the editor contains exactly this draft.
+        // Otherwise a longer stale/quoted message could authorize Send.
+        if (draft != normalize(message)) return null
         return Proof(
             (b.centerX * 1000L / width).toInt().coerceIn(0, 1000),
             (b.centerY * 1000L / height).toInt().coerceIn(0, 1000),
