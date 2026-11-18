@@ -119,12 +119,17 @@ class GameInvitationContinuityTest {
         assertTrue(SharedExperienceTimeline.eventsByIds("unrelated-character", listOf(
             "game-invite-accepted-$role-$messageId")).isEmpty())
         assertNull(GameInvitationCatalog.title("unknown"))
-        // Two real world engines are now solo-playable as well; the invitation
-        // catalogue is still separate and never proves the owner accepted.
-        assertEquals(setOf("memory_match","yacht_dice","block_island","relic_escape"),
-            AutonomousGameCatalog.gameNames.keys)
-        assertEquals(4, GameInvitationCatalog.titles.size)
-        assertNull(GameInvitationCatalog.title("block_island"))
-        assertNull(GameInvitationCatalog.title("relic_escape"))
+        // The stable edition offers only the small solo games. The game
+        // edition additionally exposes the two persistent worlds.
+        val expectedSolo = if (LuluGameEdition.worldGamesEnabled)
+            setOf("memory_match", "yacht_dice", "block_island", "relic_escape")
+        else setOf("memory_match", "yacht_dice")
+        assertEquals(expectedSolo, AutonomousGameCatalog.gameNames.keys)
+        assertEquals(if (LuluGameEdition.worldGamesEnabled) 6 else 4,
+            GameInvitationCatalog.titles.size)
+        if (!LuluGameEdition.worldGamesEnabled) {
+            assertNull(GameInvitationCatalog.title("block_island"))
+            assertNull(GameInvitationCatalog.title("relic_escape"))
+        }
     }
 }
