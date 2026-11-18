@@ -44,6 +44,13 @@ internal fun DigitalWorldArcadeScreen(
     }
     val partner = residents.firstOrNull { it.characterId == selectedIds.firstOrNull() }
     BackHandler(onBack = onBack)
+    if (com.jiacimu.lulu.games.GameInvitationCatalog.title(gameId) == null) {
+        Column(Modifier.fillMaxSize().padding(20.dp)) {
+            Text("这个版本未开放该游戏")
+            TextButton(onClick = onBack) { Text("返回游戏馆") }
+        }
+        return
+    }
     if (started) {
         Box(modifier.fillMaxSize()) {
             LuluGamesApp(onBack = onBack, initialGameId = gameId, returnToCaller = true)
