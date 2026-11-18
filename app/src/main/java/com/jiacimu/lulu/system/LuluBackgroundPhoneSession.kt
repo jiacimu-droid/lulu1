@@ -583,17 +583,36 @@ internal object LuluBackgroundPhoneSession {
         // It also checks display > 0, the launched package and target UID.
         val pasted = command(JSONObject().put("action", "paste_text")
             .put("packageName", packageName).put("text", text))
+        // On some ROMs the editor becomes accessibility-readable only AFTER
+        // keyboard focus. Prefer its exact content over OCR; do not paste a
+        // second time just because the view update is asynchronous.
+        var exactDraft = false
+        if (pasted.optBoolean("accepted")) {
+            for (attempt in 0 until 3) {
+                if (!authorized() || windowGate(id, packageName).optString("kind") != "target") break
+                exactDraft = withContext(Dispatchers.Main) {
+                    LuluAccessibilityService.focusedVirtualDraftMatches(id, packageName, text)
+                }
+                if (exactDraft) break
+                if (attempt < 2) kotlinx.coroutines.delay(140)
+            }
+        }
         return JSONObject().put("accepted", pasted.optBoolean("accepted"))
             .put("inputDispatched", pasted.optBoolean("inputDispatched"))
-            .put("inputTextReadbackVerified", false)
-            .put("inputVerification", "unverified")
+            .put("inputTextReadbackVerified", exactDraft)
+            .put("inputVerification", if (exactDraft) "match" else "unverified")
             .put("inputMethod", "visual_target_uid_unicode")
             .put("actionMethod", pasted.optString("actionMethod"))
             .put("errorCode", pasted.optString("errorCode"))
             .put("taskCompleted", false)
-            .put("verification", if (pasted.optBoolean("accepted"))
-                "已在本角色独立屏对指定App派发一次完整Unicode草稿；仍须从新画面核实文字，未提交或发送"
-                else "定向中文输入未被完整核实，不会重复输入，也未提交或发送")
+            .put("verification", when {
+                exactDraft ->
+                    "已从本角色独立屏目标App的唯一焦点输入框核对到完整文字；只是草稿，未发送或提交"
+                pasted.optBoolean("accepted") ->
+                    "已向独立屏指定App派发一次Unicode草稿，但焦点输入框未能精确读回；须检查新画面，未发送或提交"
+                else ->
+                    "定向输入未被完整核实，不会自动重复输入，也未发送或提交"
+            })
     }
 
     /**
