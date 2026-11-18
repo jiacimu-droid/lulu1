@@ -110,7 +110,8 @@ internal fun DesktopWorldBulletinCard(
                     Modifier.fillMaxSize().padding(horizontal = 10.dp, vertical = 7.dp),
                     verticalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.padding(end = if (embedded) 32.dp else 0.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Outlined.Campaign, null, modifier = Modifier.size(17.dp), tint = ink)
                         Spacer(Modifier.width(6.dp))
                         Text("世界公告", color = ink, fontSize = 12.sp,
@@ -133,7 +134,8 @@ internal fun DesktopWorldBulletinCard(
                 Icon(Icons.Outlined.Campaign, null, Modifier.size(27.dp), tint = ink)
                 Spacer(Modifier.width(11.dp))
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.padding(end = if (embedded) 22.dp else 0.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
                         Text("数字世界 · 公告栏", color = ink,
                             fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                         if (unread > 0) {

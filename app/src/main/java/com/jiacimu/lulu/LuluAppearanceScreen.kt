@@ -308,7 +308,7 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                 Text(
                     ":root  全局基础配色\n#Home / #Chat / #Settings 等  单页覆盖\n" +
                         "#Home .launcher  桌面图标\n#Home .companion  桌面角色卡\n" +
-                        "#Home .widget-horoscope / .widget-note / .widget-countdown / .widget-planner  桌面小组件\n" +
+                        "#Home .widget-horoscope / .widget-note / .widget-countdown / .widget-planner / .widget-calendar / .widget-photo  桌面小组件\n" +
                         "#Chat .bubble  聊天气泡\n\n" +
                         "--paper、--card、--ink、--accent、--on-accent、--border 等颜色\n" +
                         "每页 .header / .body / .footer / .floating\n" +

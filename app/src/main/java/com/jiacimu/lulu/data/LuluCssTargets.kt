@@ -70,7 +70,8 @@ object LuluCssTargets {
     private val sharedElements = setOf("page", "header", "body", "footer", "floating", "snackbar",
         "navigation", "title", "actions", "card", "primary-button", "text-input")
     private val desktopElements = setOf("launcher", "launcher-label", "companion", "desktop-dock",
-        "widget-chat", "widget-bulletin", "widget-horoscope", "widget-note", "widget-countdown", "widget-planner")
+        "widget-chat", "widget-bulletin", "widget-horoscope", "widget-note", "widget-countdown", "widget-planner",
+        "widget-calendar", "widget-photo")
     private val chatElements = setOf("bubble", "bubble-user", "bubble-role", "messages", "composer",
         "composer-input", "composer-send", "composer-tools")
 
