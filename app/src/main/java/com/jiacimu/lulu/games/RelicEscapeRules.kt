@@ -315,6 +315,7 @@ internal object RelicSiteInteractions {
 }
 
 internal object RelicEscapeRules {
+    const val extractionSteps = 3
     const val CAPACITY=8
     const val ALLY_EXIT_RADIUS = 2
     fun heroCapacity(s:RelicRun)=CAPACITY + 2*s.satchelLevel.coerceIn(0,2)
@@ -390,12 +391,13 @@ internal object RelicEscapeRules {
         }
         return RelicLoot(s.id+":chest:"+c.id,name,c.tier,value)
     }
-    fun act(s:RelicRun,action:String,x:Int=s.hero.x,y:Int=s.hero.y,lootId:String="", autonomousIds:Set<String> = emptySet()):RelicRun {
+    fun act(s:RelicRun,action:String,x:Int=s.hero.x,y:Int=s.hero.y,lootId:String="", autonomousIds:Set<String> = emptySet(),
+        advanceExtraction: Boolean = true):RelicRun {
         if(s.phase !in listOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))
             return s.copy(notice="当前不能继续行动")
         if(s.phase==RelicPhase.DOWNED && action!="wait" && action!="companion_tick")return s.copy(notice="倒地了，等待同伴救援")
         if(action=="weapon_skill" && s.equipped=="blade")
-            return act(s,"sweep",autonomousIds=autonomousIds)
+            return act(s,"sweep",autonomousIds=autonomousIds,advanceExtraction=advanceExtraction)
         if(action=="equip") {
             if(lootId !in s.weapons || lootId !in RelicArsenal.weapons)
                 return s.copy(notice="尚未获得这把武器")
@@ -749,10 +751,12 @@ internal object RelicEscapeRules {
                     .log("player","rescue","成功救起队友 "+ally.id)
             }
             "extract"->{
-                if(s.phase==RelicPhase.EXTRACT)return s.copy(notice="撤离已启动，继续行动或等待即可")
+                if(s.phase==RelicPhase.EXTRACT)return s.copy(notice=if(advanceExtraction)
+                    "撤离已启动，继续行动或等待即可" else "撤离进行中 · 留在门边")
                 if(!near(hero,s.exitX,s.exitY))return s.copy(notice="还没到撤离门")
                 next=s.copy(phase=RelicPhase.EXTRACT,extraction=0)
-                    .log("player","extract","撤离启动！守住出口3回合")
+                    .log("player","extract",if(advanceExtraction)
+                        "撤离启动！守住出口${extractionSteps}回合" else "撤离启动 · 留在出口附近")
                 noise=2
             }
             "companion_tick" -> {
@@ -785,9 +789,9 @@ internal object RelicEscapeRules {
                 if(next.downTurns>=4)return fail(next,"救援超时")
             }
         }
-        if(next.phase==RelicPhase.EXTRACT && next.hero.hp>0 && action!="extract") {
+        if(advanceExtraction && next.phase==RelicPhase.EXTRACT && next.hero.hp>0 && action!="extract") {
             next=next.copy(extraction=next.extraction+1)
-            if(next.extraction>=3)return success(next)
+            if(next.extraction>=extractionSteps)return success(next)
         }
         return next
     }

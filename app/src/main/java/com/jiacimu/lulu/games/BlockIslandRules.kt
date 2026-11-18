@@ -294,6 +294,10 @@ internal object BlockIslandRules {
         return structure !in setOf("workbench", "campfire", "bed", "lantern", "crystal_lantern", "pet_house", "garden")
     }
 
+    fun isSwimmable(s: BlockIslandState, x: Int, y: Int): Boolean =
+        s.world.inBounds(x, y) && s.world.cell(x, y) == 8 &&
+            s.structures[s.world.index(x, y)] != "bridge" && s.world.index(x, y) !in s.lostPacks
+
     private fun buildingCost(action: String): Pair<Int, Int>? = when (action) {
         "wall", "door" -> 2 to 0
         "floor" -> 1 to 0
@@ -417,13 +421,14 @@ internal object BlockIslandRules {
                     else "找到野外补给：木材+$woodFound、石料+$stoneFound" +
                         if (berryFound > 0) "、野果+$berryFound" else ""
             }
-            "move" -> {
-                if (!near() || tx == w.x && ty == w.y || !isWalkable(s, tx, ty) ||
+            "move", "swim" -> {
+                val passable = if (action == "swim") isSwimmable(s, tx, ty) else isWalkable(s, tx, ty)
+                if (!near() || tx == w.x && ty == w.y || !passable ||
                     mob != null || w.friends.any { it.x == tx && it.y == ty } ||
                     s.animals.any { it.x==tx && it.y==ty })
                     return reject("这里有伙伴或动物，需要绕开或进行互动")
                 next = s.copy(world = w.copy(x = tx, y = ty))
-                message = "走到了 ($tx,$ty)"
+                message = if (action == "swim") "游到了 ($tx,$ty)" else "走到了 ($tx,$ty)"
             }
             "gather" -> {
                 if (!near() || cell !in setOf(1, 2)) return reject("靠近树林或石矿才能采集")

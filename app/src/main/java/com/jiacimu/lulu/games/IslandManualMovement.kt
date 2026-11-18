@@ -39,13 +39,13 @@ internal object IslandManualMovement {
         }
     }
 
-    fun destination(s: BlockIslandState, dx: Int, dy: Int): Pair<Int,Int>? {
+    fun destination(s: BlockIslandState, dx: Int, dy: Int, allowSwimming: Boolean = false): Pair<Int,Int>? {
         if (kotlin.math.abs(dx)+kotlin.math.abs(dy)!=1) return null
         val w=s.world
         val x=w.x+dx
         val y=w.y+dy
         return (x to y).takeIf {
-            BlockIslandRules.isWalkable(s,x,y) &&
+            (BlockIslandRules.isWalkable(s,x,y) || allowSwimming && BlockIslandRules.isSwimmable(s,x,y)) &&
                 w.mobs.none { it.hp>0 && it.x==x && it.y==y } &&
                 w.friends.none { it.x==x && it.y==y } &&
                 s.animals.none { it.x==x && it.y==y }

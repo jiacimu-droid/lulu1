@@ -51,3 +51,70 @@ body{--gold:#eac595;--paper:#f2f0e5}
 @media(max-height:430px) and (orientation:landscape){.launch-header{min-height:43px;padding-top:4px;padding-bottom:4px}.launch-header button{min-height:33px}.lobby-setup{padding:10px 17px 13px;align-items:center}.launch-card{padding:8px 9px}.launch-story h1{font-size:clamp(34px,7.4vw,68px)}.launch-story p{margin:0}.launch-card h2{font-size:16px}.launch-card-title{margin-bottom:5px}.party{margin-bottom:5px}.party button,.party-player{min-height:32px}#invite{min-height:31px}}
 @media(max-width:760px) and (orientation:portrait){.launch-page,.game[data-kind=relic]{top:0;left:0;width:100%;height:100dvh;transform:none}.lobby-setup{grid-template-columns:1fr;margin:0}.game .feedback{right:10px}.game[data-kind=island] .feedback{bottom:58px}}
 .chest-scene #chest-cover{right:auto;left:14px}
+
+/* Keep game screens and their own controls within the physical landscape viewport. */
+.launch-page{position:fixed;inset:0;min-height:0;overflow:hidden;overscroll-behavior:none}
+.launch-header{flex:none}
+.lobby-setup{min-height:0}
+#equipment{width:100%;min-height:34px;margin-top:6px;font-size:12px}
+@media (max-height:365px) and (orientation:landscape){
+  .launch-card-title small,.launch-story #lobby-landmarks{display:none}
+  .launch-card .dialog-actions button,#equipment{min-height:33px}
+  .launch-card fieldset{margin-top:4px}
+  .launch-card legend{margin-bottom:2px}
+}
+dialog,dialog.game-dialog{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;
+  margin:0;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right))
+  max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+  border:0;border-radius:0;overflow:hidden;overscroll-behavior:none;background:transparent;box-shadow:none}
+dialog[open]{display:grid;place-items:center}
+.dialog-panel{width:min(100%,520px);max-height:100%;padding:12px 16px;background:#18242d;
+  border:1px solid #a5babb66;border-radius:15px;box-shadow:0 12px 55px #0710189c;overflow:hidden}
+.dialog-panel h2{font-size:clamp(19px,3vw,28px);line-height:1.15;margin:2px 0 6px}
+.dialog-panel .dialog-top button{height:38px;min-width:44px}
+.dialog-panel .dialog-top+h2{margin-top:0}
+.panel-pages,.dialog-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0 0}
+.dialog-footer:empty{display:none}
+.panel-pages button,.dialog-footer button{border:1px solid var(--line);border-radius:8px;min-height:40px;padding:6px 10px;background:#22343c}
+.dialog-footer button.accent{background:#eddbb7;color:#352719}
+.panel-pages span{font-size:12px;color:var(--soft);text-align:center}
+.result-loot{display:flex;align-items:center;gap:9px;padding:3px 9px;min-height:38px;margin:0;background:#222d34}
+.result-loot img{object-fit:contain;display:block;width:36px;height:35px}
+.result-loot b{color:#f3e8cb}.result-loot span{margin-left:auto;color:#d6be90}
+.bag-resources{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0}
+.bag-resources>div{display:grid;gap:3px;min-height:47px;padding:6px 9px;background:#222f33;border:1px solid #b9c9af32;border-radius:7px}
+.bag-resources dt{font-size:11px;color:#c2d2bb}
+.bag-resources dd{font-size:14px;margin:0;color:#f1edcf;overflow-wrap:anywhere}
+.crew-options button{min-height:45px}
+.chest-visual{width:min(54vw,79vh,520px);height:min(50vw,73vh,480px);bottom:11%}
+.chest-telemetry{top:17%;padding:7px 9px;border:1px solid #d5bf9466;border-radius:9px;background:#141b20ed}
+.chest-telemetry p{margin-top:5px;min-height:0}
+.chest-actions{position:absolute;bottom:max(13px,env(safe-area-inset-bottom));right:13px;display:flex;gap:8px}
+.chest-actions button{position:static;touch-action:none;user-select:none}
+#chest-hold{min-width:105px;background:linear-gradient(90deg,#f9d9a3 var(--hold,0%),#baa17d var(--hold,0%));border-color:#f9d9a3}
+#extract-clock{position:absolute;z-index:5;left:50%;top:max(14px,env(safe-area-inset-top));transform:translateX(-50%);
+  width:clamp(145px,30vw,230px);padding:9px 12px;border:1px solid #d7bc83b0;border-radius:10px;
+  background:#1a2326f5;color:#ffe4ad;pointer-events:none}
+#extract-clock>div{display:grid;gap:3px;text-align:center}
+#extract-clock strong{font-size:clamp(15px,2.5vw,22px)}
+#extract-clock span{font-size:11px;color:#ded2b8}
+#extract-clock progress{width:100%;height:5px;accent-color:#e6bf77}
+@media (max-height:335px){
+  .dialog-panel{padding:8px 12px}
+  .dialog-panel p,.dialog-panel h2{margin-bottom:4px}
+  .option-list,.crew-options{gap:4px}
+}
+#gather-panel{position:absolute;z-index:6;right:max(12px,env(safe-area-inset-right));bottom:65px;width:min(39vw,235px);
+  padding:10px;background:#172622f5;border:1px solid #bbc8a379;border-radius:10px}
+#gather-panel p{color:#e4e7cf;font-size:12px;line-height:1.4}
+#gather-panel progress{width:100%;height:6px;accent-color:#d7db9f}
+#gather-panel>div{display:flex;gap:6px;justify-content:end}
+#gather-panel button{background:#243933;border:1px solid #bfcabd70;border-radius:8px;min-height:42px;padding:0 9px;touch-action:none;user-select:none}
+#gather-panel #gather-hold{background:#e0ebba;color:#223325;font-weight:750}
+.game[data-swimming=yes]::after{position:absolute;inset:auto 0 0;content:"";height:18%;pointer-events:none;
+  background:linear-gradient(0deg,#3798ae44,transparent)}
+@media (max-height:340px) and (min-width:600px) and (orientation:landscape){
+  #relic-config{display:grid;grid-template-columns:1fr 1.12fr;gap:0 8px}
+  #equipment{grid-column:1 / -1}
+  .launch-story{padding-bottom:0}
+}

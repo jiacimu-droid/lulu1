@@ -6,6 +6,11 @@ const hues = ['#dfd6bd','#a8d4ab','#95cce8','#c9a6ef','#f5cd7c','#ffb09c','#f9e0
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const clamp = (n,a,b) => Math.max(a,Math.min(b,n));
 
+export function lootAsset(item) {
+  const grade=item.grade>=0?item.grade:item.tier==='PRECIOUS'?4:item.tier==='RARE'?2:0;
+  return asset(`loot-${item.name==='晨星之核'||grade>=4?'crown':grade>=2?'jewel':'token'}.webp`);
+}
+
 export function chestShow() {
   const scene = lookup('chest-scene'), game = lookup('game'), model = lookup('chest-model');
   const loot = lookup('chest-loot'), halo = lookup('chest-halo'), fx = lookup('chest-fx');
@@ -20,8 +25,8 @@ export function chestShow() {
     }
     return imageFrames.get(src);
   }
-  for(const frame of chestFrames)preload(frame);
-  for(const kind of ['token','jewel','crown'])preload(asset(`loot-${kind}.webp`));
+  const illustrations=[...chestFrames,...['token','jewel','crown'].map(kind=>asset(`loot-${kind}.webp`))];
+  const prepared=Promise.allSettled(illustrations.map(src=>preload(src).decode()));
 
   function note(freq,delay=0,duration=.14,strength=.075,type='sine') {
     if (!audio || audio.state!=='running')return;
@@ -38,7 +43,7 @@ export function chestShow() {
   }
   function frame(i) {
     if(lastFrame===i)return;
-    if(preload(chestFrames[i]).complete){lastFrame=i;model.src=chestFrames[i];}
+    if(preload(chestFrames[i]).naturalWidth){lastFrame=i;model.src=chestFrames[i];}
   }
   function colour(grade) {
     currentGrade=clamp(Number(grade)||0,0,6);
@@ -81,6 +86,7 @@ export function chestShow() {
     c.globalCompositeOperation='source-over';
   }
   return {
+    prepare:()=>prepared,
     begin(box) {
       try {
         const engine=window.AudioContext||window.webkitAudioContext;
@@ -89,18 +95,26 @@ export function chestShow() {
       stopAnimation();lastFrame=undefined;
       scene.hidden=false;game.dataset.chest='yes';scene.dataset.phase='opening';
       lookup('chest-message').hidden=true;lookup('chest-continue').hidden=true;lookup('chest-stop').hidden=false;
+      lookup('chest-hold').hidden=false;
+      lookup('chest-hold').textContent='按住撬锁';
       lookup('chest-cover').hidden=true;
       loot.hidden=true;
       colour(Number.isInteger(box.grade)&&box.grade>=0?box.grade:box.tier==='PRECIOUS'?4:box.tier==='RARE'?2:0);
       this.step(0);
       note(210,0,.11,.055,'triangle');
     },
+    hold(active){
+      scene.dataset.held=active?'yes':'no';
+      lookup('chest-hold').textContent=active?'正在撬锁':'按住撬锁';
+      if(!active)lookup('chest-threat').textContent='已暂停 · 按住继续，或停手离开';
+    },
     step(ratio, threat='', guard=false) {
       const percent=clamp(ratio,0,1);
       lookup('chest-meter').value=percent;
-      lookup('chest-stage').textContent=percent<=0?'扣住锁环':percent<.45?'转动铜锁':percent<.76?'撬开封条':'箱缝透光';
+      lookup('chest-stage').textContent=percent<=0?'铜锁未开':percent<.45?'拨动铜锁':percent<.76?'撬开封条':'箱缝透光';
       lookup('chest-threat').textContent=threat||'留意来路 · 随时可以停手';
       lookup('chest-cover').hidden=!guard;
+      lookup('chest-hold').style.setProperty('--hold',`${percent*100}%`);
       frame(percent>.67?2:percent>.19?1:0);
       halo.style.opacity=String(Math.max(0,percent-.30)*.52);
       burst(percent*.27,percent*3);
@@ -113,22 +127,23 @@ export function chestShow() {
       stopAnimation();
       if(receipt.grade>=0)colour(receipt.grade);
       scene.dataset.phase='reward';
+      delete scene.dataset.held;
       lookup('chest-stop').hidden=true;
       lookup('chest-cover').hidden=true;
+      lookup('chest-hold').hidden=true;
       lookup('chest-meter').value=1;
       lookup('chest-stage').textContent='箱盖打开';
       lookup('chest-threat').textContent='带着宝物安全撤离';
       lookup('chest-rank').textContent=names[currentGrade];
       lookup('chest-name').textContent=receipt.name;
       lookup('chest-value').textContent=`估值 ${receipt.value} · ${receipt.inBag?'已放入背包':'背包已满，宝物落地'}`;
-      const kind=receipt.name==='晨星之核'||currentGrade>=4?'crown':currentGrade>=2?'jewel':'token';
-      loot.src=asset(`loot-${kind}.webp`);loot.alt=receipt.name;
-      const revealTime=reduced.matches?170:870;
+      loot.src=lootAsset(receipt);loot.alt=receipt.name;
+      const revealTime=reduced.matches?250:1150;
       const start=performance.now();
       const animate=now=>{
         const elapsed=now-start,t=clamp(elapsed/revealTime,0,1);
         frame(clamp(2+Math.floor(t*7),2,8));
-        halo.style.opacity=String(.24+Math.sin(Math.PI*t)*.62);
+        halo.style.opacity=String(.36+Math.sin(Math.PI*t)*.57);
         const display=clamp((t-.47)*2.3,0,1);
         if(display>0){
           loot.hidden=false;
@@ -136,7 +151,7 @@ export function chestShow() {
           loot.style.transform=`translateY(${(1-display)*18}px) scale(${.64+display*.36})`;
         }
         if(t>.63)lookup('chest-message').hidden=false;
-        burst(.86,elapsed/1000);
+        burst(1,elapsed/1000);
         if(t<1)animation=requestAnimationFrame(animate);
         else {
           lookup('chest-continue').hidden=false;
@@ -154,6 +169,7 @@ export function chestShow() {
     },
     close(){
       stopAnimation();scene.hidden=true;delete game.dataset.chest;
+      delete scene.dataset.held;
       burst(0,0);
     }
   };

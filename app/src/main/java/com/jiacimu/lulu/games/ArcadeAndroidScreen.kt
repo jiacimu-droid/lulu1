@@ -161,7 +161,10 @@ internal fun ArcadeAndroidScreen(
         val view = web
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_RESUME -> view?.onResume()
+                Lifecycle.Event.ON_RESUME -> {
+                    view?.onResume()
+                    view?.evaluateJavascript("window.dispatchEvent(new Event('lulu:resume'))", null)
+                }
                 Lifecycle.Event.ON_PAUSE -> {
                     view?.evaluateJavascript("window.dispatchEvent(new Event('lulu:pause'))", null)
                     view?.onPause()

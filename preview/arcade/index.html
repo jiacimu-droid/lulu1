@@ -50,12 +50,21 @@
     </div>
     <span id="crosshair" hidden aria-hidden="true"></span>
     <div id="feedback" class="feedback" role="status"></div>
+    <aside id="extract-clock" aria-label="撤离倒计时" hidden>
+      <div><strong id="extract-time"></strong><span>留在撤离门附近</span></div>
+      <progress id="extract-progress" max="3" value="0" aria-label="撤离进度"></progress>
+    </aside>
     <section id="chest-scene" class="chest-scene" aria-label="开箱演出" hidden>
       <div class="chest-telemetry"><small id="chest-quality"></small><strong id="chest-stage"></strong><p id="chest-threat"></p><progress id="chest-meter" max="1" value="0" aria-label="开箱进度"></progress></div>
       <div class="chest-visual"><div id="chest-halo" aria-hidden="true"></div><canvas id="chest-fx" aria-hidden="true"></canvas><img id="chest-model" src="./art/chest-0.webp" alt="雕花铜边木宝箱"><img id="chest-loot" alt="" hidden></div>
-      <div class="chest-message" id="chest-message" role="status" hidden><small id="chest-rank"></small><strong id="chest-name"></strong><span id="chest-value"></span></div>
-      <button id="chest-cover" class="soft" hidden>队友掩护</button><button id="chest-stop" class="soft">停手</button><button id="chest-continue" class="accent" hidden>继续探索</button>
+      <div class="chest-message" id="chest-message" aria-live="polite" hidden><small id="chest-rank"></small><strong id="chest-name"></strong><span id="chest-value"></span></div>
+      <button id="chest-cover" class="soft" hidden>队友掩护</button><div class="chest-actions"><button id="chest-stop" class="soft">停手</button><button id="chest-hold" class="accent">按住撬锁</button></div><button id="chest-continue" class="accent" hidden>继续探索</button>
     </section>
+    <aside id="gather-panel" aria-label="徒手伐木" hidden>
+      <p>按住剥开树皮，再折下木材。木斧可以直接砍伐。</p>
+      <progress id="gather-progress" max="1" value="0" aria-label="伐木进度"></progress>
+      <div><button id="gather-cancel" type="button">收手</button><button id="gather-hold" type="button">按住伐木</button></div>
+    </aside>
     <nav id="hotbar" class="hotbar" aria-label="快捷栏" hidden></nav>
     <div class="controls">
       <div id="pad" class="pad" role="group" aria-label="方向键，按住连续移动">
@@ -81,7 +90,6 @@
       <section class="launch-card" aria-label="小队与出发准备">
       <header class="launch-card-title"><div><small>出发准备</small><h2>组队</h2></div><span id="crew-count">1 / 3</span></header>
       <div class="party" id="lobby-party"></div>
-      <button type="button" id="invite">＋ 邀请试玩角色</button>
       <div id="relic-config">
         <fieldset><legend>难度</legend><div class="choices">
           <label><input type="radio" name="difficulty" value="EASY" checked>轻松</label>
@@ -92,16 +100,7 @@
           <label><input type="radio" name="route" value="cloister" checked>外廊搜宝</label>
           <label><input type="radio" name="route" value="ambush">遭遇守卫</label>
         </div></fieldset>
-        <details><summary>武器与职业</summary><fieldset><legend>起始武器</legend><div class="choices">
-          <label><input type="radio" name="weapon" value="blade" checked>短剑</label>
-          <label><input type="radio" name="weapon" value="spear">长矛</label>
-          <label><input type="radio" name="weapon" value="bow">弩弓</label>
-        </div></fieldset>
-        <fieldset><legend>职业</legend><div class="choices">
-          <label><input type="radio" name="profession" value="SCOUT" checked>探路者</label>
-          <label><input type="radio" name="profession" value="GUARDIAN">守护者</label>
-          <label><input type="radio" name="profession" value="MEDIC">医师</label>
-        </div></fieldset></details>
+        <button type="button" id="equipment">武器与职业</button>
       </div>
 
       <p id="launch-status" role="status"></p>
@@ -112,12 +111,39 @@
   <section id="orientation-gate" class="orientation-gate" hidden aria-labelledby="orientation-title">
     <div><small id="orientation-game"></small><h2 id="orientation-title">请把手机转为横屏</h2><p>横拿手机后即可进入大厅或继续游戏。</p><button id="orientation-back" class="soft">返回游戏馆</button></div>
   </section>
-  <dialog id="crew-picker" aria-labelledby="crew-title"><div class="dialog-top"><small>组队</small><button type="button" data-dismiss aria-label="关闭">×</button></div><h2 id="crew-title">邀请试玩角色</h2><p id="crew-status" aria-live="polite">最多邀请两位。入队后可在地图里指挥。</p><div id="crew-options" class="crew-options"></div></dialog>
+  <dialog id="crew-picker" aria-labelledby="crew-title">
+    <section class="dialog-panel">
+      <div class="dialog-top"><h2 id="crew-title">邀请试玩角色</h2><button type="button" data-dismiss aria-label="关闭">×</button></div>
+      <p id="crew-status" aria-live="polite">最多邀请两位。入队后可在地图里指挥。</p>
+      <div id="crew-options" class="crew-options"></div>
+      <nav id="crew-pages" class="panel-pages" aria-label="角色分页" hidden></nav>
+    </section>
+  </dialog>
+  <dialog id="equipment-dialog" aria-labelledby="equipment-title">
+    <section class="dialog-panel">
+      <div class="dialog-top"><h2 id="equipment-title">武器与职业</h2><button type="button" data-dismiss aria-label="关闭">×</button></div>
+        <fieldset><legend>起始武器</legend><div class="choices">
+          <label><input form="setup" type="radio" name="weapon" value="blade" checked>短剑</label>
+          <label><input form="setup" type="radio" name="weapon" value="spear">长矛</label>
+          <label><input form="setup" type="radio" name="weapon" value="bow">弩弓</label>
+        </div></fieldset>
+        <fieldset><legend>职业</legend><div class="choices">
+          <label><input form="setup" type="radio" name="profession" value="SCOUT" checked>探路者</label>
+          <label><input form="setup" type="radio" name="profession" value="GUARDIAN">守护者</label>
+          <label><input form="setup" type="radio" name="profession" value="MEDIC">医师</label>
+        </div></fieldset>
+      <footer class="dialog-footer"><button type="button" class="accent" data-dismiss>完成</button></footer>
+    </section>
+  </dialog>
   <dialog id="options" class="game-dialog" aria-labelledby="options-title">
-    <div class="dialog-top"><small id="options-kicker"></small><button type="button" data-dismiss aria-label="关闭">×</button></div>
-    <h2 id="options-title"></h2>
-    <p id="options-desc"></p>
-    <div id="option-list" class="option-list"></div>
+    <section class="dialog-panel">
+      <div class="dialog-top"><small id="options-kicker"></small><button type="button" data-dismiss aria-label="关闭">×</button></div>
+      <h2 id="options-title"></h2>
+      <p id="options-desc"></p>
+      <div id="option-list" class="option-list"></div>
+      <nav id="option-pages" class="panel-pages" aria-label="选项分页" hidden></nav>
+      <footer id="option-footer" class="dialog-footer"></footer>
+    </section>
   </dialog>
 </body>
 </html>

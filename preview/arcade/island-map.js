@@ -156,6 +156,39 @@ function building(m, kind, x, y, z) {
     for (let i=-2;i<=2;i++) m.box(x,y,z+i*.18,.96,.11,.17,0xc99d6d);
   }
 }
+
+function reefCrawler(m,x,y,z,hero,phase){
+  const body=0x613856,crest=0x9c5578,claw=0x402f49;
+  const axis=Math.abs(hero.x-x)>Math.abs(hero.y-z);
+  const direction=axis?Math.sign(hero.x-x):Math.sign(hero.y-z);
+  const front=(side,depth)=>axis?[x+direction*depth,z+side]:[x+side,z+direction*depth];
+  const segment=(side,h,depth,width,height,length,tone)=>{
+    const [px,pz]=front(side,depth);
+    m.box(px,y+h,pz,axis?length:width,height,axis?width:length,tone);
+  };
+  segment(0,.36,-.08,.64,.42,.70,body);
+  segment(0,.73,-.11,.49,.14,.50,crest);
+  segment(0,.48,.39,.45,.34,.31,0x754462);
+  for(const side of [-1,1]){
+    for(let leg=0;leg<3;leg++){
+      const d=(leg-1)*.23+Math.sin(phase*.9+leg*1.9+side)*.04;
+      segment(side*.36,.34,d,.35,.11,.10,crest);
+      segment(side*.51,.10,d,.11,.29,.13,claw);
+      segment(side*.57,.05,d+.04,.20,.08,.14,claw);
+    }
+    segment(side*.12,.72,.56,.095,.082,.04,0xff986c);
+    segment(side*.12,.75,.582,.036,.027,.02,0xffe6ac);
+    segment(side*.12,.36,.44,.11,.15,.22,0x4b2d43);
+    const [sx,sz]=front(side*.20,.19);
+    m.peak(sx,y+.72,sz,.15,.34,0xc57883);
+  }
+  const [mx,mz]=front(0,-.03);
+  m.peak(mx,y+.87,mz,.115,.17,0xdf886e);
+  if(Math.abs(x-hero.x)+Math.abs(z-hero.y)<=5){
+    m.box(mx,y+1.29,mz,.08,.17,.08,0xe98062);
+    m.box(mx,y+1.17,mz,.072,.072,.071,0xffbd85);
+  }
+}
 function person(m, x, y, z, coat, size = 1) {
   m.box(x-.105*size,y,z,.16*size,.24*size,.22*size,0x33474f);
   m.box(x+.105*size,y,z,.16*size,.24*size,.22*size,0x33474f);
@@ -339,8 +372,7 @@ function sceneMesh(s, selection, overview, software) {
   }
   for (const mob of w.mobs) if (mob.hp>0) {
     const y=hi(mob.x,mob.y);
-    m.box(mob.x,y,mob.y,.56,.38,.57,0x8e676b);
-    m.peak(mob.x,y+.38,mob.y,.56,.24,0xba8a79);
+    reefCrawler(m,mob.x,y,mob.y,w,w.turns+mob.id);
   }
   for (const a of w.friends) if (a.hp>0) person(m,a.x,hi(a.x,a.y),a.y,0x5b9eac);
   if (overview) person(m,w.x,hi(w.x,w.y),w.y,0xd88158,1.12);
@@ -464,6 +496,11 @@ function tileHeight(world,x,z) {
   return ground(x,z,world.tiles[z*world.width+x],world.width,world.height);
 }
 
+function playerEye(s) {
+  const w=s.world;
+  return [w.x,s.swimming?-.08:tileHeight(w,w.x,w.y)+.97,w.y];
+}
+
 function terrainHit(view,s,px,py) {
   const w=s.world;
   const u=(2*px/view.width-1)*view.span[0];
@@ -480,7 +517,7 @@ function terrainHit(view,s,px,py) {
     const solidHeight=tile===1?2.3:tile===2?.72:tile===3?1.73:
       s.structures[i]?.includes('lantern')?.9:s.structures[i]?.5:
       s.supplyCaches.includes(i)&&!s.openedSupplies.includes(i)?.4:
-      w.mobs.some(m=>m.x===x&&m.y===z&&m.hp>0)?.63:.0;
+      w.mobs.some(m=>m.x===x&&m.y===z&&m.hp>0)?1.25:.0;
     if(solidHeight>0 && y<=base+solidHeight &&
       Math.abs(xWorld-x)<.44 && Math.abs(zWorld-z)<.44)return [x,z];
   }
@@ -498,17 +535,19 @@ export async function islandMap(canvas) {
     } catch { /* The same map remains playable with built-in meshes. */ }
   }
   let terrain,lastTerrain,view,state,actorKey,actors;
-  let visual,segment,renderHandle;
+  let visual,segment,renderHandle,lastFrame=0;
   let viewport;
   const paintFrame=(now)=>{
     renderHandle=null;
     if(!viewport||!state||!canvas.clientWidth)return;
+    if(!gl&&segment&&now-lastFrame<25){renderHandle=requestAnimationFrame(paintFrame);return;}
+    lastFrame=now;
     const { selected, camera, overview, width, height }=viewport;
     const w=state.world, aspect=width/height;
     if(segment){
-      const t=bounds((now-segment.start)/165,0,1);
+      const t=bounds((now-segment.start)/segment.duration,0,1);
       const eased=t*t*(3-2*t);
-      visual=segment.from.map((value,i)=>value+(segment.to[i]-value)*eased);
+      visual=segment.from.map((value,i)=>value+(segment.to[i]-value)*(i===1?eased:t));
       if(t>=1)segment=null;
     }
     const a=overview?.57:camera.yaw, e=overview?.79:camera.pitch;
@@ -526,30 +565,29 @@ export async function islandMap(canvas) {
   return {
     reset(){
       if(renderHandle!==null)cancelAnimationFrame(renderHandle);
-      renderHandle=null; visual=null; segment=null; viewport=null;
+      renderHandle=null; visual=null; segment=null; viewport=null;state=null;
     },
     paint(s,selected,camera,overview) {
       const w=s.world,width=canvas.clientWidth,height=canvas.clientHeight;
       if(!width||!height)return;
-      const previous=state?.world;
+      const previous=state?.world, changed=s!==state;
       state=s;
       viewport={selected,camera,overview,width,height};
       canvas.dataset.view=overview?'map':'ground';
       canvas.dataset.dusk=(w.turns%32)>=23?'yes':'no';
-      const dpr=Math.min(devicePixelRatio||1,gl?1.65:1.35);
+      const dpr=Math.min(devicePixelRatio||1,gl?1.4:1.05);
       const pixelWidth=Math.round(width*dpr),pixelHeight=Math.round(height*dpr);
       if(canvas.width!==pixelWidth||canvas.height!==pixelHeight){
         canvas.width=pixelWidth;canvas.height=pixelHeight;
       }
-      const key=JSON.stringify([w.seed,w.tiles,s.structures,s.houseProject?.phase]);
-      if(key!==lastTerrain) {
-        terrain=staticMesh(s,models,!gl);
-        lastTerrain=key;
+      if(changed||!terrain){
+        const key=JSON.stringify([w.seed,w.tiles,s.structures,s.houseProject?.phase]);
+        if(key!==lastTerrain){terrain=staticMesh(s,models,!gl);lastTerrain=key;}
       }
-      const next=[w.x,tileHeight(w,w.x,w.y)+.97,w.y];
+      const next=playerEye(s);
       if(!visual)visual=next;
       if(previous && (previous.x!==w.x||previous.y!==w.y))
-        segment={from:visual,to:next,start:performance.now()};
+        segment={from:visual,to:next,start:performance.now(),duration:s.swimming?286:205};
       const nextActorKey=JSON.stringify([s.world.turns,s.world.x,s.world.y,w.mobs,w.friends,s.animals,
         selected,overview,s.openedSupplies,s.lostPacks,s.rareSupplyCaches]);
       if(actorKey!==nextActorKey) {
@@ -565,9 +603,8 @@ export async function islandMap(canvas) {
     pick(px,py) {
       if (!view||!state)return null;
       if(view.firstPerson){
-        const w=state.world;
         // Aim from the committed player square while the visual camera eases.
-        return terrainHit({...view,center:[w.x,tileHeight(w,w.x,w.y)+.97,w.y]},state,px,py);
+        return terrainHit({...view,center:playerEye(state)},state,px,py);
       }
       const w=state.world;
       let selected=null,min=Infinity;

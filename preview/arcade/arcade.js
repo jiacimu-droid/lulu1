@@ -1,6 +1,6 @@
 import { islandMap } from './island-map.js';
 import { relicMap } from './relic-map.js';
-import { chestShow } from './chest-show.js';
+import { chestShow, lootAsset } from './chest-show.js';
 
 const $ = id => document.getElementById(id);
 const launch = $('launch'), options = $('options'), game = $('game'), form = $('setup');
@@ -25,6 +25,7 @@ let rulesModule;
 const browserSessions = new Set();
 const landscape = matchMedia('(orientation:landscape)');
 const crewPicker=$('crew-picker');
+const equipmentDialog=$('equipment-dialog');
 let crewProfiles=[
   { name:'苔羽', title:'林地采集', desc:'能寻找近处资源，并能动手采集或参与建造。'},
   { name:'砾灯', title:'营地护卫', desc:'可下达近身护卫和应战指令。'},
@@ -32,6 +33,8 @@ let crewProfiles=[
 ].map(role=>({...role,id:role.name}));
 const roleName=id=>crewProfiles.find(role=>role.id===id)?.name||'队友';
 let crew=[], chestSession=null, ceremony;
+let extraction=null, gather=null;
+let paused=false;
 
 const names = { island:'方块小岛', relic:'迷雾摸金' };
 const counters = { EASY:'轻松', NORMAL:'标准', HARD:'险境' };
@@ -105,11 +108,18 @@ function orient() {
   $('orientation-gate').hidden=!gated;
   launch.inert=gated;
   game.inert=gated;
-  if(gated){stopHold();if(crewPicker.open)crewPicker.close();if(options.open)options.close();if(chestSession)cancelOpening();}
+  if(gated){
+    stopHold();
+    for(const dialog of [crewPicker, equipmentDialog, options])if(dialog.open)dialog.close();
+    if(chestSession)cancelOpening();
+    closeGather();
+  }
   if(!gated)draw();
+  syncExtraction();
 }
 function showCrew() {
   if(!landscape.matches)return;
+  crewPage=0;
   drawCrewPicker();
   crewPicker.showModal();
 }
@@ -150,6 +160,7 @@ function drawCrewPicker() {
     list.append(button);
   }
   if(nativeMode&&!crewProfiles.length)$('crew-status').textContent='还没有角色，可以先单人出发。';
+  crewPage=paginate(list,$('crew-pages'),crewPage,change=>{crewPage=change;drawCrewPicker();});
 }
 function drawParty() {
   const party=$('lobby-party');
@@ -203,7 +214,7 @@ async function loadNativeLobby(){
     $('resume').hidden=!nativeSession;
     $('start').hidden=lobby.activeRun;
     if(kind==='relic'){
-      for(const input of form.querySelectorAll('[name="weapon"]'))input.disabled=!lobby.weapons.includes(input.value);
+      for(const input of equipmentDialog.querySelectorAll('[name="weapon"]'))input.disabled=!lobby.weapons.includes(input.value);
     }
   }catch(error){
     $('launch-status').textContent=error.message;
@@ -230,6 +241,10 @@ async function enter(resume) {
   setBusy(true,nativeMode?'正在读取地图…':browserMode?'正在加载岛屿与遗迹规则…':'正在启动 Kotlin 游戏引擎，首次需要编译。');
   try {
     if (kind==='island'&&!islandRenderer) islandRenderer = await islandMap(islandCanvas);
+    if(kind==='relic'){
+      ceremony??=chestShow();
+      await ceremony.prepare();
+    }
     const data = new FormData(form);
     if(!resume)gamePreferences[kind]=[...crew];
     const next = resume
@@ -275,6 +290,8 @@ async function enter(resume) {
 }
 function leave() {
   finishOpening();
+  closeGather();
+  clearExtraction();
   ++epoch;
   busy=false;
   $('start').disabled=false;
@@ -292,7 +309,7 @@ function leave() {
   orient();
 }
 function snapshotInput() {
-  return {dx:facing[0],dy:facing[1],build:recipe,
+  return {dx:facing[0],dy:facing[1],build:recipe,timedExtraction:kind==='relic',
     ...(selected?{x:selected[0],y:selected[1]}:{})};
 }
 async function update(verb, payload, selectionAfter) {
@@ -315,21 +332,24 @@ async function update(verb, payload, selectionAfter) {
   } finally {
     if(token===epoch){
       busy=false;
-      if(verb==='act'&&kind==='island')syncAim();
+      if(verb==='act'&&kind==='island'&&!directionHeld)syncAim();
     }
   }
 }
 function move(dx,dy) {
   if(!state || busy || options.open || chestSession || !landscape.matches || (kind==='relic' && terminal.has(state.phase)))return;
+  if(gather)closeGather();
   if(kind==='island'){
     facing=renderer.direction(dx,dy,camera);
     if(overview)toggleOverview();
   } else facing=[dx,dy];
-  update('act',{action:'move',dx:facing[0],dy:facing[1]},null);
+  return update('act',{action:'move',dx:facing[0],dy:facing[1]},null);
 }
 function perform(item) {
   if (!item || !item.enabled || busy || !landscape.matches) return;
   if(kind==='relic'&&item.action==='open'){beginOpening(item);return;}
+  if(kind==='island'&&item.action==='gather'&&!state.tools.includes('axe')&&
+    state.world.tiles[item.y*state.world.width+item.x]===1){openGather(item);return;}
   if(item.action==='choose_build'){
     recipe=item.id;
     const w=state.world;
@@ -357,24 +377,27 @@ function render() {
   const island=kind==='island';
   const s=state,w=s.world;
   const complete=!island&&terminal.has(s.phase);
+  const withdrawing=!island&&s.phase==='EXTRACT';
   const active=s.actions.find(a=>a.section==='main');
   const fight=s.actions.find(a=>a.section==='combat'&&a.action==='attack');
   const compass=['南','东','北','西'];
   const heading=compass[((Math.round(camera.yaw/Math.PI*2)%4)+4)%4];
-  $('map-name').textContent=island?(overview?'方块小岛 · 全岛地图':`方块小岛 · 岸林 · ${heading}`):`迷雾摸金 · ${counters[s.difficulty]||'标准'}`;
-  $('objective').textContent=complete ? (s.phase==='SUCCESS'?'撤离成功':'撤离失败') : s.objective;
+  $('map-name').textContent=island?(overview?'方块小岛 · 全岛地图':`方块小岛 · ${s.swimming?'海湾 · 游泳':'岸林'} · ${heading}`):`迷雾摸金 · ${counters[s.difficulty]||'标准'}`;
+  game.dataset.swimming=island&&s.swimming?'yes':'no';
+  $('objective').textContent=complete?(s.phase==='SUCCESS'?'撤离成功':'撤离失败'):withdrawing?'撤离中 · 留在门边':s.objective;
   $('stats').textContent=island
     ? `生命 ${w.hp}/12　饱食 ${s.hunger}/10　木 ${w.wood}　石 ${w.stone}`
     : `生命 ${s.hero.hp}/10　负重 ${s.load}/${s.capacity}　宝物 ${s.carried}　估值 ${s.value}`;
   const message=s.notice || '';
-  $('feedback').textContent=/^(走到了 \(.*|点击格子选中目标.*|前进一步)$/.test(message)?'':message;
+  $('feedback').textContent=/^((?:走|游)到了 \(.*|点击格子选中目标.*|前进一步|原地观察|撤离启动 · 留在出口附近)$/.test(message)?'':message;
   game.dataset.overview=overview?'yes':'no';
   $('crosshair').classList.toggle('ready',island&&!!active?.enabled);
   $('focus').textContent=complete?'点击查看本次实际带出的宝物。'
+    : withdrawing?'倒计时会自动推进，离开出口会取消。'
     : recipe?(active?.hint||'把准星对准要放置的地块。')
     : active?.hint || (island?'左手走路 · 拖动场景看四周':'移动探索迷雾，或点选已发现的目标。');
-  $('primary').textContent=complete?'查看结算':active?(active.action==='open'?'开始开箱':active.label):'互动';
-  $('primary').disabled=!complete&&!active?.enabled;
+  $('primary').textContent=complete?'查看结算':withdrawing?'撤离中':active?.label||'互动';
+  $('primary').disabled=withdrawing||!complete&&!active?.enabled;
   $('primary').onclick=complete?showResult:()=>perform(active);
   $('fight').hidden=!fight||complete;
   $('fight').onclick=()=>perform(fight);
@@ -382,6 +405,7 @@ function render() {
   $('tools').textContent=island?'建造 / 行囊':'战术';
   $('partner').hidden=complete || !(island?w.friends.length:s.allies.length);
   updateHotbar(island);
+  syncExtraction();
   draw();
 }
 const quickRecipes=[
@@ -417,19 +441,60 @@ function updateHotbar(island) {
 function showBag(){
   const {world:w}=state;
   const list=dialogPage('个人物品','背包',`生命 ${w.hp}/12 · 饱食 ${state.hunger}/10`);
-  for(const item of [`木材 × ${w.wood}`,`石材 × ${w.stone}`,`野果 × ${state.fruit}`,`晶石 × ${state.crystals}`,`鱼 × ${state.fish||0}`])
-    lootRow(list,item);
-  option(list,'查看配方和已有工具',state.tools?.length?state.tools.join('、'):'可在工作台附近制作',true,()=>showTools(true));
+  const inventory=document.createElement('dl');
+  inventory.className='bag-resources';
+  const toolNames={axe:'木斧',wood_pickaxe:'木镐',pickaxe:'石镐',sword:'木剑',rod:'鱼竿',charm:'护符'};
+  for(const [label,quantity] of [['木材',w.wood],['石材',w.stone],['野果',state.fruit],['晶石',state.crystals],
+    ['鱼',state.fish||0],['工具',state.tools.map(id=>toolNames[id]||id).join('、')||'空']]){
+    const cell=document.createElement('div');
+    const name=document.createElement('dt');name.textContent=label;
+    const value=document.createElement('dd');value.textContent=quantity;
+    cell.append(name,value);
+    inventory.append(cell);
+  }
+  list.append(inventory);
+  const footer=$('option-footer');
+  option(footer,'查看配方','',true,()=>showTools(true));
   const eat=state.actions.find(a=>a.action==='eat');
-  option(list,'吃野果','恢复饱食',!!eat?.enabled,()=>{options.close();perform(eat);});
+  option(footer,'吃野果','',!!eat?.enabled,()=>{options.close();perform(eat);});
 }
 function guardOrder() {
   return state?.actions.find(a=>a.action==='partner'&&a.id==='guard_player'&&a.enabled);
+}
+function bindHold(button, begin, end) {
+  let pointer=null, key=null, active=false;
+  function stop(){
+    pointer=null;key=null;
+    if(active){active=false;end();}
+  }
+  button.addEventListener('pointerdown',event=>{
+    if(event.button!==0||button.disabled||active)return;
+    event.preventDefault();
+    pointer=event.pointerId;
+    button.setPointerCapture(pointer);
+    active=true;begin();
+  });
+  for(const type of ['pointerup','pointercancel','lostpointercapture']){
+    button.addEventListener(type,event=>{if(event.pointerId===pointer)stop();});
+  }
+  button.addEventListener('keydown',event=>{
+    if(event.key!==' '&&event.key!=='Enter')return;
+    event.preventDefault();
+    if(!active){key=event.key;active=true;begin();}
+  });
+  button.addEventListener('keyup',event=>{if(event.key===key){event.preventDefault();stop();}});
+  button.addEventListener('blur',stop);
+  button.addEventListener('click',event=>{
+    if(event.detail!==0||button.disabled)return;
+    if(active)stop();else{active=true;begin();}
+  });
+  return stop;
 }
 function finishOpening(){
   if(!chestSession)return;
   clearTimeout(chestSession.timer);
   chestSession=null;
+  releaseChestHold();
   ceremony?.close();
   draw();
 }
@@ -437,9 +502,16 @@ async function cancelOpening(){
   const opening=chestSession;
   if(!opening)return;
   if(opening.committed){finishOpening();return;}
-  if(busy){opening.cancelled=true;return;}
+  opening.cancelled=true;
+  releaseChestHold();
+  if(busy)return;
   finishOpening();
   await update('act',{action:'cancel_chest',x:opening.box.x,y:opening.box.y});
+}
+function chestWarning(current){
+  const attackers=current.mobs.filter(m=>Math.abs(m.x-current.hero.x)+Math.abs(m.y-current.hero.y)<=5);
+  return attackers.some(m=>m.windup)?'守卫已蓄力 · 松手并离开':
+    attackers.some(m=>m.alert>0)?'听见脚步 · 守卫正在靠近':'留意周围脚步';
 }
 function beginOpening(item){
   if(chestSession||!state||busy)return;
@@ -447,39 +519,135 @@ function beginOpening(item){
   if(!box)return;
   stopHold();
   ceremony??=chestShow();
-  const opening={box,step:0,max:4+Math.floor(Math.max(0,box.grade)/2),committed:false};
+  const opening={box,step:state.chestProgress?.[box.id]||0,max:box.openSteps||4,
+    committed:false,held:false,timer:null};
   chestSession=opening;
   ceremony.begin(box);
+  ceremony.step(opening.step/opening.max,'按住撬锁开始。松手可以停下。',!!guardOrder());
   draw();
-  const schedule=(ms)=>{opening.timer=setTimeout(pulse,ms);};
-  async function pulse(){
-    if(chestSession!==opening)return;
-    if(opening.cancelled||!landscape.matches){await cancelOpening();return;}
-    if(busy){schedule(75);return;}
-    const result=await update('act',{action:'cinematic_step',x:box.x,y:box.y});
-    if(chestSession!==opening)return;
-    if(!result){finishOpening();return;}
-    if(result.chestInterrupted||result.phase==='DOWNED'||terminal.has(result.phase)){
-      ceremony.interrupt();
-      finishOpening();
-      $('feedback').textContent=result.notice;
-      return;
-    }
-    if(result.receipt){
-      opening.committed=true;
-      ceremony.reveal(result.receipt);return;
-    }
-    if(opening.cancelled){await cancelOpening();return;}
-    opening.step++;
-    const attackers=result.mobs.filter(m=>Math.abs(m.x-result.hero.x)+Math.abs(m.y-result.hero.y)<=5);
-    const warning=attackers.some(m=>m.windup)?'守卫已蓄力 · 可以立刻停手':
-      attackers.some(m=>m.alert>0)?'听见脚步 · 守卫正在靠近':'留意来路 · 随时可以停手';
-    if(opening.step>opening.max+1){finishOpening();return;}
-    ceremony.step(opening.step/opening.max,warning,!!guardOrder());
-    schedule(opening.step>=opening.max-1?610:510);
+}
+function schedulePry(opening,delay) {
+  clearTimeout(opening.timer);
+  opening.timer=setTimeout(()=>pry(opening),delay);
+}
+async function pry(opening){
+  if(chestSession!==opening||!opening.held||opening.committed)return;
+  if(opening.cancelled||!landscape.matches||paused){await cancelOpening();return;}
+  if(busy){schedulePry(opening,45);return;}
+  const {box}=opening;
+  const result=await update('act',{action:'cinematic_step',x:box.x,y:box.y});
+  if(chestSession!==opening)return;
+  if(!result){finishOpening();return;}
+  if(result.chestInterrupted||result.phase==='DOWNED'||terminal.has(result.phase)){
+    ceremony.interrupt();
+    finishOpening();
+    $('feedback').textContent=result.notice;
+    return;
   }
-  ceremony.step(0,'留意来路 · 随时可以停手',!!guardOrder());
-  schedule(450);
+  if(result.receipt){
+    opening.committed=true;
+    releaseChestHold();
+    ceremony.reveal(result.receipt);
+    return;
+  }
+  if(opening.cancelled){await cancelOpening();return;}
+  opening.step=result.chestProgress?.[box.id]??opening.step+1;
+  ceremony.step(opening.step/opening.max,chestWarning(result),!!guardOrder());
+  if(opening.held)schedulePry(opening,550);
+}
+const releaseChestHold=bindHold($('chest-hold'),()=>{
+  const opening=chestSession;
+  if(!opening||opening.committed)return;
+  opening.held=true;
+  ceremony.hold(true);
+  schedulePry(opening,550);
+},()=>{
+  const opening=chestSession;
+  if(!opening||opening.committed)return;
+  opening.held=false;
+  clearTimeout(opening.timer);
+  ceremony.hold(false);
+});
+function closeGather(){
+  if(!gather)return;
+  const frame=gather.frame;
+  gather=null;
+  cancelAnimationFrame(frame);
+  releaseGatherHold();
+  $('gather-panel').hidden=true;
+}
+function openGather(item){
+  closeGather();
+  gather={item,frame:null};
+  $('gather-progress').value=0;
+  $('gather-panel').hidden=false;
+  $('gather-hold').focus({preventScroll:true});
+}
+const releaseGatherHold=bindHold($('gather-hold'),()=>{
+  const run=gather;
+  if(!run)return;
+  const from=performance.now();
+  const advance=now=>{
+    if(gather!==run)return;
+    const progress=Math.min(1,(now-from)/1650);
+    $('gather-progress').value=progress;
+    if(progress<1)run.frame=requestAnimationFrame(advance);
+    else{
+      closeGather();
+      update('act',{action:run.item.action,x:run.item.x,y:run.item.y});
+    }
+  };
+  run.frame=requestAnimationFrame(advance);
+},()=>{
+  if(!gather)return;
+  cancelAnimationFrame(gather.frame);
+  $('gather-progress').value=0;
+});
+$('gather-cancel').onclick=closeGather;
+
+function clearExtraction(){
+  if(extraction){
+    clearTimeout(extraction.timer);
+    cancelAnimationFrame(extraction.frame);
+    extraction=null;
+  }
+  $('extract-clock').hidden=true;
+}
+function syncExtraction(){
+  if(kind!=='relic'||game.hidden||paused||document.hidden||!landscape.matches||state?.phase!=='EXTRACT'){
+    clearExtraction();return;
+  }
+  if(extraction)return;
+  const countdown={deadline:performance.now()+1000,timer:null,frame:null};
+  extraction=countdown;
+  $('extract-clock').hidden=false;
+  const steps=state.extractionSteps||3;
+  $('extract-progress').max=steps;
+  function drawCountdown(now){
+    if(extraction!==countdown)return;
+    const fraction=Math.max(0,Math.min(1,1-(countdown.deadline-now)/1000));
+    const remaining=Math.max(1,steps-state.extraction);
+    $('extract-time').textContent=`撤离 ${remaining} 秒`;
+    $('extract-progress').value=state.extraction+fraction;
+    countdown.frame=requestAnimationFrame(drawCountdown);
+  }
+  function schedule(){
+    countdown.timer=setTimeout(tick,Math.max(0,countdown.deadline-performance.now()));
+  }
+  async function tick(){
+    if(extraction!==countdown)return;
+    if(busy){countdown.timer=setTimeout(tick,40);return;}
+    const before=state.extraction;
+    const result=await update('act',{action:'extract_tick'});
+    if(extraction!==countdown)return;
+    if(!result||result.phase!=='EXTRACT'||result.extraction<=before){
+      clearExtraction();return;
+    }
+    countdown.deadline=Math.max(performance.now()+50,countdown.deadline+1000);
+    schedule();
+  }
+  drawCountdown(performance.now());
+  schedule();
 }
 $('chest-stop').onclick=cancelOpening;
 $('chest-continue').onclick=finishOpening;
@@ -488,9 +656,38 @@ $('chest-cover').onclick=async()=>{
   const action=guardOrder();
   if(!opening||opening.committed||!action||busy)return;
   const result=await update('act',{action:'partner',actor:action.actor,id:action.id});
+  if(result&&chestSession===opening&&opening.cancelled){await cancelOpening();return;}
   if(result&&chestSession===opening&&!opening.committed)
     ceremony.step(opening.step/opening.max,'队友已就位',false);
 };
+let crewPage=0, optionPage=0;
+function paginate(list,pager,page,onChange){
+  const rows=[...list.children];
+  const limit=window.innerHeight<=340?2:window.innerHeight<480?3:5;
+  const count=Math.max(1,Math.ceil(rows.length/limit));
+  const current=Math.max(0,Math.min(page,count-1));
+  rows.forEach((row,index)=>{row.hidden=Math.floor(index/limit)!==current;});
+  pager.hidden=count<=1;
+  pager.replaceChildren();
+  if(count>1){
+    const button=(label,delta)=>{
+      const element=document.createElement('button');
+      element.type='button';element.textContent=label;
+      element.disabled=current+delta<0||current+delta>=count;
+      element.onclick=()=>onChange(current+delta);
+      return element;
+    };
+    const countLabel=document.createElement('span');
+    countLabel.textContent=`${current+1} / ${count}`;
+    pager.append(button('上一页',-1),countLabel,button('下一页',1));
+  }
+  return current;
+}
+function refreshOptionPages(){
+  optionPage=paginate($('option-list'),$('option-pages'),optionPage,page=>{
+    optionPage=page;refreshOptionPages();
+  });
+}
 function dialogPage(kicker,title,desc) {
   stopHold();
   $('options-kicker').textContent=kicker;
@@ -498,6 +695,9 @@ function dialogPage(kicker,title,desc) {
   $('options-desc').textContent=desc;
   const list=$('option-list');
   list.replaceChildren();
+  $('option-footer').replaceChildren();
+  optionPage=0;
+  queueMicrotask(refreshOptionPages);
   if(!options.open)options.showModal();
   return list;
 }
@@ -535,25 +735,32 @@ function showPartner(){
     options.close();perform(action);
   });
 }
-function lootRow(list,text){
-  const row=document.createElement('div');row.className='result-loot';row.textContent=text;list.append(row);
+function lootRow(list,item){
+  const row=document.createElement('div');row.className='result-loot';
+  const model=document.createElement('img');
+  model.src=lootAsset(item);model.alt='';
+  const name=document.createElement('b');name.textContent=item.name;
+  const value=document.createElement('span');value.textContent=`估值 ${item.value}`;
+  row.append(model,name,value);
+  list.append(row);
 }
 function showReceipt(receipt){
-  const list=dialogPage('宝箱回执',receipt.name,receipt.inBag?'已放进背包。成功撤离后才算带出。':'背包容量不足，宝物留在原地。');
-  lootRow(list,`实物估值 ${receipt.value} · 重量 ${receipt.tier==='PRECIOUS'?3:receipt.tier==='RARE'?2:1}`);
-  option(list,'继续探索','',true,()=>options.close());
+  const list=dialogPage('宝箱回执',receipt.name,receipt.inBag?'已放进背包。':'宝物留在原地。');
+  lootRow(list,receipt);
+  option($('option-footer'),'继续探索','',true,()=>options.close());
 }
 function showResult(){
-  const success=state.phase==='SUCCESS',items=success?state.secured:state.lost;
+  const success=state.phase==='SUCCESS',items=(success?state.secured:state.lost)||[];
   const list=dialogPage('探险结算',success?'成功撤离':'未能撤离',
     success?`带回 ${items.length} 件 · 总估值 ${items.reduce((sum,item)=>sum+item.value,0)}`
       :`本次损失 ${items.length} 件宝物。`);
-  for(const item of items)lootRow(list,`${item.name} · ${item.value}`);
-  option(list,'返回游戏馆','',true,leave);
-  option(list,'再来一局','可以保留上一次的难度与装备',true,()=>{
+  for(const item of items)lootRow(list,item);
+  const footer=$('option-footer');
+  option(footer,'回到营地','',true,()=>{
     leave();
-    setup('relic');
+    if(!nativeMode)setup('relic');
   });
+  option(footer,'继续查看地图','',true,()=>options.close());
 }
 function pointerPoint(e,element) {
   return window.LuluWorldJoystick.pointerLocal(e.clientX,e.clientY,element.getBoundingClientRect(),false);
@@ -589,7 +796,7 @@ function paintLook(){
     draw();
     const compass=['南','东','北','西'];
     const heading=compass[((Math.round(camera.yaw/Math.PI*2)%4)+4)%4];
-    $('map-name').textContent=`方块小岛 · 岸林 · ${heading}`;
+    $('map-name').textContent=`方块小岛 · ${state?.swimming?'海湾 · 游泳':'岸林'} · ${heading}`;
   });
 }
 function turnLook(dx,dy){
@@ -598,7 +805,7 @@ function turnLook(dx,dy){
   paintLook();
 }
 function stopHold(){
-  clearInterval(heldTimer);heldTimer=null;
+  clearTimeout(heldTimer);heldTimer=null;
   directionHeld=null;
   for(const b of pad.querySelectorAll('[data-held]'))delete b.dataset.held;
 }
@@ -610,7 +817,12 @@ function switchDirection(next){
   const hit=pad.querySelector(`[data-vector="${next.join(',')}"]`);
   if(hit)hit.dataset.held='';
   move(...next);
-  heldTimer=setInterval(()=>move(...next),kind==='island'?215:405);
+  function repeat(){
+    if(directionHeld!==next)return;
+    move(...next);
+    heldTimer=setTimeout(repeat,kind==='island'?(state.swimming?270:185):405);
+  }
+  heldTimer=setTimeout(repeat,kind==='island'?(state.swimming?270:185):405);
 }
 function padDirection(e){
   return window.LuluWorldJoystick.direction(...pointerPoint(e,pad),pad.clientWidth,pad.clientHeight);
@@ -626,7 +838,7 @@ form.addEventListener('submit',e=>{e.preventDefault();enter(false);});
 $('resume').onclick=()=>enter(true);
 $('lobby-back').onclick=closeLobby;
 $('orientation-back').onclick=()=>{ if(!game.hidden)leave();else closeLobby(); };
-$('invite').onclick=showCrew;
+$('equipment').onclick=()=>equipmentDialog.showModal();
 landscape.addEventListener('change',orient);
 $('leave').onclick=leave;
 $('tools').onclick=()=>showTools();
@@ -693,25 +905,38 @@ window.addEventListener('keydown',e=>{
 });
 window.addEventListener('keyup',e=>{if(String(keyDirs[e.key])===String(directionHeld))stopHold();});
 window.addEventListener('blur',stopHold);
-window.addEventListener('resize',orient);
+window.addEventListener('resize',()=>{
+  orient();
+  if(options.open)refreshOptionPages();
+  if(crewPicker.open)drawCrewPicker();
+});
+document.addEventListener('visibilitychange',()=>{
+  paused=document.hidden;
+  if(paused){stopHold();closeGather();if(chestSession)cancelOpening();}
+  syncExtraction();
+});
 
 if(nativeMode){
   $('lobby-preview').hidden=true;
-  $('invite').textContent='＋ 邀请角色';
   $('crew-title').textContent='邀请角色';
   $('crew-status').textContent='角色答应后入队，最多两位同行。';
   $('resume').textContent='继续上次进度';
   $('partner').textContent='语音与队友';
   window.luluArcadeBack=()=>{
     if(crewPicker.open)crewPicker.close();
+    else if(equipmentDialog.open)equipmentDialog.close();
     else if(options.open)options.close();
     else if(chestSession)cancelOpening();
+    else if(gather)closeGather();
     else if(!game.hidden)leave();
     else closeLobby();
     return true;
   };
   window.luluArcadePing=(x,y)=>{ if(state&&!chestSession){selected=[x,y];update('view');} };
   window.addEventListener('lulu:world',()=>{if(state&&!chestSession)update('view');});
-  window.addEventListener('lulu:pause',()=>{stopHold();if(chestSession)cancelOpening();});
+  window.addEventListener('lulu:pause',()=>{
+    paused=true;stopHold();closeGather();if(chestSession)cancelOpening();syncExtraction();
+  });
+  window.addEventListener('lulu:resume',()=>{paused=false;syncExtraction();});
   setup(new URLSearchParams(location.search).get('scene')==='relic'?'relic':'island');
 }

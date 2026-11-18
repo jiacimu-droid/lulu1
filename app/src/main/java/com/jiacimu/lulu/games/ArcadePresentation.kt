@@ -41,6 +41,7 @@ internal fun arcadeIslandView(s: BlockIslandState, selected: Pair<Int, Int>?, fa
         actions += button("companion_tick", "推进队友计划一步", section = "partner")
     return JSONObject(s.toJson()).apply {
         put("kind", "island")
+        put("swimming", BlockIslandRules.isSwimmable(s, w.x, w.y))
         put("objective", IslandMilestones.next(s))
         put("notice", w.notice)
         put("actorEvent", w.events.lastOrNull { it.startsWith("队友[") } ?: "")
@@ -59,8 +60,15 @@ internal fun arcadeRelicView(s: RelicRun, selected: Pair<Int, Int>?, facing: Pai
     val chosen = if (selected != null) relicQuickAction(s, selected) else
         relicNearbyAction(s, facing) ?: relicQuickAction(s, hero.x to hero.y)
     val actions = mutableListOf<JSONObject>()
-    if (chosen != null) actions += button(chosen.action, chosen.label, chosen.x, chosen.y, chosen.id,
-        hint = chosen.hint)
+    if (chosen != null) actions += button(chosen.action, when (chosen.action) {
+        "extract" -> "撤离 · ${RelicEscapeRules.extractionSteps}秒"
+        "open" -> "检查宝箱"
+        else -> chosen.label
+    }, chosen.x, chosen.y, chosen.id, hint = when (chosen.action) {
+        "extract" -> "点一次，留在门边等倒计时。"
+        "open" -> "靠近后按住撬锁，留意守卫。"
+        else -> chosen.hint
+    })
     else if (selected == null && s.profession == RelicProfession.SCOUT && RelicCombatSkills.professionAvailable(s))
         actions += button("profession_skill", "远眺", hint = "探明身边五格迷雾")
     if (s.phase in listOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED)) {
@@ -92,7 +100,9 @@ internal fun arcadeRelicView(s: RelicRun, selected: Pair<Int, Int>?, facing: Pai
     return s.json().apply {
         put("kind", "relic")
         put("tiles", JSONArray(s.tiles.mapIndexed { i, cell -> if (i in s.seen) cell else -1 }))
-        put("chests", JSONArray(s.chests.filter { s.visible(it.x, it.y) }.map { it.json() }))
+        put("chests", JSONArray(s.chests.filter { s.visible(it.x, it.y) }.map {
+            it.json().put("openSteps", RelicEscapeRules.openSteps(it))
+        }))
         put("mobs", JSONArray(s.mobs.filter { it.hp > 0 && s.visible(it.x, it.y) }.map { it.json() }))
         put("sites", JSONArray(s.sites.filter { s.visible(it.x, it.y) }.map { it.json() }))
         put("drops", JSONArray(s.drops.filter { s.visible(it.x, it.y) }.map { it.json() }))
@@ -103,6 +113,7 @@ internal fun arcadeRelicView(s: RelicRun, selected: Pair<Int, Int>?, facing: Pai
         put("route", JSONArray(route?.let { RelicObjectiveGuide.knownRouteTiles(s, it) }.orEmpty()
             .map { JSONArray(listOf(it.first, it.second)) }))
         put("objective", RelicObjectiveGuide.prompt(s))
+        put("extractionSteps", RelicEscapeRules.extractionSteps)
         put("capacity", RelicEscapeRules.heroCapacity(s))
         put("load", hero.load)
         put("carried", s.carried.size)
@@ -126,12 +137,13 @@ private fun interruptedChest(before: RelicRun, after: RelicRun, box: RelicChest)
 internal data class ArcadeInput(
     val selected: Pair<Int, Int>?, val facing: Pair<Int, Int>, val build: String,
     val action: String, val item: String, val actor: String,
+    val timedExtraction: Boolean = false,
 ) {
     companion object {
         fun read(q: JSONObject, defaultActor: String = "") = ArcadeInput(
             if (q.has("x") && q.has("y")) q.getInt("x") to q.getInt("y") else null,
             q.optInt("dx") to q.optInt("dy"), q.optString("build"), q.optString("action"),
-            q.optString("id"), q.optString("actor", defaultActor),
+            q.optString("id"), q.optString("actor", defaultActor), q.optBoolean("timedExtraction"),
         )
     }
 }
@@ -141,8 +153,9 @@ internal fun arcadeIslandAct(before: BlockIslandState, input: ArcadeInput, actor
     val w = before.world
     val target = selected ?: (w.x to w.y)
     return when {
-        action == "move" -> IslandManualMovement.destination(before, facing.first, facing.second)?.let {
-            BlockIslandRules.act(before, "move", it.first, it.second, actors)
+        action == "move" -> IslandManualMovement.destination(before, facing.first, facing.second, allowSwimming = true)?.let {
+            val movement = if (BlockIslandRules.isSwimmable(before, it.first, it.second)) "swim" else "move"
+            BlockIslandRules.act(before, movement, it.first, it.second, actors)
         } ?: before.copy(world = w.copy(notice = IslandManualMovement.blockedHint(
             before, facing.first, facing.second) ?: "这一步走不过去"))
         action == "partner" -> IslandActorPlay.apply(before, actor, w.turns, IslandActorChoice(id, ""))
@@ -169,19 +182,22 @@ internal data class ArcadeRelicStep(val run: RelicRun, val loot: JSONObject?, va
 internal fun arcadeRelicAct(before: RelicRun, input: ArcadeInput, allies: Set<String>): ArcadeRelicStep {
     val (selected, facing, _, action, id, actor) = input
     val (x, y) = selected ?: (before.hero.x to before.hero.y)
+    fun play(action: String, x: Int = before.hero.x, y: Int = before.hero.y, item: String = "") =
+        RelicEscapeRules.act(before, action, x, y, item, allies,
+            advanceExtraction = !input.timedExtraction || input.action == "extract_tick")
     var loot: JSONObject? = null
     var interrupted = false
     val result = when (action) {
         "move" -> {
             relicDirectionAction(before, facing.first, facing.second)?.let {
-                RelicEscapeRules.act(before, it.action, it.x, it.y, autonomousIds = allies)
+                play(it.action, it.x, it.y)
             } ?: before
         }
         "partner" -> RelicActorPlay.apply(before, actor, IslandActorChoice(id, ""))
             ?: error("队友现在无法执行这个动作。")
         "open", "cinematic_step" -> {
             val effective = RelicChestPresentation.playerAction(before, "open", x, y)
-            val result = RelicEscapeRules.act(before, effective, x, y, autonomousIds = allies)
+            val result = play(effective, x, y)
             val box = before.chests.firstOrNull { !it.opened && it.x == x && it.y == y }
             if (box != null && action == "cinematic_step" && result.turns > before.turns &&
                 result.events.any { it.turn > before.turns && it.who == "player" && it.action == "hurt" }) {
@@ -200,11 +216,11 @@ internal fun arcadeRelicAct(before: RelicRun, input: ArcadeInput, allies: Set<St
                 .log("player","chest_cancelled","已松开箱盖，可以立刻移动。") else before
         }
         "attack", "weapon_skill", "sneak", "disarm", "invoke", "silence", "resupply", "fountain",
-        "observe_lens", "unseal" -> RelicEscapeRules.act(before, action, x, y, id, allies)
+        "observe_lens", "unseal" -> play(action, x, y, id)
         "companion_tick" -> RelicEscapeRules.act(before, action,
             autonomousIds = GameCoopPacing.relicTickActors(before))
-        "wait", "defend", "heal", "extract", "equip", "revive", "pickup", "profession_skill" ->
-            RelicEscapeRules.act(before, action, lootId = id, autonomousIds = allies)
+        "extract_tick" -> if (before.phase == RelicPhase.EXTRACT) play("wait") else before
+        "wait", "defend", "heal", "extract", "equip", "revive", "pickup", "profession_skill" -> play(action, item = id)
         else -> error("未知操作")
     }
     return ArcadeRelicStep(result, loot, interrupted)

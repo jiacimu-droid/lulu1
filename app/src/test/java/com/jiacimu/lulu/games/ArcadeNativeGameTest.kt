@@ -77,4 +77,38 @@ class ArcadeNativeGameTest {
         assertEquals(regularIsland.toJson(), regularPrefs.getString("world", null))
         assertEquals(regularRelic, RelicEscapeLedger(context).read())
     }
+
+    @Test fun aRelicWithdrawalWaitsForThreeClockTicksEvenWhenThePlayerActs() {
+        val base = RelicEscapeWorld.create(42, 1, emptyList(), 1, 1, difficulty = RelicDifficulty.EASY)
+        val map = ArcadeMaps.cloister(base, false)
+        val atGate = map.copy(hero = map.hero.copy(x = map.exitX, y = map.exitY), mobs = emptyList())
+        assertTrue(context.getSharedPreferences(arcadeRelicSave, Context.MODE_PRIVATE).edit()
+            .putString("ledger", RelicSnapshot(run = atGate).json().toString()).commit())
+        val game = ArcadeNativeGame(context, LuluGameStore(context), "relic", emptyList())
+        fun act(action: String) = game.request(JSONObject().put("verb", "act").put("action", action)
+            .put("session", atGate.id).put("timedExtraction", true))
+
+        assertEquals("EXTRACT", act("extract").getString("phase"))
+        assertEquals(0, act("defend").getInt("extraction"))
+        assertEquals(1, act("extract_tick").getInt("extraction"))
+        assertEquals(2, act("extract_tick").getInt("extraction"))
+        assertEquals("SUCCESS", act("extract_tick").getString("phase"))
+        assertEquals(RelicPhase.SUCCESS, RelicEscapeLedger(context, arcadeRelicSave).read().run?.phase)
+    }
+
+    @Test fun swimmingIntoTheBayAndClimbingBackOntoLandArePersistedMoves() {
+        val game = ArcadeNativeGame(context, LuluGameStore(context), "island", emptyList())
+        val started = game.request(JSONObject().put("verb", "start"))
+        val session = started.getString("session")
+        val saved = checkNotNull(game.island())
+        game.saveIsland(saved.copy(world = saved.world.copy(x = 8, y = 15)))
+        fun step(dx: Int) = game.request(JSONObject().put("verb", "act").put("session", session)
+            .put("action", "move").put("dx", dx).put("dy", 0))
+        val water = step(1)
+        assertTrue(water.getBoolean("swimming"))
+        assertEquals(9, game.island()?.world?.x)
+        val land = step(1)
+        assertFalse(land.getBoolean("swimming"))
+        assertEquals(10, game.island()?.world?.x)
+    }
 }
