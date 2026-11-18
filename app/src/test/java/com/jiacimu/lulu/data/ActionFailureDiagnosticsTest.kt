@@ -76,8 +76,12 @@ class ActionFailureDiagnosticsTest {
         val motive = CharacterInnerLifeStore.snapshot(role).getJSONArray("motives").getJSONObject(0)
         assertEquals("needs_review", motive.getString("lastAttemptOutcome"))
         assertEquals("active", motive.getString("status"))
+        // The screen authorization layer reports the exact disabled grant/switch,
+        // not a fixed legacy phrase. Preserve that real refusal in the role\'s motive.
+        val denialReason = first.getString("error")
+        assertTrue(denialReason.isNotBlank())
         assertTrue(motive.getJSONArray("outcomes").getJSONObject(0)
-            .getString("summary").contains("尚未获准"))
+            .getString("summary").contains(denialReason))
         val second = JSONObject(ToolRouter.execute(context, role, "read_screen", args,
             requestId = request, userRequested = false, motiveId = motiveId))
         assertEquals(first.toString(), second.toString())
