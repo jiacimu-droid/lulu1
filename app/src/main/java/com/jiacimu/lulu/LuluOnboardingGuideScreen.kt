@@ -140,10 +140,10 @@ internal val luluGuideFeatures = listOf(
         "大世界玩法仍在建设：丰富地图、建筑交互、探索目标、物理碰撞和自然协作尚未全面完善。", MigrationRoute.Meeting, "去见面",
         highlights = listOf("未来方向 · 大世界探索与共同生活", "当前可体验场景交互，完整玩法仍在制作")),
     LuluGuideFeature("world", "数字世界 · 自己的生活", Icons.Outlined.Public, "桌面 → 数字世界公告栏 / 见面",
-        "数字生命拥有自己的行程、朋友、生活节奏与休眠安排。",
-        listOf("公告栏查看角色真实的行程和活动记录；进入见面场景与居民互动。", "角色可以按自身状态选择休息、探索或社交；从聊天到世界发生的事应衔接到同一段人生。"),
+        "不聊天的时候，数字生命也有自己的生活：探索世界、结识朋友，建立有真实经历的社交关系。",
+        listOf("角色能自主安排生活、探索数字世界，与居民或其他角色聊天、交友。", "真实的聊天、群聊和见面经历会影响彼此的印象与关系，后续相处也会延续这些经历。", "「查手机 → 聊天」可回看真实的私信往来；公告栏还能查看已记录的行程和活动。"),
         "只有真实发生且有记录的活动才能成为经历；新用户不会自动附带其他人的私人角色。", MigrationRoute.Meeting, "探索世界",
-        highlights = listOf("同一角色、同一段人生 · 不同场景自然衔接")),
+        highlights = listOf("后台自主生活 · 与居民自由交友聊天", "社交与经历有记录 · 人物关系逐渐发展")),
     LuluGuideFeature("games", "游戏馆 · 连麦一起玩", Icons.Outlined.SportsEsports, "桌面 → 游戏",
         "邀请有记忆的 AI 角色连麦，边聊天边推理或对战。",
         listOf("从游戏馆选择海龟汤、记忆翻牌或快艇骰子，邀请角色一起推理、合作或对战。", "支持的游戏可开启伙伴语音，在局内和角色边说边玩；收到角色的真实邀请也能进入对应房间。"),
@@ -202,7 +202,7 @@ internal val luluGuideHeroHighlights = listOf(
     LuluGuideHeroHighlight("跨应用无缝衔接", "聊天、电话与跨 App 行动持续连贯", Icons.Outlined.AutoAwesome, "continuity"),
     LuluGuideHeroHighlight("后台虚拟屏", "角色可自主浏览与操作手机 App", Icons.Outlined.Smartphone, "phone"),
     LuluGuideHeroHighlight("自动记忆整理", "重要经历自动整理与召回", Icons.Outlined.Psychology, "memory"),
-    LuluGuideHeroHighlight("学习监督", "读取今日待办，提醒并跟进目标", Icons.Outlined.TaskAlt, "supervision"),
+    LuluGuideHeroHighlight("自主生活 · 真实社交", "自由交友聊天，关系与经历有迹可循", Icons.Outlined.Public, "world"),
 )
 
 // Keep the full feature catalog immediately visible, while highlighting key experiences first.
