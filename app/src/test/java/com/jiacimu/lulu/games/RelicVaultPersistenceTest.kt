@@ -13,6 +13,31 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest=Config.NONE, sdk=[28])
 class RelicVaultPersistenceTest {
+    @Test fun extractedPhysicalRelicSurvivesLegacyVaultIdCollisionAndSettlesOnce() {
+        val context=RuntimeEnvironment.getApplication()
+        val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
+        prefs.edit().clear().commit()
+        val old=RelicLoot("legacy-shared-id","月银胸针",RelicTier.RARE,220)
+        val carried=RelicLoot("legacy-shared-id","星穹冠冕",RelicTier.PRECIOUS,900)
+        assertTrue(prefs.edit().putString("ledger",
+            RelicSnapshot(vault=listOf(old),coins=15).json().toString()).commit())
+        val ledger=RelicEscapeLedger(context)
+        val launched=ledger.begin(emptyList(),0,prepare={run->
+            run.copy(phase=RelicPhase.EXTRACT,extraction=1000,
+                hero=run.hero.copy(hp=10,bag=listOf(carried)),
+                mobs=emptyList())
+        })
+        val runId=launched.run!!.id
+        val finished=ledger.perform("wait",expectedRunId=runId)
+        assertEquals(RelicPhase.SUCCESS,finished.run!!.phase)
+        assertEquals(listOf(old,carried),finished.vault)
+        assertEquals(1,finished.successes)
+        assertTrue(runId in finished.awarded)
+        assertEquals(finished,RelicEscapeLedger(context).read())
+        assertEquals(finished,ledger.perform("wait",expectedRunId=runId))
+        assertEquals(2,RelicEscapeLedger(context).read().vault.size)
+    }
+
     @Test fun legacyDuplicateMuseumIdsSellExactlyOnePhysicalRelic() {
         val context=RuntimeEnvironment.getApplication()
         val prefs=context.getSharedPreferences("relic_escape_v2",Context.MODE_PRIVATE)
