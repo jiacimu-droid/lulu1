@@ -106,8 +106,15 @@ internal object LuluShoppingLinkShare {
      * clipboard event and an allowlisted HTTPS link, never model-supplied text. */
     internal fun eligibleVisualCopy(
         packageName: String, chosenTarget: String, ownerApproved: Boolean,
-    ): Boolean = ownerApproved && merchantName(packageName) != null &&
-        isCopyLabel(chosenTarget)
+    ): Boolean {
+        if (!ownerApproved || merchantName(packageName) == null ||
+            chosenTarget.isBlank() || chosenTarget.length > 48 ||
+            LuluPhoneInteractionPolicy.hardBlocked(chosenTarget)) return false
+        val label = normalizedCopyLabel(chosenTarget)
+        return isCopyLabel(chosenTarget) || label.contains("复制链接") ||
+            label.contains("复制商品链接") || label.contains("复制口令") ||
+            label.contains("copylink") || label == "复制按钮" || label == "点击复制"
+    }
 
     /** Compare timestamps before reading any clipboard text: do NOT read
      * pre-existing personal clipboard contents merely to look for a change. */
