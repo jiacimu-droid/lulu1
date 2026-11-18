@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T04:05:04.277401+00:00",
-  "commit": "adaa749b19b580ed86f27553f391e75d3f1184a3",
+  "generatedAt": "2026-11-18T04:05:34.871015+00:00",
+  "commit": "157a9336f38d3d2a20817f78f0d939d8c11aef4d",
   "branch": "main",
-  "sourceFingerprint": "60f70f1e9196cc7b1e9d74f656e43dd3fc83dd3baa1ae83502e0de6da2326563",
+  "sourceFingerprint": "c07730e7d06b4e9d4fc4547c6c3e212511923d174481c56e9130addd4cff91ce",
   "summary": {
     "files": 1444,
-    "lines": 305268,
-    "symbols": 4361
+    "lines": 305314,
+    "symbols": 4362
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20296,6 +20296,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/RolePhoneActivityTest.kt",
         "line": 17
+      }
+    ],
+    "typed": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/RolePhoneActivityTest.kt",
+        "line": 85
       }
     ],
     "RolePhoneAppPlacementTest": [
@@ -45386,8 +45392,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/RolePhoneActivityTest.kt",
-      "lines": 91,
-      "sha256": "7f59d28ecf5dc967c7a77422bb9a395a155f00a80ca3a73c6549efd984b9e0ed",
+      "lines": 122,
+      "sha256": "8907a74373173f4863dd83edf7defbf17cb203e1a025227a233447d39071d576",
       "symbols": [
         {
           "name": "RolePhoneActivityTest",
@@ -45396,6 +45402,10 @@
         {
           "name": "send",
           "line": 70
+        },
+        {
+          "name": "typed",
+          "line": 85
         }
       ]
     },
@@ -51258,8 +51268,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt",
-      "lines": 86,
-      "sha256": "7cbb2996be7d66ec30e490377a2931c95ad1b4103b7e65f604e09f2b003b6a08",
+      "lines": 101,
+      "sha256": "54fc431e8f79c6425021f28e3c06f9b30da668a83d8eb39a058995052774011c",
       "symbols": [
         {
           "name": "LuluVirtualTextInputPolicyTest",

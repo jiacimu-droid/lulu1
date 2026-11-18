@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`adaa749b19b580ed86f27553f391e75d3f1184a3`
+- 基准提交：`157a9336f38d3d2a20817f78f0d939d8c11aef4d`
 - 分支：`main`
 - 已索引文件：1444
-- 已索引代码/文本行：305268
-- 已发现符号：4361
+- 已索引代码/文本行：305314
+- 已发现符号：4362
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -995,7 +995,7 @@
 | `app/src/test/java/com/jiacimu/lulu/QqShoppingProductLinkOpenerTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqXhsShareCodecTest.kt` | 129 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RainyDioramaOrbitTest.kt` | 37 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/RolePhoneActivityTest.kt` | 91 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/RolePhoneActivityTest.kt` | 122 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneAppPlacementTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhoneBrowserHistoryTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/RolePhotoAlbumStoreTest.kt` | 102 | 1 |
@@ -1423,7 +1423,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualScrollOutcomeTest.kt` | 51 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSearchFieldPolicyTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualSocialActionsTest.kt` | 126 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt` | 86 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt` | 101 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualUiPolicyTest.kt` | 111 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVirtualWindowPolicyTest.kt` | 84 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicyTest.kt` | 99 | 1 |
