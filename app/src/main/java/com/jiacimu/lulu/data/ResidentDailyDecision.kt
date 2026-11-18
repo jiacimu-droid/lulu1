@@ -907,9 +907,11 @@ internal object ResidentDailyDecision {
                 reject(index, row, "人物对战回应参数无效")
                 continue
             }
-            if (action in setOf("send_character_message", "send_group_message", "publish_moment") &&
-                params.optString("text").isBlank()) {
-                reject(index, row, "预选消息正文为空")
+            if ((action in setOf("send_group_message", "publish_moment") &&
+                    params.optString("text").isBlank()) ||
+                (action == "send_character_message" &&
+                    ResidentMessageBubbles.contractError(params) != null)) {
+                reject(index, row, "预选消息正文或气泡结构无效")
                 continue
             }
             if (action == "digital_world_action" && worldAction == "interact_resident") {
@@ -1044,15 +1046,17 @@ internal object ResidentDailyDecision {
             }
             val args = normalized.optJSONObject("args") ?: JSONObject()
             val tool = normalized.optString("tool")
+            if (tool == "send_character_message") {
+                ResidentMessageBubbles.contractError(args)?.let {
+                    return "steps[$index].args $it，须由本人补正"
+                }
+            }
             // The model's explicit choice must not be silently converted into
             // a failed/no-op tool by supplying empty defaults for required data.
             val missing = when (tool) {
                 "publish_moment" -> if (args.optString("text").isBlank()) "text" else ""
-                "send_character_message" -> when {
-                    args.optString("targetCharacterId").isBlank() -> "targetCharacterId"
-                    args.optString("text").isBlank() -> "text"
-                    else -> ""
-                }
+                "send_character_message" ->
+                    if (args.optString("targetCharacterId").isBlank()) "targetCharacterId" else ""
                 "send_group_message" -> when {
                     args.optString("groupId").isBlank() -> "groupId"
                     args.optString("text").isBlank() -> "text"
@@ -1125,9 +1129,14 @@ internal object ResidentDailyDecision {
                 row.optString("targetCharacterId").trim().isBlank() &&
                 args.optString("targetCharacterId").trim().isBlank())
                 return "agenda[${index}] 必须明确填写目标角色 ID"
-            if (action in setOf("send_character_message", "send_group_message", "publish_moment") &&
+            if (action == "send_character_message") {
+                ResidentMessageBubbles.contractError(args)?.let {
+                    return "agenda[$index].activityArgs $it"
+                }
+            }
+            if (action in setOf("send_group_message", "publish_moment") &&
                 args.optString("text").trim().isBlank())
-                return "agenda[${index}] 发消息或动态必须提供本人写好的 text"
+                return "agenda[$index] 群消息或动态必须提供本人写好的 text"
             if (action == "send_group_message" && args.optString("groupId").isBlank())
                 return "agenda[${index}] 群消息必须指定 groupId"
             if (action == "respond_friend_request" && args.optString("requestId").isBlank())
