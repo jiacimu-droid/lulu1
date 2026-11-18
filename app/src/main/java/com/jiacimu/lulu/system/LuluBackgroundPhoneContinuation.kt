@@ -76,6 +76,27 @@ internal object LuluBackgroundPhoneContinuation {
         failures > 1 && !(receipt?.optBoolean("targetWindowVerified") == true &&
             (image != null || receipt.optString("uiTreeFingerprint").isNotBlank()))
 
+    /** A missing/expired snapshot is a rejected model argument, not a tap.
+     * A single READ-ONLY observe can restore this role's current virtual
+     * screen and let the SAME role decide a corrected action. Never recover
+     * an ambiguous outbound send, ownership denial or arbitrary failure. */
+    internal fun needsSnapshotReinspection(action: String, receipt: JSONObject?): Boolean {
+        if (receipt == null) return false
+        val snapshotAction = LuluBackgroundPhoneArgumentPolicy.needsSnapshot(action) ||
+            (action == "type" && (receipt.optString("action") == "type"))
+        if (!snapshotAction || receipt.optBoolean("messageSendAttempted") ||
+            receipt.optBoolean("messageSendClicked") ||
+            receipt.optBoolean("commentPublishAttempted") ||
+            receipt.optBoolean("momentPublishAttempted")) return false
+        return when (receipt.optString("errorCode")) {
+            "invalid_action_arguments" ->
+                receipt.optBoolean("sessionPreserved") &&
+                    receipt.optString("verification").contains("screenSnapshotId")
+            "virtual_snapshot_expired", "chat_snapshot_expired" -> true
+            else -> false
+        }
+    }
+
     /** A model reply is stale if STOP or authorization revocation happened while waiting. */
     internal fun mustAbortAfterModel(ownerPaused: Boolean, authorized: Boolean): Boolean =
         ownerPaused || !authorized
@@ -313,6 +334,39 @@ internal object LuluBackgroundPhoneContinuation {
             }
         }
         rememberGesture(firstAction, gestureTarget(firstAction, initialArgs, null), lastScreenReceipt)
+        // The FIRST planner may choose a picture tap before it has the newest
+        // screenSnapshotId. Android rejected it BEFORE any gesture. Rather
+        // than tell the owner "click failed" and abandon the real goal,
+        // refresh the actual virtual display once (no click/typing) and pass
+        // the fresh picture + token back to the same character.
+        if (needsSnapshotReinspection(firstAction, firstReceipt) &&
+            !ownerHasNewInput() &&
+            !mustAbortAfterModel(LuluBackgroundPhoneSession.ownerHasPaused(context),
+                LuluRolePhoneAuthorization.isGranted(context, characterId))) {
+            val recoveryId = requestId + "-phone-snapshot-recovery-initial"
+            val refreshed = ToolRouter.execute(
+                context = context, characterId = characterId, name = "background_phone",
+                args = JSONObject().put("action", "observe"),
+                requestId = recoveryId, userRequested = userRequested,
+            )
+            count++
+            val freshImage = LuluScreenFrameHandoff.take(characterId, recoveryId)
+            val freshResult = runCatching { JSONObject(refreshed) }.getOrNull()
+            history.appendLine("初次点击参数不合法，未派发点击；已真正执行一次只读重新观察。")
+            history.appendLine("新观察回执：" + compactRoleReceipt(refreshed))
+            uiReferenceSummary(refreshed).takeIf(String::isNotBlank)?.let { history.appendLine(it) }
+            if (freshResult?.optBoolean("targetWindowVerified") == true &&
+                (freshImage != null || freshResult.optString("screenSnapshotId").isNotBlank())) {
+                image = freshImage
+                lastScreenReceipt = freshResult
+                lastVerifiedScreen = screen(freshResult, freshImage)
+                searchTextVerified = freshResult.optBoolean("inputTextReadbackVerified")
+                history.appendLine("初次尝试没有点击成功；原目标未完成。接下来本人只能按刚获得的真实页面与新快照编号决策。")
+            } else {
+                history.appendLine("只读重新观察仍未核实当前目标窗口；停止盲点，不声称已经点击或发送。")
+                return Outcome(history.toString().takeLast(5_000), freshImage, false, count)
+            }
+        }
         var duplicateRefusals = 0
         var unchangedObservations = 0
         var stalledWithoutEvidence = if (initialImage == null) 1 else 0
