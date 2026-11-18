@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T14:56:35.537586+00:00",
-  "commit": "ee1e44d0591e0daea3da4f631fc32ff238d4e181",
+  "generatedAt": "2026-11-18T14:58:07.768050+00:00",
+  "commit": "2dc5d0350ec514a5c550199121ba4de262b69c35",
   "branch": "main",
-  "sourceFingerprint": "ee4579a5347678a77e5b8bb06b89c989cc8d21a21d20830657cf0d27a5e40c12",
+  "sourceFingerprint": "9a424382990c5a42d46a419dfe0df711babb36c4653c9805880ebe2a6dffd2fe",
   "summary": {
     "files": 1473,
-    "lines": 311670,
+    "lines": 311654,
     "symbols": 4451
   },
   "symbolIndex": {
@@ -33035,7 +33035,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
       "lines": 2050,
-      "sha256": "71e0dd0c87ebda493cc71ad89c0be80f6ede1d6804ba0616261af967b57d8b14",
+      "sha256": "691bfed5429225099014bdecddbd82498505e14080b1d32a65d52124b8202ac7",
       "symbols": [
         {
           "name": "asJson",
@@ -36659,7 +36659,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 3984,
-      "sha256": "1a0c32a63ab23c11700475a38372ec22478629f8e970b66b313aedd3c13038b3",
+      "sha256": "4baea10bd3300304ab490d3d3f3f644e40317ed3ff70cea6fb283f5bbe00cb09",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -43202,8 +43202,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2423,
-      "sha256": "ece718bdffa9879a758f674bee1c09428637551c762cc47a04025632db31630c",
+      "lines": 2407,
+      "sha256": "5e2ff584d29105ddc51be841b74225f64aa0d983334165f8fbc286f915c317cd",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
