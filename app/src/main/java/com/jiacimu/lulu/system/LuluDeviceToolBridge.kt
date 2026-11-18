@@ -1779,7 +1779,7 @@ object LuluDeviceToolBridge {
         val phoneContinuation = if (plan.tool == "background_phone" &&
             !recoveredHistoricalReceipt &&
             actual?.optString("mode") in setOf("independent_virtual_display", "foreground_accessibility") &&
-            actual.optString("status") != "denied" &&
+            actual?.optString("status") != "denied" &&
             // Even an unverified input/no-frame receipt must reach the same
             // character. It can choose a safe observe/recovery or ask the owner.
             actualToolArgs.optString("action") != "stop" &&
