@@ -137,6 +137,21 @@ class LuluVirtualTextInputPolicyTest {
             7, "com.tencent.mm", ""))
     }
 
+    @Test fun ocrCannotAssembleDraftFromSeparateChatBubbles() {
+        val separate = listOf(
+            LuluVirtualTextReadbackOcr.TextLine("你好", 100, 820, 300, 850),
+            LuluVirtualTextReadbackOcr.TextLine("世界", 100, 950, 300, 980),
+        )
+        assertFalse(LuluVirtualTextReadbackOcr.exactNearField(
+            separate, "你好世界", 720, 1280, 280, 900))
+        val wrapped = listOf(
+            LuluVirtualTextReadbackOcr.TextLine("你好", 100, 850, 300, 880),
+            LuluVirtualTextReadbackOcr.TextLine("世界", 100, 884, 300, 914),
+        )
+        assertTrue(LuluVirtualTextReadbackOcr.exactNearField(
+            wrapped, "你好世界", 720, 1280, 280, 900))
+    }
+
     @Test fun pixelReadbackMustMatchNearSelectedFieldNotOldTextElsewhere() {
         val oldMessage = LuluVirtualTextReadbackOcr.TextLine("打字成功",
             300, 250, 690, 300)
