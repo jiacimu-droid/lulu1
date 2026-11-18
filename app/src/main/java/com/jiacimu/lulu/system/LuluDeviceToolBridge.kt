@@ -2147,10 +2147,29 @@ object LuluDeviceToolBridge {
                     context, characterId, requestId, args)
             }
             "read_screen" -> {
-                val value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) { LuluAccessibilityService.observe() }
-                check(value.connected) { "尚未开启屏幕感知与控制权限" }
-                JSONObject().put("success", true).put("packageName", value.packageName).put("windowTitle", value.windowTitle)
-                    .put("visibleText", value.visibleText.take(6_000)).put("capturedAt", value.capturedAt?.toString().orEmpty()).toString()
+                val value = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    LuluAccessibilityService.observe()
+                }
+                check(value.connected) { "无障碍服务未连接" }
+                val windowProblem = LuluScreenAwareness.screenWindowBlockReason(context, value.packageName)
+                if (windowProblem != null) {
+                    JSONObject().put("success", false)
+                        .put("status", if (value.packageName.isBlank()) "unverified" else "denied")
+                        .put("error", windowProblem)
+                        .put("connected", true)
+                        .put("packageName", value.packageName)
+                        .toString()
+                } else {
+                    JSONObject().put("success", true).put("status", "observed")
+                        .put("packageName", value.packageName).put("windowTitle", value.windowTitle)
+                        .put("visibleText", value.visibleText.take(6_000))
+                        .put("textAvailable", value.visibleText.isNotBlank())
+                        .put("capturedAt", value.capturedAt?.toString().orEmpty())
+                        .put("verification", if (value.visibleText.isNotBlank())
+                            "本次真正读取到主屏无障碍文字，不代表已看过截图"
+                            else "已核实主屏App，但无障碍未提供可见文字；如需了解画面可再选capture_screen")
+                        .toString()
+                }
             }
             else -> CompanionActionRuntime.execute(context, characterId, tool, args).asJson()
         }
