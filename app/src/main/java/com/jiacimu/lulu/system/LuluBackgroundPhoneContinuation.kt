@@ -355,7 +355,8 @@ internal object LuluBackgroundPhoneContinuation {
             history.appendLine("初次点击参数不合法，未派发点击；已真正执行一次只读重新观察。")
             history.appendLine("新观察回执：" + compactRoleReceipt(refreshed))
             uiReferenceSummary(refreshed).takeIf(String::isNotBlank)?.let { history.appendLine(it) }
-            if (freshResult?.optBoolean("targetWindowVerified") == true &&
+            if (hasFreshExecutionReceipt(freshResult) &&
+                freshResult?.optBoolean("targetWindowVerified") == true &&
                 (freshImage != null || freshResult.optString("screenSnapshotId").isNotBlank())) {
                 image = freshImage
                 lastScreenReceipt = freshResult
@@ -368,6 +369,10 @@ internal object LuluBackgroundPhoneContinuation {
             }
         }
         var duplicateRefusals = 0
+        // This only bounds repeated malformed model outputs. Ordinary real
+        // navigation is not limited to a fixed number of phone actions.
+        var snapshotReinspectionAttempts =
+            if (needsSnapshotReinspection(firstAction, firstReceipt)) 1 else 0
         var unchangedObservations = 0
         var stalledWithoutEvidence = if (initialImage == null) 1 else 0
         var lastNoProgressSwipe: String? = null
@@ -613,6 +618,48 @@ internal object LuluBackgroundPhoneContinuation {
                 history.appendLine(it)
             }
             uiReferenceSummary(receipt).takeIf(String::isNotBlank)?.let { history.appendLine(it) }
+            if (needsSnapshotReinspection(action, result)) {
+                history.appendLine("此动作的快照参数被执行器拒绝；未真正点击、输入或外发。")
+                if (snapshotReinspectionAttempts >= 2) {
+                    history.appendLine("已两次因缺少/过期画面编号而被拒绝；停止无效模型决策，保留未完成目标与准确错误。")
+                    return Outcome(history.toString().takeLast(5_000), image, false, count)
+                }
+                // Correct an invalid *transport parameter* by OBSERVING,
+                // not by guessing the missing token or replaying a tap.
+                if (ownerHasNewInput() ||
+                    mustAbortAfterModel(LuluBackgroundPhoneSession.ownerHasPaused(context),
+                        LuluRolePhoneAuthorization.isGranted(context, characterId))) {
+                    history.appendLine("主人已更新指令、停止或撤权；未继续观察。")
+                    return Outcome(history.toString().takeLast(5_000), image, false, count)
+                }
+                snapshotReinspectionAttempts++
+                val recoveryId = requestId + "-phone-snapshot-recovery-" + index
+                val observedReceipt = ToolRouter.execute(
+                    context = context, characterId = characterId, name = "background_phone",
+                    args = JSONObject().put("action", "observe"),
+                    requestId = recoveryId, userRequested = userRequested,
+                )
+                count++
+                val observedImage = LuluScreenFrameHandoff.take(characterId, recoveryId)
+                val observedResult = runCatching { JSONObject(observedReceipt) }.getOrNull()
+                history.appendLine("重新获取当前后台页（只读，没有代替本人点击）：" +
+                    compactRoleReceipt(observedReceipt))
+                uiReferenceSummary(observedReceipt).takeIf(String::isNotBlank)
+                    ?.let { history.appendLine(it) }
+                if (!hasFreshExecutionReceipt(observedResult) ||
+                    observedResult?.optBoolean("targetWindowVerified") != true ||
+                    (observedImage == null && observedResult.optString("screenSnapshotId").isBlank())) {
+                    history.appendLine("没有恢复可用的当前画面/控件；原目标未完成，停止盲试。")
+                    return Outcome(history.toString().takeLast(5_000), observedImage, false, count)
+                }
+                image = observedImage
+                lastScreenReceipt = observedResult
+                lastVerifiedScreen = screen(observedResult, observedImage)
+                searchTextVerified = observedResult.optBoolean("inputTextReadbackVerified")
+                failedAttempts = 0
+                history.appendLine("已把新的快照编号交回本人；本人现在应据实际画面选择下一步，不能重复前次错误参数。")
+                continue
+            }
             lastScreenReceipt = result
             if (result?.optBoolean("momentPublishAttempted") == true ||
                 result?.optBoolean("commentPublishAttempted") == true) momentResultReadOnly = true
