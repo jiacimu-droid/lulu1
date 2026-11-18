@@ -282,7 +282,6 @@ fun LuluGamesApp(
                 }, onResumeYacht = { matchId ->
                     if (store.resumeSuspendedYachtMatch(matchId)) route = GameRoute.YachtDice
                 })
-                GameRoute.DeepSea -> DeepSeaJourneyScreen(store)
                 GameRoute.BlockIsland, GameRoute.RelicEscape -> {
                     val isIsland = current == GameRoute.BlockIsland
                     val party = invitedCompanionsForGame(initialGameId, current.savedGameId(), state)
