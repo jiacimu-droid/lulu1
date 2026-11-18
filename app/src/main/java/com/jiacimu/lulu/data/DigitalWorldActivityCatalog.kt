@@ -193,7 +193,11 @@ internal object DigitalWorldActivityCatalog {
             "arrival_observe" to "观察世界入口",
         )
         else -> when {
-            locationCode.startsWith("home:") -> listOf(
+            // Native residents live under resident-home:<id>, not home:<id>.
+            // Their home offers the same executable low-key activities; the
+            // world executor still validates the actor's actual location.
+            (locationCode.startsWith("home:") ||
+                locationCode.startsWith("resident-home:")) -> listOf(
                 "home_pace" to "在当前家园走动",
                 "home_quiet_rest" to "在当前家园安静休息",
             )
