@@ -65,9 +65,19 @@ internal val settingsHomeEntries: List<SettingsHomeEntry> = listOf(
         "保存数据，管理自动与云备份",
         "导出 导入 数据迁移 恢复存档 保存 云端",
     ),
+    SettingsHomeEntry(
+        "wishes", "社区与支持", "许愿",
+        "分享想要的功能与体验建议",
+        "提建议 反馈 建议 功能需求 意见 许愿 GitHub Issues",
+    ),
+    SettingsHomeEntry(
+        "donate", "社区与支持", "打赏作者",
+        "自愿支持露露机的持续开发",
+        "赞赏 支持 捐赠 打赏 作者 爱发电 支付",
+    ),
 )
 
-internal val settingsHomeSections = listOf("模型与连接", "角色与设备", "数据与安全")
+internal val settingsHomeSections = listOf("模型与连接", "角色与设备", "数据与安全", "社区与支持")
 
 /** All search words must match. Search only presentation metadata, never private data. */
 internal fun filterSettingsHomeEntries(
