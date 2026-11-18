@@ -53,6 +53,10 @@ class ScreenVisionCapabilityContextTest {
             assertTrue(screen.contains("角色自主观察授权=true"))
             assertTrue(screen.contains("action=tool,tool=capture_screen,args={}"))
             assertTrue(screen.contains("无须逐次申请"))
+            assertTrue(screen.contains("read_screen=当前真实主屏的无障碍文字"))
+            assertTrue(screen.contains("不需要MediaProjection"))
+            assertTrue(screen.contains("窗口临时为空"))
+            assertTrue(screen.contains("只有主人亲自填写的屏幕排除包名"))
             assertFalse(screen.contains("两次至少间隔5分钟"))
             assertFalse(screen.contains("危险"))
             assertTrue(CapabilityRegistry.allows(context, role,
