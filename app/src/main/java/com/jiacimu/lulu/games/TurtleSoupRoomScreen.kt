@@ -260,7 +260,7 @@ internal fun TurtleSoupRoomScreen(store: LuluGameStore) {
                         "\n允许玩家提交还原：" + (snapshot.host != SoupHost.USER) +
                         if (actorName == null) "\n玩家当前没有猜题队友。" else "\n你的名字是" + actorName + "，你也是同桌的猜题者。",
                     instruction = "理解玩家刚刚说的话和接话对象。向队友问候、闲聊、商量、试探想法、请队友帮问主持，或没说完的话，都归 team。" +
-                        "只把已经说完整、明确是在请主持人判断的可用是/否回答的问题归 host；独自猜题时清楚的游戏问句可直接归 host。" +
+                        "把已经说完整、可用是/否回答的正式提问归 host：可以点名主持人，也可以直接就案情发问；在征询队友看法时仍归 team。" +
                         "只有玩家在明确提交完整还原时归 solution；猜一个片段或交换想法归 team。拿不准时归 team。不能提交的动作也归 team。" +
                         "选 team 且有猜题队友时，由你本人先用自然的短口语接这句话。问候就回应，不必硬拐回推理；讨论时根据已知线索说出自己的想法。" +
                         "你也可自选向主持人新提一个是/否问题(question)或完整还原(solve)，也可以只说话(none)。" +
