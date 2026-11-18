@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:25:57.634376+00:00",
-  "commit": "03883b44e3f4ed1c88ea338e4b4f15884150cb43",
+  "generatedAt": "2026-11-18T11:26:42.874872+00:00",
+  "commit": "410cbf52c5f32829956e0c65ea2d7cdd83003c9e",
   "branch": "main",
-  "sourceFingerprint": "563807f996e14d6995016b52d8f358221f46809d9003f6a705c0bbcfe63e1026",
+  "sourceFingerprint": "c6918f4e8783e04130caca8700782f26f981bf8353143c0fc5b08f4ab2bcd7b2",
   "summary": {
     "files": 1465,
-    "lines": 310514,
+    "lines": 310527,
     "symbols": 4422
   },
   "symbolIndex": {
@@ -28687,8 +28687,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt",
-      "lines": 398,
-      "sha256": "8e4ec4e0c4dff7b569cdf7f5aa4026d7c664e3766a38965c09ab9baeb6fe9b55",
+      "lines": 411,
+      "sha256": "5833a570d7f28e660ac60d151eb50625aaf0d8d286673580544c0db46f08dd05",
       "symbols": [
         {
           "name": "ScheduleFeatureScreen",

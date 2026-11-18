@@ -181,6 +181,27 @@ class DailyCommitmentRecurrenceTest {
         assertTrue(oneTime.isOverdueOneOffOn(today, shanghai))
     }
 
+    @Test fun movingTodaysNextDailyCallDoesNotRetargetYesterdaysReview() {
+        val prior = at(2026, 11, 17, 23, 0)
+        val next = at(2026, 11, 18, 23, 0)
+        val original = CommitmentTask(characterId = "role",
+            repeat = "daily", status = CommitmentTaskStatus.WaitingForFeedback,
+            goal = "每天23点督睡", dueAt = prior, dailyBaseDueAt = prior,
+            dailyNextDueAt = next, dailyNextAlarmId = "already-registered",
+            linkedAlarmId = "yesterday-review",
+            followUpKind = "verification", nextCheckAt = at(2026, 11, 18, 0, 30),
+            attemptCount = 2, lastAlarmReceivedAt = prior)
+        val request = CommitmentTaskDraft(action = "reschedule",
+            goal = "今晚晚半小时", dueAt = at(2026, 11, 18, 23, 30),
+            repeat = "once", permanent = false)
+        assertTrue(isUpcomingDailyOccurrenceCorrection(original, request))
+        assertEquals("daily", resolvedCommitmentRepeatAfterReschedule(original, request))
+        assertFalse(isUpcomingDailyOccurrenceCorrection(original.copy(
+            dailyNextAlarmId = null), request))
+        assertFalse(isUpcomingDailyOccurrenceCorrection(original, request.copy(
+            dueAt = at(2026, 11, 19, 23, 30))))
+    }
+
     @Test fun nextRealDailyAlarmOverrulesAProjectedPreviousClock() {
         val today = java.time.LocalDate.of(2026, 11, 18)
         val daily = CommitmentTask(characterId = "role",

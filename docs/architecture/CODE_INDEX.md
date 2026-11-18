@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`03883b44e3f4ed1c88ea338e4b4f15884150cb43`
+- 基准提交：`410cbf52c5f32829956e0c65ea2d7cdd83003c9e`
 - 分支：`main`
 - 已索引文件：1465
-- 已索引代码/文本行：310514
+- 已索引代码/文本行：310527
 - 已发现符号：4422
 
 | 文件 | 行数 | 符号数 |
@@ -294,7 +294,7 @@
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneMemos.kt` | 158 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt` | 216 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 398 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 411 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 241 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt` | 41 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt` | 703 | 6 |
