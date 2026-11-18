@@ -101,38 +101,62 @@ internal fun DesktopWorldBulletinCard(
             prefs.edit().putStringSet("seen", updated).apply()
         },
     ) {
-        Row(
-            Modifier.fillMaxSize().padding(horizontal = 15.dp, vertical = 13.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(Icons.Outlined.Campaign, null, Modifier.size(27.dp), tint = ink)
-            Spacer(Modifier.width(11.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("数字世界 · 公告栏", color = ink,
-                        fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                    if (unread > 0) {
-                        Spacer(Modifier.width(8.dp))
-                        Surface(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(99.dp)) {
-                            Text("${unread.coerceAtMost(99)} 新动态",
-                                color = MaterialTheme.colorScheme.onPrimary, fontSize = 9.sp,
-                                modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp))
-                        }
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+            val compact = maxWidth < 250.dp || maxHeight < 115.dp
+            if (compact) {
+                Column(
+                    Modifier.fillMaxSize().padding(horizontal = 10.dp, vertical = 7.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Outlined.Campaign, null, modifier = Modifier.size(17.dp), tint = ink)
+                        Spacer(Modifier.width(6.dp))
+                        Text("世界公告", color = ink, fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                        if (unread > 0) Text("+${unread.coerceAtMost(99)}", color = ink,
+                            fontSize = 10.sp)
+                    }
+                    Text(latest?.title ?: "暂无新动态", color = ink, fontSize = 12.sp,
+                        maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    if (maxHeight >= 110.dp) {
+                        Text(latest?.detail ?: "重要动态会在这里出现。", color = mutedInk,
+                            fontSize = 10.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     }
                 }
-                Text(latest?.title ?: "世界暂时没有新公告",
-                    color = ink, fontSize = 14.sp,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(latest?.detail ?: "新居民、地点和重要建设会在这里出现。",
-                    color = mutedInk, fontSize = 11.sp,
-                    maxLines = 2, overflow = TextOverflow.Ellipsis, lineHeight = 15.sp)
+            } else {
+            Row(
+                Modifier.fillMaxSize().padding(horizontal = 15.dp, vertical = 13.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(Icons.Outlined.Campaign, null, Modifier.size(27.dp), tint = ink)
+                Spacer(Modifier.width(11.dp))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("数字世界 · 公告栏", color = ink,
+                            fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        if (unread > 0) {
+                            Spacer(Modifier.width(8.dp))
+                            Surface(color = MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(99.dp)) {
+                                Text("${unread.coerceAtMost(99)} 新动态",
+                                    color = MaterialTheme.colorScheme.onPrimary, fontSize = 9.sp,
+                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp))
+                            }
+                        }
+                    }
+                    Text(latest?.title ?: "世界暂时没有新公告",
+                        color = ink, fontSize = 14.sp,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(latest?.detail ?: "新居民、地点和重要建设会在这里出现。",
+                        color = mutedInk, fontSize = 11.sp,
+                        maxLines = 2, overflow = TextOverflow.Ellipsis, lineHeight = 15.sp)
+                }
+                Spacer(Modifier.width(6.dp))
+                Icon(Icons.Outlined.ChevronRight, "查看世界公告", Modifier.size(20.dp),
+                    tint = mutedInk)
             }
-            Spacer(Modifier.width(6.dp))
-            Icon(Icons.Outlined.ChevronRight, "查看世界公告", Modifier.size(20.dp),
-                tint = mutedInk)
+            }
         }
     }
-
     if (opened) {
         AlertDialog(
             onDismissRequest = { opened = false },
