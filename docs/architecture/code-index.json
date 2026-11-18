@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T13:43:32.701532+00:00",
-  "commit": "ab4bf899868c107cd995ffd175059b4e2a0a8b33",
+  "generatedAt": "2026-11-18T13:44:19.517647+00:00",
+  "commit": "ef19b5dbfd7cdcddd24a224236ae97ff89a7586d",
   "branch": "main",
-  "sourceFingerprint": "bedc9c2d137ec495ad7ba356bd365fa5abe8ea7daa2fcc5c536ec91fe563d824",
+  "sourceFingerprint": "00571fb042fc9a040360593498bbcd87cf06f227878c9fb2404bc16140008087",
   "summary": {
     "files": 1468,
-    "lines": 310163,
+    "lines": 310181,
     "symbols": 4435
   },
   "symbolIndex": {
@@ -45388,8 +45388,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/DesktopPageCountTest.kt",
-      "lines": 53,
-      "sha256": "3f387f27dd1dac41dceed232e36b7a7f916b97a114c8b7a45b8fd61ef0a3a423",
+      "lines": 64,
+      "sha256": "698fde1834d145a6ffb403d19125f54b26e5abda0fe1d4c7af41daa3246fc189",
       "symbols": [
         {
           "name": "DesktopPageCountTest",
@@ -45759,8 +45759,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/LuluDesktopWidgetTest.kt",
-      "lines": 108,
-      "sha256": "c42e8e4c2db4a9e721fde41e7e718b3d43f43df4ccce384870dd8d7963d788f6",
+      "lines": 115,
+      "sha256": "38ae734534284fdc3e79ddd4dd3a04f447980f16a45b43a623f3926d980cc9b7",
       "symbols": [
         {
           "name": "LuluDesktopWidgetTest",
