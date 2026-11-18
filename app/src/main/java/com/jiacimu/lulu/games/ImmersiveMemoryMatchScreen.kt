@@ -31,6 +31,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -41,6 +45,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
+import com.jiacimu.lulu.ai.ModelUsage
 import com.jiacimu.lulu.LuluProfileAvatar
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.delay
@@ -53,6 +59,43 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
     val state by store.state.collectAsState()
     val game = state.memoryMatch
     val character = MigratedDomainStores.characters.get(state.selectedCharacterId)
+    val context = LocalContext.current
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    val roomId = remember(game.cards) { java.util.UUID.randomUUID().toString() }
+    val participants = remember(state.playWithCharacter, state.selectedCharacterId) {
+        if (state.playWithCharacter && state.selectedCharacterId.isNotBlank())
+            listOf(state.selectedCharacterId) else emptyList()
+    }
+    val live = rememberGameLiveSession("memory_match", roomId, participants)
+    var ownerSpeech by remember(roomId) { mutableStateOf("") }
+    var roleError by remember(roomId) { mutableStateOf("") }
+    var choiceRetry by remember(roomId) { mutableIntStateOf(0) }
+    var deciding by remember(roomId) { mutableStateOf(false) }
+
+    SideEffect {
+        live.onOwnerMessage = { text, fromSpeech ->
+            ownerSpeech = text
+            GameTeamConversationTimeline.recordOwner(
+                context, "memory_match", roomId, participants, text, fromSpeech,
+            )
+            val actor = participants.firstOrNull()
+            if (actor != null && !game.finished) {
+                requestGameRoleResponse(
+                    scope, store, null,
+                    "主人在记忆翻牌中刚说：$text。当前比分：主人${game.userPairs}对，你${game.characterPairs}对。" +
+                        "已公开位置：${game.observed.toSortedMap()}；现在轮到${game.turn}。只知道已翻过的牌。",
+                    "你正在和主人一起玩翻牌。可以随意聊这句话和当前真实局面，别说出没有翻过的牌面，也不要替主人选牌。两句以内。",
+                    "记忆翻牌 · 同桌交流",
+                    onState = { response ->
+                        if (response.text.isNotBlank()) {
+                            live.companionSaid(actor, response.text, "reply-${System.nanoTime()}")
+                        }
+                    },
+                    maxTokens = 140, characterIdOverride = actor,
+                )
+            }
+        }
+    }
 
     LaunchedEffect(game.opened) {
         if (game.opened.size == 2 && game.opened.any { it !in game.matched }) {
@@ -60,12 +103,28 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
             store.closeUnmatchedCards()
         }
     }
-    LaunchedEffect(game.turn, game.opened, game.matched, game.finished) {
-        if (game.turn != MemoryTurn.Character || game.finished || game.opened.size >= 2) return@LaunchedEffect
-        delay(550)
-        val choice = chooseObservedMemoryCard(game) ?: return@LaunchedEffect
+    LaunchedEffect(game.turn, game.opened, game.matched, game.finished, choiceRetry, ownerSpeech) {
+        if (participants.isEmpty() || game.turn != MemoryTurn.Character ||
+            game.finished || game.opened.size >= 2) return@LaunchedEffect
+        roleError = ""
+        delay(450)
+        deciding = true
+        val decision = requestMemoryRoleChoice(state.selectedCharacterId, game, ownerSpeech)
+        deciding = false
+        val choice = decision.getOrElse { failure ->
+            roleError = failure.message ?: "伙伴选牌失败，请重试"
+            return@LaunchedEffect
+        }
+        // The model might finish after the user has left the turn or changed the deck.
+        val now = store.state.value.memoryMatch
+        if (now.cards != game.cards || now.turn != game.turn || now.opened != game.opened ||
+            now.matched != game.matched || now.finished) return@LaunchedEffect
+        if (choice.speech.isNotBlank()) {
+            live.companionSaid(state.selectedCharacterId, choice.speech,
+                "flip-${game.moves}-${game.opened.size}")
+        }
         GameSoundEffects.play(GameSoundEffect.Interact)
-        store.openCharacterMemoryCard(choice)
+        store.openCharacterMemoryCard(choice.index)
     }
     LaunchedEffect(game.finished) {
         if (game.finished) GameSoundEffects.play(GameSoundEffect.Objective)
@@ -105,6 +164,19 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
                 },
                 modifier = Modifier.weight(1f),
             )
+            if (participants.isNotEmpty()) {
+                Surface(color = Color(0xA0192030), shape = RoundedCornerShape(12.dp)) {
+                    Column(Modifier.padding(7.dp)) {
+                        GameTalkBar(live)
+                        if (deciding) Text("伙伴正在回忆刚才翻到的牌…",
+                            color = Color(0xFFD6C8FF), fontSize = 11.sp)
+                        if (roleError.isNotBlank()) {
+                            Text(roleError, color = Color(0xFFFFB7B7), fontSize = 11.sp)
+                            Button(onClick = { choiceRetry++ }) { Text("重新选牌") }
+                        }
+                    }
+                }
+            }
             Surface(
                 color = Color(0xC20C1220),
                 shape = RoundedCornerShape(14.dp),
