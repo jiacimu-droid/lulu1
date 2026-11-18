@@ -3,9 +3,8 @@ package com.jiacimu.lulu
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.graphics.Bitmap
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -22,6 +21,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.XhsImageLoader
+import kotlinx.coroutines.launch
 
 private val xhsRed = Color(0xFFE65059)
 private val darkInk = Color(0xFF292A30)
@@ -75,11 +76,23 @@ private fun QqXhsCover(url: String, modifier: Modifier = Modifier) {
 internal fun QqXhsSharedNoteCard(
     note: QqXhsSharedNote,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit,
+    onDetails: () -> Unit,
     onLongClick: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     Surface(
-        modifier = modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick),
+        modifier = modifier.combinedClickable(
+            onClickLabel = "打开小红书",
+            onClick = {
+                scope.launch {
+                    if (QqShoppingProductLinkOpener.openSharedLink(context, note.url) ==
+                        QqShoppingProductLinkOpener.Result.FAILED)
+                        Toast.makeText(context, "无法打开小红书链接", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onLongClick = onLongClick,
+        ),
         color = Color.White,
         shape = RoundedCornerShape(18.dp),
         border = BorderStroke(1.dp, Color(0xFFF0E9E9)),
@@ -104,15 +117,17 @@ internal fun QqXhsSharedNoteCard(
             }
             val teaser = if (note.verified) note.body.replace(Regex("""\s+"""), " ").take(110)
                 .ifBlank { note.visualReading.replace(Regex("""\s+"""), " ").take(100) }
-                else "已分享笔记链接，点击查看分享信息"
+                else ""
             if (teaser.isNotBlank()) Text(teaser, color = Color(0xFF77757D),
                 fontSize = 12.sp, lineHeight = 17.sp, maxLines = 2,
                 overflow = TextOverflow.Ellipsis)
             HorizontalDivider(color = Color(0xFFF2EEEE))
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Text(if (note.body.isNotBlank()) "已附正文 · 点击查看详情" else if (note.visualReading.isNotBlank()) "已附识图结果 · 点击查看" else if (note.verified) "仅有图片链接 · 等待识别" else "分享链接 · 点击查看",
-                    modifier = Modifier.weight(1f), fontSize = 11.sp, color = secondaryInk)
-                Text("查看  ›", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = xhsRed)
+                Text("打开小红书 ›", modifier = Modifier.weight(1f), fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium, color = xhsRed)
+                if (note.verified || note.shareText.isNotBlank()) TextButton(onClick = onDetails) {
+                    Text("分享详情", fontSize = 11.sp, color = secondaryInk)
+                }
             }
         }
     }
@@ -121,6 +136,7 @@ internal fun QqXhsSharedNoteCard(
 @Composable
 internal fun QqXhsSharedNoteDetail(note: QqXhsSharedNote, onDismiss: () -> Unit) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -177,9 +193,10 @@ internal fun QqXhsSharedNoteDetail(note: QqXhsSharedNote, onDismiss: () -> Unit)
         dismissButton = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = {
-                    runCatching {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(note.url)))
-                    }.onSuccess { onDismiss() }
+                    scope.launch {
+                        if (QqShoppingProductLinkOpener.openSharedLink(context, note.url) !=
+                            QqShoppingProductLinkOpener.Result.FAILED) onDismiss()
+                    }
                 }) { Text("打开原笔记", color = xhsRed) }
                 TextButton(onClick = onDismiss) { Text("关闭", color = secondaryInk) }
             }

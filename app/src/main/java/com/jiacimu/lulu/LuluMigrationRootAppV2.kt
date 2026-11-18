@@ -242,13 +242,19 @@ fun LuluMigrationRootAppV2(
     // the article. A recipient is chosen explicitly and the payload enters the
     // ordinary persistent user-message timeline before navigating to chat.
     if (!incomingSharedNote.isNullOrBlank()) {
+        val sharedLinks = remember(incomingSharedNote) {
+            com.jiacimu.lulu.system.LuluSharedWebLinks.project(incomingSharedNote).links
+        }
+        val note = remember(incomingSharedNote, sharedLinks) {
+            if (sharedLinks.size == 1) externalXhsSharedNote(incomingSharedNote) else null
+        }
         XhsShareToRoleDialog(
-            preview = externalXhsSharedNote(incomingSharedNote)?.title ?: incomingSharedNote,
+            preview = note?.title ?: incomingSharedNote,
+            isXhs = note != null,
             onDismiss = onSharedNoteHandled,
             onSelect = { target ->
                 MigratedDomainStores.chat.sendUserMessage(
-                    target.id, externalXhsSharedNote(incomingSharedNote)?.let(::encodeQqXhsSharedNote)
-                        ?: incomingSharedNote,
+                    target.id, note?.let(::encodeQqXhsSharedNote) ?: incomingSharedNote,
                 )
                 onSharedNoteHandled()
                 openConversation(target.id)

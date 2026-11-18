@@ -3108,7 +3108,7 @@ object ProactivePerceptionRuntime {
                 reportablePhoneOutcomes += outcome
                 if (hasFreshUserMessage && outcome.actions == 0 &&
                     !actual.optBoolean("taskCompleted") &&
-                    !actual.optBoolean("productLinkSent") &&
+                    !actual.optBoolean("linkSent") && !actual.optBoolean("productLinkSent") &&
                     !actual.optBoolean("messageAppearedInChat")) {
                     val stage = if (actual.optBoolean("targetWindowVerified"))
                         "应用已打开，尚无下一步实际动作回执"

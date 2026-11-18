@@ -8,10 +8,11 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -19,35 +20,48 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.system.LuluSharedWebLinks
+import com.jiacimu.lulu.system.LuluShoppingLinkShare
+import kotlinx.coroutines.launch
 
-/**
- * A compact handoff, not a fabricated product listing. We only have a
- * device-verified merchant URL and the character's own optional caption:
- * no invented photo, price, sale status or product name.
- *
- * The entire card is one tap target; long-press preserves chat actions.
- * The owner alone opens the merchant and confirms checkout/payment.
- */
 @OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
-internal fun QqShoppingProductLinkCard(
-    product: QqShoppingProductLink,
+internal fun QqSharedWebLinkCard(
+    url: String,
     modifier: Modifier = Modifier,
+    title: String = "",
+    caption: String = "",
+    verifiedMerchant: String? = null,
     onLongClick: () -> Unit,
 ) {
     val context = LocalContext.current
-    val host = Uri.parse(product.url).host.orEmpty().removePrefix("www.")
+    val scope = rememberCoroutineScope()
+    var opening by remember(url) { mutableStateOf(false) }
+    val merchant = verifiedMerchant ?: remember(url) { LuluShoppingLinkShare.merchantForUrl(url) }
+    val host = Uri.parse(url).host.orEmpty().removePrefix("www.")
+    val xhs = LuluSharedWebLinks.xhsUrl(url) != null
+    val heading = title.ifBlank { merchant ?: if (xhs) "小红书笔记" else host }
+    val openLabel = when {
+        xhs -> "打开小红书"
+        merchant != null -> "打开商品"
+        else -> "打开链接"
+    }
     Surface(
         modifier = modifier.combinedClickable(
-            onClickLabel = "打开${product.merchant}商品链接",
+            onClickLabel = openLabel,
             onLongClickLabel = "消息操作",
             onClick = {
-                when (QqShoppingProductLinkOpener.open(context, product)) {
-                    QqShoppingProductLinkOpener.Result.MERCHANT_APP -> Unit
-                    QqShoppingProductLinkOpener.Result.SYSTEM_HANDLER ->
-                        Toast.makeText(context, "商家App没有接收此链接，已交给系统默认方式打开", Toast.LENGTH_SHORT).show()
-                    QqShoppingProductLinkOpener.Result.FAILED ->
-                        Toast.makeText(context, "无法打开商品链接，请检查商家应用或浏览器", Toast.LENGTH_LONG).show()
+                if (!opening) {
+                    opening = true
+                    scope.launch {
+                        try {
+                            val result = QqShoppingProductLinkOpener.openSharedLink(context, url, merchant)
+                            if (result == QqShoppingProductLinkOpener.Result.FAILED)
+                                Toast.makeText(context, "无法打开链接", Toast.LENGTH_SHORT).show()
+                        } finally {
+                            opening = false
+                        }
+                    }
                 }
             },
             onLongClick = onLongClick,
@@ -66,7 +80,7 @@ internal fun QqShoppingProductLinkCard(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        Icons.Outlined.ShoppingBag,
+                        if (merchant != null) Icons.Outlined.ShoppingBag else Icons.Outlined.Link,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.onSurface,
@@ -74,7 +88,7 @@ internal fun QqShoppingProductLinkCard(
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        product.merchant,
+                        heading,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 14.sp,
                         maxLines = 1,
@@ -90,10 +104,10 @@ internal fun QqShoppingProductLinkCard(
                     )
                 }
             }
-            if (product.caption.isNotBlank()) {
+            if (caption.isNotBlank()) {
                 Spacer(Modifier.height(11.dp))
                 Text(
-                    product.caption,
+                    caption,
                     fontSize = 14.sp,
                     lineHeight = 20.sp,
                     maxLines = 4,
@@ -114,18 +128,12 @@ internal fun QqShoppingProductLinkCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
-                    "打开商品",
+                    if (opening) "正在打开…" else openLabel,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(Modifier.weight(1f))
-                Text(
-                    "你来付款",
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                )
                 Icon(
                     Icons.Outlined.OpenInNew,
                     contentDescription = null,
