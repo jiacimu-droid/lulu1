@@ -123,6 +123,7 @@ class GameInvitationContinuityTest {
         // catalogue is still separate and never proves the owner accepted.
         assertEquals(setOf("memory_match","yacht_dice","block_island","relic_escape"),
             AutonomousGameCatalog.gameNames.keys)
-        assertEquals(6, GameInvitationCatalog.titles.size)
+        assertEquals(5, GameInvitationCatalog.titles.size)
+        assertNull(GameInvitationCatalog.title("deep_sea_journey"))
     }
 }
