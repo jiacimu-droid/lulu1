@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:40:07.992245+00:00",
-  "commit": "e77c6e1212bd3bf75feaebd986fb33e3f4bab1b2",
+  "generatedAt": "2026-11-18T11:40:40.721403+00:00",
+  "commit": "4c1f3e353a4f0388910f0c0a10c352da3bc5ce47",
   "branch": "main",
-  "sourceFingerprint": "e5237546f78b053860be42905a9c2c71f93be7e8c738ec1191a29ad15a85a7f3",
+  "sourceFingerprint": "33566ee478b8dfffc2e38dfecb9e3f96a1283bbba538673193504a8c6e9abdde",
   "summary": {
     "files": 1464,
-    "lines": 309601,
+    "lines": 309626,
     "symbols": 4429
   },
   "symbolIndex": {
@@ -44095,8 +44095,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVirtualTextReadbackOcr.kt",
-      "lines": 77,
-      "sha256": "a1c5be42102cdfc58b0c1f214cdf41f7d01dc03012e6bcbe59099bf01a2dbb34",
+      "lines": 87,
+      "sha256": "8ecbe6b531ee8afbb897356ec356475d2798673bfca88812c8ac255d451db431",
       "symbols": [
         {
           "name": "TextLine",
@@ -51997,8 +51997,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVirtualTextInputPolicyTest.kt",
-      "lines": 153,
-      "sha256": "addcedfae1f9767e8acbd6fadaf444306f8dc77fa79cfe5d23ee020b6cab55c3",
+      "lines": 168,
+      "sha256": "56422622c4a6f0c0595a72f4345a63366244cebfa760e53ab6d5788406c1f59b",
       "symbols": [
         {
           "name": "LuluVirtualTextInputPolicyTest",
