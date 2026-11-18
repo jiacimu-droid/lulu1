@@ -245,8 +245,14 @@ class RelicObjectiveRouteTest {
             seen=(2..6).map { 2*12+it }.toSet(),
             phase=RelicPhase.DOWNED,
             hero=corridor().hero.copy(hp=0),
-            allies=listOf(RelicActor("friend",3,2,kits=1))
+            allies=listOf(RelicActor("friend",3,2,kits=1)),
+            // The synthetic corridor replaces the map's terrain. Its original
+            // generated exit can now be solid stone, which a real saved run
+            // correctly rejects. Give this serialisation fixture a reachable
+            // exit while keeping the real downed/rescue semantics unchanged.
+            exitX=5,exitY=2,
         )
+        assertTrue(discovered.walk(discovered.exitX,discovered.exitY))
         val chest=RelicObjectiveTarget(6,2,"已发现的宝箱")
         val savedDowned=RelicRun.read(JSONObject(discovered.json().toString()))!!
         assertNull(RelicObjectiveGuide.knownRouteTiles(savedDowned,chest))
