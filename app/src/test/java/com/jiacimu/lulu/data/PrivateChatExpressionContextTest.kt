@@ -92,4 +92,46 @@ class PrivateChatExpressionContextTest {
         assertTrue(PrivateChatExpressionContext.unreadConversation("role", "private", messages,
             unread.copy(messageIds = setOf("a"))).isEmpty())
     }
+
+    @Test fun learnedPreferenceKeepsItsFinalConditionAndExpiresWithSourceRevision() {
+        MemoryTestEnvironment.release()
+        try {
+            val app = org.robolectric.RuntimeEnvironment.getApplication() as android.content.Context
+            com.jiacimu.lulu.LuluRepositories.initialize(app)
+            MigratedDomainStores.initialize(app)
+            CharacterLifeStore.initialize(app)
+            CharacterDevelopmentStore.initialize(app)
+            SharedExperienceTimeline.initialize(app)
+            val role = MigratedDomainStores.characters.create("偏好交接甲").characterId
+            val other = MigratedDomainStores.characters.create("偏好交接乙").characterId
+            val preference = "我希望讨论旅行时可以直接提出建议。" +
+                "路线和休息安排要结合当时的实际情况。".repeat(14) +
+                "但除非我明确同意，不要替我预订，也不要把沉默当成同意。"
+            assertTrue(preference.length > 210)
+            assertTrue(preference.length <= 500)
+            val sourceId = "expression-preference-source"
+            SharedExperienceTimeline.record(sourceId, role, "私聊", "用户", preference,
+                java.time.Instant.now(), triggerExtraction = false,
+                evidenceKind = EventEvidenceKind.UserStatement)
+            assertTrue(CharacterDevelopmentStore.applyProposal(role, "travel-preference",
+                DevelopmentKind.UserPreference, preference, listOf(sourceId), emptyList(),
+                CharacterRuntime.personaConstraintSnapshot(role)))
+            val handoff = CharacterRuntime.leanExpressionContext(role, "旅行", freshAnswer = true)
+            assertTrue(handoff.contains(preference))
+            assertFalse(CharacterRuntime.leanExpressionContext(other, "旅行", freshAnswer = true)
+                .contains(preference))
+            // Revise the original evidence through its production entry point.
+            // Neither the old qualification nor its incomplete prefix may survive.
+            SharedExperienceTimeline.record(sourceId, role, "私聊", "用户",
+                "这条旅行偏好已经撤销，请不要继续沿用。", java.time.Instant.now(),
+                triggerExtraction = false, evidenceKind = EventEvidenceKind.UserStatement)
+            assertFalse(CharacterDevelopmentStore.active(role).any { it.slot == "travel-preference" })
+            assertFalse(CharacterRuntime.leanExpressionContext(role, "旅行", freshAnswer = true)
+                .contains("路线和休息安排"))
+            assertEquals("这条旅行偏好已经撤销，请不要继续沿用。",
+                SharedExperienceTimeline.eventsByIds(role, listOf(sourceId)).single().content)
+        } finally {
+            MemoryTestEnvironment.release()
+        }
+    }
 }

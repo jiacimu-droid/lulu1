@@ -99,6 +99,8 @@ data class AutonomousGameResult(
 )
 
 data class MemoryMatchState(
+    // A room owns its opponent; selecting someone in another game cannot hijack this turn.
+    val opponentId: String? = null,
     val cards: List<String> = listOf("🌙", "🍰", "🎧", "🌸", "🧸", "☕", "🌙", "🍰", "🎧", "🌸", "🧸", "☕").shuffled(),
     val opened: Set<Int> = emptySet(),
     val matched: Set<Int> = emptySet(),
@@ -270,21 +272,44 @@ class LuluGameStore internal constructor(context: Context) {
         }
     }
 
+    /** Start a fresh room with one actual opponent or in solo practice. */
+    fun startMemoryMatch(opponentId: String?) {
+        val chosen = opponentId?.trim()?.takeIf(String::isNotBlank)
+        mutate { current ->
+            current.copy(
+                selectedCharacterId = chosen ?: current.selectedCharacterId,
+                selectedCharacterIds = if (chosen == null) emptyList() else listOf(chosen),
+                playWithCharacter = chosen != null,
+                memoryMatch = MemoryMatchState(opponentId = chosen),
+            )
+        }
+    }
+
+    /** Fewest completed turns from the owner's own solo games, not character-only runs. */
+    fun memorySoloBestMoves(): Int? = mutableState.value.records.asSequence()
+        .filter { it.type == LuluGameType.MemoryMatch && !it.characterSolo && !it.playedWithCharacter }
+        .mapNotNull { record ->
+            runCatching {
+                JSONObject(record.detailsJson).takeIf { it.optString("mode") == "solo" }
+                    ?.optInt("moves", 0)?.takeIf { it > 0 }
+            }.getOrNull()
+        }.minOrNull()
+
     fun openMemoryCard(index: Int) {
         if (mutableState.value.memoryMatch.turn != MemoryTurn.User) return
         openMemoryCard(index, MemoryTurn.User)
     }
 
     fun openCharacterMemoryCard(index: Int) {
-        if (mutableState.value.memoryMatch.turn != MemoryTurn.Character) return
+        if (mutableState.value.memoryMatch.opponentId == null || mutableState.value.memoryMatch.turn != MemoryTurn.Character) return
         openMemoryCard(index, MemoryTurn.Character)
     }
 
     private fun openMemoryCard(index: Int, player: MemoryTurn) {
         val current = mutableState.value.memoryMatch
         if (current.finished || index !in current.cards.indices || index in current.matched || index in current.opened) return
-        if (player == MemoryTurn.User && mutableState.value.playWithCharacter) {
-            com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(mutableState.value.selectedCharacterId)
+        if (player == MemoryTurn.User && current.opponentId != null) {
+            com.jiacimu.lulu.data.CompanionOnlineStore.recordActivity(current.opponentId)
         }
         val opened = current.opened + index
         val observed = current.observed + (index to current.cards[index])
@@ -312,13 +337,31 @@ class LuluGameStore internal constructor(context: Context) {
         )
         mutate { it.copy(memoryMatch = next) }
         if (finished) {
-            val score = next.userPairs * 100
+            val solo = next.opponentId == null
+            val score = if (solo) (1_200 - (next.moves - 6).coerceAtLeast(0) * 60).coerceAtLeast(120)
+                else next.userPairs * 100
+            val previousBest = if (solo) memorySoloBestMoves() else null
             recordExternalGame(
-                LuluGameType.MemoryMatch,
-                "记忆配对",
-                score,
-                0,
-                "共翻了 ${next.moves} 轮；你找到 ${next.userPairs} 对，角色找到 ${next.characterPairs} 对。",
+                type = LuluGameType.MemoryMatch,
+                title = "记忆配对",
+                score = score,
+                reward = 0,
+                summary = if (solo) {
+                    "单人挑战：${next.moves} 轮找齐 6 对。" +
+                        (if (previousBest == null || next.moves < previousBest) " 创下个人最佳！"
+                        else " 最佳纪录 ${previousBest} 轮。")
+                } else {
+                    "共翻了 ${next.moves} 轮；你找到 ${next.userPairs} 对，对手找到 ${next.characterPairs} 对。"
+                },
+                detailsJson = JSONObject()
+                    .put("mode", if (solo) "solo" else "competitive")
+                    .put("moves", next.moves)
+                    .put("userPairs", next.userPairs)
+                    .put("opponentPairs", next.characterPairs)
+                    .put("opponentId", next.opponentId ?: JSONObject.NULL)
+                    .toString(),
+                playedWithCharacterOverride = !solo,
+                characterIdOverride = next.opponentId ?: "",
             )
         }
     }
@@ -326,20 +369,21 @@ class LuluGameStore internal constructor(context: Context) {
     fun closeUnmatchedCards() {
         val current = mutableState.value.memoryMatch
         if (current.opened.any { it !in current.matched }) {
-            val nextTurn = if (current.turn == MemoryTurn.User) MemoryTurn.Character else MemoryTurn.User
+            val nextTurn = if (current.opponentId == null) MemoryTurn.User
+                else if (current.turn == MemoryTurn.User) MemoryTurn.Character else MemoryTurn.User
             mutate {
                 it.copy(
                     memoryMatch = current.copy(
                         opened = emptySet(),
                         turn = nextTurn,
-                        lastEvent = if (nextTurn == MemoryTurn.User) "轮到你翻牌" else "轮到角色翻牌",
+                        lastEvent = if (nextTurn == MemoryTurn.User) "轮到你翻牌" else "轮到对手翻牌",
                     ),
                 )
             }
         }
     }
 
-    fun resetMemoryMatch() = mutate { it.copy(memoryMatch = MemoryMatchState()) }
+    fun resetMemoryMatch() = mutate { it.copy(memoryMatch = MemoryMatchState(opponentId = it.memoryMatch.opponentId)) }
 
     fun answerMood(option: String) {
         if (mutableState.value.moodAnswered != null) return
