@@ -146,6 +146,19 @@ object LuluScreenAwareness {
         }
 
     /**
+     * Display-0 pixels remain real even without an accessibility tree.
+     * An unidentified app is allowed only when the owner has no excluded
+     * packages, because otherwise the exclusion could not be verified.
+     */
+    internal fun captureWindowReason(context: Context, packageName: String): String? = when {
+        isCaptureExcluded(context, packageName) ->
+            "主人明确排除了这个 App 的截图：$packageName"
+        packageName.isBlank() && excluded(context).isNotEmpty() ->
+            "当前App未知，无法核实主人自定义排除项；请重新观察"
+        else -> null
+    }
+
+    /**
      * Android may briefly hand us an empty root or a transient SystemUI window
      * while an IME/heads-up notice changes focus. Wait for stable owner-display
      * evidence, but never substitute an old screenshot or another display.
@@ -333,8 +346,9 @@ object LuluScreenAwareness {
             return rejected(context, "锁屏时禁止截图")
         val first = freshOwnerSnapshot()
         if (!first.connected) return rejected(context, "无障碍服务未连接")
-        screenWindowBlockReason(context, first.packageName)?.let { reason ->
-            return rejected(context, reason, if (first.packageName.isBlank()) "unverified" else "denied")
+        captureWindowReason(context, first.packageName)?.let { reason ->
+            return rejected(context, reason,
+                if (first.packageName.isBlank()) "unverified" else "denied")
         }
         // Autonomous owner consent is durable: no second approval dialog or
         // arbitrary five-minute veto after the role elects to observe.
@@ -359,12 +373,17 @@ object LuluScreenAwareness {
                 val fresh = freshOwnerSnapshot(expectedPackage = first.packageName)
                 // Never deliver a frame when the owner app changed, the root
                 // is unknown, access was revoked, or a protected page appeared.
+                val verifiedPackage = fresh.packageName.ifBlank { first.packageName }
+                val switchedKnownApps = first.packageName.isNotBlank() &&
+                    fresh.packageName.isNotBlank() && first.packageName != fresh.packageName
+                val exclusionsUnverifiable = excluded(context).isNotEmpty() &&
+                    (first.packageName.isBlank() || fresh.packageName.isBlank())
                 if (!onDemandAllowed(context, characterId) ||
                     (!userRequested && !autonomousAllowed(context, characterId)) ||
-                    first.packageName != fresh.packageName ||
-                    screenWindowBlockReason(context, fresh.packageName) != null ||
+                    switchedKnownApps || exclusionsUnverifiable ||
+                    captureWindowReason(context, verifiedPackage) != null ||
                     context.getSystemService(KeyguardManager::class.java)?.isDeviceLocked == true)
-                    return rejected(context, "截图期间主屏窗口发生变化或授权撤销，画面已丢弃", "unverified")
+                    return rejected(context, "截图期间页面切换、主人排除项无法核实或授权撤销，画面已丢弃", "unverified")
                 if (!userRequested) preferences(context).edit()
                     .putLong(LAST_AUTO, System.currentTimeMillis()).apply()
                 if (!studySessionValid()) return rejected(context, "监督授权已结束，已丢弃截图")
@@ -375,7 +394,7 @@ object LuluScreenAwareness {
                 val screenRecord = if (characterId.isNotBlank()) runCatching {
                     withContext(Dispatchers.IO) {
                         com.jiacimu.lulu.RolePhotoAlbumStore.recordScreenObservation(
-                            context, characterId, bitmap, fresh.packageName, capturedAt,
+                            context, characterId, bitmap, verifiedPackage, capturedAt,
                             studyWatch = sessionId.isNotBlank())
                     }
                 } else null
@@ -394,7 +413,7 @@ object LuluScreenAwareness {
                 if (sendToChat) {
                     val sent = try {
                         CompanionActionRuntime.sendCapturedScreenshot(
-                            context, characterId, bitmap, chatCaption, fresh.packageName)
+                            context, characterId, bitmap, chatCaption, verifiedPackage)
                     } catch (error: Exception) {
                         return rejected(context, "已取得截图，但图片未发送：" +
                             error.message.orEmpty().take(90), "failed")
@@ -408,7 +427,7 @@ object LuluScreenAwareness {
                     }
                     val result = JSONObject(sent.asJson())
                         .put("status", "observed").put("sentToChat", true)
-                        .put("packageName", fresh.packageName)
+                        .put("packageName", verifiedPackage)
                         .put("capturedAt", capturedAt.toString())
                         .put("visibleText", fresh.visibleText.take(4500))
                         .put("verification", "本机真实单帧与角色私聊图片消息已持久化；不是持续录屏")
@@ -434,7 +453,7 @@ object LuluScreenAwareness {
                     report(context, "已取得截图；交给同一角色的下一轮模型直接理解")
                     return withScreenRecord(JSONObject().put("success", true).put("status", "observed")
                         .put("summary", "真实截图已经交给角色本轮模型输入，尚未完成内容理解")
-                        .put("packageName", fresh.packageName)
+                        .put("packageName", verifiedPackage)
                         .put("capturedAt", capturedAt.toString())
                         .put("visibleText", fresh.visibleText.take(4500))
                         .put("verification", "只取得真实单帧；原始图片不写入模型工具回执，独立截图记录可在查手机查看")
@@ -446,7 +465,7 @@ object LuluScreenAwareness {
                     return rejected(context, "识图失败：" + it.message.orEmpty().take(90), "failed")
                 }
                 val evidence = describedCapture(context, userRequested, characterId, sessionId,
-                    fresh.packageName, capturedAt, description)
+                    verifiedPackage, capturedAt, description)
                 // The owner's screen-history copy is independent of an explicit
                 // character choice to add a second copy to their own album.
                 // Do not claim this branch performed another capture.
