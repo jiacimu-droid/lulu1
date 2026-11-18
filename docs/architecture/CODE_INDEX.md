@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`5fbe2c8f9bed2c63d15a94dd7f34147298e1909c`
+- 基准提交：`2deb340345086992aa7937f6f340e7c1b6080784`
 - 分支：`main`
 - 已索引文件：1444
-- 已索引代码/文本行：305103
+- 已索引代码/文本行：305119
 - 已发现符号：4359
 
 | 文件 | 行数 | 符号数 |
@@ -739,7 +739,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt` | 759 | 28 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt` | 1042 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/LuluGamesAppV2.kt` | 935 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 366 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt` | 382 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicArsenal.kt` | 94 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicCampBackdrop.kt` | 35 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/RelicChestCeremony.kt` | 320 | 4 |
