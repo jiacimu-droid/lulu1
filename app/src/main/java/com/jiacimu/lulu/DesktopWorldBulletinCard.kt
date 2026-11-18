@@ -38,7 +38,11 @@ import kotlinx.coroutines.flow.collect
  * The badge is per-device acknowledgement; never marks a fictional event as real.
  */
 @Composable
-internal fun DesktopWorldBulletinCard() {
+internal fun DesktopWorldBulletinCard(
+    modifier: Modifier = Modifier,
+    embedded: Boolean = false,
+    foreground: Color? = null,
+) {
     val context = LocalContext.current
     val world by DigitalWorldStore.state.collectAsState()
     // Game records are the single persisted authority for public solo play.
@@ -82,12 +86,14 @@ internal fun DesktopWorldBulletinCard() {
     }
     val unread = notices.count { it.id !in seen }
     val latest = notices.firstOrNull()
+    val ink = foreground ?: MaterialTheme.colorScheme.onSurface
+    val mutedInk = foreground?.copy(alpha = 0.78f) ?: MaterialTheme.colorScheme.onSurfaceVariant
     Surface(
-        modifier = Modifier.fillMaxWidth().height(110.dp),
-        color = MaterialTheme.colorScheme.surface,
+        modifier = if (embedded) modifier.fillMaxSize() else modifier.fillMaxWidth().height(110.dp),
+        color = if (embedded) Color.Transparent else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        shadowElevation = 1.dp,
+        border = if (embedded) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        shadowElevation = if (embedded) 0.dp else 1.dp,
         onClick = {
             opened = true
             val updated = (seen + notices.map(DigitalWorldNotice::id)).toList().takeLast(500).toSet()
@@ -99,11 +105,11 @@ internal fun DesktopWorldBulletinCard() {
             Modifier.fillMaxSize().padding(horizontal = 15.dp, vertical = 13.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(Icons.Outlined.Campaign, null, Modifier.size(27.dp), tint = MaterialTheme.colorScheme.onSurface)
+            Icon(Icons.Outlined.Campaign, null, Modifier.size(27.dp), tint = ink)
             Spacer(Modifier.width(11.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("数字世界 · 公告栏", color = MaterialTheme.colorScheme.onSurface,
+                    Text("数字世界 · 公告栏", color = ink,
                         fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     if (unread > 0) {
                         Spacer(Modifier.width(8.dp))
@@ -115,15 +121,15 @@ internal fun DesktopWorldBulletinCard() {
                     }
                 }
                 Text(latest?.title ?: "世界暂时没有新公告",
-                    color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp,
+                    color = ink, fontSize = 14.sp,
                     maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(latest?.detail ?: "新居民、地点和重要建设会在这里出现。",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp,
+                    color = mutedInk, fontSize = 11.sp,
                     maxLines = 2, overflow = TextOverflow.Ellipsis, lineHeight = 15.sp)
             }
             Spacer(Modifier.width(6.dp))
             Icon(Icons.Outlined.ChevronRight, "查看世界公告", Modifier.size(20.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                tint = mutedInk)
         }
     }
 
