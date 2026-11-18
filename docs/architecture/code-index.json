@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T20:45:56.384737+00:00",
-  "commit": "5f6a4c33219b6f683a4a7790ca5a020b9d4e1208",
+  "generatedAt": "2026-11-18T22:42:36.042128+00:00",
+  "commit": "4e95f84605e63d4fe9c98f4baf73c4b5e5769b60",
   "branch": "main",
-  "sourceFingerprint": "7d96544195b9d2b98810f9a044796b4874f3e9ca9711424af9dffc8d8ba9ba60",
+  "sourceFingerprint": "51b0ddf7977eb3f965b8c02d01a44ba8730e258fdcc287b6bf2b5dd2a4979305",
   "summary": {
     "files": 1479,
-    "lines": 312752,
+    "lines": 312765,
     "symbols": 4458
   },
   "symbolIndex": {
@@ -19547,7 +19547,7 @@
     "verifiedDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt",
-        "line": 58
+        "line": 61
       }
     ],
     "Signature": [
@@ -44500,8 +44500,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicy.kt",
-      "lines": 88,
-      "sha256": "53cce5348e9931caf11da31a55456a7708e7287dfc2e3cb57146df5d2c344db4",
+      "lines": 91,
+      "sha256": "4144a4bf0232e8ff841962f24f31a895606c69f142472eae03ad8a1f53b59290",
       "symbols": [
         {
           "name": "Proof",
@@ -44521,7 +44521,7 @@
         },
         {
           "name": "verifiedDraft",
-          "line": 58
+          "line": 61
         }
       ]
     },
@@ -52420,8 +52420,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluVisualChatDraftPolicyTest.kt",
-      "lines": 120,
-      "sha256": "9d66a1e523d08f0fdf9f846324f6ddd28d00cea8915ee4636985f0fc61c6df43",
+      "lines": 130,
+      "sha256": "d7e93c12d2bdd61178a1db512cfef27c4b197ff6cea4428d18906406fc977e57",
       "symbols": [
         {
           "name": "LuluVisualChatDraftPolicyTest",
