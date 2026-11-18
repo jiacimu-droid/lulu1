@@ -3,7 +3,7 @@
 - 参考 Mika `b899c5b` 的 `AndroidScreen.back/swipe/verified` 与 `ShellService.injectKey`。保留经核实的应用内返回控件，缺少时只向独立屏和当前 App UID 发送 Android BACK。控件点击或按键派发后核对页面，结果不明时依据新证据再决定。
 - 滑动使用新鲜的同一窗口像素补充控件树。控件未变但画面变化时，回交角色核对是否切到新视频或笔记。对外发送仍以实际页面结果核对。
 - 通用视觉输入复用坐标点击的目标区域和窗口复核及独立屏定向触摸。确认独立屏输入法后才粘贴 Unicode 草稿。没有画面但有唯一真实聚焦编辑器时，仍可使用节点输入。微信、抖音接续使用同一协议。
-- 本地针对 Android 15 API 编译实际 shell helper 及生产策略，37 项专项 JUnit 通过。之前的 main 源码 `6dad4bc` 对应 [APK #44219580748](https://github.com/jiacimu-droid/lulu1/actions/runs/44219580748) 成功。本提交的完整 APK/JVM、Redmi 和真实模型待核，重点验收微信与抖音联系人→正文→单次点击→新气泡，及抖音、小红书连续滑动与返回。
+- 本地针对 Android 15 API 编译实际 shell helper 及生产策略，37 项专项 JUnit 通过。之前的 main 源码 `6dad4bc` 对应 [APK #44219580748](https://github.com/jiacimu-droid/lulu1/actions/runs/44219580748) 成功。[本轮源码 781ae08](https://github.com/jiacimu-droid/lulu1/commit/781ae08ddfcabe51ba15b1cca4a285f076c1a393)，[Lulu APK/JVM #44223175432](https://github.com/jiacimu-droid/lulu1/actions/runs/44223175432) 和 [索引 #44223175405](https://github.com/jiacimu-droid/lulu1/actions/runs/44223175405) 已触发；Redmi 和真实模型待核，重点验收微信与抖音联系人→正文→单次点击→新气泡，及抖音、小红书连续滑动与返回。
 
 ## 2026-11-18 · PH-01 Mika 通用交互链路复核与错误禁点解除（待完整 APK / 真机）
 
