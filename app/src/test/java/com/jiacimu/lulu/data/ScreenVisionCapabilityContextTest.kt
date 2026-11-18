@@ -19,8 +19,16 @@ class ScreenVisionCapabilityContextTest {
     @Test fun unconsentedToolIsRegisteredButNotClaimedAsExecuted() {
         val p = LuluScreenAwareness.preferences(context)
         val previous = p.all.toMap()
+        // Screen vision also honors the per-role phone grant. Make the
+        // "unconsented" test genuinely unconsented rather than inheriting an
+        // unrelated Robolectric test's persistent role permission.
+        val rolePrefs = context.getSharedPreferences("lulu_execution_policy", Context.MODE_PRIVATE)
+        val grantKey = "$role:screen"
+        val oldGrant = rolePrefs.getBoolean(grantKey, false)
+        val hadGrant = rolePrefs.contains(grantKey)
         try {
             p.edit().clear().commit()
+            rolePrefs.edit().putBoolean(grantKey, false).commit()
             assertNotNull(CapabilityRegistry.find("capture_screen"))
             assertNotNull(CapabilityRegistry.find("summon_lulu"))
             val shown = CapabilityRegistry.screenVisionContext(context, role)
@@ -40,6 +48,10 @@ class ScreenVisionCapabilityContextTest {
                 }
             }
             editor.commit()
+            val roleEditor = rolePrefs.edit()
+            if (hadGrant) roleEditor.putBoolean(grantKey, oldGrant)
+            else roleEditor.remove(grantKey)
+            roleEditor.commit()
         }
     }
 
