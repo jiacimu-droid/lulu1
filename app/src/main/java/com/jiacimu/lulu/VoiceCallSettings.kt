@@ -109,6 +109,22 @@ internal fun VoiceCallSettings(provider: String) {
                 style = MaterialTheme.typography.bodySmall)
         }
         if (sttMode == "elevenlabs") {
+            // Capture and speech synthesis are independent: keep Scribe credentials
+            // editable even when a different TTS provider (such as MOSS) is selected.
+            if (provider != "elevenlabs") {
+                var scribeKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
+                OutlinedTextField(
+                    value = scribeKey,
+                    onValueChange = {
+                        scribeKey = it
+                        prefs.edit().putString("eleven_api_key", it.trim()).apply()
+                    },
+                    label = { Text("ElevenLabs Scribe API Key") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                )
+            }
             SttSettingsDropdown(
                 label = "ElevenLabs 识别模型",
                 selectedId = elevenSttModel,
@@ -132,8 +148,8 @@ internal fun VoiceCallSettings(provider: String) {
                 style = MaterialTheme.typography.bodySmall)
             Text(
                 if (prefs.getString("eleven_api_key", "").orEmpty().isNotBlank())
-                    "ElevenLabs 账号已配置 · Scribe 自动共用上方的 API Key，不需要 Voice ID。"
-                else "ElevenLabs 账号未配置 · 请在语音设置顶部的「ElevenLabs 账号」填写一次 API Key。",
+                    "ElevenLabs Scribe 已配置 API Key，不需要 Voice ID。"
+                else "ElevenLabs Scribe 尚未配置 API Key。",
                 style = MaterialTheme.typography.bodySmall,
             )
         }
