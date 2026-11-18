@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:22:45.005520+00:00",
-  "commit": "4a190af4bab76be01e2d1987a954c6c2c7472153",
+  "generatedAt": "2026-11-18T11:23:13.909236+00:00",
+  "commit": "f0076468cee93dda3df886a7c319d1912385b0cb",
   "branch": "main",
-  "sourceFingerprint": "3c364877552a48d1866e2e14b6a0cde25ea7f0e3aa33a12f6cf89f59570c48d7",
+  "sourceFingerprint": "6b745762ba4b8aba8819b755305bf004a1b865fffea6afd7b221d1c87337c100",
   "summary": {
     "files": 1465,
-    "lines": 310413,
+    "lines": 310451,
     "symbols": 4422
   },
   "symbolIndex": {
@@ -4923,7 +4923,7 @@
     "ScheduleFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt",
-        "line": 43
+        "line": 44
       }
     ],
     "serverEvent": [
@@ -28687,19 +28687,19 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt",
-      "lines": 366,
-      "sha256": "2120c2ca49be2a306ce790acf00706d43afb1ebee6d41d95973b7be9f694d14b",
+      "lines": 398,
+      "sha256": "8e4ec4e0c4dff7b569cdf7f5aa4026d7c664e3766a38965c09ab9baeb6fe9b55",
       "symbols": [
         {
           "name": "ScheduleFeatureScreen",
-          "line": 43
+          "line": 44
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt",
-      "lines": 235,
-      "sha256": "63623509b89f1e7c238e8ae29bc9c9cd07e1963aac64d467d41911345d3062d2",
+      "lines": 241,
+      "sha256": "531d6aa59e44a58cde7a583672297aa6bc4dc5549e0f554a2b6e4141e7174994",
       "symbols": []
     },
     {

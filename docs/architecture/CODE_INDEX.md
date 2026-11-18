@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4a190af4bab76be01e2d1987a954c6c2c7472153`
+- 基准提交：`f0076468cee93dda3df886a7c319d1912385b0cb`
 - 分支：`main`
 - 已索引文件：1465
-- 已索引代码/文本行：310413
+- 已索引代码/文本行：310451
 - 已发现符号：4422
 
 | 文件 | 行数 | 符号数 |
@@ -294,8 +294,8 @@
 | `app/src/main/java/com/jiacimu/lulu/RolePhoneMemos.kt` | 158 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/RolePhotoAlbumStore.kt` | 216 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/SavedConfigurationModelPicker.kt` | 224 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 366 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 235 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ScheduleFeatureScreen.kt` | 398 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ScheduledCommitmentCard.kt` | 241 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicy.kt` | 41 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt` | 703 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceHomeHero.kt` | 177 | 0 |

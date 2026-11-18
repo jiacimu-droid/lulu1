@@ -25,7 +25,8 @@ import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.RoleDayPlan
 import com.jiacimu.lulu.data.CommitmentTask
-import com.jiacimu.lulu.data.visibleOnScheduleDate
+import com.jiacimu.lulu.data.scheduleOccurrenceAt
+import com.jiacimu.lulu.data.isOverdueOneOffOn
 import com.jiacimu.lulu.data.RoleDayScheduleStore
 import com.jiacimu.lulu.data.CommitmentTaskStore
 import com.jiacimu.lulu.data.isActive
@@ -71,16 +72,24 @@ fun ScheduleFeatureScreen(
     val commitments by CommitmentTaskStore.tasks.collectAsState()
     val promiseNotes by LuluRepositories.lexicon.observeEntries(selectedCharacterId, LexiconSection.Promise)
         .collectAsState(initial = emptyList())
+    val today = LocalDate.now()
+    val zone = ZoneId.systemDefault()
     val tasks = commitments.filter { task ->
-        task.characterId == selectedCharacterId &&
-            task.visibleOnScheduleDate(selectedDate, ZoneId.systemDefault(), LocalDate.now())
+        task.characterId == selectedCharacterId && task.dueAt != null &&
+            task.scheduleOccurrenceAt(selectedDate, zone) != null
     }
+    // Unverified previous-day actions belong to the old date. Keep them
+    // reviewable here, but NEVER count them as new calls due today.
+    val unfinishedPast = if (selectedDate == today) commitments.filter {
+        it.characterId == selectedCharacterId && it.isOverdueOneOffOn(today, zone)
+    } else emptyList()
+    val undatedResponsibilities = if (selectedDate == today) commitments.filter {
+        it.characterId == selectedCharacterId && it.dueAt == null && it.status.isActive()
+    } else emptyList()
     val linkedNotes = commitments.filter { it.characterId == selectedCharacterId }.mapNotNull { it.lexiconEntryId }.toSet()
     val legacyPromises = promiseNotes.filter { entry -> entry.characterId == selectedCharacterId && entry.id !in linkedNotes &&
         (if (entry.status == LexiconStatus.Active) selectedDate == LocalDate.now()
             else entry.updatedAt.atZone(ZoneId.systemDefault()).toLocalDate() == selectedDate) }
-    val today = LocalDate.now()
-    val zone = ZoneId.systemDefault()
     val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
     val week = (0..6).map { weekStart.plusDays(it.toLong()) }
     val allPlans = remember(context, selectedCharacterId, revisions) {
@@ -88,12 +97,16 @@ fun ScheduleFeatureScreen(
         else RoleDayScheduleStore.plans(context, selectedCharacterId)
     }
     val timeline = (plans.map { ScheduleTimelineItem("plan:" + it.id, it.dueAt, plan = it) } +
-        tasks.map { ScheduleTimelineItem("task:" + it.id, it.dueAt ?: Instant.MAX, task = it) })
+        tasks.map { task -> ScheduleTimelineItem("task:" + task.id,
+            task.scheduleOccurrenceAt(selectedDate, zone) ?: task.dueAt ?: Instant.MAX,
+            task = task) })
         .sortedBy { it.time }
     val pending = plans.count { it.status !in setOf("completed", "cancelled") } +
         tasks.count { it.status.isActive() } +
+        unfinishedPast.size + undatedResponsibilities.size +
         legacyPromises.count { it.status == LexiconStatus.Active }
-    val total = plans.size + tasks.size + legacyPromises.size
+    val total = plans.size + tasks.size + unfinishedPast.size +
+        undatedResponsibilities.size + legacyPromises.size
 
     Scaffold(
         containerColor = Color.White,
@@ -204,7 +217,9 @@ fun ScheduleFeatureScreen(
                 Text(error, color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(vertical = 5.dp), fontSize = 12.sp)
             }
-            if (timeline.isEmpty() && legacyPromises.isEmpty()) item(key = "empty") {
+            if (timeline.isEmpty() && legacyPromises.isEmpty() &&
+                unfinishedPast.isEmpty() && undatedResponsibilities.isEmpty())
+                item(key = "empty") {
                 Column(
                     Modifier.fillMaxWidth().padding(vertical = 42.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -219,7 +234,8 @@ fun ScheduleFeatureScreen(
             if (timeline.isNotEmpty()) {
                 item(key = "timeline-title") { ScheduleSectionHeading("当天安排", timeline.size) }
                 items(timeline, key = { it.key }) { row ->
-                    row.task?.let { ScheduledCommitmentCard(it) }
+                    row.task?.let { ScheduledCommitmentCard(it,
+                        displayDueAt = row.time) }
                     row.plan?.let { plan ->
                         val personName = when {
                             plan.targetCharacterId.isNotBlank() ->
@@ -237,6 +253,22 @@ fun ScheduleFeatureScreen(
                             onDelete = { deletePlanId = plan.id },
                         )
                     }
+                }
+            }
+            if (undatedResponsibilities.isNotEmpty()) {
+                item(key = "undated-title") {
+                    ScheduleSectionHeading("持续责任（无固定时刻）", undatedResponsibilities.size)
+                }
+                items(undatedResponsibilities, key = { "undated:" + it.id }) { task ->
+                    ScheduledCommitmentCard(task)
+                }
+            }
+            if (unfinishedPast.isNotEmpty()) {
+                item(key = "old-unverified-title") {
+                    ScheduleSectionHeading("往日未核实（非今日新日程）", unfinishedPast.size)
+                }
+                items(unfinishedPast, key = { "overdue:" + it.id }) { task ->
+                    ScheduledCommitmentCard(task)
                 }
             }
             if (legacyPromises.isNotEmpty()) {
