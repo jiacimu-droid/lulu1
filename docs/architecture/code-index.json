@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T17:26:26.832380+00:00",
-  "commit": "f162ff6ea23a24f63875705ebef12d6bb4d6bea1",
+  "generatedAt": "2026-11-18T17:27:57.371143+00:00",
+  "commit": "8c68d9680d03a808fcab3b3ddf123d14d4965071",
   "branch": "main",
-  "sourceFingerprint": "7fdf0dcce01781260ead55f9ad7c282aa8f9febe2d9bc0544138d678baf6d108",
+  "sourceFingerprint": "c05feff2ff93309ca6349235e75daf8d4850dbb04e19043da81fc79b764b9b80",
   "summary": {
     "files": 1479,
     "lines": 312742,
@@ -47303,7 +47303,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterAccountabilityContextTest.kt",
       "lines": 71,
-      "sha256": "80ecd0c3bfdce248ef770d92eebc2fba153ed36867a49798f69a951b869239cf",
+      "sha256": "da90b4f7fb09cd7d56c3b08d32e34e65932988d87258e1f266d768aab42841d3",
       "symbols": [
         {
           "name": "CharacterAccountabilityContextTest",
