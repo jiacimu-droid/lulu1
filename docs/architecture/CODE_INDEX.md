@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2deb340345086992aa7937f6f340e7c1b6080784`
+- 基准提交：`1430254367b4c525aab2940742ff3af8a2c53ac0`
 - 分支：`main`
 - 已索引文件：1444
-- 已索引代码/文本行：305119
+- 已索引代码/文本行：305142
 - 已发现符号：4359
 
 | 文件 | 行数 | 符号数 |
@@ -690,7 +690,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1351 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 724 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 596 | 10 |
-| `app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt` | 357 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt` | 359 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyArt.kt` | 457 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/DeepSeaJourneyGame.kt` | 978 | 4 |
@@ -1312,7 +1312,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/AutonomousDuelGamesTest.kt` | 165 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 748 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt` | 242 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt` | 263 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CompanionCoopCombatTest.kt` | 136 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CoopRouteContinuationTest.kt` | 269 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/ExpeditionRulesTest.kt` | 88 | 1 |
