@@ -152,6 +152,10 @@ internal object LuluStrictMode {
             return response(false, "invalid", "mode 仅支持 observe/return/home/lockdown")
         if (mode != "observe" && !LuluScreenAwareness.directReturnAllowed(context))
             return response(false, "denied", "主人未开启直接切回授权")
+        // Without an authoritative launcher package we cannot make the HOME
+        // exemption or verify success; fail closed instead of a lock/retry loop.
+        if (mode != "observe" && LuluAccessibilityService.ownerHomePackage(context) == null)
+            return response(false, "unavailable", "无法确认默认手机桌面，请先设置默认桌面或检查系统权限")
         val goal = args.optString("goal", previous?.optString("goal").orEmpty()).trim()
         if (goal.isBlank() || goal.length > 160)
             return response(false, "invalid", "请由角色提供本次具体监督目标（1至160字）")
@@ -281,7 +285,7 @@ internal object LuluStrictMode {
         }
         val homePackage = LuluAccessibilityService.ownerHomePackage(context)
         // A launcher is a safe escape surface, never something to intercept.
-        val interrupt = foreground != homePackage &&
+        val interrupt = homePackage != null && foreground != homePackage &&
             shouldReturn(session.optString("mode"), foreground,
                 context.packageName, except, false, blocked)
         val attempt = interrupt && (changed || now - lastReturnAttemptAt >= LOCAL_SAMPLE_GAP)
