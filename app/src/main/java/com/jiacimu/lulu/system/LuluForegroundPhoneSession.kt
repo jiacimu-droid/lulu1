@@ -1,6 +1,7 @@
 package com.jiacimu.lulu.system
 
 import android.app.KeyguardManager
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -94,6 +95,9 @@ internal object LuluForegroundPhoneSession {
             return rejection(action, "另一角色已使用可见主屏，请主人先停止", "owned_by_other_role", "waiting_user")
         if (!LuluBackgroundPhoneArgumentPolicy.isSupportedAction(action))
             return rejection(action, "不支持的主屏操作；请根据当前实际控件选择launch/observe/tap/tap_element/type/swipe/back/navigate", "unsupported_action")
+        LuluBackgroundPhoneArgumentPolicy.invalidReason(action, args)?.let { reason ->
+            return rejection(action, reason, "invalid_action_arguments")
+        }
         if (action == "start") return rejection(action,
             "主屏模式没有独立屏可启动；请选择launch打开目标App，主人会看到操作画面",
             "launch_required", "unverified")
@@ -112,6 +116,9 @@ internal object LuluForegroundPhoneSession {
                 !(owner == role && initial.packageName == target))
                 return rejection(action, "主人正在使用其他App；纯无障碍不能在隐藏后台另开屏幕，请回到露露机后重试",
                     "owner_using_foreground", "waiting_user")
+            if (context.getSystemService(NotificationManager::class.java)?.areNotificationsEnabled() != true)
+                return rejection(action, "主屏操作必须有可见的停止通知；请先打开露露机通知权限",
+                    "stop_notification_unavailable", "waiting_user")
             val intent = context.packageManager.getLaunchIntentForPackage(pkg)
                 ?: return rejection(action, "系统未提供目标App的启动入口", "launcher_not_found")
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -219,6 +226,9 @@ internal object LuluForegroundPhoneSession {
                 withContext(Dispatchers.Main) { LuluAccessibilityService.typeIntoFocusedField(text) }
             }
             "navigate", "focus_search", "search" -> {
+                if (action == "navigate" && args.optJSONArray("navigationLabels")?.length() != 1)
+                    return rejection(action, "主屏模式每次只导航一个当前可见标签，必须观察新页面后才选下一项",
+                        "foreground_navigation_one_step")
                 val items = withContext(Dispatchers.Main) { LuluAccessibilityService.controls() }
                 val label = if (action == "navigate") args.optJSONArray("navigationLabels")
                     ?.optString(0).orEmpty() else "搜索"
@@ -234,9 +244,57 @@ internal object LuluForegroundPhoneSession {
                     val pos = choices[0].optJSONArray("bounds1000")
                     if (pos == null || !LuluPhoneInteractionPolicy.mayInteract(label, "", "",
                             LuluShoppingAssistPolicy.isEnabled(context, role))) false
-                    else withContext(Dispatchers.Main) {
-                        LuluAccessibilityService.tapNormalized((pos.optInt(0) + pos.optInt(2)) / 2,
-                            (pos.optInt(1) + pos.optInt(3)) / 2)
+                    else {
+                        val clicked = withContext(Dispatchers.Main) {
+                            LuluAccessibilityService.tapNormalized((pos.optInt(0) + pos.optInt(2)) / 2,
+                                (pos.optInt(1) + pos.optInt(3)) / 2)
+                        }
+                        if (clicked && action == "search") {
+                            delay(300)
+                            val searched = withContext(Dispatchers.Main) {
+                                LuluAccessibilityService.typeIntoFocusedField(args.optString("text"))
+                            }
+                            delay(150)
+                            val exact = withContext(Dispatchers.Main) {
+                                LuluAccessibilityService.focusedMainEditorMatches(
+                                    target, args.optString("text"))
+                            }
+                            if (!searched || !exact) return rejection(action,
+                                "搜索框未能精确读回文字，未自动点搜索提交；请重新observe",
+                                "search_input_unverified")
+                            val buttons = withContext(Dispatchers.Main) {
+                                LuluAccessibilityService.controls()
+                            }
+                            val matches = (0 until buttons.length()).mapNotNull {
+                                buttons.optJSONObject(it)
+                            }.filter {
+                                it.optBoolean("clickable") && !it.optBoolean("editable") &&
+                                    it.optString("text").ifBlank {
+                                        it.optString("description")
+                                    }.trim() in setOf("搜索", "Search", "搜一搜", "查找")
+                            }
+                            if (matches.size != 1) return rejection(action,
+                                "搜索草稿已精确写入，页面无唯一安全搜索按钮；请观察新截图自行决定是否点搜索",
+                                "search_submit_button_unverified")
+                            val bounds = matches.single().optJSONArray("bounds1000")
+                                ?: return rejection(action, "搜索按钮没有有效坐标", "search_submit_button_unverified")
+                            return if (withContext(Dispatchers.Main) {
+                                LuluAccessibilityService.tapNormalized(
+                                    (bounds.optInt(0) + bounds.optInt(2)) / 2,
+                                    (bounds.optInt(1) + bounds.optInt(3)) / 2)
+                            }) {
+                                delay(380)
+                                observe(context, role, requestId, action, accepted = true)
+                                    .put("inputTextReadbackVerified", true)
+                                    .put("searchSubmitClicked", true)
+                                    .put("searchSubmitted", false)
+                                    .put("taskCompleted", false)
+                                    .put("verification", "已精确输入并点击一个搜索按钮；当前仅核实提交尝试，搜索结果需再观察确认")
+                                    .toString()
+                            } else rejection(action, "搜索草稿已输入，但搜索按钮点击未获Android接受",
+                                "search_submit_rejected")
+                        }
+                        clicked
                     }
                 }
             }
