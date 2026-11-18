@@ -213,7 +213,15 @@ internal fun LuluOnboardingGuideScreen(
 ) {
     var selectedKey by rememberSaveable { mutableStateOf<String?>(null) }
     var showSetupSteps by rememberSaveable { mutableStateOf(false) }
+    var showMoreFeatures by rememberSaveable { mutableStateOf(false) }
     val overviewScrollState = rememberLazyListState()
+    val featuredFeatures = luluGuideFeaturedKeys.mapNotNull { key ->
+        luluGuideFeatures.firstOrNull { it.key == key }
+    }
+    val secondaryFeatures = luluGuideFeatures.filter { feature ->
+        feature.key !in luluGuideFeaturedKeys &&
+            luluGuideHeroHighlights.none { it.featureKey == feature.key }
+    }
     val selected = luluGuideFeatures.firstOrNull { it.key == selectedKey }
     BackHandler(enabled = selected != null) { selectedKey = null }
     val ink = MaterialTheme.colorScheme.onBackground
@@ -237,7 +245,8 @@ internal fun LuluOnboardingGuideScreen(
         if (selected == null) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(inner),
-                contentPadding = PaddingValues(start = 18.dp, end = 18.dp, bottom = 38.dp),
+                state = overviewScrollState,
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 40.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item {
@@ -248,10 +257,10 @@ internal fun LuluOnboardingGuideScreen(
                             fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(9.dp))
                         Text("让数字生命\n拥有自己的生活。",
-                            color = ink, fontSize = 27.sp, lineHeight = 34.sp,
+                            color = ink, fontSize = 31.sp, lineHeight = 38.sp,
                             fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(8.dp))
-                        Text("有连续的记忆，也有自己的生活。", color = muted,
+                        Text("记得你的故事，也会自己观察、思考与行动。", color = muted,
                             fontSize = 13.sp, lineHeight = 20.sp)
                         Spacer(Modifier.height(22.dp))
                         Text("从这里认识露露机", color = ink, fontSize = 17.sp,
@@ -263,12 +272,13 @@ internal fun LuluOnboardingGuideScreen(
                                 pair.forEach { highlight ->
                                     Surface(
                                         onClick = { selectedKey = highlight.featureKey },
-                                        modifier = Modifier.weight(1f).heightIn(min = 112.dp),
+                                        modifier = Modifier.weight(1f).heightIn(min = 108.dp),
                                         shape = RoundedCornerShape(18.dp),
-                                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.53f),
+                                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f),
+                                        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant),
                                     ) {
-                                        Column(Modifier.padding(14.dp),
-                                            verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                                        Column(Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
+                                            verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                             Icon(highlight.icon, null, Modifier.size(21.dp),
                                                 tint = MaterialTheme.colorScheme.onSurface)
                                             Text(highlight.title, fontWeight = FontWeight.SemiBold,
@@ -346,38 +356,53 @@ internal fun LuluOnboardingGuideScreen(
                 }
                 }
                 item {
-                    Spacer(Modifier.height(5.dp))
-                    Text("探索全部功能", color = ink, fontSize = 20.sp,
+                    Spacer(Modifier.height(4.dp))
+                    Text("还可以一起做这些", color = ink, fontSize = 19.sp,
                         fontWeight = FontWeight.SemiBold)
-                    Text("点进每一项，看看玩法、操作和隐藏规则。", color = muted, fontSize = 12.sp)
+                    Spacer(Modifier.height(4.dp))
+                    Text("选一项，直接了解入口和玩法。", color = muted, fontSize = 12.sp)
                 }
-                items(luluGuideFeatures.chunked(2)) { pair ->
+                items(featuredFeatures.chunked(2)) { pair ->
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         pair.forEach { feature ->
-                            Surface(
+                            GuideFeatureTile(
+                                feature = feature,
+                                modifier = Modifier.weight(1f),
                                 onClick = { selectedKey = feature.key },
-                                modifier = Modifier.weight(1f).heightIn(min = 120.dp),
-                                shape = RoundedCornerShape(20.dp),
-                                color = MaterialTheme.colorScheme.surface,
-                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                            ) {
-                                Column(Modifier.padding(14.dp),
-                                    verticalArrangement = Arrangement.spacedBy(9.dp)) {
-                                    Icon(feature.icon, null, Modifier.size(22.dp))
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(feature.name, Modifier.weight(1f),
-                                            color = ink, fontWeight = FontWeight.Medium, fontSize = 13.sp,
-                                            maxLines = 2, overflow = TextOverflow.Ellipsis)
-                                        Icon(Icons.Outlined.ChevronRight, null,
-                                            Modifier.size(17.dp), tint = muted)
-                                    }
-                                    Text(feature.highlights.first(), color = muted,
-                                        fontSize = 11.sp, lineHeight = 16.sp,
-                                        maxLines = 2, overflow = TextOverflow.Ellipsis)
-                                }
-                            }
+                            )
                         }
                         if (pair.size == 1) Spacer(Modifier.weight(1f))
+                    }
+                }
+                item {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("其他功能", modifier = Modifier.weight(1f), color = ink,
+                            fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                        TextButton(onClick = { showMoreFeatures = !showMoreFeatures }) {
+                            Text(if (showMoreFeatures) "收起" else "查看全部 · ${secondaryFeatures.size}")
+                            Icon(
+                                if (showMoreFeatures) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                                null, Modifier.size(18.dp),
+                            )
+                        }
+                    }
+                }
+                if (showMoreFeatures) {
+                    items(secondaryFeatures.chunked(2)) { pair ->
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            pair.forEach { feature ->
+                                GuideFeatureTile(
+                                    feature = feature,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = { selectedKey = feature.key },
+                                )
+                            }
+                            if (pair.size == 1) Spacer(Modifier.weight(1f))
+                        }
                     }
                 }
                 item {
@@ -459,6 +484,36 @@ internal fun LuluOnboardingGuideScreen(
                         modifier = Modifier.fillMaxWidth()) { Text("返回功能目录") }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun GuideFeatureTile(
+    feature: LuluGuideFeature,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.heightIn(min = 106.dp),
+        shape = RoundedCornerShape(17.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(0.7.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        Column(
+            Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp),
+        ) {
+            Icon(feature.icon, null, Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.onSurface)
+            Text(feature.name, color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Medium, fontSize = 13.sp,
+                maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(feature.highlights.firstOrNull().orEmpty(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 11.sp, lineHeight = 16.sp, maxLines = 2,
+                overflow = TextOverflow.Ellipsis)
         }
     }
 }
