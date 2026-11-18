@@ -22,6 +22,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import com.jiacimu.lulu.data.MigratedDomainStores
 import kotlinx.coroutines.launch
 import org.json.JSONArray
@@ -46,6 +47,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     val state by store.state.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     // The match identity and participants live in durable storage, never in the screen lifecycle.
     var session by remember { mutableStateOf(store.openYachtMatch()) }
@@ -66,6 +68,11 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     var matchLog by remember(session.id) { mutableStateOf(session.matchLog) }
     var roleResponse by remember(session.id) { mutableStateOf(GameRoleResponse()) }
     var responseSpeaker by remember(session.id) { mutableStateOf("") }
+    val live = rememberGameLiveSession("yacht_dice", session.id, session.companionIds)
+    var ownerSpeech by remember(session.id) { mutableStateOf("") }
+    var decisionError by remember(session.id) { mutableStateOf("") }
+    var decisionRetry by remember(session.id) { mutableIntStateOf(0) }
+    var deciding by remember(session.id) { mutableStateOf(false) }
     val currentPlayer = players[currentPlayerIndex.coerceIn(players.indices)]
     val currentScores = scores[currentPlayer.id].orEmpty()
     val gameOver = players.all { scores[it.id].orEmpty().size == YachtCategory.entries.size }
@@ -179,20 +186,6 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         // The committed turn exists before any model commentary, navigation or settlement.
         persistMatch(completed = finished)
 
-        if (player.characterId != null) {
-            responseSpeaker = player.name
-            requestGameRoleResponse(
-                scope = scope,
-                store = store,
-                recordId = null,
-                facts = lastResult + "\\n" + store.activeGameContext(player.characterId),
-                instruction = "你刚刚亲自完成了这一回合。依据真实骰面及累计比分，以本人的语气自然回应；尚未结束不得声称获胜。",
-                title = "快艇骰子 · ${player.name}",
-                onState = { roleResponse = it },
-                maxTokens = 180,
-                characterIdOverride = player.characterId,
-            )
-        }
         if (finished) recordFinalResult(nextScores, nextMatchLog)
     }
 
@@ -212,36 +205,113 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         }
     }
 
-    LaunchedEffect(session.id, currentPlayerIndex, scores, gameOver) {
-        if (gameOver || currentPlayer.characterId == null || currentScores.size == YachtCategory.entries.size) return@LaunchedEffect
-        turnLog = emptyList()
-        held = emptySet()
-        dice = emptyList()
-        rolls = 0
-        repeat(3) { rollIndex ->
-            rolling = true
-            repeat(9) {
-                dice = List(5) { index -> if (index in held && dice.size == 5) dice[index] else Random.nextInt(1, 7) }
-                kotlinx.coroutines.delay(60)
+    SideEffect {
+        // Speech is a real player turn, not a command to move a die without the
+        // companion's subsequent choice. New speech re-contextualizes that choice.
+        live.onOwnerMessage = { text, fromSpeech ->
+            ownerSpeech = text
+            GameTeamConversationTimeline.recordOwner(
+                context, "yacht_dice", session.id, session.companionIds, text, fromSpeech,
+            )
+            if (currentPlayer.id == "user" && !gameOver) {
+                val actor = session.companionIds.firstOrNull()
+                if (actor != null) {
+                    responseSpeaker = players.firstOrNull { it.characterId == actor }?.name.orEmpty()
+                    requestGameRoleResponse(
+                        scope, store, null,
+                        "主人刚刚在快艇骰子对局中说：$text。当前双方真实比分：" +
+                            players.joinToString("；") { "${it.name} ${scores[it.id].orEmpty().values.sum()}分" } +
+                            "。当前真实骰面：${dice.joinToString("、")}。\n" + store.activeGameContext(actor),
+                        "你是同桌玩家，用本人的口吻回应主人刚才的话，可讨论局势但不要替主人掷骰或填格。最多两句自然口语。",
+                        "快艇骰子 · 同桌交流",
+                        onState = { answer ->
+                            roleResponse = answer
+                            if (answer.text.isNotBlank()) {
+                                live.companionSaid(actor, answer.text, "owner-reply-${System.nanoTime()}")
+                            }
+                        },
+                        maxTokens = 140, characterIdOverride = actor,
+                    )
+                }
             }
-            dice = List(5) { index -> if (index in held && dice.size == 5) dice[index] else Random.nextInt(1, 7) }
-            rolls = rollIndex + 1
-            val beforeHold = dice
-            if (rollIndex < 2) held = chooseYachtHolds(dice)
-            turnLog = turnLog + buildString {
-                append("第${rollIndex + 1}掷：${beforeHold.joinToString("、")}")
-                if (rollIndex < 2) append(" · 保留 ${held.sorted().joinToString("、") { beforeHold[it].toString() }}")
-            }
-            rolling = false
-            kotlinx.coroutines.delay(700)
         }
-        val category = YachtCategory.entries
-            .filterNot { it in currentScores }
-            .maxByOrNull { scoreYacht(it, dice) }
-            ?: YachtCategory.Chance
-        turnLog = turnLog + "选择${category.label}，本轮${scoreYacht(category, dice)}分"
-        kotlinx.coroutines.delay(850)
-        saveTurn(currentPlayer, category, dice, scoreYacht(category, dice))
+    }
+
+    // Resume from the persisted dice and score sheet. The engine rolls random
+    // dice, while the role model makes the hold/score decision after EACH roll.
+    // A malformed/failed decision stops the turn for an explicit retry.
+    LaunchedEffect(session.id, currentPlayerIndex, rolls, decisionRetry, ownerSpeech) {
+        if (gameOver || currentPlayer.characterId == null ||
+            currentScores.size == YachtCategory.entries.size) return@LaunchedEffect
+        decisionError = ""
+        val actor = currentPlayer.characterId ?: return@LaunchedEffect
+        if (rolls == 0) {
+            rolling = true
+            kotlinx.coroutines.delay(450)
+            repeat(8) {
+                dice = List(5) { Random.nextInt(1, 7) }
+                kotlinx.coroutines.delay(55)
+            }
+            dice = List(5) { Random.nextInt(1, 7) }
+            rolls = 1
+            turnLog = listOf("第1掷：${dice.joinToString("、")}")
+            rolling = false
+            persistMatch(completed = false)
+            return@LaunchedEffect
+        }
+        if (dice.size != 5 || rolls !in 1..3) {
+            decisionError = "本轮掷骰数据不完整，未替角色填格"
+            return@LaunchedEffect
+        }
+        // Give live speech transcription a moment to arrive before committing
+        // a role choice; new utterances cancel and restart this decision.
+        kotlinx.coroutines.delay(350)
+        deciding = true
+        val decision = requestYachtRoleDecision(
+            characterId = actor, dice = dice, roll = rolls,
+            scores = scores, playerNames = players.associate { it.id to it.name },
+            ownerSpeech = ownerSpeech,
+        )
+        deciding = false
+        val choice = decision.getOrElse { failure ->
+            decisionError = failure.message ?: "伙伴暂时没有做出有效决定"
+            return@LaunchedEffect
+        }
+        if (choice.speech.isNotBlank()) {
+            responseSpeaker = currentPlayer.name
+            roleResponse = GameRoleResponse(text = choice.speech)
+            live.companionSaid(actor, choice.speech,
+                "turn-${currentScores.size}-roll-$rolls")
+        }
+        when (choice) {
+            is YachtRoleDecision.Score -> {
+                val scored = dice.toList()
+                val points = scoreYacht(choice.category, scored)
+                turnLog = turnLog + "自主选择${choice.category.label}，本轮${points}分"
+                kotlinx.coroutines.delay(350)
+                saveTurn(currentPlayer, choice.category, scored, points)
+            }
+            is YachtRoleDecision.Keep -> {
+                held = choice.indices
+                turnLog = turnLog + "保留${held.sorted().joinToString("、") { dice[it].toString() }}，自己决定再掷"
+                val before = dice.toList()
+                rolling = true
+                kotlinx.coroutines.delay(400)
+                repeat(8) {
+                    dice = List(5) { index ->
+                        if (index in held) before[index] else Random.nextInt(1, 7)
+                    }
+                    kotlinx.coroutines.delay(55)
+                }
+                dice = List(5) { index ->
+                    if (index in held) before[index] else Random.nextInt(1, 7)
+                }
+                rolls += 1
+                turnLog = turnLog + "第$rolls 掷：${dice.joinToString("、")}"
+                rolling = false
+                persistMatch(completed = false)
+            }
+        }
     }
 
     val ocean = Color(0xFF0C1729)
@@ -369,6 +439,16 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                         Text(lastResult, color = mint, fontSize = 12.sp, lineHeight = 18.sp)
                     }
                     turnLog.takeLast(2).forEach { Text(it, color = Color(0xFF98B6C6), fontSize = 11.sp) }
+                }
+            }
+        }
+        if (session.companionIds.isNotEmpty()) {
+            item {
+                GameTalkBar(live)
+                if (deciding) Text("伙伴正在看双方分数，决定保留骰子还是填格…", color = mint)
+                if (decisionError.isNotBlank()) {
+                    Text(decisionError, color = Color(0xFFFFC4B6))
+                    Button(onClick = { decisionRetry++ }) { Text("让伙伴重新决定") }
                 }
             }
         }
