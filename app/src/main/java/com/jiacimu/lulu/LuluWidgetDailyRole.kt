@@ -25,7 +25,7 @@ import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.data.initializeBackgroundRuntime
 import java.time.Duration
 import java.time.LocalDate
-import java.time.LocalTime
+import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.concurrent.TimeUnit
@@ -50,7 +50,8 @@ internal data class LuluWidgetDailyReading(
 
 internal object LuluWidgetDailyRole {
     private const val PREF = "lulu_desktop_widget_daily_role_v1"
-    private const val WORK = "lulu-widget-daily-character"
+    private const val WORK = "lulu-widget-daily-character-midnight"
+    private const val OLD_WORK = "lulu-widget-daily-character"
     private const val CHANNEL = "lulu-widget-daily"
     private val gate = Mutex()
     private val changes = MutableStateFlow(0L)
@@ -214,16 +215,17 @@ notify是布尔值，skin只能是-1或0/1/2/3。生成文字不代表通知已�
         }
     }
 
-    // 08:00 in the device's current local time zone. WorkManager may run later
-    // under Doze/offline restrictions; date-scoped cache prevents duplicate billing.
-    private val morning = LocalTime.of(8, 0)
-
+    // Each local calendar day begins at midnight. WorkManager is best-effort:
+    // device sleep, Doze and network restrictions may delay actual execution.
     internal fun plannedDate(now: ZonedDateTime, needsReadingToday: Boolean): LocalDate =
         if (needsReadingToday) now.toLocalDate() else now.toLocalDate().plusDays(1)
 
-    private fun enqueueMorning(context: Context, date: LocalDate) {
+    internal fun scheduledAt(date: LocalDate, zone: ZoneId): Instant =
+        date.atStartOfDay(zone).toInstant()
+
+    private fun enqueueMidnight(context: Context, date: LocalDate) {
         val app = context.applicationContext
-        val dueAt = date.atTime(morning).atZone(ZoneId.systemDefault()).toInstant()
+        val dueAt = scheduledAt(date, ZoneId.systemDefault())
         val delayMillis = Duration.between(java.time.Instant.now(), dueAt).toMillis()
             .coerceAtLeast(0L)
         val request = OneTimeWorkRequestBuilder<LuluWidgetDailyWorker>()
@@ -242,19 +244,23 @@ notify是布尔值，skin只能是-1或0/1/2/3。生成文字不代表通知已�
     fun schedule(context: Context, widgets: List<LuluDesktopWidget>) {
         val active = widgets.filter { it.kind == LuluWidgetKind.HOROSCOPE &&
             it.dailyReadingEnabled && it.characterId.isNotBlank() }
+        val manager = WorkManager.getInstance(context.applicationContext)
+        // Retire the previous 08:00 work when upgrading. Its already-enqueued
+        // task would otherwise keep waking up at the old time.
+        manager.cancelAllWorkByTag(OLD_WORK)
+        manager.cancelUniqueWork(OLD_WORK) // Pre-morning 24-hour periodic worker
         if (active.isEmpty()) {
-            WorkManager.getInstance(context.applicationContext).cancelAllWorkByTag(WORK)
+            manager.cancelAllWorkByTag(WORK)
             return
         }
         val now = ZonedDateTime.now(ZoneId.systemDefault())
         val needsReadingToday = active.any { read(context, it, now.toLocalDate()) == null }
-        enqueueMorning(context, plannedDate(now, needsReadingToday))
+        enqueueMidnight(context, plannedDate(now, needsReadingToday))
     }
 
-    /** Run after this morning's worker has finished, even when one card failed.
-     * A different unique work name avoids KEEP swallowing the next day's job. */
-    internal fun scheduleNextMorning(context: Context, today: LocalDate) {
-        enqueueMorning(context, today.plusDays(1))
+    /** Each successful or exhausted daily run schedules the next calendar midnight. */
+    internal fun scheduleNextMidnight(context: Context, today: LocalDate) {
+        enqueueMidnight(context, today.plusDays(1))
     }
 }
 
@@ -278,7 +284,7 @@ class LuluWidgetDailyWorker(context: Context, params: WorkerParameters) :
                 Result.retry()
             } else {
                 if (cards.isNotEmpty())
-                    LuluWidgetDailyRole.scheduleNextMorning(applicationContext, today)
+                    LuluWidgetDailyRole.scheduleNextMidnight(applicationContext, today)
                 Result.success()
             }
         } catch (cancelled: CancellationException) {
@@ -290,7 +296,7 @@ class LuluWidgetDailyWorker(context: Context, params: WorkerParameters) :
                         it.kind == LuluWidgetKind.HOROSCOPE &&
                             it.dailyReadingEnabled && it.characterId.isNotBlank()
                     })
-                    LuluWidgetDailyRole.scheduleNextMorning(applicationContext, LocalDate.now())
+                    LuluWidgetDailyRole.scheduleNextMidnight(applicationContext, LocalDate.now())
                 Result.success()
             }
         }
