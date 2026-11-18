@@ -48,7 +48,7 @@ internal fun LuluGameRecord.canWatchCharacterSoloProcess(): Boolean =
 
 /** Route to the real game renderer only when actual committed snapshots exist. */
 internal fun LuluGameRecord.canOpenImmersiveRelicReplay(): Boolean =
-    type == LuluGameType.RelicEscape && canWatchCharacterSoloProcess() &&
+    LuluGameEdition.worldGamesEnabled && type == LuluGameType.RelicEscape && canWatchCharacterSoloProcess() &&
         RelicSoloReplay.read(detailsJson) != null
 
 /** Game hall history: outcomes for all, optional process only for real character solo runs. */
