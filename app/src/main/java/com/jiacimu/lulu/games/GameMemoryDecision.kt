@@ -30,8 +30,8 @@ internal suspend fun requestMemoryRoleChoice(
     val available = game.cards.indices.filter { it !in game.matched && it !in game.opened }.toSet()
     if (available.isEmpty()) return Result.failure(IllegalStateException("没有可以翻的牌"))
     val facts = buildString {
-        appendLine("【同局记忆翻牌 · 本轮可见状态】你本人和主人正在轮流翻配对牌。")
-        appendLine("你的分数${game.characterPairs}对，主人${game.userPairs}对，总共${game.cards.size / 2}对，已走${game.moves}轮。")
+        appendLine("【记忆配对 · 同牌序双人挑战】你和主人分别使用完全相同的12张牌，各自找齐6对，谁总轮次少谁赢。你只能操作自己的牌桌。")
+        appendLine("你已用${game.moves}轮找到${game.characterPairs}对；主人已经找到${game.userPairs}对。各自还需完成全部${game.cards.size / 2}对才能结算。")
         appendLine("牌位从0开始，可翻的位置：${available.sorted().joinToString("、")}。")
         appendLine("已经配对且不可选的位置：${game.matched.sorted().joinToString("、")}。")
         appendLine("本回合已经翻开的：${game.opened.sorted().joinToString("、") { "$it=${game.observed[it] ?: "未知"}" }}。")
@@ -43,7 +43,8 @@ internal suspend fun requestMemoryRoleChoice(
     val result = LuluAiServices.gateway.generate(
         characterId = characterId, facts = facts,
         instruction = "这是你自己的真实回合。仅根据已经见过的卡牌、可能的配对和未翻位置自行决定翻哪一张；" +
-            "没有可靠配对时也可猜测，必须承认未知。你可以顺便说一句自然的话，或保持安静。" +
+            "没有可靠配对时也可猜测，必须承认未知。目标是在尽可能少的轮次内完成你的全部配对。" +
+            "你可以顺便说一句自然的话，或保持安静。" +
             "只输出JSON：{\"index\":0,\"say\":\"...\"}，index必须从可翻位置中选，不要输出额外文字。",
         source = "游戏 · 记忆翻牌本人决策", title = "记忆翻牌 · 本人选牌",
         maxTokens = 160, usage = ModelUsage.Game,
