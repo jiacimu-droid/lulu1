@@ -121,6 +121,16 @@ object ProactivePerceptionRuntime {
     private const val ACTION_HISTORY_SIZE = 10
     private val cycleMutex = KeyedWorkMutex()
 
+    private fun needsFailedExpiryRecovery(
+        context: Context, characterId: String, expiredWindowMillis: Long, failedAtMillis: Long,
+    ): Boolean {
+        val state = CompanionOnlineStore.states.value[characterId] ?: return false
+        if (state.onlineUntil.toEpochMilli() != expiredWindowMillis || state.isOnline() ||
+            state.reason == CompanionOnlineReason.SelfChosenSleep) return false
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getLong("last_decision_completed_$characterId", 0L) < failedAtMillis
+    }
+
     private enum class Action { MESSAGE, GROUP_MESSAGE, STICKER, GROUP_STICKER, KAOMOJI, GROUP_KAOMOJI, GAME_INVITE, SOLO_GAME, WORLD_INVITE, MOMENT, CALL, JOURNAL, READING, DIGITAL_WORLD, USER_REMARK, SELF_NICKNAME, TOOL, SILENT }
 
     private data class Decision(
@@ -288,6 +298,8 @@ object ProactivePerceptionRuntime {
         requiredDuePlanId: String = "",
         requiredDuePlanAt: Instant? = null,
         immediateCommitmentId: String = "",
+        recoverExpiredWindowMillis: Long = 0L,
+        failedPerceptionAtMillis: Long = 0L,
     ): Int {
         // The targeted resumption must never fall through to the global sweep.
         if (immediateCommitmentId.isNotBlank() && targetCharacterId == null) return 0
@@ -307,6 +319,9 @@ object ProactivePerceptionRuntime {
         val dispatchedAtMillis = System.currentTimeMillis()
         return cycleMutex.withLock(targetCharacterId) {
             currentCoroutineContext().ensureActive()
+            if (recoverExpiredWindowMillis > 0L && !needsFailedExpiryRecovery(
+                    context, targetCharacterId, recoverExpiredWindowMillis, failedPerceptionAtMillis,
+                )) return@withLock 0
             if (requiredDuePlanId.isNotBlank() &&
                 (requiredDuePlanAt == null ||
                     !RoleDayScheduleStore.awaitingDueDecision(
@@ -555,7 +570,7 @@ object ProactivePerceptionRuntime {
                     }
                     CompanionPresenceStore.recordPerceptionAttempt(characterId, "感知启动 · $effectiveTrigger", now)
                     val attempt = if (onlineRevision == null && policy.enabled) {
-                        AutonomousPerceptionAttempts.begin(appContext, characterId, trigger, now)
+                        AutonomousPerceptionAttempts.begin(appContext, characterId, trigger, now, onlineExpiryAtMillis)
                     } else null
                     // An ordinary chat/life perception can already assess due wishes.
                     // Claim the captured plans only after success, so their workers
@@ -597,6 +612,7 @@ object ProactivePerceptionRuntime {
                         val actionHistory = prefs.getString(actionKey, "").orEmpty().split(',').map(String::trim)
                             .filter(String::isNotBlank).plus(action.name).takeLast(ACTION_HISTORY_SIZE)
                         prefs.edit()
+                            .putLong("last_decision_completed_$characterId", System.currentTimeMillis())
                             .putString(actionKey, actionHistory.joinToString(","))
                             .putBoolean("pending_concern_promise_$characterId", false)
                             .remove("silent_count_$characterId")
@@ -1658,6 +1674,25 @@ object ProactivePerceptionRuntime {
             // absence of user messages this still requires a bounded recovery
             // rather than becoming another successful "silent" history entry.
             throw IllegalStateException("后台主动感知未返回有效决定（${firstFailure.ifBlank { "格式无效" }}），等待限次恢复")
+        }
+        // Reuse the same bounded private assessment as foreground chat. A newer
+        // bubble cancels the addendum just like the first online model request.
+        if (!needsCorrection && onlineUnread.messageIds.isNotEmpty() &&
+            EmotionFollowThroughCoordinator.needsConcernAssessment(onlineUnread.text, parsed.appraisal)) {
+            suspend fun assessConcern() = EmotionFollowThroughCoordinator.completeOmittedAssessment(
+                characterId, onlineUnread.text, recent, "在线私聊", result.text,
+                character.displayName, connection, parsed.appraisal, parsed.innerLife, now,
+            )
+            val review = if (userBubbleVersion == null) assessConcern()
+                else OnlineChatBatchStore.untilNextUserBubble(characterId, userBubbleVersion) {
+                    assessConcern()
+                }
+            if (batchSuperseded()) return deferSupersededDecision()
+            if (!CompanionOnlineStore.hasOriginalUnreadEvidence(
+                    onlineUnread, CompanionOnlineStore.unreadChatSnapshot(characterId))) return null
+            if (review != null) {
+                parsed = parsed.copy(appraisal = review.appraisal, innerLife = review.innerLife)
+            }
         }
         // A schema error in the online field does NOT transfer its decision
         // to the executor. Reask the same role once; keep the already chosen

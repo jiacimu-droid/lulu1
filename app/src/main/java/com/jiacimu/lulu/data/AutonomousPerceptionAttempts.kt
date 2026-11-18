@@ -14,11 +14,15 @@ internal object AutonomousPerceptionAttempts {
 
     data class Attempt(val characterId: String, val id: String)
 
-    @Synchronized fun begin(context: Context, characterId: String, trigger: String, at: Instant): Attempt {
+    @Synchronized fun begin(
+        context: Context, characterId: String, trigger: String, at: Instant,
+        onlineExpiryAtMillis: Long = 0L,
+    ): Attempt {
         val attempt = Attempt(characterId, UUID.randomUUID().toString())
         val record = JSONObject().put("id", attempt.id).put("owner", session)
             .put("characterId", characterId).put("trigger", trigger)
             .put("startedAt", at.toEpochMilli()).put("stage", "model")
+            .put("onlineExpiryAtMillis", onlineExpiryAtMillis)
         check(prefs(context).edit().putString(characterId, record.toString()).commit()) {
             "感知执行记录未保存"
         }
@@ -50,9 +54,7 @@ internal object AutonomousPerceptionAttempts {
 
     @Synchronized fun recoverInterrupted(
         context: Context,
-        enqueue: (String, Long) -> Unit = { role, at ->
-            ProactivePerceptionScheduler.scheduleBackgroundFailureRecovery(context, role, at)
-        },
+        enqueue: ((String, Long) -> Unit)? = null,
     ) {
         prefs(context).all.keys.toList().forEach { role ->
             val record = read(context, role) ?: return@forEach
@@ -64,9 +66,7 @@ internal object AutonomousPerceptionAttempts {
     private fun recover(
         context: Context,
         record: JSONObject,
-        enqueue: (String, Long) -> Unit = { role, at ->
-            ProactivePerceptionScheduler.scheduleBackgroundFailureRecovery(context, role, at)
-        },
+        enqueue: ((String, Long) -> Unit)? = null,
     ) {
         val role = record.optString("characterId")
         if (role.isBlank()) return
@@ -86,7 +86,12 @@ internal object AutonomousPerceptionAttempts {
         }
         // Commit the cooldown before enqueue; remove it if durable work registration fails.
         if (!runtime.edit().putLong(retryKey, now).commit()) return
-        runCatching { enqueue(role, record.optLong("startedAt", now)) }.onSuccess {
+        runCatching {
+            val startedAt = record.optLong("startedAt", now)
+            if (enqueue != null) enqueue(role, startedAt)
+            else ProactivePerceptionScheduler.scheduleBackgroundFailureRecovery(
+                context, role, startedAt, record.optLong("onlineExpiryAtMillis"))
+        }.onSuccess {
             clear(context, role)
         }.onFailure {
             runtime.edit().remove(retryKey).commit()

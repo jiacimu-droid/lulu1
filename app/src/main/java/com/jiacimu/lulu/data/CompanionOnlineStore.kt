@@ -74,6 +74,8 @@ object CompanionOnlineStore {
     private const val DELIVERY_CURSOR_PREFIX = "delivered_reply_cursor:"
     private const val MAX_DELIVERY_EVIDENCE = 600
     private val onlineDuration: Duration = Duration.ofMinutes(5)
+    // One ordinary WorkManager watchdog interval to deliver a missed boundary.
+    private val expiryDeliveryGrace: Duration = Duration.ofMinutes(15)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val expiryJobs = mutableMapOf<String, Job>()
     private val lifePulseJobs = mutableMapOf<String, Job>()
@@ -767,7 +769,7 @@ object CompanionOnlineStore {
     /**
      * The role may go offline in five minutes, but its newly saved unresolved
      * thoughts should still receive one durable later decision opportunity.
-     * This is called only AFTER the outgoing chat batch has actually been sent.
+     * Call after the character's private state has been durably committed.
      * It does not extend online time or automatically contact the user.
      */
     fun schedulePersistedConcernReview(characterId: String, now: Instant = Instant.now()) {
@@ -793,20 +795,27 @@ object CompanionOnlineStore {
         if (prefs == null || expectedUntilMs <= 0L ||
             state.onlineUntil.toEpochMilli() != expectedUntilMs ||
             now.isBefore(state.onlineUntil) ||
+            state.reason == CompanionOnlineReason.SelfChosenSleep ||
             CompanionPresenceStore.isInCall(characterId) ||
             !ProactivePerceptionPolicyStore.get(characterId).enabled) return@synchronized false
         if (ChatGenerationActivity.isWorking(characterId)) {
             // Record a real in-flight task even when Android delivers a
-            // WorkManager backup later than the normal 3-minute grace.
+            // WorkManager backup late.
             if (!isExpiryReviewRunning(characterId))
                 workDeferredExpiries[characterId] = expectedUntilMs
             return@synchronized false
         }
-        if (now.isAfter(state.onlineUntil.plus(Duration.ofMinutes(3))))
-            return@synchronized false
         val key = "expiry_decision_claim:$characterId"
         if (prefs?.getLong(key, Long.MIN_VALUE) == expectedUntilMs) return@synchronized false
         val claimed = prefs?.edit()?.putLong(key, expectedUntilMs)?.commit() == true
+        if (claimed && now.isAfter(state.onlineUntil.plus(expiryDeliveryGrace))) {
+            scope.launch {
+                CompanionPresenceStore.recordPerceptionAttempt(characterId,
+                    "在线窗口的后台评估投递过晚，未执行原到期复查", now)
+                schedulePersistedConcernReview(characterId, now)
+            }
+            return@synchronized false
+        }
         if (claimed) mutableExpiryReviews.value = mutableExpiryReviews.value +
             (characterId to expectedUntilMs)
         claimed
@@ -853,8 +862,8 @@ object CompanionOnlineStore {
                           now: Instant = Instant.now()): Boolean = synchronized(lock) {
         val current = mutableStates.value[characterId] ?: return@synchronized false
         if (reason.isBlank() || current.onlineUntil.toEpochMilli() != expectedUntilMs ||
-            now.isAfter(current.onlineUntil.plus(Duration.ofMinutes(3))) ||
-            prefs?.getLong("expiry_decision_claim:$characterId", Long.MIN_VALUE) != expectedUntilMs ||
+            mutableExpiryReviews.value[characterId] != expectedUntilMs ||
+            current.reason == CompanionOnlineReason.SelfChosenSleep ||
             CompanionPresenceStore.isInCall(characterId)) return@synchronized false
         // New activity may already have awakened the character. If so, the stale
         // expiry cannot overwrite that session's purpose or expiry.

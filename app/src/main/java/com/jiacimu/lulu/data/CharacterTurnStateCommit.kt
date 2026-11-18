@@ -54,6 +54,9 @@ internal object CharacterTurnStateCommit {
                 characterId, evidenceId, innerThought, now, voiceFingerprint,
             )
         }
+        if (CharacterOpenConcernRuntime.hasProposals(appraisal)) {
+            CompanionOnlineStore.schedulePersistedConcernReview(characterId, now)
+        }
     }
 
     fun commit(

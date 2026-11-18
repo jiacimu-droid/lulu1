@@ -194,7 +194,9 @@ object ProactivePerceptionScheduler {
      * decision or a failed external action. The runtime owns the persistent
      * cooldown and will not re-enqueue this recovery if it also fails.
      */
-    fun scheduleBackgroundFailureRecovery(context: Context, characterId: String, attemptAtMillis: Long) {
+    fun scheduleBackgroundFailureRecovery(
+        context: Context, characterId: String, attemptAtMillis: Long, expiredWindowMillis: Long = 0L,
+    ) {
         if (characterId.isBlank() || attemptAtMillis <= 0L) return
         val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
             .setInitialDelay(ProactivePerceptionRecoveryPolicy.RETRY_DELAY_MILLIS, TimeUnit.MILLISECONDS)
@@ -204,6 +206,8 @@ object ProactivePerceptionScheduler {
                 .putString("trigger", ProactivePerceptionRecoveryPolicy.RETRY_TRIGGER)
                 .putString("characterId", characterId)
                 .putBoolean("force", true)
+                .putLong("recoverExpiredWindowMillis", expiredWindowMillis)
+                .putLong("failedPerceptionAtMillis", attemptAtMillis)
                 .build())
             .build()
         WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
@@ -968,7 +972,8 @@ class ProactivePerceptionWorker(
             return@runCatching if (runAttemptCount < 3) Result.retry() else Result.success()
         }
         val requireOnline = inputData.getBoolean("requireOnline", false)
-        val preserveOffline = inputData.getBoolean("preserveOffline", false)
+        val failedExpiry = inputData.getLong("recoverExpiredWindowMillis", 0L)
+        val preserveOffline = inputData.getBoolean("preserveOffline", false) || failedExpiry > 0L
         val onlineExpiryAtMillis = inputData.getLong("onlineExpiryAtMillis", 0L)
         val goalReviewId = inputData.getString("goalReviewId").orEmpty()
         val residentEpisodeId = inputData.getString("residentEpisodeId").orEmpty()
@@ -1011,7 +1016,8 @@ class ProactivePerceptionWorker(
         }
         if (preserveOffline && onlineExpiryAtMillis == 0L &&
             (characterId == null || CompanionOnlineStore.isOnline(characterId) ||
-                (residentEpisodeId.isBlank() && !CharacterInnerLifeStore.needsPostOnlineReflection(characterId)) ||
+                (failedExpiry == 0L && residentEpisodeId.isBlank() &&
+                    !CharacterInnerLifeStore.needsPostOnlineReflection(characterId)) ||
                 !ProactivePerceptionPolicyStore.get(characterId).enabled)) {
             return@runCatching Result.success()
         }
@@ -1162,6 +1168,8 @@ class ProactivePerceptionWorker(
             requiredInteractionEvidenceId = inputData.getString("interactionEvidenceId"),
             onlineExpiryAtMillis = onlineExpiryAtMillis,
             immediateCommitmentId = immediateCommitmentId,
+            recoverExpiredWindowMillis = failedExpiry,
+            failedPerceptionAtMillis = inputData.getLong("failedPerceptionAtMillis", 0L),
         )
         if (immediateCommitmentId.isNotBlank() && characterId != null && evaluated == 0 &&
             runAttemptCount < 3 && CommitmentTaskStore.active(characterId).any {
