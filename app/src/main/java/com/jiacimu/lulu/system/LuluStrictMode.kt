@@ -76,8 +76,10 @@ internal object LuluStrictMode {
             // Lockdown is an explicit separate role choice. No custom allowlist
             // overrides it; Android/system/privacy exceptions are still enforced.
             "lockdown" -> true
-            "return", "home" -> foreground !in exceptions &&
+            "return" -> foreground !in exceptions &&
                 (blockedPackages.isEmpty() || foreground in blockedPackages)
+            "home" -> foreground !in exceptions &&
+                blockedPackages.isNotEmpty() && foreground in blockedPackages
             else -> false
         }
 
@@ -189,6 +191,10 @@ internal object LuluStrictMode {
                 return response(false, "denied", "系统、隐私或露露机自身不能加入禁止应用")
             blocked.add(pkg)
         }
+        // "home" is a precise blocklist. "lockdown" is the only explicit
+        // blanket return-to-launcher mode; don't conflate the two.
+        if (mode == "home" && blocked.isEmpty())
+            return response(false, "invalid", "指定应用切回桌面模式至少要选择一个应用；全应用限制请用 lockdown")
         val now = System.currentTimeMillis()
         val session = JSONObject()
             .put("id", previous?.optString("id") ?: UUID.randomUUID().toString())
@@ -392,8 +398,8 @@ internal object LuluStrictMode {
             "mode=lockdown 是单独的全面限制模式：当你认为主人现在不该使用其他普通 App 时，" +
             "任何非露露机、非桌面、非系统保护的普通 App 都立即尝试切回手机桌面，" +
             "忽略 blockedPackages 与 exceptPackages，不能当作真正的系统级 App 锁。" +
-            "可选 blockedPackages 为普通模式需限制的 App 包名数组，留空表示全部普通 App；" +
-            "exceptPackages 为普通模式不拦截名单。须由你基于实际承诺、原因与新鲜证据选择，" +
+            "mode=home 必须给出非空 blockedPackages；mode=return 可以按名单或全部切回露露机。" +
+            "exceptPackages 仅适用于定向限制；全面限制没有普通应用白名单。须由你基于实际承诺、原因与新鲜证据选择，" +
             "不能仅因提示词示例就默认全面限制，也不可无目标永久开启。" +
             "你可决定何时停止或重新启动；安全租约默认最多120分钟，并不代表任务完成。" +
             "目标确证达成后主动 stop，未证实可继续或安排稍后复查。" +
