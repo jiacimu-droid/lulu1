@@ -123,25 +123,48 @@ internal fun CommitmentTask.recentDailyOutcomeContext(now: Instant): DailyCommit
         (it.status == "Completed" && verificationMode == "delivery") }
 }
 
-/** Calendar projection keeps past unverified duties visible without duplicating them. */
+/**
+ * Calendar dates describe actual appointments, not an open-ended backlog.
+ * An unverified ONE-OFF from yesterday belongs to yesterday (and to the
+ * responsibility review), NEVER to today's new appointments.
+ */
+internal fun CommitmentTask.scheduleOccurrenceAt(date: LocalDate, zone: ZoneId): Instant? {
+    if (status == CommitmentTaskStatus.Cancelled &&
+        lastActionResult.startsWith("重复定时约定已整理")) return null
+    val scheduledAt = dueAt ?: return if (createdAt.atZone(zone).toLocalDate() == date)
+        createdAt else null
+    if (repeat != "daily") return scheduledAt.takeIf {
+        it.atZone(zone).toLocalDate() == date
+    }
+    // Real attempts and actual armed occurrences take precedence over the
+    // recurring wall clock, including a one-day postponement.
+    dailyAttempts.firstOrNull { it.dueAt.atZone(zone).toLocalDate() == date }
+        ?.let { return it.dueAt }
+    if (scheduledAt.atZone(zone).toLocalDate() == date) return scheduledAt
+    dailyNextDueAt?.takeIf { it.atZone(zone).toLocalDate() == date }
+        ?.let { return it }
+    if (!status.isActive()) return null
+    // The daily responsibility persists, but its last attempt's changed
+    // clock is not the permanent clock. A projected occurrence is a calendar
+    // expectation, NOT proof that an alarm was successfully registered.
+    val base = dailyBaseDueAt ?: scheduledAt
+    val first = maxOf(createdAt.atZone(zone).toLocalDate(),
+        base.atZone(zone).toLocalDate())
+    if (date.isBefore(first)) return null
+    return java.time.ZonedDateTime.of(date, base.atZone(zone).toLocalTime(), zone)
+        .toInstant()
+}
+
 internal fun CommitmentTask.visibleOnScheduleDate(
     date: LocalDate, zone: ZoneId, today: LocalDate,
-): Boolean {
-    // The redundant persisted task remains auditable, but is not a second
-    // appointment in the owner's calendar after its alarm was retired.
-    if (status == CommitmentTaskStatus.Cancelled &&
-        lastActionResult.startsWith("重复定时约定已整理")) return false
-    val scheduledDate = (dueAt ?: createdAt).atZone(zone).toLocalDate()
-    if (repeat == "daily" && dailyNextDueAt?.atZone(zone)?.toLocalDate() == date) return true
-    if (repeat == "daily" && dueAt != null && status.isActive()) {
-        if (date.isBefore(createdAt.atZone(zone).toLocalDate())) return false
-        return !date.isBefore(scheduledDate) ||
-            lastAlarmScheduledAt?.atZone(zone)?.toLocalDate() == date ||
-            lastAlarmReceivedAt?.atZone(zone)?.toLocalDate() == date
-    }
-    if (date == scheduledDate) return true
-    return date == today && dueAt != null && scheduledDate.isBefore(today) && status.isActive()
-}
+): Boolean = scheduleOccurrenceAt(date, zone) != null
+
+/** Unverified previous-day reminders still need review under their original
+ * task ID, but they are not today's booked calls or alarms. */
+internal fun CommitmentTask.isOverdueOneOffOn(date: LocalDate, zone: ZoneId): Boolean =
+    repeat != "daily" && dueAt != null && dueAt.atZone(zone).toLocalDate().isBefore(date) &&
+        status.isActive()
+
 
 /** An undated responsibility still needs a model-owned next-step review.
  * NeedsClarification is not permission to assume the missing user condition,
