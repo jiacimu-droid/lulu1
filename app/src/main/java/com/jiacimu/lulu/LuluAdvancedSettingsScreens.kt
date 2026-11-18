@@ -45,6 +45,12 @@ private val MiniMaxSpeechModels = listOf(
     "speech-02-hd", "speech-02-turbo", "speech-01-hd", "speech-01-turbo",
 )
 private val ElevenLabsSpeechModels = ElevenLabsModels.choices
+private val MossSpeechModels = listOf(
+    "1.5 Flash · 推荐" to MossSpeech.DEFAULT_MODEL,
+    "1.0 Pro · 高保真" to "moss-tts-1.0-pro",
+    "1.5 Flash · 2026-06-26" to "moss-tts-1.5-flash-2026-06-26",
+    "1.0 Pro · 2026-02-07" to "moss-tts-1.0-pro-2026-02-07",
+)
 private val MiniMaxLanguages = listOf(
     "auto", "Chinese", "Chinese,Yue", "English", "Japanese", "Korean", "French", "German",
     "Spanish", "Portuguese", "Russian", "Arabic", "Italian", "Turkish", "Dutch", "Ukrainian",
@@ -76,6 +82,9 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
     var minimaxSpeed by remember { mutableFloatStateOf(prefs.getFloat("minimax_speed", 1f)) }
     var minimaxVolume by remember { mutableFloatStateOf(prefs.getFloat("minimax_volume", 1f)) }
     var minimaxPitch by remember { mutableFloatStateOf(prefs.getInt("minimax_pitch", 0).toFloat()) }
+    var mossKey by remember { mutableStateOf(prefs.getString("moss_api_key", "").orEmpty()) }
+    var mossModel by remember { mutableStateOf(prefs.getString("moss_tts_model", MossSpeech.DEFAULT_MODEL).orEmpty().ifBlank { MossSpeech.DEFAULT_MODEL }) }
+    var mossVoice by remember { mutableStateOf(prefs.getString("moss_voice_id", "").orEmpty()) }
     var elevenKey by remember { mutableStateOf(prefs.getString("eleven_api_key", "").orEmpty()) }
     DisposableEffect(prefs) {
         val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { changed, key ->
@@ -162,6 +171,9 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
             .putFloat("minimax_speed", minimaxSpeed)
             .putFloat("minimax_volume", minimaxVolume)
             .putInt("minimax_pitch", minimaxPitch.toInt())
+            .putString("moss_api_key", mossKey.trim())
+            .putString("moss_tts_model", mossModel)
+            .putString("moss_voice_id", mossVoice.trim())
             .putString("eleven_voice_id", elevenVoice.trim())
             .putString("eleven_tts_model", elevenModel.trim())
             .putFloat("eleven_stability", elevenStability)
@@ -179,6 +191,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         provider, language, rate, pitch, minimaxEndpoint, minimaxApiKey, minimaxGroupId,
         minimaxModel, minimaxVoiceId, minimaxLanguage, minimaxSpeed, minimaxVolume, minimaxPitch,
         elevenVoice, elevenModel, elevenStability, elevenSimilarity,
+        mossKey, mossModel, mossVoice,
         musicEnabled, musicModel, musicUseRoleVoice,
         singingEngine, singingServiceUrl, singingServiceToken,
     ) { saveVoiceSettings() }
@@ -187,42 +200,17 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
         item {
             SettingsSectionCard("语音服务") {
                 Text("选择电话与语音回复的供应商", color = AdvancedMuted, fontSize = 13.sp)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(
-                        selected = provider == "system",
-                        onClick = { prefs.edit().putString("voice_call_mode", "direct").apply(); provider = "system"; prefs.edit().putString("tts_provider", provider).apply() },
-                        label = { Text("系统语音") },
-                    )
-                    FilterChip(
-                        selected = provider == "minimax",
-                        onClick = { prefs.edit().putString("voice_call_mode", "direct").apply(); provider = "minimax"; prefs.edit().putString("tts_provider", provider).apply() },
-                        label = { Text("MiniMax") },
-                    )
-                    FilterChip(selected = provider == "elevenlabs", onClick = { provider = "elevenlabs" }, label = { Text("ElevenLabs") })
+                AdvancedChoiceField("语音服务商", provider, listOf(
+                    "系统语音 · 离线" to "system",
+                    "MiniMax" to "minimax",
+                    "ElevenLabs" to "elevenlabs",
+                    "MOSS" to "moss",
+                )) {
+                    provider = it
+                    providerAdvancedOpen = false
+                    voiceNotice = ""
+                    prefs.edit().putString("tts_provider", it).putString("voice_call_mode", "direct").apply()
                 }
-            }
-        }
-        item {
-            SettingsSectionCard("ElevenLabs 账号 · 统一 API Key") {
-                AdvancedTextField(
-                    "ElevenLabs API Key",
-                    elevenKey,
-                    {
-                        elevenKey = it
-                        // All ElevenLabs TTS, Scribe and Music consumers already
-                        // share this one legacy key. Persist ONLY from this editor,
-                        // never from an unrelated settings save or remembered draft.
-                        prefs.edit().putString("eleven_api_key", it.trim()).apply()
-                    },
-                    "同一个 Key 用于配音、哄睡电话、Scribe 识别与唱歌",
-                    password = true,
-                )
-                Text(
-                    if (elevenKey.isBlank()) "尚未配置；如已在旧版语音识别中填写，升级后会自动读取原设置。"
-                    else "已配置 · 配音／哄睡／Scribe 识别／Eleven Music 共用，无需重复填写。",
-                    color = AdvancedMuted,
-                    fontSize = 12.sp,
-                )
             }
         }
         item {
@@ -293,7 +281,7 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 AdvancedChoiceField("语音模型", minimaxModel,
                     MiniMaxSpeechModels.map { it to it }, { minimaxModel = it })
                 Spacer(Modifier.height(10.dp))
-                AdvancedTextField("Voice ID", minimaxVoiceId, { minimaxVoiceId = it }, "填写声线 ID")
+                AdvancedTextField("默认 Voice ID", minimaxVoiceId, { minimaxVoiceId = it }, "填写声线 ID")
                 TextButton(onClick = { providerAdvancedOpen = !providerAdvancedOpen }) {
                     Text(if (providerAdvancedOpen) "收起高级参数" else "更多参数 · 线路 / 语速 / 音调")
                 }
@@ -340,9 +328,40 @@ fun LuluVoiceSettingsScreen(onBack: () -> Unit) {
                 }
             }
         }
+        if (provider == "moss") item {
+            SettingsSectionCard("MOSS · 配音") {
+                AdvancedChoiceField("语音模型", mossModel, MossSpeechModels) { mossModel = it }
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("API Key", mossKey, { mossKey = it }, "填写 MOSS API Key", password = true)
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("默认 Voice ID", mossVoice, { mossVoice = it }, "从 MOSS Create 复制音色 ID")
+                Text("官方接口 · " + MossSpeech.ENDPOINT, color = AdvancedMuted, fontSize = 12.sp)
+                OutlinedButton(
+                    onClick = {
+                        saveVoiceSettings()
+                        testingVoice = true
+                        voiceNotice = "正在连接 MOSS 并试听…"
+                        scope.launch {
+                            speechEngine.previewMoss("你好，我是露露。这个声音听起来还合适吗？")
+                                .onSuccess { voiceNotice = "MOSS 已返回音频，正在播放试听。" }
+                                .onFailure { voiceNotice = it.message ?: "试听失败，请检查密钥或音色。" }
+                            testingVoice = false
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = enabled && !testingVoice && mossKey.isNotBlank() && mossVoice.isNotBlank(),
+                ) { Text(if (testingVoice) "正在试听" else "试听当前声音") }
+                if (voiceNotice.isNotBlank()) Text(voiceNotice, color = AdvancedMuted, fontSize = 12.sp)
+            }
+        }
         if (provider == "elevenlabs") item {
-            SettingsSectionCard("ElevenLabs 接口") {
-                AdvancedTextField("Voice ID", elevenVoice, { elevenVoice = it }, "填写选择的声线 ID")
+            SettingsSectionCard("ElevenLabs · 配音") {
+                AdvancedTextField("API Key", elevenKey, {
+                    elevenKey = it
+                    prefs.edit().putString("eleven_api_key", it.trim()).apply()
+                }, "配音、Scribe 和 Eleven Music 共用", password = true)
+                Spacer(Modifier.height(10.dp))
+                AdvancedTextField("默认 Voice ID", elevenVoice, { elevenVoice = it }, "填写选择的声线 ID")
                 Spacer(Modifier.height(10.dp))
                 AdvancedChoiceField(
                     label = "语音模型",
