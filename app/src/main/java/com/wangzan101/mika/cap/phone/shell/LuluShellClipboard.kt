@@ -69,6 +69,20 @@ internal class LuluShellClipboard(context: Context) {
         return method.invoke(service, *args)
     }
 
+    /** Metadata-only observation: never exposes the owner's existing clip. */
+    fun descriptionTimestamp(): Long = runCatching {
+        val description = readDescription?.let { call(it) as? android.content.ClipDescription }
+            ?: manager.primaryClipDescription
+        description?.timestamp ?: 0L
+    }.getOrDefault(0L)
+
+    /** Android can report the copying package to shell; never invent one. */
+    fun sourcePackage(): String? = runCatching {
+        val direct = method("getPrimaryClipSource")?.let { call(it) as? String }
+        direct ?: manager.javaClass.getMethod("getPrimaryClipSource")
+            .invoke(manager) as? String
+    }.getOrNull()
+
     fun snapshot(): ClipData? {
         val present = hasClip?.let { call(it) as? Boolean } ?: manager.hasPrimaryClip()
         val description = readDescription?.let { call(it) } ?: manager.primaryClipDescription
