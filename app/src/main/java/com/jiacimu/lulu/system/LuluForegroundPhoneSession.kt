@@ -32,6 +32,16 @@ internal object LuluForegroundPhoneSession {
         val controls: JSONArray, val hasPicture: Boolean)
     private var screen: Screen? = null
 
+    /** Called from the real STOP notification after the shared pause flag is set. */
+    suspend fun stopSession(context: Context) {
+        mutex.lock()
+        try {
+            owner = ""; target = ""; screen = null
+            LuluScreenFrameHandoff.clear()
+            LuluBackgroundPhoneNotice.clear(context)
+        } finally { mutex.unlock() }
+    }
+
     fun activeFor(characterId: String): Boolean = owner.isNotBlank() && owner == characterId
 
     internal fun requiresNewObservation(action: String): Boolean = action in setOf(
@@ -64,6 +74,7 @@ internal object LuluForegroundPhoneSession {
         if (action == "stop") {
             if (owner == role) {
                 owner = ""; target = ""; screen = null
+                LuluBackgroundPhoneNotice.clear(context)
             }
             return JSONObject().put("success", true).put("status", "stopped")
                 .put("mode", "foreground_accessibility").put("taskCompleted", false)
@@ -118,7 +129,7 @@ internal object LuluForegroundPhoneSession {
             }
             if (!shown) return rejection(action, "已请求打开App，但主屏尚未确认目标窗口；不能继续点击", "launch_unverified")
             owner = role; target = pkg; screen = null
-            LuluBackgroundPhoneNotice.show(context)
+            LuluBackgroundPhoneNotice.showForeground(context)
             return observe(context, role, requestId, action, accepted = true).toString()
         }
 
