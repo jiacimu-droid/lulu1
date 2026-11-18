@@ -180,6 +180,7 @@ object CapabilityRegistry {
             appendLine("实际决定操作某个App时：action=tool,tool=background_phone,args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏。需要给主人发后台截图时可在实际observe/launch回执允许的情况下选sendToChat=true；只有本角色目标独立屏新帧已核实、实际发送回执成功，才能称后台截图已发出。foreground_accessibility主屏模式不可冒充后台图；截图失败或发送失败就说明对应阶段，不能沿用旧图。")
             appendLine("type只输入草稿，绝不自动搜索/发送/发布；先核实输入框和草稿是否真的写入，随后由本人决定是否执行独立搜索、发送或发表动作。")
             appendLine("目标App有唯一真实搜索框时可用search(text)，系统自动聚焦、读回并提交搜索；submit仍只针对可确认的搜索框，不能拿回车替代发送消息。普通社交发表使用真实按钮的tap或tap_element。")
+            appendLine("独立后台画面这不是capture_screen；只有实测回执mode=independent_virtual_display和对应独立屏新帧才可称已经看过后台；绝不会把主屏截图当后台图。若设备不支持无线调试，background_phone实际是foreground_accessibility可见主屏，不得援引这条独立屏证据。")
             appendLine("只有mode=independent_virtual_display才是独立后台屏；mode=foreground_accessibility是主屏，绝不能称两者相同。后台图片不会混成主屏；主屏模式不可称隐藏后台操控。长任务未做完时保留真实进度，不假装已完成。")
         }.trim()
     }
