@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import android.content.Context
+import com.jiacimu.lulu.data.MigratedDomainStores
 
 /**
  * One scene-scoped talk transport shared by the small games. The phone's real
@@ -51,6 +53,8 @@ internal class GameLiveSession(
     var lastOwnerLine by mutableStateOf("")
         private set
     var lastCompanionLine by mutableStateOf("")
+        private set
+    var lastSpeakerId by mutableStateOf<String?>(null)
         private set
     var conversationStatus by mutableStateOf("")
     var companionSpeaking by mutableStateOf(false)
@@ -79,6 +83,7 @@ internal class GameLiveSession(
         val line = raw.trim()
         if (actorId !in participantIds || line.isBlank()) return
         lastCompanionLine = line
+        lastSpeakerId = actorId
         GameTeamConversationTimeline.recordCompanion(
             context, gameId, runId, participantIds, actorId, line, utteranceId,
         )
@@ -89,6 +94,7 @@ internal class GameLiveSession(
     fun fixedHostSaid(raw: String) {
         val line = raw.trim()
         if (line.isBlank()) return
+        lastSpeakerId = null
         lastCompanionLine = "主持：$line"
         if (voiceMode) voice.enqueue("lulu", line)
     }
@@ -144,7 +150,11 @@ internal fun GameTalkBar(
     showComposer: Boolean = true,
 ) {
     if (session.participantIds.isEmpty() && !session.allowSoloHost) return
-    val mint = Color(0xFF9BE6D8)
+    val roster by MigratedDomainStores.characters.settings.collectAsState()
+    val mint = Color(0xFF477B6D)
+    val talkInk = GameDesign.ink
+    val talkMuted = GameDesign.muted
+    val conversationTitle = session.participantIds.mapNotNull { roster[it]?.displayName }.joinToString("、").ifBlank { "同桌" }
     var textExpanded by remember(session) { mutableStateOf(false) }
     val microphoneOn = session.voiceMode && session.mic.active
     val status = when {
@@ -155,9 +165,9 @@ internal fun GameTalkBar(
     }
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = Color(0xFF152B39),
+        color = Color(0xFFFFFCF7),
         shape = RoundedCornerShape(topStart = 22.dp, topEnd = 22.dp),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = .12f)),
+        border = BorderStroke(1.dp, Color(0xFFDDD8CD)),
     ) {
         Column(
             Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
@@ -166,10 +176,10 @@ internal fun GameTalkBar(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        if (session.voiceMode) "同桌通话" else "和伙伴说话",
-                        color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 14.sp,
+                        if (session.voiceMode) "$conversationTitle · 连麦" else "和$conversationTitle说话",
+                        color = talkInk, fontWeight = FontWeight.SemiBold, fontSize = 14.sp,
                     )
-                    Text(status, color = Color(0xFFABC4D0), fontSize = 11.sp, maxLines = 2)
+                    Text(status, color = talkMuted, fontSize = 11.sp, maxLines = 2)
                 }
                 IconButton(
                     onClick = {
@@ -180,7 +190,7 @@ internal fun GameTalkBar(
                     Icon(
                         if (microphoneOn) Icons.Outlined.Mic else Icons.Outlined.MicOff,
                         contentDescription = if (microphoneOn) "关闭麦克风" else "接通或开启麦克风",
-                        tint = if (microphoneOn) mint else Color.White,
+                        tint = if (microphoneOn) mint else talkMuted,
                     )
                 }
                 if (session.voiceMode) {
@@ -198,7 +208,7 @@ internal fun GameTalkBar(
             // Transcript belongs to the conversation, not to the microphone switch.
             val ownerCaption = session.mic.partial.ifBlank { session.lastOwnerLine }
             if (ownerCaption.isNotBlank()) {
-                Text("你：$ownerCaption", color = Color(0xFFD4E8EE),
+                Text("你：$ownerCaption", color = talkInk,
                     fontSize = 12.sp, maxLines = 2, lineHeight = 17.sp)
             }
             if (session.voiceMode && session.mic.recoverablePartial) {
@@ -208,9 +218,9 @@ internal fun GameTalkBar(
             }
             if (session.lastCompanionLine.isNotBlank()) {
                 Text(
-                    if (session.lastCompanionLine.startsWith("主持：")) session.lastCompanionLine
-                    else "伙伴：${session.lastCompanionLine}",
-                    color = mint, fontSize = 12.sp, maxLines = 2, lineHeight = 17.sp,
+                    if (session.lastSpeakerId == null) session.lastCompanionLine
+                    else "${roster[session.lastSpeakerId]?.displayName ?: "角色"}：${session.lastCompanionLine}",
+                    color = talkInk, fontSize = 12.sp, maxLines = 2, lineHeight = 17.sp,
                 )
             }
             if (showComposer && (!session.voiceMode || textExpanded)) {
