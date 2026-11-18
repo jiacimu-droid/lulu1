@@ -3148,7 +3148,7 @@ object ProactivePerceptionRuntime {
                 phoneUnverifiedFacts += "动作=${actionArgs.optString("action")}；" +
                     "未确认完成：${why.take(230)}"
             }
-            if (actual.optString("mode") != "independent_virtual_display" ||
+            if (actual.optString("mode") !in setOf("independent_virtual_display", "foreground_accessibility") ||
                 actual.optString("status") == "denied" ||
                 actionArgs.optString("action") == "stop") return null
             // Exactly this action's actual virtual display frame; NEVER use
