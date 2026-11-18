@@ -11,6 +11,23 @@ import org.json.JSONObject
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class LuluBackgroundPhoneContinuationYieldTest {
+    @Test fun historicalPhoneReceiptsNeverBecomeNewAttemptsOrGestures() {
+        val current = JSONObject().put("mode", "independent_virtual_display")
+            .put("status", "observed").put("success", true)
+            .put("screenSnapshotId", "live-snapshot")
+        assertTrue(LuluBackgroundPhoneContinuation.hasFreshExecutionReceipt(current))
+        val old = JSONObject(current.toString())
+            .put("replayedHistoricalReceipt", true)
+            .put("originalRequestId", "half-an-hour-ago")
+            .put("originalFinishedAt", "2026-11-18T15:28:00+08:00")
+        assertFalse("Cached success is not a new user-requested attempt",
+            LuluBackgroundPhoneContinuation.hasFreshExecutionReceipt(old))
+        assertFalse("Cached failure must not become this turn's failed retry",
+            LuluBackgroundPhoneContinuation.hasFreshExecutionReceipt(
+                old.put("status", "failed").put("success", false)))
+        assertFalse(LuluBackgroundPhoneContinuation.hasFreshExecutionReceipt(null))
+    }
+
     @Test fun phoneActionReceiptsStayDistinctBeyondFormerTwelveStepCutoff() {
         val ids = (1L..128L).map { ordinal ->
             LuluBackgroundPhoneContinuation.stepRequestId("owner-task", ordinal)
