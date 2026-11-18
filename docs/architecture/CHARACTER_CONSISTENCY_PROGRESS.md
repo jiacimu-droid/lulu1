@@ -35,6 +35,13 @@
 - [b239286](https://github.com/jiacimu-droid/lulu1/commit/b2392865af0010f5a922657fc4319c642807ac31)、[8efc982](https://github.com/jiacimu-droid/lulu1/commit/8efc982a37a7cad6688b660b88aa761af480f193)：合场文学保留一次 Isolated 写作请求和各自角色章节；给每个角色带入本人的通知、原始会面及被该事件/前因锚定的已保存心声/选择，提示正文不能把另一个人的未说出的心声写成自己的或已公开的事实。写作仅产生非权威文学，不回填原世界事件、主人行为、关系或心理。证据 ID 按本人单独链接。
 - 回归源码 [e4710e4](https://github.com/jiacimu-droid/lulu1/commit/e4710e43623827ac59aa38b2b7ff7a2fc90d07f3)、[f991a19](https://github.com/jiacimu-droid/lulu1/commit/f991a194a2ad48d052454e4884ea7e970d646900)：覆盖到访→离场顺序、其他地点/未来/伪源隔离、没有通知不伪造在场、本人的证据心声能进入正文而他人的/未来的不能。**当前仅提交测试，未取得目标 SHA 的 JVM/APK 成功证明，且未在 Redmi 真机用两角色 + 真实模型重放。** 后续核 `WorldVisitorSceneContextTest`、`AutonomousEncounterCausalChapterTest`、`AutonomousEncounterPrivacyTest` 在当前 main push 的首错；真机还要验证从地点退出/强杀后离场通知是否真实到达、模型是否自主延续找人的目标、历史章节不应被静默重写。
 
+## 2026-11-18 · P-03.1 拒收通知不抢占后续原件的资格
+
+- 接续上轮候选实查：电话队列在 Main.immediate 中检查可交付状态、取原件与调用 handleUserSpeech 之间没有 suspend 点，未发现该局部存在用户回调穿插的证据。因此不为假定竞态增重试。当前缺少的回归是：先到的空通知或误投通知被拒时，去重映射不能记成已经提供。
+- [28808700](https://github.com/jiacimu-droid/lulu1/commit/288087006d7307a2395037460c38a3cf36919839) 仅扩 `CallExternalResultPolicyTest.rejectedNoticeDoesNotConsumeTheLaterCanonicalReceipt`：实际 Timeline 初始无原件→拒收且队列/版本表均空→本人原件保存→误投另一人仍不占位→本人同一版本只入队一次→另一正式感知入口确认后，出队查询排除该回执而原始记录保留。原生产路径已有正确校验顺序，本轮没有新增运行分支或模型调用。
+- 精确 [JVM/APK #44217167149](https://github.com/jiacimu-droid/lulu1/actions/runs/44217167149) 与 [索引 #44217167252](https://github.com/jiacimu-droid/lulu1/actions/runs/44217167252) 待核。前轮新版回执回归在 [#44210771119/job 134488223530](https://github.com/jiacimu-droid/lulu1/actions/runs/44210771119/job/134488223530) 再次通过，完整 3458 项仍被既有指南单项失败阻止 APK。
+- 真机与真实模型待验。下一步转 P-08b.1，打开 `CompanionModelGateway` 与 `ConversationExpressionGatewayTest` 的 PersonaAndScenario/Full 关系注入用例，查失败后重新请求是否读取本人最新手改关系；已完整覆盖就选同入口的实际漏测反例。队列当前已验边界无需反复扩写。
+
 ## 2026-11-18 · P-03.1 同 ID 修订回执可重新交付电话
 
 - 根因在 `LuluVoiceCallSession.onExternalToolResult`：整通电话的 `externalResultSeen` 只存事件 ID，旧版尝试入队后，原时间线修订为新版也永远拒收。角色与回执的 canonical revision 没有进入本地通知去重判断。
