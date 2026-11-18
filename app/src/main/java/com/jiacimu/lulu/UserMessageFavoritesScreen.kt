@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.content.ClipData
 import android.content.ClipboardManager
 import androidx.activity.compose.BackHandler
@@ -73,9 +75,10 @@ internal fun UserMessageFavoritesScreen(onBack: () -> Unit) {
         }
     }
 
-    Scaffold(containerColor = MaterialTheme.colorScheme.background,
+    LuluCssScaffold(cssPage = "Favorites", containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbar) },
-        topBar = { CenterAlignedTopAppBar(title = { Text("我的收藏", fontSize = 18.sp) },
+        topBar = { LuluCssTopAppBar(
+            centered = true,title = { Text("我的收藏", fontSize = 18.sp) },
             navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } }) },
     ) { padding ->
         if (entries.isEmpty()) {

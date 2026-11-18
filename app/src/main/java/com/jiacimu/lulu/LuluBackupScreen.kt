@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,11 +26,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -174,9 +174,10 @@ fun LuluBackupScreen(onBack: () -> Unit) {
         android.os.Process.killProcess(android.os.Process.myPid())
     }
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "Backup",
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("备份与恢复", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

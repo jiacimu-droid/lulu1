@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.study
 
+import com.jiacimu.lulu.design.LuluCssScaffold
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -20,7 +21,7 @@ internal fun StarWishScrollApp(onBack: () -> Unit, characterId: String = "lulu")
 
     BackHandler(onBack = onBack)
 
-    Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
+    LuluCssScaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             StarWishBackOnlyBar(onBack)
             StarWishScrollContent(state, characterId, store, context)

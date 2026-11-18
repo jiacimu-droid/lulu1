@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,7 +53,8 @@ internal fun DigitalWorldArcadeScreen(
         }
         return
     }
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "WorldArcade",
         modifier = modifier,
         topBar = {
             Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {

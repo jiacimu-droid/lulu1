@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.compose.foundation.BorderStroke
@@ -111,10 +113,10 @@ fun ScheduleFeatureScreen(
     val total = plans.size + tasks.size + undatedResponsibilities.size +
         legacyPromises.size
 
-    Scaffold(
+    LuluCssScaffold(
         containerColor = Color.White,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("日程", fontWeight = FontWeight.SemiBold, fontSize = 21.sp) },
                 navigationIcon = {
                     IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }

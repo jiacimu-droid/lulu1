@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -41,7 +42,7 @@ fun OptimizedPerformanceFeatureScreen(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val tabs = remember { listOf("报错日志", "缓存", "控制台", "时长监测") }
 
-    Scaffold(
+    LuluCssScaffold(
         containerColor = FastPerformancePaper,
         topBar = { FeatureTopBar("性能监测", onBack) },
     ) { padding ->

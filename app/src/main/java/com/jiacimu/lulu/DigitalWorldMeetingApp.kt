@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.compose.foundation.clickable
@@ -353,7 +354,7 @@ fun DigitalWorldMeetingApp(
         }
     }
 
-    Scaffold(
+    LuluCssScaffold(
         containerColor = LuluColors.Paper,
     ) { padding ->
         when {

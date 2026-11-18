@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -83,15 +85,17 @@ private class WishDraft(context: Context) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CommunityScaffold(
+    cssPage: String,
     title: String,
     onBack: () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     BackHandler(onBack = onBack)
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = cssPage,
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text(title, fontSize = 20.sp, fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -155,7 +159,7 @@ fun LuluWishCommunityScreen(onBack: () -> Unit) {
 
     fun saveDraft() { draft.save(title, detail, kind) }
 
-    CommunityScaffold("许愿", onBack) {
+    CommunityScaffold("CommunityWishes", "许愿", onBack) {
         CommunityEyebrow(
             "LULU · WISHES",
             "一起把露露机变得更好",
@@ -250,7 +254,7 @@ fun LuluSupportCreatorScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var openError by remember { mutableStateOf(false) }
     val paymentUrl = LuluCommunitySupportConfig.safeDonationUrl()
-    CommunityScaffold("打赏", onBack) {
+    CommunityScaffold("CommunitySupport", "打赏", onBack) {
         CommunityEyebrow(
             "LULU · SUPPORT",
             "为喜欢的作品\n送上一点心意",

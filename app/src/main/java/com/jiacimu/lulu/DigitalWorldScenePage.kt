@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,7 +11,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -78,7 +78,7 @@ internal fun DigitalWorldScenePage(
     }
 
     Column(modifier.fillMaxSize().statusBarsPadding().clipToBounds()) {
-        TopAppBar(
+        LuluCssTopAppBar(
             modifier = Modifier.zIndex(20f).fillMaxWidth(),
             title = { Text(sceneLabel, fontWeight = FontWeight.SemiBold) },
             navigationIcon = {

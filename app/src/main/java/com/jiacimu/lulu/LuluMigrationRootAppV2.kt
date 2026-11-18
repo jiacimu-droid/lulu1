@@ -268,10 +268,10 @@ fun LuluMigrationRootAppV2(
             colorScheme = LuluLightColorScheme,
             typography = LuluTypography,
         ) {
-            LuluAppearanceTheme(LuluAppearanceCatalog.builtIns.first(), scope = if (route == MigrationRoute.ChatDetail) "Chat" else route.name) {
+            LuluAppearanceTheme(LuluAppearanceCatalog.builtIns.first(), scope = route.name) {
             Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                 Box(Modifier.fillMaxSize()) {
-                    LuluCssBackground()
+                    if (route == MigrationRoute.Home) LuluCssBackground()
                     if (chatSessionStarted && route == MigrationRoute.ChatDetail) {
                         // Keep the navigator and global overlays at a stable size during IME animation.
                         // Only the chat Scaffold needs to avoid the keyboard; resizing this

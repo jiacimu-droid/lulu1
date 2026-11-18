@@ -1,5 +1,6 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -190,7 +191,7 @@ internal fun DigitalWorldMapLobby(
     Column(modifier.fillMaxSize()
         .then(if (immersiveDiorama) Modifier else Modifier.statusBarsPadding())
         .background(LuluColors.Paper).clipToBounds()) {
-        if (!immersiveDiorama) TopAppBar(
+        if (!immersiveDiorama) LuluCssTopAppBar(
             modifier = Modifier.zIndex(20f).fillMaxWidth(),
             title = {
                 Text(

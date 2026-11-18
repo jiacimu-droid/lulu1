@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.Manifest
 import android.app.AppOpsManager
 import android.app.usage.UsageEvents
@@ -158,10 +160,11 @@ fun LuluCapabilitiesScreen(onBack: () -> Unit) {
         if (snapshot.preciseLocation) refreshLocation()
     }
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "Capabilities",
         containerColor = CapabilityPaper,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("权限与能力", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 actions = { IconButton(onClick = { refreshKey++ }) { Icon(Icons.Outlined.Refresh, "刷新") } },

@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -139,8 +141,8 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                 .contains(search.trim(), true))
         }
     }
-    Scaffold(containerColor = LuluColors.Paper, snackbarHost = { SnackbarHost(notices) }, topBar = {
-        TopAppBar(title = { Column {
+    LuluCssScaffold(containerColor = LuluColors.Paper, snackbarHost = { SnackbarHost(notices) }, topBar = {
+        LuluCssTopAppBar(title = { Column {
             Text("记忆", fontWeight = FontWeight.SemiBold)
             if (personalCharacterId != null) Text(characters[characterId]?.displayName.orEmpty(),
                 fontSize = 12.sp, color = LuluColors.Muted)

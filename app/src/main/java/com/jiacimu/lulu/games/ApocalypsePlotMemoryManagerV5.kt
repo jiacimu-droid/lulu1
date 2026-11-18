@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.games
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.compose.foundation.BorderStroke
@@ -29,12 +31,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -78,9 +78,10 @@ internal fun ApocalypsePlotMemoryManagerV5(
         }
     }
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "ApocalypsePlotMemory",
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("剧情向量记忆", fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") }

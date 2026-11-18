@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.games
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -41,10 +43,8 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -109,10 +109,11 @@ internal fun ApocalypseWorldMapPageV5(
         selectedLocation = location
     }
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "ApocalypseMap",
         containerColor = WorldMapBg,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = {
                     Column {
                         Text("东澜地图", fontWeight = FontWeight.Black)

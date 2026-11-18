@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -134,12 +136,12 @@ private fun SettingsEntryScreen(
     }
     val groups = remember(visible) { visible.groupBy { it.section } }
 
-    Scaffold(
+    LuluCssScaffold(
         modifier = if (journal) Modifier.journalLinen(LocalLuluAppearance.current) else Modifier,
         containerColor = if (journal) Color.Transparent else SettingsHomePaper,
         topBar = {
             Column {
-                TopAppBar(
+                LuluCssTopAppBar(
                     title = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text("设置", fontWeight = FontWeight.SemiBold, color = SettingsHomeInk)

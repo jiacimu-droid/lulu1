@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.net.Uri
 import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
@@ -244,9 +246,10 @@ internal fun LuluWebBrowserProbeScreen(onBack: () -> Unit) {
     }
 
     Box(Modifier.fillMaxSize()) {
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "Browser",
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("小红书") },
                 navigationIcon = {
                     IconButton(onClick = {

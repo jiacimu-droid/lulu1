@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -50,10 +52,11 @@ internal fun MomentsComposePage(
         onPublish(content, imageUri, "")
     }
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "Moments",
         containerColor = LuluColors.Paper,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("发动态", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

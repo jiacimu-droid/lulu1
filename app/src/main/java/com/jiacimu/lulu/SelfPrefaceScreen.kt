@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -275,10 +277,11 @@ fun SelfPrefaceScreen(
     }
 
     val homePaper = Color(0xFFFAFAF6)
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = if (overview) "SelfPreface" else "SelfThoughts",
         containerColor = if (overview) homePaper else SelfPrefacePalette.background,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text(if (overview) "自序" else area, fontWeight = FontWeight.SemiBold,
                     color = SelfPrefacePalette.ink) },
                 navigationIcon = {

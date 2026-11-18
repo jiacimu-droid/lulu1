@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import androidx.compose.foundation.BorderStroke
@@ -138,9 +140,9 @@ fun LexiconFeatureScreenV2(
         }
         if (index >= 0) { visibleCount = maxOf(visibleCount, index + 1); listState.scrollToItem(index) }
     }
-    Scaffold(containerColor = LuluColors.Paper,
+    LuluCssScaffold(containerColor = LuluColors.Paper,
         snackbarHost = { SnackbarHost(photoSnackbar) }, topBar = {
-        TopAppBar(title = { Column {
+        LuluCssTopAppBar(title = { Column {
             Text(title, fontWeight = FontWeight.SemiBold)
             if (personal) Text(characters[characterId]?.displayName.orEmpty(), fontSize = 12.sp, color = LuluColors.Muted)
         } }, navigationIcon = { if (!embedded) IconButton(onClick = back) { Icon(Icons.Outlined.ArrowBack, "返回") } },

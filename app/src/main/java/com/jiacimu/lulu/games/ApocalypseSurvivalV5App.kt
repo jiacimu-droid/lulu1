@@ -1,5 +1,7 @@
 package com.jiacimu.lulu.games
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import android.content.Context
@@ -445,10 +447,10 @@ private fun ApocalypseV5HomePage(
     onArchive: () -> Unit,
 ) {
     val secondary = apocalypseAbilityDefinitionV5(apocalypsePlayerSecondaryChoiceV5(config))
-    Scaffold(
+    LuluCssScaffold(
         containerColor = ApocalypseV5Colors.background,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("末世求生", fontWeight = FontWeight.Black, color = ApocalypseV5Colors.ink) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 actions = {
@@ -572,10 +574,11 @@ private fun ApocalypseV5AbilitySettingsPage(
     val secondaryChoice = choices[APOCALYPSE_PLAYER_SECONDARY_KEY] ?: ApocalypseAbilityChoice()
     val secondary = apocalypseAbilityDefinitionV5(secondaryChoice)
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "ApocalypseAbilities",
         containerColor = ApocalypseV5Colors.background,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("异能设定", fontWeight = FontWeight.Black) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 actions = {
@@ -693,10 +696,11 @@ private fun ApocalypseV5AbilityPickerPage(
     var choice by remember(initialChoice) { mutableStateOf(initialChoice) }
     val current = apocalypseAbilityDefinitionV5(choice)
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "ApocalypseAbilityPicker",
         containerColor = ApocalypseV5Colors.background,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("${target.name} · 选择异能", fontWeight = FontWeight.Black) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 actions = {
@@ -771,10 +775,11 @@ private fun ApocalypseV5SystemSettingsPage(
 ) {
     var worldMode by remember(config.worldMode) { mutableStateOf(config.worldMode) }
     var speed by remember(config.autoDelayMillis) { mutableLongStateOf(config.autoDelayMillis) }
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "ApocalypseSettings",
         containerColor = ApocalypseV5Colors.background,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("系统设置", fontWeight = FontWeight.Black) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 actions = {
@@ -836,10 +841,11 @@ private fun ApocalypseV5WorldPage(config: ApocalypseV3Config, onBack: () -> Unit
             } else title to detail
         }
     }
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "ApocalypseWorld",
         containerColor = ApocalypseV5Colors.background,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("世界档案", fontWeight = FontWeight.Black) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = ApocalypseV5Colors.background),
@@ -910,10 +916,11 @@ private fun ApocalypseV5StoryHistoryPage(
     var deleteTarget by remember { mutableStateOf<ApocalypseV5ReadableScene?>(null) }
     val selected = selectedIndex?.let(scenes::getOrNull)
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "ApocalypseHistory",
         containerColor = ApocalypseV5Colors.background,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text(selected?.let { "第${it.sceneNumber}幕" } ?: "剧情历史", fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = { if (selectedIndex != null) selectedIndex = null else onBack() }) {
@@ -1046,10 +1053,11 @@ private fun ApocalypseV5ArchivePage(
     var deleteTarget by remember { mutableStateOf<ApocalypseV5HistoryEntry?>(null) }
     var confirmClearHistory by remember { mutableStateOf(false) }
     var confirmClearSave by remember { mutableStateOf(false) }
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "ApocalypseArchives",
         containerColor = ApocalypseV5Colors.background,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = { Text("存档与回顾", fontWeight = FontWeight.Black) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = ApocalypseV5Colors.background),

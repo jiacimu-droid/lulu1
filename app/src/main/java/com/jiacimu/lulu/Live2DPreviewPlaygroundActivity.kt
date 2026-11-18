@@ -40,7 +40,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.data.LuluAppearanceCatalog
+import com.jiacimu.lulu.data.LuluCssStore
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.design.LuluAppearanceTheme
+import com.jiacimu.lulu.design.LuluCssScaffold
 import java.io.File
 import kotlinx.coroutines.launch
 
@@ -55,9 +59,12 @@ import kotlinx.coroutines.launch
 class Live2DPreviewPlaygroundActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LuluCssStore.initialize(applicationContext)
         setContent {
-            MaterialTheme {
-                Live2DModelLibraryScreen { finish() }
+            LuluAppearanceTheme(LuluAppearanceCatalog.builtIns.first(), "Playground") {
+                LuluCssScaffold(contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0)) {
+                    Live2DModelLibraryScreen { finish() }
+                }
             }
         }
     }

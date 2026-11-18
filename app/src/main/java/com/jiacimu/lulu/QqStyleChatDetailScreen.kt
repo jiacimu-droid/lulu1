@@ -1,5 +1,9 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LocalLuluCssFooterAtTop
+import com.jiacimu.lulu.design.luluCssElement
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.media.AudioManager
@@ -690,12 +694,17 @@ fun QqStyleChatDetailScreen(
     // Keep the app bar and page scaffold stable while IME height animates.
     // Only the composer region follows the keyboard; the LazyColumn receives
     // the remaining viewport through Scaffold's bottom-bar padding.
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
+    val cssPage = if (groupChat == null) "ChatDetail" else "GroupChat"
+    val dockComposerOnTop = com.jiacimu.lulu.design.LocalLuluCssSheet.current
+        .element(cssPage, "footer")["dock"] == "top"
+    LuluCssScaffold(
+        cssPage = cssPage,
+        modifier = Modifier.fillMaxSize().then(if (dockComposerOnTop) Modifier.imePadding() else Modifier),
         containerColor = QqPage,
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
-            CenterAlignedTopAppBar(
+            LuluCssTopAppBar(
+                centered = true,
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = QqHeader),
                 navigationIcon = {
                     IconButton(onClick = {
@@ -813,7 +822,7 @@ fun QqStyleChatDetailScreen(
             )
         },
         bottomBar = {
-            Box(Modifier.imePadding()) {
+            Box(if (LocalLuluCssFooterAtTop.current) Modifier else Modifier.imePadding()) {
             if (multiSelectMode) {
                 Surface(color = QqHeader, shadowElevation = 4.dp) {
                     Row(
@@ -941,7 +950,7 @@ fun QqStyleChatDetailScreen(
         Box(Modifier.fillMaxSize().padding(padding)) {
             LazyColumn(
                 state = listState,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.luluCssElement("messages").fillMaxSize()
                     .then(if (LocalLuluAppearance.current.isJournal())
                         Modifier.journalLinen(LocalLuluAppearance.current) else Modifier),
                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 16.dp),

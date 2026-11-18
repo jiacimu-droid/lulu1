@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
 
 import android.app.TimePickerDialog
@@ -168,11 +170,11 @@ fun CharacterSettingsScreenV2(
         }
     }
 
-    Scaffold(
+    LuluCssScaffold(
         modifier = Modifier.focusRequester(pageFocusRequester).focusable(),
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
+            LuluCssTopAppBar(
                 title = {
                     Text(if (section == 3) when (managementPage) {
                         1 -> "后台连接"

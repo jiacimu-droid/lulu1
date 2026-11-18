@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import com.jiacimu.lulu.design.LuluCssScaffold
+import com.jiacimu.lulu.design.LuluCssTopAppBar
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -269,10 +271,12 @@ internal fun RolePhoneLiveScreen(roleId: String, roleName: String, onBack: () ->
         } finally { saving = false }
     }
 
-    Scaffold(
+    LuluCssScaffold(
+        cssPage = "RolePhoneLive",
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            CenterAlignedTopAppBar(
+            LuluCssTopAppBar(
+                centered = true,
                 title = {
                     Text("$roleName 的屏幕", fontWeight = FontWeight.SemiBold, fontSize = 18.sp,
                         maxLines = 1, overflow = TextOverflow.Ellipsis)
