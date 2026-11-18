@@ -157,7 +157,8 @@ fun LuluGamesApp(
             initiallySelected = state.selectedCharacterIds,
             onBack = { pendingRoute = null },
             onConfirm = { selected ->
-                store.selectCharacters(selected)
+                if (target == GameRoute.MemoryMatch) store.startMemoryMatch(selected.firstOrNull())
+                else store.selectCharacters(selected)
                 if (target == GameRoute.YachtDice) {
                     // Choosing a new roster explicitly starts a new match; incomplete
                     // matches bypass the picker above and always retain their data.
@@ -178,7 +179,7 @@ fun LuluGamesApp(
         return
     }
 
-    val darkChrome = route in setOf(GameRoute.Home, GameRoute.MemoryMatch, GameRoute.BlockIsland, GameRoute.RelicEscape)
+    val darkChrome = route in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape)
     val immersivePlay = fullscreenReplayId != null ||
         route in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.MemoryMatch, GameRoute.TurtleSoup, GameRoute.YachtDice)
     val immersiveWorld = worldGameOwnsSystemNavigation(route.savedGameId()) ||
@@ -268,7 +269,7 @@ fun LuluGamesApp(
         },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
-            ArcadeAtmosphere(Modifier.matchParentSize())
+            if (darkChrome) ArcadeAtmosphere(Modifier.matchParentSize())
             Box(Modifier.fillMaxSize().padding(top = if (immersivePlay && route !in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape)) 54.dp else 0.dp)) {
             when (val current = route) {
                 GameRoute.Home -> GameHome(onOpen = { target ->
@@ -331,12 +332,12 @@ fun LuluGamesApp(
                     )
                 }
             } else if (immersivePlay) {
-                val soupTable = route == GameRoute.TurtleSoup
-                val chromeInk = if (soupTable) SoupTableColors.text else Color.White
+                val lightTable = route == GameRoute.TurtleSoup || route == GameRoute.MemoryMatch
+                val chromeInk = if (lightTable) GameDesign.ink else Color.White
                 Row(
                     modifier = Modifier.fillMaxWidth().height(54.dp)
                         .background(Brush.horizontalGradient(
-                            if (soupTable) listOf(SoupTableColors.background, SoupTableColors.panel)
+                            if (lightTable) listOf(GameDesign.paper, GameDesign.card)
                             else listOf(Color(0xF00A1521), Color(0xC0182635))
                         ))
                         .padding(horizontal = 5.dp),
@@ -360,10 +361,10 @@ fun LuluGamesApp(
                         subtitle = "仅影响游戏内的角色生成，不影响其他对话模型。",
                         icon = Icons.Outlined.Memory, contentDescription = "选择游戏模型",
                         tint = chromeInk, accent = chromeInk,
-                        background = if (soupTable) SoupTableColors.panel else Color(0xFF111620),
+                        background = if (lightTable) GameDesign.card else Color(0xFF111620),
                         ink = chromeInk,
-                        muted = if (soupTable) SoupTableColors.muted else Color(0xFFB8C2D3),
-                        border = if (soupTable) SoupTableColors.border else Color.White.copy(alpha = .18f),
+                        muted = if (lightTable) GameDesign.muted else Color(0xFFB8C2D3),
+                        border = if (lightTable) GameDesign.border else Color.White.copy(alpha = .18f),
                     )
                 }
             }
@@ -413,7 +414,7 @@ private fun GameHome(
         GameLauncher("relic_escape", "迷雾摸金", "组队搜宝箱、对抗怪物，带战利品回撤离门；失败会失去本局宝物。", Icons.Outlined.Explore, GameRoute.RelicEscape, 0, 3, Color(0xFFF1C785)),
     ) else emptyList()
     val classics = listOf(
-        GameLauncher("memory_match", "记忆配对", "翻牌找出相同图案，保留真实对局与回放。", Icons.Outlined.GridView, GameRoute.MemoryMatch, 1, 1, Color(0xFF75658C)),
+        GameLauncher("memory_match", "记忆配对", "单人挑战最少轮次，或选一位角色同桌对战。", Icons.Outlined.GridView, GameRoute.MemoryMatch, 0, 1, Color(0xFF75658C)),
         GameLauncher("turtle_soup", "海龟汤", "提问、推理，和角色一起破解谜题。", Icons.Outlined.HelpOutline, GameRoute.TurtleSoup, 1, 3, Color(0xFF526E86)),
         GameLauncher("yacht_dice", "快艇骰子", "五颗骰子掷三次，可单人也可多人同局。", Icons.Outlined.Casino, GameRoute.YachtDice, 0, 3, Color(0xFF667653)),
     )
@@ -588,7 +589,7 @@ private fun GameParticipantPickerScreen(
         containerColor = if (dark) Color(0xFF071824) else GameDesign.paper,
         topBar = {
             TopAppBar(
-                title = { Text("选择同行角色", fontWeight = FontWeight.SemiBold) },
+                title = { Text(if (route == GameRoute.MemoryMatch) "选择对手 · 或独自挑战" else "选择同行角色", fontWeight = FontWeight.SemiBold) },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Outlined.ArrowBack, "返回") } },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = if (dark) Color(0xFF071824) else GameDesign.paper,
@@ -604,7 +605,7 @@ private fun GameParticipantPickerScreen(
                     enabled = selected.size in limits.first..limits.second,
                     modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp).height(52.dp),
                     colors = if (dark) ButtonDefaults.buttonColors(containerColor = Color(0xFF9EFFE9), contentColor = Color(0xFF09242D)) else ButtonDefaults.buttonColors(),
-                ) { Text("确认并进入${route.title()}") }
+                ) { Text(if (selected.isEmpty()) "单人开始${route.title()}" else "和选中的角色开始") }
             }
         },
     ) { padding ->
@@ -623,6 +624,7 @@ private fun GameParticipantPickerScreen(
                     Text(route.title(), color = if (dark) Color.White else GameDesign.ink, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                     Text(
                         when {
+                            route == GameRoute.MemoryMatch -> "单人以最少轮次为目标；选一个角色，就能一起翻牌对战。"
                             limits.first == 0 -> "可以单人游玩，也可以邀请最多 ${limits.second} 位角色同行"
                             limits.first == limits.second -> "请选择 ${limits.first} 位角色"
                             else -> "请选择 ${limits.first}—${limits.second} 位角色；加上你共可 ${limits.first + 1}—${limits.second + 1} 人游玩"
@@ -676,7 +678,8 @@ private fun GameRoute.playerLimits(): Pair<Int, Int> = when (this) {
     GameRoute.TurtleSoup -> 0 to 3
     GameRoute.RapportQuiz -> 1 to 3
     GameRoute.YachtDice -> 0 to 3
-    GameRoute.PerfectMan, GameRoute.Gomoku, GameRoute.MemoryMatch -> 1 to 1
+    GameRoute.MemoryMatch -> 0 to 1
+    GameRoute.PerfectMan, GameRoute.Gomoku -> 1 to 1
     else -> 1 to 1
 }
 
@@ -865,7 +868,7 @@ private fun GameEntry(launcher: GameLauncher, onOpen: (GameRoute) -> Unit) {
     val tag = when (launcher.route) {
         GameRoute.BlockIsland -> "建造 · 生存"
         GameRoute.RelicEscape -> "探索 · 撤离"
-        GameRoute.MemoryMatch -> "翻牌 · 对战"
+        GameRoute.MemoryMatch -> "翻牌 · 单人 / 对战"
         GameRoute.TurtleSoup -> "提问 · 推理"
         GameRoute.YachtDice -> "掷骰 · 计分"
         else -> "一起玩"
