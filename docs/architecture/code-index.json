@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T06:32:07.700662+00:00",
-  "commit": "1b054eb376cf3228147507a93c3be0cbadaebf54",
+  "generatedAt": "2026-11-18T06:32:38.756218+00:00",
+  "commit": "b31f26eb0280bb08f191aa29aed9cff886fa5544",
   "branch": "main",
-  "sourceFingerprint": "c5726896cbf0bffa58e7f75d25fd6f414d7c0c3fb047d59356ce831f6f89eeb7",
+  "sourceFingerprint": "8a5b89e6bf19d01dd554754b3ee5124cf19e6e291a5d340e902dae1a00bafc2b",
   "summary": {
     "files": 1456,
-    "lines": 307999,
+    "lines": 308000,
     "symbols": 4390
   },
   "symbolIndex": {
@@ -3599,25 +3599,25 @@
     "LuluWishCommunityScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 146
+        "line": 147
       }
     ],
     "saveDraft": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 156
+        "line": 157
       }
     ],
     "issueUrl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 158
+        "line": 159
       }
     ],
     "LuluSupportCreatorScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-        "line": 269
+        "line": 270
       }
     ],
     "setEnabled": [
@@ -27012,8 +27012,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
-      "lines": 321,
-      "sha256": "ea346b8b10500a5a94e78f04e1752a91bcbf181623a9dbe55fe110416813a674",
+      "lines": 322,
+      "sha256": "fe243f080522ede523b17e3b923ae6fcd134ddc5d50f42269e99b6a31c9adb64",
       "symbols": [
         {
           "name": "wishesListUrl",
@@ -27049,19 +27049,19 @@
         },
         {
           "name": "LuluWishCommunityScreen",
-          "line": 146
+          "line": 147
         },
         {
           "name": "saveDraft",
-          "line": 156
+          "line": 157
         },
         {
           "name": "issueUrl",
-          "line": 158
+          "line": 159
         },
         {
           "name": "LuluSupportCreatorScreen",
-          "line": 269
+          "line": 270
         }
       ]
     },
