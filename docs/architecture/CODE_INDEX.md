@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`740acb1c8b73482dfaa65d4a68da5d5517d89f0d`
+- 基准提交：`77e301088e0ed610c442e4d3bf7009b7749762c4`
 - 分支：`main`
 - 已索引文件：1461
-- 已索引代码/文本行：309236
+- 已索引代码/文本行：309325
 - 已发现符号：4402
 
 | 文件 | 行数 | 符号数 |
@@ -830,7 +830,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt` | 316 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluAudibleWakeRinger.kt` | 78 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt` | 136 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 754 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt` | 801 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 100 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 2281 | 9 |
@@ -1394,7 +1394,7 @@
 | `app/src/test/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudgetTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt` | 109 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneCommandOutcomeTest.kt` | 21 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt` | 161 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuationYieldTest.kt` | 203 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGateTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluDirectReturnPolicyTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/system/LuluGroundingEvidenceTest.kt` | 73 | 1 |
