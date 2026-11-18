@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:48:35.793352+00:00",
-  "commit": "9c9741bcff62ed25fa3d6e1e1cecbb1db004a73a",
+  "generatedAt": "2026-11-18T07:50:28.962215+00:00",
+  "commit": "6485203aba02d8ec1e7ab9b6f19c464ed0a44bf0",
   "branch": "main",
-  "sourceFingerprint": "db36de0c97cafeca02e07f41fb1bf7bc28ac058a917d790616fbf8b6af978182",
+  "sourceFingerprint": "f8638ab390be7d87ae3f3cfc7f45c6e9746f270a1099a9a1ca275cb363832f68",
   "summary": {
     "files": 1461,
-    "lines": 308798,
+    "lines": 308800,
     "symbols": 4401
   },
   "symbolIndex": {
@@ -15561,25 +15561,25 @@
     "recordOwner": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt",
-        "line": 24
+        "line": 26
       }
     ],
     "recordCompanion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt",
-        "line": 32
+        "line": 34
       }
     ],
     "recordEngineAcceptedAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt",
-        "line": 83
+        "line": 85
       }
     ],
     "recentLines": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt",
-        "line": 111
+        "line": 113
       }
     ],
     "vectorFor": [
@@ -39510,24 +39510,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameTeamConversationTimeline.kt",
-      "lines": 120,
-      "sha256": "0b3033e0828b89f41dbd9e3a8b10ced48299e8b4a86f399811b5681aea7ce1a1",
+      "lines": 122,
+      "sha256": "b767bee359b1715618bce68b02b08c6eabe208478e12909918a00e8c2d5c7b9b",
       "symbols": [
         {
           "name": "recordOwner",
-          "line": 24
+          "line": 26
         },
         {
           "name": "recordCompanion",
-          "line": 32
+          "line": 34
         },
         {
           "name": "recordEngineAcceptedAction",
-          "line": 83
+          "line": 85
         },
         {
           "name": "recentLines",
-          "line": 111
+          "line": 113
         }
       ]
     },
