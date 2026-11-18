@@ -151,6 +151,18 @@ private suspend fun createCommitmentTask(
     )
 }
 
+/**
+ * A model can describe "just this time, half an hour later" with repeat=once.
+ * That refers to ONE OCCURRENCE, not to the lifetime of the existing daily
+ * promise. Only an explicit permanent change may remove daily recurrence.
+ */
+internal fun resolvedCommitmentRepeatAfterReschedule(
+    original: CommitmentTask, draft: CommitmentTaskDraft,
+): String = when {
+    original.repeat == "daily" && draft.repeat == "once" && !draft.permanent -> "daily"
+    else -> draft.repeat ?: original.repeat
+}
+
 private suspend fun updateCommitmentTask(
     characterId: String,
     draft: CommitmentTaskDraft,
@@ -191,15 +203,16 @@ private suspend fun updateCommitmentTask(
     if (timedWake && resolvedDelivery !in setOf("start_call", "alarm_only"))
         return CommitmentDraftOutcome(draft.action, draft.goal, null,
             "定时叫醒不能改为普通文字；没有可保留的真实来电或本机铃声渠道，原约定保持不变")
+    val resolvedRepeat = resolvedCommitmentRepeatAfterReschedule(target, draft)
     // One-time versus permanent: a daily task's anchor is its usual time.
     // A plain postponement moves only this occurrence; only an explicit
     // permanent change moves the anchor, so tomorrow rolls back to usual.
     val newDailyBaseDueAt = when {
-        (draft.repeat ?: target.repeat) != "daily" -> target.dailyBaseDueAt
+        resolvedRepeat != "daily" -> target.dailyBaseDueAt
         draft.permanent && draft.dueAt != null -> draft.dueAt
         else -> target.dailyBaseDueAt ?: target.dueAt
     }
-    val dailyRescheduleNote = if (reschedule && (draft.repeat ?: target.repeat) == "daily" &&
+    val dailyRescheduleNote = if (reschedule && resolvedRepeat == "daily" &&
         draft.dueAt != null && draft.dueAt != target.dueAt
     ) {
         if (draft.permanent) "；每天本来时刻已改为新时间" else "；本次只改当次，每天本来时刻未变"
@@ -241,7 +254,7 @@ private suspend fun updateCommitmentTask(
                 verificationMode = current.verificationMode,
                 steps = draft.steps.ifEmpty { current.steps },
                 deliveryAction = resolvedDelivery,
-                repeat = draft.repeat ?: current.repeat,
+                repeat = resolvedRepeat,
                 dailyBaseDueAt = newDailyBaseDueAt,
                 dailyNextDueAt = if (needsClarification) current.dailyNextDueAt else null,
                 dailyNextAlarmId = if (needsClarification) current.dailyNextAlarmId else null,
