@@ -151,6 +151,17 @@ internal class RelicEscapeLedger(context:Context, preferenceName:String="relic_e
             featuredLootId=old.featuredLootId?.takeUnless { it==id },
             coins=old.coins+item.value))
     }
+    /** Sell the exact museum row the player tapped, even for legacy duplicate IDs.
+     * A stale UI callback must not sell a different item after the collection changes. */
+    @Synchronized fun sellLootAt(index:Int,expected:RelicLoot):RelicSnapshot {
+        val old=read()
+        if(old.run?.phase in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED))return old
+        if(old.vault.getOrNull(index)!=expected)return old
+        val remaining=old.vault.toMutableList().apply { removeAt(index) }
+        return write(old.copy(vault=remaining,
+            featuredLootId=old.featuredLootId?.takeUnless { id->id==expected.id && remaining.none { it.id==id } },
+            coins=old.coins+expected.value))
+    }
     @Synchronized fun perform(action:String,x:Int=0,y:Int=0,itemId:String="",autonomousIds:Set<String> = emptySet(),
         expectedRunId:String?=null):RelicSnapshot {
         val old=read();val current=old.run?:return old
