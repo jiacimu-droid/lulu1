@@ -127,7 +127,8 @@ internal object RelicObjectiveGuide {
         knownRouteTiles(run,target)?.size?.minus(1)
 
     fun prompt(run:RelicRun):String {
-        if(run.hero.hp<=0) return "◈ 已倒地 · 等待真实救援，暂不能沿路线前进"
+        if(run.phase !in setOf(RelicPhase.EXPLORE,RelicPhase.EXTRACT,RelicPhase.DOWNED)) return ""
+        if(run.hero.hp<=0 || run.phase==RelicPhase.DOWNED) return "◈ 已倒地 · 等待真实救援，暂不能沿路线前进"
         val target=nextVisible(run)
         if(target!=null) {
             val steps=knownRouteSteps(run,target)
