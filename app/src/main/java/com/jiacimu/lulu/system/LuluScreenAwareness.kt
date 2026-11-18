@@ -177,6 +177,23 @@ object LuluScreenAwareness {
         return manager.getNotificationChannel(CAPTURE_CHANNEL)?.importance != NotificationManager.IMPORTANCE_NONE
     }
 
+    /**
+     * A screenshot already permitted by the owner needs only an unobtrusive
+     * status notice, NOT the unrelated high-priority permission-request channel.
+     * Disabling heads-up approval banners must not disable approved viewing.
+     */
+    private fun progressNotificationsAvailable(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED) return false
+        if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return false
+        val manager = context.getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(NotificationChannel(CAPTURE_PROGRESS_CHANNEL,
+            "屏幕查看状态", NotificationManager.IMPORTANCE_LOW))
+        return manager.getNotificationChannel(CAPTURE_PROGRESS_CHANNEL)?.importance !=
+            NotificationManager.IMPORTANCE_NONE
+    }
+
     private fun requestCapture(context: Context, characterId: String, requestId: String): String {
         val canNotify = notificationsAvailable(context)
         if (!canNotify && !LuluScreenRequestPopup.available(context)) return rejected(context,
@@ -275,13 +292,9 @@ object LuluScreenAwareness {
 
     private fun viewingNotice(context: Context, title: String, message: String,
         finished: Boolean = false) {
-        if (!notificationsAvailable(context)) return
-        val manager = context.getSystemService(NotificationManager::class.java)
-        manager.createNotificationChannel(NotificationChannel(CAPTURE_PROGRESS_CHANNEL,
-            "屏幕查看状态", NotificationManager.IMPORTANCE_LOW))
-        if (manager.getNotificationChannel(CAPTURE_PROGRESS_CHANNEL)?.importance ==
-            NotificationManager.IMPORTANCE_NONE) return
-        manager.notify(CAPTURE_NOTIFICATION_ID, Notification.Builder(context, CAPTURE_PROGRESS_CHANNEL)
+        if (!progressNotificationsAvailable(context)) return
+        context.getSystemService(NotificationManager::class.java)
+            .notify(CAPTURE_NOTIFICATION_ID, Notification.Builder(context, CAPTURE_PROGRESS_CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_menu_view)
                 .setContentTitle(title).setContentText(message)
                 .setCategory(Notification.CATEGORY_STATUS)
@@ -320,8 +333,9 @@ object LuluScreenAwareness {
         // Every invocation still obtains one new frame, never a recording.
         // A study session already has a separately enabled, ongoing STOP notification.
         // Do not gate approved monitoring on the unrelated one-off screenshot request channel.
-        if (sessionId.isBlank() && !notificationsAvailable(context) && !LuluScreenRequestPopup.available(context))
-            return rejected(context, "屏幕查看提醒方式都不可用，拒绝无提示截图")
+        if (sessionId.isBlank() && !progressNotificationsAvailable(context) &&
+            !LuluScreenRequestPopup.available(context))
+            return rejected(context, "屏幕查看状态通知与悬浮提示都不可用；请开启其中一种提醒方式")
         if (!busy.compareAndSet(false, true)) return rejected(context, "当前已有识图请求", "busy")
         // The approved study session already has an ongoing, stoppable indicator.
         // Do not pop up another notice over the very screen we are capturing.
