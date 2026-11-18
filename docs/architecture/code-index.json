@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T16:46:27.070465+00:00",
-  "commit": "aeb5919e5c643b73352cabca88e0758e0aad8554",
+  "generatedAt": "2026-11-18T16:50:30.282636+00:00",
+  "commit": "d0716a191770983c1205583f3fb656ef53e0e6e5",
   "branch": "main",
-  "sourceFingerprint": "c75adfa409124d0a0dcb29e5b8b56714da3c29b86c9ff794d75a7943268191e5",
+  "sourceFingerprint": "7935f4320a921ec8a8d7d8004bb0c49c2ba56f0e949cef2402265e73a67bcbe7",
   "summary": {
     "files": 1477,
-    "lines": 312456,
+    "lines": 312457,
     "symbols": 4458
   },
   "symbolIndex": {
@@ -36574,7 +36574,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 171,
-      "sha256": "9f132fbc1f99b08a7f9f4e6af457e16d2f5ac243ba9fbe001a693b64f926f68a",
+      "sha256": "4aea0d72a883f45086b0823fb67098ab064b55b8061b1962d2b38030c111d11c",
       "symbols": []
     },
     {
@@ -50666,8 +50666,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UserInteractionPresenceTest.kt",
-      "lines": 116,
-      "sha256": "3c2f870957a715a04820f617dde9790d0a4333d40a35101de75280fcbbf4ef54",
+      "lines": 117,
+      "sha256": "20a7b29cdcc0ac719bd8d9e78d3a9d6de9aef0353a437447bcbade2491f389d9",
       "symbols": [
         {
           "name": "UserInteractionPresenceTest",
