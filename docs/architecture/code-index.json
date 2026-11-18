@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:58:43.291714+00:00",
-  "commit": "6e520965ec5804263864313b898b829be809792b",
+  "generatedAt": "2026-11-18T12:17:04.520158+00:00",
+  "commit": "a9d77adfd037230797133fb624a4a22879696a3c",
   "branch": "main",
-  "sourceFingerprint": "296a5422cc7e7b7e80fe6458204910378015ce05bb08e4ec9372a156db9c68cc",
+  "sourceFingerprint": "857ccb5f3f138a107c07bc79cdbdffc29739ed8748844cfee6d9ad2402e17191",
   "summary": {
     "files": 1468,
-    "lines": 309955,
+    "lines": 309956,
     "symbols": 4434
   },
   "symbolIndex": {
@@ -10197,7 +10197,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentWorldLifeOpportunities.kt",
-        "line": 63
+        "line": 64
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
@@ -13841,7 +13841,7 @@
     "noticeOnWake": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentWorldLifeOpportunities.kt",
-        "line": 56
+        "line": 57
       }
     ],
     "RoleDayPlan": [
@@ -37265,16 +37265,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentWorldLifeOpportunities.kt",
-      "lines": 83,
-      "sha256": "a5ee36c599e479b46c26c1db44fcebea19f4f73c75ad639e6424aa37bffefcf5",
+      "lines": 84,
+      "sha256": "d24142fc89cdc0214a7503d62f6aae365c1e66208a79e01ca5ab65e13e934415",
       "symbols": [
         {
           "name": "noticeOnWake",
-          "line": 56
+          "line": 57
         },
         {
           "name": "contextFor",
-          "line": 63
+          "line": 64
         }
       ]
     },
