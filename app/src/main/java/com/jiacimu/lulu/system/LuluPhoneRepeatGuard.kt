@@ -57,7 +57,12 @@ internal object LuluPhoneRepeatGuard {
     fun shouldBlock(last: Attempt?, action: String, target: String): Boolean {
         if (target.isBlank() || last == null || last.action != action || last.target != target) return false
         if (last.effect == "known_rejection") return action == "search" || action == "launch"
-        return action in setOf("tap", "long_press", "tap_element", "swipe", "back", "submit", "search", "type") &&
+        // The actual input executor reports input_unverified, not unknown.
+        // Until a fresh read proves the field's content, another identical
+        // Unicode paste could duplicate text in WeChat/search/comments.
+        if (action == "type" && last.accepted &&
+            last.effect in setOf("input_unverified", "tree_unchanged", "unknown")) return true
+        return action in setOf("tap", "long_press", "tap_element", "swipe", "back", "submit", "search") &&
             last.accepted && last.effect in setOf("tree_unchanged", "unknown")
     }
 }
