@@ -346,7 +346,10 @@ object ToolRouter {
                             .put("memoId", note.getString("id"))
                             .put("summary", "已经保存到自己的备忘录：${note.getString("title")}")
                             .toString()
-                    } else if (name == "capture_screen") {
+                    } else if (name == "capture_screen" || name == "read_screen") {
+                        // One real-pixel screen observation for BOTH tool names:
+                        // old read_screen requests must not return accessibility
+                        // text alone or claim to have visually seen a page.
                         LuluScreenAwareness.capture(context, userRequested, characterId, requestId,
                             saveToAlbum = args.optBoolean("saveToAlbum", false),
                             handoffToRole = args.optBoolean("_handoffToRole", false),
@@ -570,7 +573,7 @@ object ToolRouter {
                 val outcome = parsed
                 // A delivered chat bubble does not automatically buy another five-minute
                 // online lease. Only the character's next expiry decision can do that.
-                val chatDelivery = (name == "capture_screen" && outcome.optBoolean("sentToChat")) ||
+                val chatDelivery = (name in setOf("capture_screen", "read_screen") && outcome.optBoolean("sentToChat")) ||
                     name in setOf("send_private_message", "send_group_message",
                         "send_private_sticker", "send_group_sticker")
                 // An autonomous tool that finished while the role explicitly
