@@ -15,6 +15,21 @@ internal object LuluVirtualTextInputPolicy {
         x in 15..985 && y in 35..970 &&
             (imeTopPermille == null || y < imeTopPermille - 8)
 
+    /** A visual click may expose a focused accessibility editor only AFTER
+     * the tap. Authorize an accessibility write solely when the actual field
+     * contains the model-selected screenshot point on the SAME display. */
+    fun focusedFieldContainsSelectedPoint(
+        x: Int, y: Int, displayWidth: Int, displayHeight: Int,
+        left: Int, top: Int, right: Int, bottom: Int,
+    ): Boolean {
+        if (displayWidth <= 1 || displayHeight <= 1 ||
+            !inputPointSafe(x, y, null) || left >= right || top >= bottom ||
+            left < 0 || top < 0 || right > displayWidth || bottom > displayHeight) return false
+        val px = ((displayWidth - 1L) * x / 1000L).toInt()
+        val py = ((displayHeight - 1L) * y / 1000L).toInt()
+        return px >= left && px < right && py >= top && py < bottom
+    }
+
     fun requiresVisualSnapshot(hasX: Boolean, hasY: Boolean): Boolean = hasX && hasY
 
     fun stage(accepted: Boolean, exactReadback: Boolean): String = when {
