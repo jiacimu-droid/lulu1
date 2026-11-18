@@ -1048,6 +1048,7 @@ internal object LuluBackgroundPhoneSession {
             val wantsProductLink = args.optBoolean("sendProductLinkToChat", false)
             var beforeProductCopyTimestamp = 0L
             var productCopyStartedAt = 0L
+            var shellMerchantCopyPrepared = false
             if (wantsProductLink && action != "tap_element") {
                 return JSONObject().put("success", false).put("status", "denied")
                     .put("accepted", false).put("productLinkSent", false)
@@ -1283,6 +1284,17 @@ internal object LuluBackgroundPhoneSession {
                     // keeps an old image from claiming the click succeeded.
                     val prepared = command(JSONObject().put("action", "prepare_type"))
                     check(prepared.optBoolean("accepted")) { "无法核实本次点击前的后台画面" }
+                    // The one-shot shell clipboard marker is armed only for
+                    // the role's freshly verified merchant Copy Link control.
+                    if (wantsProductLink && stillAuthorized()) {
+                        val marker = try {
+                            command(JSONObject().put("action", "prepare_product_copy")
+                                .put("packageName", activeApp))
+                        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                            throw cancelled
+                        } catch (_: Exception) { null }
+                        shellMerchantCopyPrepared = marker?.optBoolean("accepted") == true
+                    }
                     val clicked = withContext(Dispatchers.Main) {
                         LuluAccessibilityService.tapVirtualUiElement(
                             id, activeApp, prior.fingerprint, args.optString("elementRef"),
@@ -1529,10 +1541,29 @@ internal object LuluBackgroundPhoneSession {
             if (wantsProductLink) {
                 // This is a terminal receipt for the copy/share step, not
                 // proof that the goods were added to cart or purchased.
-                val link = if (applied?.optBoolean("accepted") == true)
-                    LuluShoppingLinkShare.awaitFreshLink(
-                        context, activeApp, beforeProductCopyTimestamp, productCopyStartedAt)
-                else null
+                val acceptedCopyClick = applied?.optBoolean("accepted") == true
+                // Privileged shell can read copies that Android hides from
+                // Lulu's background app UID. Only a merchant-verified fresh
+                // copy may cross from the owned display into chat.
+                val shellCopy = if (acceptedCopyClick && shellMerchantCopyPrepared &&
+                    stillAuthorized()) try {
+                    command(JSONObject().put("action", "read_product_copy")
+                        .put("packageName", activeApp))
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    JSONObject().put("errorCode", "merchant_shell_read_failed")
+                } else null
+                val shellLink = shellCopy?.optString("link").orEmpty().takeIf {
+                    shellCopy?.optBoolean("accepted") == true &&
+                        LuluShoppingLinkShare.merchantNameForLink(activeApp, it) != null
+                }
+                // Legacy app-side read still works on some ROMs. A positive
+                // source mismatch from shell cannot be bypassed by this route.
+                val link = if (!acceptedCopyClick || !stillAuthorized() ||
+                    shellCopy?.optString("errorCode") == "merchant_copy_source_mismatch") null
+                else shellLink ?: LuluShoppingLinkShare.awaitFreshLink(
+                    context, activeApp, beforeProductCopyTimestamp, productCopyStartedAt)
                 var deliveryError = ""
                 val sent = if (link != null &&
                     LuluShoppingAssistPolicy.isEnabled(context, characterId) &&
@@ -1554,6 +1585,15 @@ internal object LuluBackgroundPhoneSession {
                     .put("mode", "independent_virtual_display").put("displayId", id)
                     .put("packageName", activeApp).put("taskCompleted", false)
                     .put("productLinkSent", sent?.success == true)
+                    .put("errorCode", when {
+                        sent?.success == true -> ""
+                        !acceptedCopyClick -> "merchant_copy_click_rejected"
+                        deliveryError.isNotBlank() -> "merchant_link_delivery_failed"
+                        !stillAuthorized() -> "merchant_copy_authorization_changed"
+                        link == null -> shellCopy?.optString("errorCode")
+                            ?.takeIf { it.isNotBlank() } ?: "merchant_clipboard_unavailable"
+                        else -> "merchant_link_delivery_unverified"
+                    })
                     .put("productLinkUrl", if (sent?.success == true) link else "")
                     .put("conversationId", sent?.conversationId.orEmpty())
                     .put("evidenceId", sent?.evidenceId.orEmpty())
@@ -1563,7 +1603,13 @@ internal object LuluBackgroundPhoneSession {
                         "设备没有接受复制链接动作；未发送商品"
                     else if (deliveryError.isNotBlank())
                         "商品链接发送失败：$deliveryError；未声称送达"
-                    else "没有读取到新复制的商家HTTPS链接、授权已撤回或剪贴板受系统限制；未发送商品，不能凭旧链接冒充本次选品")
+                    else if (!stillAuthorized())
+                        "本次链接交接期间后台操作授权或设备状态已变化；未发送商品"
+                    else if (link == null)
+                        "商家复制动作已执行，但尚未获得这次复制的有效商品链接（" +
+                            shellCopy?.optString("errorCode").orEmpty().ifBlank { "clipboard_unavailable" } +
+                            "）；未发送旧链接，可重新观察商家分享方式"
+                    else "已获取本次有效商家链接，但私聊卡片未确认送达；未声称发送成功")
                     .toString()
             }
             if (action == "send_chat_message") {
