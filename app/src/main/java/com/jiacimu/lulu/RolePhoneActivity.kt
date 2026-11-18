@@ -90,10 +90,21 @@ internal fun inspectedPhoneActions(events: List<SharedTimelineEvent>): List<Insp
                         result?.optString("verification").orEmpty().ifBlank { "未执行成功" }
                     }).take(76).replace("\n", " ")
                 "unverified", "pending", "waiting_user" ->
-                    "尚未确认成功 · " + result?.optString("verification")
-                        .orEmpty().take(62).replace("\n", " ")
+                    when {
+                        tool == "background_phone" && operation == "输入" &&
+                            result?.optBoolean("inputTextReadbackVerified") == true ->
+                            "已核实输入框内的完整草稿，但新画面不可用；未发送或提交"
+                        tool == "background_phone" && operation == "输入" &&
+                            result?.optString("inputStage") == "input_dispatched_unverified" ->
+                            "文字已派发，但未从目标输入框读回全文；未发送或提交"
+                        else -> "尚未确认成功 · " + result?.optString("verification")
+                            .orEmpty().take(80).replace("\n", " ")
+                    }
                 "observed", "captured" ->
-                    if (tool == "background_phone" && operation in setOf("点按", "长按"))
+                    if (tool == "background_phone" && operation == "输入" &&
+                        result?.optBoolean("inputTextReadbackVerified") == true)
+                        "已从当前目标App的输入框读回完整草稿；未发送或提交"
+                    else if (tool == "background_phone" && operation in setOf("点按", "长按"))
                         result?.optString("verification").orEmpty().take(96)
                             .ifBlank { "已取得画面，仍需核对触摸效果" }
                     else "已取得画面，任务结果仍需核实"
