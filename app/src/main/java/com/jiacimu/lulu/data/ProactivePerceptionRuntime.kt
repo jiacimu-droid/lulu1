@@ -3372,7 +3372,9 @@ object ProactivePerceptionRuntime {
                             "本会话最近真正送达的聊天记录（按时间顺序，图片只有已保存的文字描述，不代表本轮重新看到像素）：\n" +
                             recentDeliveredChat + "\n" +
                             "你在本机独立后台虚拟屏实际执行的真实过程与回执（与主屏不同）：\n" +
-                            report + "\n这次行动最初的发言计划（不一定已经送达）：${decision.text.take(300)}",
+                            report + "\n本轮仍未核实的阶段（不得当成已完成）：\n" +
+                            phoneUnverifiedFacts.distinct().take(4).joinToString("\n") +
+                            "\n这次行动最初的发言计划（不一定已经送达）：${decision.text.take(300)}",
                         instruction = """
                             你本人刚刚尝试完成一项真实后台手机操作。
                             对照同一聊天中已经实际发送的消息，承接已经分享的截图、候选或进度，
