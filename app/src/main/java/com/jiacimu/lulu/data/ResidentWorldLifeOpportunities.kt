@@ -50,6 +50,17 @@ internal object ResidentWorldLifeOpportunities {
             "不为了提高活跃率而机械分享光影或一遍遍刷同一局。")
     }.trim()
 
+    /** The world clock is optional input, not a prerequisite for a paid daily
+     * decision. A local scenery failure must not consume the resident's chance
+     * to reason about the rest of their real day. */
+    fun noticeOnWake(context: android.content.Context, characterId: String, at: Instant) {
+        if (!characterId.startsWith("resident:") ||
+            !DigitalLifeProfileStore.isEnabled(characterId)) return
+        runCatching { DigitalWorldLifeEventStore.tick(context, characterId, at) }
+            .onFailure { android.util.Log.w("ResidentWorldLife",
+                "Could not refresh factual world scene for $characterId", it) }
+    }
+
     fun contextFor(characterId: String, at: Instant = Instant.now()): String {
         if (!characterId.startsWith("resident:") ||
             !DigitalLifeProfileStore.isEnabled(characterId)) return ""
