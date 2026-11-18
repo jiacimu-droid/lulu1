@@ -286,6 +286,24 @@ class RoleDayScheduleStoreTest {
             intent = "监督背书"), promise))
     }
 
+    @Test fun abbreviatedBedtimeCaptionDoesNotCreateASecondPersonalSchedule() {
+        val time = Instant.parse("2026-11-18T15:00:00Z")
+        val oneOffPlan = plan.copy(id = "bedtime-once", dueAt = time,
+            title = "今晚23:00提醒佳辞收心洗漱",
+            intent = "完成约定的提醒", activityAction = "start_call", repeat = "once")
+        val recurring = CommitmentTask(characterId = oneOffPlan.characterId,
+            goal = "今晚23:00提醒佳辞收心洗漱准备哄睡", dueAt = time,
+            repeat = "daily", deliveryAction = "start_call",
+            status = CommitmentTaskStatus.Scheduled, linkedAlarmId = "existing-real-call")
+        assertTrue(duplicatesScheduledReminder(oneOffPlan, recurring))
+        assertFalse(duplicatesScheduledReminder(oneOffPlan.copy(
+            dueAt = time.plusSeconds(1800)), recurring))
+        assertFalse(duplicatesScheduledReminder(oneOffPlan.copy(
+            title = "今晚23:00给朋友发消息", intent = "朋友约了聊天"), recurring))
+        assertFalse(duplicatesScheduledReminder(oneOffPlan.copy(
+            activityAction = "read_book"), recurring))
+    }
+
     @Test fun creatingPersonalPlanCannotDuplicateARegisteredUserReminder() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         CommitmentTaskStore.initialize(context)

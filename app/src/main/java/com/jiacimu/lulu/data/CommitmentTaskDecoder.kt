@@ -30,7 +30,7 @@ internal fun decodeCommitmentTasks(raw: String?): List<CommitmentTask> {
                         nextCheckAt = item.nullInstant("nextCheckAt"),
                         completionCondition = item.optString("completionCondition"),
                         verificationMode = item.optString("verificationMode", "outcome")
-                            .takeIf { it in setOf("outcome", "delivery", "subjective_report") } ?: "outcome",
+                            .takeIf { it in setOf("outcome", "delivery", "subjective_report", "link_delivery") } ?: "outcome",
                         completionEvidenceIds = item.optJSONArray("completionEvidenceIds").strings(),
                         lastVerificationReason = item.optString("lastVerificationReason"),
                         steps = item.optJSONArray("steps").strings(),
@@ -54,6 +54,8 @@ internal fun decodeCommitmentTasks(raw: String?): List<CommitmentTask> {
                         attemptCount = item.optInt("attemptCount", 0),
                         lastActionResult = item.optString("lastActionResult"),
                         wakeAttemptHistory = item.optJSONArray("wakeAttemptHistory").strings().takeLast(6),
+                        startNow = item.optBoolean("startNow"),
+                        immediateRetryAt = item.nullInstant("immediateRetryAt"),
                         revision = item.optLong("revision", 1L).coerceAtLeast(1L),
                         linkedAlarmId = item.nullString("linkedAlarmId"),
                         executionToken = item.nullString("executionToken"),

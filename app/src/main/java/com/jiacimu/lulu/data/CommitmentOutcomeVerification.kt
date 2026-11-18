@@ -23,7 +23,7 @@ internal object CommitmentOutcomeVerification {
         if (requested.any { id -> resolved[id] == null }) return Result(false, "至少一条引用证据不存在或已经撤回")
         val witnesses = requested.mapNotNull(resolved::get)
         if (witnesses.any { it.characterId != task.characterId ||
-                it.occurredAt.isBefore(task.createdAt.minusSeconds(3)) })
+                it.occurredAt.isBefore(proofFloor(task)) })
             return Result(false, "证据不属于当前角色或早于原约定")
         val credible = witnesses.any { eligibleEvidence(task, it) }
         if (!credible) return Result(false, "尚无对应类型的可靠证据：行动成功只证明行动已执行，不能替代目标结果；声明与推测也不能单独结案")
@@ -45,12 +45,13 @@ internal object CommitmentOutcomeVerification {
             due.atZone(zone).toLocalDate().atStartOfDay(zone).toInstant()
         } else null
         if (e.characterId != task.characterId ||
-            e.occurredAt.isBefore(task.createdAt.minusSeconds(3)) ||
+            e.occurredAt.isBefore(proofFloor(task)) ||
             (dailyDayStart != null && e.occurredAt.isBefore(dailyDayStart))) return false
         return when (task.verificationMode) {
             "subjective_report" -> e.evidenceKind == EventEvidenceKind.UserStatement ||
                 isObservedOutcome(e)
-            "delivery" -> isExecutedAction(e)
+            "delivery" -> executedResult(e) != null
+            "link_delivery" -> executedResult(e)?.optBoolean("linkSent") == true
             else -> isObservedOutcome(e)
         }
     }
@@ -82,13 +83,16 @@ internal object CommitmentOutcomeVerification {
         }
     }.trim()
 
-    private fun isExecutedAction(e: SharedTimelineEvent): Boolean {
-        if (e.evidenceKind != EventEvidenceKind.ToolResult || e.source != "tool-router") return false
-        val wrapper = runCatching { JSONObject(e.content) }.getOrNull() ?: return false
+    private fun proofFloor(task: CommitmentTask) =
+        task.immediateRetryAt ?: if (task.startNow) task.createdAt else task.createdAt.minusSeconds(3)
+
+    private fun executedResult(e: SharedTimelineEvent): JSONObject? {
+        if (e.evidenceKind != EventEvidenceKind.ToolResult || e.source != "tool-router") return null
+        val wrapper = runCatching { JSONObject(e.content) }.getOrNull() ?: return null
         if (wrapper.optString("status") in setOf("pending", "running", "failed", "waiting_user",
-                "waiting_permission", "requested", "denied")) return false
-        val result = runCatching { JSONObject(wrapper.optString("result")) }.getOrNull() ?: return false
-        return result.optBoolean("success", false)
+                "waiting_permission", "requested", "denied", "unverified")) return null
+        return runCatching { JSONObject(wrapper.optString("result")) }.getOrNull()
+            ?.takeIf { it.optBoolean("success") }
     }
 
     private fun isObservedOutcome(e: SharedTimelineEvent): Boolean {

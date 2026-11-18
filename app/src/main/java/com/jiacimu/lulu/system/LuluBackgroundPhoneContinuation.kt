@@ -117,6 +117,8 @@ internal object LuluBackgroundPhoneContinuation {
         val finishedByRole: Boolean,
         val actions: Int,
         val deferred: Boolean = false,
+        val completionEvidenceIds: List<String> = emptyList(),
+        val verificationReason: String = "",
     )
 
     fun decodeDecision(raw: String): JSONObject? {
@@ -260,9 +262,11 @@ internal object LuluBackgroundPhoneContinuation {
         // Phone-call revisions are not necessarily unread chat messages.
         // Reuse the caller's existing invalidation signal at every safe step.
         shouldYield: () -> Boolean = { false },
+        completionMode: String? = null,
+        commitmentTaskId: String? = null,
     ): Outcome = LuluBackgroundPhoneSession.duringWork(characterId) {
         runContinuation(context, characterId, connection, title, requestId, userText, roleReason,
-            initialArgs, initialReceipt, initialImage, userRequested, shouldYield)
+            initialArgs, initialReceipt, initialImage, userRequested, shouldYield, completionMode, commitmentTaskId)
     }
 
     private suspend fun runContinuation(
@@ -270,6 +274,8 @@ internal object LuluBackgroundPhoneContinuation {
         requestId: String, userText: String, roleReason: String, initialArgs: JSONObject,
         initialReceipt: String, initialImage: String?, userRequested: Boolean,
         shouldYield: () -> Boolean,
+        completionMode: String?,
+        commitmentTaskId: String?,
     ): Outcome {
         val firstReceipt = runCatching { JSONObject(initialReceipt) }.getOrNull()
         if (!hasFreshExecutionReceipt(firstReceipt)) {
@@ -290,6 +296,24 @@ internal object LuluBackgroundPhoneContinuation {
         history.appendLine("本人刚才的选择与目标：" + roleReason.take(900))
         history.appendLine("第一步真实回执：" + compactRoleReceipt(initialReceipt))
         uiReferenceSummary(initialReceipt).takeIf(String::isNotBlank)?.let { history.appendLine(it) }
+        val verifyCompletion = completionMode != null
+        val completionReceipts = mutableSetOf<String>()
+        fun rememberCompletionReceipt(args: JSONObject, result: JSONObject?, attemptId: String) {
+            if (verifyCompletion && result != null && hasFreshExecutionReceipt(result) &&
+                result.optBoolean("success") && args.optString("action") !in setOf("start", "stop") &&
+                (completionMode != "link_delivery" || result.optBoolean("linkSent"))) {
+                completionReceipts += "tool-$characterId-$attemptId"
+            }
+        }
+        fun linkDeliveryCompletion(actions: Int): Outcome? {
+            if (completionMode != "link_delivery" || completionReceipts.isEmpty()) return null
+            return Outcome(history.toString().takeLast(5_000), image, true, actions,
+                completionEvidenceIds = completionReceipts.toList(),
+                verificationReason = "本次选定的链接已通过实际分享操作作为卡片送达主人私聊")
+        }
+        rememberCompletionReceipt(initialArgs, firstReceipt, requestId)
+        linkDeliveryCompletion(0)?.let { return it }
+        var prematureFinish = false
         var count = 0
         var lastScreenReceipt = runCatching { JSONObject(initialReceipt) }.getOrNull()
         // Mika ScreenDiagnosis: passwords, verification and system takeover
@@ -424,6 +448,10 @@ internal object LuluBackgroundPhoneContinuation {
                     lastScreenReceipt?.toString()?.let(::uiReferenceSummary)
                         ?.takeIf(String::isNotBlank)?.let { appendLine("当前可操作画面：$it") }
                     appendLine("可选择的本机工具：background_phone")
+                    if (verifyCompletion) {
+                        appendLine("本次行动可引用的真实回执ID：" + completionReceipts.toList().takeLast(12).joinToString())
+                        appendLine("承诺完成时使用 {\"decision\":\"finish\",\"reason\":\"这些证据怎样满足原目标\",\"completionEvidenceIds\":[\"本次实际回执ID\"]}。仅打开App、滑动或看到候选不能证明链接已经发出。若确有阻碍，使用 ask 或 defer 保留未完成责任。")
+                    }
                     appendLine(if (LuluRolePhoneAuthorization.isGranted(context, characterId))
                         LuluPhoneInteractionPolicy.modelGuide else "本角色虚拟屏幕总授权未开启，不能操作。")
                     appendLine(if (LuluShoppingAssistPolicy.isEnabled(context, characterId))
@@ -492,8 +520,22 @@ internal object LuluBackgroundPhoneContinuation {
             }
             when (decision.optString("decision")) {
                 "finish" -> {
-                    history.appendLine("本人选择结束：" + decision.optString("reason").take(320))
-                    return Outcome(history.toString().takeLast(5_000), image, true, count)
+                    val reason = decision.optString("reason").trim()
+                    val claimed = decision.optJSONArray("completionEvidenceIds")
+                    val evidence = (0 until (claimed?.length() ?: 0)).mapNotNull {
+                        claimed?.optString(it)?.takeIf(completionReceipts::contains)
+                    }.distinct()
+                    if (verifyCompletion && (evidence.isEmpty() || reason.length < 8)) {
+                        history.appendLine("当前承诺没有可核实的完成回执；请继续可行步骤，或准确说明需要用户协助的阻碍")
+                        if (!prematureFinish) {
+                            prematureFinish = true
+                            continue
+                        }
+                        return Outcome(history.toString().takeLast(5_000), image, false, count)
+                    }
+                    history.appendLine("本人选择结束：" + reason.take(320))
+                    return Outcome(history.toString().takeLast(5_000), image, true, count,
+                        completionEvidenceIds = evidence, verificationReason = reason)
                 }
                 "ask" -> {
                     history.appendLine("需要主人确认：" + decision.optString("reason").take(320))
@@ -512,6 +554,7 @@ internal object LuluBackgroundPhoneContinuation {
                         history.appendLine("续接日程未保存：" + it.message.orEmpty().take(220))
                         return Outcome(history.toString().takeLast(5_000), image, false, count)
                     }
+                    commitmentTaskId?.let { plan.put("commitmentTaskId", it) }
                     val actual = ToolRouter.execute(context = context, characterId = characterId,
                         name = "plan_personal_activity", args = plan,
                         requestId = requestId + "-phone-defer", userRequested = userRequested)
@@ -622,9 +665,11 @@ internal object LuluBackgroundPhoneContinuation {
             history.appendLine("下一步 " + index + "：" + action +
                 "；本人原因：" + decision.optString("reason").take(240))
             val result = runCatching { JSONObject(receipt) }.getOrNull()
+            rememberCompletionReceipt(args, result, nextId)
             val previousFingerprint = lastScreenReceipt?.optString("uiTreeFingerprint")
             history.appendLine("实际回执：" +
                 compactRoleReceipt(receipt, lastScreenReceipt?.optString("visibleText")))
+            linkDeliveryCompletion(count)?.let { return it }
             uiDiff(lastScreenReceipt, result).takeIf(String::isNotBlank)?.let {
                 history.appendLine(it)
             }

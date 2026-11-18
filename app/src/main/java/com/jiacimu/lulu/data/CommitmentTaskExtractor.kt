@@ -110,7 +110,7 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
                     timezone = item.optString("timezone").trim().takeIf(String::isNotBlank),
                     completionCondition = item.optString("completionCondition").trim(),
                     verificationMode = item.optString("verificationMode")
-                        .takeIf { it in setOf("outcome", "delivery", "subjective_report") },
+                        .takeIf { it in setOf("outcome", "delivery", "subjective_report", "link_delivery") },
                     completionEvidenceIds = proof,
                     verificationReason = item.optString("verificationReason").trim(),
                     steps = steps,
@@ -125,6 +125,7 @@ internal fun parseCommitmentTaskDrafts(raw: String): List<CommitmentTaskDraft> =
                             dueAt == null && action == "create" &&
                                 item.optString("promiseKind") !in setOf("long_term_supervision", "responsibility")),
                     targetTaskId = item.optString("targetTaskId").trim().takeIf(String::isNotBlank),
+                    startNow = action == "create" && item.optBoolean("startNow"),
                 ),
             )
         }

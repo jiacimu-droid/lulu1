@@ -1052,6 +1052,10 @@ internal fun duplicatesScheduledReminder(plan: RoleDayPlan, task: CommitmentTask
     // actual SAME calendar date, not just another week's 10:30.
     if (plan.repeat != "daily" && task.repeat != "daily" &&
         a.toLocalDate() != b.toLocalDate()) return false
+    // A short personal-plan caption may omit the last words of the
+    // identical owner-facing promise ("洗漱" vs "洗漱准备哄睡").
+    // After role/action/time checks, prefer the one native commitment alarm.
+    if (plan.title.nearlySameTaskText(task.goal)) return true
     val groups = listOf(
         listOf("学习", "复习", "背书", "背诵", "做题", "作业", "刷题"),
         listOf("睡觉", "睡前", "入睡", "哄睡", "晚安", "早睡", "休息"),

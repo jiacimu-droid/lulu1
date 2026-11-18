@@ -85,7 +85,7 @@ internal object CommitmentDecisionRuntime {
     private fun scheduleUndatedFollowThroughIfNeeded(
         context: Context, characterId: String, changed: List<CommitmentTask>,
     ) {
-        if (changed.any { it.needsUndatedActionReview() } &&
+        if (changed.any { !it.startNow && it.needsUndatedActionReview() } &&
             RoleDayScheduleStore.undatedCommitmentsToPlan(context, characterId).isNotEmpty()) {
             // Save the accepted responsibility first; ask its owner to choose
             // an actual next action through the existing unified decision loop.
@@ -118,6 +118,9 @@ internal object CommitmentDecisionRuntime {
         }
         val changed = CommitmentTaskStore.snapshot(characterId).filter { before[it.id]?.revision != it.revision }
         scheduleUndatedFollowThroughIfNeeded(context, characterId, changed)
+        changed.filter { ImmediateCommitmentDecision.readyToReview(it, Instant.now()) }.forEach { task ->
+            ProactivePerceptionScheduler.scheduleImmediateCommitmentReview(context, task)
+        }
         if (evidenceIds.isNotEmpty()) {
             val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             val saved = prefs.getStringSet("handled", emptySet()).orEmpty().toMutableList()

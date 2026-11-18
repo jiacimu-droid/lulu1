@@ -226,6 +226,63 @@ class DailyCommitmentRecurrenceTest {
         }
     }
 
+    @Test fun bedtimeOnceAndDailyAreOnePromiseWhenOnlyTheWordingWasExtended() {
+        val due = at(2026, 11, 18, 23, 0)
+        val daily = CommitmentTask(characterId = "role",
+            goal = "今晚23:00提醒佳辞收心洗漱准备哄睡",
+            dueAt = due, timezone = shanghai.id, deliveryAction = "start_call",
+            repeat = "daily", status = CommitmentTaskStatus.Scheduled)
+        val again = CommitmentTaskDraft(action = "create",
+            goal = "今晚23:00提醒佳辞收心洗漱", dueAt = due,
+            repeat = "once", deliveryAction = "start_call")
+        assertTrue(matchesExistingCommitmentCreation(daily, again))
+        assertTrue(matchesExistingCommitmentCreation(daily.copy(repeat = "once"),
+            again.copy(repeat = "daily")))
+        assertTrue("a daily reminder remains the same reminder tomorrow",
+            matchesExistingCommitmentCreation(daily,
+                again.copy(dueAt = due.plusSeconds(86400))))
+        assertFalse("different execution times are distinct",
+            matchesExistingCommitmentCreation(daily, again.copy(dueAt = due.plusSeconds(1800))))
+        assertFalse("a separate outcome check is not a second bedtime reminder",
+            matchesExistingCommitmentCreation(daily, again.copy(
+                goal = "今晚23:00核查是否已经睡着")))
+        assertFalse("a different delivery route is not silently replaced",
+            matchesExistingCommitmentCreation(daily, again.copy(deliveryAction = "alarm_only")))
+    }
+
+    @Test fun legacyOnceCopyDoesNotEraseRecurringBedtimeOrRealAttempt() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        CommitmentTaskStore.initialize(context)
+        val role = "dedup-nightly-" + java.util.UUID.randomUUID()
+        val due = at(2026, 11, 18, 23, 0)
+        val deliveredOnce = CommitmentTaskStore.save(CommitmentTask(
+            characterId = role, goal = "今晚23:00提醒佳辞收心洗漱",
+            dueAt = due, timezone = shanghai.id, deliveryAction = "start_call",
+            repeat = "once", status = CommitmentTaskStatus.WaitingForFeedback,
+            lastAlarmReceivedAt = due, attemptCount = 1,
+            lastActionResult = "已尝试一次来电，但未证实入睡"))
+        val duplicateDaily = CommitmentTaskStore.save(CommitmentTask(
+            characterId = role, goal = "今晚23:00提醒佳辞收心洗漱准备哄睡",
+            dueAt = due, timezone = shanghai.id, deliveryAction = "start_call",
+            repeat = "daily", status = CommitmentTaskStatus.Scheduled))
+        try {
+            assertTrue(sameRecordedTimedCommitment(deliveredOnce, duplicateDaily))
+            CommitmentTaskStore.mergeDuplicateTimedCommitments()
+            val kept = CommitmentTaskStore.snapshot(role).first { it.id == deliveredOnce.id }
+            val retired = CommitmentTaskStore.snapshot(role).first { it.id == duplicateDaily.id }
+            assertEquals("daily", kept.repeat)
+            assertEquals(due, kept.dailyBaseDueAt)
+            assertEquals(CommitmentTaskStatus.WaitingForFeedback, kept.status)
+            assertEquals("已尝试一次来电，但未证实入睡", kept.lastActionResult)
+            assertEquals(CommitmentTaskStatus.Cancelled, retired.status)
+            assertFalse(retired.visibleOnScheduleDate(
+                java.time.LocalDate.of(2026, 11, 18), shanghai,
+                java.time.LocalDate.of(2026, 11, 18)))
+        } finally {
+            listOf(deliveredOnce, duplicateDaily).forEach { CommitmentTaskStore.remove(it.id) }
+        }
+    }
+
     @Test fun sameClockAndPurposeMustMatchToDeduplicate() {
         val a = at(2026, 10, 24, 23, 30)
         assertTrue(sameDailyClockAndPurpose("每晚监督她睡觉", a,

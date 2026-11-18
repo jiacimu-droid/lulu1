@@ -767,6 +767,27 @@ object ProactivePerceptionScheduler {
             "lulu-sleep-handoff-recovery-$characterId", ExistingWorkPolicy.REPLACE, task)
     }
 
+    /** One durable handoff to the same role if the original execution leaves a responsibility open. */
+    internal fun scheduleImmediateCommitmentReview(context: Context, task: CommitmentTask) {
+        val request = OneTimeWorkRequestBuilder<ProactivePerceptionWorker>()
+            .setInitialDelay(15L, TimeUnit.SECONDS)
+            .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+            .setInputData(Data.Builder()
+                .putString("characterId", task.characterId)
+                .putString("immediateCommitmentId", task.id)
+                .putString("trigger",
+                    "当下承诺尚待履行或核实，原任务ID=${task.id}。读取原目标、完成条件与实际回执。" +
+                    "有可行下一步就当轮行动；有实际完成证据就调用 verify_commitment 核实原任务。" +
+                    "如需等待条件或用户协助，保留原责任并说明具体原因，可用 schedule_commitment_review 登记后续。" +
+                    "不要复制旧操作、旧截图或重复可能已发出的消息。")
+                .putBoolean("force", true)
+                .build())
+            .build()
+        WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
+            "lulu-immediate-commitment-${task.id}", ExistingWorkPolicy.KEEP, request,
+        )
+    }
+
     /** Every completed result-bearing search re-enters the ONE ordinary character
      * perception/decision loop, irrespective of whether it began in chat, call or solo life.
      * The durable ToolRouter event is the input; this job is only a wake-up.
@@ -1127,7 +1148,10 @@ class ProactivePerceptionWorker(
             ProactivePerceptionScheduler.scheduleNextDue(applicationContext)
             return@runCatching Result.success()
         }
-        ProactivePerceptionRuntime.runDueCycle(
+        val immediateCommitmentId = inputData.getString("immediateCommitmentId").orEmpty()
+        if (immediateCommitmentId.isNotBlank() && characterId == null)
+            return@runCatching Result.success()
+        val evaluated = ProactivePerceptionRuntime.runDueCycle(
             context = applicationContext,
             trigger = trigger,
             targetCharacterId = characterId,
@@ -1137,7 +1161,13 @@ class ProactivePerceptionWorker(
             preserveOffline = preserveOffline,
             requiredInteractionEvidenceId = inputData.getString("interactionEvidenceId"),
             onlineExpiryAtMillis = onlineExpiryAtMillis,
+            immediateCommitmentId = immediateCommitmentId,
         )
+        if (immediateCommitmentId.isNotBlank() && characterId != null && evaluated == 0 &&
+            runAttemptCount < 3 && CommitmentTaskStore.active(characterId).any {
+                it.id == immediateCommitmentId &&
+                    ImmediateCommitmentDecision.readyToReview(it, Instant.now())
+            }) return@runCatching Result.retry()
         // One coalesced wake may represent several completed searches. The
         // model considered only the bounded pending input batch; if results
         // remain, reuse the existing budgeted scheduler instead of losing them

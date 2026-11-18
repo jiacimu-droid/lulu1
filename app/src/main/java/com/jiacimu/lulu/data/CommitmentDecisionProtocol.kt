@@ -68,6 +68,11 @@ internal object CommitmentDecisionProtocol {
             }
         }
         val drafts = parseCommitmentTaskDrafts(changes.toString())
+        require(drafts.none { it.startNow && (it.dueAt != null || it.repeat == "daily" ||
+            it.promiseKind != "responsibility" || it.completionCondition.isBlank() ||
+            it.needsClarification) }) {
+            "当下责任需要确定的目标和完成条件，不能填入定时或待确认约定"
+        }
         require(drafts.size == changes.length()) { "约定变更格式不完整，未执行" }
         drafts.forEach { draft ->
             if (draft.action != "create") require(active.any { it.id == draft.targetTaskId }) {
