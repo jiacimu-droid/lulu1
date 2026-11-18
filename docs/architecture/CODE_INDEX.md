@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`ef20a4be173ad33a9e43d6a5ef33be73cdbdbc26`
+- 基准提交：`0ee6b39cae56aee7a9f843357eb2deccdc21473c`
 - 分支：`main`
-- 已索引文件：1463
-- 已索引代码/文本行：309302
-- 已发现符号：4426
+- 已索引文件：1464
+- 已索引代码/文本行：309367
+- 已发现符号：4427
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1265,6 +1265,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentAutonomyBoundaryTest.kt` | 299 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt` | 3261 | 26 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentDailyPolicyTest.kt` | 200 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ResidentFriendshipContinuityTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailCausalIntegrationTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentMailDeliveryAtomicityTest.kt` | 380 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ResidentManualRecoveryTest.kt` | 51 | 1 |
@@ -1320,7 +1321,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsNoteReadinessTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsReadingReceiptTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/AutonomousDuelGamesTest.kt` | 165 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/AutonomousDuelGamesTest.kt` | 174 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 748 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt` | 277 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CompanionCoopCombatTest.kt` | 136 | 1 |
