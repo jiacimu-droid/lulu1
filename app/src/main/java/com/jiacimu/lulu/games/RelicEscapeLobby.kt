@@ -57,7 +57,7 @@ internal fun RelicEscapeLobby(
     onUpgradeWeapon:()->Unit,
     onBuyBow:()->Unit,
     onUpgradeSatchel:()->Unit,
-    onSellLoot:(String)->Unit,
+    onSellLoot:(Int,RelicLoot)->Unit,
     onFeatureLoot:(String)->Unit,
 ) {
     val compactLobby = androidx.compose.ui.platform.LocalConfiguration.current.let {
