@@ -139,13 +139,61 @@ class DailyCommitmentRecurrenceTest {
             dueAt = at(2026, 11, 1, 23, 30), repeat = "daily",
             status = CommitmentTaskStatus.Scheduled,
             lastAlarmScheduledAt = at(2026, 10, 31, 23, 30))
-        assertTrue(rolled.visibleOnScheduleDate(yesterday, shanghai, today))
+        assertFalse("An old daily alarm timestamp is history, not a second appointment",
+            rolled.visibleOnScheduleDate(yesterday, shanghai, today))
         assertTrue(rolled.visibleOnScheduleDate(today, shanghai, today))
         assertFalse(rolled.visibleOnScheduleDate(today.minusDays(5), shanghai, today))
         val outstanding = rolled.copy(repeat = "once",
             dueAt = at(2026, 10, 31, 23, 30), status = CommitmentTaskStatus.WaitingForFeedback)
-        assertTrue(outstanding.visibleOnScheduleDate(today, shanghai, today))
+        assertFalse("Yesterday's unresolved once-only call cannot become today's appointment",
+            outstanding.visibleOnScheduleDate(today, shanghai, today))
+        assertTrue(outstanding.visibleOnScheduleDate(yesterday, shanghai, today))
+        assertTrue(outstanding.isOverdueOneOffOn(today, shanghai))
         assertFalse(outstanding.visibleOnScheduleDate(today.plusDays(1), shanghai, today))
+    }
+
+    @Test fun temporaryBedtimePostponementKeepsDailyAnchorAndDoesNotStackYesterday() {
+        val yesterday = java.time.LocalDate.of(2026, 11, 17)
+        val today = yesterday.plusDays(1)
+        val old = CommitmentTask(characterId = "role",
+            goal = "每天23:00来电监督入睡", repeat = "daily",
+            status = CommitmentTaskStatus.WaitingForFeedback,
+            createdAt = at(2026, 11, 15, 10, 0),
+            dueAt = at(2026, 11, 17, 23, 30),
+            dailyBaseDueAt = at(2026, 11, 15, 23, 0),
+            lastAlarmReceivedAt = at(2026, 11, 17, 23, 30))
+        val oneTime = old.copy(id = "yesterday-once", repeat = "once",
+            dailyBaseDueAt = null)
+        val draft = CommitmentTaskDraft(action = "reschedule",
+            targetTaskId = old.id, goal = old.goal,
+            dueAt = at(2026, 11, 17, 23, 30), repeat = "once",
+            permanent = false, deliveryAction = "start_call")
+        assertEquals("daily", resolvedCommitmentRepeatAfterReschedule(old, draft))
+        assertEquals("once", resolvedCommitmentRepeatAfterReschedule(old,
+            draft.copy(permanent = true)))
+        assertEquals(at(2026, 11, 17, 23, 30),
+            old.scheduleOccurrenceAt(yesterday, shanghai))
+        assertEquals("A temporary 23:30 is not today's 23:00",
+            at(2026, 11, 18, 23, 0),
+            old.scheduleOccurrenceAt(today, shanghai))
+        assertNull("Past one-off does not occupy today's calendar",
+            oneTime.scheduleOccurrenceAt(today, shanghai))
+        assertTrue(oneTime.isOverdueOneOffOn(today, shanghai))
+    }
+
+    @Test fun nextRealDailyAlarmOverrulesAProjectedPreviousClock() {
+        val today = java.time.LocalDate.of(2026, 11, 18)
+        val daily = CommitmentTask(characterId = "role",
+            goal = "每天晚上提醒", repeat = "daily",
+            createdAt = at(2026, 11, 15, 14, 0),
+            dueAt = at(2026, 11, 17, 23, 30),
+            dailyBaseDueAt = at(2026, 11, 15, 23, 0),
+            dailyNextDueAt = at(2026, 11, 18, 23, 0),
+            status = CommitmentTaskStatus.WaitingForFeedback)
+        assertEquals(daily.dailyNextDueAt,
+            daily.scheduleOccurrenceAt(today, shanghai))
+        assertEquals(daily.dueAt,
+            daily.scheduleOccurrenceAt(today.minusDays(1), shanghai))
     }
 
     @Test fun bedtimeSupervisionIsNotAnAlarmToWakeTheUser() {
