@@ -1345,6 +1345,10 @@ internal object ResidentDailyDecision {
             // silently buy a second model request for this appointment.
             if (!claimDueRequest(p, live, connectionFingerprint(checkNotNull(selected)))) return false
             CompanionOnlineStore.openResidentWindow(app, plan.characterId, at)
+            // Due-time life is another actual awake opportunity. Reuse the
+            // world's persisted slot, not a resident-only random story roll.
+            CharacterLifeFollowThroughStore.initialize(app)
+            DigitalWorldLifeEventStore.tick(app, plan.characterId, at)
         }
         CharacterPhoneInbox.initialize(app)
         val pending = if (savedChoice == null) ResidentSocialMailbox.pendingIncoming(plan.characterId) else emptyList()
@@ -1867,7 +1871,8 @@ internal object ResidentDailyDecision {
             if (possessions.isNotBlank()) appendLine(possessions)
             appendLine("想回家整理可选 digital_world_action，args.worldAction=go_home；确实在自己家且有空位时可选 worldAction=build_home_item，填写自己想要的 itemType/name/appearance/position。调整已有家具用 move_home_item 与真实 itemId/position；无法在咖啡厅凭空布置家中。执行结果才是家具已存在的依据。")
         }
-        val facts = context(native, at, pending, evidence) + "\n" + homeOptions + "\n" +
+        val facts = context(native, at, pending, evidence) + "\n" +
+            ResidentWorldLifeOpportunities.contextFor(id, at) + "\n" + homeOptions + "\n" +
             gameHistoryContext + "\n" +
             CharacterPhoneInbox.modelContext(id, unread) + "\n" +
             CharacterPhoneInbox.requestContext(id) + "\n" +
@@ -1903,6 +1908,7 @@ internal object ResidentDailyDecision {
         ResidentSocialMailbox.initialize(app)
         CharacterPhoneInbox.initialize(app)
         CharacterInnerLifeStore.initialize(app)
+        CharacterLifeFollowThroughStore.initialize(app)
         val id = ResidentCharacterBridge.characterId(native.id)
         // A daily worker can keep a snapshot after the owner removes a resident.
         // Never request another model decision for a retired native actor.
@@ -1948,6 +1954,10 @@ internal object ResidentDailyDecision {
             if (!claimDayRequest(app, native.id, now,
                     connectionFingerprint(checkNotNull(selected)))) return false
             CompanionOnlineStore.openResidentWindow(app, id, now)
+            // Residents now encounter the same persisted world clock as other
+            // digital people during an actual wake. A slot is claimed by the
+            // world store; resuming a paid decision cannot reroll the scene.
+            DigitalWorldLifeEventStore.tick(app, id, now)
         }
         val pending = if (savedDecision == null) ResidentSocialMailbox.pendingIncoming(id) else emptyList()
         val unread = if (savedDecision == null) CharacterPhoneInbox.unreadMoments(id) else emptyList()
@@ -1970,10 +1980,11 @@ internal object ResidentDailyDecision {
                 有真实已确认的好友时，可以选择当下 steps 工具 create_group_chat，args={"groupName":"自己想的名称","memberIds":["邀请的真实好友角色ID"]} 组建没有用户自动参与的朋友圈小群；创建并不代表群友回应。确认有合适共同话题再建，已有适合群时优先继续旧群。
                 steps 按本人选择的先后执行；每步可填写 requiresPreviousSuccess=true|false，true 依赖前一步实际完成，false 可独立继续；没有前置动作的首步可直接执行。可带原有 motiveId/concernId/experienceId，让每个回执只关联自己的事项。
                 你可以决定今天没有行程，也可根据生活需要自然安排多项。每项独立到点醒来、再判断是否执行；不要为了填满日程编造友谊或假设对方一定赴约。
+                当单调感明显时，请将当前地点实际提供的生活活动、已发生的事件、熟人、独立兴趣与游戏放在同一轮真实比较；不把独玩当默认，选择不同生活行动也不是机械轮换。分享欲只能由本人经历的真实事件支撑，可先经历、再选择是否找朋友谈或发动态；不为分享而虚构新事件。
                 今天每位居民最多安排${agendaLimit}项未来日程（主人在设置中统一调整，0表示今天不排未来日程）。这仅是可排程数量上限，并非必须做满；不限制本人主动选择的真实私信回应或应对突发事件。
                 agenda 最多${agendaLimit}项，每项需包含 at=今天当地HH:mm未来时刻、title=短活动、intent=本人的真实动机、activityAction、activityArgs 对象。字段缺失、非法时间或无效工具会请你本人补正，不会被系统悄悄丢弃。
                 给其他数字人物发私信时，activityArgs 写真实 targetCharacterId 与你本人选定的 bubbles 字符串数组；每个元素就是你独立按一次发送的正文。依本人性格、关系、此刻想法和自然打字节奏决定几泡、每泡到哪里；可一泡、可多泡，不按字数/标点机械分段，不为凑数重复说话。历史 text 仍兼容单条气泡，但不能同时填 text 与 bubbles；群聊和动态依各自体裁使用 text。访问公共地点时 activityArgs.worldAction=visit_public_place 且 locationCode 要与日程地点一致。日程写下不是对方收到消息，计划到点仍需你重新选择并得到工具回执。
-                可用：invite_duel_game（仅yacht_dice/memory_match，需真实熟人targetCharacterId及本人text，发出不算对方已接受）；respond_duel_invite（需本人收到的challengeId和accept/decline，对方自主选择）；send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident 必须指定现场居民 itemId 和 activityId=greet|chat|ask_place|sit_together|share_text|co_write|exchange_views|continue_episode，其中分享文字/共同创作/交换观点需本人 text，继续事件需真实 incidentId；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game（${if (com.jiacimu.lulu.games.LuluGameEdition.worldGamesEnabled) "可独玩 memory_match、yacht_dice、block_island 长期生存、relic_escape 探索撤离；后两款可选focus和turns" else "可独玩 memory_match、yacht_dice"}，按本人实际喜好选择）；本人实际入群才可 send_group_message。
+                当前地点的真实日常活动也可以选择 steps 里的 digital_world_action，args={worldAction:"use_location",activityId:"现场列出的真实ID"}；在真实现场可观察 observe_scene 的候选或处理 handle_incident 的持续事件，后两者必须用本轮可见的 incidentId 和合法参数，不可发明事故。可用：invite_duel_game（仅yacht_dice/memory_match，需真实熟人targetCharacterId及本人text，发出不算对方已接受）；respond_duel_invite（需本人收到的challengeId和accept/decline，对方自主选择）；send_character_message（确实认识的真实ID）；send_friend_request（认识且双方无待处理申请）；respond_friend_request（本人收到的真实 requestId）；digital_world_action（visit_public_place 真实公共地点码；同场 interact_resident 必须指定现场居民 itemId 和 activityId=greet|chat|ask_place|sit_together|share_text|co_write|exchange_views|continue_episode，其中分享文字/共同创作/交换观点需本人 text，继续事件需真实 incidentId；go_home；在家且有空位时 build_home_item，args.itemType/name/appearance/position 由本人选择；move_home_item/remove_home_item 需真实本人家具 itemId）；publish_moment；play_solo_game（${if (com.jiacimu.lulu.games.LuluGameEdition.worldGamesEnabled) "可独玩 memory_match、yacht_dice、block_island 长期生存、relic_escape 探索撤离；后两款可选focus和turns" else "可独玩 memory_match、yacht_dice"}，按本人实际喜好选择）；本人实际入群才可 send_group_message。
                 真实熟人不必都加好友，已经舒适的家也不必添家具。确有想做的事可以立刻在 steps 执行，也可在 agenda 约定未来一刻；到点仍由本人重新判断，实际执行结果单独留回执。
                 各居民不是咖啡角的固定观众：家、庭院、游戏馆与已开放的真实公共地点都是平等选择；回家独处、在居所忙自己的事、和好友线上私聊也是真实生活。不因为模型知道有咖啡馆就反复选咖啡馆，不安排没有个人理由的集体聚会。
                 五分钟在线窗口结束只暂停清醒注意力，不会瞬移或修改世界地点。晚上通常可以回自己的家，但如果确实想先发朋友圈、再回家、最后休眠，可在同一次模型决定的 steps 中选 publish_moment、digital_world_action(worldAction=go_home)，按实际回执先后执行；不必为每步额外付费。没有选或没有完成回家动作时，夜间时钟保留本人实际所在的位置，不得说自己已经回家。若确实受到朋友邀请并通过真实拜访行动留宿，也可在已经到达的住宅暂歇；不得因为朋友关系凭空进入别人的家。
