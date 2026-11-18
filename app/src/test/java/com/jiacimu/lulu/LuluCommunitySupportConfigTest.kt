@@ -34,6 +34,6 @@ class LuluCommunitySupportConfigTest {
         // The owner must supply a real public payment URL before enabling donations.
         assertEquals("", LuluCommunitySupportConfig.DONATION_URL)
         assertEquals(null, LuluCommunitySupportConfig.safeDonationUrl())
-        assertEquals(null, LuluCommunitySupportConfig.emailAddress())
+        assertEquals("1187725424@qq.com", LuluCommunitySupportConfig.emailAddress())
     }
 }
