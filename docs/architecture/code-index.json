@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T14:25:56.939062+00:00",
-  "commit": "62f47cb0655769071d11d65a1f8ca180b2224c20",
+  "generatedAt": "2026-11-18T14:26:34.093345+00:00",
+  "commit": "0859915321ff470dfbd0239228fed6559520032c",
   "branch": "main",
-  "sourceFingerprint": "d1247f4d0fc387a9ac718a3b59723768044f5ce55a000224a7929dffc95ac539",
+  "sourceFingerprint": "a1c91405c21322063bc8b68b9e27d9644e2ecfa2a5605ebddaee53e9d435d872",
   "summary": {
     "files": 1469,
     "lines": 310618,
@@ -36539,7 +36539,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 3984,
-      "sha256": "a3f6db08ef0f2e369d5b9998e3a5d4e71af9fee55f8c34b973bc3b73eb6f0a01",
+      "sha256": "1a0c32a63ab23c11700475a38372ec22478629f8e970b66b313aedd3c13038b3",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -42944,7 +42944,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
       "lines": 857,
-      "sha256": "81611ccbbca67fc58a1edff6307311581ad40a81371a2eb9ada57a1b3ba22e23",
+      "sha256": "5aa8a23cc897449ffbeb94c8afaba1107912a0d51dd41e5f7dcaa792b9afadf1",
       "symbols": [
         {
           "name": "Outcome",
