@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`48a542d8a09faade0461bf43c6b8233aa9d7e5af`
+- 基准提交：`795d984d6a2ebb38660f67b729d6cac9f6756481`
 - 分支：`main`
-- 已索引文件：1475
-- 已索引代码/文本行：312132
-- 已发现符号：4452
+- 已索引文件：1476
+- 已索引代码/文本行：312323
+- 已发现符号：4453
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -248,6 +248,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 163 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 333 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 310 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MossSpeech.kt` | 195 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 62 | 0 |
@@ -860,7 +861,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneTaskDeferral.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt` | 154 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorization.kt` | 26 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 806 | 22 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluScreenAwareness.kt` | 802 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenFrameHandoff.kt` | 64 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt` | 196 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt` | 61 | 5 |
