@@ -38,7 +38,7 @@ class LuluOnboardingGuideContentTest {
     @Test fun heroFocusesOnFourDistinctStrengths() {
         assertEquals(4, luluGuideHeroHighlights.size)
         assertEquals(
-            listOf("continuity", "phone", "memory", "supervision"),
+            listOf("continuity", "phone", "memory", "world"),
             luluGuideHeroHighlights.map { it.featureKey },
         )
         assertTrue(luluGuideHeroHighlights.all { point ->
@@ -47,7 +47,7 @@ class LuluOnboardingGuideContentTest {
         })
         assertTrue(luluGuideHeroHighlights.first().title.contains("跨应用"))
         assertTrue(luluGuideHeroHighlights.any { it.title.contains("后台虚拟屏") })
-        assertTrue(luluGuideHeroHighlights.any { it.title.contains("学习监督") })
+        assertTrue(luluGuideHeroHighlights.any { it.title.contains("自主生活") })
         assertFalse(luluGuideHeroHighlights.any { it.featureKey == "games" })
         assertEquals(luluGuideFeatures.size, luluGuideDirectoryFeatures.size)
         assertEquals(luluGuideDirectoryFeatures.size, luluGuideDirectoryFeatures.map { it.key }.distinct().size)
