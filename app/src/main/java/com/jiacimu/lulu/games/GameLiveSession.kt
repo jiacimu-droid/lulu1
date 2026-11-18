@@ -154,7 +154,8 @@ internal fun GameTalkBar(
     val mint = Color(0xFF477B6D)
     val talkInk = GameDesign.ink
     val talkMuted = GameDesign.muted
-    val conversationTitle = session.participantIds.mapNotNull { roster[it]?.displayName }.joinToString("、").ifBlank { "同桌" }
+    val conversationTitle = session.participantIds.mapNotNull { roster[it]?.displayName }.joinToString("、")
+        .ifBlank { if (session.allowSoloHost) "主持人" else "同桌" }
     var textExpanded by remember(session) { mutableStateOf(false) }
     val microphoneOn = session.voiceMode && session.mic.active
     val status = when {
