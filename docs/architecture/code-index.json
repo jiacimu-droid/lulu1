@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:01:20.982041+00:00",
-  "commit": "9412683f0bfbe581d97b907116e167e885a8aa9a",
+  "generatedAt": "2026-11-18T07:31:04.734152+00:00",
+  "commit": "064557c3a54db23cc9d9f1d73148f9027f8c11e8",
   "branch": "main",
-  "sourceFingerprint": "e9d0609b6e139b2284e904becbbcbbc76c8095fe831efff75fa8f364382d7160",
+  "sourceFingerprint": "8c325315d2320e995754ef167120ab60a7c6f48e548d18c8812c8e3a8acbc0af",
   "summary": {
     "files": 1457,
-    "lines": 308142,
+    "lines": 308191,
     "symbols": 4391
   },
   "symbolIndex": {
@@ -7025,7 +7025,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt",
-        "line": 107
+        "line": 120
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
@@ -7197,7 +7197,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt",
-        "line": 31
+        "line": 34
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
@@ -8717,7 +8717,7 @@
     "invalidate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt",
-        "line": 30
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
@@ -31767,20 +31767,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt",
-      "lines": 130,
-      "sha256": "e3dee80a1df6d2b14ad84dfbfea6b5a78510a22e4ffc8b0a683fa1ec8ab48cbf",
+      "lines": 143,
+      "sha256": "f76e7dd3ef5ad67baf7570190446ff75d6df5d082a373596fb1f8dbff20303ae",
       "symbols": [
         {
           "name": "invalidate",
-          "line": 30
+          "line": 33
         },
         {
           "name": "snapshot",
-          "line": 31
+          "line": 34
         },
         {
           "name": "promptSection",
-          "line": 107
+          "line": 120
         }
       ]
     },
@@ -49354,8 +49354,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencePersistenceTest.kt",
-      "lines": 60,
-      "sha256": "92a6575f20f356fd047182c822757e88e6bc50cfd27da8a271bbe76d94a3f742",
+      "lines": 81,
+      "sha256": "c8b040483409de4007f2204cf23336c868a7383962cded82a25fbdf601a0979f",
       "symbols": [
         {
           "name": "RelationshipPreferencePersistenceTest",
@@ -49365,8 +49365,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RelationshipPreferencesTest.kt",
-      "lines": 133,
-      "sha256": "5fdc22d2dd312754a8069ffcafc9c5ab68e49d69c2766e2a7f2e1735abe7cef2",
+      "lines": 148,
+      "sha256": "d66d639850f756215d024416cbb0e74ecdafeb8590b5749fd0420a4cf238c601",
       "symbols": [
         {
           "name": "RelationshipPreferencesTest",
