@@ -10,7 +10,7 @@ class SettingsHomeSearchTest {
     @Test fun everySettingsDestinationIsStillReachableAndGrouped() {
         assertEquals(
             setOf("api", "integrations", "voice", "memory", "residents",
-                "vision", "image", "capabilities", "backup"),
+                "vision", "image", "capabilities", "strict", "backup"),
             settingsHomeEntries.map { it.id }.toSet(),
         )
         assertEquals(settingsHomeEntries.size, settingsHomeEntries.map { it.id }.distinct().size)
