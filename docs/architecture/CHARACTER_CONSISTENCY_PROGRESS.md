@@ -39,7 +39,7 @@
 
 - 接续上轮候选实查：电话队列在 Main.immediate 中检查可交付状态、取原件与调用 handleUserSpeech 之间没有 suspend 点，未发现该局部存在用户回调穿插的证据。因此不为假定竞态增重试。当前缺少的回归是：先到的空通知或误投通知被拒时，去重映射不能记成已经提供。
 - [28808700](https://github.com/jiacimu-droid/lulu1/commit/288087006d7307a2395037460c38a3cf36919839) 仅扩 `CallExternalResultPolicyTest.rejectedNoticeDoesNotConsumeTheLaterCanonicalReceipt`：实际 Timeline 初始无原件→拒收且队列/版本表均空→本人原件保存→误投另一人仍不占位→本人同一版本只入队一次→另一正式感知入口确认后，出队查询排除该回执而原始记录保留。原生产路径已有正确校验顺序，本轮没有新增运行分支或模型调用。
-- 精确 [JVM/APK #44217167149](https://github.com/jiacimu-droid/lulu1/actions/runs/44217167149) 与 [索引 #44217167252](https://github.com/jiacimu-droid/lulu1/actions/runs/44217167252) 待核。前轮新版回执回归在 [#44210771119/job 134488223530](https://github.com/jiacimu-droid/lulu1/actions/runs/44210771119/job/134488223530) 再次通过，完整 3458 项仍被既有指南单项失败阻止 APK。
+- 精确 [JVM/APK #44217167149/job 134509776129](https://github.com/jiacimu-droid/lulu1/actions/runs/44217167149/job/134509776129) 的新增拒收/后来原件/已确认回归及前轮版本回归通过；[原索引 #44217167252](https://github.com/jiacimu-droid/lulu1/actions/runs/44217167252) 成功。完整 3459 项，1 失败、1 跳过，唯一失败仍是指南 `everyFeatureHasUsefulContentAndARealDestination`，APK 未产出。前轮新版回执回归在 [#44210771119/job 134488223530](https://github.com/jiacimu-droid/lulu1/actions/runs/44210771119/job/134488223530) 再次通过，完整 3458 项仍被既有指南单项失败阻止 APK。
 - 真机与真实模型待验。下一步转 P-08b.1，打开 `CompanionModelGateway` 与 `ConversationExpressionGatewayTest` 的 PersonaAndScenario/Full 关系注入用例，查失败后重新请求是否读取本人最新手改关系；已完整覆盖就选同入口的实际漏测反例。队列当前已验边界无需反复扩写。
 
 ## 2026-11-18 · P-03.1 同 ID 修订回执可重新交付电话
