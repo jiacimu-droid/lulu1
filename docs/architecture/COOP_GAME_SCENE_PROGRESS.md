@@ -1,5 +1,12 @@
 # 合作游戏沉浸场景 · 2026-10-30
 
+## 2026-11-18 · G-03.5 · 地面同 ID 实物按实际触点拾取（源码/回归已提交，CI 待验）
+
+- 根因：上一轮修正同 ID 实物只删除一件，但正式背包「拾取」按钮仍仅传 `loot.id`；同 ID 旧档的两件地面物分处邻格时，点击第二件仍会拾起第一件，可能拿错价值/重量。正式 `RelicEscapeScreen.kt` 现在传入所点击地面实体坐标，`RelicEscapeRules.act("pickup")` 优先匹配同 ID、同位置且邻近的真实物件；保留旧调用者未指定目标时的邻近兼容行为。没有增加奖励、移动或角色决策。
+- 生产提交 `5d83f1a`（规则 blob `84dd9a7d`）、`8d1bd1d`（UI blob `33ef2604`）；回归 `10bd96fa`（`RelicEscapeRulesTest.kt` blob `6ccb8590`），从同 ID 不同价值、相邻两个真实地面物中指定第二件拾取，再序列化重进验证第一件仍在地面、第二件在背包。
+- 待验：`RelicEscapeRulesTest.pickingOneVisibleLegacyDuplicateUsesItsActualGroundTileAcrossReload` 的 JVM 实跑、含 `10bd96fa` 的 main push APK/JVM/index terminal；Redmi 横屏背包触控、帧率和美术另验。下一实际文件 `RelicEscapeScreen.kt` / `RelicEscapeLedger.kt` 的真实拾取→撤离→藏宝馆重进，避免同 ID 藏宝馆投影再混淆。
+
+
 ## 2026-11-18 · G-03.5 · 旧档重复实物 ID 单次丢弃/拾取守恒
 
 - 根因：正式 `RelicEscapeRules.act("drop"/"pickup")` 选中一件实体后使用 `filterNot(id)` 删除全部同 ID 物件；旧档/异常重复 ID 会一次丢弃多件、拾起一件时抹掉多件地面实物。生产 `d4fc879c` 改为只移除所选实体的首个位置，保留其他物件及权威背包/地面账；测试 `22b71c33` 构造两件同 ID 实物，验证丢弃、拾取前后数量守恒。生产 blob `3dab5180`，测试 blob `ad803b3d`。
