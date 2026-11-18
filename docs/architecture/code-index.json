@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T08:12:55.293415+00:00",
-  "commit": "cb585c37885c45aff53b02b43c2561e7f2ef1042",
+  "generatedAt": "2026-11-18T08:15:02.378677+00:00",
+  "commit": "9b7a31129b41f3bb71d4bf50a5a0ab0b20d139df",
   "branch": "main",
-  "sourceFingerprint": "afe9a79fd9363a6ae89fcb19042705cd878b3956597f1c657065419450d9c72c",
+  "sourceFingerprint": "5e17788b44a5ba371f7a5197f5ce41663fdb2d604db980522dfdb8c177e0fe95",
   "summary": {
     "files": 1461,
-    "lines": 308847,
+    "lines": 308875,
     "symbols": 4399
   },
   "symbolIndex": {
@@ -6635,7 +6635,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 69
+        "line": 75
       }
     ],
     "contractError": [
@@ -12991,7 +12991,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3820
+        "line": 3833
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -18115,19 +18115,19 @@
     "decodeDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 77
+        "line": 83
       }
     ],
     "ownerHasNewInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 231
+        "line": 246
       }
     ],
     "rememberGesture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 255
+        "line": 270
       }
     ],
     "showPaymentHandoff": [
@@ -36271,8 +36271,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 3887,
-      "sha256": "a9e01c7d0691a482aa9cf47527fd6b35c59f15271802996211944a0993c7ded1",
+      "lines": 3900,
+      "sha256": "a2cdfca19d2c9e3fa94fc1a9710508d4143dc9baec7290950318976338bc1031",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -36304,7 +36304,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3820
+          "line": 3833
         }
       ]
     },
@@ -42638,24 +42638,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 677,
-      "sha256": "08a48e03e85a0d503b4da0ce46a43f63be1b4273551bd9abf26df449770fbdb3",
+      "lines": 692,
+      "sha256": "63a56e554fe67715e9a151fc413854320978e88dcb602c797fffe9f66143bffa",
       "symbols": [
         {
           "name": "Outcome",
-          "line": 69
+          "line": 75
         },
         {
           "name": "decodeDecision",
-          "line": 77
+          "line": 83
         },
         {
           "name": "ownerHasNewInput",
-          "line": 231
+          "line": 246
         },
         {
           "name": "rememberGesture",
-          "line": 255
+          "line": 270
         }
       ]
     },

@@ -63,6 +63,12 @@ internal object LuluBackgroundPhoneContinuation {
         )
     }
 
+    /** ToolRouter may return the durable receipt for the SAME request ID.
+     * That is idempotency, not a fresh screenshot or a second real attempt.
+     * Never feed a recovered phone result into a new gesture continuation. */
+    internal fun hasFreshExecutionReceipt(receipt: JSONObject?): Boolean =
+        receipt != null && !receipt.optBoolean("replayedHistoricalReceipt")
+
     /** A model reply is stale if STOP or authorization revocation happened while waiting. */
     internal fun mustAbortAfterModel(ownerPaused: Boolean, authorized: Boolean): Boolean =
         ownerPaused || !authorized
@@ -226,6 +232,15 @@ internal object LuluBackgroundPhoneContinuation {
         initialReceipt: String, initialImage: String?, userRequested: Boolean,
         shouldYield: () -> Boolean,
     ): Outcome {
+        val firstReceipt = runCatching { JSONObject(initialReceipt) }.getOrNull()
+        if (!hasFreshExecutionReceipt(firstReceipt)) {
+            return Outcome(
+                notes = "本次没有重新执行后台手机：只恢复了同一请求ID的历史回执。" +
+                    "旧截图、旧失败和旧控件不得作为本次重试或再次发送的证据；" +
+                    "主人要求重试时须由本角色在新的请求ID下实际操作。",
+                lastImage = null, finishedByRole = false, actions = 0,
+            )
+        }
         var image = initialImage
         val unreadAtStart = CompanionOnlineStore.unreadChatSnapshot(characterId).messageIds.toSet()
         fun ownerHasNewInput(): Boolean = shouldYieldToOwner(
