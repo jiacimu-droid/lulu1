@@ -39,7 +39,7 @@ import java.net.URLEncoder
  */
 internal object LuluCommunitySupportConfig {
     const val WISHES_URL = "https://github.com/jiacimu-droid/lulu1/issues"
-    const val FEEDBACK_EMAIL = "" // Optional public mailbox, supplied by the maintainer.
+    const val FEEDBACK_EMAIL = "1187725424@qq.com" // Public feedback mailbox designated by the maintainer.
     const val DONATION_URL = "" // Optional public HTTPS payment page, supplied by the maintainer.
 
     private fun encode(value: String): String = URLEncoder.encode(value, "UTF-8")
