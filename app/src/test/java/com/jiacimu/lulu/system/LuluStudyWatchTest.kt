@@ -107,6 +107,24 @@ class LuluStudyWatchTest {
             .contains("主人已同意本次监督"))
     }
 
+    @Test fun endedStudyWatchDoesNotDisableAutonomousOneFrameCapture() {
+        val role = "screen-owner-role"
+        val now = System.currentTimeMillis()
+        val expired = JSONObject().put("id", "expired-study-watch").put("characterId", role)
+            .put("startedAt", now - 60_000L).put("endsAt", now - 1L)
+        prefs.edit().putString("study_watch_active", expired.toString()).commit()
+        LuluRolePhoneAuthorization.setGranted(context, role, true)
+        try {
+            assertFalse(LuluStudyWatch.canObserve(context, role, "expired-study-watch"))
+            assertTrue(LuluScreenAwareness.autonomousAllowed(context, role))
+            assertFalse(LuluScreenAwareness.autonomousAllowed(context, "other-role"))
+            assertFalse(LuluStudyWatch.decisionStatus(context, role, now)
+                .contains("角色自主屏幕视觉尚未授权"))
+        } finally {
+            LuluRolePhoneAuthorization.setGranted(context, role, false)
+        }
+    }
+
     @Test fun approvedSessionMustMatchRoleAndExpiresWithoutExtension() {
         val now = 1_800_000_000_000L
         val s = JSONObject().put("id", "approved-once").put("characterId", "role-a")

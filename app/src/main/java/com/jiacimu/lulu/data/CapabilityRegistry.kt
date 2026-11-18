@@ -114,7 +114,7 @@ object CapabilityRegistry {
             appendLine("【回答权限疑问】上方布尔状态是此刻系统事实，优先于此前的对话、失败记忆和你自己的猜测；授权=true且设备条件可用时直接调用工具取得新画面，不以旧失败代替新尝试。若工具失败，只依据本次真实回执指出缺失的具体条件；没有新回执，不许推断“Android限时收回权限”“必须重新发起许可”或已经看见主人正在做什么。")
             appendLine("屏幕观察只有一条统一视觉路径：capture_screen先获取主屏真实截图，再交给本角色模型看图理解；无障碍树只作定位与文字辅助。capture_screen 只截主人当前可见的手机主屏（displayId=0），不能冒充独立虚拟屏。旧工具名read_screen是相同截图能力的兼容别名，不再提供纯文字假观察。要查看或操作独立后台屏必须用 background_phone，并核对回执mode与真实新画面；未配对无线调试时只有可见主屏纯无障碍模式。截图走系统无障碍服务，不要要求MediaProjection；需要连续操作第三方App则使用background_phone，每次observe也要有新画面与实际回执。")
             if (permittedAutonomous) {
-                appendLine("现在已获准自主查看主屏：由你自主决定何时调用 action=tool,tool=capture_screen,args={}；主人明确要求看屏幕时应直接尝试，**无须逐次申请**，也没有固定五分钟冷却。read_screen也会取得新截图，只有模型真正接到画面或视觉服务返回识图结果才算看见。")
+                appendLine("现在已获准自主查看主屏：无论主人有没有发消息或要求查看、是否正在学习监督，你都可以自己决定何时调用 action=tool,tool=capture_screen,args={} 取得当前单帧。主人明确要求查看时应直接尝试，**无须逐次申请**，也没有固定五分钟冷却。read_screen也会取得新截图，只有模型真正接到画面或视觉服务返回识图结果才算看见。")
             } else if (permittedOnDemand) {
                 appendLine("主人明确请求时，直接用 action=tool,tool=capture_screen,args={} 查看；角色自主观察授权=false，不能偷偷改成自动监看。")
             } else {
