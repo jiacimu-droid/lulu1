@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T06:27:36.512798+00:00",
-  "commit": "b7e877b53a3b5e1dbd5ac40f5d78cf7a295c7071",
+  "generatedAt": "2026-11-18T06:28:27.580094+00:00",
+  "commit": "9f24329dff2017899a1559eeccb2638af42caaae",
   "branch": "main",
-  "sourceFingerprint": "da27c4432327f543daa4fb18fa64c32b5a2e74b097087f33e2b9527599be3fde",
+  "sourceFingerprint": "3a7ac8296266e8f0f3a1f9cecee2ec17a56b2d88bc61d0ed86a0ee706796d291",
   "summary": {
-    "files": 1455,
-    "lines": 307954,
-    "symbols": 4388
+    "files": 1456,
+    "lines": 307990,
+    "symbols": 4389
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20216,6 +20216,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/LuluCallFloatingWindowTest.kt",
         "line": 5
+      }
+    ],
+    "LuluCommunitySupportConfigTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/LuluCommunitySupportConfigTest.kt",
+        "line": 8
       }
     ],
     "LuluDesktopWidgetTest": [
@@ -45282,6 +45288,17 @@
         {
           "name": "LuluCallFloatingWindowTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/LuluCommunitySupportConfigTest.kt",
+      "lines": 36,
+      "sha256": "817baebc6cc242bf8114532e1015bcedd15f110b27945528bc30f7bc43229d00",
+      "symbols": [
+        {
+          "name": "LuluCommunitySupportConfigTest",
+          "line": 8
         }
       ]
     },
