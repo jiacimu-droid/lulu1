@@ -1106,17 +1106,43 @@ internal object LuluBackgroundPhoneSession {
                     val chosen = (0 until (elements?.length() ?: 0)).mapNotNull { index ->
                         elements?.optJSONObject(index)
                     }.firstOrNull { it.optString("ref") == requestedElement }
+                    // Product sharing uses the already-granted role-phone
+                    // permission; this is not an order or purchase operation.
+                    // Distinguish actual revocation from stale/unnamed UI.
+                    val approved = LuluShoppingAssistPolicy.isEnabled(context, characterId)
+                    val copyNameVerified = LuluShoppingLinkShare.isCopyLabel(
+                        chosen?.optString("name").orEmpty())
+                    val copyClickable = chosen?.optBoolean("clickable") == true
+                    val snapshotCurrent = live.optString("fingerprint") == snapshot?.fingerprint
                     val eligible = LuluShoppingLinkShare.eligibleCopy(
                         activeApp, chosen?.optString("name").orEmpty(),
-                        chosen?.optBoolean("clickable") == true,
-                        LuluShoppingAssistPolicy.isEnabled(context, characterId),
+                        copyClickable, approved,
                     )
-                    if (!eligible || live.optString("fingerprint") != snapshot?.fingerprint) {
-                        return JSONObject().put("success", false).put("status", "denied")
+                    if (!eligible || !snapshotCurrent) {
+                        if (!snapshotCurrent) lastObservedUi = null
+                        val code = when {
+                            !approved -> "product_copy_authorization_missing"
+                            LuluShoppingLinkShare.merchantName(activeApp) == null ->
+                                "product_copy_merchant_unverified"
+                            !snapshotCurrent -> "product_copy_snapshot_changed"
+                            chosen == null -> "product_copy_control_missing"
+                            !copyClickable -> "product_copy_control_not_clickable"
+                            else -> "product_copy_label_unrecognized"
+                        }
+                        return JSONObject().put("success", false)
+                            .put("status", if (!approved) "denied" else "unverified")
                             .put("accepted", false).put("productLinkSent", false)
-                            .put("errorCode", "product_copy_control_not_verified")
+                            .put("errorCode", code)
+                            .put("mode", "independent_virtual_display").put("displayId", id)
+                            .put("packageName", activeApp).put("targetWindowVerified", true)
+                            .put("copyControlObserved", chosen != null)
+                            .put("copyControlClickable", copyClickable)
+                            .put("copyControlNameVerified", copyNameVerified)
+                            .put("copySnapshotCurrent", snapshotCurrent)
                             .put("sessionPreserved", true).put("taskCompleted", false)
-                            .put("verification", "当前复制链接控件或购物授权无法核实；没有读取剪贴板或发送商品")
+                            .put("verification", if (!approved)
+                                "后台手机授权已失效；未执行复制或读取剪贴板"
+                            else "复制动作尚未执行（$code）；请重新观察当前分享页并选择真实复制控件，不要把本次当作商品已分享")
                             .toString()
                     }
                     beforeProductCopyTimestamp = withContext(Dispatchers.Main) {
