@@ -110,7 +110,7 @@ object CapabilityRegistry {
         return buildString {
             appendLine("【主屏感知｜以下是权限和设备状态，不是实际查看回执】")
             appendLine("capture_screen 工具已注册=$registered；主人按需识图授权=$permittedOnDemand；角色自主观察授权=$permittedAutonomous；本角色手机屏幕授权=$rolePhoneGrant；无障碍已连接=$accessibilityConnected；视觉模型已配置=$chatConfigured。")
-            appendLine("屏幕观察只有一条统一视觉路径：capture_screen先获取主屏真实截图，再交给本角色模型看图理解；无障碍树只作定位与文字辅助。旧工具名read_screen是相同截图能力的兼容别名，不再提供纯文字假观察。需要连续操作第三方App则使用background_phone，每次observe也要有新画面与实际回执。")
+            appendLine("屏幕观察只有一条统一视觉路径：capture_screen先获取主屏真实截图，再交给本角色模型看图理解；无障碍树只作定位与文字辅助。capture_screen 只截主人当前可见的手机主屏（displayId=0），不能冒充独立虚拟屏。旧工具名read_screen是相同截图能力的兼容别名，不再提供纯文字假观察。要查看或操作独立后台屏必须用 background_phone，并核对回执mode与真实新画面；未配对无线调试时只有可见主屏纯无障碍模式。截图走系统无障碍服务，不要要求MediaProjection；需要连续操作第三方App则使用background_phone，每次observe也要有新画面与实际回执。")
             if (permittedAutonomous) {
                 appendLine("现在已获准自主查看主屏：由你自主决定何时调用 action=tool,tool=capture_screen,args={}；主人明确要求看屏幕时应直接尝试，**无须逐次申请**，也没有固定五分钟冷却。read_screen也会取得新截图，只有模型真正接到画面或视觉服务返回识图结果才算看见。")
             } else if (permittedOnDemand) {
@@ -177,7 +177,7 @@ object CapabilityRegistry {
                 "即使工具可用，也由本人根据用户真实请求或兴趣选择是否使用。普通公开资料查询可直接选web_search；指定App或需要操作App时再选后台屏。")
             appendLine("浏览器、帖子或视频中的阅读证据只覆盖当前真正可见的文字与图像：长文需按本人意愿分屏滑动继续核实；屏幕截图不等于网页全文、评论全量、原始图片文件或视频声音。需要明确来源网址与可摘录正文的公开资料，可以在已配置时另用 web_search(read/search_read)；需要真正下载发送原图或 GIF，才选 image_search。是否使用由本人决定，不因平台名称硬编码选择。")
             appendLine("已知应该点的可见名字时，launch可附navigationLabels一次打开并逐个导航，也可在已打开的App用navigate。每个名字必须在当时页面上完整匹配。例如微信看朋友圈可launch并传navigationLabels=[\"发现\",\"朋友圈\"]；已知联系人名字也可直接尝试打开。按navigationSteps核对真实变化；名字未出现时先观察或搜索，发送和发表仍选择独立动作。")
-            appendLine("实际决定操作某个App时：action=tool,tool=background_phone,args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏。")
+            appendLine("实际决定操作某个App时：action=tool,tool=background_phone,args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏。需要给主人发后台截图时可在实际observe/launch回执允许的情况下选sendToChat=true；只有本角色目标独立屏新帧已核实、实际发送回执成功，才能称后台截图已发出。foreground_accessibility主屏模式不可冒充后台图；截图失败或发送失败就说明对应阶段，不能沿用旧图。")
             appendLine("type只输入草稿，绝不自动搜索/发送/发布；先核实输入框和草稿是否真的写入，随后由本人决定是否执行独立搜索、发送或发表动作。")
             appendLine("目标App有唯一真实搜索框时可用search(text)，系统自动聚焦、读回并提交搜索；submit仍只针对可确认的搜索框，不能拿回车替代发送消息。普通社交发表使用真实按钮的tap或tap_element。")
             appendLine("只有mode=independent_virtual_display才是独立后台屏；mode=foreground_accessibility是主屏，绝不能称两者相同。后台图片不会混成主屏；主屏模式不可称隐藏后台操控。长任务未做完时保留真实进度，不假装已完成。")
