@@ -173,7 +173,7 @@ internal fun GameTalkBar(
                 }
                 IconButton(
                     onClick = {
-                        if (microphoneOn) session.mic.stop()
+                        if (microphoneOn) session.mic.mute()
                         else session.selectVoice(true)
                     },
                 ) {
@@ -200,6 +200,11 @@ internal fun GameTalkBar(
             if (ownerCaption.isNotBlank()) {
                 Text("你：$ownerCaption", color = Color(0xFFD4E8EE),
                     fontSize = 12.sp, maxLines = 2, lineHeight = 17.sp)
+            }
+            if (session.voiceMode && session.mic.recoverablePartial) {
+                TextButton(onClick = session.mic::sendRecoveredPartial) {
+                    Text("发送已识别的文字", color = mint, fontSize = 12.sp)
+                }
             }
             if (session.lastCompanionLine.isNotBlank()) {
                 Text(
