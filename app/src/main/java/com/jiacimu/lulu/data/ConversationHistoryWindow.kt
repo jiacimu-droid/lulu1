@@ -79,9 +79,19 @@ internal object ConversationHistoryWindow {
         val ref = message.replyToMessageId?.takeIf(String::isNotBlank) ?: return ""
         val currentIndex = conversation.indexOfFirst { it.id == message.id }
         if (currentIndex <= 0 || ref in excludedIds) return ""
-        val original = conversation.take(currentIndex).firstOrNull { it.id == ref &&
-            it.conversationId == message.conversationId &&
-            it.status != LuluChatMessage.Status.Failed } ?: return ""
+        // Avoid allocating a prefix of the entire chat archive for every quoted
+        // bubble. The first matching earlier message remains authoritative.
+        var original: LuluChatMessage? = null
+        for (index in 0 until currentIndex) {
+            val candidate = conversation[index]
+            if (candidate.id == ref &&
+                candidate.conversationId == message.conversationId &&
+                candidate.status != LuluChatMessage.Status.Failed) {
+                original = candidate
+                break
+            }
+        }
+        original ?: return ""
         val preview = qqForwardContextText(original.content).trim().take(480)
         if (preview.isBlank()) return ""
         val role = when (original.sender) {
