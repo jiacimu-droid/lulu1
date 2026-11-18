@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T11:09:39.544740+00:00",
-  "commit": "7b4e0d7ef21fa641cf0e4e18dae61cb894f971d5",
+  "generatedAt": "2026-11-18T11:10:21.787442+00:00",
+  "commit": "b49d3148fcd547a60679b048002ddfc212534cf2",
   "branch": "main",
-  "sourceFingerprint": "c84f7058552e3e94c9641d4be5c5f5079d3f12a377d5c63e2ca495b100e57ff5",
+  "sourceFingerprint": "c4dc3a43ff0dd12aa1f370c8b620787f75d31107745908941d309ffd058d3026",
   "summary": {
     "files": 1465,
-    "lines": 310275,
+    "lines": 310332,
     "symbols": 4422
   },
   "symbolIndex": {
@@ -48346,8 +48346,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/DailyCommitmentRecurrenceTest.kt",
-      "lines": 240,
-      "sha256": "424b215529fceb384e2f739974b93543bcde1a5b60eed714c3f532501706bd65",
+      "lines": 297,
+      "sha256": "e1740d963cd19d614d5289c9ab6479338a14a0193925106cbf72c0cc48a5f827",
       "symbols": [
         {
           "name": "DailyCommitmentRecurrenceTest",
