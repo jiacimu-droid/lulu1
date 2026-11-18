@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T03:24:16.954940+00:00",
-  "commit": "4aeeac656db6354437e13c2337dfd10d9aa2ff1e",
+  "generatedAt": "2026-11-18T03:27:56.577599+00:00",
+  "commit": "eea85f07bd184f9fff2e258966239d67962718ed",
   "branch": "main",
-  "sourceFingerprint": "6797e613a921135395f8f5840a5887e40a0b4f32bd10ef3b2097bbb0733e82bd",
+  "sourceFingerprint": "690a83b2915803dc5269ceb932f72c8c919e8e3a2099704234569e15c4f66a2a",
   "summary": {
     "files": 1444,
-    "lines": 305006,
+    "lines": 305058,
     "symbols": 4359
   },
   "symbolIndex": {
@@ -15256,14 +15256,24 @@
         "line": 39
       }
     ],
+    "distance": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
+        "line": 123
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
+        "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 316
+      }
+    ],
     "dist": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-        "line": 120
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-        "line": 215
+        "line": 267
       }
     ],
     "partyFor": [
@@ -15520,16 +15530,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
         "line": 50
-      }
-    ],
-    "distance": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandExpeditionTrail.kt",
-        "line": 58
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 316
       }
     ],
     "reached": [
@@ -38828,8 +38828,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt",
-      "lines": 305,
-      "sha256": "e5a0781c69e17f2aa31d07bd36ec66a4495512a107491582b2fe3e68e0187e40",
+      "lines": 357,
+      "sha256": "344fe457bc25d0957ce1e5d635a01376af3feafd4a9bf57653e41054bde6daad",
       "symbols": [
         {
           "name": "play",
@@ -38844,12 +38844,12 @@
           "line": 39
         },
         {
-          "name": "dist",
-          "line": 120
+          "name": "distance",
+          "line": 123
         },
         {
           "name": "dist",
-          "line": 215
+          "line": 267
         }
       ]
     },
