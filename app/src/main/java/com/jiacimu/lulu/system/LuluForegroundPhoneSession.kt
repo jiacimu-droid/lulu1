@@ -367,6 +367,21 @@ internal object LuluForegroundPhoneSession {
         val token = UUID.randomUUID().toString().take(12)
         val fp = fingerprint(after.visibleText, freshControls)
         val observed = elements(freshControls)
+        if (!pic) {
+            // A textual node tree alone is NOT a successful visual
+            // observation. Keep controls as diagnostics, but issue no fresh
+            // screenSnapshotId that could authorize a blind next tap.
+            screen = null
+            return JSONObject().put("success", false).put("status", "unverified")
+                .put("accepted", accepted).put("mode", "foreground_accessibility")
+                .put("displayId", 0).put("packageName", target).put("action", action)
+                .put("targetWindowVerified", true)
+                .put("interactiveElements", observed)
+                .put("visibleText", after.visibleText.take(4500))
+                .put("imageForwardedToRole", false).put("frameValidated", false)
+                .put("observationAvailable", false)
+                .put("verification", "没有取得本次主屏截图，文字与控件仅供诊断，未完成视觉观察；请重新observe")
+        }
         screen = Screen(token, target, fp, observed, pic)
         return JSONObject().put("success", true).put("status", "observed")
             .put("accepted", accepted).put("taskCompleted", false)
