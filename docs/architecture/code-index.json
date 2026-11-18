@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T10:38:50.264270+00:00",
-  "commit": "77a33937600ae820bdf0d420b744f03936803ee6",
+  "generatedAt": "2026-11-18T11:09:39.544740+00:00",
+  "commit": "7b4e0d7ef21fa641cf0e4e18dae61cb894f971d5",
   "branch": "main",
-  "sourceFingerprint": "d5ccbe99cb653d4bb6ea8155e30ec1c3414b4e859cd5568766d1432881d51cd9",
+  "sourceFingerprint": "c84f7058552e3e94c9641d4be5c5f5079d3f12a377d5c63e2ca495b100e57ff5",
   "summary": {
     "files": 1465,
-    "lines": 310223,
-    "symbols": 4421
+    "lines": 310275,
+    "symbols": 4422
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1299,7 +1299,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 631
+        "line": 645
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
@@ -3212,6 +3212,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt",
         "line": 247
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
+        "line": 409
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -6575,7 +6579,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-        "line": 399
+        "line": 395
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsImageLoader.kt",
@@ -7635,7 +7639,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 678
+        "line": 692
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -9483,7 +9487,7 @@
     "removeBySourceEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 667
+        "line": 681
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -32719,12 +32723,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskApplier.kt",
-      "lines": 451,
-      "sha256": "5ee7deb8a4d142b7d43a38ac3dc2debe399f34559fa6c77860567b29ab65d8f1",
+      "lines": 489,
+      "sha256": "0b798c3b56ca3c580c5d1cf594c2fc2adc0465936e72bca13ecd96ee0a80894c",
       "symbols": [
         {
           "name": "normalize",
-          "line": 399
+          "line": 395
+        },
+        {
+          "name": "normalized",
+          "line": 409
         }
       ]
     },
@@ -32770,8 +32778,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-      "lines": 695,
-      "sha256": "7fbaa9b2999ec98b677e57b3556c187ec58ec10a7a126364d56e9b2cf7542da5",
+      "lines": 709,
+      "sha256": "1b269c082441cf32c6122dcf26c1d0d8dfa05c4d63ad7d9c87235f302f381211",
       "symbols": [
         {
           "name": "CommitmentTaskStore",
@@ -32811,15 +32819,15 @@
         },
         {
           "name": "remove",
-          "line": 631
+          "line": 645
         },
         {
           "name": "removeBySourceEvent",
-          "line": 667
+          "line": 681
         },
         {
           "name": "clearCharacter",
-          "line": 678
+          "line": 692
         }
       ]
     },
