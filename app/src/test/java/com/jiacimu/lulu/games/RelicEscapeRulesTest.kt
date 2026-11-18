@@ -27,6 +27,22 @@ class RelicEscapeRulesTest {
         assertEquals(2,picked.hero.bag.size+picked.drops.size)
     }
 
+    @Test fun pickingOneVisibleLegacyDuplicateUsesItsActualGroundTileAcrossReload() {
+        val original=RelicEscapeWorld.create(816,2,emptyList(),0,1)
+        val low=RelicLoot("legacy:same-id","旧铜戒",RelicTier.COMMON,30)
+        val high=RelicLoot("legacy:same-id","旧金戒",RelicTier.COMMON,90)
+        val hero=original.hero
+        val run=original.copy(phase=RelicPhase.EXPLORE,mobs=emptyList(),
+            drops=listOf(RelicDrop(hero.x,hero.y,low),RelicDrop(hero.x+1,hero.y,high)))
+        val restored=RelicRun.read(run.json())!!
+        val picked=RelicEscapeRules.act(restored,"pickup",hero.x+1,hero.y,lootId=high.id)
+        assertEquals(listOf(high),picked.hero.bag)
+        assertEquals(listOf(low),picked.drops.map { it.loot })
+        val again=RelicRun.read(picked.json())!!
+        assertEquals(listOf(high),again.hero.bag)
+        assertEquals(listOf(low),again.drops.map { it.loot })
+    }
+
     @Test fun restoredExpeditionRejectsActorsEmbeddedInWallsWithoutChangingValidSave() {
         val run=RelicEscapeWorld.create(816,2,listOf("ally"),0,1)
         assertEquals(run,RelicRun.read(run.json()))
