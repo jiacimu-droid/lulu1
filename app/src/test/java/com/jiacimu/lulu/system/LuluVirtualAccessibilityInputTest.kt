@@ -34,8 +34,9 @@ class LuluVirtualAccessibilityInputTest {
     @Test fun appBackWithoutAccessibilityNeverTouchesAnotherDisplay() {
         val receipt = LuluAccessibilityService.tapVirtualAppBackControl(
             displayId = 71, packageName = "com.ss.android.ugc.aweme",
-            expectedFingerprint = "verified-before-tree")
+            expectedFingerprint = "verified-before-tree", stillAuthorized = { true })
         assertFalse(receipt.optBoolean("accepted"))
+        assertFalse(receipt.optBoolean("dispatchAttempted"))
         assertEquals("accessibility_disconnected", receipt.optString("errorCode"))
         assertEquals("accessibility_app_back_node", receipt.optString("actionMethod"))
     }
