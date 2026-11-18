@@ -450,7 +450,11 @@ internal object LuluBackgroundPhoneSession {
                 "shell helper reply missing for ${args.optString("action")}" +
                     lastHelperDiagnostic.takeIf(String::isNotBlank)?.let { "；helper: $it" }.orEmpty()
             )
-        val response = JSONObject(line)
+        val response = try {
+            JSONObject(line)
+        } catch (error: Exception) {
+            throw UnverifiedHelperCommandException("shell helper reply malformed; device action outcome unknown", error)
+        }
         // Only start/stop may omit an owned display identifier.
         if (args.optString("action") !in setOf("start", "stop")) {
             if (displayId <= 0 || response.optInt("displayId", -1) != displayId) {
