@@ -68,6 +68,21 @@ class LuluVirtualTextInputPolicyTest {
             LuluVirtualTextInputPolicy.stage(true, true))
         assertEquals("input_not_dispatched",
             LuluVirtualTextInputPolicy.stage(false, false))
+        // A stale or contradictory exact-readback flag must never promote an
+        // explicitly rejected input dispatch into a successful draft.
+        assertEquals("input_not_dispatched",
+            LuluVirtualTextInputPolicy.stage(false, true))
+    }
+
+    @Test fun focusedDraftProofNeverReadsFromInvalidOrOwnerDisplay() {
+        assertFalse(LuluAccessibilityService.focusedVirtualDraftMatches(
+            0, "com.tencent.mm", "要输入的文字"))
+        assertFalse(LuluAccessibilityService.focusedVirtualDraftMatches(
+            -1, "com.tencent.mm", "要输入的文字"))
+        assertFalse(LuluAccessibilityService.focusedVirtualDraftMatches(
+            7, "", "要输入的文字"))
+        assertFalse(LuluAccessibilityService.focusedVirtualDraftMatches(
+            7, "com.tencent.mm", ""))
     }
 
     @Test fun pixelReadbackMustMatchNearSelectedFieldNotOldTextElsewhere() {
