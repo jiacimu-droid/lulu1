@@ -530,9 +530,9 @@ internal fun MigrationHomeV2(
                 if (LuluDesktopWidgetStore.save(context, next)) {
                     widgets = next
                     // A widget page remains a first-class desktop page for later icon moves.
-                    if (slots.size < desktopPageStart(fresh.page + 1)) {
+                    if (slots.size < desktopPageStart(fresh.page + 2)) {
                         slots = slots + List<String?>(
-                            desktopPageStart(fresh.page + 1) - slots.size,
+                            desktopPageStart(fresh.page + 2) - slots.size,
                         ) { null }
                         saveDesktopSlots(context, slots)
                     }
