@@ -63,6 +63,11 @@ jobs:
               exit 1
             fi
             sed -i 's/const val worldGamesEnabled = false/const val worldGamesEnabled = true/' "$edition"
+            # The game branch owns its release workflow (game triggers and
+            # artifact naming). Keep its original bytes on every main merge.
+            # Otherwise GitHub rejects this bot's push because the merged
+            # workflow modification requires an unavailable workflows grant.
+            git restore --source="$original" -- .github/workflows/release.yml
             # Tests about the two experimental worlds must run in game,
             # not inherit main's deliberate absence expectations.
             git restore --source="$original" -- \
