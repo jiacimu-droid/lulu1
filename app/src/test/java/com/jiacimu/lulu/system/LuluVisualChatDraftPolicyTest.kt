@@ -43,6 +43,17 @@ class LuluVisualChatDraftPolicyTest {
             "文件传输助手", "你好佳辞", 720, 1280))
     }
 
+    @Test fun longerComposerTextCannotAuthorizeSendingOnlyItsSubstring() {
+        val header = line("文件传输助手", 288, 58, 438, 99)
+        val send = line("发送", 631, 913, 692, 965)
+        val longerDraft = line("你好佳辞，明天见", 112, 905, 430, 950)
+        assertNull(LuluVisualChatDraftPolicy.verifiedDraft(
+            listOf(header, longerDraft, send), "文件传输助手", "你好佳辞", 720, 1280))
+        val exactDraft = line("你好佳辞", 112, 905, 324, 950)
+        assertNotNull(LuluVisualChatDraftPolicy.verifiedDraft(
+            listOf(header, exactDraft, send), "文件传输助手", "你好佳辞", 720, 1280))
+    }
+
     @Test fun noUniqueBottomSendLabelMeansNoIrreversibleClick() {
         val title = line("文件传输助手", 288, 58, 438, 99)
         val draft = line("你好佳辞", 112, 905, 324, 950)
