@@ -211,8 +211,25 @@ class RelicObjectiveRouteTest {
         val downed=world.copy(hero=world.hero.copy(hp=0))
         assertNull(RelicObjectiveGuide.knownRouteTiles(downed,chest))
         assertTrue(RelicObjectiveGuide.prompt(downed).contains("等待真实救援"))
-        // Recovery uses the same physical world, not a fabricated movement.
-        val revived=downed.copy(hero=downed.hero.copy(hp=1))
+        // A downed hero cannot restore the route by waiting without supplies.
+        val stranded=RelicEscapeRules.act(downed.copy(
+            phase=RelicPhase.DOWNED,
+            allies=listOf(RelicActor("friend",3,2,kits=0))
+        ),"wait")
+        assertEquals(0,stranded.hero.hp)
+        assertNull(RelicObjectiveGuide.knownRouteTiles(stranded,chest))
+
+        // The companion spends a real kit on the authoritative rescue action.
+        // The route reappears only after the rule engine changes hero health.
+        val rescuable=downed.copy(
+            phase=RelicPhase.DOWNED,
+            allies=listOf(RelicActor("friend",3,2,kits=1))
+        )
+        val revived=RelicEscapeRules.act(rescuable,"wait")
+        assertEquals(RelicPhase.EXPLORE,revived.phase)
+        assertEquals(4,revived.hero.hp)
+        assertEquals(0,revived.allies.single().kits)
+        assertEquals(1,revived.allies.single().rescues)
         assertEquals(3,RelicObjectiveGuide.knownRouteSteps(revived,chest))
         assertTrue(revived.chests.none { it.opened })
     }
