@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`85384c4299a65261e2030cd4999f1cad29124a2e`
+- 基准提交：`271b08bcdd82d73a27f3bbfa9214546881cb2d6d`
 - 分支：`main`
 - 已索引文件：1461
-- 已索引代码/文本行：308922
+- 已索引代码/文本行：308927
 - 已发现符号：4399
 
 | 文件 | 行数 | 符号数 |
@@ -850,7 +850,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt` | 85 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluNotificationListenerService.kt` | 54 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneInteractionPolicy.kt` | 41 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneRepeatGuard.kt` | 64 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneRepeatGuard.kt` | 69 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneTaskDeferral.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt` | 154 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluRolePhoneAuthorization.kt` | 26 | 2 |
