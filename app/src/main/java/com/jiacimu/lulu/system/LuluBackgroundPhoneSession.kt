@@ -2143,6 +2143,13 @@ internal object LuluBackgroundPhoneSession {
                 .put("dispatchAttempted", applied?.optBoolean("dispatchAttempted") == true)
                 .put("outwardEffectUnverified", applied?.optBoolean("outwardEffectUnverified") == true)
                 .put("actionErrorCode", applied?.optString("errorCode").orEmpty())
+                // Expose the precise Android/IME/Unicode failure to the SAME
+                // role and task history. A fresh picture is not a successful
+                // draft readback, and a hidden error code makes recovery blind.
+                .put("errorCode", if (action == "type" && !textReadbackVerified)
+                    applied?.optString("errorCode").orEmpty()
+                        .ifBlank { "virtual_input_readback_unverified" }
+                    else "")
                 .put("accepted", applied?.optBoolean("accepted") ?: true)
                 .put("mode", "independent_virtual_display")
                 .put("displayId", id).put("packageName", visible.packageName)
@@ -2177,7 +2184,11 @@ internal object LuluBackgroundPhoneSession {
                         "已核实唯一搜索框获得焦点；未输入或提交内容"
                     else "搜索框焦点未能核实；没有点击其他输入框")
                     else if (action == "type" && !textReadbackVerified)
-                    "已尝试向当前后台App的输入框写入文字，但未能从目标输入区确认全文；只可依据新的真实画面继续核对，不能说输入成功，更不代表已发送或提交"
+                    (applied?.optString("verification").orEmpty()
+                        .ifBlank { "目标输入区文字尚未读回；请根据新的真实画面核对" } +
+                        "；输入状态=" + (applied?.optString("errorCode").orEmpty()
+                            .ifBlank { "virtual_input_readback_unverified" }) +
+                        "；不能说已输入成功，更不代表已发送或提交")
                     else if (action == "type" && observed)
                     "已从当前后台App的输入区读回所输入文字；只完成输入草稿，没有发送、发布或提交"
                     else if (actionConditionVerified)
