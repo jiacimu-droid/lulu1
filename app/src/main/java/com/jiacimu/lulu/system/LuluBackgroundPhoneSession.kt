@@ -419,6 +419,14 @@ internal object LuluBackgroundPhoneSession {
     }
 
     private suspend fun command(args: JSONObject): JSONObject = withContext(Dispatchers.IO) {
+        // STOP may arrive while a multi-step operation is already holding mutex.
+        // Reject every subsequent helper command at its final dispatch boundary;
+        // allow only the explicit stop command to close the owned display.
+        if (args.optString("action") != "stop") {
+            check(!stoppedByOwner && (appContext == null || !ownerHasPaused(appContext!!))) {
+                "主人已停止后台手机操作；本次设备命令未派发"
+            }
+        }
         val pipe = stream ?: error("shell helper disconnected")
         pipe.write((args.toString() + "\n").toByteArray(Charsets.UTF_8))
         val line = replies.poll(13, TimeUnit.SECONDS) ?: error(
