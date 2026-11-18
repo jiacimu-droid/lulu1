@@ -142,6 +142,20 @@ internal object AutonomousDuelGames {
         val pending = pendingFor(context, role)
         val outgoing = entries(context).filter { it.optString("from") == role &&
             it.optString("status") in setOf("preparing", "pending", "accepted") }
+        // Only the participants' own non-withdrawn outcome evidence can make
+        // a finished match part of their shared personal history.
+        val settled = entries(context).asSequence().filter { row ->
+            role in setOf(row.optString("from"), row.optString("to")) &&
+                row.optString("status") in setOf("finished", "declined")
+        }.filter { row ->
+            val kind = if (row.optString("status") == "finished") "duel-game" else "duel-invite"
+            SharedExperienceTimeline.eventsByIds(role,
+                listOf("$" + "{kind}-$" + "{row.optString(\"id\")}-$" + "{role}")).any {
+                it.source == kind && it.revision == 1L &&
+                    it.evidenceKind == EventEvidenceKind.Observation
+            }
+        }.sortedByDescending { it.optString("resolvedAt").ifBlank {
+            it.optString("createdAt") } }.take(4).toList()
         return buildString {
             appendLine("【游戏馆真人物对抗｜是否邀请、接受或拒绝完全由本人决定】")
             appendLine("可邀真正认识的数字人物：${ResidentSocialMailbox.visibleContacts(role).joinToString("、") { "$it=${MigratedDomainStores.characters.get(it).displayName}" }.ifBlank { "当前没有可邀请的熟人" }}")
@@ -152,10 +166,24 @@ internal object AutonomousDuelGames {
                 }
             }
             if (outgoing.isNotEmpty()) {
-                appendLine("本人已发出、尚未结算的邀请：")
+                appendLine("本人提出、尚未结算的邀请（preparing 尚未确认送达）：")
                 outgoing.takeLast(5).forEach {
                     appendLine("- challengeId=${it.optString("id")}；收件人=${it.optString("to")}；状态=${it.optString("status")}")
                 }
+            }
+            if (settled.isNotEmpty()) {
+                appendLine("【本人真正共同经历过的对局与邀约结果｜可以成为下次交往的话题】")
+                settled.forEach { row ->
+                    val peerId = if (row.optString("from") == role) row.optString("to")
+                        else row.optString("from")
+                    val peerName = MigratedDomainStores.characters.settings.value[peerId]?.displayName ?: peerId
+                    val gameName = AutonomousDuelRules.games[row.optString("gameId")].orEmpty()
+                    val outcome = if (row.optString("status") == "finished")
+                        row.optString("result").take(240)
+                    else "邀约被拒绝，未开局"
+                    appendLine("- challengeId=$" + "{row.optString(\"id\")}；伙伴=$" + "{peerName}($peerId)；$" + "{gameName}；$" + "{outcome}")
+                }
+                appendLine("这是双方已有的共同经历，不是今天自动发生的新一局；本人可选择谈论、再次邀请或暂时不联系。")
             }
             append("邀请送达不是应邀；对方明确接受后才开始同一局真实游戏，结束后双方各自得知胜负和成绩。")
         }
@@ -220,7 +248,7 @@ internal object AutonomousDuelGames {
         val from = row.getString("from")
         val gameId = row.getString("gameId")
         if (decision == "decline") {
-            row.put("status", "declined")
+            row.put("status", "declined").put("resolvedAt", now.toString())
             commit(context, all)
             val summary = "${MigratedDomainStores.characters.get(role).displayName}拒绝了《${AutonomousDuelRules.games[gameId]}》邀约；没有开局。"
             recordOutcome(id, listOf(from, role), summary, now, "duel-invite")
@@ -268,6 +296,7 @@ internal object AutonomousDuelGames {
         }
         recordOutcome(id, actors, summary, now, "duel-game")
         row.put("status", "finished").put("result", summary)
+            .put("resolvedAt", now.toString())
         commit(context, all)
         return summary
     }
