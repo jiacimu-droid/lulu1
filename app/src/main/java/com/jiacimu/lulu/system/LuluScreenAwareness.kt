@@ -68,6 +68,10 @@ object LuluScreenAwareness {
     private const val LAST_DIAG = "last_diagnostic"
     private const val PENDING_CAPTURE = "pending_capture_permission"
     private const val CAPTURE_CHANNEL = "lulu_screen_requests_v1"
+    // One-shot screenshot progress must not produce a heads-up overlay:
+    // a high-importance SystemUI window can change the observed foreground.
+    // Keep the existing high-priority channel only for requests that need approval.
+    private const val CAPTURE_PROGRESS_CHANNEL = "lulu_screen_progress_v2"
     private const val CAPTURE_NOTIFICATION_ID = 41032
     private const val CAPTURE_EXPIRES_MS = 120_000L
      private val busy = AtomicBoolean(false)
@@ -272,8 +276,12 @@ object LuluScreenAwareness {
     private fun viewingNotice(context: Context, title: String, message: String,
         finished: Boolean = false) {
         if (!notificationsAvailable(context)) return
-        context.getSystemService(NotificationManager::class.java)
-            .notify(CAPTURE_NOTIFICATION_ID, Notification.Builder(context, CAPTURE_CHANNEL)
+        val manager = context.getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(NotificationChannel(CAPTURE_PROGRESS_CHANNEL,
+            "屏幕查看状态", NotificationManager.IMPORTANCE_LOW))
+        if (manager.getNotificationChannel(CAPTURE_PROGRESS_CHANNEL)?.importance ==
+            NotificationManager.IMPORTANCE_NONE) return
+        manager.notify(CAPTURE_NOTIFICATION_ID, Notification.Builder(context, CAPTURE_PROGRESS_CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_menu_view)
                 .setContentTitle(title).setContentText(message)
                 .setCategory(Notification.CATEGORY_STATUS)
