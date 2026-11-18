@@ -100,6 +100,18 @@ internal object LuluShoppingLinkShare {
     internal fun freshCopyEvent(previousTimestamp: Long, tapStartedAt: Long, newTimestamp: Long): Boolean =
         newTimestamp > previousTimestamp && newTimestamp >= tapStartedAt
 
+    /** Privileged shell returns only a newly copied, merchant-bound URL.
+     * Never forward raw clipboard text or accept another package's copy. */
+    internal fun merchantCopyLink(
+        packageName: String, previousTimestamp: Long, startedAt: Long,
+        currentTimestamp: Long, sourcePackage: String?, rawText: String?,
+    ): String? {
+        if (startedAt <= 0L || currentTimestamp > startedAt + 10_000L ||
+            !freshCopyEvent(previousTimestamp, startedAt, currentTimestamp) ||
+            (sourcePackage != null && sourcePackage != packageName)) return null
+        return verifiedChangedLink(packageName, null, rawText)
+    }
+
     private val httpUrls = Regex("""https://[^\s<>"'。，；，、]+""", RegexOption.IGNORE_CASE)
 
     internal fun verifiedChangedLink(
