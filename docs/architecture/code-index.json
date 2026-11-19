@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T04:53:42.499049+00:00",
-  "commit": "b78eeef58f874a557ccfe5ff6ceb4f45146a0cb4",
+  "generatedAt": "2026-11-19T04:54:14.296129+00:00",
+  "commit": "1e053b33254d80acb7a08c388f02ead25508aaa9",
   "branch": "main",
-  "sourceFingerprint": "ae0371b82f31e045a9199264c2c9d4cbd2309608a1e4899a9cfb91a17345b396",
+  "sourceFingerprint": "fef123dd7396aba085b215d6f15cd6a50e336fe97fec02892f69578f1b11b356",
   "summary": {
     "files": 1480,
-    "lines": 313628,
-    "symbols": 4472
+    "lines": 313696,
+    "symbols": 4475
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -22702,10 +22702,28 @@
         "line": 80
       }
     ],
-    "zipSlipEntryIsRejected": [
+    "failedSecondImportCannotReplaceAnEarlierValidStagedBackup": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
         "line": 98
+      }
+    ],
+    "preflightRejectsMalformedZipBeforeAnyExistingDataIsOverwritten": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
+        "line": 120
+      }
+    ],
+    "truncatedBackupWithAnExistingTargetNeverStartsRestore": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
+        "line": 149
+      }
+    ],
+    "zipSlipEntryIsRejected": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
+        "line": 166
       }
     ],
     "MeetingCausalEvidenceTest": [
@@ -49299,8 +49317,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
-      "lines": 113,
-      "sha256": "ff81760bd4e31674180de6faadcf357cb66d2ded06f24136f9c1463272db220d",
+      "lines": 181,
+      "sha256": "c2754fa7a1fe845899e9667e9e8b110664782c3a6df51f50d83ba495559d4477",
       "symbols": [
         {
           "name": "LuluDataBackupTest",
@@ -49319,8 +49337,20 @@
           "line": 80
         },
         {
-          "name": "zipSlipEntryIsRejected",
+          "name": "failedSecondImportCannotReplaceAnEarlierValidStagedBackup",
           "line": 98
+        },
+        {
+          "name": "preflightRejectsMalformedZipBeforeAnyExistingDataIsOverwritten",
+          "line": 120
+        },
+        {
+          "name": "truncatedBackupWithAnExistingTargetNeverStartsRestore",
+          "line": 149
+        },
+        {
+          "name": "zipSlipEntryIsRejected",
+          "line": 166
         }
       ]
     },
