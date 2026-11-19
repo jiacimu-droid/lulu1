@@ -355,11 +355,13 @@ class CharacterExpressionGuideTest {
         assertTrue(inChat.contains("不必等主人给出具体时间"))
         assertTrue(inChat.contains("commitmentTaskId"))
         assertTrue(inChat.contains("不需要为每次聊天刻意制造一份日程"))
-        assertTrue(onOwn.contains("现在做一件事，又想为稍后排另一件事"))
-        assertTrue(onOwn.contains("action=tool, tool=plan_personal_activity"))
-        assertTrue(onOwn.contains("不是回复或现在行动的互斥选项"))
+        // The actor may answer, execute and schedule within one decision.
+        // Verify the unchanged ability rather than wording removed on purpose.
+        assertTrue(onOwn.contains("同轮可回复并执行多个 steps"))
+        assertTrue(onOwn.contains("需要稍后做的事可在同轮用 tool=plan_personal_activity"))
         assertTrue(onOwn.contains("已有 planId"))
-        assertTrue(onOwn.contains("不能为了显得活跃填满日程"))
+        assertTrue(onOwn.contains("口头承诺不算排期"))
+        assertTrue(onOwn.contains("不虚构日程"))
     }
 
     @Test fun directPrivateReplyIsSpokenConversationNotAnExhaustivePlanningReport() {
