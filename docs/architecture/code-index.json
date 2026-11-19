@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T11:25:29.953154+00:00",
-  "commit": "2c97bb0133602b53559d7648773577bd6f7abe86",
+  "generatedAt": "2026-11-19T11:27:16.147281+00:00",
+  "commit": "dee82e7e977e977284375c9d82a4b513d94b0ca6",
   "branch": "main",
-  "sourceFingerprint": "5ceadcfd771b28b79ba31731d2d1b2a8b8ef8baca94a30cfab895da7e8ae8977",
+  "sourceFingerprint": "e3151565d852943b36da7f1960ca5dd464cd11e8d2b6bf92dc12843779ed9137",
   "summary": {
     "files": 1480,
-    "lines": 315166,
+    "lines": 315172,
     "symbols": 4491
   },
   "symbolIndex": {
@@ -40127,8 +40127,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-      "lines": 303,
-      "sha256": "3d90b959b9f1d0405ad651aa9c2d7d5733b0f0cd49c7d9c2ddc88af303e963cd",
+      "lines": 309,
+      "sha256": "66ac7de7b48aedf9ed446996d2b6012a03789028c84f794e3b8e2a700a1a8bf1",
       "symbols": [
         {
           "name": "setMicrophoneEnabled",
