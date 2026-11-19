@@ -228,19 +228,26 @@ class RelayRequestPressurePolicyTest {
         val obligations = "已经约好的真实承诺".repeat(650)
         val facts = ("较早的观察记录\n".repeat(900)) +
             "现在已确认的原始事实：用户明确说不希望重新来过"
+        val continuity = "跨场景本人仍坚持的决定与工具依据\n".repeat(1_500)
+        val expendableOldNotes = "不影响当下选择的旧花絮\n".repeat(1_500)
         val compacted = RelayRequestPressurePolicy.compactSections(listOf(
             "角色人设" to personalRule,
             "核心记忆" to core,
             "未完成责任" to obligations,
             "本轮背景依据" to facts,
-            "跨场景连续性锚点" to ("过时的连续状态\n".repeat(1_500))
+            "跨场景连续性锚点" to continuity,
+            "可选的旧花絮" to expendableOldNotes,
         ))
         assertTrue(compacted.contains(personalRule))
         assertTrue(compacted.contains(core))
         assertTrue(compacted.contains(obligations))
         assertTrue(compacted.contains("用户明确说不希望重新来过"))
+        // Continuity anchors are protected executable identity/context, not
+        // disposable old observations. The relay fallback must keep them whole.
+        assertTrue(compacted.contains(continuity))
+        // Only genuinely optional historical notes may be abbreviated.
         assertTrue(compacted.contains("其他较早材料暂未提供"))
-        assertFalse(compacted.contains("过时的连续状态\n".repeat(1_500)))
+        assertFalse(compacted.contains(expendableOldNotes))
     }
 
     @Test fun fallbackNeverCutsAStatementInHalfOrStitchesSeparatedFacts() {
