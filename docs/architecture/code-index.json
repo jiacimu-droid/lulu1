@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T08:32:24.233281+00:00",
-  "commit": "44a771232d9d7013f816f8a105cbc64f27c45417",
+  "generatedAt": "2026-11-19T08:34:40.938107+00:00",
+  "commit": "374cc7aa8fbb4e1888f8b004aa96c43ec5c3c37e",
   "branch": "main",
-  "sourceFingerprint": "22b096bc661132dd263612a9923c691b95fcb1e0dc6f972130a64764dbee4b75",
+  "sourceFingerprint": "9eb88d79bbff2c8fb82652867226c9134504d86cf5f4e43ea6d6d499e2257027",
   "summary": {
     "files": 1480,
-    "lines": 315050,
+    "lines": 315051,
     "symbols": 4490
   },
   "symbolIndex": {
@@ -31126,7 +31126,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 209,
-      "sha256": "496137f13c8f820a425d947cc78f94ba0098d480f4d1b74c5e4f4117d48ac578",
+      "sha256": "9a8ac8fc5dbf3dd893cee45a04239ffd364dbf420be9bbf0c1598004f1ab8566",
       "symbols": [
         {
           "name": "hasAuthoredMomentaryIdea",
@@ -50011,8 +50011,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt",
-      "lines": 218,
-      "sha256": "d7fc7c52edde1a0bded2bab3027ea7442b6843bbc95f092875bf9b55ae48088f",
+      "lines": 219,
+      "sha256": "4faa5152550841830a89cbbba93f005b926a4642230385d4aa58b873a1761112",
       "symbols": [
         {
           "name": "PositiveExpressionGuidanceTest",
