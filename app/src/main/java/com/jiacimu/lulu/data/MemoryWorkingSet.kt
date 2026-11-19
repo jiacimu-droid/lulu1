@@ -111,9 +111,12 @@ internal object MemoryWorkingSet {
                     payload = readableContent, sources = entry.sourceEventIds.toSet(), derivedSummary = !subjective))
             }
         }
-        val protected = listOf(coreSection, context.activeTaskContext).filter(String::isNotBlank)
-            .joinToString("\n\n").length.let { if (it == 0) 0 else it + 2 }
-        val result = MemoryWorkingSetPolicy.select(candidates, budget.workingSetCharacters, protected,
+        // Core memories and live commitment facts have their own unbounded,
+        // authoritative gateway sections. Their bytes must not consume or
+        // eliminate this separately ranked 33k historical recall allowance.
+        // coreSection remains a caller input for compatibility; do not duplicate
+        // the same facts inside the candidates or count them a second time.
+        val result = MemoryWorkingSetPolicy.select(candidates, budget.workingSetCharacters, 0,
             mapOf(EVIDENCE to budget.evidenceCharacters,
                 SUMMARY to budget.memoryCharacters, LEXICON to budget.lexiconCharacters),
             // Targets reserve variety first; spare room then accommodates the
