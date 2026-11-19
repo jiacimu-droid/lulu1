@@ -17,19 +17,25 @@ class DesktopPageCountTest {
         assertEquals(4, desktopAllocatedPageCount(57))
     }
 
-    @Test fun squareGridKeepsExactWidgetFootprintsAndCentersTheSpareSpace() {
+    @Test fun squareWidgetsStaySquareWhileSpareHeightBecomesRowGutters() {
         for ((width, height) in listOf(320 to 712, 373 to 739, 600 to 449)) {
             val grid = DesktopGridGeometry.fit(width, height)
             val gridWidth = grid.x(DESKTOP_COLUMNS) - grid.x(0)
             val gridHeight = grid.y(DESKTOP_ROWS) - grid.y(0)
-            assertEquals(gridWidth / DESKTOP_COLUMNS, gridHeight / DESKTOP_ROWS)
+            assertEquals(grid.cellPx * DESKTOP_COLUMNS, gridWidth)
+            assertEquals(grid.cellPx * DESKTOP_ROWS + grid.rowGapPx * (DESKTOP_ROWS - 1), gridHeight)
+            assertEquals(grid.cellPx * 2, grid.x(2) - grid.x(0))
+            assertEquals(grid.cellPx * 4, grid.x(4) - grid.x(0))
+            // 2×2 and 4×4 cards still render as width = height = columns × cell.
+            // A gutter is *outside* each card, not stretched into its square canvas.
+            assertEquals(2 * grid.rowGapPx, grid.y(2) - grid.y(0) - 2 * grid.cellPx)
+            assertEquals(4 * grid.rowGapPx, grid.y(4) - grid.y(0) - 4 * grid.cellPx)
+            assertTrue(grid.rowGapPx in 0..grid.cellPx / 7)
             assertTrue(kotlin.math.abs(grid.leftPx - (width - grid.x(DESKTOP_COLUMNS))) <= 1)
             assertTrue(kotlin.math.abs(grid.topPx - (height - grid.y(DESKTOP_ROWS))) <= 1)
-            assertEquals(grid.x(2) - grid.x(0), grid.y(2) - grid.y(0))
-            assertEquals(grid.x(4) - grid.x(0), grid.y(4) - grid.y(0))
-            assertEquals((grid.x(2) - grid.x(0)) / 2 * 3, grid.y(3) - grid.y(0))
-            assertEquals((grid.x(2) - grid.x(0)) * 2, grid.y(4) - grid.y(0))
         }
+        assertEquals(11, DesktopGridGeometry.fit(320, 712).rowGapPx)
+        assertEquals(0, DesktopGridGeometry.fit(320, 490).rowGapPx)
     }
 
     @Test fun hitTestingUsesTheSameCenteredCellBoundaries() {
@@ -40,6 +46,17 @@ class DesktopPageCountTest {
         assertEquals(DesktopGridCell(0, 0), grid.cellAt(grid.x(0).toFloat(), grid.y(0).toFloat()))
         assertEquals(DesktopGridCell(6, 3), grid.cellAt(grid.x(4) - .5f, grid.y(7) - .5f))
         assertEquals(DesktopGridCell(3, 2), grid.cellAt(grid.x(2).toFloat(), grid.y(3).toFloat()))
+    }
+
+    @Test fun touchTargetsRemainConnectedAcrossTheVisualRowGutter() {
+        val grid = DesktopGridGeometry.fit(320, 712)
+        assertTrue(grid.rowGapPx > 0)
+        val x = grid.x(1) + grid.cellPx / 2f
+        val gutterY = grid.y(0) + grid.cellPx + grid.rowGapPx / 2f
+        assertEquals(DesktopGridCell(0, 1), grid.cellAt(x, gutterY))
+        assertEquals(DesktopGridCell(1, 1), grid.cellAt(x, grid.y(1).toFloat()))
+        assertEquals(DesktopGridCell(6, 1), grid.cellAt(x, grid.y(7) - .5f))
+        assertNull(grid.cellAt(x, grid.y(7).toFloat()))
     }
 
     @Test fun sixRowUpgradeKeepsCoordinatesAcrossPagesAndEmptyTrailingPages() {
