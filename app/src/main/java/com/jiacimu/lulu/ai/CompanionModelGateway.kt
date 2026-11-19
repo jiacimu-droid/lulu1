@@ -1264,8 +1264,20 @@ class CompanionModelGateway(
             val json = requestPostJson(url, headers, body, readTimeoutMillis)
             val blocks = json.optJSONArray("content") ?: JSONArray()
             val text = (0 until blocks.length()).mapNotNull { blocks.optJSONObject(it)?.takeIf { block -> block.optString("type") == "text" }?.optString("text") }.joinToString("")
-            check(text.isNotBlank()) { "Claude没有返回正文" }
             val usage = json.optJSONObject("usage")
+            check(text.isNotBlank()) {
+                modelEmptyOutputDiagnostic(
+                    source = "Claude JSON",
+                    finishReason = json.optString("stop_reason"),
+                    outputTokens = usage?.takeIf { it.has("output_tokens") && !it.isNull("output_tokens") }
+                        ?.optInt("output_tokens"),
+                    reasoningTokens = null,
+                    reasoningFieldSeen = (0 until blocks.length()).any {
+                        blocks.optJSONObject(it)?.optString("type") == "thinking"
+                    },
+                    refusalFieldSeen = json.optString("stop_reason") == "refusal",
+                )
+            }
             return ModelReply(
                 text = text,
                 inputTokens = usage?.optInt("input_tokens") ?: 0,
@@ -1326,19 +1338,35 @@ class CompanionModelGateway(
 
     private fun modelReplyFromJson(json: JSONObject): ModelReply {
         val text = extractModelText(json)
-        check(text.isNotBlank()) { "模型没有返回可读取的内容" }
         val usage = json.optJSONObject("usage")
         val promptDetails = usage?.optJSONObject("prompt_tokens_details")
+        val choice = json.optJSONArray("choices")?.optJSONObject(0)
+        val message = choice?.optJSONObject("message")
+        val finishReason = choice?.optString("finish_reason")?.takeIf(String::isNotBlank)
+            ?: json.optString("stop_reason").takeIf(String::isNotBlank)
+        val reasoningTokens = usage?.optJSONObject("completion_tokens_details")
+            ?.takeIf { it.has("reasoning_tokens") && !it.isNull("reasoning_tokens") }
+            ?.optInt("reasoning_tokens")?.coerceAtLeast(0)
+        check(text.isNotBlank()) {
+            modelEmptyOutputDiagnostic(
+                source = "JSON",
+                finishReason = finishReason,
+                outputTokens = usage?.takeIf { it.has("completion_tokens") && !it.isNull("completion_tokens") }
+                    ?.optInt("completion_tokens"),
+                reasoningTokens = reasoningTokens,
+                reasoningFieldSeen = listOf("reasoning_content", "reasoning", "analysis", "thinking").any {
+                    field -> message?.has(field) == true && message.isNull(field).not()
+                },
+                refusalFieldSeen = message?.has("refusal") == true && message.isNull("refusal").not(),
+            )
+        }
         return ModelReply(
             text = text,
             inputTokens = usage?.optInt("prompt_tokens") ?: 0,
             outputTokens = usage?.optInt("completion_tokens") ?: 0,
-            reasoningTokens = usage?.optJSONObject("completion_tokens_details")
-                ?.takeIf { it.has("reasoning_tokens") && !it.isNull("reasoning_tokens") }
-                ?.optInt("reasoning_tokens")?.coerceAtLeast(0),
+            reasoningTokens = reasoningTokens,
             cachedTokens = promptDetails?.optInt("cached_tokens") ?: 0,
-            finishReason = json.optJSONArray("choices")?.optJSONObject(0)?.optString("finish_reason")?.takeIf(String::isNotBlank)
-                ?: json.optString("stop_reason").takeIf(String::isNotBlank),
+            finishReason = finishReason,
         )
     }
 
@@ -1408,6 +1436,9 @@ class CompanionModelGateway(
             var sawTerminalMarker = false
             var parsedFrames = 0
             var unparsedFrames = 0
+            var sawOutputUsage = false
+            var sawReasoningField = false
+            var sawRefusalField = false
             var lastCallbackLength = 0
             var lastCallbackNanos = System.nanoTime()
 
@@ -1439,7 +1470,12 @@ class CompanionModelGateway(
                         inputTokens = it.optInt("input_tokens", inputTokens)
                         cachedTokens = it.optInt("cache_read_input_tokens", cachedTokens)
                     }
-                    "content_block_delta" -> chunk.optJSONObject("delta")?.takeIf { it.optString("type") == "text_delta" }?.let { content.append(it.optString("text")) }
+                    "content_block_delta" -> chunk.optJSONObject("delta")?.let { delta ->
+                        if (delta.optString("type") == "text_delta") content.append(delta.optString("text"))
+                        if (delta.optString("type") == "thinking_delta") sawReasoningField = true
+                    }
+                    "response.reasoning_summary_text.delta" -> sawReasoningField = true
+                    "response.refusal.delta" -> sawRefusalField = true
                     "message_stop" -> {
                         streamFinished = true
                         sawTerminalMarker = true
@@ -1453,7 +1489,10 @@ class CompanionModelGateway(
                         val response = chunk.optJSONObject("response")
                         response?.optJSONObject("usage")?.let { usage ->
                             inputTokens = usage.optInt("input_tokens", inputTokens)
-                            outputTokens = usage.optInt("output_tokens", outputTokens)
+                            if (usage.has("output_tokens") && !usage.isNull("output_tokens")) {
+                                outputTokens = usage.optInt("output_tokens", outputTokens)
+                                sawOutputUsage = true
+                            }
                             cachedTokens = usage.optJSONObject("input_tokens_details")
                                 ?.optInt("cached_tokens", cachedTokens) ?: cachedTokens
                             usage.optJSONObject("output_tokens_details")?.let { details ->
@@ -1482,6 +1521,10 @@ class CompanionModelGateway(
                 terminalChoiceReason?.let { finishReason = it }
                 val delta = choice?.optJSONObject("delta")
                 if (delta != null) {
+                    if (listOf("reasoning_content", "reasoning", "analysis", "thinking").any {
+                        delta.has(it) && !delta.isNull(it)
+                    }) sawReasoningField = true
+                    if (delta.has("refusal") && !delta.isNull("refusal")) sawRefusalField = true
                     content.append(modelTextValue(delta.opt("content")))
                 }
                 // A relay may supply an empty delta alongside the final
@@ -1490,13 +1533,22 @@ class CompanionModelGateway(
                 // duplicate an already collected answer.
                 if (content.isEmpty()) {
                     val message = choice?.optJSONObject("message")
+                    if (message != null) {
+                        if (listOf("reasoning_content", "reasoning", "analysis", "thinking").any {
+                            message.has(it) && !message.isNull(it)
+                        }) sawReasoningField = true
+                        if (message.has("refusal") && !message.isNull("refusal")) sawRefusalField = true
+                    }
                     content.append(modelTextValue(message?.opt("content")))
                     content.append(modelTextValue(choice?.opt("text")))
                     content.append(modelTextValue(chunk.opt("output_text")))
                 }
                 chunk.optJSONObject("usage")?.let { usage ->
                     inputTokens = usage.optInt("prompt_tokens", inputTokens)
-                    outputTokens = usage.optInt("completion_tokens", outputTokens)
+                    if (usage.has("completion_tokens") && !usage.isNull("completion_tokens")) {
+                        outputTokens = usage.optInt("completion_tokens", outputTokens)
+                        sawOutputUsage = true
+                    }
                     usage.optJSONObject("completion_tokens_details")?.let { detail ->
                         if (detail.has("reasoning_tokens") && !detail.isNull("reasoning_tokens"))
                             reasoningTokens = detail.optInt("reasoning_tokens").coerceAtLeast(0)
@@ -1564,8 +1616,15 @@ class CompanionModelGateway(
                     parsedFrames > 0 -> "中转站提前结束流式连接，收到事件但没有正文或结束标记"
                     else -> "中转站结束了连接，但没有发送可解析的流式数据"
                 }
-                error("$cause（有效事件=$parsedFrames，不完整事件=$unparsedFrames；" +
-                    "并非客户端等待超时，本次可能已计费，未自动重新请求）")
+                error(modelEmptyOutputDiagnostic(
+                    source = "SSE",
+                    finishReason = finishReason,
+                    outputTokens = outputTokens.takeIf { sawOutputUsage },
+                    reasoningTokens = reasoningTokens,
+                    reasoningFieldSeen = sawReasoningField,
+                    refusalFieldSeen = sawRefusalField,
+                    transportState = "$cause；有效事件=$parsedFrames；不完整事件=$unparsedFrames；并非客户端等待超时",
+                ))
             }
             publishVisibleProgress(force = true)
             ModelReply(
