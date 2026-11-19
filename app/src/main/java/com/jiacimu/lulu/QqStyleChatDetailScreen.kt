@@ -923,6 +923,17 @@ fun QqStyleChatDetailScreen(
                                 listenTogetherVisible = true
                             }) else null,
                             onSendOnly = { payload -> appendDraft(payload) },
+                            onSendVoice = { transcript, pcm ->
+                                runCatching {
+                                    MigratedDomainStores.chat.sendUserVoiceNote(
+                                        conversationId, transcript, pcm, replyingTo?.id)
+                                }.isSuccess.also { sent ->
+                                    if (sent) {
+                                        ChatReplyTaskManager.clearError(conversationId)
+                                        replyingToId = null
+                                    }
+                                }
+                            },
                             onWakeOrReply = { payload -> wakeOnline(payload) },
                             onSendSticker = { sticker ->
                                 val installed = StickerLibraryStore.byId(context, sticker.id)
