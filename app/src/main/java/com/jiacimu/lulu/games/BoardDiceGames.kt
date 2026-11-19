@@ -446,10 +446,15 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                                     if (value == null) {
                                         Text("?", fontSize = 27.sp, color = GameDesign.ink.copy(alpha = .5f))
                                     } else {
-                                        YachtDicePips(value, ocean)
+                                        Text(
+                                            value.toString(),
+                                            fontSize = 30.sp,
+                                            fontWeight = FontWeight.Black,
+                                            color = if (locked) Color.White else ocean,
+                                        )
                                     }
                                     Text(if (locked) "已留" else if (selectable) "轻触保留" else " ",
-                                        color = if (locked) ocean else Color(0xFF50637A),
+                                        color = if (locked) Color.White else Color(0xFF50637A),
                                         fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
@@ -625,24 +630,6 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         }
         if (session.companionIds.isNotEmpty()) {
             GameTalkBar(live)
-        }
-    }
-}
-
-@Composable
-private fun YachtDicePips(value: Int, color: Color) {
-    val dots = when (value) {
-        1 -> listOf(.5f to .5f)
-        2 -> listOf(.25f to .25f, .75f to .75f)
-        3 -> listOf(.25f to .25f, .5f to .5f, .75f to .75f)
-        4 -> listOf(.25f to .25f, .75f to .25f, .25f to .75f, .75f to .75f)
-        5 -> listOf(.25f to .25f, .75f to .25f, .5f to .5f, .25f to .75f, .75f to .75f)
-        else -> listOf(.25f to .22f, .75f to .22f, .25f to .5f, .75f to .5f, .25f to .78f, .75f to .78f)
-    }
-    Canvas(Modifier.size(34.dp)) {
-        dots.forEach { (x, y) ->
-            drawCircle(color, radius = size.minDimension * .085f,
-                center = Offset(size.width * x, size.height * y))
         }
     }
 }
