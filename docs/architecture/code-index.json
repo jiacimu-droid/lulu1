@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T12:58:45.470037+00:00",
-  "commit": "e0869df4d252a9fc3bff8d12d5417aa3c23551b4",
+  "generatedAt": "2026-11-19T13:00:03.168621+00:00",
+  "commit": "9c409d620f697b1dab9532d2a103eebf522afbe4",
   "branch": "main",
-  "sourceFingerprint": "8f9b24ffd0a3ea989a0368df09d7c009b399f7cef92dfda91b497165e40c331f",
+  "sourceFingerprint": "5d66fb905121c78cfd32184bba330d6de53702487224e2f9f4d2d49bdee97dfb",
   "summary": {
-    "files": 1483,
-    "lines": 316127,
+    "files": 1484,
+    "lines": 316238,
     "symbols": 4509
   },
   "symbolIndex": {
@@ -26873,6 +26873,12 @@
           "line": 71
         }
       ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt",
+      "lines": 111,
+      "sha256": "624741f184207fc8921c72e25de6f369843e52953968a50180aed883e674aabe",
+      "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
