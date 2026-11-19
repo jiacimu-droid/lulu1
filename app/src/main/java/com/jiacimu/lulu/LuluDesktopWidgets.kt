@@ -443,12 +443,13 @@ internal fun LuluDesktopWidgetCard(
     val context = LocalContext.current
     val css = LocalLuluCssSheet.current.element("Home", "widget-" + widget.kind.code)
     val colors = MaterialTheme.colorScheme
+    val pearl = isDesktopPearlStyle()
     val themeSkin = widget.skin >= LULU_WIDGET_DESKTOP_SKIN
     val layered = widget.skin == WIDGET_STACKED_SKIN || widget.skin == WIDGET_ALBUM_SKIN
     val defaultDark = if (themeSkin) LocalLuluAppearance.current.dark else widget.skin == 0 || widget.skin == 3
     val foreground = LuluCssSheet.parseColor(css["color"] ?: widget.roleInk)?.let { Color(it.toInt()) }
         ?: when {
-            themeSkin -> colors.onSurface
+            themeSkin -> if (pearl) Color(0xFF35313F) else colors.onSurface
             defaultDark -> Color(0xFFF8F3E8)
             else -> Color(0xFF3D3836)
         }
@@ -458,8 +459,9 @@ internal fun LuluDesktopWidgetCard(
             1 -> Color(0xFFF8F0E3)
             2 -> Color(0xFFF3DBEB)
             3 -> Color(0xFF1D443B)
-            WIDGET_STACKED_SKIN, WIDGET_ALBUM_SKIN -> colors.surface
-            else -> colors.surfaceVariant
+            WIDGET_STACKED_SKIN, WIDGET_ALBUM_SKIN ->
+                if (pearl) Color(0xFFFDFCFF) else colors.surface
+            else -> if (pearl) Color(0xFFFAF9FD) else colors.surfaceVariant
         }
     val artwork = produceState<ImageBitmap?>(null, context, widget.skin) {
         value = if (themeSkin) null else withContext(Dispatchers.IO) {
@@ -470,11 +472,13 @@ internal fun LuluDesktopWidgetCard(
         ?: widget.imageToken.takeIf(String::isNotBlank))?.takeIf { LuluCssStore.assetFile(it) != null }
     val radius = (LuluCssSheet.dp(css["border-radius"])
         ?: widget.roleCornerDp.takeIf { it >= 0 }?.toFloat()
-        ?: LocalLuluAppearance.current.corner.toFloat()).coerceIn(0f, 60f).dp
+        ?: if (pearl) 26f else LocalLuluAppearance.current.corner.toFloat()).coerceIn(0f, 60f).dp
     val shape = RoundedCornerShape(radius)
     val outline = LuluCssSheet.parseColor(css["border-color"])?.let { Color(it.toInt()) }
-        ?: if (themeSkin) colors.outline else foreground.copy(alpha = .15f)
-    val borderWidth = (LuluCssSheet.dp(css["border-width"]) ?: 1f).coerceIn(0f, 12f).dp
+        ?: if (pearl && themeSkin) Color(0xFFE2DFE9)
+        else if (themeSkin) colors.outline else foreground.copy(alpha = .15f)
+    val borderWidth = (LuluCssSheet.dp(css["border-width"]) ?: if (pearl) .8f else 1f)
+        .coerceIn(0f, 12f).dp
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
     val press = animateFloatAsState(
@@ -487,8 +491,9 @@ internal fun LuluDesktopWidgetCard(
     BoxWithConstraints(outer.clipToBounds()) {
         val slimChat = widget.kind == LuluWidgetKind.CHAT && widget.rows == 2
         val surfaceHeight = if (slimChat) minOf(maxHeight * .86f, 170.dp) else maxHeight
-        val inset = if (layered) 12.dp else 5.dp
-        val verticalInset = if (layered) 12.dp else if (slimChat) 0.dp else 5.dp
+        val inset = if (layered) 12.dp else if (pearl) 7.dp else 5.dp
+        val verticalInset = if (layered) 12.dp else if (slimChat) 0.dp
+            else if (pearl) 7.dp else 5.dp
         if (layered && maxHeight >= 94.dp) {
             Surface(
                 Modifier.align(Alignment.Center).fillMaxSize().padding(horizontal = 13.dp, vertical = 11.dp)
@@ -522,7 +527,7 @@ internal fun LuluDesktopWidgetCard(
             shape = shape,
             color = backing,
             border = if (borderWidth > 0.dp) BorderStroke(borderWidth, outline) else null,
-            shadowElevation = if (layered) 2.dp else 0.dp,
+            shadowElevation = if (layered || pearl) 2.dp else 0.dp,
         ) {
             BoxWithConstraints(Modifier.fillMaxSize().then(
                 if (widget.kind == LuluWidgetKind.CHAT || widget.kind == LuluWidgetKind.BULLETIN)
