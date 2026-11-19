@@ -87,6 +87,61 @@ class OnlineChatExperienceTest {
             .isBefore(originalDeadline))
     }
 
+    @Test fun fiveMinuteReappraisalCanSaveANewConcernAndHandItOffBeforeRest() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        initializeStores(context)
+        runCatching { androidx.work.WorkManager.initialize(context, androidx.work.Configuration.Builder().build()) }
+        CharacterInnerLifeStore.initialize(context)
+        CompanionOnlineStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("复查原挂心的时间归本人").characterId
+        val now = java.time.Instant.ofEpochMilli(System.currentTimeMillis())
+        val eventId = "hurt-attribution-$role"
+        val observationId = "online-awareness-$role-reappraisal"
+        SharedExperienceTimeline.record(eventId, role, "私聊", "用户", "你刚才那样说让我很难过",
+            now.minusSeconds(300), triggerExtraction = false, evidenceKind = EventEvidenceKind.UserStatement)
+        SharedExperienceTimeline.record(observationId, role, "在线感知", "实际观察", "窗口到期后读取了真实当前时间",
+            now, triggerExtraction = false, source = "online-awareness", evidenceKind = EventEvidenceKind.Observation)
+        CharacterInnerLifeStore.recordCausalTransition(
+            role, eventId, JSONObject().put("meaning", "当时先听她说完"), null, null, "silent", "", "", now.minusSeconds(300),
+        )
+        CharacterInnerLifeStore.recordCausalTransition(
+            role, eventId, JSONObject().put("pendingConcerns", org.json.JSONArray().put(
+                JSONObject().put("status", "open").put("topicKey", "repair-trust")
+                    .put("focus", "那句话让她受伤，我想找合适的时机弥补")
+                    .put("whyItMatters", "她明确说难过，而我仍然在意我们是否理解了彼此")
+            )), null, null, "silent", "", "", now, observationId = observationId,
+        )
+        val open = CharacterOpenConcernRuntime.active(
+            CharacterInnerLifeStore.snapshot(role).getJSONArray("openConcerns"), now).single()
+        assertEquals(eventId, open.optString("evidenceId"))
+        val threadId = open.getString("id")
+        val due = now.plusSeconds(180)
+        val checks = org.json.JSONArray().put(JSONObject().put("topicKey", "repair-trust")
+            .put("at", due.toString()).put("reason", "先留一点空间，等我准备好再看看这件事"))
+        CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.NewActivity,
+            "刚收到关系反馈", perceiveNow = false, now = now)
+        assertNull(CompanionSleepHandoff.proposalIssue(context, role, checks, now))
+        assertTrue(CompanionOnlineStore.goOfflineByChoice(role, now, checks))
+        assertEquals(CompanionOnlineReason.SelfChosenSleep, CompanionOnlineStore.states.value.getValue(role).reason)
+        val plan = RoleDayScheduleStore.plans(context, role).single()
+        assertEquals(threadId, plan.concernId)
+        assertEquals(due, plan.dueAt)
+        assertTrue(plan.isConcernCheck())
+        assertTrue(RoleDayScheduleStore.ownConcernChecksCoverActive(context, role, now))
+        assertTrue(CompanionSleepHandoff.ensure(context, role, checks, now).ok)
+        assertEquals(listOf(plan.id), RoleDayScheduleStore.plans(context, role).map { it.id })
+        assertTrue(CharacterLifeVisibility.matters(role, now, plans = listOf(plan))
+            .any { it.sourceId == threadId && "已安排回看" in it.detail })
+
+        RoleDayScheduleStore.markDue(context, role, plan.id, expectedDueAt = due)
+        assertTrue(RoleDayScheduleStore.recordWakeHandoff(context, role, plan.id, due, due))
+        assertEquals("completed", RoleDayScheduleStore.plans(context, role).single().status)
+        assertTrue(CharacterOpenConcernRuntime.active(
+            CharacterInnerLifeStore.snapshot(role).getJSONArray("openConcerns"), due).any {
+            it.optString("id") == threadId
+        })
+    }
+
     @Test fun groupPeerBubbleDoesNotOpenAnotherImmediateOnlineReplyButUserTurnDoes() {
         // Member A's actual group message remains witnessed by B, but never
         // becomes a synthetic NEW user request to B (which would ping-pong).

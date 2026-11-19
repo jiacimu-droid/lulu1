@@ -124,8 +124,15 @@ internal object CharacterLifeVisibility {
 
         // Only actively carried concerns belong in 心事. Paused/legacy-dormant
         // rows remain in the same historical store, not this current list.
+        val nextConcernChecks = plans.asSequence().filter {
+            it.characterId == role && it.concernId.isNotBlank() && it.status == "planned" && it.dueAt.isAfter(now)
+        }.groupBy(RoleDayPlan::concernId).mapValues { (_, group) -> group.minOf(RoleDayPlan::dueAt) }
         CharacterOpenConcernRuntime.active(mind.optJSONArray("openConcerns"), now).forEach { concern ->
+            val nextCheck = nextConcernChecks[concern.optString("id")]
             val detail = listOf(concern.optString("whyItMatters"),
+                nextCheck?.atZone(java.time.ZoneId.systemDefault())?.let {
+                    "已安排回看：" + it.format(java.time.format.DateTimeFormatter.ofPattern("M月d日 HH:mm"))
+                },
                 concern.optString("hesitation").takeIf(String::isNotBlank)?.let { "还在权衡：$it" },
                 concern.optString("possibleNextStep").takeIf(String::isNotBlank)?.let { "曾考虑：$it" },
                 concern.optJSONObject("lastOutcome")?.optString("summary")?.takeIf(String::isNotBlank)?.let { "最近尝试：$it" })

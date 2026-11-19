@@ -1072,56 +1072,100 @@ internal object CompanionSleepHandoff {
         }
     }
 
-    /** Validate a same-role handoff proposal without writing any new alarm. */
-    fun proposalIssue(context: Context, characterId: String,
-                      checks: JSONArray?, now: Instant): String? {
-        val outstanding = uncovered(context, characterId, now)
-        if (outstanding.isEmpty()) return null
-        if (checks == null) return "还有未安排后续复查的承诺，缺少 onlineDecision.nextChecks"
-        val found = mutableSetOf<String>()
-        for (index in 0 until checks.length()) {
-            val item = checks.optJSONObject(index) ?: return "nextChecks 中有无效对象"
+    private data class NextCheck(
+        val taskId: String,
+        val threadId: String,
+        val topicKey: String,
+        val at: Instant,
+        val reason: String,
+    )
+
+    private fun readChecks(checks: JSONArray?, now: Instant): List<NextCheck> {
+        if (checks == null) return emptyList()
+        return (0 until checks.length()).map { index ->
+            val item = requireNotNull(checks.optJSONObject(index)) { "复查安排缺少有效条目" }
             val taskId = item.optString("taskId").trim()
-            val at = runCatching { Instant.parse(item.optString("at").trim()) }.getOrNull()
-            if (!found.add(taskId) || at == null || !at.isAfter(now.plusSeconds(60)) ||
-                item.optString("reason").isBlank())
-                return "nextChecks 的角色任务ID、未来时间或理由不完整"
+            val threadId = item.optString("threadId").trim()
+            val topicKey = item.optString("topicKey").trim().lowercase()
+            require(listOf(taskId, threadId, topicKey).count(String::isNotBlank) == 1) {
+                "每项复查须指明一个原责任 taskId、原挂心 threadId 或本轮新建挂心的 topicKey"
+            }
+            val at = runCatching { java.time.OffsetDateTime.parse(item.optString("at").trim()).toInstant() }
+                .getOrNull()
+            val reason = item.optString("reason").trim()
+            require(at != null && at.isAfter(now.plusSeconds(60)) && reason.isNotBlank()) {
+                "复查需要本人选择的未来时间、时区和理由"
+            }
+            NextCheck(taskId, threadId, topicKey, at, reason)
+        }.also { planned ->
+            require(planned.distinctBy { Triple(it.taskId, it.threadId, it.topicKey) }.size == planned.size) {
+                "同一件事只需安排一次复查"
+            }
         }
-        if (found != outstanding.map(CommitmentTask::id).toSet())
-            return "nextChecks 未覆盖所有尚未交接的本人责任或包含不属于本人的任务"
-        return null
     }
 
-    /** All-or-nothing scheduling. A failed alarm never becomes a fake next step. */
+    /** Validate the wire format before action; a new concern's ID only exists
+     * once the same model turn has durably saved its private state. */
+    fun proposalIssue(context: Context, characterId: String,
+                      checks: JSONArray?, now: Instant): String? {
+        val selected = runCatching { readChecks(checks, now) }
+            .getOrElse { return it.message }
+        val outstanding = uncovered(context, characterId, now).map(CommitmentTask::id).toSet()
+        val taskIds = selected.map(NextCheck::taskId).filter(String::isNotBlank).toSet()
+        return if (taskIds == outstanding) null
+            else "nextChecks 未覆盖所有尚未交接的本人责任或引用了无须再安排的任务"
+    }
+
+    /** Write quiet concern reviews to the existing personal calendar and
+     * obligation checks to the existing commitment scheduler. */
     @Synchronized
     fun ensure(context: Context, characterId: String, checks: JSONArray?,
                now: Instant = Instant.now()): Result {
         CommitmentTaskStore.initialize(context)
         com.jiacimu.lulu.system.LuluAlarmSystem.initialize(context)
         val outstanding = uncovered(context, characterId, now)
-        if (outstanding.isEmpty()) return Result(true)
-        proposalIssue(context, characterId, checks, now)?.let { return Result(false, it) }
-        if (checks == null) return Result(false,
-            "仍有${outstanding.size}项责任没有真正保存的后续时间；请先选定复查任务")
-        val selected = mutableMapOf<String, Pair<Instant, String>>()
-        for (i in 0 until checks.length()) {
-            val item = checks.optJSONObject(i)
-                ?: return Result(false, "后续复查步骤不是对象")
-            val id = item.optString("taskId").trim()
-            val at = runCatching { Instant.parse(item.optString("at").trim()) }.getOrNull()
-                ?: return Result(false, "后续复查缺少明确的ISO时间")
-            val reason = item.optString("reason").trim()
-            if (id.isBlank() || at <= now.plusSeconds(60) || reason.isBlank() ||
-                selected.putIfAbsent(id, at to reason) != null)
-                return Result(false, "后续复查的任务、时间或本人理由无效")
+        val allChecks = runCatching { readChecks(checks, now) }.getOrElse {
+            return Result(false, it.message.orEmpty())
         }
-        val needed = outstanding.map(CommitmentTask::id).toSet()
-        if (selected.keys != needed)
-            return Result(false, "须为所有未交接的责任选定下一次复查，不能略过或引用别人的任务")
+        val selected = allChecks.filter { it.taskId.isNotBlank() }.associateBy(NextCheck::taskId)
+        if (outstanding.any { it.id !in selected } ||
+            selected.keys.any { id -> CommitmentTaskStore.active(characterId).none { it.id == id } }) {
+            return Result(false, "还有未交接的责任，或提交了已撤销的任务")
+        }
+
+        val concernChecks = allChecks.filter { it.taskId.isBlank() }
+        if (concernChecks.isNotEmpty()) {
+            val active = CharacterOpenConcernRuntime.active(
+                CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now)
+            val groundedIds = CharacterPerceptionContext.liveEvidenceIds(
+                characterId, active.map { it.optString("evidenceId") })
+            val reviews = concernChecks.map { check ->
+                val concern = active.singleOrNull {
+                    it.optString("evidenceId") in groundedIds &&
+                        (if (check.threadId.isNotBlank()) it.optString("id") == check.threadId
+                         else it.optString("topicKey") == check.topicKey)
+                } ?: return Result(false, "尚未找到本人这条挂心的有效记录，复查未登记")
+                concern to check
+            }
+            if (reviews.map { it.first.optString("id") }.distinct().size != reviews.size)
+                return Result(false, "同一条挂心只需一次复查")
+            val alreadyPlanned = RoleDayScheduleStore.futureConcernChecks(context, characterId, now)
+            for ((concern, check) in reviews) {
+                val threadId = concern.getString("id")
+                if (threadId in alreadyPlanned) continue
+                runCatching {
+                    RoleDayScheduleStore.arrange(
+                        context, characterId, "回看挂心 · " + concern.optString("focus").take(80),
+                        check.reason, check.at, now, selfInitiated = true, concernId = threadId,
+                    )
+                }.onFailure { return Result(false, "挂心复查未保存：${it.message.orEmpty().take(120)}") }
+            }
+        }
+        if (outstanding.isEmpty()) return Result(true)
         val name = MigratedDomainStores.characters.get(characterId).displayName
         val created = mutableListOf<com.jiacimu.lulu.system.LuluAlarm>()
         for (task in outstanding) {
-            val (at, _) = selected.getValue(task.id)
+            val at = selected.getValue(task.id).at
             val scheduled = com.jiacimu.lulu.system.LuluAlarmSystem.create(
                 characterId, name, at, "${task.goal.take(90)}（角色自主复查）",
                 silentCallback = true, commitmentTaskId = task.id,
@@ -1143,7 +1187,7 @@ internal object CompanionSleepHandoff {
         }
         val committed = mutableListOf<Pair<CommitmentTask, com.jiacimu.lulu.system.LuluAlarm>>()
         outstanding.zip(created).forEach { (task, alarm) ->
-            val roleReason = selected.getValue(task.id).second
+            val roleReason = selected.getValue(task.id).reason
             val updated = CommitmentTaskStore.update(task.id) { old ->
                 if (old.revision != task.revision || !old.status.isActive()) old
                 else old.copy(

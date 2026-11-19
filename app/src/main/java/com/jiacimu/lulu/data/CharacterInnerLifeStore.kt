@@ -1347,6 +1347,7 @@ object CharacterInnerLifeStore {
         reason: String,
         now: Instant = Instant.now(),
         alternatives: JSONArray? = null,
+        observationId: String = "",
     ) {
         if (prefs == null || characterId.isBlank() || evidenceId.isBlank()) return
         val action = selectedAction.trim().lowercase().take(80)
@@ -1380,7 +1381,11 @@ object CharacterInnerLifeStore {
 
         val root = snapshot(characterId)
         val past = root.optJSONArray("causalTransitions") ?: JSONArray()
-        val id = "$evidenceId:$action"
+        // A new appraisal may legitimately reconsider an old source and
+        // choose the same outward action. A repeat of the same turn still dedupes.
+        val currentObservation = observationId.takeIf { it.isNotBlank() && it != evidenceId }
+            ?.takeIf { SharedExperienceTimeline.eventsByIds(characterId, listOf(it)).isNotEmpty() }.orEmpty()
+        val id = "$evidenceId:$action" + currentObservation.takeIf(String::isNotBlank)?.let { ":$it" }.orEmpty()
         if ((0 until past.length()).any { past.optJSONObject(it)?.optString("id") == id }) return
 
         val entry = JSONObject()
@@ -1501,7 +1506,7 @@ object CharacterInnerLifeStore {
                     it.optString("id")
                 }
             root.put("openConcerns", CharacterOpenConcernRuntime.update(
-                open, concernAppraisal, evidenceId, now, validGoalIds,
+                open, concernAppraisal, evidenceId, now, validGoalIds, currentObservation,
             ))
         }
         save(characterId, root)

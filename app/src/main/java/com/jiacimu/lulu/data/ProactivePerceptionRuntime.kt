@@ -1079,11 +1079,13 @@ object ProactivePerceptionRuntime {
                     }.sortedWith(compareByDescending<JSONObject> { it.optInt("priority", 2) }
                         .thenByDescending { it.optString("updatedAt") }).take(3)
                     if (expiryConcerns.isNotEmpty()) {
+                        val plannedChecks = RoleDayScheduleStore.futureConcernChecks(appContext, characterId, now)
                         appendLine("【这次结束前仍在挂心的事情｜已有原始证据、不是新任务】")
                         expiryConcerns.forEach { concern ->
                             appendLine("threadId=${concern.optString("id")}；" +
                                 "在意=${concern.optString("focus").take(150)}；" +
-                                "上次考虑=${concern.optString("possibleNextStep").take(120)}")
+                                "上次考虑=${concern.optString("possibleNextStep").take(120)}；" +
+                                "已排回看=${plannedChecks[concern.optString("id")] ?: "无"}")
                         }
                         appendLine("可以实际推进、保留、选择稍后用真实日程复查，或根据新证据修订/放下；" +
                             "本轮说了安慰、无人回复、在线窗口到期均不会自动解决心事。")
@@ -1701,6 +1703,7 @@ object ProactivePerceptionRuntime {
                         appendLine("同一轮在线决定的结构错误：" + onlineIssue)
                         appendLine("原在线选择：" + parsed.onlineChoice.ifBlank { "未填写" })
                         appendLine("原在线理由：" + parsed.onlineChoiceReason.ifBlank { "未填写" })
+                        parsed.onlineNextChecks?.let { appendLine("本轮原复查安排：$it") }
                         appendLine("当前缺少后续安排的本人责任：" +
                             CompanionSleepHandoff.uncovered(appContext, characterId, Instant.now())
                                 .joinToString("；") { task ->
@@ -1717,9 +1720,9 @@ object ProactivePerceptionRuntime {
                         保留真正想要的选择并补充本人理由；若原选择缺失，由你自己重新考虑。
                         理由可以很短，不需要迎合程序、不必假装想睡。不要编造事实或凑理由。
                         如果选择休眠，请为事实里尚未交接的各项责任亲自决定未来复查时间（带时区偏移的ISO格式）；
-                        用 nextChecks 数组填写 taskId、at、reason，一项责任一条。已有后续闹钟不再安排。
+                        用 nextChecks 数组填写 taskId、at、reason，一项责任一条。若原安排也为挂心选择过时间，须保留已有的 threadId 或 topicKey 条目。已有后续闹钟不再安排。
                         这只安排静默复查，不强制用户回应或自动重拨；若仍想继续在线，可选 continue。
-                        只输出完整 JSON：{"onlineDecision":{"choice":"continue|sleep","reason":"真实理由","nextChecks":[{"taskId":"原责任ID","at":"ISO时间","reason":"复查理由"}]}}。
+                        只输出完整 JSON，含 onlineDecision.choice、reason、nextChecks。nextChecks 每项保留原 taskId 或挂心 threadId/topicKey，并填写原定 at 和 reason。
                     """.trimIndent(),
                     source = "同次在线决定·字段补正",
                     title = character.displayName + "补正在线决定",
@@ -2121,12 +2124,6 @@ object ProactivePerceptionRuntime {
                     "use_location", "use_home_item",
                 ) && recentlyFinishedSoloScene &&
                 recentAutonomousActions.takeLast(3).count { it == "DIGITAL_WORLD" } >= 2
-            val sleepHandoff = if (decision.onlineChoice == "sleep" &&
-                CompanionOnlineStore.states.value[characterId]
-                    ?.onlineUntil?.toEpochMilli() == onlineExpiryAtMillis)
-                CompanionSleepHandoff.ensure(appContext, characterId,
-                    decision.onlineNextChecks, Instant.now())
-            else CompanionSleepHandoff.Result(true)
             val wantsMoreTime = OnlineContinuationPolicy.permits(
                 choice = decision.onlineChoice,
                 reason = decision.onlineChoiceReason,
@@ -2147,16 +2144,14 @@ object ProactivePerceptionRuntime {
                     ?.onlineUntil?.toEpochMilli() != onlineExpiryAtMillis
             settleSleepAfterActions = !keptAwake && !newerWindow &&
                 decision.onlineChoice == "sleep" &&
-                decision.onlineChoiceReason.isNotBlank() && sleepHandoff.ok
+                decision.onlineChoiceReason.isNotBlank()
             CompanionPresenceStore.recordPerceptionAttempt(
                 characterId,
                 when {
                     keptAwake -> "自主决定再在线五分钟 · ${decision.onlineChoiceReason.take(90)}"
                     newerWindow -> "旧到期判断已被更新的在线状态取代"
-                    decision.onlineChoice == "sleep" && !sleepHandoff.ok ->
-                        "在线窗口到期：未交接责任，因此不能认定为主动休眠 · ${sleepHandoff.reason.take(120)}"
-                    decision.onlineChoice == "sleep" && decision.onlineChoiceReason.isNotBlank() ->
-                        "自主决定休眠，后续责任已交接 · ${decision.onlineChoiceReason.take(90)}"
+                    settleSleepAfterActions ->
+                        "本人选择休眠，正在落实本轮动作与后续复查"
                     OnlineContinuationPolicy.contractIssue(decision.onlineChoice,
                         decision.onlineChoiceReason) != null ->
                         "运行窗口到期：在线决定契约未满足，补正未成功；不是角色主动休眠"
@@ -2166,22 +2161,6 @@ object ProactivePerceptionRuntime {
                 },
                 Instant.now(),
             )
-            // Expiry is not necessarily a character-chosen sleep. A rejected
-            // continue or invalid online decision could previously strand an
-            // unverified commitment with no further scheduled opportunity.
-            // Check the same authoritative tasks AFTER the sleep handoff, and
-            // ask the same role to repair only if no newer lease owns the turn.
-            // The worker later rechecks uncovered() before charging a model.
-            if (OnlineContinuationPolicy.needsCommitmentRecovery(
-                    keptAwake = keptAwake,
-                    superseded = newerWindow,
-                    hasUncoveredCommitment = !keptAwake && !newerWindow &&
-                        CompanionSleepHandoff.uncovered(appContext, characterId, Instant.now())
-                            .isNotEmpty(),
-                )) {
-                ProactivePerceptionScheduler.scheduleUnfinishedCommitmentRecovery(
-                    appContext, characterId)
-            }
             // If another event won the lease after the model generated its
             // response, its old action must not get sent into the new chat.
             if (!keptAwake && newerWindow) {
@@ -2284,6 +2263,7 @@ object ProactivePerceptionRuntime {
             ) || (decision.sideActions?.length() ?: 0) > 0,
             hasFreshUserMessage = messageStimulus != null && onlineUnread.text.isNotBlank(),
         )
+        val appraisedConcern = CharacterOpenConcernRuntime.hasProposals(decision.appraisal)
         val groundedInnerThought = CharacterHeartVoicePolicy.keepOrBlank(
             thought = decision.innerThought,
             outward = decision.text,
@@ -2291,7 +2271,7 @@ object ProactivePerceptionRuntime {
             basis = decision.innerThoughtBasis,
             delta = privateDelta,
             hasFreshEvidence = freshStimulus || previousEvidence.isNotBlank() ||
-                decision.action != Action.SILENT,
+                appraisedConcern || decision.action != Action.SILENT,
         )
         val causalEvidenceId = when {
             // The user owns the reply lane. Persist subjective state against the
@@ -2330,8 +2310,9 @@ object ProactivePerceptionRuntime {
             now = now,
             alternatives = decision.alternatives,
             recordInnerVoice = freshStimulus || previousEvidence.isNotBlank() ||
-                decision.action != Action.SILENT || canonicalInnerLife != null,
+                appraisedConcern || decision.action != Action.SILENT || canonicalInnerLife != null,
             voiceFingerprint = privateDelta.fingerprint,
+            observationId = if (messageStimulus == null) awakeObservationId else "",
             afterCausalRecord = {
                 CharacterExplorationContinuity.remember(appContext, characterId,
                     decision.curiosity, decision.curiosities,
@@ -2630,27 +2611,43 @@ object ProactivePerceptionRuntime {
                 "含实际设备动作、工具后续和可能的气泡入库",
                 traceId = turnTraceId)
         }
-        if (settleSleepAfterActions) {
+        if (!saveCommitmentBeforeAction && (execution.success || execution.deliveredReply))
+            persistTurnCommitments()
+        if (settleSleepAfterActions &&
+            CompanionOnlineStore.states.value[characterId]?.onlineUntil?.toEpochMilli() == onlineExpiryAtMillis) {
             val requestedHome = OnlineContinuationPolicy.requestedReturnHome(
                 when {
                     decision.action == Action.DIGITAL_WORLD -> decision.worldAction
                     decision.action == Action.TOOL && decision.tool == "digital_world_action" ->
                         decision.toolArgs.optString("worldAction")
                     else -> ""
-                },
-                decision.sideActions)
-            val home = DigitalWorldStore.homeLocation(characterId)
-            val actual = DigitalWorldStore.locationOf(characterId)
-            if (OnlineContinuationPolicy.maySettleRestAtLocation(requestedHome, actual, home)) {
-                CompanionOnlineStore.acceptSleepAtExpiry(characterId, onlineExpiryAtMillis)
-            } else {
+                }, decision.sideActions)
+            val finishedAt = Instant.now()
+            val canRest = OnlineContinuationPolicy.maySettleRestAtLocation(
+                requestedHome, DigitalWorldStore.locationOf(characterId),
+                DigitalWorldStore.homeLocation(characterId))
+            val handoff = if (canRest) CompanionSleepHandoff.ensure(
+                appContext, characterId, decision.onlineNextChecks, finishedAt)
+            else CompanionSleepHandoff.Result(false, "本轮确实选择先回家，但实际回家动作未完成")
+            if (handoff.ok && CompanionOnlineStore.acceptSleepAtExpiry(characterId, onlineExpiryAtMillis)) {
                 CompanionPresenceStore.recordPerceptionAttempt(characterId,
-                    "本人选了先回家再休眠，但实际回家动作未完成；不得记作已回家休息。",
-                    Instant.now())
+                    "自主决定休眠 · ${decision.onlineChoiceReason.take(90)}", finishedAt)
+            } else if (!handoff.ok) {
+                CompanionPresenceStore.recordPerceptionAttempt(characterId,
+                    "休眠交接尚未完成 · ${handoff.reason}", finishedAt)
+                CompanionOnlineStore.schedulePersistedConcernReview(characterId, finishedAt)
             }
         }
-        if (!saveCommitmentBeforeAction && (execution.success || execution.deliveredReply))
-            persistTurnCommitments()
+        if (onlineExpiryAtMillis > 0L) {
+            val currentWindow = CompanionOnlineStore.states.value[characterId]?.onlineUntil?.toEpochMilli()
+            val originalWindowEnded = currentWindow == onlineExpiryAtMillis
+            if (OnlineContinuationPolicy.needsCommitmentRecovery(
+                    keptAwake = CompanionOnlineStore.states.value[characterId]?.isOnline() == true,
+                    superseded = !originalWindowEnded,
+                    hasUncoveredCommitment = originalWindowEnded &&
+                        CompanionSleepHandoff.uncovered(appContext, characterId, Instant.now()).isNotEmpty(),
+                )) ProactivePerceptionScheduler.scheduleUnfinishedCommitmentRecovery(appContext, characterId)
+        }
         // Reuse the SAME role decision for grounded life updates. The old
         // post-delivery scanner sees this exact turn marked as already
         // interpreted, so normal messages cost zero extra extraction calls.
