@@ -28,6 +28,23 @@ class CharacterRelationshipAuthorityTest {
             .contains(agreement.details))
     }
 
+    @Test fun everyStillEffectiveAuthoredRelationshipSurvivesBeyondEightContacts() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        MigratedDomainStores.initialize(context)
+        CharacterLifeStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("关系网络无裁断").characterId
+        for (index in 0 until 12) {
+            assertTrue(CharacterLifeStore.setRelationshipAgreement(
+                role, "test-contact-$index", "有明确关系",
+                "现行关系约定[$index]；条件完整，不允许因为列表位置省略。"))
+        }
+        val prompt = CharacterRuntime.definition(role).relationshipPromptSection()
+        for (index in 0 until 12) {
+            assertTrue("Current relationship $index was hidden by a prompt limit",
+                prompt.contains("现行关系约定[$index]"))
+        }
+    }
+
     @Test fun editedMixedRelationshipRemainsCompleteAndDoesNotChangeAnotherPerson() {
         val context = RuntimeEnvironment.getApplication() as Context
         MigratedDomainStores.initialize(context)
