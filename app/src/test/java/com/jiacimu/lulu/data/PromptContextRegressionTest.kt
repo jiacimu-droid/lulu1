@@ -26,6 +26,28 @@ class PromptContextRegressionTest {
             .selected.contains("recall-use-guidance"))
     }
 
+    @Test fun coreAndUnfinishedResponsibilitiesCannotEatHistoricalRecallAllowance() {
+        // Authoritative core and unfinished obligations have separate complete
+        // outgoing sections. Their size cannot reduce historical recall to zero.
+        val budget = PromptContextBudget(
+            recallLimit = 40, memoryCharacters = 1_200,
+            evidenceCharacters = 1_200, recentCharacters = 0,
+            worldDetails = false, richInnerLife = true,
+            lexiconCharacters = 1_200, precise = false,
+            workingSetCharacters = 1_000,
+        )
+        val history = "【有来源的旧经历】\n" + "今天想起上次一起读书。"
+        val selected = MemoryWorkingSet.assemble(
+            UnifiedMemoryContext(activeTaskContext = "未完成的真实任务。".repeat(1_000)),
+            emptyList(), listOf("旧经历摘要" to history), budget,
+            coreSection = "不可丢失的核心记忆。".repeat(1_000),
+        )
+        assertEquals(0, selected.protectedCharacters)
+        assertTrue(selected.sections["旧经历摘要"].orEmpty().contains(history))
+        assertTrue(selected.usedCharacters <= budget.workingSetCharacters)
+        assertFalse(selected.sections.values.joinToString().contains("未完成的真实任务。"))
+    }
+
     @Test fun largeBacklogKeepsNewestEventsWithinHardBudget() {
         val events = (0 until 1000).map { index -> SharedTimelineEvent(
             id = "event-$index", characterId = "role", channel = "私聊", speaker = "用户",
