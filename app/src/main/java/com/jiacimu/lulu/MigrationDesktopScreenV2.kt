@@ -275,7 +275,7 @@ internal fun MigrationHomeV2(
                                                 page = pagerState.currentPage,
                                                 col = ((origin.x - grid.leftPx) / grid.cellPx).roundToInt()
                                                     .coerceIn(0, DESKTOP_COLUMNS - original.columns),
-                                                row = ((origin.y - grid.topPx) / grid.cellPx).roundToInt()
+                                                row = ((origin.y - grid.topPx) / grid.rowStridePx).roundToInt()
                                                     .coerceIn(0, DESKTOP_ROWS - original.rows),
                                             )
                                             if (luluWidgetFits(moved, widgets, slots)) {
