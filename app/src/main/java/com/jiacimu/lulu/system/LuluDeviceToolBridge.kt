@@ -315,7 +315,7 @@ object LuluDeviceToolBridge {
         // detail below can add concrete IDs, but cannot replace available
         // choices or create a second tool universe.
         val companionActionContext =
-            com.jiacimu.lulu.data.CapabilityRegistry.decisionCapabilityOverview(appContext, characterId) +
+            CompanionActionRuntime.sharedDecisionCapabilities(appContext, characterId) +
                 "\n" + CompanionActionRuntime.capabilityContext(appContext, characterId, includeWorldContext = false) +
                 "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
         val initiativeContext = com.jiacimu.lulu.data.CharacterInitiativeRuntime.context(characterId, userText)
