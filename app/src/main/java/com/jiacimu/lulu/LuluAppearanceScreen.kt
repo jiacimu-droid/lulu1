@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.LuluAppearanceCatalog
 import com.jiacimu.lulu.data.LuluCssSheet
 import com.jiacimu.lulu.data.LuluCssStore
@@ -47,6 +48,9 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
     var scope by rememberSaveable { mutableStateOf("Home") }
     var selectScope by remember { mutableStateOf(false) }
     var selectCover by remember { mutableStateOf(false) }
+    var selectWidget by remember { mutableStateOf(false) }
+    var widgetCode by rememberSaveable { mutableStateOf<String?>(null) }
+    val widget = LuluWidgetKind.entries.firstOrNull { it.code == widgetCode }
     var pendingImageSelector by rememberSaveable { mutableStateOf<String?>(null) }
     val importScope = rememberCoroutineScope()
     val apps = remember { desktopCssApps() }
@@ -132,6 +136,27 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
         }
     }
 
+    if (selectWidget) {
+        ModalBottomSheet(onDismissRequest = { selectWidget = false }) {
+            Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
+                Text("选择小组件", style = MaterialTheme.typography.titleLarge)
+                LazyColumn(Modifier.fillMaxWidth().heightIn(max = 460.dp)) {
+                    items(LuluWidgetKind.entries, key = { it.code }) { kind ->
+                        ListItem(
+                            headlineContent = { Text(kind.title) },
+                            supportingContent = { Text(LuluCssTargets.widgetSelector(kind.code)) },
+                            modifier = Modifier.clickable {
+                                widgetCode = kind.code
+                                scope = "Home"
+                                selectWidget = false
+                            },
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     if (selectScope) {
         ModalBottomSheet(onDismissRequest = { selectScope = false }) {
             Column(
@@ -187,8 +212,13 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item {
-                OutlinedButton(onClick = { selectCover = true }, modifier = Modifier.fillMaxWidth()) {
-                    Text("更换应用封面")
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = { selectCover = true }, modifier = Modifier.weight(1f)) {
+                        Text("应用封面")
+                    }
+                    OutlinedButton(onClick = { selectWidget = true }, modifier = Modifier.weight(1f)) {
+                        Text("小组件 CSS")
+                    }
                 }
             }
             item {
@@ -205,7 +235,60 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                     Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "更换页面")
                 }
             }
-            item {
+            if (scope == "Home" && widget != null) {
+                item {
+                    val selector = LuluCssTargets.widgetSelector(widget.code)
+                    Text(widget.title, style = MaterialTheme.typography.titleMedium)
+                    Text(selector, style = MaterialTheme.typography.bodySmall,
+                        fontFamily = FontFamily.Monospace)
+                    LuluAppearanceTheme(preview, scope = "Home", sheetOverride = sheet) {
+                        Surface(color = MaterialTheme.colorScheme.background,
+                            modifier = Modifier.fillMaxWidth()) {
+                            BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                LuluCssBackground(Modifier.matchParentSize())
+                                LuluDesktopWidgetCard(
+                                    widget = LuluDesktopWidget("css-preview", widget, 0, 0, 0),
+                                    today = rememberLuluDesktopDate(),
+                                    characterName = null,
+                                    lastConversationText = null,
+                                    modifier = Modifier.width(maxWidth * (widget.columns / 4f))
+                                        .height(if (widget.rows == 1) 98.dp else 132.dp),
+                                    onOpen = {},
+                                    onEdit = null,
+                                    specialContent = { card, ink, _ ->
+                                        Box(Modifier.fillMaxSize().padding(horizontal = 18.dp),
+                                            contentAlignment = Alignment.CenterStart) {
+                                            Text(card.kind.title, color = ink, fontSize = 18.sp,
+                                                fontWeight = FontWeight.SemiBold)
+                                        }
+                                    },
+                                )
+                            }
+                        }
+                    }
+                    Row(
+                        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        TextButton(onClick = {
+                            val style = if (widget.isDateTime) {
+                                "color: #292929; font-size: 36sp; background-color: transparent; border-width: 0dp;"
+                            } else {
+                                "color: #292929; background-color: #fafafa; border-radius: 20dp; " +
+                                    "border-width: 1dp; border-color: #e7e7e7;"
+                            }
+                            source += "\n$selector { $style }\n"
+                            status = "样式已加入草稿"
+                        }, enabled = sheet.element("Home", "widget-" + widget.code).keys.all { it == "background-image" }) {
+                            Text("插入样式")
+                        }
+                        TextButton(onClick = {
+                            pendingImageSelector = selector
+                            importImage.launch("image/*")
+                        }) { Text("导入组件背景") }
+                    }
+                }
+            } else item {
                 Text("页面色彩预览", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(8.dp))
                 LuluAppearanceTheme(preview, scope = scope, sheetOverride = sheet) {

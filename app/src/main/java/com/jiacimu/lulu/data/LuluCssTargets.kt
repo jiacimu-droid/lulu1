@@ -71,7 +71,7 @@ object LuluCssTargets {
         "navigation", "title", "actions", "card", "primary-button", "text-input")
     private val desktopElements = setOf("launcher", "launcher-label", "companion", "desktop-dock",
         "widget-chat", "widget-bulletin", "widget-horoscope", "widget-note", "widget-countdown", "widget-planner",
-        "widget-calendar", "widget-photo")
+        "widget-calendar", "widget-clock", "widget-photo")
     private val chatElements = setOf("bubble", "bubble-user", "bubble-role", "messages", "composer",
         "composer-input", "composer-send", "composer-tools")
 
@@ -94,4 +94,6 @@ object LuluCssTargets {
     }
 
     fun coverSelector(appId: String): String = "#Home .app-$appId"
+
+    fun widgetSelector(kind: String): String = "#Home .widget-$kind"
 }

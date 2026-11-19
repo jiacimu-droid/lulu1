@@ -88,6 +88,23 @@ class LuluCssRuntimeTest {
         assertEquals("contain", reading["background-size"])
     }
 
+    @Test fun desktopClockCanUseIndependentInkAndAnOptionalFrame() {
+        val sheet = LuluCssSheet.parse("""
+            ${LuluCssTargets.widgetSelector("clock")} {
+                color: #292929; font-size: 38sp; background-color: transparent; border-width: 0dp;
+            }
+            ${LuluCssTargets.widgetSelector("calendar")} { border-color: #ddd; border-width: 1dp; }
+        """.trimIndent())
+        assertTrue(sheet.errors.isEmpty())
+        assertTrue(sheet.warnings.isEmpty())
+        val clock = sheet.element("Home", "widget-clock")
+        assertEquals("38sp", clock["font-size"])
+        assertEquals("0dp", clock["border-width"])
+        assertEquals(0L, LuluCssSheet.parseColor(clock["background-color"]))
+        assertEquals("1dp", sheet.element("Home", "widget-calendar")["border-width"])
+        assertTrue(sheet.element("Chat", "widget-clock").isEmpty())
+    }
+
     @Test fun noBundledAppearancePacksRemain() {
         assertEquals(listOf("paper"), LuluAppearanceCatalog.builtIns.map { it.id })
     }
