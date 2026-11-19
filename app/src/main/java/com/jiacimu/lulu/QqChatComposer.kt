@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import com.jiacimu.lulu.design.LocalLuluCssFooterAtTop
 import com.jiacimu.lulu.design.luluCssElement
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.speech.RecognizerIntent
 import androidx.activity.compose.BackHandler
@@ -40,6 +41,21 @@ internal data class QqComposerPayload(
 internal fun qqComposerHasDraft(text: String, imageUri: String?): Boolean =
     text.isNotBlank() || !imageUri.isNullOrBlank()
 
+/**
+ * An external speech-recognition UI is optional on Android devices.
+ * Never let a missing/blocked resolver crash the chat or discard its draft.
+ * Launch first rather than relying on resolveActivity, which can be filtered
+ * by Android package visibility even when the Activity is launchable.
+ */
+internal fun launchQqSpeechRecognition(start: () -> Unit): Boolean = try {
+    start()
+    true
+} catch (_: ActivityNotFoundException) {
+    false
+} catch (_: SecurityException) {
+    false
+}
+
 @Composable
 internal fun QqChatComposer(
     inputState: MutableState<String>,
@@ -64,6 +80,7 @@ internal fun QqChatComposer(
     var imageUri by remember { mutableStateOf<String?>(null) }
     var importingPhoto by remember { mutableStateOf(false) }
     var photoImportError by remember { mutableStateOf("") }
+    var speechLaunchError by remember { mutableStateOf("") }
     var pickerRevision by remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
     var showStickerShelf by remember { mutableStateOf(false) }
@@ -108,6 +125,7 @@ internal fun QqChatComposer(
         val spoken = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
             ?.firstOrNull().orEmpty().trim()
         if (spoken.isNotBlank()) {
+            speechLaunchError = ""
             inputState.value = listOf(inputState.value.trim(), spoken).filter(String::isNotBlank).joinToString(" ")
         }
     }
@@ -138,6 +156,11 @@ internal fun QqChatComposer(
         if (photoImportError.isNotBlank()) {
             Text(photoImportError, color = Color(0xFFB04C4C),
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp), fontSize = 12.sp)
+        }
+        if (speechLaunchError.isNotBlank()) {
+            Text(speechLaunchError, color = Color(0xFFB04C4C),
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
+                fontSize = 12.sp)
         }
         if (imageUri != null) {
             Surface(
@@ -175,11 +198,15 @@ internal fun QqChatComposer(
         ) {
             FilledTonalIconButton(
                 onClick = {
-                    speechLauncher.launch(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                        putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                        putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN")
-                        putExtra(RecognizerIntent.EXTRA_PROMPT, "说点什么")
-                    })
+                    val launched = launchQqSpeechRecognition {
+                        speechLauncher.launch(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN")
+                            putExtra(RecognizerIntent.EXTRA_PROMPT, "说点什么")
+                        })
+                    }
+                    speechLaunchError = if (launched) "" else
+                        "系统语音输入未能启动。可先用键盘发送，或启用设备的语音识别服务后重试。"
                 },
                 modifier = Modifier.size(48.dp),
                 colors = IconButtonDefaults.filledTonalIconButtonColors(
