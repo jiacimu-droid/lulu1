@@ -382,6 +382,8 @@ object ToolRouter {
                         }
                     } else if (name == "read_self_todo") {
                         com.jiacimu.lulu.SelfTodoRoleRead.execute(context, args).toString()
+                    } else if (name == "read_self_preface") {
+                        com.jiacimu.lulu.SelfPrefaceRoleRead.execute(context, args).toString()
                     } else if (name == "write_desktop_widget_note" ||
                         name == "decorate_desktop_widget") {
                         com.jiacimu.lulu.LuluWidgetRoleActions.execute(
