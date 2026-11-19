@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`1b9c9489072abc0c0214ef8cf5460673da7e4007`
+- 基准提交：`eb1e452e7b244cb5bda1c3f234edd6d4d0f185c6`
 - 分支：`main`
 - 已索引文件：1486
-- 已索引代码/文本行：316718
+- 已索引代码/文本行：316769
 - 已发现符号：4511
 
 | 文件 | 行数 | 符号数 |
@@ -169,7 +169,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 715 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 111 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 373 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 306 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 327 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 977 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 80 | 1 |
@@ -963,7 +963,7 @@
 | `app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 308 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherPlaylistTest.kt` | 54 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DArchiveTest.kt` | 252 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DCallVisionStateTest.kt` | 62 | 1 |
