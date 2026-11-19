@@ -30,6 +30,55 @@ class ProactiveQuietDecisionTest {
         assertEquals(menu, CapabilityRegistry.decisionCapabilityOverview(context, role))
     }
 
+    @Test fun roleCanSeeSocialWorldReadingCallsAndPlanningAsRealActionTemplates() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val menu = CapabilityRegistry.decisionCapabilityOverview(context, "full-capability-examples")
+        val useCases = mapOf(
+            "发朋友圈" to "publish_moment(text:",
+            "好友私聊" to "send_character_message(targetCharacterId,bubbles",
+            "参与群聊" to "send_group_message(groupId,text)",
+            "现实好友见面" to "digital_world_action(worldAction,locationCode",
+            "拨打视频/语音" to "start_call(text,mediaMode=voice|video)",
+            "读一本书" to "read_book(readingBookId)",
+            "跟用户一起玩" to "send_game_invite(gameId,text)",
+            "自主安排未来阅读" to "plan_personal_activity(title,intent,dueAt,activityAction",
+            "收藏真实原话" to "favorite_user_message(messageId,reason)",
+            "给自己写备忘" to "write_phone_memo(title,content)",
+        )
+        for ((purpose, example) in useCases)
+            assertTrue("No executable example for $purpose", menu.contains(example))
+        assertTrue(menu.contains("前台私聊、在线窗口、后台感知使用同一真实工具"))
+        assertTrue(menu.contains("同轮回复可附 steps"))
+        assertTrue(menu.contains("requiresPreviousSuccess:false"))
+        assertTrue(menu.contains("新回执再选择"))
+    }
+
+    @Test fun sameIncomingReplyMayChooseUnrelatedMomentGroupAndSearchSteps() {
+        val chosen = org.json.JSONObject()
+            .put("action", "message")
+            .put("text", "我刚想起来一件挺有意思的事。")
+            .put("steps", org.json.JSONArray()
+                .put(org.json.JSONObject().put("tool", "publish_moment")
+                    .put("args", org.json.JSONObject().put("text", "今天读到了一段好文字")))
+                .put(org.json.JSONObject().put("tool", "send_group_message")
+                    .put("args", org.json.JSONObject().put("groupId", "real-group")
+                        .put("text", "大家要不要一起看看？")))
+                .put(org.json.JSONObject().put("tool", "web_search")
+                    .put("args", org.json.JSONObject().put("op", "search")
+                        .put("query", "需要核实的真实关键词"))))
+        val speech = chosen.getString("text")
+        val decoded = CharacterThoughtActionHandoff.actions(chosen)!!
+        assertEquals(listOf("publish_moment", "send_group_message", "web_search"),
+            (0 until decoded.length()).map { decoded.getJSONObject(it).getString("tool") })
+        assertEquals(speech, chosen.getString("text"))
+        assertTrue((0 until decoded.length()).all {
+            CapabilityRegistry.canChoose(decoded.getJSONObject(it).getString("tool"))
+        })
+        // Tool side steps need their own receipts. None is proof that this
+        // separately authored incoming message reached the user.
+        assertFalse(decoded.toString().contains("send_private_message"))
+    }
+
     @Test fun residentAbilityDirectoryCannotExposeOwnersPrivateDeviceOrWebTools() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         val menu = CapabilityRegistry.decisionCapabilityOverview(context, "resident:menu-check")

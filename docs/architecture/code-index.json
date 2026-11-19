@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T06:10:33.121433+00:00",
-  "commit": "5e59bbc566ae534be6287bace3ab63dd4d0e1a29",
+  "generatedAt": "2026-11-19T06:12:02.436639+00:00",
+  "commit": "e075447fe94164f7855905f35f206cfca1a57c67",
   "branch": "main",
-  "sourceFingerprint": "3c7a26ced62109a3b973da876e52f66ce2c33c6380e555a1ddc95b27b67423fd",
+  "sourceFingerprint": "4a8e3b38fb42312fc0e9cdffadf8e679c22ef6c83c9149d4412f1c91481d23ed",
   "summary": {
     "files": 1480,
-    "lines": 314295,
+    "lines": 314344,
     "symbols": 4487
   },
   "symbolIndex": {
@@ -30732,7 +30732,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 339,
-      "sha256": "3650d6014a4c84edd240fd4b30707c234e3700de49c83b721c02612694394aa7",
+      "sha256": "1c36d140200578553bcef5320cae67998be051e73e82b8bc0f59dc59fde93fd6",
       "symbols": [
         {
           "name": "Capability",
@@ -50167,8 +50167,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt",
-      "lines": 434,
-      "sha256": "1b19b4e20f69a6fc93e7a45e5ec0813646ccaf4d3fd668992d9c76f632b7e970",
+      "lines": 483,
+      "sha256": "ac4145a0dac028b7e9a263b3ac8a774738149ab9d48e0dd8559a666958b9e93a",
       "symbols": [
         {
           "name": "ProactiveQuietDecisionTest",
