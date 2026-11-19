@@ -81,7 +81,7 @@ internal class GameLiveSession(
         }
     }
 
-    fun setCompanionAudioEnabled(enabled: Boolean) {
+    fun changeCompanionAudioEnabled(enabled: Boolean) {
         if (participantIds.isEmpty() && !allowSoloHost) return
         companionAudioEnabled = enabled
         playbackError = ""
@@ -238,7 +238,7 @@ internal fun GameTalkBar(
                     Text("我说话", fontSize = 10.sp, color = talkMuted)
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    IconButton(onClick = { session.setCompanionAudioEnabled(!speakerOn) }) {
+                    IconButton(onClick = { session.changeCompanionAudioEnabled(!speakerOn) }) {
                         Icon(
                             if (speakerOn) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
                             contentDescription = if (speakerOn) "让角色改用文字" else "播放角色语音",

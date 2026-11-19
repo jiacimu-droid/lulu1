@@ -68,6 +68,18 @@ class CharacterDecisionProtocolTest {
         assertTrue(soloLife.contains("plan_personal_activity"))
     }
 
+    @Test fun relationshipCuriosityCanStartWithOldDetailsOrOnAnOrdinaryDay() {
+        val direct = proactiveDecisionInstruction("curious-private", directPrivateChat = true)
+        val autonomous = proactiveDecisionInstruction("curious-solo", directPrivateChat = false)
+        for (prompt in listOf(direct, autonomous)) {
+            assertTrue(prompt.contains("我自己又想起了什么"))
+            assertTrue(prompt.contains("一个旧细节、今天自己的见闻"))
+            assertTrue(prompt.contains("没回话、或心情很好"))
+            assertTrue(prompt.contains("read_self_preface 的所思、所重、所愿或所行"))
+            assertTrue(prompt.contains("挑当下真正浮现的写入 privateIdeas"))
+        }
+    }
+
     @Test fun privateFutureContactNeedsPersistedScheduleInBothLifeEntrances() {
         val privateChat = proactiveDecisionInstruction("future-private", directPrivateChat = true)
         val autonomous = proactiveDecisionInstruction("future-autonomous", directPrivateChat = false)

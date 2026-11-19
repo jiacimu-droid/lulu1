@@ -171,6 +171,8 @@ internal object CharacterPerceptionContext {
         }
         val summary = result.optString("summary").ifBlank { result.optString("error") }.trim()
         if (summary.isBlank()) return null
+        if (tool == "read_self_preface")
+            return SearchReceiptFeedback.from(tool, JSONObject(), result)?.details
         if (execution.optString("tool") == com.jiacimu.lulu.ai.JevDirections.TOOL && result.optBoolean("success"))
             return "本人真实调用Jev取得模型参考（不是外界新事实）：${result}"
         return "本人实际尝试 ${execution.optString("tool")}；执行成功=${result.optBoolean("success")}；$summary"

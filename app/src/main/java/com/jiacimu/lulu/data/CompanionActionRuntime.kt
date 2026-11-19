@@ -1547,6 +1547,8 @@ internal object SearchReceiptFeedback {
     // Compatibility for older decisions. Only an explicitly authored JSON
     // false opts out of the immediate chat report; receipts still reach the role.
     fun requestsPrivateReply(args: JSONObject?): Boolean = args?.opt("reportToUser") != false
+    fun requestsPrivateReply(tool: String, args: JSONObject?): Boolean =
+        if (tool == "read_self_preface") args?.opt("reportToUser") == true else requestsPrivateReply(args)
 
     /** One vocabulary for result-bearing reads, including optional model
      * references, across all scene adapters. No result selects a new action. */
@@ -1644,7 +1646,7 @@ internal object SearchReceiptFeedback {
             result.optString("error").ifBlank { "检索或阅读没有返回可用内容" }
         }
         return VerifiedSearchReceipt(tool, op, success, detail,
-            result.optString("evidenceId"), reportToUser = requestsPrivateReply(args))
+            result.optString("evidenceId"), reportToUser = requestsPrivateReply(tool, args))
     }
 }
 
@@ -1660,11 +1662,15 @@ internal object SearchReceiptFeedback {
  */
 internal object SearchResultContinuation {
     fun requiresCompletion(hasUnreadUserRequest: Boolean, mainTool: String,
-        sideActions: org.json.JSONArray?): Boolean =
-        hasUnreadUserRequest && (mainTool in SearchReceiptFeedback.resultTools ||
+        sideActions: org.json.JSONArray?, mainArgs: JSONObject? = null): Boolean =
+        hasUnreadUserRequest && (awaitsReply(mainTool, mainArgs) ||
             (0 until (sideActions?.length() ?: 0)).any { i ->
-                sideActions?.optJSONObject(i)?.optString("tool") in SearchReceiptFeedback.resultTools
+                sideActions?.optJSONObject(i)?.let { awaitsReply(it.optString("tool"), it.optJSONObject("args")) } == true
             })
+
+    private fun awaitsReply(tool: String, args: JSONObject?): Boolean =
+        tool in SearchReceiptFeedback.resultTools &&
+            (tool != "read_self_preface" || SearchReceiptFeedback.requestsPrivateReply(tool, args))
 
     suspend fun <T> finishAcceptedTurn(protect: Boolean, block: suspend () -> T): T =
         if (protect) withContext(NonCancellable) { block() } else block()

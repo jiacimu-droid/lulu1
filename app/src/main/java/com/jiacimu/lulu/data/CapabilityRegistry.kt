@@ -140,7 +140,7 @@ object CapabilityRegistry {
                 "favorite_user_message" to "收藏用户原话 favorite_user_message(messageId,reason)",
                 "write_phone_memo" to "写本人备忘录 write_phone_memo(title,content)",
                 "read_self_todo" to "查看今日/历史所行 read_self_todo(scope=today|all)",
-                "read_self_preface" to "自主查看主人自序 read_self_preface(area=thoughts|values|wishes|todo；所思选date=today|yesterday|latest|YYYY-MM-DD，或op=dates浏览日期；所重/所愿全读，所行读今日已完成和未完成)",
+                "read_self_preface" to "自主查看主人自序 read_self_preface(area=thoughts|values|wishes|todo；所思选date=today|yesterday|latest|YYYY-MM-DD，或op=dates浏览日期；所重/所愿全读，所行读今日已完成和未完成；自己读完可留在心里，用户正等本次结果时填reportToUser=true)",
                 "plan_personal_activity" to "安排自己的未来行动 plan_personal_activity(title,intent,dueAt,activityAction,activityArgs)",
                 "reschedule_personal_activity" to "改期 reschedule_personal_activity(planId,expectedDueAt,dueAt,reason)",
                 "start_study_watch" to "申请限时学习监督 start_study_watch(minutes)",

@@ -293,7 +293,7 @@ internal fun SoupComposer(
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Surface(
-                            onClick = { live.setCompanionAudioEnabled(!speakerOn) },
+                            onClick = { live.changeCompanionAudioEnabled(!speakerOn) },
                             shape = CircleShape,
                             color = if (speakerOn) SoupTableColors.green else SoupTableColors.background,
                             modifier = Modifier.size(44.dp),
