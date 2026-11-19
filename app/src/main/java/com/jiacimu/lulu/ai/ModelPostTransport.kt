@@ -139,7 +139,7 @@ internal class ModelPostTransportException(
     cause: IOException,
     val preBodyRetries: Int = 0,
 ) : IOException(cause.message ?: cause.javaClass.simpleName, cause) {
-    val diagnostic: String get() = when (phase) {
+    val diagnostic: String get() = "；网络异常类型=${cause?.javaClass?.simpleName ?: "IOException"}" + when (phase) {
         ModelPostTransport.Phase.CONNECT ->
             if (preBodyRetries > 0)
                 "；连接建立失败，请求正文尚未发送；已安全重连${preBodyRetries}次（每次均未发送正文），不再重试"
