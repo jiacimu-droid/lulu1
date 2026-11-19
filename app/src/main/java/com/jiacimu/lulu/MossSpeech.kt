@@ -188,7 +188,16 @@ internal class MossSpeech(context: Context) {
     companion object {
         const val ENDPOINT = "https://api.mosi.cn/v1/audio/speech"
         const val DEFAULT_MODEL = "moss-tts-1.5-flash"
-        val MODELS = setOf(DEFAULT_MODEL, "moss-tts-1.0-pro",
-            "moss-tts-1.5-flash-2026-06-26", "moss-tts-1.0-pro-2026-02-07")
+        // The six single-speaker IDs accepted by MOSS /v1/audio/speech.
+        // The selectable catalog and request validation must stay in sync.
+        val MODEL_CHOICES = listOf(
+            "2.0 Flash Preview · 最新" to "moss-tts-2.0-flash-preview",
+            "2.0 Flash Preview · 2026-11-04" to "moss-tts-2.0-flash-preview-2026-11-04",
+            "1.5 Flash · 推荐" to DEFAULT_MODEL,
+            "1.5 Flash · 2026-06-26" to "moss-tts-1.5-flash-2026-06-26",
+            "1.0 Pro" to "moss-tts-1.0-pro",
+            "1.0 Pro · 2026-02-07" to "moss-tts-1.0-pro-2026-02-07",
+        )
+        val MODELS: Set<String> = MODEL_CHOICES.map { it.second }.toSet()
     }
 }
