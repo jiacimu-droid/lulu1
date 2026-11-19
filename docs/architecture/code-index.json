@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T11:37:12.896187+00:00",
-  "commit": "386a399156ecfa2a5bea78aac3c5cd0e623ce127",
+  "generatedAt": "2026-11-19T11:37:39.168705+00:00",
+  "commit": "306f52264f353ca764fb1cb0c631276b7ad80367",
   "branch": "main",
-  "sourceFingerprint": "aa5c00f6397d2ac230b96e9f9b71c140dfebf3515fcb12f698d8f342a4a8bd32",
+  "sourceFingerprint": "dfa6e8dde41114e9c6c6e2f28932b50ce17a7e3aaf4bfc9eff3ca555d23d62bd",
   "summary": {
     "files": 1480,
-    "lines": 315271,
+    "lines": 315273,
     "symbols": 4492
   },
   "symbolIndex": {
@@ -6037,7 +6037,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 635
+        "line": 637
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt",
@@ -38107,8 +38107,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 754,
-      "sha256": "5bc021fc2ae3ef0fb329aa2e8aac0a33e843b7b9a2d37730111a1af8392ac1af",
+      "lines": 756,
+      "sha256": "8e3c145d143a9123e344c87609ae94a4cfbd8e9ed2b3daa605e3c4225491c539",
       "symbols": [
         {
           "name": "completed",
@@ -38140,7 +38140,7 @@
         },
         {
           "name": "project",
-          "line": 635
+          "line": 637
         }
       ]
     },
