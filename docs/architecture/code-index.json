@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T02:21:12.889385+00:00",
-  "commit": "80a137d12982e93ee11b854995493be0b8855af0",
+  "generatedAt": "2026-11-19T02:34:27.471773+00:00",
+  "commit": "99cb1b9aa3655aac2e5b6eda24dd3d4364f769a1",
   "branch": "main",
-  "sourceFingerprint": "b501071af1096de4dd839d33b173f30478aaa9b29a1dbf41308ef46be76d0baf",
+  "sourceFingerprint": "485cef70f78e391f53d9e0bf2e210087ce1c4d7f48979b16600948078fde7111",
   "summary": {
     "files": 1480,
-    "lines": 313109,
+    "lines": 313110,
     "symbols": 4463
   },
   "symbolIndex": {
@@ -20579,7 +20579,7 @@
     "LuluDesktopWidgetTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/LuluDesktopWidgetTest.kt",
-        "line": 9
+        "line": 10
       }
     ],
     "LuluFirstRunAgreementTest": [
@@ -46066,12 +46066,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/LuluDesktopWidgetTest.kt",
-      "lines": 147,
-      "sha256": "76ef6a1554b0d4f96dd00822d8d72513ebda48ec81dafec16e83a1e979caaebd",
+      "lines": 148,
+      "sha256": "5dc0d46b1c755db53b7b88d96ae6756f59edfa69897f37d59a82e9bb4d55fac6",
       "symbols": [
         {
           "name": "LuluDesktopWidgetTest",
-          "line": 9
+          "line": 10
         }
       ]
     },
