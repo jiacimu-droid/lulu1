@@ -37,7 +37,7 @@ class ProactiveQuietDecisionTest {
             "发朋友圈" to "publish_moment(text:",
             "好友私聊" to "send_character_message(targetCharacterId,bubbles",
             "参与群聊" to "send_group_message(groupId,text)",
-            "现实好友见面" to "digital_world_action(worldAction,locationCode",
+            "数字世界真实外出" to "digital_world_action(worldAction=visit_public_place,locationCode",
             "拨打视频/语音" to "start_call(text,mediaMode=voice|video)",
             "读一本书" to "read_book(readingBookId)",
             "跟用户一起玩" to "send_game_invite(gameId,text)",
@@ -51,6 +51,57 @@ class ProactiveQuietDecisionTest {
         assertTrue(menu.contains("同轮回复可附 steps"))
         assertTrue(menu.contains("requiresPreviousSuccess:false"))
         assertTrue(menu.contains("新回执再选择"))
+    }
+
+    @Test fun foregroundAndAutonomousLifeSeeOneRoleScopedActionDirectory() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val role = "shared-scene-actions"
+        val shared = CompanionActionRuntime.sharedDecisionCapabilities(context, role)
+        val online = CompanionActionRuntime.autonomousDiscoveryContext(context, role)
+        val original = CapabilityRegistry.decisionCapabilityOverview(context, role)
+        assertTrue(shared.startsWith(original))
+        assertTrue("Autonomous wake must receive the same actual role menu", online.startsWith(shared))
+        for (choice in listOf("publish_moment", "send_character_message",
+            "send_group_message", "create_group_chat", "digital_world_action",
+            "background_phone", "web_search", "start_call", "read_book",
+            "plan_personal_activity")) {
+            assertTrue("$choice missing in common decision menu", shared.contains(choice))
+            assertTrue("$choice lost in background life", online.contains(choice))
+        }
+        assertTrue(shared.contains("visit_character_home"))
+        assertTrue(shared.contains("visit_resident_home"))
+        assertTrue(shared.contains("mediaMode=voice|video"))
+        assertTrue(shared.contains("同轮回复可附 steps"))
+        assertFalse(shared.contains("write_journal"))
+        assertFalse(shared.contains("read_xiaohongshu"))
+    }
+
+    @Test fun realisticChatMayKeepOneReplyAndChooseIndependentSocialWorldAndPhoneActions() {
+        val chosen = org.json.JSONObject().put("action", "message")
+            .put("text", "我还想接着跟你聊。")
+            .put("steps", org.json.JSONArray()
+                .put(org.json.JSONObject().put("tool", "publish_moment")
+                    .put("args", org.json.JSONObject().put("text", "读完书想记住这一刻")))
+                .put(org.json.JSONObject().put("tool", "send_character_message")
+                    .put("args", org.json.JSONObject().put("targetCharacterId", "known-friend")
+                        .put("text", "今天想起你了")))
+                .put(org.json.JSONObject().put("tool", "digital_world_action")
+                    .put("args", org.json.JSONObject().put("worldAction", "visit_public_place")
+                        .put("locationCode", "real-place")))
+                .put(org.json.JSONObject().put("tool", "background_phone")
+                    .put("args", org.json.JSONObject().put("action", "observe")))
+                .put(org.json.JSONObject().put("tool", "web_search")
+                    .put("args", org.json.JSONObject().put("op", "search")
+                        .put("query", "真实的资料问题"))))
+        val pending = CharacterThoughtActionHandoff.actions(chosen)!!
+        val names = (0 until pending.length()).map { pending.getJSONObject(it).getString("tool") }
+        assertEquals(listOf("publish_moment", "send_character_message",
+            "digital_world_action", "background_phone", "web_search"), names)
+        assertEquals("我还想接着跟你聊。", chosen.getString("text"))
+        assertTrue(names.all(CapabilityRegistry::canChoose))
+        assertFalse(pending.toString().contains("send_private_message"))
+        // A tool becoming available is not authorization or proof of delivery.
+        assertEquals("observe", pending.getJSONObject(3).getJSONObject("args").getString("action"))
     }
 
     @Test fun sameIncomingReplyMayChooseUnrelatedMomentGroupAndSearchSteps() {
