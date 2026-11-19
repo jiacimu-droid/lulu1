@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`c88199aaafddcf0d8802d0aa4bc3c8729885606d`
+- 基准提交：`1bff078a2fca2ffea84260e37d434c22c2775bea`
 - 分支：`main`
-- 已索引文件：1478
-- 已索引代码/文本行：312708
-- 已发现符号：4456
+- 已索引文件：1479
+- 已索引代码/文本行：312740
+- 已发现符号：4457
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -194,7 +194,7 @@
 | `app/src/main/java/com/jiacimu/lulu/Live2DTouchZones.kt` | 37 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DVisualActionBus.kt` | 552 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
-| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 984 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 979 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAlipayDonationQr.kt` | 96 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 307 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt` | 333 | 4 |
@@ -248,7 +248,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MomentsComposePage.kt` | 163 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsPostCard.kt` | 333 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MomentsScreen.kt` | 310 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MossSpeech.kt` | 195 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/MossSpeech.kt` | 204 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 58 | 0 |
@@ -991,6 +991,7 @@
 | `app/src/test/java/com/jiacimu/lulu/MeetingVoiceOffTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MeetingWalkAndTalkContractTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt` | 34 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/MossSpeechModelCatalogTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PerceptionStatusPresentationTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt` | 54 | 1 |
