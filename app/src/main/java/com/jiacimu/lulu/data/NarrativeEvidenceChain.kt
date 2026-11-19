@@ -47,10 +47,18 @@ internal object NarrativeEvidenceChain {
             .groupBy { it.characterId to it.sessionId }
             .mapValues { (_, group) -> group.sortedWith(ordered) }
 
+        val subjectivityByParent = current.values.mapNotNull { event ->
+            event.presenceParentEventId()?.let { it to event }
+        }.groupBy({ it.first }, { it.second })
+
         fun add(event: SharedTimelineEvent) {
             if (chosen.size < limit) chosen.putIfAbsent(event.id, event)
         }
         validSeeds.take(8).forEach { seed ->
+            val parent = seed.presenceParentEventId()?.let(current::get)
+            parent?.let(::add)
+            subjectivityByParent[seed.id].orEmpty().forEach(::add)
+            val episodeAnchor = parent ?: seed
             // Strong, stable task IDs bridge phone, chat, tools and later
             // feedback across days without inventing a semantic connection.
             if (seed.taskId.isNotBlank()) {
@@ -70,14 +78,15 @@ internal object NarrativeEvidenceChain {
             // A session is weaker than a task. Use a strict time neighborhood
             // even across scene channels; never join events days apart solely
             // because they reused a session label.
-            if (seed.sessionId.isNotBlank()) {
-                val related = sessionGroups[seed.characterId to seed.sessionId].orEmpty()
+            if (episodeAnchor.sessionId.isNotBlank()) {
+                val related = sessionGroups[episodeAnchor.characterId to episodeAnchor.sessionId].orEmpty()
                     .filter {
-                        Duration.between(seed.occurredAt, it.occurredAt).abs().seconds <= 900
+                        it.source != "presence" &&
+                            Duration.between(episodeAnchor.occurredAt, it.occurredAt).abs().seconds <= 900
                     }
-                val index = related.indexOfFirst { it.id == seed.id }
+                val index = related.indexOfFirst { it.id == episodeAnchor.id }
                 if (index >= 0) {
-                    listOf(index - 1, index + 1)
+                    listOf(index - 1, index + 1, index - 2, index + 2)
                         .mapNotNull(related::getOrNull).forEach(::add)
                 }
             }
@@ -135,6 +144,20 @@ internal object NarrativeEvidenceChain {
                 }
             }
         }
+        val known = distinct.mapTo(mutableSetOf()) { it.characterId to it.id }
+        for (event in distinct) {
+            val parent = event.presenceParentEventId() ?: continue
+            if ((event.characterId to parent) in known) {
+                result[event.id] = "〔本人当时的感受，关联原始事件 $parent〕"
+            }
+        }
         return result
     }
+}
+
+internal fun SharedTimelineEvent.presenceParentEventId(): String? {
+    val suffix = "-$characterId"
+    if (source != "presence" || evidenceKind != EventEvidenceKind.Inference ||
+        !id.startsWith("presence-") || !id.endsWith(suffix)) return null
+    return id.removePrefix("presence-").removeSuffix(suffix).takeIf(String::isNotBlank)
 }

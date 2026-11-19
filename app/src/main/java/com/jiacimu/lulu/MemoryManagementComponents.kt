@@ -389,8 +389,17 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                 } catch (error: Exception) { onNotice(error.message ?: "整理失败") }
                 finally { busy = false }
             } }, modifier = Modifier.fillMaxWidth()) { Text(if (busy) "正在整理…" else "整理当前角色记忆") }
-            Text("待提取的完整轮次：${repository.pendingMessageCount(characterId)} 轮", fontSize = 12.sp, color = FeatureBlueGray)
-            debug.lastError?.let { Text(it, color = MaterialTheme.colorScheme.error, fontSize = 12.sp) }
+            val pendingTurns = repository.pendingMessageCount(characterId)
+            val retryTurns = repository.deferredExtractionTurnCount(characterId)
+            Text("待提取：$pendingTurns 轮", fontSize = 12.sp, color = FeatureBlueGray)
+            if (retryTurns > 0) Text("其中有 $retryTurns 轮已安排补提取，原始记录可继续回忆。",
+                fontSize = 12.sp, color = FeatureBlueGray)
+            if (debug.characterId == characterId) {
+                if (debug.extracting) Text(debug.message.substringBefore("\n"), fontSize = 12.sp, color = FeatureBlueGray)
+                debug.lastError?.let {
+                    Text("后台整理暂缓，原始记录已保留。", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                }
+            }
             TextButton(onClick = { audit = !audit }) { Text(if (audit) "收起下发记录" else "查看置顶记忆下发记录") }
             if (audit) CoreMemoryInjectionCard(characterId, memories)
         }

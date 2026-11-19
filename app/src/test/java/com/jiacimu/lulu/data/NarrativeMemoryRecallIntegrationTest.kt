@@ -22,6 +22,35 @@ class NarrativeMemoryRecallIntegrationTest {
     @Before fun before() { MemoryTestEnvironment.release() }
     @After fun after() { MemoryTestEnvironment.release() }
 
+    @Test fun rawHistoricalEmotionRecallsItsConversationBeforeAnySummaryExists() = runBlocking {
+        val app = RuntimeEnvironment.getApplication() as Context
+        LuluRepositories.initialize(app)
+        SharedExperienceTimeline.initialize(app)
+        val role = "affect-owner-" + UUID.randomUUID()
+        val other = "affect-other-" + UUID.randomUUID()
+        val at = Instant.now().minus(Duration.ofDays(21))
+        val parent = "old-disagreement-$role"
+        val state = "presence-$parent-$role"
+        fun record(id: String, owner: String, text: String, seconds: Long, kind: EventEvidenceKind,
+                   source: String = "message", speaker: String = "主人") {
+            SharedExperienceTimeline.record(id, owner, if (source == "presence") "此刻" else "私聊",
+                speaker, text, at.plusSeconds(seconds), false, "conversation-$owner", source, kind)
+        }
+        record(parent, role, "你上次临时把约好的看电影取消了", 0, EventEvidenceKind.UserStatement)
+        record(state, role, "心情：恼火；心声：那次约好以后一直在等", 1, EventEvidenceKind.Inference, "presence", "角色")
+        record("later-$role", role, "我们把后来几点见面说清楚了", 120, EventEvidenceKind.CharacterStatement, speaker = "角色")
+        record("another-person-$other", other, "我很愤怒", 130, EventEvidenceKind.CharacterStatement, speaker = "角色")
+        assertTrue(LuluRepositories.memory.snapshot(role).isEmpty())
+        val request = UnifiedMemoryRequest(currentInput = "之前有一次你不是很生气吗")
+        val found = UnifiedMemoryOrchestrator.assemble(role, request, evidenceLimit = 8, localOnly = true)
+        assertEquals(setOf(state, parent, "later-$role"), found.sourceEvents.map { it.id }.toSet())
+        assertTrue(found.sourceEvidence.contains("本人当时的感受"))
+        assertTrue(found.sourceEvidence.contains("临时把约好的看电影取消"))
+        val hidden = UnifiedMemoryOrchestrator.assemble(role, request.copy(hiddenEventIds = setOf(parent)),
+            evidenceLimit = 8, localOnly = true)
+        assertFalse(hidden.sourceEvents.any { it.id == parent || it.id == state })
+    }
+
     @Test fun talkPromiseAndToolFailureAreOneEvidenceBackedEpisodeAcrossScenes() = runBlocking {
         val app = RuntimeEnvironment.getApplication() as Context
         LuluRepositories.initialize(app)

@@ -56,6 +56,68 @@ class MemoryEvidenceCommitIntegrationTest {
             JSONObject().put("message", JSONObject().put("content", JSONArray().put(item).toString())).put("finish_reason", "stop"))).toString())
     }
 
+    @Test(timeout = 60000) fun versionedSourceAndPartialFailureResumeFromCommittedTurns() = runBlocking {
+        val server = MockWebServer()
+        fun modelJson(value: String) = MockResponse().setHeader("Content-Type", "application/json")
+            .setBody(JSONObject().put("choices", JSONArray().put(JSONObject()
+                .put("message", JSONObject().put("content", value))
+                .put("finish_reason", "stop"))).toString())
+        server.enqueue(modelJson("[]"))
+        server.enqueue(modelJson("""[
+            {"kind":"Timeline","content":"在桥边看到猫","sourceEventIds":["old-2@1"]},
+            {"kind":"Timeline","content":"没有来源的猜测"},
+            {"kind":"Timeline","content":"跨批次的旧引用","sourceEventIds":["old-0"]},
+            {"kind":"Timeline","content":"错误版本的引用","sourceEventIds":["old-2@9"]}
+        ]""".trimIndent()))
+        server.enqueue(modelJson("""[{"kind":"Timeline","content":"后来找到落下的钥匙","sourceEventIds":["new-3"]}]"""))
+        server.enqueue(modelJson("""[{"kind":"Emotion","content":"当时因为猫走失而担心","sourceEventIds":["old-2"]}]"""))
+        server.start()
+        try {
+            val context = initialize(server)
+            val original = LuluRepositories.memory
+            original.updatePersonalPolicy(role, MemoryPolicy(0, 2))
+            event("old-0", "先去买了一杯豆浆")
+            event("old-1", "之后聊到了窗台", user = false, at = now.plusSeconds(1))
+            original.summarizeNow(role)
+            assertEquals(0, original.pendingMessageCount(role))
+
+            original.updatePersonalPolicy(role, MemoryPolicy(1, 1))
+            event("old-2", "在桥边看到猫", at = now.plusSeconds(2))
+            event("new-3", "后来找到落下的钥匙", user = false, at = now.plusSeconds(3))
+            event("protected-4", "这轮放在近期原话里", at = now.plusSeconds(4))
+            original.summarizeNow(role)
+            assertEquals(3, server.requestCount)
+            assertEquals(setOf("在桥边看到猫", "后来找到落下的钥匙"), original.snapshot(role).map { it.content }.toSet())
+            assertEquals(1, original.pendingMessageCount(role))
+            assertEquals(1, original.deferredExtractionTurnCount(role))
+            assertEquals(now.plusSeconds(2), original.snapshot(role).first { it.sourceIds() == listOf("old-2") }.occurredAt)
+            repeat(3) { index ->
+                val body = server.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS)!!.body.readUtf8()
+                if (index > 0) assertFalse(body.contains("eventId=old-0@"))
+                assertFalse(body.contains("eventId=protected-4@"))
+            }
+
+            var clock = Instant.now()
+            val restored = LocalMemoryRepository { clock }.apply { initialize(context) }
+            restored.summarizeNow(role)
+            assertEquals(3, server.requestCount)
+            assertFalse(restored.shouldFlushPendingTail(role, clock))
+            clock = clock.plusSeconds(16 * 60)
+            assertTrue(restored.shouldFlushPendingTail(role, clock))
+            val attempts = context.getSharedPreferences("lulu_background_model_requests_v1", Context.MODE_PRIVATE)
+            assertTrue(attempts.edit().apply {
+                attempts.all.keys.filter { it.startsWith("evidence-attempt:") }.forEach { key ->
+                    putLong(key, System.currentTimeMillis() - BackgroundModelRequestBudget.SAME_EVIDENCE_RETRY_MS - 1_000L)
+                }
+            }.commit())
+            restored.summarizeNow(role)
+            assertEquals(4, server.requestCount)
+            assertEquals(0, restored.pendingMessageCount(role))
+            assertEquals(0, restored.deferredExtractionTurnCount(role))
+            assertTrue(restored.snapshot(role).any { it.kind == MemoryKind.Emotion })
+        } finally { server.shutdown() }
+    }
+
     @Test fun editedSourceInvalidatesSummaryBeforeRecordReturns() = runBlocking {
         initialize()
         event("target", "原先的相处说明")
