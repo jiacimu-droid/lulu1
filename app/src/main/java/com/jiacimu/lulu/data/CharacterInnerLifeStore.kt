@@ -1881,6 +1881,7 @@ object CharacterInnerLifeStore {
         val bonds = root.optJSONObject("bonds")
         val thoughts = root.optJSONArray("thoughts") ?: JSONArray()
         val decisions = root.optJSONArray("decisions") ?: JSONArray()
+        val recentInnerVoices = root.optJSONArray("innerVoices") ?: JSONArray()
         return buildString {
             appendLine(USER_GUESS_EVIDENCE_BOUNDARY)
             appendLine(CharacterActivityExpectation.context(root.optJSONArray("activityExpectations"), now))
@@ -1985,6 +1986,16 @@ object CharacterInnerLifeStore {
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             CharacterDeliberationContext.summary(root.optJSONArray("causalTransitions"), now)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
+            // The compact scene must see the most recent authored heart voice even
+            // after later quiet decisions crowd it out of the causal summary.
+            if (recentInnerVoices.length() > 0) {
+                appendLine("【最近真实心声｜用于对照心理变化，不代表当下事实】")
+                for (i in maxOf(0, recentInnerVoices.length() - 2) until recentInnerVoices.length()) {
+                    val voiceMoment = recentInnerVoices.optJSONObject(i) ?: continue
+                    appendLine("· " + voiceMoment.optString("thought").take(180) + "（" +
+                        voiceMoment.optString("occurredAt").take(30) + "）")
+                }
+            }
             // Self-organize batch 2 (revised), prompt only: tidy from already-delivered
             // motives, still-open concerns and thoughts, not only when thoughts exist.
             // No new model call, no new store, no hard rule; unpicked items stay in
