@@ -38,6 +38,7 @@ import org.json.JSONObject
 
 internal data class SharedListeningTrack(
     val title: String, val artist: String, val packageName: String, val playing: Boolean,
+    val album: String = "", val positionMs: Long = 0L, val durationMs: Long = 0L,
 )
 
 /** Playback shares an explicitly selected file once per room entry; manual retry stays available. */
@@ -50,14 +51,21 @@ internal fun listenedMediaSession(raw: String): Pair<SharedListeningTrack?, Stri
         ?: return null to "媒体会话数据无效"
     if (!root.optBoolean("success")) return null to root.optString("error", "读取媒体会话失败")
     val sessions = root.optJSONArray("sessions")
-    val playing = (0 until (sessions?.length() ?: 0))
-        .mapNotNull { sessions?.optJSONObject(it) }.firstOrNull { it.optBoolean("playing") }
-        ?: return null to "没有发现正在播放的可访问媒体会话"
+    val candidates = (0 until (sessions?.length() ?: 0)).mapNotNull { sessions?.optJSONObject(it) }
+    val selected = candidates.firstOrNull {
+        it.optString("packageName") == "com.netease.cloudmusic" && it.optBoolean("playing")
+    } ?: candidates.firstOrNull { it.optBoolean("playing") }
+        ?: candidates.firstOrNull { it.optString("packageName") == "com.netease.cloudmusic" }
+        ?: candidates.firstOrNull()
+        ?: return null to "未发现播放器。请在网易云音乐里播放一次，或检查通知使用权"
     return SharedListeningTrack(
-        playing.optString("title").ifBlank { "未提供歌曲名" },
-        playing.optString("artist").ifBlank { "未知歌手" },
-        playing.optString("packageName"),
-        true,
+        selected.optString("title").ifBlank { "未提供歌曲名" },
+        selected.optString("artist").ifBlank { "未知歌手" },
+        selected.optString("packageName"),
+        selected.optBoolean("playing"),
+        album = selected.optString("album"),
+        positionMs = selected.optLong("positionMs").coerceAtLeast(0L),
+        durationMs = selected.optLong("durationMs").coerceAtLeast(0L),
     ) to ""
 }
 
@@ -79,6 +87,7 @@ internal fun ListenTogetherRoom(
     conversationId: String,
     characterId: String,
     characterName: String,
+    characterAvatarUri: String? = null,
     onDiscuss: (String) -> Boolean,
     onClose: () -> Unit,
 ) {
@@ -211,102 +220,86 @@ internal fun ListenTogetherRoom(
         }
     }
 
-    val visibleMessages = messages.takeLast(8)
-    Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(Modifier.fillMaxWidth().fillMaxHeight(0.94f).padding(12.dp),
-            shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.surface) {
-            Column(Modifier.fillMaxSize().padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onClose) { Icon(Icons.Outlined.ArrowBack, "返回聊天") }
-                    Text("一起听 · $characterName", style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f))
+    ListenTogetherPlayerScreen(
+        characterId = characterId,
+        characterName = characterName,
+        characterAvatarUri = characterAvatarUri,
+        mode = mode,
+        onModeChange = { mode = it; status = "" },
+        external = track,
+        externalError = sessionError,
+        onRefreshExternal = { refreshExternal() },
+        onExternalControl = { command ->
+            scope.launch {
+                val raw = withContext(Dispatchers.IO) {
+                    LuluMediaPlayback.control(context, command, track?.packageName.orEmpty())
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = mode == "system", onClick = { mode = "system" },
-                        label = { Text("手机正在放的歌") })
-                    FilterChip(selected = mode == "local", onClick = { mode = "local" },
-                        label = { Text("本地音频") })
+                val result = runCatching { JSONObject(raw) }.getOrNull()
+                status = when {
+                    result?.optBoolean("success") == true -> ""
+                    result?.optBoolean("accepted") == true ->
+                        "请求已发给播放器，正在等待最新播放状态"
+                    else -> result?.optString("error").orEmpty().ifBlank { "播放器未接受此操作" }
                 }
-                if (mode == "system") {
-                    Text(track?.let { "${it.title} · ${it.artist}" }
-                        ?: sessionError.ifBlank { "正在查看播放器" },
-                        style = MaterialTheme.typography.bodyLarge)
-                    Text("这里只能读取曲名和播放状态。如果想让角色真正分析声音，请从手机中选择对应的音频文件。",
-                        style = MaterialTheme.typography.bodySmall)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = ::refreshExternal) { Text("刷新歌曲") }
-                        Button(enabled = track != null, onClick = {
-                            track?.let {
-                                recordListening("用户邀请角色一起听手机正在播放的媒体：" +
-                                    "歌曲=${it.title}；歌手=${it.artist}；来源=${it.packageName}。" +
-                                    "这里只取得媒体会话元数据，没有获得声波或歌词，角色不能声称已实际听见。")
-                                status = "已记录本次一起听；可以在下方邀请角色聊聊"
-                            }
-                        }) { Text("加入一起听") }
-                    }
-                    OutlinedButton(onClick = { picker.launch(arrayOf("audio/*")) }) {
-                        Text("提供音频 · 让角色真正听")
-                    }
-                } else {
-                    OutlinedButton(onClick = { picker.launch(arrayOf("audio/*")) }) {
-                        Text("选择本地歌曲")
-                    }
-                    Text(audioName.ifBlank { "尚未选择歌曲" },
-                        style = MaterialTheme.typography.bodyLarge)
-                    Row(verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-                        Button(enabled = player != null, onClick = {
-                            player?.let { active ->
-                                runCatching {
-                                    if (active.isPlaying) {
-                                        active.pause()
-                                    } else {
-                                        active.start()
-                                        if (active.isPlaying) {
-                                            recordListening("用户与角色在同一房间开始播放本地音频：$audioName。" +
-                                                "播放本身不代表已理解声音；以随后独立音频感知回执为准。")
-                                            analyzeSharedFile(uri)
-                                        }
-                                    }
-                                    playing = active.isPlaying
-                                }.onFailure { status = "播放操作失败：" + it.message.orEmpty() }
-                            }
-                        }) { Text(if (playing) "暂停" else "播放并分享") }
-                        Text("${elapsed / 60000}:${(elapsed / 1000 % 60).toString().padStart(2, '0')} / " +
-                            "${duration / 60000}:${(duration / 1000 % 60).toString().padStart(2, '0')}",
-                            style = MaterialTheme.typography.bodySmall)
-                    }
-                    OutlinedButton(enabled = uri.isNotBlank() && !busy, onClick = {
-                        analyzeSharedFile(uri, retry = true)
-                    }) { Text(if (busy) "正在分析音频…" else "重新分析这首歌") }
-                    Text("点击“播放并分享”会分析所选音频，并交给已配置的听觉服务（可能收费）；" +
-                        "同一文件与同一模型的有效结果会复用。未配置模型时仅能免费测量 PCM16 WAV 的声音强弱。" +
-                        "这不是实时监听其他音乐 App。",
-                        style = MaterialTheme.typography.bodySmall)
-                }
-                if (status.isNotBlank()) Text(status, style = MaterialTheme.typography.bodySmall)
-                HorizontalDivider(Modifier.padding(vertical = 12.dp))
-                Text("边听边聊", style = MaterialTheme.typography.titleSmall)
-                LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(vertical = 8.dp)) {
-                    items(visibleMessages, key = { it.id }) { item ->
-                        Text((if (item.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.User) "你"
-                            else if (item.sender == com.jiacimu.lulu.data.LuluChatMessage.Sender.Character)
-                                characterName else "记录") + "： " + item.content.take(300),
-                            style = MaterialTheme.typography.bodySmall)
-                    }
-                }
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value = draft, onValueChange = { draft = it },
-                        modifier = Modifier.weight(1f), singleLine = true,
-                        placeholder = { Text("想和TA聊这首歌…") })
-                    Button(enabled = draft.isNotBlank(), onClick = {
-                        if (onDiscuss(draft.trim())) draft = ""
-                    }) { Text("发送") }
-                }
+                delay(400L)
+                refreshExternal()
             }
-        }
-    }
+        },
+        onJoinExternal = {
+            track?.let {
+                recordListening(
+                    "用户邀请角色一起听手机媒体会话：" + it.title +
+                        "；歌手=" + it.artist + "；来源=" + it.packageName +
+                        "。只取得媒体元数据，尚未提供实际音频或歌词。")
+                status = "你们已加入一起听 ♡"
+            }
+        },
+        onOpenNetease = {
+            val launch = context.packageManager.getLaunchIntentForPackage("com.netease.cloudmusic")
+            if (launch == null) {
+                status = "未发现网易云音乐 App，请先在手机安装并播放歌曲"
+            } else runCatching { context.startActivity(launch) }
+                .onFailure { status = "打开网易云失败：" + it.message.orEmpty() }
+        },
+        localName = audioName,
+        localUri = uri,
+        localPlaying = playing,
+        localPosition = elapsed,
+        localDuration = duration,
+        onSelectLocal = { picker.launch(arrayOf("audio/*")) },
+        onLocalToggle = {
+            player?.let { active ->
+                runCatching {
+                    if (active.isPlaying) {
+                        active.pause()
+                    } else {
+                        active.start()
+                        if (active.isPlaying) {
+                            recordListening(
+                                "用户与角色在同一房间播放本地音频：" + audioName +
+                                    "；是否听懂以随后独立音频感知回执为准。")
+                            analyzeSharedFile(uri)
+                        }
+                    }
+                    playing = active.isPlaying
+                }.onFailure { status = "播放失败：" + it.message.orEmpty() }
+            }
+        },
+        onAnalyzeLocal = { analyzeSharedFile(uri, retry = true) },
+        onChooseLocal = { selected ->
+            if (selected == uri) {
+                runCatching { player?.seekTo(0) }
+            } else {
+                uri = selected
+                lastAnalysisAttemptUri = ""
+                prefs.edit().putString(key + "audio", uri).putInt(key + "position", 0).apply()
+            }
+            mode = "local"
+        },
+        busy = busy,
+        status = status,
+        messages = messages.takeLast(5),
+        onDiscuss = onDiscuss,
+        onClose = onClose,
+    )
 }
