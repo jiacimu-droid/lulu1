@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T17:20:22.355707+00:00",
-  "commit": "b6c7ebd082163c49de7fe62906f7215b5436b79f",
+  "generatedAt": "2026-11-19T17:21:11.288299+00:00",
+  "commit": "ad9cd388a82a7cf0eecab95a0be4df71e15a313e",
   "branch": "main",
-  "sourceFingerprint": "b6d35657f591816bcf5011628596726806ef64b3c2d0ee573ddca8b42608de23",
+  "sourceFingerprint": "f81e4361275f59d142bd8577bf3b5633a30f3ba2ac4eb30d03dbc73b1f780d3b",
   "summary": {
     "files": 1486,
-    "lines": 317204,
+    "lines": 317279,
     "symbols": 4514
   },
   "symbolIndex": {
@@ -42546,7 +42546,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
       "lines": 394,
-      "sha256": "865ee76ca0223be6877b03015462a221775e820da98a27cd5079bc0c8dc23573",
+      "sha256": "5a644ff884fe2584edb734633c7b453299428b64938149636dbbba5c3d11c053",
       "symbols": [
         {
           "name": "PomodoroTimerMode",
@@ -50450,8 +50450,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt",
-      "lines": 554,
-      "sha256": "f9be293b9d93e52285d7e5515c6bdedc55d9d8d80c5ee2320485be83f2c16bd4",
+      "lines": 555,
+      "sha256": "f83f597ea5fe85c35a5342416dedceb63fde07466faf20dabfc9ba9f03e58c62",
       "symbols": [
         {
           "name": "ProactiveQuietDecisionTest",
@@ -52262,8 +52262,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt",
-      "lines": 125,
-      "sha256": "dee47cf996df973db5f760eebf23eea2d923f17d8570bcf9c3a165190df513ba",
+      "lines": 199,
+      "sha256": "bcfb09e5dd90865e405e9418f6a714e423fa0b26122035384c0432dc813f9772",
       "symbols": [
         {
           "name": "PrivatePomodoroTimerTest",

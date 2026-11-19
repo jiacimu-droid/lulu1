@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b6c7ebd082163c49de7fe62906f7215b5436b79f`
+- 基准提交：`ad9cd388a82a7cf0eecab95a0be4df71e15a313e`
 - 分支：`main`
 - 已索引文件：1486
-- 已索引代码/文本行：317204
+- 已索引代码/文本行：317279
 - 已发现符号：4514
 
 | 文件 | 行数 | 符号数 |
@@ -1261,7 +1261,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveIncomingCallHistoryTest.kt` | 94 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt` | 317 | 25 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 554 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 555 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt` | 327 | 11 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 241 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 99 | 1 |
@@ -1401,7 +1401,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt` | 201 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 94 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt` | 585 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt` | 125 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt` | 199 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingGrowthTheaterTest.kt` | 189 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingReactionPolicyTest.kt` | 64 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/ReadingStarterLibraryTest.kt` | 19 | 1 |
