@@ -807,6 +807,13 @@ object LuluDeviceToolBridge {
         }
         if (callSilence && parsedPlan.action !in setOf("reply", CharacterDecisionProtocol.SILENT))
             return Result.failure(IllegalStateException("通话沉默观察不执行外部工具动作"))
+        // A successful quiet decision requires a current, character-authored
+        // private intention. Never invent a thought from the action label.
+        if (callSilence && parsedPlan.action == CharacterDecisionProtocol.SILENT &&
+            !CharacterDecisionProtocol.hasAuthoredMomentaryIdea(parsedPlan.appraisal)) {
+            return Result.failure(IllegalStateException(
+                "通话观察缺少当轮真实想法；未记录为空白的自主沉默"))
+        }
         var plan = parsedPlan
         // Common voice models sometimes complete speechIntent but omit the
         // optional final text field. Fix only the missing spoken surface instead
