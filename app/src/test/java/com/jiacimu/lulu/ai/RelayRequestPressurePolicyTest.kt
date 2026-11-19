@@ -53,20 +53,20 @@ class RelayRequestPressurePolicyTest {
     }
 
     @Test fun fullRoleAuthoritySurvivesEvenWhenLargerThanFormerSceneCap() {
-        val old = "【较早的零散阅读】\\n" + "可替换的旧摘录。\\n".repeat(6_000)
-        val live = "【本轮仍未回应的真实新消息】\\n" +
+        val old = "【较早的零散阅读】\n" + "可替换的旧摘录。\n".repeat(6_000)
+        val live = "【本轮仍未回应的真实新消息】\n" +
             "用户这次的完整原话不能被裁断。".repeat(800)
-        val commitments = "【当前已承担的目标与统一验收入口】\\n" +
+        val commitments = "【当前已承担的目标与统一验收入口】\n" +
             "taskId=real-unfinished-1；真正验收条件不能删去。".repeat(120)
-        val tools = "【本人可选择的能力目录｜私聊、在线窗口和后台独自感知共用】\\n" +
+        val tools = "【本人可选择的能力目录｜私聊、在线窗口和后台独自感知共用】\n" +
             "read_self_preface、read_self_todo、background_phone"
-        val facts = listOf(old, live, commitments, tools).joinToString("\\n")
+        val facts = listOf(old, live, commitments, tools).joinToString("\n")
         val result = RelayRequestPressurePolicy.compactActorSceneFacts(facts)
         assertTrue(result.length > 14_000) // No budget is allowed to cut live facts.
         assertTrue(result.contains(live))
         assertTrue(result.contains(commitments))
         assertTrue(result.contains(tools))
-        assertFalse(result.contains("可替换的旧摘录。\\n".repeat(1_000)))
+        assertFalse(result.contains("可替换的旧摘录。\n".repeat(1_000)))
     }
 
     @Test fun emergencyRelayFallbackNeverCutsAuthoritativeActorSections() {
