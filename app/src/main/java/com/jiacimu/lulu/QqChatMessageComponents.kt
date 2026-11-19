@@ -276,11 +276,11 @@ internal fun QqMessageRow(
                         val interactiveModifier = bubbleModifier.luluCssDecor(bubbleStyle, includeArtwork = false).combinedClickable(
                             onClick = {}, onLongClick = onLongClick,
                         )
-                        if (message.voiceNote && !mine) {
+                        if (message.voiceNote) {
                             // Keep the voice control compact even when the automatic transcript is long.
                             // Both surfaces belong to this one message, retaining its reply/long-press/time.
                             Column(bubbleModifier.luluCssDecor(bubbleStyle, includeArtwork = false), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                                QqVoicePlaybackBar(message.id, onLongClick)
+                                QqVoicePlaybackBar(message.id, mine, onLongClick)
                                 if (journal) {
                                     JournalChatBubble(mine = mine, modifier = Modifier.combinedClickable(
                                         onClick = {}, onLongClick = onLongClick,
@@ -290,9 +290,9 @@ internal fun QqMessageRow(
                                         modifier = Modifier.combinedClickable(
                                             onClick = {}, onLongClick = onLongClick,
                                         ),
-                                        color = bubbleStyle.cssColor("background-color") ?: QqOther,
+                                        color = bubbleStyle.cssColor("background-color") ?: if (mine) QqMine else QqOther,
                                         shape = RoundedCornerShape(bubbleStyle.cssDp("border-radius") ?: 15.dp),
-                                        border = BorderStroke(1.dp, QqBorder),
+                                        border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
                                         shadowElevation = 0.dp,
                                     ) { bubbleContent() }
                                 }
@@ -377,15 +377,22 @@ internal fun QqMessageRow(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun QqVoicePlaybackBar(messageId: String, onLongClick: () -> Unit) {
+private fun QqVoicePlaybackBar(messageId: String, mine: Boolean, onLongClick: () -> Unit) {
+    val duration = remember(messageId, mine) {
+        if (!mine) null else ChatAutoVoicePlayback.cachedFile(messageId)?.let { file ->
+            if (file.extension != "wav" || file.length() <= 44L) null
+            else ((file.length() - 44L) / 32_000L).coerceAtLeast(1L)
+        }
+    }
+    val ink = if (mine) QqMineInk else QqInk
     Surface(
         modifier = Modifier.width(148.dp).heightIn(min = 44.dp).combinedClickable(
             onClick = { ChatAutoVoicePlayback.replayCached(messageId) },
             onLongClick = onLongClick,
         ),
-        color = QqOther,
+        color = if (mine) QqMine else QqOther,
         shape = RoundedCornerShape(15.dp),
-        border = BorderStroke(1.dp, QqBorder),
+        border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
         shadowElevation = 0.dp,
     ) {
         Row(
@@ -397,7 +404,7 @@ private fun QqVoicePlaybackBar(messageId: String, onLongClick: () -> Unit) {
                 Icons.Outlined.PlayArrow,
                 contentDescription = "播放语音",
                 modifier = Modifier.size(23.dp),
-                tint = QqInk,
+                tint = ink,
             )
             Row(
                 modifier = Modifier.height(23.dp),
@@ -408,9 +415,12 @@ private fun QqVoicePlaybackBar(messageId: String, onLongClick: () -> Unit) {
                 listOf(7, 13, 19, 11, 23, 16, 9, 5).forEach { height ->
                     Box(
                         Modifier.width(2.dp).height(height.dp)
-                            .background(QqInk.copy(alpha = 0.80f), RoundedCornerShape(2.dp)),
+                            .background(ink.copy(alpha = 0.80f), RoundedCornerShape(2.dp)),
                     )
                 }
+            }
+            duration?.let {
+                Text("${it}s", color = ink.copy(alpha = 0.8f), fontSize = 11.sp)
             }
         }
     }
