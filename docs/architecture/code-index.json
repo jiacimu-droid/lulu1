@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T13:42:02.771558+00:00",
-  "commit": "c1c423fa9f19d5f0619f1f8743e681ab8bb4b2bf",
+  "generatedAt": "2026-11-19T13:42:37.073359+00:00",
+  "commit": "ee1e68814d6fcc8e2d0a3de5f1626b8d2d9beb03",
   "branch": "main",
-  "sourceFingerprint": "c49037b9b25bfcb8d2a0c990da52b37d72d9c4c206b30024412d2123c5bbee0b",
+  "sourceFingerprint": "54780142310f0d7b7c47cf26fccfc4702e51f29595dee04cc810426d0337d7ac",
   "summary": {
     "files": 1486,
-    "lines": 316892,
+    "lines": 316909,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -32696,7 +32696,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
       "lines": 429,
-      "sha256": "f986f3d61656292f31d842a94afdc798b48d49ef86aa136f1415ba8c7de9b0b4",
+      "sha256": "d5c6df9c3a13a2cd8b700db81169c511ad634e789fe2b39f3699a168594ec0e6",
       "symbols": [
         {
           "name": "CharacterSocialRelationshipSnapshot",
@@ -48623,8 +48623,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRelationshipAuthorityTest.kt",
-      "lines": 59,
-      "sha256": "b55b60867c33a117ddeb37279aaf7830adaafab7032cf0bfb5d5fee85c91a1e3",
+      "lines": 76,
+      "sha256": "dead646af80b625f7a85f720b9d4d524d48e4f009fa0abc98162461760392bcd",
       "symbols": [
         {
           "name": "CharacterRelationshipAuthorityTest",
