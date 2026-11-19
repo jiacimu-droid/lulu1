@@ -319,6 +319,28 @@ class TurtleSoupRoomTest {
         assertEquals(room.evidence, SoupRoom.fromJson(room.toJson())!!.evidence)
     }
 
+    @Test fun everyOriginalPuzzleKeepsSealedTruthOutOfGuesserContext() {
+        SoupLibrary.cases.forEach { puzzle ->
+            val room = SoupRoom(caseId = puzzle.id, host = SoupHost.AI,
+                companions = listOf("guesser"),
+                lines = listOf(
+                    SoupLine("你", SoupKind.QUESTION, "这和时间有关吗？"),
+                    SoupLine("固定主持人", SoupKind.ANSWER, "否", questionIndex = 0),
+                ))
+            val visible = room.publicContext()
+            assertTrue(puzzle.id, visible.contains(puzzle.surface))
+            assertTrue(puzzle.id, visible.contains("这和时间有关吗？"))
+            assertFalse(puzzle.id, visible.contains(puzzle.truth))
+            assertFalse(puzzle.id, visible.contains("锁定汤底："))
+            assertFalse(puzzle.id, visible.contains("核心里程碑："))
+        }
+        val original = SoupRoom(caseId = CUSTOM_CASE_ID, host = SoupHost.AI,
+            customTitle = "自创的故事",
+            customSurface = "这个故事的汤面是一个全新的谜题，猜题者只应看到这里的文字。",
+            customTruth = "这是只有主持人才能看到的自创真相，不能由公共上下文泄露。")
+        assertFalse(original.publicContext().contains(original.puzzle.truth))
+    }
+
     @Test fun hostInstructionsGroundJudgmentsAndKeepRolesSeparate() {
         val judge = SoupHostGuide.question(SoupHost.AI)
         assertTrue(judge.contains("固定汤底"))
