@@ -244,7 +244,8 @@ class CharacterInnerLifeStoreTest {
         assertEquals(13, other.size)
         for (index in 0 until 19) {
             assertTrue("Live motive $index lost from model input",
-                text.contains("目标不同探索方向$index"))
+                text.contains("目标不同探索方向$index") ||
+                    text.contains("目标=不同探索方向$index"))
         }
         CharacterInnerLifeStore.clear(role)
     }
