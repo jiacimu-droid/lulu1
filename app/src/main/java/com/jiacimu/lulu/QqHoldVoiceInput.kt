@@ -59,6 +59,10 @@ internal class QqHoldVoiceRecorder(private val context: Context, private val sco
 
     fun begin(): Boolean {
         if (recording || processing) return false
+        if (pending != null) {
+            notice = "有一段录音尚未送达，请先重试或丢弃"
+            return false
+        }
         CallVoiceConfiguration.sttPreflight(context)?.let { notice = it; return false }
         pending = null
         transcript = null
@@ -124,6 +128,13 @@ internal class QqHoldVoiceRecorder(private val context: Context, private val sco
     }
 
     fun retry() { if (retryable) processPending() }
+
+    fun discardPending() {
+        if (recording || processing) return
+        pending = null
+        transcript = null
+        notice = "未发送的录音已丢弃"
+    }
 
     private fun processPending() {
         val audio = pending ?: return
@@ -295,8 +306,14 @@ internal fun QqVoiceRecordingNotice(recorder: QqHoldVoiceRecorder) {
             }
             if (recorder.notice.isNotBlank())
                 Text(recorder.notice, color = Color(0xFF44695B), fontSize = 12.sp, lineHeight = 17.sp)
-            if (recorder.retryable) TextButton(onClick = recorder::retry, contentPadding = PaddingValues(0.dp)) {
-                Text("重试转写并发送", color = accent, fontSize = 12.sp)
+            if (recorder.retryable) Row(verticalAlignment = Alignment.CenterVertically) {
+                TextButton(onClick = recorder::retry, contentPadding = PaddingValues(0.dp)) {
+                    Text("重试转写并发送", color = accent, fontSize = 12.sp)
+                }
+                Spacer(Modifier.width(9.dp))
+                TextButton(onClick = recorder::discardPending, contentPadding = PaddingValues(0.dp)) {
+                    Text("丢弃录音", color = Color(0xFF9C6660), fontSize = 12.sp)
+                }
             }
         }
     }
