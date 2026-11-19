@@ -64,7 +64,7 @@ class PomodoroCompanionStore private constructor(context: Context) {
                 val wait = if (enabled && activeCountdown) randomMicroRestDelayMillis() else 0L
                 current.copy(
                     microRestEnabled = enabled,
-                    microRestNextAtEpochMillis = if (current.countdownRunning) nowMillis + wait else 0L,
+                    microRestNextAtEpochMillis = if (enabled && activeCountdown && current.countdownRunning) nowMillis + wait else 0L,
                     microRestEndsAtEpochMillis = 0L,
                     microRestPausedMillis = if (activeCountdown && !current.countdownRunning) wait else 0L,
                     microRestRemainingSeconds = 0,
