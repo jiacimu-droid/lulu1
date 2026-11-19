@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`dee82e7e977e977284375c9d82a4b513d94b0ca6`
+- 基准提交：`f0989f22c885ae69509059a77719e86bc71ee0cb`
 - 分支：`main`
 - 已索引文件：1480
-- 已索引代码/文本行：315172
-- 已发现符号：4491
+- 已索引代码/文本行：315271
+- 已发现符号：4492
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -304,7 +304,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceHomeHero.kt` | 177 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceKeyboard.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefacePalette.kt` | 28 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 607 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 705 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 445 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 180 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 339 | 0 |
@@ -368,7 +368,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 209 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt` | 71 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 351 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 352 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 66 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
