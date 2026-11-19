@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T05:43:52.248250+00:00",
-  "commit": "a06291e09ef7fdc0255756fc231c184b9abbc2fa",
+  "generatedAt": "2026-11-19T05:44:15.717871+00:00",
+  "commit": "8314b49c1ddd6ac03304c83eb7237a8bf9e95c75",
   "branch": "main",
-  "sourceFingerprint": "2324a79c4973b30846a66609386800400705be4222717b8f9ec4313b6b45e1b6",
+  "sourceFingerprint": "a98585b8fe9d0ba45cb508bc68193a13ce7a17318f13a11c043d98b4b3cfebdb",
   "summary": {
     "files": 1480,
-    "lines": 314201,
+    "lines": 314204,
     "symbols": 4487
   },
   "symbolIndex": {
@@ -3347,7 +3347,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1579
+        "line": 1582
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
@@ -6773,7 +6773,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 222
+        "line": 225
       }
     ],
     "Attempt": [
@@ -9597,49 +9597,49 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1472
+        "line": 1475
       }
     ],
     "requestsPrivateReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1530
+        "line": 1533
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1541
+        "line": 1544
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1548
+        "line": 1551
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1562
+        "line": 1565
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1572
+        "line": 1575
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1626
+        "line": 1629
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 2000
+        "line": 2003
       }
     ],
     "age": [
@@ -33289,8 +33289,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 2048,
-      "sha256": "a5d25365261ac07ac912a80617959b39a3902100e4030de85d276a01dccb618e",
+      "lines": 2051,
+      "sha256": "5f3a8c454250b7a75e17820b7b7e92837d662d0a0e2e025831dd17fce4292fcc",
       "symbols": [
         {
           "name": "asJson",
@@ -33302,43 +33302,43 @@
         },
         {
           "name": "capabilityContext",
-          "line": 222
+          "line": 225
         },
         {
           "name": "world",
-          "line": 1472
+          "line": 1475
         },
         {
           "name": "requestsPrivateReply",
-          "line": 1530
+          "line": 1533
         },
         {
           "name": "recordedReceiptId",
-          "line": 1541
+          "line": 1544
         },
         {
           "name": "completedEvidence",
-          "line": 1548
+          "line": 1551
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1562
+          "line": 1565
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1572
+          "line": 1575
         },
         {
           "name": "from",
-          "line": 1579
+          "line": 1582
         },
         {
           "name": "requiresCompletion",
-          "line": 1626
+          "line": 1629
         },
         {
           "name": "availableContext",
-          "line": 2000
+          "line": 2003
         }
       ]
     },
