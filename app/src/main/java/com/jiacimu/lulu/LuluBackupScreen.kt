@@ -49,6 +49,7 @@ import com.jiacimu.lulu.data.getLuluAutoBackupStatus
 import com.jiacimu.lulu.data.isLuluAutoBackupEnabled
 import com.jiacimu.lulu.data.setLuluAutoBackupEnabled
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.time.LocalDateTime
@@ -95,6 +96,7 @@ fun LuluBackupScreen(onBack: () -> Unit) {
                     FileOutputStream(tmp).use { out ->
                         LuluDataBackup.exportZip(LuluDataBackup.dataDir(context), out)
                     }
+                    LuluDataBackup.validateZipFile(tmp)
                     val stamp = LocalDateTime.now()
                         .format(DateTimeFormatter.ofPattern("yyyyMMdd-HHmm"))
                     val result = LuluCloudBackup.upload(
@@ -129,12 +131,24 @@ fun LuluBackupScreen(onBack: () -> Unit) {
         status = "正在导出…"
         scope.launch(Dispatchers.IO) {
             try {
-                val out = context.contentResolver.openOutputStream(uri)
-                    ?: throw IOException("打不开保存位置")
-                val result = out.use { LuluDataBackup.exportZip(LuluDataBackup.dataDir(context), it) }
-                withContext(Dispatchers.Main) {
-                    status = "已导出 ${result.fileCount} 个文件（${formatBackupSize(result.totalBytes)}）。" +
-                        "文件存在你选的位置，卸了 app 也还在。"
+                // Do not publish a partially exported archive to the user's
+                // document provider. Build and validate first, just like the
+                // daily and WebDAV paths.
+                val tmp = File.createTempFile("lulu-backup-export-", ".zip", context.cacheDir)
+                try {
+                    val result = FileOutputStream(tmp).use { out ->
+                        LuluDataBackup.exportZip(LuluDataBackup.dataDir(context), out)
+                    }
+                    LuluDataBackup.validateZipFile(tmp)
+                    val out = context.contentResolver.openOutputStream(uri)
+                        ?: throw IOException("打不开保存位置")
+                    out.use { target -> FileInputStream(tmp).use { it.copyTo(target) } }
+                    withContext(Dispatchers.Main) {
+                        status = "已导出并校验 ${result.fileCount} 个文件（${formatBackupSize(result.totalBytes)}）。" +
+                            "文件存在你选的位置，卸了 app 也还在。"
+                    }
+                } finally {
+                    tmp.delete()
                 }
             } catch (error: Exception) {
                 withContext(Dispatchers.Main) { status = "导出失败：${error.message}" }
