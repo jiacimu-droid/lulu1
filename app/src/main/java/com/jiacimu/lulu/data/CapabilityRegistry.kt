@@ -49,6 +49,67 @@ object CapabilityRegistry {
     fun canChoose(name: String): Boolean = find(name)?.retired == false
 
     /**
+     * A short, truthful index of things this same person can choose in ANY Full
+     * decision (incoming private message or quiet independent life). Entries
+     * are projected from the actual registered tools, never a second executable
+     * tool list. Permission, configuration, contact/scene ID and real results
+     * remain the existing ToolRouter/executor's responsibility.
+     */
+    fun decisionCapabilityOverview(context: Context, characterId: String): String {
+        val categories = listOf(
+            "聊天与联系" to listOf("send_private_message", "send_character_message",
+                "send_group_message", "create_group_chat", "send_friend_request",
+                "respond_friend_request", "start_call", "send_private_sticker", "send_group_sticker"),
+            "朋友圈与社交" to listOf("publish_moment", "like_moment", "comment_moment",
+                "set_phone_moments_cover", "set_user_remark", "set_self_nickname"),
+            "数字世界与朋友见面" to listOf("digital_world_action", "send_world_invite"),
+            "真实联网与手机操作" to listOf("web_search", "image_search", "background_phone",
+                "phone_ui", "capture_screen", "share_xiaohongshu", "cloud_task"),
+            "读书、游戏、音乐" to listOf("read_book", "play_solo_game", "send_game_invite",
+                "invite_duel_game", "respond_duel_invite", "list_media_sessions",
+                "control_music", "sing_song", "play_saved_song", "stop_song"),
+            "收藏与生活记录" to listOf("save_photo", "favorite_user_message",
+                "write_phone_memo", "read_self_todo", "write_desktop_widget_note",
+                "decorate_desktop_widget", "learn_topic"),
+            "日程、责任与休息" to listOf("plan_personal_activity",
+                "reschedule_personal_activity", "cancel_personal_activity",
+                "verify_commitment", "schedule_commitment_review", "create_alarm",
+                "list_alarms", "cancel_alarm", "start_study_watch", "stop_study_watch",
+                "strict_supervision", "go_offline"),
+            "设备与感知" to listOf("get_battery", "get_location", "get_current_app",
+                "read_recent_notifications", "get_screen_state", "list_alarms",
+                "control_volume", "summon_lulu", "bring_lulu_front"),
+        )
+        val active = (device + application + external).asSequence()
+            .filterNot { it.retired }
+            .map { it.name }.toSet()
+        val shown = mutableSetOf<String>()
+        return buildString {
+            appendLine("【本人可选择的能力目录｜私聊、在线窗口和后台独自感知共用】")
+            for ((label, candidates) in categories) {
+                val offered = candidates.filter { it in active && shown.add(it) &&
+                    find(it)?.let { capability -> allows(context, characterId, capability, false) } == true }
+                if (offered.isNotEmpty()) appendLine("$label：${offered.joinToString("、")}")
+            }
+            // Future registered tools are not silently invisible to the
+            // character merely because the human-readable categories lag.
+            val remaining = active.filter { it !in shown }.filter { name ->
+                find(name)?.let { allows(context, characterId, it, false) } == true
+            }.sorted()
+            if (remaining.isNotEmpty()) appendLine("其他已接通：${remaining.joinToString("、")}")
+            appendLine("只列出此刻按既有授权可尝试的已注册工具，不等于执行成功；" +
+                "搜索API还须配置、手机操作还须真实屏幕与权限、社交需要有效对象ID。" +
+                "没有列出的设备工具可能需要主人先开启授权，不可假称已禁用全部能力。")
+            appendLine("行动例子：发朋友圈 publish_moment(text)；找朋友 send_character_message(targetCharacterId,text)；" +
+                "群聊 send_group_message(groupId,text)；出门/拜访 digital_world_action(worldAction,locationCode/itemId)；" +
+                "网页 web_search(op,query)；独立虚拟屏 background_phone(action,appName)；" +
+                "给用户打语音/视频 start_call(text,mediaMode=voice|video)；读书 read_book(readingBookId)。")
+            appendLine("这些不是必做清单。本人选一次 0/1/N 个动作，同轮回复可附 steps，" +
+                "每步由同一真实执行器校验并写回执；依赖前一步结果时等待实际返回，不预编结果。")
+        }.trim()
+    }
+
+    /**
      * A decision's immediate-action labels are not necessarily ToolRouter names.
      * When that same decision is saved as a future appointment, resolve the
      * existing action vocabulary here, at the registry boundary. Never invent
