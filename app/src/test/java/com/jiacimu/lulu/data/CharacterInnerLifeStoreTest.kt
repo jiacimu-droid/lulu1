@@ -238,6 +238,14 @@ class CharacterInnerLifeStoreTest {
             assertTrue(detailed.any { it.contains("目标$aim") })
         }
         assertEquals(19, CharacterMotiveState.active(all).size)
+        // Detail rotates between six motives, but none of the other thirteen
+        // can disappear entirely from this person's current understanding.
+        val other = text.lineSequence().filter { it.startsWith("· 持续动机 id=") }.toList()
+        assertEquals(13, other.size)
+        for (index in 0 until 19) {
+            assertTrue("Live motive $index lost from model input",
+                text.contains("目标不同探索方向$index"))
+        }
         CharacterInnerLifeStore.clear(role)
     }
 
