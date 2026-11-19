@@ -356,8 +356,9 @@ internal object CompanionActionRuntime {
             friendCandidateContext(context, characterId).takeIf(String::isNotBlank)?.let { appendLine(it) }
         }
         appendLine(CapabilityRegistry.screenVisionContext(context, characterId))
-        appendLine("- read_self_todo，args={\"scope\":\"today|all\",\"offset\":0}：只读主人自序→所行的原始待办、今天完成记录、逾期/今日未完成及未来安排；today只列今天与逾期，all连以后任务也列出，每次最多30项可用nextOffset翻页。只有真实ToolRouter回执才能说已查看；不擅自编辑、勾选或转成角色自己的日程。清单未勾选不证明没学习，需结合真实计时和获主人本时段许可的start_study_watch核实。")
+        appendLine("- read_self_todo，args={\"scope\":\"today|all\",\"offset\":0}：只读主人自序→所行的原始待办、今天完成记录、逾期/今日未完成及未来安排；today列今天条目和勾选，逾期及未来先给数量；all按每页最多30项展开，可用nextOffset继续。只有真实ToolRouter回执才能说已查看；不擅自编辑、勾选或转成角色自己的日程。清单未勾选不证明没学习，需结合真实计时和获主人本时段许可的start_study_watch核实。")
         appendLine(com.jiacimu.lulu.SelfTodoRoleRead.opportunity(context))
+        appendLine(com.jiacimu.lulu.SelfTodoRoleRead.followThroughGuidance)
         com.jiacimu.lulu.LuluWidgetRoleActions.characterContext(context, characterId)
             .takeIf(String::isNotBlank)?.let(::appendLine)
         appendLine("【本人日程工具的时间基准】本机现在为 ${java.time.OffsetDateTime.now().format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME)}。dueAt 须由本人真实选择未来时刻，使用含时区偏移的 ISO8601 日期时间；不可把提示里的日期示例当固定作息。")

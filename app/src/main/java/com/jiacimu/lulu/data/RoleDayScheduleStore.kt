@@ -806,13 +806,16 @@ object RoleDayScheduleStore {
         persist(context, previous.map { if (it.id == plan.id) follow else it })
         if (plan.repeat == "daily") {
             try {
-                scheduleWake(context, follow, now)
+                // The current worker may still be sending the role's chosen follow-up.
+                // Replacing it here would cancel that action and the rest of this decision.
+                scheduleWake(context, follow, now, appendToCurrentWork = true)
             } catch (failure: Exception) {
                 // Never falsely count a due reminder as scheduled if the OS rejects it.
                 persist(context, previous)
                 throw failure
             }
-        } else if (!(plan.characterId.startsWith("resident:") &&
+        } else if (action != "read_self_todo" &&
+            !(plan.characterId.startsWith("resident:") &&
                 ResidentDailyDecision.hasSavedDueToResume(context, follow))) {
             // A resident's already-saved execute decision may still have side
             // steps after this primary receipt. Cancelling the unique work here
@@ -1111,9 +1114,12 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         } catch (cancel: kotlinx.coroutines.CancellationException) {
             throw cancel
         } catch (failure: Exception) {
-            RoleDayScheduleStore.recordUnfinishedWake(
+            val stillPending = RoleDayScheduleStore.recordUnfinishedWake(
                 applicationContext, role, plan.id, plan.dueAt,
                 "调度异常：${failure.message.orEmpty().take(100)}；原日程保留")
+            // A completed occurrence can already own tomorrow's queued wake.
+            // An unrelated later step failure must not fail that continuation.
+            if (!stillPending) return Result.success()
             CompanionPresenceStore.recordPerceptionAttempt(role,
                 "日程唤醒失败；原日程保留：${failure.message.orEmpty().take(100)}")
             // Do not automatically bill again when the request's outcome is uncertain.
