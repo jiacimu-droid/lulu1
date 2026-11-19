@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.UUID
 import kotlin.math.ceil
+import kotlin.random.Random
 
 enum class PomodoroTimerMode { Countdown, CountUp }
 enum class PomodoroSkin { Light, Dark }
@@ -24,6 +25,13 @@ data class PomodoroCompanionPreferences(
     val countUpRunning: Boolean = false,
     val countUpElapsedSeconds: Int = 0,
     val countUpAnchorEpochMillis: Long = 0L,
+    // Session-local random 3–5 minute pauses; never creates role messages.
+    val microRestEnabled: Boolean = false,
+    val microRestNextAtEpochMillis: Long = 0L,
+    val microRestEndsAtEpochMillis: Long = 0L,
+    // Positive = time until next reminder; negative = paused remainder of a 10s rest.
+    val microRestPausedMillis: Long = 0L,
+    val microRestRemainingSeconds: Int = 0,
 )
 
 class PomodoroCompanionStore private constructor(context: Context) {
@@ -46,6 +54,24 @@ class PomodoroCompanionStore private constructor(context: Context) {
         if (current.activeSessionId.isNotBlank() && !current.completionHandled) current else current.copy(timerMode = mode)
     }
     fun updateSkin(skin: PomodoroSkin) = update { it.copy(skin = skin) }
+
+    /** User-controlled, off by default. Does not restart or extend the main timer. */
+    fun updateMicroRestEnabled(enabled: Boolean, nowMillis: Long = System.currentTimeMillis()) {
+        update { current ->
+            if (current.microRestEnabled == enabled) current else {
+                val activeCountdown = current.timerMode == PomodoroTimerMode.Countdown &&
+                    current.activeSessionId.isNotBlank() && !current.completionHandled
+                val wait = if (enabled && activeCountdown) randomMicroRestDelayMillis() else 0L
+                current.copy(
+                    microRestEnabled = enabled,
+                    microRestNextAtEpochMillis = if (current.countdownRunning) nowMillis + wait else 0L,
+                    microRestEndsAtEpochMillis = 0L,
+                    microRestPausedMillis = if (activeCountdown && !current.countdownRunning) wait else 0L,
+                    microRestRemainingSeconds = 0,
+                )
+            }
+        }
+    }
     fun setDuration(minutes: Int) {
         val safe = minutes.coerceIn(1, 180)
         update { current ->
@@ -74,13 +100,20 @@ class PomodoroCompanionStore private constructor(context: Context) {
                 countUpRunning = mode == PomodoroTimerMode.CountUp,
                 countUpElapsedSeconds = 0,
                 countUpAnchorEpochMillis = if (mode == PomodoroTimerMode.CountUp) startedAtEpochMillis else 0L,
+                microRestNextAtEpochMillis = if (mode == PomodoroTimerMode.Countdown && it.microRestEnabled)
+                    startedAtEpochMillis + randomMicroRestDelayMillis() else 0L,
+                microRestEndsAtEpochMillis = 0L,
+                microRestPausedMillis = 0L,
+                microRestRemainingSeconds = 0,
             )
         }
     }
 
     fun markCompletionHandled() = update {
         it.copy(completionHandled = true, countUpRunning = false, countUpAnchorEpochMillis = 0L,
-            countdownRunning = false, countdownEndAtEpochMillis = 0L)
+            countdownRunning = false, countdownEndAtEpochMillis = 0L,
+            microRestNextAtEpochMillis = 0L, microRestEndsAtEpochMillis = 0L,
+            microRestPausedMillis = 0L, microRestRemainingSeconds = 0)
     }
 
     fun syncCountdownClock(nowMillis: Long = System.currentTimeMillis()): Boolean {
@@ -97,6 +130,47 @@ class PomodoroCompanionStore private constructor(context: Context) {
         return false
     }
 
+    /**
+     * Advances the optional 10-second quiet break without changing study duration.
+     * Returns true once when a NEW rest starts, so the UI may play one short chime.
+     * Missed reminders are skipped (never replay a backlog after app suspension).
+     */
+    fun syncMicroRestClock(nowMillis: Long = System.currentTimeMillis()): Boolean {
+        val current = mutable.value
+        if (!current.microRestEnabled || current.timerMode != PomodoroTimerMode.Countdown ||
+            current.activeSessionId.isBlank() || current.completionHandled ||
+            !current.countdownRunning) return false
+        if (current.microRestEndsAtEpochMillis > 0L) {
+            val seconds = ((current.microRestEndsAtEpochMillis - nowMillis).coerceAtLeast(0L) + 999L)
+                .div(1000L).toInt()
+            if (seconds <= 0) {
+                update {
+                    it.copy(microRestEndsAtEpochMillis = 0L, microRestRemainingSeconds = 0,
+                        microRestNextAtEpochMillis = nowMillis + randomMicroRestDelayMillis())
+                }
+            } else if (seconds != current.microRestRemainingSeconds) {
+                mutable.value = current.copy(microRestRemainingSeconds = seconds)
+            }
+            return false
+        }
+        val nextAt = current.microRestNextAtEpochMillis
+        if (nextAt <= 0L || nowMillis - nextAt > 20_000L ||
+            current.countdownEndAtEpochMillis - nowMillis <= 10_000L) {
+            // Never ring after a long period away or in the last 10s of a session.
+            if (current.countdownEndAtEpochMillis - nowMillis > 10_000L) {
+                update { it.copy(microRestNextAtEpochMillis = nowMillis + randomMicroRestDelayMillis()) }
+            }
+            return false
+        }
+        if (nowMillis < nextAt) return false
+        update {
+            it.copy(microRestNextAtEpochMillis = 0L,
+                microRestEndsAtEpochMillis = nowMillis + MICRO_REST_DURATION_MS,
+                microRestRemainingSeconds = 10)
+        }
+        return true
+    }
+
     fun toggleCountdown(nowMillis: Long = System.currentTimeMillis()) {
         val current = mutable.value
         if (current.timerMode != PomodoroTimerMode.Countdown ||
@@ -104,11 +178,29 @@ class PomodoroCompanionStore private constructor(context: Context) {
         if (current.countdownRunning) {
             val remaining = ((current.countdownEndAtEpochMillis - nowMillis).coerceAtLeast(0L) + 999L)
                 .div(1000L).toInt()
+            val restPauseMs = when {
+                !current.microRestEnabled -> 0L
+                current.microRestEndsAtEpochMillis > nowMillis ->
+                    -(current.microRestEndsAtEpochMillis - nowMillis)
+                current.microRestNextAtEpochMillis > nowMillis ->
+                    current.microRestNextAtEpochMillis - nowMillis
+                else -> randomMicroRestDelayMillis()
+            }
             update { it.copy(countdownRunning = false,
-                countdownRemainingSeconds = remaining, countdownEndAtEpochMillis = 0L) }
+                countdownRemainingSeconds = remaining, countdownEndAtEpochMillis = 0L,
+                microRestNextAtEpochMillis = 0L, microRestEndsAtEpochMillis = 0L,
+                microRestPausedMillis = restPauseMs, microRestRemainingSeconds = 0) }
         } else if (current.countdownRemainingSeconds > 0) {
+            val pauseMs = current.microRestPausedMillis
             update { it.copy(countdownRunning = true,
-                countdownEndAtEpochMillis = nowMillis + it.countdownRemainingSeconds * 1000L) }
+                countdownEndAtEpochMillis = nowMillis + it.countdownRemainingSeconds * 1000L,
+                microRestEndsAtEpochMillis = if (it.microRestEnabled && pauseMs < 0L)
+                    nowMillis - pauseMs else 0L,
+                microRestNextAtEpochMillis = if (it.microRestEnabled && pauseMs >= 0L)
+                    nowMillis + if (pauseMs > 0L) pauseMs else randomMicroRestDelayMillis() else 0L,
+                microRestPausedMillis = 0L,
+                microRestRemainingSeconds = if (it.microRestEnabled && pauseMs < 0L)
+                    ((-pauseMs + 999L) / 1000L).toInt() else 0) }
         } else {
             markCompletionHandled()
         }
@@ -163,9 +255,16 @@ class PomodoroCompanionStore private constructor(context: Context) {
                 countUpRunning = false,
                 countUpElapsedSeconds = 0,
                 countUpAnchorEpochMillis = 0L,
+                microRestNextAtEpochMillis = 0L,
+                microRestEndsAtEpochMillis = 0L,
+                microRestPausedMillis = 0L,
+                microRestRemainingSeconds = 0,
             )
         }
     }
+
+    private fun randomMicroRestDelayMillis(): Long =
+        Random.nextLong(MICRO_REST_MIN_DELAY_MS, MICRO_REST_MAX_DELAY_MS + 1L)
 
     private fun update(transform: (PomodoroCompanionPreferences) -> PomodoroCompanionPreferences) {
         val next = transform(mutable.value)
@@ -184,6 +283,11 @@ class PomodoroCompanionStore private constructor(context: Context) {
             .putBoolean(KEY_COUNT_UP_RUNNING, next.countUpRunning)
             .putInt(KEY_COUNT_UP_ELAPSED, next.countUpElapsedSeconds)
             .putLong(KEY_COUNT_UP_ANCHOR, next.countUpAnchorEpochMillis)
+            .putBoolean(KEY_MICRO_REST_ENABLED, next.microRestEnabled)
+            .putLong(KEY_MICRO_REST_NEXT, next.microRestNextAtEpochMillis)
+            .putLong(KEY_MICRO_REST_ENDS, next.microRestEndsAtEpochMillis)
+            .putLong(KEY_MICRO_REST_PAUSED, next.microRestPausedMillis)
+            .putInt(KEY_MICRO_REST_REMAINING, next.microRestRemainingSeconds)
             .apply()
     }
 
@@ -204,6 +308,12 @@ class PomodoroCompanionStore private constructor(context: Context) {
         countUpRunning = prefs.getBoolean(KEY_COUNT_UP_RUNNING, false),
         countUpElapsedSeconds = prefs.getInt(KEY_COUNT_UP_ELAPSED, 0).coerceAtLeast(0),
         countUpAnchorEpochMillis = prefs.getLong(KEY_COUNT_UP_ANCHOR, 0L).coerceAtLeast(0L),
+        microRestEnabled = prefs.getBoolean(KEY_MICRO_REST_ENABLED, false),
+        microRestNextAtEpochMillis = prefs.getLong(KEY_MICRO_REST_NEXT, 0L).coerceAtLeast(0L),
+        microRestEndsAtEpochMillis = prefs.getLong(KEY_MICRO_REST_ENDS, 0L).coerceAtLeast(0L),
+        microRestPausedMillis = prefs.getLong(KEY_MICRO_REST_PAUSED, 0L)
+            .coerceIn(-MICRO_REST_DURATION_MS, MICRO_REST_MAX_DELAY_MS),
+        microRestRemainingSeconds = prefs.getInt(KEY_MICRO_REST_REMAINING, 0).coerceIn(0, 10),
     )
 
     companion object {
@@ -221,6 +331,14 @@ class PomodoroCompanionStore private constructor(context: Context) {
         private const val KEY_COUNT_UP_RUNNING = "count_up_running"
         private const val KEY_COUNT_UP_ELAPSED = "count_up_elapsed"
         private const val KEY_COUNT_UP_ANCHOR = "count_up_anchor"
+        private const val MICRO_REST_DURATION_MS = 10_000L
+        private const val MICRO_REST_MIN_DELAY_MS = 180_000L
+        private const val MICRO_REST_MAX_DELAY_MS = 300_000L
+        private const val KEY_MICRO_REST_ENABLED = "micro_rest_enabled"
+        private const val KEY_MICRO_REST_NEXT = "micro_rest_next"
+        private const val KEY_MICRO_REST_ENDS = "micro_rest_ends"
+        private const val KEY_MICRO_REST_PAUSED = "micro_rest_paused"
+        private const val KEY_MICRO_REST_REMAINING = "micro_rest_remaining"
 
         fun create(context: Context): PomodoroCompanionStore = PomodoroCompanionStore(context.applicationContext)
     }
@@ -249,6 +367,7 @@ object PomodoroCompanionSessions {
     fun toggleCountdown() = store.toggleCountdown()
     fun syncCountUpClock(): Int = store.syncCountUpClock()
     fun syncCountdownClock(): Boolean = store.syncCountdownClock()
+    fun syncMicroRestClock(): Boolean = store.syncMicroRestClock()
     fun currentCountUpSeconds(): Int = store.currentCountUpSeconds()
 
     fun finishActiveSession(): Pair<Int, String> {
