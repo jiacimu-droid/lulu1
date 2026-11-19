@@ -78,7 +78,9 @@ object CharacterSocialRelationship {
         val items = CharacterLifeStore.state(characterId)
             .optJSONObject("relationshipAgreements") ?: return ""
         val keys = items.keys().asSequence().toList()
-            .sortedWith(compareByDescending<String> { it == "user" }.thenBy { it }).take(8)
+            // These are CURRENT user-authored agreements, not historical recall.
+            // Never hide the ninth (or later) valid relationship by quota.
+            .sortedWith(compareByDescending<String> { it == "user" }.thenBy { it })
         val active = keys.mapNotNull { agreement(characterId, it) }
         if (active.isEmpty()) return ""
         return buildString {
