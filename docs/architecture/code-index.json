@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T16:35:57.986330+00:00",
-  "commit": "472194b62853892206f869d7dfc4e26ad6423cf2",
+  "generatedAt": "2026-11-19T16:36:45.945482+00:00",
+  "commit": "9c58f05a6ed01441901d1211feed56a8609fb897",
   "branch": "main",
-  "sourceFingerprint": "6f0ad74e1588e5e3ce513f88b10d3cb4d360e43d6cf389611326c5932d74cfab",
+  "sourceFingerprint": "735d480c81d9d7c3a42a667778d1fbf4615045470bd35f4d29d0f1bec149edbc",
   "summary": {
     "files": 1486,
-    "lines": 316918,
+    "lines": 316932,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -31816,7 +31816,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
       "lines": 2187,
-      "sha256": "be40b392f53f4e45050beb04757e0c0982984e33567900aefd535f04deb9e975",
+      "sha256": "568d0127e744758774802dcbf857625e58fd41b32175cb3dbab11fa476f6ee94",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -48096,8 +48096,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt",
-      "lines": 368,
-      "sha256": "ddc7272880cf06e5412a9d63003cf0b182a1aa4d74de301535348a4f96d979a9",
+      "lines": 382,
+      "sha256": "c38821ae81c34596650ce373a009add8803ae2754ab695cd4c9e9f04359d9f08",
       "symbols": [
         {
           "name": "CharacterDecisionProtocolTest",

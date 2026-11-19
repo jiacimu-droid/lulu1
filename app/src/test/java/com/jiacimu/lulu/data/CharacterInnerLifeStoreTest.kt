@@ -81,6 +81,9 @@ class CharacterInnerLifeStoreTest {
             assertTrue(context.contains("旧心声、私人看法和上轮行动理由都是本人当时的主观解释"))
             assertTrue(context.contains("不能把以前猜测的"))
             assertTrue(context.contains("当前是否忙、学习、愿不愿交流"))
+            assertTrue("Old subjective bedtime assumption cannot become verified owner state",
+                context.contains("角色曾劝用户早点睡") &&
+                    context.contains("反复引用同一个猜测不会提高真实性"))
             assertTrue(context.contains("当时理解：她只是想让我听一听"))
             assertTrue(context.contains("不需要重新安排她的一天"))
             assertTrue(context.contains("还不清楚她要不要聊那件旧事"))
