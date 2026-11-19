@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`241c9775854b9e2df5ec54fe20272a433de52903`
+- 基准提交：`f498cb2403141f221c51f5d3fe90d75b899f15b8`
 - 分支：`main`
 - 已索引文件：1486
-- 已索引代码/文本行：316978
+- 已索引代码/文本行：317006
 - 已发现符号：4511
 
 | 文件 | 行数 | 符号数 |
@@ -479,7 +479,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationDominantImpulse.kt` | 26 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationHistoryWindow.kt` | 105 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationNaturalnessGate.kt` | 282 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 348 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt` | 356 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/ConversationTurnEconomy.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt` | 111 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/DeferredCallMediaAction.kt` | 421 | 1 |
@@ -1249,7 +1249,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 200 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 156 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PhoneInnerVoicePerceptionTest.kt` | 84 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PhoneInnerVoicePerceptionTest.kt` | 104 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 239 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneReadRequestEvidenceTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneTaskNarrativeContextTest.kt` | 68 | 1 |
