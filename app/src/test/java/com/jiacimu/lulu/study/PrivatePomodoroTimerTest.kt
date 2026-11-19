@@ -121,4 +121,78 @@ class PrivatePomodoroTimerTest {
         assertFalse(restored.state.value.countdownRunning)
     }
 
+    @Test fun microRestIsOffByDefaultAndNeverChangesStudyClock() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        context.getSharedPreferences("lulu_study_focus", Context.MODE_PRIVATE).edit().clear().commit()
+        val timer = PomodoroCompanionStore.create(context)
+        timer.setDuration(30)
+        timer.beginSession("复习法理", PomodoroTimerMode.Countdown, startedAtEpochMillis = 100_000L)
+        assertFalse(timer.state.value.microRestEnabled)
+        assertEquals(0L, timer.state.value.microRestNextAtEpochMillis)
+        assertEquals(1_900_000L, timer.state.value.countdownEndAtEpochMillis)
+
+        timer.updateMicroRestEnabled(true, nowMillis = 100_000L)
+        val next = timer.state.value.microRestNextAtEpochMillis
+        assertTrue(next in 280_000L..400_000L)
+        assertFalse(timer.syncMicroRestClock(nowMillis = next - 1L))
+        assertTrue(timer.syncMicroRestClock(nowMillis = next))
+        assertEquals(10, timer.state.value.microRestRemainingSeconds)
+        assertEquals(1_900_000L, timer.state.value.countdownEndAtEpochMillis)
+        assertFalse(timer.syncMicroRestClock(nowMillis = next + 4_000L))
+        assertEquals(6, timer.state.value.microRestRemainingSeconds)
+        assertFalse(timer.syncMicroRestClock(nowMillis = next + 10_000L))
+        assertEquals(0, timer.state.value.microRestRemainingSeconds)
+        assertTrue(timer.state.value.microRestNextAtEpochMillis in
+            (next + 190_000L)..(next + 310_000L))
+        assertEquals(1_900_000L, timer.state.value.countdownEndAtEpochMillis)
+    }
+
+    @Test fun microRestPausesAndResumesWithoutLosingTenSecondRemainder() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        context.getSharedPreferences("lulu_study_focus", Context.MODE_PRIVATE).edit().clear().commit()
+        val timer = PomodoroCompanionStore.create(context)
+        timer.setDuration(25)
+        timer.updateMicroRestEnabled(true, nowMillis = 100_000L)
+        timer.beginSession("读民法", PomodoroTimerMode.Countdown, startedAtEpochMillis = 100_000L)
+        val first = timer.state.value.microRestNextAtEpochMillis
+        timer.toggleCountdown(nowMillis = 160_000L)
+        assertFalse(timer.state.value.countdownRunning)
+        assertEquals(0L, timer.state.value.microRestNextAtEpochMillis)
+        val restored = PomodoroCompanionStore.create(context)
+        restored.toggleCountdown(nowMillis = 400_000L)
+        val shifted = restored.state.value.microRestNextAtEpochMillis
+        assertEquals(first + 240_000L, shifted)
+        assertTrue(restored.syncMicroRestClock(nowMillis = shifted))
+        restored.toggleCountdown(nowMillis = shifted + 3_000L)
+        assertTrue(restored.state.value.microRestPausedMillis < 0L)
+        restored.toggleCountdown(nowMillis = shifted + 90_000L)
+        assertEquals(7, restored.state.value.microRestRemainingSeconds)
+        assertFalse(restored.syncMicroRestClock(nowMillis = shifted + 97_000L))
+        assertEquals(0, restored.state.value.microRestRemainingSeconds)
+        restored.updateMicroRestEnabled(false)
+        assertEquals(0L, restored.state.value.microRestNextAtEpochMillis)
+        assertFalse(restored.state.value.microRestEnabled)
+        assertFalse(restored.syncMicroRestClock(nowMillis = shifted + 300_000L))
+    }
+
+    @Test fun microRestDoesNotCreateMissedChimeOrRepeatDuringCountUp() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        context.getSharedPreferences("lulu_study_focus", Context.MODE_PRIVATE).edit().clear().commit()
+        val timer = PomodoroCompanionStore.create(context)
+        timer.setDuration(30)
+        timer.updateMicroRestEnabled(true)
+        timer.beginSession("写作文", PomodoroTimerMode.Countdown, startedAtEpochMillis = 10_000L)
+        val first = timer.state.value.microRestNextAtEpochMillis
+        // If the app's timer was suspended for too long, skip the old notice.
+        assertFalse(timer.syncMicroRestClock(nowMillis = first + 30_000L))
+        assertTrue(timer.state.value.microRestNextAtEpochMillis > first + 30_000L)
+        timer.markCompletionHandled()
+        assertEquals(0L, timer.state.value.microRestNextAtEpochMillis)
+        assertTrue(timer.state.value.microRestEnabled)
+        timer.clearSession()
+        timer.beginSession("练习技能", PomodoroTimerMode.CountUp, startedAtEpochMillis = 20_000L)
+        assertEquals(0L, timer.state.value.microRestNextAtEpochMillis)
+        assertFalse(timer.syncMicroRestClock(nowMillis = 500_000L))
+    }
+
 }
