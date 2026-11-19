@@ -25,6 +25,29 @@ class CharacterOpenConcernRuntimeTest {
         assertTrue(CharacterOpenConcernRuntime.context(saved, now).contains("我想弄清哪句话伤到了她"))
     }
 
+    @Test fun anUnresolvedRelationalConcernSurvivesFiveMinuteExpiryAndADeliveredComfort() {
+        val first = Instant.parse("2026-11-19T03:51:00Z")
+        val proposal = JSONObject().put("pendingConcerns", JSONArray().put(
+            JSONObject().put("status", "open")
+                .put("focus", "我还不知道怎样修复刚才的误会")
+                .put("whyItMatters", "我在意我们是否真正理解了彼此")
+                .put("possibleNextStep", "下次认真听她说具体哪里难过")
+                .put("priority", 3),
+        ))
+        val held = CharacterOpenConcernRuntime.update(null, proposal, "real-private-user-event", first)
+        val id = CharacterOpenConcernRuntime.active(held, first).single().getString("id")
+        // An actual comfort message (or the 5-minute boundary) is not a user
+        // receipt proving that her feelings or the relationship are resolved.
+        val afterComfort = CharacterOpenConcernRuntime.update(
+            held, JSONObject(), "sent-private-comfort", first.plusSeconds(60))
+        val afterExpiry = CharacterOpenConcernRuntime.update(
+            afterComfort, JSONObject(), "online-expiry", first.plusSeconds(301))
+        assertEquals(id, CharacterOpenConcernRuntime.active(afterExpiry, first.plusSeconds(301))
+            .single().getString("id"))
+        assertEquals(1, CharacterOpenConcernRuntime.active(afterExpiry,
+            first.plusSeconds(50 * 3600)).size)
+    }
+
     @Test fun olderUnresolvedConcernsSurviveNewConcernsRevisionsAndReceiptWriteback() {
         var saved = JSONArray()
         repeat(20) { index ->
