@@ -327,6 +327,7 @@ internal object LuluBackgroundPhoneContinuation {
         linkDeliveryCompletion(0)?.let { return it }
         var prematureFinish = false
         var count = 0
+        var screenAttemptId = requestId
         var lastScreenReceipt = runCatching { JSONObject(initialReceipt) }.getOrNull()
         // Mika ScreenDiagnosis: passwords, verification and system takeover
         // always go back to the owner, not into another paid click loop.
@@ -407,6 +408,7 @@ internal object LuluBackgroundPhoneContinuation {
                 (freshImage != null || freshResult.optString("screenSnapshotId").isNotBlank())) {
                 image = freshImage
                 lastScreenReceipt = freshResult
+                screenAttemptId = recoveryId
                 lastVerifiedScreen = screen(freshResult, freshImage)
                 searchTextVerified = freshResult.optBoolean("inputTextReadbackVerified")
                 history.appendLine("初次尝试没有点击成功；原目标未完成。接下来本人只能按刚获得的真实页面与新快照编号决策。")
@@ -446,6 +448,18 @@ internal object LuluBackgroundPhoneContinuation {
                 history.appendLine("主人有新消息或通话轮次已变化，手机任务在本次安全边界暂缓；当前已执行动作保留，交回同一角色先理解新消息")
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             }
+            val readingReceipt = lastScreenReceipt
+            val imageInLearningRequest = !image.isNullOrBlank() &&
+                readingReceipt?.optBoolean("imageForwardedToRole") == true
+            val visibleReadingText = readingReceipt?.optString("visibleText").orEmpty()
+            val offerLearning = privateBrowse && hasFreshExecutionReceipt(readingReceipt) &&
+                readingReceipt?.optBoolean("success") == true &&
+                readingReceipt.optString("mode") == LuluBackgroundPhoneArgumentPolicy.INDEPENDENT_MODE &&
+                readingReceipt.optBoolean("targetWindowVerified") &&
+                readingReceipt.optString("screenSnapshotId").isNotBlank() &&
+                !readingReceipt.optBoolean("actionFrameUnverified") &&
+                (imageInLearningRequest || visibleReadingText.isNotBlank())
+            val readingEvidenceId = "tool-$characterId-$screenAttemptId"
             val response = LuluAiServices.gateway.generate(
                 characterId = characterId,
                 facts = buildString {
@@ -463,6 +477,9 @@ internal object LuluBackgroundPhoneContinuation {
                     appendLine(history.toString().takeLast(9_000))
                     lastScreenReceipt?.toString()?.let(::uiReferenceSummary)
                         ?.takeIf(String::isNotBlank)?.let { appendLine("当前可操作画面：$it") }
+                    if (offerLearning && visibleReadingText.isNotBlank()) {
+                        appendLine("【当前已核对的可见文字｜站外资料】${visibleReadingText.take(2_000)}")
+                    }
                     appendLine("可选择的本机工具：background_phone")
                     if (visibleMainScreen) appendLine("当前模式=foreground_accessibility。你操作的是主人正在看见的主屏，不是独立后台屏。主屏切换或锁屏即停止；每次必须先核新截图/控件token再行动。无无线调试无需ADB。主屏暂支持launch/observe/tap/tap_element/swipe/type/back/navigate/focus_search等逐步动作；发送微信应点选真实输入框、精确读回草稿，再由本人点击真实发送控件并检查对话。主屏暂不支持send_chat_message/publish_comment等复合自动发表，sendLinkToChat不能自动回传卡片，不得冒充送达。")
                     else appendLine("当前模式=independent_virtual_display。只按独立屏上的真实画面与控件操作，不要触碰主人主屏。")
@@ -502,6 +519,7 @@ internal object LuluBackgroundPhoneContinuation {
                     continue 每次仅提交本角色真正想执行的一步，不存在默认下一步。
                     搜索时，当前目标App回执若有唯一可验证搜索框，可一次选择{"action":"search","text":"关键词"}。本机会核实焦点、输入读回后才提交，并返回实际页面；searchSubmitted只说明提交已派发，要阅读页面才知道搜到了什么。没有唯一搜索框时先根据真实控件或画面打开搜索入口；type仍只填入，单独submit才会提交。弹出输入法时仍根据后台App窗口核验，不能把键盘当目标App。launch可提供真实packageName或准确appName（例如「抖音」）；appName只由本机精确查找已安装App，找不到、重名或被主人排除就停止，不猜包名。相对坐标0至1000，滑动使用startX/startY/endX/endY。只有想真实给主人看这块后台屏时，才在observe等操作附加sendToChat=true；capture_screen永远是主屏，不能冒充后台。
                     分享小红书帖子、商品或网页给主人的统一方法：在实际页面打开分享，选择看到的复制链接按钮，用tap_element或tap并附本次screenSnapshotId及sendLinkToChat=true。只有linkSent=true才说明本次复制的链接已作为私聊卡片发给主人；找不到复制按钮就按新画面继续观察。sendToChat=true只发后台截图。
+                    ${if (offerLearning) "这次你确实读到值得以后尝试的东西时，可在原JSON附 learning={topic,understanding,applicableWhen,question,sourceExcerpt}。写本人理解和想试的具体做法，关联当前真的读到的内容。sourceExcerpt 只摘本轮可见文字的准确片段；仅从当前附图有所得时留空，记为画面心得。搜索列表、按钮、记忆中的文字不能冒充读到的正文。心得是自己选的待验证方法，日后实际尝试和对方反馈才决定它是否适用。没读到可用内容就省略。" else ""}
                     不在这里发送聊天正文，后续由原本人格聊天流程回复。
                     不请求密码、验证码，不付款。微信和抖音私信、朋友圈及其他App可用通用观察/输入/点击流程；send_chat_message和publish_wechat_moment是兼容的专用事务，不是必经路线。分享链接只用最新画面核实过的复制按钮。购物预付款步骤只在主人已开启角色购物授权时才可做；不要点击提交订单、确认订单、支付按钮或免密/货到付款。点击购买类控件必须用最近一次真实快照的tap_element，不能猜坐标；看到付款页就停止并告知主人，绝不声称订单或付款已完成。
                     目标已完成、无法判断或用户停止时可以直接结束。
@@ -509,7 +527,7 @@ internal object LuluBackgroundPhoneContinuation {
                 source = "角色本人·手机任务下一步",
                 capturePrivateMoment = true,
                 title = title,
-                maxTokens = 850,
+                maxTokens = if (offerLearning) 1_050 else 850,
                 connectionOverride = connection,
                 usage = ModelUsage.Chat,
                 imageDataUrls = listOfNotNull(image),
@@ -543,6 +561,18 @@ internal object LuluBackgroundPhoneContinuation {
                 if (image == null) "角色收到了当前手机任务步骤的执行回执，本轮未提供屏幕图像。"
                 else "角色收到了当前手机任务步骤的真实屏幕画面和执行回执。",
             )
+            if (offerLearning && decision.optString("decision") in setOf("continue", "finish", "ask", "defer")) {
+                decision.optJSONObject("learning")?.let { learning ->
+                    val saved = runCatching {
+                        com.jiacimu.lulu.data.CharacterLearningLedger.recordVirtualScreenReading(
+                            characterId, readingEvidenceId, learning, imageInLearningRequest,
+                        )
+                    }.onFailure {
+                        android.util.Log.w("LuluPhoneLearning", "Could not save the role's reading insight", it)
+                    }.getOrDefault(false)
+                    if (saved) history.appendLine("已存入本人的成长心得；原始回执ID=$readingEvidenceId")
+                }
+            }
             when (decision.optString("decision")) {
                 "finish" -> {
                     val reason = decision.optString("reason").trim()
@@ -739,6 +769,7 @@ internal object LuluBackgroundPhoneContinuation {
                 }
                 image = observedImage
                 lastScreenReceipt = observedResult
+                screenAttemptId = recoveryId
                 lastVerifiedScreen = screen(observedResult, observedImage)
                 searchTextVerified = observedResult.optBoolean("inputTextReadbackVerified")
                 failedAttempts = 0
@@ -746,6 +777,7 @@ internal object LuluBackgroundPhoneContinuation {
                 continue
             }
             lastScreenReceipt = result
+            screenAttemptId = nextId
             if (result?.optBoolean("momentPublishAttempted") == true ||
                 result?.optBoolean("commentPublishAttempted") == true) momentResultReadOnly = true
             if (result?.optString("errorCode") in setOf("new_user_input", "independent_display_unavailable"))

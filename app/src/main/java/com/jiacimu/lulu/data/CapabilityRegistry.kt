@@ -128,7 +128,7 @@ object CapabilityRegistry {
                 "start_call" to "拨语音或Live2D视频 start_call(text,mediaMode=voice|video)",
                 "web_search" to "联网查询或读网页 web_search(op=search|search_read|read,query或url)",
                 "image_search" to "搜图/分享 image_search(op=search|send,query或searchId)",
-                "background_phone" to "后台虚拟屏/本机App background_phone(action=launch|observe|tap|type|search等,appName或packageName；点触用最新screenSnapshotId/控件ref)",
+                "background_phone" to "后台虚拟屏/本机App background_phone(action=launch|observe|tap|type|search等,appName或packageName；点触用最新screenSnapshotId/控件ref)；自己浏览学习用 mode=independent_virtual_display、reportToUser=false，读到值得试的方法可保留为本人的成长心得",
                 "capture_screen" to "看授权主屏 capture_screen()",
                 "read_book" to "亲自阅读 read_book(readingBookId)",
                 "play_solo_game" to "独自玩游戏 play_solo_game(gameId)",

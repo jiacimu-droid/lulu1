@@ -130,6 +130,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
         }
     }
     val coreRemembered = remembered.filter { it.memory?.isCoreMemory() == true }
+    val growthRecords = remembered.filter { it.insight != null }
     val activeCoreCount = memories.count { it.isCoreMemory() &&
         MemoryValidityStore.isActive(it.id) && memoryHasLiveSources(it, characterId) }
     val timelineState by produceState("" to emptyList<SharedTimelineEvent>(), characterId, timelineRevision) {
@@ -169,9 +170,16 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
             }, colors = TopAppBarDefaults.topAppBarColors(containerColor = LuluColors.Paper))
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            CharacterSectionTabs(listOf("记住的事", "核心记忆", "原始时间线", "关于主人"), area, onSelect = { area = it })
+            val tabs = listOf(0 to "记住的事", 4 to "成长", 1 to "核心记忆", 2 to "原始时间线", 3 to "关于主人")
+            CharacterSectionTabs(tabs.map { it.second }, tabs.indexOfFirst { it.first == area },
+                onSelect = { area = tabs[it].first })
             OutlinedTextField(value = search, onValueChange = { search = it }, singleLine = true,
-                placeholder = { Text(when (area) { 2 -> "搜索原始记录"; 3 -> "搜索主人档案"; else -> "搜索记忆" }) },
+                placeholder = { Text(when (area) {
+                    2 -> "搜索原始记录"
+                    3 -> "搜索主人档案"
+                    4 -> "搜索成长心得"
+                    else -> "搜索记忆"
+                }) },
                 leadingIcon = { Icon(Icons.Outlined.Search, null) },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
                 shape = RoundedCornerShape(16.dp))
@@ -275,7 +283,11 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                     }
                     }
                 } else if (area != 2) {
-                    val rows = if (area == 1) coreRemembered else visibleRemembered
+                    val rows = when (area) {
+                        1 -> coreRemembered
+                        4 -> growthRecords
+                        else -> visibleRemembered
+                    }
                     if (area == 1) item(key = "core-intro") {
                         Surface(color = Color(0xFFE8F3EF),
                             shape = RoundedCornerShape(17.dp)) {
@@ -290,8 +302,12 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                         }
                     }
                     if (rows.isEmpty()) item {
-                        Text(if (area == 1) "还没有核心记忆，点右上角 + 创建或把已有记忆设为核心"
-                            else "还没有匹配的记忆", color = LuluColors.Muted)
+                        Text(when {
+                            area == 1 -> "还没有核心记忆，点右上角 + 创建或把已有记忆设为核心"
+                            area == 4 && search.isBlank() -> "还没有保存的成长心得"
+                            area == 4 -> "还没有匹配的成长心得"
+                            else -> "还没有匹配的记忆"
+                        }, color = LuluColors.Muted)
                     }
                     items(rows.take(count), key = { it.id }) { row ->
                         RememberedItemCard(row, characterId, onEdit = {
@@ -327,7 +343,13 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                         }
                     }
                 }
-                val total = when (area) { 0 -> visibleRemembered.size; 1 -> coreRemembered.size; 2 -> timeline.size; else -> ownerMatches.size }
+                val total = when (area) {
+                    1 -> coreRemembered.size
+                    2 -> timeline.size
+                    3 -> ownerMatches.size
+                    4 -> growthRecords.size
+                    else -> visibleRemembered.size
+                }
                 if (total > count) item { TextButton(onClick = { count += 40 }, modifier = Modifier.fillMaxWidth()) {
                     Text("继续加载 · 还有 ${total - count} 条")
                 } }
@@ -413,6 +435,9 @@ private fun RememberedItemCard(row: CharacterRememberedItem, characterId: String
             if (row.memory?.isCoreMemory() == true) Icon(Icons.Outlined.PushPin, "置顶记忆", Modifier.size(16.dp))
         }
         Text(row.content, fontSize = 16.sp, lineHeight = 25.sp, color = LuluColors.Ink)
+        row.insight?.sourceLabel?.takeIf(String::isNotBlank)?.let {
+            Text(it, color = LuluColors.Muted, fontSize = 12.sp)
+        }
         Text(recordTime(row.at), fontSize = 11.sp, color = LuluColors.Muted)
         TextButton(onClick = { expanded = !expanded }, contentPadding = PaddingValues(0.dp)) {
             Text(if (expanded) "收起详情" else "查看来源与影响")
@@ -424,6 +449,10 @@ private fun RememberedItemCard(row: CharacterRememberedItem, characterId: String
                     sourceEvidenceId = it.sourceEvidenceId).filter { it.label != "读后形成暂定理解" } }.orEmpty()
             }
             row.insight?.let { insight ->
+                if (insight.sourceExcerpt.isNotBlank()) {
+                    Text("当时读到的原文", color = LuluColors.Muted, fontSize = 12.sp)
+                    Text(insight.sourceExcerpt, fontSize = 13.sp, lineHeight = 21.sp)
+                }
                 listOf("仍不确定" to insight.uncertainty, "还想弄清" to insight.question,
                     "可能适用" to insight.applicableWhen, "不适用/停止条件" to insight.avoidWhen).filter { it.second.isNotBlank() }.forEach {
                     Text("${it.first}：${it.second}", fontSize = 13.sp)

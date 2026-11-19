@@ -2,6 +2,7 @@ package com.jiacimu.lulu.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.jiacimu.lulu.system.LuluBackgroundPhoneArgumentPolicy
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -33,6 +34,8 @@ internal object CharacterLearningLedger {
         val fromExperience: Boolean = false,
         val avoidWhen: String = "",
         val sourceIds: List<String> = emptyList(),
+        val sourceLabel: String = "",
+        val sourceExcerpt: String = "",
     )
 
     /** UI and recall use the same current, source-validated understanding.
@@ -57,7 +60,9 @@ internal object CharacterLearningLedger {
                     entry.optString("uncertainty"), entry.optString("question"),
                     entry.optString("applicableWhen"), entry.optString("kind") == "experience",
                     entry.optString("avoidWhen"),
-                    entry.optJSONObject("evidenceRevisions")?.keys()?.asSequence()?.toList() ?: listOf(id))
+                    entry.optJSONObject("evidenceRevisions")?.keys()?.asSequence()?.toList() ?: listOf(id),
+                    sourceLabel = virtualReadingLabel(entry),
+                    sourceExcerpt = entry.optString("virtualExcerpt"))
             }
     }
 
@@ -129,6 +134,47 @@ internal object CharacterLearningLedger {
             payload.optString("text").length >= 120 && payload.optString("url").startsWith("https://")
     }
 
+    private fun virtualScreenResult(event: SharedTimelineEvent): JSONObject? {
+        if (event.taskId.isBlank() || event.id != "tool-${event.characterId}-${event.taskId}") return null
+        val receipt = CharacterExperienceLearning.receipt(event) ?: return null
+        if (receipt.tool != "background_phone" || !receipt.success) return null
+        val envelope = runCatching { JSONObject(event.content) }.getOrNull() ?: return null
+        val result = envelope.optJSONObject("result") ?:
+            runCatching { JSONObject(envelope.optString("result")) }.getOrNull() ?: return null
+        return result.takeIf {
+            it.optString("mode") == LuluBackgroundPhoneArgumentPolicy.INDEPENDENT_MODE &&
+                it.optInt("displayId") > 0 && it.optString("packageName").isNotBlank() &&
+                it.optBoolean("targetWindowVerified") && it.optString("screenSnapshotId").isNotBlank() &&
+                !it.optBoolean("actionFrameUnverified") && !it.optBoolean("replayedHistoricalReceipt")
+        }
+    }
+
+    private fun comparableExcerpt(text: String): String = text.filterNot(Char::isWhitespace)
+
+    private fun matchesVirtualText(result: JSONObject, excerpt: String): Boolean {
+        val reference = comparableExcerpt(excerpt)
+        return reference.length >= 8 && result.optString("visibleText").let(::comparableExcerpt).contains(reference)
+    }
+
+    private fun hasVirtualImage(result: JSONObject): Boolean =
+        result.optBoolean("frameValidated") && result.optBoolean("imageForwardedToRole") &&
+            !result.optBoolean("frameBlack")
+
+    private fun virtualReadingLabel(entry: JSONObject): String = when (entry.optString("virtualReading")) {
+        "text" -> "后台虚拟屏 · 已核对可见原文"
+        "image" -> "后台虚拟屏 · 画面心得"
+        else -> ""
+    }
+
+    private fun storedVirtualReadingValid(result: JSONObject?, entry: JSONObject): Boolean {
+        if (result == null) return false
+        return when (entry.optString("virtualReading")) {
+            "text" -> matchesVirtualText(result, entry.optString("virtualExcerpt"))
+            "image" -> hasVirtualImage(result) && entry.optString("virtualExcerpt").isBlank()
+            else -> false
+        }
+    }
+
     /** Same evidence rules for attaching already-read material and later recall. */
     fun isMaterialEvidence(characterId: String, evidenceId: String): Boolean =
         source(characterId, evidenceId)?.let { materialSource(characterId, it) } == true
@@ -143,6 +189,8 @@ internal object CharacterLearningLedger {
         val experience = item.optString("kind") == "experience"
         if ((if (experience) CharacterExperienceLearning.receipt(event) == null ||
                 !CharacterExperienceLearning.dependenciesValid(characterId, item)
+            else if (item.optString("virtualReading").isNotBlank())
+                !storedVirtualReadingValid(virtualScreenResult(event), item)
             else !materialSource(characterId, event)) ||
             event.revision != item.optLong("sourceRevision", -1L)) return false
         val previousId = item.optString("revisesEvidenceId")
@@ -225,6 +273,32 @@ internal object CharacterLearningLedger {
         if (prefs == null || proposal == null) return false
         val event = source(characterId, evidenceId)
             ?.takeIf { materialSource(characterId, it) } ?: return false
+        return saveReading(characterId, event, proposal, now)
+    }
+
+    /** The scene must supply the same actual receipt and attachment it sent to the model. */
+    @Synchronized internal fun recordVirtualScreenReading(
+        characterId: String, evidenceId: String, proposal: JSONObject?,
+        imageInRequest: Boolean, now: Instant = Instant.now(),
+    ): Boolean {
+        if (prefs == null || proposal == null) return false
+        val event = source(characterId, evidenceId) ?: return false
+        if (event.occurredAt.isAfter(now)) return false
+        val result = virtualScreenResult(event) ?: return false
+        val excerpt = proposal.optString("sourceExcerpt").trim()
+        val kind = when {
+            excerpt.isNotBlank() && excerpt.length <= 240 && matchesVirtualText(result, excerpt) -> "text"
+            excerpt.isBlank() && imageInRequest && hasVirtualImage(result) -> "image"
+            else -> return false
+        }
+        return saveReading(characterId, event, proposal, now, kind, excerpt)
+    }
+
+    private fun saveReading(
+        characterId: String, event: SharedTimelineEvent, proposal: JSONObject, now: Instant,
+        virtualReading: String = "", virtualExcerpt: String = "",
+    ): Boolean {
+        val evidenceId = event.id
         val topic = proposal.optString("topic").trim().take(90)
         val understanding = proposal.optString("understanding").trim().take(400)
         if (topic.length < 2 || understanding.length < 5) return false
@@ -241,6 +315,7 @@ internal object CharacterLearningLedger {
         }
         items.add(JSONObject()
             .put("sourceEvidenceId", event.id).put("sourceRevision", event.revision)
+            .put("virtualReading", virtualReading).put("virtualExcerpt", virtualExcerpt)
             .put("originId", if (event.source.startsWith("learning-material:"))
                 runCatching { JSONObject(event.content).optString("originId") }.getOrDefault("") else "")
             .put("topic", topic).put("understanding", understanding)
@@ -574,6 +649,9 @@ internal object CharacterLearningLedger {
                         appendLine("  当时用户原话ID=${item.optString("feedbackEvidenceId")}：$it；这是当时反馈，不自动代表永久偏好")
                     }
                     if (item.optString("feedbackQuote").isBlank()) appendLine("  当次对用户是否有效未知，不能将执行状态当作满意")
+                }
+                virtualReadingLabel(item).takeIf(String::isNotBlank)?.let {
+                    appendLine("  来源=$it；本人保留的候选理解，按实际尝试及后续反馈判断适用性。")
                 }
                 val material = source(characterId, item.optString("sourceEvidenceId"))
                 if (material?.source?.startsWith("learning-material:") == true) {

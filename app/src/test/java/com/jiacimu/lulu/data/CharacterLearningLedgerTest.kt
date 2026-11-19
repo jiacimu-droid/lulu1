@@ -39,6 +39,74 @@ class CharacterLearningLedgerTest {
             evidenceKind = EventEvidenceKind.Observation)
     }
 
+    private fun virtualReceipt(attempt: String, result: JSONObject): String {
+        val id = "tool-$character-$attempt"
+        val payload = JSONObject().put("tool", "background_phone")
+            .put("status", "succeeded").put("result", result.toString())
+        SharedExperienceTimeline.record(id, character, "实际工具执行", "执行器", payload.toString(),
+            now, triggerExtraction = false, source = "tool-router", taskId = attempt,
+            evidenceKind = EventEvidenceKind.ToolResult)
+        return id
+    }
+
+    private fun independentReceipt() = JSONObject().put("success", true).put("status", "succeeded")
+        .put("mode", "independent_virtual_display").put("displayId", 7)
+        .put("targetWindowVerified", true).put("packageName", "com.example.notes")
+        .put("screenSnapshotId", "verified-current-snapshot")
+
+    @Test fun verifiedVirtualReadingCanBeRecalledAndAppliedWithItsActualSource() {
+        val excerpt = "委屈的时候需要有人先陪自己坐一会儿。"
+        val id = virtualReceipt("real-text", independentReceipt().put("visibleText", excerpt))
+        val proposal = note("先留在对方身边，等她缓一点再问具体需要")
+            .put("topic", "相处与陪伴").put("applicableWhen", "她明确说自己很委屈")
+            .put("sourceExcerpt", excerpt)
+        assertFalse(CharacterLearningLedger.recordVirtualScreenReading(
+            "other-character", id, proposal, imageInRequest = false, now = now))
+        assertFalse(CharacterLearningLedger.recordVirtualScreenReading(character, id,
+            JSONObject(proposal.toString()).put("sourceExcerpt", "节目里说这招一定有效"),
+            imageInRequest = false, now = now))
+        assertTrue(CharacterLearningLedger.recordVirtualScreenReading(
+            character, id, proposal, imageInRequest = false, now = now))
+        assertFalse(CharacterLearningLedger.recordVirtualScreenReading(
+            character, id, proposal, imageInRequest = false, now = now))
+        val note = CharacterLearningLedger.listInsights(character).single()
+        assertEquals(id, note.sourceEvidenceId)
+        assertEquals(excerpt, note.sourceExcerpt)
+        assertTrue(note.sourceLabel.contains("已核对"))
+        listOf(true, false).forEach { compact ->
+            assertTrue(CharacterLearningLedger.context(character, "很委屈", compact)
+                .contains("真实材料证据=$id"))
+        }
+        val conversation = MigratedDomainStores.chat.ensureConversation(character, "实际相处")
+        val delivered = MigratedDomainStores.chat.appendCharacterMessage(conversation.id, "我坐这儿陪你一会儿")
+        assertTrue(CharacterLearningLedger.recordApplication(character, JSONObject()
+            .put("sourceEvidenceId", id).put("howApplied", "先陪她安静下来，再问发生了什么"),
+            delivered.id, "message", true, "已实际发出"))
+        assertTrue(CharacterLearningLedger.growthTrace(character, sourceEvidenceId = id)
+            .any { it.evidenceId == delivered.id })
+        SharedExperienceTimeline.deleteEvent(id)
+        assertTrue(CharacterLearningLedger.listInsights(character).isEmpty())
+    }
+
+    @Test fun virtualImageLearningRequiresTheAttachedVerifiedFrameAndLabelsItsSource() {
+        val imageResult = independentReceipt().put("frameValidated", true).put("imageForwardedToRole", true)
+        val id = virtualReceipt("visible-image", imageResult)
+        val proposal = note("画面让我想到可以问一问具体哪里受委屈")
+        assertFalse(CharacterLearningLedger.recordVirtualScreenReading(
+            character, id, proposal, imageInRequest = false, now = now))
+        val stale = virtualReceipt("stale-frame", JSONObject(imageResult.toString()).put("actionFrameUnverified", true))
+        assertFalse(CharacterLearningLedger.recordVirtualScreenReading(
+            character, stale, proposal, imageInRequest = true, now = now))
+        val main = virtualReceipt("main-frame", JSONObject(imageResult.toString()).put("mode", "foreground_accessibility"))
+        assertFalse(CharacterLearningLedger.recordVirtualScreenReading(
+            character, main, proposal, imageInRequest = true, now = now))
+        assertTrue(CharacterLearningLedger.recordVirtualScreenReading(
+            character, id, proposal, imageInRequest = true, now = now))
+        val insight = CharacterLearningLedger.listInsights(character).single()
+        assertTrue(insight.sourceLabel.contains("画面心得"))
+        assertTrue(insight.sourceExcerpt.isBlank())
+    }
+
     @Test fun applicabilityAfterALongQuestionCanRecallOlderLearningInBothContexts() {
         reading("old-conditional-learning", 1)
         reading("recent-unrelated-learning", 2)
