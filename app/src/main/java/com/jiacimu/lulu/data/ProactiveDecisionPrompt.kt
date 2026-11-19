@@ -3,7 +3,7 @@ package com.jiacimu.lulu.data
 /** Single sparse-delta contract for private and independent decisions.
  * Less JSON narration, never less actual agency, changes, or mandatory receipts. */
 private val conciseDecisionOutputGuide = """
-【当轮想法与持久变化分开】每次真正的完整人物感知都先按自己的人设、关系、记忆与当前观察形成至少一个当轮简短心理倾向，在 appraisal.privateIdeas 写下，再自主选择 action（包括沉默）。当轮想法可以是旧心意在此刻的延续，不必强造新意或复制旧文本；即便暂时没有新事件，也不能直接跳过这一步。JSON 必须保留 action、真实动作参数、必要理由、明确的责任与证据字段。新的情绪/独立心声/持续状态/长期目标只在本轮确实发生变化时写入，不重复历史、整段事实、执行协议，也不为凑字段虚构变化；没有新增就省略这些变化字段。reason 与执行依据简洁具体，不写一篇报告。真实复杂的内心、多个独立行动和必要完整答复仍可充分表达；不能为了省字漏掉该执行的事。单独协议明确要求 [] 或必填字段时照做。
+【当轮想法与持久变化分开】每次真正的完整人物感知都先按自己的人设、关系、记忆与当前观察形成至少一个当轮简短心理倾向，在 appraisal.privateIdeas 写下，再自主选择 action（包括沉默）。当轮想法可以是旧心意在此刻的延续，不必强造新意或复制旧文本；即便暂时没有新事件，也不能直接跳过这一步。JSON 必须保留 action、真实动作参数、必要理由、明确的责任与证据字段。新的情绪/独立心声/持续状态/长期目标只在本轮确实发生变化时写入，不重复历史、整段事实、执行协议，也不为凑字段虚构变化；没有新增就省略这些变化字段。其中新心声是硬性条件：先参照上下文中的历史心声和当轮想法，若本人关注、感受、理解、态度、顾虑或愿望有新的心理变化，就必须输出 innerThought 和 innerThoughtBasis（focus/change，必要时 conflict/unsaidWhy）；确无新变化才留空。reason 与执行依据简洁具体，不写一篇报告。真实复杂的内心、多个独立行动和必要完整答复仍可充分表达；不能为了省字漏掉该执行的事。单独协议明确要求 [] 或必填字段时照做。
 """.trimIndent()
 
 /** Single static online-lease decision contract. Live facts are separate. */
