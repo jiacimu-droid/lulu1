@@ -2,6 +2,8 @@ package com.jiacimu.lulu.data
 
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -51,4 +53,27 @@ class PhoneInnerVoicePerceptionTest {
             thought, outward = thought, basis = basis, delta = delta, hasFreshEvidence = true,
         ))
     }
+    @Test fun quietPhoneStillHasACharacterAuthoredIdeaBeforeChoosingSilence() {
+        val authored = JSONObject().put("privateIdeas", org.json.JSONArray()
+            .put("我想继续听她说，暂时不插话"))
+        val concise = CharacterDeliberationContext.conciseAppraisal(authored)
+        assertEquals("我想继续听她说，暂时不插话",
+            concise?.optJSONArray("privateIdeas")?.optString(0))
+        assertEquals("我想继续听她说，暂时不插话",
+            CharacterMomentSnapshot.reflection(null, appraisal = authored))
+        // No new private monologue is a valid outcome; it does not cancel
+        // the present-tense idea that preceded the choice to stay silent.
+        assertEquals("", CharacterHeartVoicePolicy.keepOrBlank(
+            thought = "", hasFreshEvidence = true))
+    }
+
+    @Test fun sharedDecisionContractNeverTreatsSilenceAsAbsenceOfMentalChoice() {
+        assertTrue(CharacterDecisionProtocol.runtimePrinciples.contains(
+            "appraisal.privateIdeas 中写出至少一个"))
+        assertTrue(CharacterDecisionProtocol.causalPrinciples.contains(
+            "想法是每轮自主选择的心理前提"))
+        assertFalse(CharacterDecisionProtocol.causalPrinciples.contains(
+            "想法不是动作的必经工序"))
+    }
+
 }
