@@ -310,7 +310,14 @@ object LuluDeviceToolBridge {
             (pendingObservations.filterNot { it.id == externalCallResult.id } + externalCallResult)
                 .sortedWith(compareBy({ it.occurredAt }, { it.id }))
         else pendingObservations
-        val companionActionContext = CompanionActionRuntime.capabilityContext(appContext, characterId, includeWorldContext = false) + "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
+        // Keep the exact same compact, registry-backed action menu as the
+        // private-message/online/solo-life perception loop. Scene-specific
+        // detail below can add concrete IDs, but cannot replace available
+        // choices or create a second tool universe.
+        val companionActionContext =
+            com.jiacimu.lulu.data.CapabilityRegistry.decisionCapabilityOverview(appContext, characterId) +
+                "\n" + CompanionActionRuntime.capabilityContext(appContext, characterId, includeWorldContext = false) +
+                "\n" + com.jiacimu.lulu.data.CapabilityRegistry.context(appContext, characterId)
         val initiativeContext = com.jiacimu.lulu.data.CharacterInitiativeRuntime.context(characterId, userText)
         val onlineChatBubbleRule = if (sceneContext.contains("电话")) "" else """
             【即时聊天：像本人一样接话】
