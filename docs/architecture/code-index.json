@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T05:29:01.980274+00:00",
-  "commit": "dfa62c8fe4115d8eed88e0b08b01a922844eb7dc",
+  "generatedAt": "2026-11-19T05:43:52.248250+00:00",
+  "commit": "a06291e09ef7fdc0255756fc231c184b9abbc2fa",
   "branch": "main",
-  "sourceFingerprint": "919dad973e3148e37fb54e7f1b3ecb7a93483b7250c00f61eb3a96501df983e0",
+  "sourceFingerprint": "2324a79c4973b30846a66609386800400705be4222717b8f9ec4313b6b45e1b6",
   "summary": {
     "files": 1480,
-    "lines": 314140,
-    "symbols": 4486
+    "lines": 314201,
+    "symbols": 4487
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -551,7 +551,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 207
+        "line": 268
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -6882,28 +6882,34 @@
         "line": 49
       }
     ],
+    "decisionCapabilityOverview": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
+        "line": 58
+      }
+    ],
     "scheduledActionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 57
+        "line": 118
       }
     ],
     "allows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 68
+        "line": 129
       }
     ],
     "screenVisionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 103
+        "line": 164
       }
     ],
     "phoneOperationContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 159
+        "line": 220
       }
     ],
     "reflectionGuidance": [
@@ -30725,8 +30731,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 225,
-      "sha256": "b0039a21f7326fc4ea2e45b96e9f06390a626739bb64db5affa1f8581c9492bb",
+      "lines": 286,
+      "sha256": "7252baab677163d2480ce7d2faedf8cb208b5c9257cd395b67b707d27c615df9",
       "symbols": [
         {
           "name": "Capability",
@@ -30745,24 +30751,28 @@
           "line": 49
         },
         {
+          "name": "decisionCapabilityOverview",
+          "line": 58
+        },
+        {
           "name": "scheduledActionName",
-          "line": 57
+          "line": 118
         },
         {
           "name": "allows",
-          "line": 68
+          "line": 129
         },
         {
           "name": "screenVisionContext",
-          "line": 103
+          "line": 164
         },
         {
           "name": "phoneOperationContext",
-          "line": 159
+          "line": 220
         },
         {
           "name": "context",
-          "line": 207
+          "line": 268
         }
       ]
     },
