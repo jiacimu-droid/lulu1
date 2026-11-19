@@ -21,6 +21,8 @@ import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.Keyboard
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.MicOff
+import androidx.compose.material.icons.outlined.VolumeOff
+import androidx.compose.material.icons.outlined.VolumeUp
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -205,7 +207,7 @@ internal fun SoupComposer(
 ) {
     var typing by remember(room.id, keyboardRequest) { mutableStateOf(keyboardRequest > 0) }
     var showInputModes by remember(room.id) { mutableStateOf(false) }
-    val voicePanel = live.voiceMode && !typing
+    val voicePanel = (live.mic.active || live.companionAudioEnabled) && !typing
     val inputFocus = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
     LaunchedEffect(typing, keyboardRequest) {
@@ -224,7 +226,7 @@ internal fun SoupComposer(
                 if (error.isNotBlank()) {
                     Text(error, color = SoupTableColors.error, fontSize = 12.sp, lineHeight = 17.sp)
                 }
-                if (live.playbackError.isNotBlank() && live.voiceMode) {
+                if (live.playbackError.isNotBlank() && live.companionAudioEnabled) {
                     Text(live.playbackError, color = SoupTableColors.error, fontSize = 12.sp, maxLines = 2)
                 }
                 if (onRetry != null) TextButton(onClick = onRetry, colors = soupLinkColors()) { Text("重试处理") }
@@ -243,7 +245,7 @@ internal fun SoupComposer(
                         }
                     }
                 }
-                if (live.voiceMode && live.mic.partial.isNotBlank()) {
+                if (live.mic.partial.isNotBlank()) {
                     val partial = live.mic.partial
                     Text("你 · $partial", Modifier.padding(horizontal = 4.dp, vertical = 4.dp),
                         color = SoupTableColors.text, fontSize = 14.sp, maxLines = 3, overflow = TextOverflow.Ellipsis)
@@ -269,29 +271,48 @@ internal fun SoupComposer(
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically) {
-                    val micActive = live.voiceMode && live.mic.active
-                    Surface(
-                        onClick = {
-                            when {
-                                micActive -> { typing = false; live.mic.mute() }
-                                else -> { typing = false; live.selectVoice(true) }
+                    val micActive = live.mic.active
+                    val speakerOn = live.companionAudioEnabled
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Surface(
+                            onClick = {
+                                if (!micActive) typing = false
+                                live.setMicrophoneEnabled(!micActive)
+                            },
+                            shape = CircleShape,
+                            color = if (micActive) SoupTableColors.gold else SoupTableColors.background,
+                            modifier = Modifier.size(44.dp),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(if (micActive) Icons.Outlined.Mic else Icons.Outlined.MicOff,
+                                    if (micActive) "关闭我的麦克风" else "开启我的麦克风",
+                                    tint = if (micActive) Color.White else SoupTableColors.gold)
                             }
-                        },
-                        shape = CircleShape,
-                        color = if (micActive) SoupTableColors.gold else SoupTableColors.background,
-                        modifier = Modifier.size(48.dp),
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(if (micActive) Icons.Outlined.Mic else Icons.Outlined.MicOff,
-                                if (micActive) "静音麦克风" else "开启连麦",
-                                tint = if (micActive) Color.White else SoupTableColors.gold)
                         }
+                        Text("我说话", color = SoupTableColors.muted, fontSize = 10.sp)
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Surface(
+                            onClick = { live.setCompanionAudioEnabled(!speakerOn) },
+                            shape = CircleShape,
+                            color = if (speakerOn) SoupTableColors.green else SoupTableColors.background,
+                            modifier = Modifier.size(44.dp),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(if (speakerOn) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
+                                    if (speakerOn) "关闭角色语音，只显示文字" else "开启角色语音播放",
+                                    tint = if (speakerOn) Color.White else SoupTableColors.green)
+                            }
+                        }
+                        Text(if (speakerOn) "角色语音" else "角色文字",
+                            color = SoupTableColors.muted, fontSize = 10.sp)
                     }
                     if (voicePanel) {
                         Column(Modifier.weight(1f)) {
                             Text(when {
                                 live.companionSpeaking -> "正在说话"
-                                micActive -> "连麦中"
+                                micActive -> "我正在说话"
+                                speakerOn -> "角色语音已开启"
                                 else -> "麦克风已静音"
                             }, color = SoupTableColors.text, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                             val detail = when {
