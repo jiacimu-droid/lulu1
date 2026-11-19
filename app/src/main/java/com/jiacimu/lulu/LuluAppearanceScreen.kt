@@ -245,14 +245,14 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                         Surface(color = MaterialTheme.colorScheme.background,
                             modifier = Modifier.fillMaxWidth()) {
                             BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                                val previewCell = minOf(maxWidth / DESKTOP_COLUMNS, 70.dp)
                                 LuluCssBackground(Modifier.matchParentSize())
                                 LuluDesktopWidgetCard(
                                     widget = LuluDesktopWidget("css-preview", widget, 0, 0, 0),
                                     today = rememberLuluDesktopDate(),
                                     characterName = null,
                                     lastConversationText = null,
-                                    modifier = Modifier.width(maxWidth * (widget.columns / 4f))
-                                        .height(if (widget.rows == 1) 98.dp else 132.dp),
+                                    modifier = Modifier.size(previewCell * widget.columns, previewCell * widget.rows),
                                     onOpen = {},
                                     onEdit = null,
                                     specialContent = { card, ink, _ ->

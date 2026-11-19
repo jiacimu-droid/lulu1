@@ -1,9 +1,35 @@
 package com.jiacimu.lulu
 
 internal const val DESKTOP_COLUMNS = 4
-internal const val DESKTOP_ROWS = 6
+internal const val DESKTOP_ROWS = 7
+internal const val SIX_ROW_DESKTOP_ROWS = 6
 internal const val DESKTOP_SLOT_COUNT = DESKTOP_COLUMNS * DESKTOP_ROWS
 internal const val LEGACY_DESKTOP_ROWS = 8
+
+internal data class DesktopGridCell(val row: Int, val column: Int)
+
+/** Integral pixels keep the drawn cells, hit targets and drag positions on the same grid. */
+internal data class DesktopGridGeometry(val cellPx: Int, val leftPx: Int, val topPx: Int) {
+    fun x(column: Int): Int = leftPx + column * cellPx
+    fun y(row: Int): Int = topPx + row * cellPx
+
+    fun cellAt(pointerX: Float, pointerY: Float): DesktopGridCell? {
+        if (cellPx == 0 || pointerX < leftPx || pointerX >= x(DESKTOP_COLUMNS) ||
+            pointerY < topPx || pointerY >= y(DESKTOP_ROWS)) return null
+        return DesktopGridCell(
+            row = ((pointerY - topPx) / cellPx).toInt(),
+            column = ((pointerX - leftPx) / cellPx).toInt(),
+        )
+    }
+
+    companion object {
+        fun fit(widthPx: Int, heightPx: Int): DesktopGridGeometry {
+            val cell = minOf(widthPx / DESKTOP_COLUMNS, heightPx / DESKTOP_ROWS)
+            return DesktopGridGeometry(cell, (widthPx - cell * DESKTOP_COLUMNS) / 2,
+                (heightPx - cell * DESKTOP_ROWS) / 2)
+        }
+    }
+}
 
 internal fun desktopPageStart(page: Int): Int = page.coerceAtLeast(0) * DESKTOP_SLOT_COUNT
 internal fun desktopPageForSlot(slot: Int): Int = slot.coerceAtLeast(0) / DESKTOP_SLOT_COUNT
@@ -37,7 +63,11 @@ internal fun migrateDesktopGrid(
     version: Int,
     launcherIds: List<String>,
 ): DesktopGridLayout {
-    val legacyPageSize = if (version == 1) 16 else DESKTOP_COLUMNS * LEGACY_DESKTOP_ROWS
+    val legacyPageSize = when (version) {
+        1 -> 16
+        4 -> DESKTOP_COLUMNS * SIX_ROW_DESKTOP_ROWS
+        else -> DESKTOP_COLUMNS * LEGACY_DESKTOP_ROWS
+    }
     val slots = mutableListOf<String?>()
     val known = launcherIds.toSet()
     val placedIds = mutableSetOf<String>()
@@ -100,6 +130,10 @@ internal fun migrateDesktopGrid(
             .first { slots.getOrNull(it) == null && it !in blocked }
         while (slots.size <= destination) slots.add(null)
         slots[destination] = id
+    }
+    if (version == 4) {
+        val storedPages = (oldSlots.size + legacyPageSize - 1) / legacyPageSize
+        while (slots.size < desktopPageStart(storedPages)) slots.add(null)
     }
     return DesktopGridLayout(completeDesktopSlots(slots, widgets, launcherIds), widgets)
 }
