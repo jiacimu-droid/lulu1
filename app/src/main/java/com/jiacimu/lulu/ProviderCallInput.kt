@@ -365,6 +365,13 @@ internal class ProviderCallInput(private val context: Context, private val scope
         startMicrophone(generation, queue, prefs)
     }
 
+    /** User hold-to-talk notes reuse the SAME selected STT provider on one recorded PCM clip.
+     * No second microphone or Android system recognizer activity is opened. */
+    internal suspend fun transcribeRecordedPcm(pcm: ByteArray): String {
+        require(pcm.size >= 6_400) { "语音太短，请按住再说一次" }
+        return transcribe(pcm) {}.trim()
+    }
+
     private suspend fun transcribe(pcm: ByteArray, onIncremental: (String) -> Unit): String =
         when (sttEngine) {
             "local" -> LocalWhisperTranscriber.transcribe(context, localModel, pcm)
