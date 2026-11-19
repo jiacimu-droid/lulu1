@@ -1089,6 +1089,7 @@ class ConversationExpressionGatewayTest {
         val post = JSONObject().put("tool", "publish_moment")
             .put("args", JSONObject().put("text", "旧决定中尚未发出的动态"))
         val plan = JSONObject().put("action", "silent").put("reason", "我先自己想一想")
+            .put("appraisal", JSONObject().put("privateIdeas", JSONArray().put("我想先核对手边的线索再回答她")))
             .put("statusText", staleStatus).put("steps", JSONArray().put(direction).put(post))
         val nextSpeech = "我把刚才得到的参考和你现在说的分开看。"
         val decisionRequests = AtomicInteger()
@@ -1471,7 +1472,7 @@ class ConversationExpressionGatewayTest {
             override fun dispatch(request: RecordedRequest): MockResponse = when (requests.incrementAndGet()) {
                 1 -> if (release.await(15, TimeUnit.SECONDS)) response(decision.toString())
                     else MockResponse().setResponseCode(500)
-                2 -> response("""{"action":"silent","reason":"按这次相处约定安静待一会儿"}""")
+                2 -> response("""{"action":"silent","reason":"按这次相处约定安静待一会儿","appraisal":{"privateIdeas":["我想尊重她刚更新的约定，先安静一会儿"]}}""")
                 3 -> response("""{"action":"reply","text":"我听到了。"}""")
                 else -> MockResponse().setResponseCode(500)
             }
