@@ -127,9 +127,12 @@ internal object CompanionActionRuntime {
         val learning = if (characterId.startsWith("resident:")) ""
             else AutonomousLearningRuntime.capabilityContext(context, characterId)
         val catalogue = listOf(tools, learning).filter(String::isNotBlank).joinToString("\n")
-        return if (catalogue.isBlank()) "外部探索暂未提供可用工具；可保留好奇，不能假装已经搜索。"
-            else "【此刻外部探索真实工具与配置】\n$catalogue\n" +
-                "任选符合本人兴趣与当前权限的一种渠道，真正执行后再依据回执形成理解；不要为展示活跃而把各渠道全搜一遍。"
+        val unifiedMenu = CapabilityRegistry.decisionCapabilityOverview(context, characterId)
+        val exploration = if (catalogue.isBlank())
+            "外部探索暂未提供可用工具；可保留好奇，不能假装已经搜索。"
+        else "【此刻外部探索真实工具与配置】\n$catalogue\n" +
+            "任选符合本人兴趣与当前权限的一种渠道，真正执行后再依据回执形成理解；不要为展示活跃而把各渠道全搜一遍。"
+        return unifiedMenu + "\n" + exploration
     }
 
     /** Pure projection of existing tool information, never another capability registry. */
