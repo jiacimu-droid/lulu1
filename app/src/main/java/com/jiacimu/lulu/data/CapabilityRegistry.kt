@@ -103,19 +103,62 @@ object CapabilityRegistry {
             appendLine("只列出此刻按既有授权可尝试的已注册工具，不等于执行成功；" +
                 "搜索API还须配置、手机操作还须真实屏幕与权限、社交需要有效对象ID。" +
                 "没有列出的设备工具可能需要主人先开启授权，不可假称已禁用全部能力。")
-            val examples = listOfNotNull(
-                "publish_moment".takeIf { it in shown }?.let { "发朋友圈 publish_moment(text)" },
-                "send_character_message".takeIf { it in shown }?.let { "联系好友 send_character_message(targetCharacterId,text)" },
-                "send_group_message".takeIf { it in shown }?.let { "群聊 send_group_message(groupId,text)" },
-                "digital_world_action".takeIf { it in shown }?.let { "出门/拜访 digital_world_action(worldAction,locationCode/itemId)" },
-                "web_search".takeIf { it in shown }?.let { "查网页 web_search(op,query)" },
-                "background_phone".takeIf { it in shown }?.let { "后台手机 background_phone(action,appName)" },
-                "start_call".takeIf { it in shown }?.let { "语音/视频 start_call(text,mediaMode=voice|video)" },
-                "read_book".takeIf { it in shown }?.let { "读书 read_book(readingBookId)" },
-            )
-            if (examples.isNotEmpty()) appendLine("可选工具参数例子：${examples.joinToString("；")}。")
-            appendLine("这些不是必做清单。本人选一次 0/1/N 个动作，同轮回复可附 steps，" +
-                "每步由同一真实执行器校验并写回执；依赖前一步结果时等待实际返回，不预编结果。")
+            // A compact actionable index, *not* another executable registry.
+            // Every example is projected only if the registered tool is offered
+            // to this actual role. The full per-tool catalogue remains the
+            // authority for required IDs and scene-specific arguments.
+            val examples = listOf(
+                "publish_moment" to "朋友圈 publish_moment(text:本人选择的公开内容)",
+                "like_moment" to "点赞 like_moment(postId)",
+                "comment_moment" to "评论 comment_moment(postId,text,replyToCommentId:可选)",
+                "set_phone_moments_cover" to "换朋友圈封面 set_phone_moments_cover(preset或postId)",
+                "send_character_message" to "找好友私聊 send_character_message(targetCharacterId,bubbles或text)",
+                "send_group_message" to "群聊发言 send_group_message(groupId,text)",
+                "create_group_chat" to "建好友群 create_group_chat(groupName,memberIds)",
+                "send_friend_request" to "加好友 send_friend_request(targetCharacterId,greeting)",
+                "respond_friend_request" to "回应申请 respond_friend_request(requestId,decision)",
+                "digital_world_action" to "出门/拜访/当面交流 digital_world_action(worldAction,locationCode或itemId,activityId)",
+                "send_world_invite" to "邀请见面 send_world_invite(location,text)",
+                "send_private_message" to "主动找用户聊天 send_private_message(text)",
+                "start_call" to "拨语音或Live2D视频 start_call(text,mediaMode=voice|video)",
+                "web_search" to "联网查询或读网页 web_search(op=search|search_read|read,query或url)",
+                "image_search" to "搜图/分享 image_search(op=search|send,query或searchId)",
+                "background_phone" to "后台虚拟屏/本机App background_phone(action=launch|observe|tap|type|search等,appName或packageName)",
+                "capture_screen" to "看授权主屏 capture_screen()",
+                "read_book" to "亲自阅读 read_book(readingBookId)",
+                "play_solo_game" to "独自玩游戏 play_solo_game(gameId)",
+                "send_game_invite" to "约用户玩游戏 send_game_invite(gameId,text)",
+                "invite_duel_game" to "约数字朋友对战 invite_duel_game(gameId,targetCharacterId)",
+                "sing_song" to "创作原创歌曲 sing_song(prompt,durationSeconds)",
+                "control_music" to "操作真实媒体会话 control_music(command)",
+                "save_photo" to "相册收藏真实图片 save_photo(messageId或searchId,index)",
+                "favorite_user_message" to "收藏用户原话 favorite_user_message(messageId,reason)",
+                "write_phone_memo" to "写本人备忘录 write_phone_memo(title,content)",
+                "read_self_todo" to "查看用户自序 read_self_todo(scope=today|all)",
+                "plan_personal_activity" to "安排自己的未来行动 plan_personal_activity(title,intent,dueAt,activityAction,activityArgs)",
+                "reschedule_personal_activity" to "改期 reschedule_personal_activity(planId,expectedDueAt,dueAt,reason)",
+                "start_study_watch" to "申请限时学习监督 start_study_watch(minutes)",
+                "get_battery" to "观察电量 get_battery()",
+                "get_location" to "查询授权定位 get_location()",
+            ).filter { (name, _) -> name in shown }
+            if (examples.isNotEmpty()) {
+                appendLine("【何时想做即可选择的真实工具及参数线索｜需按现场ID和配置核实】")
+                examples.chunked(5).forEach { batch ->
+                    appendLine(batch.joinToString("；") { it.second })
+                }
+            }
+            if ("web_search" in shown && !WebSearchProvider.isConfigured(context))
+                appendLine("web_search 目前缺少搜索服务配置，不能宣称已经查到网页。")
+            if ("image_search" in shown && !ImageSearchProvider.configured(context, "serper") &&
+                !ImageSearchProvider.configured(context, "giphy"))
+                appendLine("image_search 目前缺少图像搜索配置，不能宣称已搜索或发送。")
+            appendLine("【选择与行动】本人随时可以从已有经历、关系、兴趣或未完事项中自选 0/1/N 个动作；" +
+                "前台私聊、在线窗口、后台感知使用同一真实工具。聊天不是工具禁用状态：" +
+                "若既想回复又想发朋友圈、搜网页、联系朋友或读书，本轮回复照常填写，" +
+                "独立动作同时写 steps=[{tool:已注册工具名,args:{实际参数},requiresPreviousSuccess:false}]；" +
+                "先看到搜索/画面结果才能决定的下一步，须等新回执再选择，不能预写成功。" +
+                "每步独立校验授权、真实对象和持久回执；明确的未来行动由原 plan_personal_activity 保存，" +
+                "不是只写在心声中。无需每轮找事做，也不要为展示活跃重复发圈或打扰别人。")
         }.trim()
     }
 
