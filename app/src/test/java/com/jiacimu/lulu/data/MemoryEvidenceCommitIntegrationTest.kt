@@ -90,7 +90,13 @@ class MemoryEvidenceCommitIntegrationTest {
             assertEquals(setOf("在桥边看到猫", "后来找到落下的钥匙"), original.snapshot(role).map { it.content }.toSet())
             assertEquals(1, original.pendingMessageCount(role))
             assertEquals(1, original.deferredExtractionTurnCount(role))
-            assertEquals(now.plusSeconds(2), original.snapshot(role).first { it.sourceIds() == listOf("old-2") }.occurredAt)
+            // SharedExperienceTimeline stores event timestamps as SQLite epoch
+            // milliseconds. Compare against the persisted source event, not the
+            // nanosecond-precision test clock that was never stored in SQLite.
+            val persistedSource = SharedExperienceTimeline.eventsByIds(role, listOf("old-2")).single()
+            assertEquals(Instant.ofEpochMilli(now.plusSeconds(2).toEpochMilli()), persistedSource.occurredAt)
+            assertEquals(persistedSource.occurredAt,
+                original.snapshot(role).first { it.sourceIds() == listOf("old-2") }.occurredAt)
             repeat(3) { index ->
                 val body = server.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS)!!.body.readUtf8()
                 if (index > 0) assertFalse(body.contains("eventId=old-0@"))
