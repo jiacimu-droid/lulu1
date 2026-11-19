@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T13:03:23.827536+00:00",
-  "commit": "ed793f4aa96a0da8d4d6ab53e8efe1dc0e486b56",
+  "generatedAt": "2026-11-19T13:03:58.224859+00:00",
+  "commit": "98a214818984a7b6443ccfbac0a3ea0fb862f48c",
   "branch": "main",
-  "sourceFingerprint": "86cf35b3c88a245619e80577360694d01415c977fe316cf52de922435c2ebc20",
+  "sourceFingerprint": "3c487c057e914b2a43cf4c012bbf8d37125f2cc9e21bad89d92a90db8c2b90f3",
   "summary": {
-    "files": 1484,
-    "lines": 316282,
-    "symbols": 4509
+    "files": 1485,
+    "lines": 316632,
+    "symbols": 4510
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2402,6 +2402,16 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
         "line": 71
+      }
+    ],
+    "reload": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt",
+        "line": 76
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
+        "line": 316
       }
     ],
     "recordListening": [
@@ -21924,12 +21934,6 @@
         "line": 3209
       }
     ],
-    "reload": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 316
-      }
-    ],
     "CharacterLifeVisibilityTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt",
@@ -26881,6 +26885,17 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt",
+      "lines": 350,
+      "sha256": "1e0d9d821f66814d2f02f162ab3ffa7dea8a491edf4c5fe4993e9996f4b9e958",
+      "symbols": [
+        {
+          "name": "reload",
+          "line": 76
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
       "lines": 313,
       "sha256": "100bfd3a9b2b7eb0377859796706ab6c2677c1be989cea2eb124551c9b7c461d",
@@ -30916,7 +30931,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 352,
-      "sha256": "83e8da2ddee160139daa1e8687898c03d5c9f7f88b7285e827812814712faf68",
+      "sha256": "7b1b92bc08bb9b29187f2d3813c0b5bd714d7c70454bca889c492f3f492c99d0",
       "symbols": [
         {
           "name": "Capability",
@@ -47456,7 +47471,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt",
       "lines": 332,
-      "sha256": "75b94f798f398b13461349f0fd6bc33bf1581b301c420f1fb9a2adba7f731b9a",
+      "sha256": "6104f25a30b44d555b545799fa9b61b0e1103f6f48a39840640465b7aae8b107",
       "symbols": [
         {
           "name": "RelayRequestPressurePolicyTest",
