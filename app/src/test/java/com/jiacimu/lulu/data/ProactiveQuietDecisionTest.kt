@@ -313,6 +313,8 @@ class ProactiveQuietDecisionTest {
         // executable task handoff. This is not a real-model quality test.
         val renewal = onlineRenewalDecisionInstruction()
         assertEquals(1, renewal.split("【五分钟自主续醒决定｜本轮必须回答】").size - 1)
+        assertTrue("The online lease prompt should remain legible instead of repeating whole actor rules",
+            renewal.length < 1_600)
         for (required in listOf(
             "onlineDecision", "continue|sleep", "choice 和 reason 均为必填",
             "nextChecks 写 taskId", "带时区偏移", "动作完成不等于目标达成",
