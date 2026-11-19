@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T08:28:21.952155+00:00",
-  "commit": "c05bbd3be9479859aec2a69e5e054cbe5517497b",
+  "generatedAt": "2026-11-19T08:29:33.655529+00:00",
+  "commit": "f4795ff9df33c80e88baaaf8eb18c158f0d48c1a",
   "branch": "main",
-  "sourceFingerprint": "484defb7f2290cef4a990f797c1dda5227cd741faa45e5f5b8784d21f522eee7",
+  "sourceFingerprint": "f70bf22f319f90c8fe9880fca69f1e4fc6b6daabfe0a7bf2481b770cf97643af",
   "summary": {
     "files": 1480,
-    "lines": 314798,
+    "lines": 315030,
     "symbols": 4489
   },
   "symbolIndex": {
@@ -2837,7 +2837,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
-        "line": 103
+        "line": 171
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt",
@@ -5461,7 +5461,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 547
+        "line": 622
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DSpokenMotionContractTest.kt",
@@ -7645,7 +7645,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 477
+        "line": 552
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -8181,25 +8181,25 @@
     "InsightRow": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 24
+        "line": 25
       }
     ],
     "isMaterialEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 133
+        "line": 179
       }
     ],
     "observeInteraction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 205
+        "line": 253
       }
     ],
     "matchingActionFeedback": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-        "line": 629
+        "line": 707
       }
     ],
     "register": [
@@ -18465,7 +18465,7 @@
     "rememberGesture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 345
+        "line": 346
       }
     ],
     "showForeground": [
@@ -23135,7 +23135,7 @@
     "PhoneInnerVoicePerceptionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/PhoneInnerVoicePerceptionTest.kt",
-        "line": 12
+        "line": 14
       }
     ],
     "PhoneModelTransportPolicyTest": [
@@ -25806,8 +25806,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt",
-      "lines": 515,
-      "sha256": "8fc378bf8fa479f98d4a3f397252bf5a072c11d0c06860c87af550eede41a5be",
+      "lines": 544,
+      "sha256": "64522cff72cebad00150fb844e96dc3cdea94d165cfd4d40e4a12365cc13c292",
       "symbols": [
         {
           "name": "MemoryFeatureScreen",
@@ -30746,7 +30746,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
       "lines": 351,
-      "sha256": "9a5dde3b1542f50a12fd2824e261c421f4578bdcee109e593b5c31b9d398e897",
+      "sha256": "a56c16aecf8e79d93e0b42d7cdde31e854761f477dc656106ad82317388e33f9",
       "symbols": [
         {
           "name": "Capability",
@@ -31713,32 +31713,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt",
-      "lines": 682,
-      "sha256": "8137de35409e28398904dd148a4b89dc2cd6813885885dc499b17bd6a6c2ca1f",
+      "lines": 760,
+      "sha256": "479d68c5b3a76e5f1afec1b702f9dc9a123f33795538274a43da72625d444f47",
       "symbols": [
         {
           "name": "InsightRow",
-          "line": 24
+          "line": 25
         },
         {
           "name": "isMaterialEvidence",
-          "line": 133
+          "line": 179
         },
         {
           "name": "observeInteraction",
-          "line": 205
+          "line": 253
         },
         {
           "name": "invalidateEvidence",
-          "line": 477
+          "line": 552
         },
         {
           "name": "score",
-          "line": 547
+          "line": 622
         },
         {
           "name": "matchingActionFeedback",
-          "line": 629
+          "line": 707
         }
       ]
     },
@@ -36800,7 +36800,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 172,
-      "sha256": "965859765660af81d88002b85d5a5418cbda9294b7aad9ef589f066ea65b055c",
+      "sha256": "9817c9687f698d90bbd518a643d7f24c409a85adcf8bbbcb350e92f4ace14011",
       "symbols": []
     },
     {
@@ -43412,8 +43412,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 886,
-      "sha256": "57bae606c42bf6b2cb8c894cbd64f622d179cfd67edad8c14ada8ac0dfe0d419",
+      "lines": 918,
+      "sha256": "79b983644e68c2e07e8c1243bd0bbb7fc667ce2beb0cb92ca6952153399d41a8",
       "symbols": [
         {
           "name": "Outcome",
@@ -43441,7 +43441,7 @@
         },
         {
           "name": "rememberGesture",
-          "line": 345
+          "line": 346
         }
       ]
     },
@@ -48071,8 +48071,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
-      "lines": 248,
-      "sha256": "ba5f4ca32639a0fdfecfc6dc7b82027311238df1b49def9254d356a924bf081a",
+      "lines": 316,
+      "sha256": "b0ab59e08e97b2178ac36b001c1a91c0faddee27e1c291e0cb3df23777e7c9e1",
       "symbols": [
         {
           "name": "CharacterLearningLedgerTest",
@@ -48080,7 +48080,7 @@
         },
         {
           "name": "record",
-          "line": 103
+          "line": 171
         }
       ]
     },
@@ -49953,12 +49953,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PhoneInnerVoicePerceptionTest.kt",
-      "lines": 55,
-      "sha256": "64a705dc6647f542823a116f96e3280783e3ef27a9540d1d02056ac866feec33",
+      "lines": 80,
+      "sha256": "a9e9734146d09a3bfa0b5cc005646e039b1caf36f6cb94decea1d0a8be971f9d",
       "symbols": [
         {
           "name": "PhoneInnerVoicePerceptionTest",
-          "line": 12
+          "line": 14
         }
       ]
     },
