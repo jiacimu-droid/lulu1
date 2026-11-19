@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T13:21:37.365500+00:00",
-  "commit": "11ead61fcc1641da557d23a1db75bc06a9db4c79",
+  "generatedAt": "2026-11-19T13:31:09.762257+00:00",
+  "commit": "2a2fc6fafa2efafb9579413c5617d51a84b4ee55",
   "branch": "main",
-  "sourceFingerprint": "2e762efed0010061a3256220501472d2fa36b0f4af55444980081870d1564d96",
+  "sourceFingerprint": "d7e97c0384f50ac2b9a5555acf2c9178bb811412cb501a310d05f9e5f3826f09",
   "summary": {
     "files": 1486,
-    "lines": 316769,
+    "lines": 316790,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -1007,7 +1007,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1664
+        "line": 1673
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -6217,19 +6217,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1404
+        "line": 1413
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1416
+        "line": 1425
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1654
+        "line": 1663
       }
     ],
     "addStreamingUsageWhenSupported": [
@@ -6341,31 +6341,31 @@
     "compactActorSceneFacts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 212
+        "line": 221
       }
     ],
     "compactHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 218
+        "line": 227
       }
     ],
     "compactSectionPairs": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 242
+        "line": 251
       }
     ],
     "compactSections": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 258
+        "line": 267
       }
     ],
     "savesEnough": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-        "line": 261
+        "line": 270
       }
     ],
     "ScopedModelSelections": [
@@ -30102,8 +30102,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1672,
-      "sha256": "9086b2a21742e0a26803205c7aead44f837379b5a05064afbb2f769f3744bf04",
+      "lines": 1681,
+      "sha256": "c1396e8f29d3245bf0bd5594ab78ca9706f4c96931a2dfcdedd7e42256406864",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -30211,19 +30211,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1404
+          "line": 1413
         },
         {
           "name": "consumeEvent",
-          "line": 1416
+          "line": 1425
         },
         {
           "name": "LuluAiServices",
-          "line": 1654
+          "line": 1663
         },
         {
           "name": "initialize",
-          "line": 1664
+          "line": 1673
         }
       ]
     },
@@ -30364,8 +30364,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt",
-      "lines": 265,
-      "sha256": "adc063b7dd4763c9967b130937fbf4ae28913ddb51ffff53fca82b9be925c723",
+      "lines": 274,
+      "sha256": "774fb1ecd7565bd9b60f4db019fb763e725d87ec1a05f937877191706390967a",
       "symbols": [
         {
           "name": "isMemoryGuard",
@@ -30385,23 +30385,23 @@
         },
         {
           "name": "compactActorSceneFacts",
-          "line": 212
+          "line": 221
         },
         {
           "name": "compactHistory",
-          "line": 218
+          "line": 227
         },
         {
           "name": "compactSectionPairs",
-          "line": 242
+          "line": 251
         },
         {
           "name": "compactSections",
-          "line": 258
+          "line": 267
         },
         {
           "name": "savesEnough",
-          "line": 261
+          "line": 270
         }
       ]
     },
@@ -36380,8 +36380,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-      "lines": 138,
-      "sha256": "52941f40f90a95e429271503cbd71ecb4b88afc25be72a129d19405e01cb592d",
+      "lines": 141,
+      "sha256": "dd4380937fee7c3e0d2db49ed2cbe970fed13e1d19700bff7287da98ca759316",
       "symbols": [
         {
           "name": "assemble",
