@@ -73,6 +73,12 @@ class CharacterContinuityGatewayTest {
                 assertTrue(prompt.contains(hidden.getString("id")))
                 assertTrue("The character must not forget its inner life while chatting",
                     prompt.contains("【角色持续内在生活"))
+                // An active long-term intention must remain visible even if
+                // the six detailed attention slots rotate elsewhere.
+                for (index in 0 until 20) {
+                    assertTrue("Still-active motive $index vanished from the actual provider request",
+                        prompt.contains("收集第${index}种石头"))
+                }
             }
             assertEquals(2, server.requestCount)
             assertEquals(before, CharacterInnerLifeStore.snapshot(role).toString())
