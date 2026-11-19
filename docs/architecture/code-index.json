@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T12:43:56.285978+00:00",
-  "commit": "c8e2642327430f855ed21ec862765c1448f779f0",
+  "generatedAt": "2026-11-19T12:45:42.215875+00:00",
+  "commit": "0cf3a5a316d321dcf02c1cdde23a95511d0f63eb",
   "branch": "main",
-  "sourceFingerprint": "551d991fb048045ad57034fc6c5a59cd571051a2689b8fba38d7fc1e82dfd784",
+  "sourceFingerprint": "669a5564e7bf9132fa87fe6ea675cadd54c35ee0d7acf4ed337fee4469e9ab45",
   "summary": {
     "files": 1482,
-    "lines": 315967,
-    "symbols": 4504
+    "lines": 315993,
+    "symbols": 4503
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4795,7 +4795,7 @@
     "openReceiptLink": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-        "line": 948
+        "line": 958
       }
     ],
     "import": [
@@ -20929,13 +20929,7 @@
     "QqChatSpeechLaunchTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqChatSpeechLaunchTest.kt",
-        "line": 14
-      }
-    ],
-    "unrelatedProgrammingErrorsAreNotHidden": [
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/QqChatSpeechLaunchTest.kt",
-        "line": 34
+        "line": 18
       }
     ],
     "QqMessageGroupingTest": [
@@ -28910,12 +28904,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 1074,
-      "sha256": "a70d7289cf89a36e991a17e37db477c83bd01a2e741c43f3ab6580d7cbef1924",
+      "lines": 1084,
+      "sha256": "1b49b92bf004d99e014c1f58791b87e3452ee19a87e5604ed8c871c9f2c84c59",
       "symbols": [
         {
           "name": "openReceiptLink",
-          "line": 948
+          "line": 958
         }
       ]
     },
@@ -46742,16 +46736,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/QqChatSpeechLaunchTest.kt",
-      "lines": 38,
-      "sha256": "cc4dad7bbb549ab169600892345808526b2b6f9bf52fed2958b68950b2846003",
+      "lines": 54,
+      "sha256": "868fb478453a1c7e01797391d607010d3c8115ca746214343ba00a0e3d5366f1",
       "symbols": [
         {
           "name": "QqChatSpeechLaunchTest",
-          "line": 14
-        },
-        {
-          "name": "unrelatedProgrammingErrorsAreNotHidden",
-          "line": 34
+          "line": 18
         }
       ]
     },
