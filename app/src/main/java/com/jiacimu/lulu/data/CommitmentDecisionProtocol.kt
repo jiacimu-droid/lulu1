@@ -38,8 +38,12 @@ internal object CommitmentDecisionProtocol {
         模型是时间含义的唯一解释者。程序只检查格式、未来时间、真实 ID 和执行权限。
     """.trimIndent()
 
-    fun context(tasks: List<CommitmentTask>, now: Instant, zone: ZoneId): String = buildString {
-        appendLine("【约定的客观依据】当前当地时间=${now.atZone(zone)}；时区=${zone.id}")
+    fun context(
+        tasks: List<CommitmentTask>, now: Instant, zone: ZoneId, includeClock: Boolean = true,
+    ): String = buildString {
+        append("【约定的客观依据】")
+        if (includeClock) append("当前当地时间=${now.atZone(zone)}；时区=${zone.id}")
+        appendLine()
         if (tasks.isEmpty()) appendLine("暂无现有约定；不能虚构旧任务id。")
         tasks.forEach { task ->
             appendLine("id=${task.id}; goal=${task.goal}; dueAt=${task.dueAt}; timezone=${task.timezone}; action=${task.deliveryAction}; repeat=${task.repeat}; dailyBase=${task.dailyBaseDueAt}; status=${task.status}; revision=${task.revision}; condition=${task.completionCondition}; verificationMode=${task.verificationMode}; nextReview=${task.nextCheckAt}; lastReceipt=${task.readableLastResult().take(170)}")

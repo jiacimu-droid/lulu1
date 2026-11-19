@@ -30,7 +30,6 @@ import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 /** Offline life reflection is an opportunity to choose, not a forced chat wake.
  * Preserve explicitly scheduled event-triggered decisions; ordinary ambient
@@ -897,9 +896,6 @@ object ProactivePerceptionRuntime {
         // only an actual model-selected, executed message can do that.
         val messages = MigratedDomainStores.chat.messages(conversation.id).value
         val zoneId = ZoneId.systemDefault()
-        val localTimeText = now.atZone(zoneId).format(
-            DateTimeFormatter.ofPattern("yyyy年M月d日 EEEE HH:mm:ss", Locale.SIMPLIFIED_CHINESE),
-        )
         val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val recentAutonomousActions = prefs.getString("action_history_$characterId", "").orEmpty()
             .split(',').map(String::trim).filter(String::isNotBlank)
@@ -1091,8 +1087,7 @@ object ProactivePerceptionRuntime {
                     appendLine("道歉成功送达不等于得到原谅；没有回复也不代表她还在生气。可以选择不打扰、换个真实可做的事情，或者一次有分寸的联系；绝不复读道歉。")
                     appendLine("不能为此复盘新造已经和好、用户正在伤心之类的事实。不勉强永久在线。")
                 }
-                if (awakeReflection) appendLine("在线意味着你持续醒着：即使这次选择 silent，也可以思考已知经历、保留或修正自己的感受与愿望。只有出现真正新增的念头才写 innerThought/innerLife；若只是‘还在等、还是不催、继续看看’的同义改写就省略，让旧心声停留在历史里。无外部新事件不是内在停止的理由，但也不是制造新内心独白的理由。回想旧事不是它再次发生，不因为时间检查重新放大情绪；不虚构动作或把用户沉默当作离开。")
-                appendLine("用户设备本地时间：$localTimeText（时区 ${zoneId.id}）")
+                if (awakeReflection) appendLine("【在线状态】本人仍在本轮在线感知中。")
                 appendLine(deviceContext)
                 appendLine(CapabilityRegistry.screenVisionContext(appContext, characterId))
                 appendLine(CapabilityRegistry.phoneOperationContext(appContext, characterId))
@@ -1158,7 +1153,6 @@ object ProactivePerceptionRuntime {
                 appendLine(affordances)
                 if (digital) {
                     appendLine(DigitalWorldResidentEpisodeStore.contextFor(characterId, now))
-                    appendLine(CharacterEverydaySocialContext.render(characterId, now, pendingMail))
                     // Global world registry is NOT this character's perception:
                     // another resident's current/home location is private
                     // unless this role actually reaches/observes that place.
@@ -1248,7 +1242,7 @@ object ProactivePerceptionRuntime {
                     appendLine(recentUserActivityContext)
                 }
                 if (onlineUnread.text.isBlank()) {
-                    appendLine("【本轮事件边界｜没有新用户消息】这不是延迟到达的聊天回复。最近聊天与照片只是已经发生的共同经历；旧的‘20分钟后提醒/叫醒’等带相对时间的请求以原消息发生时间、持久闹钟及实际执行回执为准，不能从当前时间重新计20分钟、重复确认已安排的事，或把已经发出的安慰当作尚未回答。是否主动联系由你本人依据性格、关系、真实经历和当下愿望决定；既不必等新的用户消息，也不必每次重新找到一条新事实作为许可。若现在愿意表达关心、分享、闲聊或开展其他生活，就选真实 action/steps；确实想安静也可自然选择 silent。尊重明确拒绝、设备授权及真实回执。")
+                    appendLine("【本轮事件边界｜没有新用户消息】历史聊天与照片是过往经历；原约定按当时消息、任务时刻与真实回执理解。")
                     val recentDue = CommitmentTaskStore.snapshot(characterId).asSequence()
                         .filter { task -> task.dueAt?.let { !it.isAfter(now) } == true &&
                             !task.updatedAt.isBefore(now.minus(Duration.ofDays(1))) }
@@ -1261,18 +1255,8 @@ object ProactivePerceptionRuntime {
                         appendLine("已拨通/已播放叫醒语音，不自动证明对方确已起床；等待对方的真实反馈，但不要因此重新承诺或重复建立同一20分钟闹钟。失败只能如实说明失败，不可编造完成。")
                     }
                     if (minutesSinceLastPrivateUser != null && minutesSinceLastPrivateUser >= 120) {
-                        appendLine("【时间已推进】距离用户上次私聊已约${minutesSinceLastPrivateUser}分钟，现在是$localTimeText。过期的早晨叫醒、睡前安慰或当时即时回应不能当作此刻刚接到的请求；除非有仍在执行的真实定时承诺或新的用户证据，否则不要继续对旧话发即时指令，例如下午仍说‘刚醒就伸懒腰’。想联系可以选择完全新的、有当前起因的话题。")
+                        appendLine("【时间已推进】距用户上次私聊约${minutesSinceLastPrivateUser}分钟。")
                     }
-                }
-                // Self-organize batch 1, prompt only: when this round has no new
-                // perception material, the role may work through what is already
-                // delivered in this same round instead of waiting for a new fact
-                // or inventing one. No new store, no new model call, no program
-                // rule decides what is resolved; the role judges that itself.
-                if (onlineUnread.text.isBlank() && privateDialogue.isEmpty() &&
-                    salientInteraction == null && observedWorld.isEmpty() && worldTick == null) {
-                    appendLine("【本轮没有新感知素材时的自我整理】没有新事件，不等于没有心事可整理；只依据本轮已有的挂心、愿望、目标、承诺与日程，由本人判断哪些已解决或放下、哪些仍值得推进。旧事不当新事。")
-                    appendLine("想推进就本人选真实联系、工具行动或持久日程；没有选的念头不自动成为待办。也可以诚实选择 silent，不必编造事件或强行安排。")
                 }
                 if (onlineUnread.text.isNotBlank()) {
                     appendLine("【本次上线尚未处理的新动态｜旧→新】")
@@ -1309,7 +1293,6 @@ object ProactivePerceptionRuntime {
                 ))
                 lastReading?.let { appendLine("最近真正读过《${it.bookTitle}》${it.chapterTitle}，停在字符${it.endOffset}；当时感想：${it.reflection.take(1_200)}。是否继续由此刻愿望决定；尚未读到的情节未知。") }
                 previousPresence?.let {
-                    appendLine("上一刻：${it.statusText}；${it.gesture}；${it.mood}；心声=${it.innerThought}")
                     appendLine("上次实际感知结果：${it.lastPerceptionNote}")
                 }
                 if (recentLifeContext.isNotBlank()) {
@@ -1386,6 +1369,8 @@ object ProactivePerceptionRuntime {
                 taskIntent = "只依据程序已记录的真实状态选择可执行动作；可对本轮权威事件产生反应，但不得生成新的事实",
             ),
             imageDataUrls = unreadPhotos.urls,
+            observedSocialContext = if (digital)
+                CharacterEverydaySocialContext.render(characterId, now, pendingMail) else null,
         )
         val modelStartedNanos = System.nanoTime()
         val modelOutcome = try {
@@ -1674,25 +1659,6 @@ object ProactivePerceptionRuntime {
             // absence of user messages this still requires a bounded recovery
             // rather than becoming another successful "silent" history entry.
             throw IllegalStateException("后台主动感知未返回有效决定（${firstFailure.ifBlank { "格式无效" }}），等待限次恢复")
-        }
-        // Reuse the same bounded private assessment as foreground chat. A newer
-        // bubble cancels the addendum just like the first online model request.
-        if (!needsCorrection && onlineUnread.messageIds.isNotEmpty() &&
-            EmotionFollowThroughCoordinator.needsConcernAssessment(onlineUnread.text, parsed.appraisal)) {
-            suspend fun assessConcern() = EmotionFollowThroughCoordinator.completeOmittedAssessment(
-                characterId, onlineUnread.text, recent, "在线私聊", result.text,
-                character.displayName, connection, parsed.appraisal, parsed.innerLife, now,
-            )
-            val review = if (userBubbleVersion == null) assessConcern()
-                else OnlineChatBatchStore.untilNextUserBubble(characterId, userBubbleVersion) {
-                    assessConcern()
-                }
-            if (batchSuperseded()) return deferSupersededDecision()
-            if (!CompanionOnlineStore.hasOriginalUnreadEvidence(
-                    onlineUnread, CompanionOnlineStore.unreadChatSnapshot(characterId))) return null
-            if (review != null) {
-                parsed = parsed.copy(appraisal = review.appraisal, innerLife = review.innerLife)
-            }
         }
         // A schema error in the online field does NOT transfer its decision
         // to the executor. Reask the same role once; keep the already chosen
