@@ -199,9 +199,10 @@ internal fun GameTalkBar(
     }
     val status = when {
         session.voiceMode && session.conversationStatus.isNotBlank() -> session.conversationStatus
-        session.voiceMode && !session.mic.active -> session.mic.status.ifBlank { "已静音 · 字幕仍会保留" }
-        session.voiceMode -> session.mic.status.ifBlank { "连麦中 · 直接说话" }
-        else -> "点麦克风接通，随时边玩边聊"
+        speakerOn && !microphoneOn -> "我的麦克风已关 · 角色用语音"
+        microphoneOn && !speakerOn -> session.mic.status.ifBlank { "我可以说话 · 角色只显示文字" }
+        microphoneOn -> session.mic.status.ifBlank { "双向语音已开启" }
+        else -> "我的麦克风和角色声音可独立开关"
     }
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -216,7 +217,12 @@ internal fun GameTalkBar(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(
-                        if (session.voiceMode) "$conversationTitle · 连麦" else "和${conversationTitle}说话",
+                        when {
+                            microphoneOn && speakerOn -> "$conversationTitle · 双向语音"
+                            microphoneOn -> "$conversationTitle · 我在说话"
+                            speakerOn -> "$conversationTitle · 角色语音"
+                            else -> "和${conversationTitle}说话"
+                        },
                         color = talkInk, fontWeight = FontWeight.SemiBold, fontSize = 14.sp,
                     )
                     Text(status, color = talkMuted, fontSize = 11.sp, maxLines = 2)
