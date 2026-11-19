@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T06:34:10.488617+00:00",
-  "commit": "68e7b291d9d60caa75150e7fef34b4692be942a1",
+  "generatedAt": "2026-11-19T06:34:56.438401+00:00",
+  "commit": "aea70b4ba8beccea986dec0b7ee3264a0e73a368",
   "branch": "main",
-  "sourceFingerprint": "9fb1691d65a7ff065ba853ba72393d2231d8a13a95ae28cb5ffdbaf66534522d",
+  "sourceFingerprint": "b8ee2082a5e14924b4163fc8b168affc03e8e796c8c7c2af18c2f465f61775ac",
   "summary": {
     "files": 1480,
-    "lines": 314370,
+    "lines": 314421,
     "symbols": 4488
   },
   "symbolIndex": {
@@ -50177,8 +50177,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt",
-      "lines": 483,
-      "sha256": "ac4145a0dac028b7e9a263b3ac8a774738149ab9d48e0dd8559a666958b9e93a",
+      "lines": 534,
+      "sha256": "93a343e8ad5ab549b24c9f393c018631179a17af08a96fd17bac37913dc650ce",
       "symbols": [
         {
           "name": "ProactiveQuietDecisionTest",
