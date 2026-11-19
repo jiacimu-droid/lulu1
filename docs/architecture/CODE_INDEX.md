@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`99cb1b9aa3655aac2e5b6eda24dd3d4364f769a1`
+- 基准提交：`6a82401dc4d31994dd0245b8fbe866535db3018f`
 - 分支：`main`
 - 已索引文件：1480
-- 已索引代码/文本行：313110
+- 已索引代码/文本行：313112
 - 已发现符号：4463
 
 | 文件 | 行数 | 符号数 |
@@ -575,7 +575,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/PhoneXhsReadWorker.kt` | 40 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatExpressionContext.kt` | 92 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/PrivateChatModelFailurePolicy.kt` | 15 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 170 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveIncomingCallStore.kt` | 194 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageAutomation.kt` | 52 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
