@@ -324,4 +324,132 @@ class SelfTodoRoleReadTest {
         assertFalse(partiallyBroken.getBoolean("success"))
         assertEquals(malformed, prefs.getString("tasks", ""))
     }
+
+    @Test fun roleReadsDiaryByChosenDateAndKeepsAllSameDayPages() {
+        val now = LocalDate.of(2026, 11, 19).atTime(12, 0)
+            .atZone(ZoneId.systemDefault()).toInstant()
+        val yesterday = LocalDate.of(2026, 11, 18)
+        val legacyMillis = LocalDate.of(2026, 11, 17).atTime(9, 0)
+            .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val original = JSONArray()
+            .put(JSONObject().put("id", "diary-b").put("area", "所思")
+                .put("entryDate", yesterday.toString()).put("title", "晚上的事")
+                .put("body", "这是昨天第二篇完整日记").put("createdAt", 200L)
+                .put("updated", now.toEpochMilli()))
+            .put(JSONObject().put("id", "diary-a").put("area", "所思")
+                .put("entryDate", yesterday.toString()).put("title", "早上的事")
+                .put("body", "这是昨天第一篇完整日记").put("mood", "开心")
+                .put("createdAt", 100L).put("updated", now.toEpochMilli()))
+            .put(JSONObject().put("id", "legacy-journal").put("area", "日记")
+                .put("title", "以前的记录").put("body", "老版日记也要能找回来")
+                .put("updated", legacyMillis))
+            .put(JSONObject().put("id", "private-value").put("area", "所重")
+                .put("title", "想珍惜的事").put("body", "这是另一栏，不属于日记")
+                .put("updated", now.toEpochMilli()))
+            .toString()
+        val prefs = app.getSharedPreferences("lulu_self_preface_v1", 0)
+        assertTrue(prefs.edit().putString("entries", original).commit())
+
+        val dates = SelfPrefaceRoleRead.execute(app,
+            JSONObject().put("area", "thoughts").put("op", "dates"), now)
+        assertTrue(dates.getBoolean("success"))
+        assertEquals(yesterday.toString(), dates.getJSONArray("dates").getString(0))
+        val selected = SelfPrefaceRoleRead.execute(app,
+            JSONObject().put("area", "thoughts").put("date", "yesterday"), now)
+        assertEquals(2, selected.getInt("count"))
+        assertEquals("diary-a", selected.getJSONArray("entries").getJSONObject(0).getString("id"))
+        assertEquals("开心", selected.getJSONArray("entries").getJSONObject(0).getString("mood"))
+        assertEquals("这是昨天第二篇完整日记",
+            selected.getJSONArray("entries").getJSONObject(1).getString("body"))
+        assertFalse(selected.toString().contains("这是另一栏"))
+        val old = SelfPrefaceRoleRead.execute(app,
+            JSONObject().put("area", "diary").put("date", "2026-11-17"), now)
+        assertEquals("老版日记也要能找回来",
+            old.getJSONArray("entries").getJSONObject(0).getString("body"))
+        val today = SelfPrefaceRoleRead.execute(app,
+            JSONObject().put("area", "所思").put("date", "today"), now)
+        assertEquals(0, today.getInt("count"))
+        assertEquals(original, prefs.getString("entries", null))
+    }
+
+    @Test fun readAllValuesAndWishesIncludesFulfilledAndTheirActualFolders() {
+        val entries = JSONArray()
+            .put(JSONObject().put("id", "value").put("area", "所重")
+                .put("title", "价值判断").put("body", "愿意认真对待的事")
+                .put("guide", "我为什么看重它").put("starred", true).put("updated", 100L))
+            .put(JSONObject().put("id", "wish-completed").put("area", "所愿")
+                .put("title", "完成的心愿").put("body", "已经实现，不能被过滤掉")
+                .put("nextStep", "暂时没有").put("state", "fulfilled")
+                .put("wishFolderId", "folder-1").put("updated", 100L))
+            .put(JSONObject().put("id", "wish-active").put("area", "所愿")
+                .put("title", "还在期待的心愿").put("body", "这个愿望仍在")
+                .put("state", "active").put("updated", 150L))
+        val prefs = app.getSharedPreferences("lulu_self_preface_v1", 0)
+        assertTrue(prefs.edit()
+            .putString("entries", entries.toString())
+            .putString("wish_folders_v1", JSONArray().put(JSONObject()
+                .put("id", "folder-1").put("name", "星空计划")).toString()).commit())
+        val values = SelfPrefaceRoleRead.execute(app, JSONObject().put("area", "values"))
+        assertEquals(1, values.getInt("count"))
+        assertEquals("我为什么看重它", values.getJSONArray("entries")
+            .getJSONObject(0).getString("guide"))
+        assertFalse(values.toString().contains("完成的心愿"))
+        val wishes = SelfPrefaceRoleRead.execute(app, JSONObject().put("area", "wishes"))
+        assertEquals(2, wishes.getInt("count"))
+        val finished = (0 until 2).map { wishes.getJSONArray("entries").getJSONObject(it) }
+            .single { it.getString("id") == "wish-completed" }
+        assertEquals("fulfilled", finished.getString("state"))
+        assertEquals("星空计划", finished.getString("folderName"))
+        assertEquals("已经实现，不能被过滤掉", finished.getString("body"))
+        assertEquals(entries.toString(), prefs.getString("entries", null))
+    }
+
+    @Test fun unifiedPrefaceTodoReadsActualTodayCheckboxesAndRouterEvidence() = runBlocking {
+        val today = LocalDate.now()
+        val checkedAt = today.atTime(9, 0).atZone(ZoneId.systemDefault())
+            .toInstant().toEpochMilli()
+        val tasks = listOf(
+            TodoTask("pending", "今天未完成的事项", "原始备注", today,
+                null, TodoRepeat.ONCE, 100L),
+            TodoTask("done", "今天已经做完的事项", "已勾选", today,
+                null, TodoRepeat.ONCE, 100L,
+                listOf(TodoCompletion(today, checkedAt))),
+        )
+        assertTrue(SelfTodoStore.save(app, tasks))
+        val reading = SelfPrefaceRoleRead.execute(app, JSONObject().put("area", "todo"))
+        assertTrue(reading.toString(), reading.getBoolean("success"))
+        assertEquals("所行", reading.getString("area"))
+        assertEquals(1, reading.getJSONArray("pending").length())
+        assertEquals(1, reading.getJSONArray("completedToday").length())
+        assertTrue(reading.toString().contains("今天未完成的事项"))
+        assertTrue(reading.toString().contains("今天已经做完的事项"))
+        val capability = requireNotNull(CapabilityRegistry.find("read_self_preface"))
+        assertTrue(capability.retrySafe)
+        assertFalse(CapabilityRegistry.allows(app, "resident:no-owner-notes", capability, false))
+        val role = MigratedDomainStores.characters.create("好奇自序的角色").characterId
+        val args = JSONObject().put("area", "todo")
+        val execution = JSONObject(ToolRouter.execute(app, role, "read_self_preface",
+            args, requestId = "preface-read-" + UUID.randomUUID()))
+        assertTrue(execution.toString(), execution.getBoolean("success"))
+        val receipt = SearchReceiptFeedback.from("read_self_preface", args, execution)
+        assertNotNull(receipt)
+        assertTrue(receipt!!.details.contains("今天已经做完的事项"))
+        assertEquals(tasks, SelfTodoStore.read(app))
+    }
+
+    @Test fun corruptPrefaceAndBadDatesNeverPretendUserHasNoDiary() {
+        val prefs = app.getSharedPreferences("lulu_self_preface_v1", 0)
+        val invalid = "partly broken private notebook"
+        assertTrue(prefs.edit().putString("entries", invalid).commit())
+        val failed = SelfPrefaceRoleRead.execute(app, JSONObject().put("area", "wishes"))
+        assertFalse(failed.getBoolean("success"))
+        assertTrue(failed.getString("summary").contains("无法可靠读取"))
+        assertEquals(invalid, prefs.getString("entries", null))
+        assertTrue(prefs.edit().putString("entries", "[]").commit())
+        val badDate = SelfPrefaceRoleRead.execute(app,
+            JSONObject().put("area", "thoughts").put("date", "yesterday-but-not-a-date"))
+        assertFalse(badDate.getBoolean("success"))
+        assertTrue(badDate.getString("summary").contains("YYYY-MM-DD"))
+    }
+
 }
