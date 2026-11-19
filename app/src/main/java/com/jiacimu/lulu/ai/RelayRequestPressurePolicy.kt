@@ -34,25 +34,16 @@ internal object RelayRequestPressurePolicy {
     }
 
     /**
-     * The background wake can carry a 90-second decision, long structured
-     * action protocol and an image in the same request. Two measured requests
-     * around 360 KB reached the read timeout while the old 440 KB gate was
-     * never entered. A further real interrupted body write contained about
-     * 263 KB, just below the former 280 KB preflight gate. A 2026-11-14
-     * proactive request also failed upstream with HTTP 500 at 196,618
-     * preflight bytes (199,237 JSON bytes) despite an available 142,688-byte
-     * projection. The relay did not explicitly attribute that 500 to size;
-     * proactively send the already available, lower-pressure projection for
-     * this background source instead of assuming a generic 500 is retry-safe.
-     * Preserve the same
-     * protected persona/relationships/tool rules and current user input while
-     * projecting older, optional context BEFORE a large background POST.
-     *
-     * SavesEnough is checked separately by the caller. Ordinary short turns
-     * are left unchanged, as are other model entry points.
+     * Never discard a Full decision's live capabilities/scene solely because
+     * its UTF-8 body exceeds an arbitrary 100 KB preflight threshold. This
+     * threshold was bytes, not model tokens, and could silently hide a role's
+     * available tools in ordinary private chats. Always try the full request.
+     * The gateway retains a bounded compact retry ONLY when an actual upstream
+     * HTTP 503 explicitly proves relay request-body memory pressure.
+     * An ambiguous timeout/HTTP 500 is not safe to replay after billing.
      */
-    fun shouldCompactBeforeSend(source: String, payloadBytes: Int): Boolean =
-        canRecover(source) && payloadBytes > 100_000
+    @Suppress("UNUSED_PARAMETER")
+    fun shouldCompactBeforeSend(source: String, payloadBytes: Int): Boolean = false
 
     /**
      * These aren't local-memory quotas. A relay failure may justify omitting
@@ -135,6 +126,19 @@ internal object RelayRequestPressurePolicy {
         "【当前实际同场】",
     )
 
+    /**
+     * These blocks describe actual executor capabilities, not disposable
+     * historical observations. Preserve the COMPLETE generated catalogue and
+     * invocation guidance on the exceptional 503 recovery path, too.
+     * Source/owner checks still run in CapabilityRegistry and ToolRouter.
+     */
+    private val protectedCapabilityTitles = setOf(
+        "【本人可选择的能力目录｜私聊、在线窗口和后台独自感知共用】",
+        "【何时想做即可选择的真实工具及参数线索｜需按现场ID和配置核实】",
+        "【选择与行动】",
+        "【此刻外部探索真实工具与配置】",
+    )
+
     private fun excerptBackgroundBySource(text: String, allowed: Int): String {
         if (text.length <= allowed) return text
         // Only the application's titled sections form boundaries. A plain
@@ -153,8 +157,19 @@ internal object RelayRequestPressurePolicy {
             selected[0] = first
             remaining -= first.length + 1
         }
+        val mandatory = blocks.indices.filter { index ->
+            protectedCapabilityTitles.any { title -> blocks[index].startsWith(title) }
+        }
+        // Pin whole application-authored capability sections before sharing
+        // remaining recovery space with optional scene/history observations.
+        // If tools alone exceed the soft 14k scene budget, preserve tools.
+        mandatory.forEach { index ->
+            selected[index] = blocks[index]
+            remaining = (remaining - blocks[index].length - 1).coerceAtLeast(0)
+        }
         val priorities = blocks.indices.filter { index ->
-            priorityBackgroundTitles.any { title -> blocks[index].startsWith(title) }
+            index !in mandatory &&
+                priorityBackgroundTitles.any { title -> blocks[index].startsWith(title) }
         }
         val other = blocks.indices.filterNot { it in priorities || it in selected }
         // Do not silently lose upcoming responsibilities merely because later
