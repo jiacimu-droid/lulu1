@@ -54,6 +54,10 @@ internal data class SelfThoughtPage(
     val weather: String = "",
 )
 
+/** A missing title is genuinely absent; the reader shows the body at the top. */
+internal fun thoughtPageVisibleTitle(page: SelfThoughtPage): String? =
+    page.title.trim().takeIf { it.isNotEmpty() }
+
 internal fun thoughtPagesOn(pages: List<SelfThoughtPage>, date: LocalDate) =
     pages.filter { it.date == date }.sortedWith(compareBy<SelfThoughtPage> { it.createdAt }.thenBy { it.id })
 
@@ -88,7 +92,6 @@ internal fun SelfThoughtNotebookScreen(
     var weather by remember { mutableStateOf("") }
     var focusId by remember { mutableStateOf<String?>(null) }
     var deleting by remember { mutableStateOf<SelfThoughtPage?>(null) }
-    val editorScroll = rememberScrollState()
     val dayPages = remember(pages, date) { thoughtPagesOn(pages, date) }
     LaunchedEffect(date, dayPages) {
         focusId?.let { id ->
@@ -98,9 +101,6 @@ internal fun SelfThoughtNotebookScreen(
             }
         }
         pageNumber = pageNumber.coerceIn(0, dayPages.lastIndex.coerceAtLeast(0))
-    }
-    LaunchedEffect(writing, editTarget?.id) {
-        if (writing) editorScroll.scrollTo(0)
     }
     val keyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -250,19 +250,13 @@ internal fun SelfThoughtNotebookScreen(
             SelfThoughtNotebookArtwork(Modifier.width(bookWidth).height(bookHeight)) {
         Column(
             Modifier.fillMaxSize().padding(
-                start = bookWidth * .135f,
-                end = bookWidth * .102f,
-                top = if (compactWriting) 25.dp else bookHeight * .192f,
-                bottom = if (compactWriting) 15.dp else bookHeight * .077f,
-            ).then(if (writing) Modifier.verticalScroll(editorScroll) else Modifier),
+                start = bookWidth * .13f,
+                end = bookWidth * .085f,
+                top = if (compactWriting) 16.dp else bookHeight * .145f,
+                bottom = if (compactWriting) 10.dp else bookHeight * .045f,
+            ),
         ) {
             if (writing) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("写在纸上的心事", color = BookMuted, fontSize = 12.sp)
-                    Spacer(Modifier.weight(1f))
-                    Text("${body.length} 字", color = BookMuted, fontSize = 11.sp)
-                }
-                Spacer(Modifier.height(10.dp))
                 BasicTextField(title, { title = it }, singleLine = true,
                     modifier = Modifier.fillMaxWidth().selfPrefaceKeepFieldVisible(),
                     textStyle = TextStyle(color = BookInk, fontSize = 20.sp, fontWeight = FontWeight.SemiBold),
@@ -272,10 +266,12 @@ internal fun SelfThoughtNotebookScreen(
                             field()
                         }
                     })
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(8.dp))
+                // The body owns all remaining paper height. BasicTextField
+                // scrolls long text internally while the footer stays at the
+                // bottom, even with the keyboard open.
                 BasicTextField(body, { body = it },
-                    modifier = Modifier.fillMaxWidth()
-                        .heightIn(min = if (compactWriting) 170.dp else 240.dp)
+                    modifier = Modifier.weight(1f).fillMaxWidth()
                         .selfPrefaceKeepFieldVisible(),
                     textStyle = TextStyle(color = BookInk, fontSize = 15.sp, lineHeight = 26.sp),
                     decorationBox = { field ->
@@ -285,7 +281,9 @@ internal fun SelfThoughtNotebookScreen(
                         }
                     })
                 if (error.isNotBlank()) Text(error, color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Text("${body.length} 字", modifier = Modifier.weight(1f),
+                        color = BookMuted, fontSize = 11.sp)
                     TextButton(onClick = { writing = false }) { Text("取消", color = BookMuted) }
                     TextButton(
                         enabled = title.isNotBlank() || body.isNotBlank(),
@@ -376,23 +374,20 @@ internal fun SelfThoughtNotebookScreen(
                             }
                         }
                     } else Column(Modifier.fillMaxSize()) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(page.title.ifBlank { "没有标题的一页" }, modifier = Modifier.weight(1f),
-                                color = BookInk, fontSize = 19.sp, fontWeight = FontWeight.SemiBold,
+                        // Don't invent a title or reserve a header row when the
+                        // owner wrote only a body. Editing tools live with page
+                        // navigation below, out of the reading area.
+                        thoughtPageVisibleTitle(page)?.let { visibleTitle ->
+                            Text(visibleTitle, color = BookInk, fontSize = 19.sp,
+                                fontWeight = FontWeight.SemiBold,
                                 maxLines = 2, overflow = TextOverflow.Ellipsis)
-                            IconButton(onClick = { write(page) }, modifier = Modifier.size(33.dp)) {
-                                Icon(Icons.Outlined.Edit, "编辑本页", tint = BookAccent, modifier = Modifier.size(18.dp))
-                            }
-                            IconButton(onClick = { deleting = page }, modifier = Modifier.size(33.dp)) {
-                                Icon(Icons.Outlined.DeleteOutline, "删除本页", tint = BookMuted,
-                                    modifier = Modifier.size(18.dp))
-                            }
+                            Spacer(Modifier.height(9.dp))
                         }
-                        Spacer(Modifier.height(14.dp))
                         Text(page.body, color = BookInk, fontSize = 15.sp, lineHeight = 26.sp,
                             modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()))
                     }
                 }
+                val currentPage = dayPages.getOrNull(pageNumber)
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = { turn(false) },
                         enabled = pageNumber > 0 || pages.any { it.date.isBefore(date) },
@@ -408,6 +403,16 @@ internal fun SelfThoughtNotebookScreen(
                         enabled = pageNumber < dayPages.lastIndex || pages.any { it.date.isAfter(date) },
                         modifier = Modifier.size(35.dp)) {
                         Icon(Icons.Outlined.ChevronRight, "下一页", tint = BookInk)
+                    }
+                    currentPage?.let { page ->
+                        IconButton(onClick = { write(page) }, modifier = Modifier.size(35.dp)) {
+                            Icon(Icons.Outlined.Edit, "编辑本页", tint = BookAccent,
+                                modifier = Modifier.size(18.dp))
+                        }
+                        IconButton(onClick = { deleting = page }, modifier = Modifier.size(35.dp)) {
+                            Icon(Icons.Outlined.DeleteOutline, "删除本页", tint = BookMuted,
+                                modifier = Modifier.size(18.dp))
+                        }
                     }
                 }
             }
