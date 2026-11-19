@@ -1064,6 +1064,30 @@ object ProactivePerceptionRuntime {
                 appendLine("如果真想跟好友互动，可选 steps 中的 like_moment/comment_moment；想申请或回应好友，选 send_friend_request/respond_friend_request。每一步需要真实postId或requestId，只有你的实际工具回执才证明发出。手机有红点并不强迫你回复，也不影响本人原计划。")
                 if (onlineExpiryAtMillis > 0L) {
                     appendLine("【在线窗口到期｜现场状态】原定五分钟在线窗口刚结束。续醒/休眠与本轮发言或工具动作分别由本人选择。")
+                    // The ordinary attention working set rotates interests and may
+                    // exclude an older relationship concern when other life events
+                    // are numerous. Give actual, still-active concerns one compact
+                    // expiry spotlight; this is read-only, not a forced follow-up.
+                    val heldConcerns = CharacterOpenConcernRuntime.active(
+                        CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
+                    )
+                    val groundedConcerns = CharacterPerceptionContext.liveEvidenceIds(
+                        characterId, heldConcerns.map { it.optString("evidenceId") },
+                    )
+                    val expiryConcerns = heldConcerns.filter {
+                        it.optString("evidenceId") in groundedConcerns
+                    }.sortedWith(compareByDescending<JSONObject> { it.optInt("priority", 2) }
+                        .thenByDescending { it.optString("updatedAt") }).take(3)
+                    if (expiryConcerns.isNotEmpty()) {
+                        appendLine("【这次结束前仍在挂心的事情｜已有原始证据、不是新任务】")
+                        expiryConcerns.forEach { concern ->
+                            appendLine("threadId=${concern.optString("id")}；" +
+                                "在意=${concern.optString("focus").take(150)}；" +
+                                "上次考虑=${concern.optString("possibleNextStep").take(120)}")
+                        }
+                        appendLine("可以实际推进、保留、选择稍后用真实日程复查，或根据新证据修订/放下；" +
+                            "本轮说了安慰、无人回复、在线窗口到期均不会自动解决心事。")
+                    }
                     OnlineContinuationPolicy.affectCue(characterId, now)
                         .takeIf(String::isNotBlank)?.let(::appendLine)
                     // Include factual tool attempts before the SAME paid
