@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`bd8b40238a1ddb0dffaadcb186e696c5ed2cf546`
+- 基准提交：`26b7eb1a5b6c17b51fb338ad9027eedd64417828`
 - 分支：`main`
-- 已索引文件：1485
-- 已索引代码/文本行：316626
-- 已发现符号：4510
+- 已索引文件：1486
+- 已索引代码/文本行：316680
+- 已发现符号：4511
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -962,6 +962,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsRoleSongPipelineTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 308 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ListenTogetherPlaylistTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DArchiveTest.kt` | 252 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
