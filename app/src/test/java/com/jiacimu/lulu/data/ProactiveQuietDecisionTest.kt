@@ -135,6 +135,29 @@ class ProactiveQuietDecisionTest {
         }
     }
 
+    @Test fun privateAndSoloDecisionsCanSaveRealConcernsWithoutAutoManufacturingThem() {
+        val privatePrompt = proactiveDecisionInstruction("concern-private-role", directPrivateChat = true)
+        val soloPrompt = proactiveDecisionInstruction("concern-solo-role")
+        for (prompt in listOf(privatePrompt, soloPrompt)) {
+            assertTrue(prompt.contains("appraisal.pendingConcerns"))
+            assertTrue(prompt.contains("whyItMatters"))
+            assertTrue(prompt.contains("threadId"))
+            assertTrue(prompt.contains("不需另开 API"))
+            assertTrue(prompt.contains("不得凭模板制造忧虑"))
+            assertTrue(prompt.contains("plan_personal_activity"))
+        }
+    }
+
+    @Test fun leaseEndDecisionActuallyOffersUnfinishedWorkReviewBeforeSleep() {
+        val renewal = onlineRenewalDecisionInstruction()
+        for (phrase in listOf("【五分钟短复盘", "未完成/未核实的责任",
+            "自己仍然持有的挂心", "之前真正排好的日程", "action/steps",
+            "plan_personal_activity", "没有新变化时可以全部保留",
+            "不能把「去看看」当作已经执行")) {
+            assertTrue("Missing quick review guidance: $phrase", renewal.contains(phrase))
+        }
+    }
+
     @Test fun onlineExpiryPromptKeepsDecisionAndHandoffContract() {
         // Runtime now supplies only live facts for an expiring lease; static
         // instructions must retain the single model-owned decision and its
