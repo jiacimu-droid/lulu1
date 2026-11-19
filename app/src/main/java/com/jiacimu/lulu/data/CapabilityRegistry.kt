@@ -87,8 +87,11 @@ object CapabilityRegistry {
         return buildString {
             appendLine("【本人可选择的能力目录｜私聊、在线窗口和后台独自感知共用】")
             for ((label, candidates) in categories) {
-                val offered = candidates.filter { it in active && shown.add(it) &&
-                    find(it)?.let { capability -> allows(context, characterId, capability, false) } == true }
+                val offered = candidates.filter { name ->
+                    name in active &&
+                        find(name)?.let { allows(context, characterId, it, false) } == true &&
+                        shown.add(name)
+                }
                 if (offered.isNotEmpty()) appendLine("$label：${offered.joinToString("、")}")
             }
             // Future registered tools are not silently invisible to the
@@ -100,10 +103,17 @@ object CapabilityRegistry {
             appendLine("只列出此刻按既有授权可尝试的已注册工具，不等于执行成功；" +
                 "搜索API还须配置、手机操作还须真实屏幕与权限、社交需要有效对象ID。" +
                 "没有列出的设备工具可能需要主人先开启授权，不可假称已禁用全部能力。")
-            appendLine("行动例子：发朋友圈 publish_moment(text)；找朋友 send_character_message(targetCharacterId,text)；" +
-                "群聊 send_group_message(groupId,text)；出门/拜访 digital_world_action(worldAction,locationCode/itemId)；" +
-                "网页 web_search(op,query)；独立虚拟屏 background_phone(action,appName)；" +
-                "给用户打语音/视频 start_call(text,mediaMode=voice|video)；读书 read_book(readingBookId)。")
+            val examples = listOfNotNull(
+                "publish_moment".takeIf { it in shown }?.let { "发朋友圈 publish_moment(text)" },
+                "send_character_message".takeIf { it in shown }?.let { "联系好友 send_character_message(targetCharacterId,text)" },
+                "send_group_message".takeIf { it in shown }?.let { "群聊 send_group_message(groupId,text)" },
+                "digital_world_action".takeIf { it in shown }?.let { "出门/拜访 digital_world_action(worldAction,locationCode/itemId)" },
+                "web_search".takeIf { it in shown }?.let { "查网页 web_search(op,query)" },
+                "background_phone".takeIf { it in shown }?.let { "后台手机 background_phone(action,appName)" },
+                "start_call".takeIf { it in shown }?.let { "语音/视频 start_call(text,mediaMode=voice|video)" },
+                "read_book".takeIf { it in shown }?.let { "读书 read_book(readingBookId)" },
+            )
+            if (examples.isNotEmpty()) appendLine("可选工具参数例子：${examples.joinToString("；")}。")
             appendLine("这些不是必做清单。本人选一次 0/1/N 个动作，同轮回复可附 steps，" +
                 "每步由同一真实执行器校验并写回执；依赖前一步结果时等待实际返回，不预编结果。")
         }.trim()
