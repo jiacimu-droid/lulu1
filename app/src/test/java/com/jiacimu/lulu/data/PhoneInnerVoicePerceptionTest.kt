@@ -63,7 +63,7 @@ class PhoneInnerVoicePerceptionTest {
         assertFalse(CharacterDecisionProtocol.hasAuthoredMomentaryIdea(JSONObject()))
         assertFalse(CharacterDecisionProtocol.hasAuthoredMomentaryIdea(JSONObject()
             .put("privateIdeas", org.json.JSONArray().put(""))))
-        assertEquals("我想继续听她说，暂时不插话",
+        assertEquals("想继续听她说，暂时不插话",
             CharacterMomentSnapshot.reflection(null, appraisal = authored))
         // No new private monologue is a valid outcome; it does not cancel
         // the present-tense idea that preceded the choice to stay silent.
