@@ -2,10 +2,6 @@ package com.jiacimu.lulu
 
 import com.jiacimu.lulu.design.LocalLuluCssFooterAtTop
 import com.jiacimu.lulu.design.luluCssElement
-import android.app.Activity
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.speech.RecognizerIntent
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -41,21 +37,6 @@ internal data class QqComposerPayload(
 internal fun qqComposerHasDraft(text: String, imageUri: String?): Boolean =
     text.isNotBlank() || !imageUri.isNullOrBlank()
 
-/**
- * An external speech-recognition UI is optional on Android devices.
- * Never let a missing/blocked resolver crash the chat or discard its draft.
- * Launch first rather than relying on resolveActivity, which can be filtered
- * by Android package visibility even when the Activity is launchable.
- */
-internal fun launchQqSpeechRecognition(start: () -> Unit): Boolean = try {
-    start()
-    true
-} catch (_: ActivityNotFoundException) {
-    false
-} catch (_: SecurityException) {
-    false
-}
-
 @Composable
 internal fun QqChatComposer(
     inputState: MutableState<String>,
@@ -69,6 +50,7 @@ internal fun QqChatComposer(
     onWatchTogether: (() -> Unit)? = null,
     onListenTogether: (() -> Unit)? = null,
     onSendOnly: (QqComposerPayload) -> Boolean,
+    onSendVoice: (String, ByteArray) -> Boolean,
     onWakeOrReply: (QqComposerPayload) -> Boolean,
     onSendSticker: (LuluSticker) -> Boolean,
     onStop: () -> Unit,
@@ -80,11 +62,12 @@ internal fun QqChatComposer(
     var imageUri by remember { mutableStateOf<String?>(null) }
     var importingPhoto by remember { mutableStateOf(false) }
     var photoImportError by remember { mutableStateOf("") }
-    var speechLaunchError by remember { mutableStateOf("") }
+    var voiceMode by remember { mutableStateOf(false) }
     var pickerRevision by remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
     var showStickerShelf by remember { mutableStateOf(false) }
     var stickerNotice by remember { mutableStateOf("") }
+    val voiceRecorder = rememberQqHoldVoiceRecorder(onSendVoice)
 
     // Back should dismiss the accessory panel, not navigate away from chat.
     BackHandler(enabled = showTools || showStickerShelf) {
@@ -120,16 +103,6 @@ internal fun QqChatComposer(
         }
     }
 
-    val speechLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
-        val spoken = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-            ?.firstOrNull().orEmpty().trim()
-        if (spoken.isNotBlank()) {
-            speechLaunchError = ""
-            inputState.value = listOf(inputState.value.trim(), spoken).filter(String::isNotBlank).joinToString(" ")
-        }
-    }
-
     fun payload(): QqComposerPayload = QqComposerPayload(
         text = inputState.value.trim(),
         imageUri = imageUri,
@@ -156,11 +129,6 @@ internal fun QqChatComposer(
         if (photoImportError.isNotBlank()) {
             Text(photoImportError, color = Color(0xFFB04C4C),
                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp), fontSize = 12.sp)
-        }
-        if (speechLaunchError.isNotBlank()) {
-            Text(speechLaunchError, color = Color(0xFFB04C4C),
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
-                fontSize = 12.sp)
         }
         if (imageUri != null) {
             Surface(
@@ -198,22 +166,29 @@ internal fun QqChatComposer(
         ) {
             FilledTonalIconButton(
                 onClick = {
-                    val launched = launchQqSpeechRecognition {
-                        speechLauncher.launch(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "zh-CN")
-                            putExtra(RecognizerIntent.EXTRA_PROMPT, "说点什么")
-                        })
+                    if (!voiceRecorder.recording && !voiceRecorder.processing) {
+                        voiceMode = !voiceMode
+                        showTools = false
+                        showStickerShelf = false
+                        if (voiceMode) {
+                            focusManager.clearFocus()
+                            keyboardController?.hide()
+                        }
                     }
-                    speechLaunchError = if (launched) "" else
-                        "系统语音输入未能启动。可先用键盘发送，或启用设备的语音识别服务后重试。"
                 },
                 modifier = Modifier.size(48.dp),
                 colors = IconButtonDefaults.filledTonalIconButtonColors(
                     containerColor = QqIconSurface, contentColor = QqInk,
                 ),
-            ) { Icon(Icons.Outlined.KeyboardVoice, "语音输入", modifier = Modifier.size(26.dp)) }
+            ) {
+                Icon(if (voiceMode) Icons.Outlined.Keyboard else Icons.Outlined.KeyboardVoice,
+                    if (voiceMode) "切换到文字输入" else "切换到语音消息",
+                    modifier = Modifier.size(26.dp))
+            }
 
+            if (voiceMode) {
+                QqHoldToTalkButton(voiceRecorder, Modifier.weight(1f).heightIn(min = 48.dp))
+            } else {
             TextField(
                 value = inputState.value,
                 onValueChange = {
@@ -244,6 +219,7 @@ internal fun QqChatComposer(
                     cursorColor = QqInk,
                 ),
             )
+            }
 
             // Frequently used emoji stay one tap away, like a familiar messenger.
             // Other actions remain behind the plus button below the conversation.
@@ -303,6 +279,7 @@ internal fun QqChatComposer(
                 }
             }
         }
+        if (voiceMode) QqVoiceRecordingNotice(voiceRecorder)
 
         if (showTools) {
             HorizontalDivider(color = QqBorder.copy(alpha = 0.35f))
