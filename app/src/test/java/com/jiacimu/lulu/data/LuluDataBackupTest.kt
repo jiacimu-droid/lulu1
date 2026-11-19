@@ -7,6 +7,7 @@ import java.io.IOException
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import java.util.zip.CRC32
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -74,6 +75,39 @@ class LuluDataBackupTest {
         assertEquals("diary", File(target, "files/notes.txt").readText())
         assertTrue(File(target, "shared_prefs/a.xml").isFile)
         assertEquals(3, count)
+    }
+
+    @Test
+    fun validCentralDirectoryCannotHideCorruptFileContents() {
+        val contents = "role-memory-payload-sample".toByteArray()
+        val archive = ByteArrayOutputStream()
+        ZipOutputStream(archive).use { zip ->
+            zip.putNextEntry(ZipEntry(LuluDataBackup.MANIFEST_NAME))
+            zip.write("""{"schemaVersion":1}""".toByteArray())
+            zip.closeEntry()
+            val stored = ZipEntry("files/inner-life.txt").apply {
+                method = ZipEntry.STORED
+                size = contents.size.toLong()
+                compressedSize = size
+                crc = CRC32().apply { update(contents) }.value
+            }
+            zip.putNextEntry(stored)
+            zip.write(contents)
+            zip.closeEntry()
+        }
+        val bytes = archive.toByteArray()
+        val position = bytes.indices.firstOrNull { start ->
+            start + contents.size <= bytes.size &&
+                contents.indices.all { offset -> bytes[start + offset] == contents[offset] }
+        } ?: error("missing STORED payload")
+        bytes[position] = (bytes[position].toInt() xor 1).toByte()
+        val tampered = temp.newFile("corrupt-crc.zip").apply { writeBytes(bytes) }
+        try {
+            LuluDataBackup.validateZipFile(tampered)
+            fail("a parseable ZIP with corrupted data must never be accepted")
+        } catch (expected: IOException) {
+            assertTrue(expected.message.orEmpty().contains("校验失败"))
+        }
     }
 
     @Test
