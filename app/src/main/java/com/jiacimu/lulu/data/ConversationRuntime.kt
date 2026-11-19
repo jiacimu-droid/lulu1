@@ -138,9 +138,11 @@ internal data class PrivateStateDelta(
     val commonGroundChanged: Boolean,
     val privateResidue: Boolean,
     val fingerprint: String,
+    /** Same topic, but a genuinely changed private response to it. */
+    val basisChangeChanged: Boolean = false,
 ) {
     val meaningful: Boolean
-        get() = focusChanged || appraisalChanged || emotionChanged || motiveChanged ||
+        get() = focusChanged || basisChangeChanged || appraisalChanged || emotionChanged || motiveChanged ||
             conflictChanged || commonGroundChanged
 }
 
@@ -216,6 +218,11 @@ internal object PrivateStateDeltaEngine {
         val focus = basis?.optString("focus").orEmpty().trim()
         val focusChanged = focus.isNotBlank() &&
             normalize(focus) != normalize(previousBasis?.optString("focus").orEmpty())
+        // "Still thinking about sleep" can become "I should check whether she is awake":
+        // the subject stays put, but the character's own interpretation changes.
+        val basisChange = basis?.optString("change").orEmpty().trim()
+        val basisChangeChanged = basisChange.isNotBlank() &&
+            normalize(basisChange) != normalize(previousBasis?.optString("change").orEmpty())
 
         val previousAppraisal = latestTransition?.optJSONObject("appraisal")
         val appraisalChanged = appraisal != null && (
@@ -244,12 +251,12 @@ internal object PrivateStateDeltaEngine {
                 emotionChanged || motiveChanged || conflictChanged ||
                 // A new user utterance or a verified direct interaction may change a private interpretation
                 // without a new emotion, motive, tool, or verbose appraisal.
-                // Require the character to author both a new focus and HOW
-                // their private view changed; the user's message alone never
-                // manufactures a thought. Ambient ticks keep the stricter gate.
-                (focusChanged && (appraisalChanged || hasChosenToolAction ||
+                // Require a model-authored change in focus OR in the meaning
+                // of the same focus, plus the actual new interaction/choice.
+                // A new message alone never manufactures a thought.
+                ((focusChanged || basisChangeChanged) && (appraisalChanged || hasChosenToolAction ||
                     hasFreshUserMessage || hasFreshDirectObservation) &&
-                    basis?.optString("change").orEmpty().isNotBlank())
+                    basisChange.isNotBlank())
             )
 
         val fingerprintMaterial = buildString {
@@ -276,6 +283,7 @@ internal object PrivateStateDeltaEngine {
             commonGroundChanged = commonGroundChanged,
             privateResidue = privateResidue,
             fingerprint = fingerprint,
+            basisChangeChanged = basisChangeChanged,
         )
     }
 

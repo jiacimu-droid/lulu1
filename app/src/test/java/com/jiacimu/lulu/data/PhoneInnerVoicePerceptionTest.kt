@@ -26,6 +26,26 @@ class PhoneInnerVoicePerceptionTest {
         ))
     }
 
+    @Test fun sameTopicNewPrivateInterpretationMustSurviveVoiceFilter() {
+        val earlier = JSONObject().put("causalTransitions", org.json.JSONArray().put(
+            JSONObject().put("innerThoughtBasis", basis),
+        ))
+        val changedBasis = JSONObject()
+            .put("focus", "电话接通后开场的停顿")
+            .put("change", "现在更想确认她是不是希望我主动说点什么")
+        val newVoice = "明明还在等她开口，可我现在想自己主动问一句。"
+        val delta = PrivateStateDeltaEngine.evaluate(
+            earlier, null, null, changedBasis, newVoice, hasFreshUserMessage = true,
+        )
+        assertFalse(delta.focusChanged)
+        assertTrue(delta.basisChangeChanged)
+        assertTrue(delta.meaningful)
+        assertEquals(newVoice, CharacterHeartVoicePolicy.keepOrBlank(
+            newVoice, outward = "怎么啦？", basis = changedBasis,
+            delta = delta, hasFreshEvidence = true,
+        ))
+    }
+
     @Test fun clockTickAndRepeatedFocusDoNotWriteAnotherThought() {
         val later = JSONObject().put("causalTransitions", org.json.JSONArray().put(
             JSONObject().put("innerThoughtBasis", basis),
