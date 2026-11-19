@@ -37,12 +37,17 @@ class ListenTogetherPlaylistTest {
             .put("playing", false).put("positionMs", 18000L).put("durationMs", 220000L)
         val snapshot = JSONObject().put("success", true).put("sessions",
             JSONArray().put(paused)).toString()
-        val result = listenedMediaSession(snapshot)
-        assertEquals("", result.second)
-        assertEquals("正在暂停的歌", result.first?.title)
-        assertEquals(false, result.first?.playing)
-        assertEquals(18000L, result.first?.positionMs)
-        assertEquals(220000L, result.first?.durationMs)
+        // A paused controller can resume playback but is not listening evidence.
+        val actualPlayback = listenedMediaSession(snapshot)
+        assertNull(actualPlayback.first)
+        assertEquals("已找到播放器，但当前没有报告正在播放的歌曲",
+            actualPlayback.second)
+        val controllable = controllableMediaSession(snapshot)
+        assertEquals("", controllable.second)
+        assertEquals("正在暂停的歌", controllable.first?.title)
+        assertEquals(false, controllable.first?.playing)
+        assertEquals(18000L, controllable.first?.positionMs)
+        assertEquals(220000L, controllable.first?.durationMs)
     }
 
     @Test fun invalidMetadataIsNotARealPlayer() {
