@@ -97,6 +97,37 @@ class LuluDesktopWidgetTest {
         assertFalse(luluWidgetFits(note.copy(col = 0, row = lastRow), emptyList(), slots))
     }
 
+    @Test fun freshInstallDesktopShowsDateThenChatAndBulletinWithAppsBelow() {
+        val cards = firstInstallDesktopWidgets()
+        assertEquals(listOf(LuluWidgetKind.CALENDAR, LuluWidgetKind.CHAT, LuluWidgetKind.BULLETIN),
+            cards.map { it.kind })
+        assertEquals(listOf(0, 2, 3), cards.map { it.row })
+        assertEquals(listOf(2, 1, 1), cards.map { it.rows })
+        assertTrue(cards.all { it.page == 0 && it.col == 0 && it.columns == DESKTOP_COLUMNS })
+        assertTrue(cards.all { card -> luluWidgetFits(card, cards, emptyList()) })
+        assertTrue(cards.all { it.characterId.isEmpty() })
+
+        val launcherIds = (1..15).map { "app-$it" }
+        val slots = completeDesktopSlots(emptyList(), cards, launcherIds)
+        for (row in 0..3) for (column in 0 until DESKTOP_COLUMNS)
+            assertNull(slots[desktopSlotIndex(0, row, column)])
+        assertEquals(launcherIds.first(), slots[desktopSlotIndex(0, 4, 0)])
+        assertEquals(launcherIds[11], slots[desktopSlotIndex(0, 6, 3)])
+        assertEquals(launcherIds[12], slots[desktopSlotIndex(1, 0, 0)])
+        assertEquals(launcherIds.toSet(), slots.filterNotNull().toSet())
+    }
+
+    @Test fun olderSavedOrEditedDesktopsNeverGetStarterWidgetsReseeded() {
+        assertTrue(shouldSeedFirstInstallDesktop(
+            hasSavedCards = false, hasAnyPreviousGrid = false, previouslySeeded = false))
+        assertFalse(shouldSeedFirstInstallDesktop(
+            hasSavedCards = true, hasAnyPreviousGrid = false, previouslySeeded = false))
+        assertFalse(shouldSeedFirstInstallDesktop(
+            hasSavedCards = false, hasAnyPreviousGrid = true, previouslySeeded = false))
+        assertFalse(shouldSeedFirstInstallDesktop(
+            hasSavedCards = false, hasAnyPreviousGrid = false, previouslySeeded = true))
+    }
+
     @Test fun homeChatAndBulletinAreMovableAndMayChangeSizeWithoutCoveringIcons() {
         val slots = MutableList<String?>(desktopPageStart(2)) { null }
         for (row in 4..5) for (col in 0..3)
