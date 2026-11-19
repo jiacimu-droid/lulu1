@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T08:31:17.066715+00:00",
-  "commit": "c3e747b002ad4fdab4d68666f0b9b92f9045cc88",
+  "generatedAt": "2026-11-19T08:32:24.233281+00:00",
+  "commit": "44a771232d9d7013f816f8a105cbc64f27c45417",
   "branch": "main",
-  "sourceFingerprint": "c1200e5a370c288548d923ee0d49e9ff703c68822268cb363689dac81d1d0fd9",
+  "sourceFingerprint": "22b096bc661132dd263612a9923c691b95fcb1e0dc6f972130a64764dbee4b75",
   "summary": {
     "files": 1480,
-    "lines": 315039,
+    "lines": 315050,
     "symbols": 4490
   },
   "symbolIndex": {
@@ -18605,7 +18605,7 @@
     "staleReplyExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 1540
+        "line": 1547
       }
     ],
     "LaunchableApp": [
@@ -43534,8 +43534,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2356,
-      "sha256": "fa76ea6e115d62b93a4ca5deb149b201bec4db9990add4d9151e658973821b5b",
+      "lines": 2363,
+      "sha256": "ac9b81b7a2c05069e2725a13b5bca1c81694356bd1b12b6ed7ec420ed29292ba",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -43583,7 +43583,7 @@
         },
         {
           "name": "staleReplyExpression",
-          "line": 1540
+          "line": 1547
         }
       ]
     },
@@ -49963,8 +49963,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PhoneInnerVoicePerceptionTest.kt",
-      "lines": 80,
-      "sha256": "a9e9734146d09a3bfa0b5cc005646e039b1caf36f6cb94decea1d0a8be971f9d",
+      "lines": 84,
+      "sha256": "7df3f16ccc7cf47fabe19c684ec81be5a4bc7f108e65f1cf2e762182c8ba4adf",
       "symbols": [
         {
           "name": "PhoneInnerVoicePerceptionTest",
