@@ -10,6 +10,37 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [28])
 class ProactiveQuietDecisionTest {
+    @Test fun commonAbilityDirectoryShowsActualRegisteredChoicesWithoutInventingTools() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val role = "capabilities-owner-2026"
+        val menu = CapabilityRegistry.decisionCapabilityOverview(context, role)
+        for (name in listOf("send_private_message", "send_character_message",
+            "send_group_message", "publish_moment", "comment_moment",
+            "digital_world_action", "read_book", "start_call", "web_search",
+            "image_search", "play_solo_game", "plan_personal_activity",
+            "favorite_user_message", "save_photo", "write_phone_memo")) {
+            assertNotNull("Menu must reference a real tool: $name", CapabilityRegistry.find(name))
+            assertTrue("Missing registered choice: $name", menu.contains(name))
+        }
+        assertTrue(menu.contains("mediaMode=voice|video"))
+        assertTrue(menu.contains("同轮回复可附 steps"))
+        assertFalse(menu.contains("write_journal")) // retired, not available
+        assertFalse(menu.contains("read_xiaohongshu")) // retired external MCP
+        assertFalse(menu.contains("start_video_call")) // video is start_call mode
+        assertEquals(menu, CapabilityRegistry.decisionCapabilityOverview(context, role))
+    }
+
+    @Test fun residentAbilityDirectoryCannotExposeOwnersPrivateDeviceOrWebTools() {
+        val context = org.robolectric.RuntimeEnvironment.getApplication()
+        val menu = CapabilityRegistry.decisionCapabilityOverview(context, "resident:menu-check")
+        assertTrue(menu.contains("publish_moment"))
+        assertTrue(menu.contains("send_character_message"))
+        assertFalse(menu.contains("web_search、"))
+        assertFalse(menu.contains("read_book、"))
+        assertFalse(menu.contains("get_battery、"))
+        assertFalse(menu.contains("工具名不存在"))
+    }
+
     @Test fun livePrivateChatAndExecutorShareActualInviteableGameIds() {
         val instruction = proactiveDecisionInstruction("game-invite-online", directPrivateChat = true)
         val toolGuide = CompanionActionRuntime.gameInvitationCapabilityGuide
