@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T17:21:40.759295+00:00",
-  "commit": "64bfdf4f45a1ccaf5d2792fb43610b1abc1c6b3f",
+  "generatedAt": "2026-11-19T17:31:45.965159+00:00",
+  "commit": "c64dcf0d02fb337c953ba87ab353c965ba66d7e9",
   "branch": "main",
-  "sourceFingerprint": "f81e4361275f59d142bd8577bf3b5633a30f3ba2ac4eb30d03dbc73b1f780d3b",
+  "sourceFingerprint": "75befcc7be042bd2a6c809765b69ea923743f6cfcf88d7fbd4a8c942f4f48967",
   "summary": {
     "files": 1486,
-    "lines": 317279,
+    "lines": 317457,
     "symbols": 4514
   },
   "symbolIndex": {
@@ -1007,7 +1007,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1673
+        "line": 1732
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -5687,7 +5687,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt",
-        "line": 27
+        "line": 68
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseTradeSystemV5.kt",
@@ -6217,19 +6217,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1413
+        "line": 1444
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1425
+        "line": 1456
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1663
+        "line": 1722
       }
     ],
     "addStreamingUsageWhenSupported": [
@@ -30118,8 +30118,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1681,
-      "sha256": "c1396e8f29d3245bf0bd5594ab78ca9706f4c96931a2dfcdedd7e42256406864",
+      "lines": 1740,
+      "sha256": "cc16ad928111f2ec9ef757840ca54812550f64a05a2fce6b5eb2801c4d2d2467",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -30227,19 +30227,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1413
+          "line": 1444
         },
         {
           "name": "consumeEvent",
-          "line": 1425
+          "line": 1456
         },
         {
           "name": "LuluAiServices",
-          "line": 1663
+          "line": 1722
         },
         {
           "name": "initialize",
-          "line": 1673
+          "line": 1732
         }
       ]
     },
@@ -30316,17 +30316,17 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
       "lines": 153,
-      "sha256": "e5a774ef9679b8477c77b2c7744dd06a56b34a8d63a8981183649d83c5391dc2",
+      "sha256": "a98a1311e0c812229fd42626b051e64a393802e5be7a3b43aa34dc71c5a90505",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt",
-      "lines": 79,
-      "sha256": "f91c5f347b288852ad3aca2abf4c9eb7fed2cae0bc9e368cb711f5b5b9416a23",
+      "lines": 120,
+      "sha256": "c2e1daf882d70de1fae23dcfd9ec29b4418869e1e8379f3b0feaf780ba5fbeaa",
       "symbols": [
         {
           "name": "consume",
-          "line": 27
+          "line": 68
         }
       ]
     },
@@ -47422,8 +47422,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt",
-      "lines": 203,
-      "sha256": "13a9faac7477860131a590203aab705b4892b8ccf01fc654bbf9ba274df85b95",
+      "lines": 204,
+      "sha256": "c4b7c7827062bda8cae44ae0d28e1408c313ef6883ab92a9cf2b4a7db2849e88",
       "symbols": [
         {
           "name": "ModelPostTransportTest",
@@ -47444,8 +47444,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt",
-      "lines": 459,
-      "sha256": "f0676d26ad778c0f7190fdfcb8e6276d2424f29121f60f7a3ac2a90eba6d49f5",
+      "lines": 536,
+      "sha256": "66e24ca698d4031325e4636253fa56f44b01de54f73bfb6a5c17b0713471d35b",
       "symbols": [
         {
           "name": "ModelVisibleOutputTest",
