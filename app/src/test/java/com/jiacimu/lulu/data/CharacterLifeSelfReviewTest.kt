@@ -47,6 +47,45 @@ class CharacterLifeSelfReviewTest {
         assertEquals("2026-10-26", CharacterLifeSelfReview.localDay(now, zone))
     }
 
+    @Test fun shortReviewShowsOwnPendingAndVerifiedActionsWithoutOpeningAnotherSchedule() = runBlocking {
+        runCatching { androidx.work.WorkManager.initialize(context, androidx.work.Configuration.Builder().build()) }
+        val person = MigratedDomainStores.characters.create("整理自己日程").characterId
+        val other = MigratedDomainStores.characters.create("邻居的独立日程").characterId
+        val now = Instant.now()
+        val completedPlan = RoleDayScheduleStore.arrange(
+            context, person, "已读今日进度", "继续关注学习计划", now.minusSeconds(3), now.minusSeconds(80),
+            activityAction = "read_self_todo", selfInitiated = true,
+        )
+        val upcoming = RoleDayScheduleStore.arrange(
+            context, person, "稍晚再读", "继续自己的探索", now.plusSeconds(180), now,
+            activityAction = "read_book", selfInitiated = true,
+        )
+        RoleDayScheduleStore.arrange(
+            context, other, "另一人的秘密计划", "自己的私事", now.plusSeconds(180), now,
+            activityAction = "read_book", selfInitiated = true,
+        )
+        val result = JSONObject(ToolRouter.execute(context, person, "read_self_todo",
+            JSONObject().put("planId", completedPlan.id).put("reportToUser", false),
+            requestId = "self-review-read-$person"))
+        assertTrue(result.toString(), result.optBoolean("success"))
+        val checkedAt = Instant.now()
+        val before = RoleDayScheduleStore.plans(context, person)
+        val firstReview = CharacterLifeSelfReview.context(
+            context, person, checkedAt, detailed = false, dailyReview = true,
+        )
+        assertTrue(firstReview, firstReview.contains("稍晚再读"))
+        assertTrue(firstReview, firstReview.contains(upcoming.id))
+        assertTrue(firstReview, firstReview.contains("已执行：已读今日进度"))
+        assertTrue(firstReview, firstReview.contains(result.getString("evidenceId")))
+        assertTrue(firstReview, firstReview.contains("lifeReview"))
+        assertTrue(firstReview, firstReview.contains("最近亲历"))
+        assertFalse(firstReview.contains("另一人的秘密计划"))
+        val later = CharacterLifeSelfReview.context(context, person, checkedAt, detailed = false)
+        assertTrue(later.contains(upcoming.id))
+        assertFalse(later.contains("lifeReview"))
+        assertEquals(before, RoleDayScheduleStore.plans(context, person))
+    }
+
     @Test fun olderHeldThoughtsRotateWithoutAutoRetiringOrPromotingThem() {
         val thoughts = JSONArray()
         val at = Instant.parse("2026-11-01T12:00:00Z")

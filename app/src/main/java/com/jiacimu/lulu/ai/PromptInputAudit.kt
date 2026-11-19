@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.ai
 
+import com.jiacimu.lulu.data.CharacterLifeSelfReview
 import com.jiacimu.lulu.data.TokenBreakdownItem
 
 /**
@@ -28,6 +29,7 @@ internal object PromptInputAudit {
     // Headings are also text supplied to the model. Do not put arbitrary user-
     // supplied heading text into the local performance log.
     private val publicHeadings = setOf(
+        CharacterLifeSelfReview.HEADING,
         "【当前真实私聊】", "【当下真实私聊：一次理解、一次决定】",
         "【本轮自主决策】", "【一轮行动决定】", "【一次决策的动作协议】", "【可选心理与持续性】",
         "【实际动作参数】", "【真实数字世界】", "【生活事件不是工作报告】",

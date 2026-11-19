@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.ai
 
+import com.jiacimu.lulu.data.CharacterLifeSelfReview
 import com.jiacimu.lulu.data.MemoryWorkingSet
 
 /**
@@ -120,6 +121,7 @@ internal object RelayRequestPressurePolicy {
      * the original records are never altered.
      */
     private val priorityBackgroundTitles = setOf(
+        CharacterLifeSelfReview.HEADING,
         "【用户现实设备与用户状态感知层】",
         "【你自己的数字手机 · 不是用户的Android设备】",
         "【在线窗口到期｜现场状态】",
@@ -157,10 +159,16 @@ internal object RelayRequestPressurePolicy {
         val other = blocks.indices.filterNot { it in priorities || it in selected }
         // Do not silently lose upcoming responsibilities merely because later
         // social/history sections are numerous. Keep order in the final wire.
-        for (index in priorities.asReversed() + other.asReversed()) {
+        val review = priorities.firstOrNull { blocks[it].startsWith(CharacterLifeSelfReview.HEADING) }
+        val orderedPriorities = listOfNotNull(review) + priorities.asReversed().filterNot { it == review }
+        for (index in orderedPriorities + other.asReversed()) {
             if (remaining < 240) break
-            val maxForBlock = minOf(remaining, if (index in priorities) 3_500 else 2_000)
-            val candidate = excerptWholeLines(blocks[index], maxForBlock, mostRecentFirst = true)
+            val maxForBlock = minOf(remaining, when (index) {
+                review -> 1_800
+                in priorities -> 3_500
+                else -> 2_000
+            })
+            val candidate = excerptWholeLines(blocks[index], maxForBlock, mostRecentFirst = index != review)
             if (candidate.isNotBlank()) {
                 selected[index] = candidate
                 remaining -= candidate.length + 1
