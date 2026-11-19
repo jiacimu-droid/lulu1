@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T13:40:21.427711+00:00",
-  "commit": "4b7c8db52ab99e9bdb3f2800ff825e450b8a061f",
+  "generatedAt": "2026-11-19T13:42:02.771558+00:00",
+  "commit": "c1c423fa9f19d5f0619f1f8743e681ab8bb4b2bf",
   "branch": "main",
-  "sourceFingerprint": "593d4d4df578171833dc228174cf7721611f828b3369bd82c4e468db5720955a",
+  "sourceFingerprint": "c49037b9b25bfcb8d2a0c990da52b37d72d9c4c206b30024412d2123c5bbee0b",
   "summary": {
     "files": 1486,
-    "lines": 316890,
+    "lines": 316892,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -7367,7 +7367,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 125
+        "line": 127
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
@@ -9039,37 +9039,37 @@
     "latestFrom": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 111
+        "line": 113
       }
     ],
     "perspective": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 182
+        "line": 184
       }
     ],
     "perspectivesFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 235
+        "line": 237
       }
     ],
     "knowsEachOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 261
+        "line": 263
       }
     ],
     "networkContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 359
+        "line": 361
       }
     ],
     "contextForGroup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 385
+        "line": 387
       }
     ],
     "collect": [
@@ -32695,8 +32695,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-      "lines": 427,
-      "sha256": "ad415954a7af73ed84da7774bcaabe1310da64ccb26df9ddaaf203b9bcb1f84f",
+      "lines": 429,
+      "sha256": "f986f3d61656292f31d842a94afdc798b48d49ef86aa136f1415ba8c7de9b0b4",
       "symbols": [
         {
           "name": "CharacterSocialRelationshipSnapshot",
@@ -32732,31 +32732,31 @@
         },
         {
           "name": "latestFrom",
-          "line": 111
+          "line": 113
         },
         {
           "name": "snapshot",
-          "line": 125
+          "line": 127
         },
         {
           "name": "perspective",
-          "line": 182
+          "line": 184
         },
         {
           "name": "perspectivesFor",
-          "line": 235
+          "line": 237
         },
         {
           "name": "knowsEachOther",
-          "line": 261
+          "line": 263
         },
         {
           "name": "networkContext",
-          "line": 359
+          "line": 361
         },
         {
           "name": "contextForGroup",
-          "line": 385
+          "line": 387
         }
       ]
     },
