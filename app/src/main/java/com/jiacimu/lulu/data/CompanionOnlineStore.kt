@@ -1112,8 +1112,9 @@ internal object CompanionSleepHandoff {
             .getOrElse { return it.message }
         val outstanding = uncovered(context, characterId, now).map(CommitmentTask::id).toSet()
         val taskIds = selected.map(NextCheck::taskId).filter(String::isNotBlank).toSet()
-        return if (taskIds == outstanding) null
-            else "nextChecks 未覆盖所有尚未交接的本人责任或引用了无须再安排的任务"
+        val known = CommitmentTaskStore.snapshot(characterId).mapTo(mutableSetOf(), CommitmentTask::id)
+        return if (taskIds.containsAll(outstanding) && known.containsAll(taskIds)) null
+            else "nextChecks 未覆盖所有尚未交接的本人责任或引用了其他任务"
     }
 
     /** Write quiet concern reviews to the existing personal calendar and
@@ -1128,9 +1129,9 @@ internal object CompanionSleepHandoff {
             return Result(false, it.message.orEmpty())
         }
         val selected = allChecks.filter { it.taskId.isNotBlank() }.associateBy(NextCheck::taskId)
-        if (outstanding.any { it.id !in selected } ||
-            selected.keys.any { id -> CommitmentTaskStore.active(characterId).none { it.id == id } }) {
-            return Result(false, "还有未交接的责任，或提交了已撤销的任务")
+        val knownTasks = CommitmentTaskStore.snapshot(characterId).mapTo(mutableSetOf(), CommitmentTask::id)
+        if (outstanding.any { it.id !in selected } || !knownTasks.containsAll(selected.keys)) {
+            return Result(false, "还有未交接的责任，或引用的任务不属于本人")
         }
 
         val concernChecks = allChecks.filter { it.taskId.isBlank() }
@@ -1156,7 +1157,8 @@ internal object CompanionSleepHandoff {
                 runCatching {
                     RoleDayScheduleStore.arrange(
                         context, characterId, "回看挂心 · " + concern.optString("focus").take(80),
-                        check.reason, check.at, now, selfInitiated = true, concernId = threadId,
+                        ("回看缘由：" + check.reason).take(300),
+                        check.at, now, selfInitiated = true, concernId = threadId,
                     )
                 }.onFailure { return Result(false, "挂心复查未保存：${it.message.orEmpty().take(120)}") }
             }

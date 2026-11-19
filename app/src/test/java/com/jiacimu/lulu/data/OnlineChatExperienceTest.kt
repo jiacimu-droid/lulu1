@@ -117,7 +117,7 @@ class OnlineChatExperienceTest {
         val threadId = open.getString("id")
         val due = now.plusSeconds(180)
         val checks = org.json.JSONArray().put(JSONObject().put("topicKey", "repair-trust")
-            .put("at", due.toString()).put("reason", "先留一点空间，等我准备好再看看这件事"))
+            .put("at", due.toString()).put("reason", "在意"))
         CompanionOnlineStore.wakeCharacter(role, CompanionOnlineReason.NewActivity,
             "刚收到关系反馈", perceiveNow = false, now = now)
         assertNull(CompanionSleepHandoff.proposalIssue(context, role, checks, now))
@@ -133,8 +133,11 @@ class OnlineChatExperienceTest {
         assertTrue(CharacterLifeVisibility.matters(role, now, plans = listOf(plan))
             .any { it.sourceId == threadId && "已安排回看" in it.detail })
 
-        RoleDayScheduleStore.markDue(context, role, plan.id, expectedDueAt = due)
-        assertTrue(RoleDayScheduleStore.recordWakeHandoff(context, role, plan.id, due, due))
+        RoleDayScheduleStore.acknowledgeDueDecisions(context, role,
+            at = due.plusSeconds(30), observedAt = due.minusSeconds(1))
+        assertEquals("planned", RoleDayScheduleStore.plans(context, role).single().status)
+        RoleDayScheduleStore.acknowledgeDueDecisions(context, role,
+            at = due.plusSeconds(60), observedAt = due)
         assertEquals("completed", RoleDayScheduleStore.plans(context, role).single().status)
         assertTrue(CharacterOpenConcernRuntime.active(
             CharacterInnerLifeStore.snapshot(role).getJSONArray("openConcerns"), due).any {

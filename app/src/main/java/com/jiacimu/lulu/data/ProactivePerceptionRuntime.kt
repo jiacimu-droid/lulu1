@@ -605,7 +605,7 @@ object ProactivePerceptionRuntime {
                         // also satisfy the due plan's decision handoff, avoiding
                         // a duplicate paid turn from its still-queued worker.
                         RoleDayScheduleStore.acknowledgeDueDecisions(
-                            appContext, characterId, Instant.now())
+                            appContext, characterId, at = Instant.now(), observedAt = now)
                         CharacterDevelopmentRuntime.request(characterId)
                         val actionKey = "action_history_$characterId"
                         val actionHistory = prefs.getString(actionKey, "").orEmpty().split(',').map(String::trim)
