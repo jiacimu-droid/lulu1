@@ -45,12 +45,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.LuluCloudBackup
 import com.jiacimu.lulu.data.LuluDataBackup
+import com.jiacimu.lulu.data.getLuluAutoBackupStatus
 import com.jiacimu.lulu.data.isLuluAutoBackupEnabled
 import com.jiacimu.lulu.data.setLuluAutoBackupEnabled
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.time.LocalDateTime
+import java.time.Instant
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,6 +74,7 @@ fun LuluBackupScreen(onBack: () -> Unit) {
     var pending by remember { mutableStateOf(LuluDataBackup.hasPendingRestore(context)) }
     var lastResult by remember { mutableStateOf(LuluDataBackup.readRestoreResult(context)) }
     var autoBackup by remember { mutableStateOf(isLuluAutoBackupEnabled(context)) }
+    val lastLocal = remember { getLuluAutoBackupStatus(context) }
     var cloudConfig by remember { mutableStateOf(LuluCloudBackup.loadConfig(context)) }
     var cloudLast by remember { mutableStateOf(LuluCloudBackup.lastUploadText(context)) }
     var cloudDetailsOpen by remember { mutableStateOf(false) }
@@ -154,7 +158,8 @@ fun LuluBackupScreen(onBack: () -> Unit) {
                 withContext(Dispatchers.Main) {
                     pending = true
                     status = "已准备好（共 ${validated.entryCount} 项），重启后生效。" +
-                        "恢复会把当前数据整个换掉，恢复前建议先导一份当前的备份。"
+                        "恢复会覆盖同名文件，但不会清理备份里没有的旧文件；" +
+                        "在全新安装上恢复最干净，操作前请先另存当前资料。"
                 }
             } catch (error: Exception) {
                 withContext(Dispatchers.Main) { status = "备份不可用：${error.message}" }
@@ -236,12 +241,24 @@ fun LuluBackupScreen(onBack: () -> Unit) {
                         autoBackup = checked
                         setLuluAutoBackupEnabled(context, checked)
                         status = if (checked) {
-                            "已开启每天自动备份，开启后不久会先备一份，之后每天一份。"
+                            "已开启自动备份：系统约每24小时尝试一次，可能因省电策略延迟；" +
+                                "仅看到 ZIP 文件或打开开关不等于已完成备份。"
                         } else {
                             "已关闭每天自动备份。"
                         }
                     },
                 )
+            }
+            val localSuccessText = if (lastLocal.lastLocalSuccessMillis > 0L) {
+                "最近一次本地备份完成：" + DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+                    .format(Instant.ofEpochMilli(lastLocal.lastLocalSuccessMillis)
+                        .atZone(ZoneId.systemDefault()))
+            } else "尚无本地自动备份成功记录"
+            Text(localSuccessText + "；文件位于 Download/lulu-backups，最多保留7份。" ,
+                fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (lastLocal.lastLocalFailure.isNotBlank()) {
+                Text(lastLocal.lastLocalFailure, fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.error)
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),

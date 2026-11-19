@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`1e053b33254d80acb7a08c388f02ead25508aaa9`
+- 基准提交：`a166e75cf1d543c468439149f1602d3fa5ad8fac`
 - 分支：`main`
 - 已索引文件：1480
-- 已索引代码/文本行：313696
-- 已发现符号：4475
+- 已索引代码/文本行：313733
+- 已发现符号：4477
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -529,7 +529,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt` | 85 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppearanceStore.kt` | 146 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt` | 144 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt` | 181 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluBackupManager.kt` | 110 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluCloudBackup.kt` | 148 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
