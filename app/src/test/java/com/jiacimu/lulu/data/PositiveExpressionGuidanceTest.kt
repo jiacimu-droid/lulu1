@@ -186,6 +186,8 @@ class PositiveExpressionGuidanceTest {
         assertTrue(protocol.contains("性格、关系、情绪与现场共同决定接话或沉默"))
         assertTrue(protocol.contains("appraisal.privateIdeas 中写出至少一个"))
         assertTrue(protocol.contains("不强迫新心声"))
+        assertTrue(protocol.contains("确有新内心变化则必须写新心声"))
+        assertTrue(privateLife.contains("只要本人关注点、感受、理解、立场、顾虑或愿望相较此前有了新变化"))
         assertTrue(privateLife.contains("第一反应可以直接说出口"))
         assertTrue(privateLife.contains("已经说出去的直觉不需要重复记录成心声"))
         assertFalse(expression.contains("必须先写心声"))

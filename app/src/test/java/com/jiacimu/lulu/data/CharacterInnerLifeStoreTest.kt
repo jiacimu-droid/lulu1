@@ -15,6 +15,24 @@ import java.time.Instant
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterInnerLifeStoreTest {
 
+    @Test fun compactMentalContextKeepsRecentAuthoredVoiceForComparison() {
+        start()
+        val role = "voice-compare-role"
+        val now = Instant.parse("2026-11-20T00:00:00Z")
+        CharacterInnerLifeStore.recordInnerVoice(role, "voice-source-1",
+            "刚才只想先让她休息，不想打扰她。", now)
+        repeat(6) { index ->
+            CharacterInnerLifeStore.recordCausalTransition(role, "quiet-source-$index",
+                JSONObject().put("meaning", "后续普通观察$index"), null, null,
+                "silent", "", "", now.plusSeconds(index.toLong() + 1))
+        }
+        val compact = CharacterInnerLifeStore.compactContext(role, now.plusSeconds(10))
+        assertTrue(compact.contains("【最近真实心声｜用于对照心理变化，不代表当下事实】"))
+        assertTrue(compact.contains("刚才只想先让她休息，不想打扰她。"))
+        assertFalse(CharacterInnerLifeStore.compactContext("another-voice-role", now.plusSeconds(10))
+            .contains("刚才只想先让她休息"))
+    }
+
     @Test(timeout = 15_000)
     fun evidenceInvalidationDoesNotHoldInnerLifeLockAcrossStoreCallbacks() {
         start()

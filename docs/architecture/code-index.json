@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T17:14:58.630888+00:00",
-  "commit": "e49710d8c06e84df6020f88cfb671b13bf93fd51",
+  "generatedAt": "2026-11-19T17:15:52.135351+00:00",
+  "commit": "2702477a6cc709119339c8e223103328f8549bca",
   "branch": "main",
-  "sourceFingerprint": "da4186e38a40d65870987d342e9d035db6900ce3cd39dae086f30234cc201257",
+  "sourceFingerprint": "40f677f9f04d91935020a26a0021438647e3fbc3af156010f61380129456bd2f",
   "summary": {
     "files": 1486,
-    "lines": 316947,
+    "lines": 316958,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -583,7 +583,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 1997
+        "line": 2008
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -31815,8 +31815,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 2187,
-      "sha256": "568d0127e744758774802dcbf857625e58fd41b32175cb3dbab11fa476f6ee94",
+      "lines": 2198,
+      "sha256": "83aca3e4c7115db1ee970439260bdce5216c6480d3d687d4091c8075b4733af0",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -31864,7 +31864,7 @@
         },
         {
           "name": "context",
-          "line": 1997
+          "line": 2008
         }
       ]
     },
