@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T04:54:14.296129+00:00",
-  "commit": "1e053b33254d80acb7a08c388f02ead25508aaa9",
+  "generatedAt": "2026-11-19T04:54:56.498796+00:00",
+  "commit": "a166e75cf1d543c468439149f1602d3fa5ad8fac",
   "branch": "main",
-  "sourceFingerprint": "fef123dd7396aba085b215d6f15cd6a50e336fe97fec02892f69578f1b11b356",
+  "sourceFingerprint": "0196069d54309a6a5f274a6e109f4b66765da1db30d2a6bf0fa14b16a94c020c",
   "summary": {
     "files": 1480,
-    "lines": 313696,
-    "symbols": 4475
+    "lines": 313733,
+    "symbols": 4477
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -11572,22 +11572,34 @@
         "line": 56
       }
     ],
-    "isLuluAutoBackupEnabled": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt",
-        "line": 27
-      }
-    ],
-    "setLuluAutoBackupEnabled": [
+    "LuluAutoBackupStatus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt",
         "line": 31
       }
     ],
+    "getLuluAutoBackupStatus": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt",
+        "line": 35
+      }
+    ],
+    "isLuluAutoBackupEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt",
+        "line": 43
+      }
+    ],
+    "setLuluAutoBackupEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt",
+        "line": 47
+      }
+    ],
     "LuluAutoBackupWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt",
-        "line": 52
+        "line": 68
       }
     ],
     "LuluBackupManager": [
@@ -35207,20 +35219,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAutoBackupWorker.kt",
-      "lines": 144,
-      "sha256": "2a052a57589a0c2f6e90fdd02975d8eabaa7de6d849fb859c2c401632e610d72",
+      "lines": 181,
+      "sha256": "f37a7f3143b8f914bf4837a65719d7386d30e1e64a2a0fbef90a6eba234358dc",
       "symbols": [
         {
-          "name": "isLuluAutoBackupEnabled",
-          "line": 27
-        },
-        {
-          "name": "setLuluAutoBackupEnabled",
+          "name": "LuluAutoBackupStatus",
           "line": 31
         },
         {
+          "name": "getLuluAutoBackupStatus",
+          "line": 35
+        },
+        {
+          "name": "isLuluAutoBackupEnabled",
+          "line": 43
+        },
+        {
+          "name": "setLuluAutoBackupEnabled",
+          "line": 47
+        },
+        {
           "name": "LuluAutoBackupWorker",
-          "line": 52
+          "line": 68
         }
       ]
     },
