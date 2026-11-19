@@ -1269,6 +1269,7 @@ fun QqStyleChatDetailScreen(
             conversationId = conversationId,
             characterId = characterId,
             characterName = character.displayName,
+            characterAvatarUri = character.avatarUri,
             onDiscuss = { text -> wakeOnline(QqComposerPayload(text)) },
             onClose = { listenTogetherVisible = false },
         )
