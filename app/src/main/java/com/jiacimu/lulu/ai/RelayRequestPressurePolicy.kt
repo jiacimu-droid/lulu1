@@ -55,6 +55,10 @@ internal object RelayRequestPressurePolicy {
         "本轮表达证据", "角色身份", "角色人设", "当前人物关系",
         "用户资料",
         "核心记忆", "未完成责任", MemoryWorkingSet.RECENT, "全局世界书",
+        "当前状态", "跨场景连续性锚点", "成长与持续动机",
+        "本人可见的社交与数字世界现场",
+        "当前真实游戏能力", "角色视频能力和通话实况",
+        "当前数字人物与QQ好友权威登记",
         "角色世界书/设计书", "数字世界权威状态",
         "全局世界书/TOP", "角色世界书/TOP",
         "全局世界书/NORMAL", "角色世界书/NORMAL",
@@ -158,7 +162,12 @@ internal object RelayRequestPressurePolicy {
             remaining -= first.length + 1
         }
         val mandatory = blocks.indices.filter { index ->
-            protectedCapabilityTitles.any { title -> blocks[index].startsWith(title) }
+            // Current, authoritative observations, pending messages, due
+            // responsibilities, tool catalogues and real action parameters
+            // may NEVER be traded against older history on a 503 fallback.
+            (protectedCapabilityTitles + priorityBackgroundTitles).any { title ->
+                blocks[index].startsWith(title)
+            }
         }
         // Pin whole application-authored capability sections before sharing
         // remaining recovery space with optional scene/history observations.
