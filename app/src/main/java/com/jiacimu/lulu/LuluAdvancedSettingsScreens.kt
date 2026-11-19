@@ -45,12 +45,7 @@ private val MiniMaxSpeechModels = listOf(
     "speech-02-hd", "speech-02-turbo", "speech-01-hd", "speech-01-turbo",
 )
 private val ElevenLabsSpeechModels = ElevenLabsModels.choices
-private val MossSpeechModels = listOf(
-    "1.5 Flash · 推荐" to MossSpeech.DEFAULT_MODEL,
-    "1.0 Pro · 高保真" to "moss-tts-1.0-pro",
-    "1.5 Flash · 2026-06-26" to "moss-tts-1.5-flash-2026-06-26",
-    "1.0 Pro · 2026-02-07" to "moss-tts-1.0-pro-2026-02-07",
-)
+private val MossSpeechModels = MossSpeech.MODEL_CHOICES
 private val MiniMaxLanguages = listOf(
     "auto", "Chinese", "Chinese,Yue", "English", "Japanese", "Korean", "French", "German",
     "Spanish", "Portuguese", "Russian", "Arabic", "Italian", "Turkish", "Dutch", "Ukrainian",
