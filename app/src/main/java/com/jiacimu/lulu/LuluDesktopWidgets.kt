@@ -228,6 +228,28 @@ internal fun luluPlaceWidget(
     return null
 }
 
+/**
+ * Starter layout is presentation only. Never create a character, relationship,
+ * conversation or simulated world event while preparing a new user's home.
+ *
+ * 4×7: date [0,1], chat [2], bulletin [3], apps automatically start at [4].
+ * Existing installations must keep their saved grid and widget choices.
+ */
+internal fun firstInstallDesktopWidgets(): List<LuluDesktopWidget> = listOf(
+    LuluDesktopWidget("home-date", LuluWidgetKind.CALENDAR, page = 0, col = 0, row = 0,
+        columns = 4, rows = 2),
+    LuluDesktopWidget("home-chat", LuluWidgetKind.CHAT, page = 0, col = 0, row = 2,
+        columns = 4, rows = 1),
+    LuluDesktopWidget("home-bulletin", LuluWidgetKind.BULLETIN, page = 0, col = 0, row = 3,
+        columns = 4, rows = 1),
+)
+
+internal fun shouldSeedFirstInstallDesktop(
+    hasSavedCards: Boolean,
+    hasAnyPreviousGrid: Boolean,
+    previouslySeeded: Boolean,
+): Boolean = !hasSavedCards && !hasAnyPreviousGrid && !previouslySeeded
+
 internal object LuluDesktopWidgetStore {
     private const val PREFS = "lulu_desktop_widgets_v1"
     private const val KEY = "cards"
@@ -335,19 +357,19 @@ internal object LuluDesktopWidgetStore {
     fun loadOrMigrateGrid(context: Context, launcherIds: List<String>): List<String?> = synchronized(mutex) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs.getString(GRID, null)?.let { return@synchronized readDesktopSlots(it) }
-        val existing = load(context).toMutableList()
-        if (!prefs.getBoolean(HOME_SEEDED, false)) {
-            val defaults = listOf(
-                LuluDesktopWidget("home-chat", LuluWidgetKind.CHAT, 0, 0, 0),
-                LuluDesktopWidget("home-bulletin", LuluWidgetKind.BULLETIN, 0, 0, 2),
-            )
-            for (card in defaults) {
-                if (existing.size < 100 && existing.none { it.kind == card.kind } &&
-                    luluWidgetFits(card, existing, emptyList())) existing.add(card)
-            }
-        }
         val sixRowSlots = prefs.getString(SIX_ROW_GRID, null)
         val older = context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
+        val hasLegacyGrid = listOf("slots_v1", "slots_v2", "slots_v3")
+            .any(older::contains)
+        val freshInstall = shouldSeedFirstInstallDesktop(
+            hasSavedCards = prefs.contains(KEY),
+            hasAnyPreviousGrid = prefs.contains(SIX_ROW_GRID) || hasLegacyGrid,
+            previouslySeeded = prefs.getBoolean(HOME_SEEDED, false),
+        )
+        val existing = load(context).toMutableList()
+        // Seed only a truly empty installation. Do not repopulate cards deleted
+        // by an older user or reshape any legacy 4×6 / 4×8 desktop.
+        if (freshInstall) existing.addAll(firstInstallDesktopWidgets())
         val oldVersion = when {
             sixRowSlots != null -> 4
             older.contains("slots_v3") -> 3
