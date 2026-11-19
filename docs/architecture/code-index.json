@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T06:52:05.319762+00:00",
-  "commit": "a4e4e4ab331b4165b269ea5b1e91469a50b2ed67",
+  "generatedAt": "2026-11-19T07:17:59.152591+00:00",
+  "commit": "34c11ca5065ea8cce68344624f439d6188472c0e",
   "branch": "main",
-  "sourceFingerprint": "9c1b2e84e6badfd56d14451431d4f6f4f0e54d3871161ff26f205e75e74c9eed",
+  "sourceFingerprint": "de781a41e995e6b2ed6a2fbaaaf26b94896b131497dddd9e1467ba09c6b2379e",
   "summary": {
     "files": 1480,
-    "lines": 314442,
+    "lines": 314583,
     "symbols": 4488
   },
   "symbolIndex": {
@@ -269,7 +269,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 505
+        "line": 574
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandTravel.kt",
@@ -1315,7 +1315,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 555
+        "line": 624
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UserMessageFavorites.kt",
@@ -6151,7 +6151,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 371
+        "line": 437
       }
     ],
     "Snapshot": [
@@ -7693,7 +7693,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 891
+        "line": 960
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -13179,19 +13179,19 @@
     "batchSuperseded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 867
+        "line": 871
       }
     ],
     "deferSupersededDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 872
+        "line": 876
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3955
+        "line": 3959
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -14007,73 +14007,73 @@
     "RoleDayScheduleStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 80
+        "line": 88
       }
     ],
     "plans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 88
+        "line": 96
       }
     ],
     "undatedCommitmentsToPlan": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 199
+        "line": 211
       }
     ],
     "planningOpportunityContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 208
+        "line": 220
       }
     ],
     "plannedContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 255
+        "line": 267
       }
     ],
     "nextPlannedWakeAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 296
+        "line": 362
       }
     ],
     "nextSelfDirectedWakeAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 303
+        "line": 369
       }
     ],
     "restorePending": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 353
+        "line": 419
       }
     ],
     "cancelPendingLinkedCommitmentPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 532
+        "line": 601
       }
     ],
     "removeLinkedCommitmentPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 566
+        "line": 635
       }
     ],
     "mergeMatchingDailyCallPlans": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 585
+        "line": 654
       }
     ],
     "reschedule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 604
+        "line": 673
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt",
@@ -14083,37 +14083,37 @@
     "canBegin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 693
+        "line": 762
       }
     ],
     "completeFromReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 711
+        "line": 780
       }
     ],
     "markDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 759
+        "line": 828
       }
     ],
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 858
+        "line": 927
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 898
+        "line": 967
       }
     ],
     "canResume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 914
+        "line": 983
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -31112,7 +31112,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 199,
-      "sha256": "b45a7917fee8d8e9bbf478264a389071a0a6ae84b3a7514774f4b1c407e3591d",
+      "sha256": "22599c0cac4d79df9a701488d866f18f70cf3250d5cc2492fee3da4a4a19041c",
       "symbols": [
         {
           "name": "expressionContext",
@@ -32556,7 +32556,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt",
       "lines": 55,
-      "sha256": "219abf5c35bba1d75be5a31715c4bcbbd06e5a6b86a5223dee0272bc836b307a",
+      "sha256": "69df2ed9d9595eea1fe303ce208f619f9cad4d6976e82d9076e6e9729581ed5c",
       "symbols": [
         {
           "name": "promptSection",
@@ -32650,8 +32650,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterTurnStateCommit.kt",
-      "lines": 95,
-      "sha256": "eaea3708d9b8c7fcd30378b68bb72a3539798dbc5a4df1590cfcce05089aa0ab",
+      "lines": 105,
+      "sha256": "ddc469f6e0c071fa3e95bf4c30177c05dac39cc9c8e6426d0b7d4b570c3846a1",
       "symbols": [
         {
           "name": "recordDurableDecision",
@@ -36792,7 +36792,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
       "lines": 172,
-      "sha256": "28144d7fcead0b4079932b5f61696bdced4afee2a351f4117d3e66313bd69f54",
+      "sha256": "965859765660af81d88002b85d5a5418cbda9294b7aad9ef589f066ea65b055c",
       "symbols": []
     },
     {
@@ -36952,8 +36952,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 4022,
-      "sha256": "552b1b3fb22ff078a7ca92a0c9d2a9d50262eaf62e414648544bfc03c65644d9",
+      "lines": 4026,
+      "sha256": "236a8a2b96665c2c17c15eb1a4f44f07111af32072f1aad505ec91286224a6ec",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -36977,15 +36977,15 @@
         },
         {
           "name": "batchSuperseded",
-          "line": 867
+          "line": 871
         },
         {
           "name": "deferSupersededDecision",
-          "line": 872
+          "line": 876
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3955
+          "line": 3959
         }
       ]
     },
@@ -37714,8 +37714,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 1106,
-      "sha256": "00c5cb7629dbf9bf98e25dfb463abbe3645f8882303d198a3f5e290ad5c2441f",
+      "lines": 1179,
+      "sha256": "ce870e5f5db6d834ade40cf0cfc76963073e0b2a30b85e4fd8ca2c99eb0f2723",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -37723,91 +37723,91 @@
         },
         {
           "name": "RoleDayScheduleStore",
-          "line": 80
-        },
-        {
-          "name": "plans",
           "line": 88
         },
         {
+          "name": "plans",
+          "line": 96
+        },
+        {
           "name": "undatedCommitmentsToPlan",
-          "line": 199
+          "line": 211
         },
         {
           "name": "planningOpportunityContext",
-          "line": 208
+          "line": 220
         },
         {
           "name": "plannedContext",
-          "line": 255
+          "line": 267
         },
         {
           "name": "nextPlannedWakeAt",
-          "line": 296
+          "line": 362
         },
         {
           "name": "nextSelfDirectedWakeAt",
-          "line": 303
+          "line": 369
         },
         {
           "name": "restorePending",
-          "line": 353
+          "line": 419
         },
         {
           "name": "arrange",
-          "line": 371
+          "line": 437
         },
         {
           "name": "cancel",
-          "line": 505
+          "line": 574
         },
         {
           "name": "cancelPendingLinkedCommitmentPlans",
-          "line": 532
+          "line": 601
         },
         {
           "name": "remove",
-          "line": 555
+          "line": 624
         },
         {
           "name": "removeLinkedCommitmentPlans",
-          "line": 566
+          "line": 635
         },
         {
           "name": "mergeMatchingDailyCallPlans",
-          "line": 585
+          "line": 654
         },
         {
           "name": "reschedule",
-          "line": 604
+          "line": 673
         },
         {
           "name": "canBegin",
-          "line": 693
+          "line": 762
         },
         {
           "name": "completeFromReceipt",
-          "line": 711
+          "line": 780
         },
         {
           "name": "markDue",
-          "line": 759
+          "line": 828
         },
         {
           "name": "dueContext",
-          "line": 858
+          "line": 927
         },
         {
           "name": "clearCharacter",
-          "line": 891
+          "line": 960
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 898
+          "line": 967
         },
         {
           "name": "canResume",
-          "line": 914
+          "line": 983
         }
       ]
     },
@@ -49849,8 +49849,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-      "lines": 1244,
-      "sha256": "11cb0d36070a2756f40096e755636c0df23717093d91c8d3ab68d38a5d63640b",
+      "lines": 1298,
+      "sha256": "28789208461d6cfdebdfabf3d912b865b95d50df38818358f830d7eb65bd8337",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
