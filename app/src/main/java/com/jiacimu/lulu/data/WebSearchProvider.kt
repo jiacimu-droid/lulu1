@@ -32,10 +32,19 @@ internal object WebSearchProvider {
             uri.path.trimEnd('/') in setOf("", "/v1")
     }.getOrDefault(false)
 
+    /**
+     * A capability preview may run before the model library is initialized
+     * (e.g. the first decision or a standalone unit test). A missing library
+     * is not a configured DeepSeek key; the saved Search keys remain usable.
+     */
+    private fun officialDeepSeekKeyFromModelLibrary(): String =
+        runCatching { LuluAiServices.connectionStore.library.value.configurations }
+            .getOrNull()
+            ?.firstOrNull { isOfficialDeepSeekBaseUrl(it.baseUrl) && it.apiKey.isNotBlank() }
+            ?.apiKey.orEmpty()
+
     fun hasOfficialSavedConfiguration(): Boolean =
-        LuluAiServices.connectionStore.library.value.configurations.any {
-            isOfficialDeepSeekBaseUrl(it.baseUrl) && it.apiKey.isNotBlank()
-        }
+        officialDeepSeekKeyFromModelLibrary().isNotBlank()
 
     fun configuredProvider(context: Context): String = when {
         savedDeepSeekKey(context).isNotBlank() -> "DeepSeek Search"
@@ -45,11 +54,7 @@ internal object WebSearchProvider {
     }
 
     private fun resolvedDeepSeekKey(context: Context): String =
-        savedDeepSeekKey(context).ifBlank {
-            LuluAiServices.connectionStore.library.value.configurations
-                .firstOrNull { isOfficialDeepSeekBaseUrl(it.baseUrl) && it.apiKey.isNotBlank() }
-                ?.apiKey.orEmpty()
-        }
+        savedDeepSeekKey(context).ifBlank { officialDeepSeekKeyFromModelLibrary() }
 
     fun isConfigured(context: Context) =
         resolvedDeepSeekKey(context).isNotBlank() || savedKey(context).isNotBlank()
