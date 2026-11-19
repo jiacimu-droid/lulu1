@@ -33,17 +33,17 @@ class RelayRequestPressurePolicyTest {
     }
 
     @Test fun exceptional503RecoveryKeepsEveryRegisteredToolAndItsArguments() {
-        val catalogue = "【本人可选择的能力目录｜私聊、在线窗口和后台独自感知共用】\\n" +
+        val catalogue = "【本人可选择的能力目录｜私聊、在线窗口和后台独自感知共用】\n" +
             "收藏与生活记录：read_self_preface、read_self_todo、write_phone_memo"
-        val examples = "【何时想做即可选择的真实工具及参数线索｜需按现场ID和配置核实】\\n" +
+        val examples = "【何时想做即可选择的真实工具及参数线索｜需按现场ID和配置核实】\n" +
             "自主查看主人自序 read_self_preface(area=thoughts|values|wishes|todo；" +
             "用户正等本次结果时填reportToUser=true)"
         val action = "【选择与行动】一次决定可使用已注册能力及 steps。"
-        val exploration = "【此刻外部探索真实工具与配置】\\n" +
+        val exploration = "【此刻外部探索真实工具与配置】\n" +
             "- web_search(op=search|read)；- background_phone(action=launch|observe)"
-        val old = "【旧的生活回顾】\\n" + "较早历史。\\n".repeat(9_000)
+        val old = "【旧的生活回顾】\n" + "较早历史。\n".repeat(9_000)
         val facts = listOf(old, catalogue, examples, action, exploration,
-            "【最近自己经历的生活】\\n刚刚与主人谈到日记").joinToString("\\n")
+            "【最近自己经历的生活】\n刚刚与主人谈到日记").joinToString("\n")
         val reduced = RelayRequestPressurePolicy.compactActorSceneFacts(facts)
         assertTrue(reduced.length < facts.length)
         for (essential in listOf(catalogue, examples, action, exploration)) {
