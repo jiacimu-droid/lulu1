@@ -143,7 +143,7 @@ object CapabilityRegistry {
                 "plan_personal_activity" to "安排自己的未来行动 plan_personal_activity(title,intent,dueAt,activityAction,activityArgs)",
                 "reschedule_personal_activity" to "改期 reschedule_personal_activity(planId,expectedDueAt,dueAt,reason)",
                 "start_study_watch" to "申请限时学习监督 start_study_watch(minutes)",
-                "verify_commitment" to "核实已承担责任 verify_commitment(taskId,真实证据)",
+                "verify_commitment" to "按真实来源核实约定 verify_commitment(taskId,completionEvidenceIds,verificationReason)",
                 "reschedule_personal_activity" to "调整后续安排 reschedule_personal_activity(planId,expectedDueAt,dueAt,reason)",
                 "cancel_personal_activity" to "取消不再想做的安排 cancel_personal_activity(planId,expectedDueAt,reason)",
                 "get_battery" to "观察电量 get_battery()",
