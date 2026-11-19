@@ -94,6 +94,10 @@ internal fun StudyPomodoroScreen(
             progress = progress,
             skin = companion.skin,
             palette = palette,
+            microRestEnabled = companion.microRestEnabled,
+            onToggleMicroRest = {
+                PomodoroCompanionSessions.store.updateMicroRestEnabled(!companion.microRestEnabled)
+            },
             onBack = onBack,
             onToggleSkin = {
                 PomodoroCompanionSessions.store.updateSkin(
@@ -186,6 +190,21 @@ internal fun StudyPomodoroScreen(
                                 shape = RoundedCornerShape(16.dp),
                                 colors = studyPomodoroFieldColors(),
                             )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Text("10 秒微休息", fontWeight = FontWeight.SemiBold, color = StudyDesign.ink)
+                                    Text("随机每 3～5 分钟轻响一次，闭眼放空 10 秒",
+                                        color = StudyDesign.muted, fontSize = 12.sp)
+                                }
+                                Switch(
+                                    checked = companion.microRestEnabled,
+                                    onCheckedChange = PomodoroCompanionSessions.store::updateMicroRestEnabled,
+                                )
+                            }
                         }
                     }
                 }
@@ -254,6 +273,8 @@ private fun PomodoroFocusScreen(
     progress: Float,
     skin: PomodoroSkin,
     palette: PomodoroPalette,
+    microRestEnabled: Boolean,
+    onToggleMicroRest: () -> Unit,
     onBack: () -> Unit,
     onToggleSkin: () -> Unit,
     onPauseResume: () -> Unit,
@@ -330,7 +351,14 @@ private fun PomodoroFocusScreen(
                 fontSize = 13.sp,
                 fontWeight = FontWeight.SemiBold,
             )
-            Spacer(Modifier.height(24.dp))
+            TextButton(onClick = onToggleMicroRest, enabled = mode == PomodoroTimerMode.Countdown) {
+                Text(
+                    if (microRestEnabled) "10 秒微休息 · 开启" else "10 秒微休息 · 关闭",
+                    color = palette.secondaryText,
+                    fontSize = 12.sp,
+                )
+            }
+            Spacer(Modifier.height(12.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedButton(
                     onClick = onPauseResume,
