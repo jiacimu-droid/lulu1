@@ -435,6 +435,83 @@ data: {"type":"response.completed","response":{}}
         } finally { server.shutdown() }
     }
 
+    @Test fun filteredJsonReplyExplainsBillingWithoutLeakingPrivateThinking() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setBody(
+            """{"choices":[{"message":{"content":null,"reasoning_content":"$privateText"},"finish_reason":"content_filter"}],"usage":{"prompt_tokens":109329,"completion_tokens":2874,"completion_tokens_details":{"reasoning_tokens":2800}}}"""
+        ))
+        server.start()
+        try {
+            val result = CompanionModelGateway(ModelConnectionStore.create(app)).generate(
+                "filtered-empty", "", "回应", "输出边界测试", "test",
+                contextMode = CompanionContextMode.Isolated,
+                connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+            )
+            assertTrue(result.isFailure)
+            val diagnostic = result.exceptionOrNull()?.message.orEmpty()
+            assertTrue(diagnostic, diagnostic.contains("内容过滤"))
+            assertTrue(diagnostic, diagnostic.contains("finish_reason=content_filter"))
+            assertTrue(diagnostic, diagnostic.contains("输出Token=2874"))
+            assertTrue(diagnostic, diagnostic.contains("思考Token=2800"))
+            assertFalse(diagnostic.contains(privateText))
+            assertEquals("Must not auto-resend a billed reply", 1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test fun onlyReasoningJsonReplyReportsLengthInsteadOfGenericEmpty() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setBody(
+            """{"choices":[{"message":{"reasoning_content":"$privateText","content":""},"finish_reason":"length"}],"usage":{"completion_tokens":987}}"""
+        ))
+        server.start()
+        try {
+            val result = CompanionModelGateway(ModelConnectionStore.create(app)).generate(
+                "reasoning-only", "", "回应", "输出边界测试", "test",
+                contextMode = CompanionContextMode.Isolated,
+                connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+            )
+            assertTrue(result.isFailure)
+            val diagnostic = result.exceptionOrNull()?.message.orEmpty()
+            assertTrue(diagnostic, diagnostic.contains("长度上限"))
+            assertTrue(diagnostic, diagnostic.contains("输出Token=987"))
+            assertTrue(diagnostic, diagnostic.contains("收到思考字段=是"))
+            assertFalse(diagnostic.contains(privateText))
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test fun filteredSseReplyRetainsFinishReasonAndUsageWithoutPaidReplay() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream").setBody(
+            """data: {"choices":[{"delta":{"reasoning_content":"$privateText"},"finish_reason":"content_filter"}],"usage":{"prompt_tokens":109354,"completion_tokens":987,"completion_tokens_details":{"reasoning_tokens":820}}}
+
+"""
+        ))
+        server.start()
+        try {
+            val result = CompanionModelGateway(ModelConnectionStore.create(app)).generate(
+                "filtered-stream", "", "回应", "输出边界测试", "test",
+                contextMode = CompanionContextMode.Isolated,
+                connectionOverride = ModelConnection(server.url("/").toString(), "key", "test"),
+                streamResponse = true,
+            )
+            assertTrue(result.isFailure)
+            val diagnostic = result.exceptionOrNull()?.message.orEmpty()
+            assertTrue(diagnostic, diagnostic.contains("内容过滤"))
+            assertTrue(diagnostic, diagnostic.contains("输出Token=987"))
+            assertTrue(diagnostic, diagnostic.contains("思考Token=820"))
+            assertTrue(diagnostic, diagnostic.contains("收到思考字段=是"))
+            assertFalse(diagnostic.contains(privateText))
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun sseParserRejectsPrivateOnlyOutputAndKeepsRealContent() {
         val privateOnly = "data: {\"choices\":[{\"delta\":{\"reasoning_content\":\"$privateText\"}}]}\n\ndata: [DONE]\n\n"
         assertTrue(runCatching { modelResponseObject(privateOnly) }.isFailure)
