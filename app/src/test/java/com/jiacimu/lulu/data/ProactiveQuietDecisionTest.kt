@@ -56,24 +56,40 @@ class ProactiveQuietDecisionTest {
     @Test fun foregroundAndAutonomousLifeSeeOneRoleScopedActionDirectory() {
         val context = org.robolectric.RuntimeEnvironment.getApplication()
         val role = "shared-scene-actions"
-        val shared = CompanionActionRuntime.sharedDecisionCapabilities(context, role)
-        val online = CompanionActionRuntime.autonomousDiscoveryContext(context, role)
-        val original = CapabilityRegistry.decisionCapabilityOverview(context, role)
-        assertTrue(shared.startsWith(original))
-        assertTrue("Autonomous wake must receive the same actual role menu", online.startsWith(shared))
-        for (choice in listOf("publish_moment", "send_character_message",
-            "send_group_message", "create_group_chat", "digital_world_action",
-            "background_phone", "web_search", "start_call", "read_book",
-            "plan_personal_activity")) {
-            assertTrue("$choice missing in common decision menu", shared.contains(choice))
-            assertTrue("$choice lost in background life", online.contains(choice))
+        val phone = com.jiacimu.lulu.system.LuluRolePhoneAuthorization
+        val phoneExample = "后台虚拟屏/本机App background_phone(action="
+
+        // The discovery menu describes tools the role is currently authorized
+        // to attempt; registration alone must not grant autonomous screen use.
+        assertTrue(phone.setGranted(context, role, false))
+        assertFalse(CapabilityRegistry.decisionCapabilityOverview(context, role).contains(phoneExample))
+        assertTrue(phone.setGranted(context, role, true))
+        try {
+            val shared = CompanionActionRuntime.sharedDecisionCapabilities(context, role)
+            val online = CompanionActionRuntime.autonomousDiscoveryContext(context, role)
+            val original = CapabilityRegistry.decisionCapabilityOverview(context, role)
+            assertTrue(shared.startsWith(original))
+            assertTrue("Autonomous wake must receive the same actual role menu", online.startsWith(shared))
+            for (choice in listOf("publish_moment", "send_character_message",
+                "send_group_message", "create_group_chat", "digital_world_action",
+                "background_phone", "web_search", "start_call", "read_book",
+                "plan_personal_activity")) {
+                assertTrue("$choice missing in common decision menu", shared.contains(choice))
+                assertTrue("$choice lost in background life", online.contains(choice))
+            }
+            assertTrue("Authorized phone tool must have an actionable example", original.contains(phoneExample))
+            assertTrue("Online life must see the same authorized phone example", online.contains(phoneExample))
+            assertTrue(shared.contains("visit_character_home"))
+            assertTrue(shared.contains("visit_resident_home"))
+            assertTrue(shared.contains("mediaMode=voice|video"))
+            assertTrue(shared.contains("同轮回复可附 steps"))
+            assertFalse(shared.contains("write_journal"))
+            assertFalse(shared.contains("read_xiaohongshu"))
+        } finally {
+            assertTrue(phone.setGranted(context, role, false))
         }
-        assertTrue(shared.contains("visit_character_home"))
-        assertTrue(shared.contains("visit_resident_home"))
-        assertTrue(shared.contains("mediaMode=voice|video"))
-        assertTrue(shared.contains("同轮回复可附 steps"))
-        assertFalse(shared.contains("write_journal"))
-        assertFalse(shared.contains("read_xiaohongshu"))
+        assertFalse("Revoking phone authorization must remove the executable choice",
+            CapabilityRegistry.decisionCapabilityOverview(context, role).contains(phoneExample))
     }
 
     @Test fun realisticChatMayKeepOneReplyAndChooseIndependentSocialWorldAndPhoneActions() {
