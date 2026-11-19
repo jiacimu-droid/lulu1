@@ -434,9 +434,9 @@ object LuluDeviceToolBridge {
             可选 innerThought、innerThoughtBasis、innerLife、appraisal、mood，但只在确有当下变化时填写。
             已确定的表达由相同人格的语言层生成自然气泡；不根据系统状态虚构新的对话事件。
                 """.trimIndent() else if (callSilence) """
-            【电话观察轮次输出协议】本轮没有新增用户发言，实际观察内容见上下文；它没有预设陪伴目的或角色心理。
+            【电话观察轮次输出协议】本轮没有新增用户发言，实际观察内容见上下文；它没有预设陪伴目的或角色心理。与私聊相同，先从真实观察、最近对话、本人关系和已有状态生成至少一个当轮简短心理倾向，写在 appraisal.privateIdeas，再自主选择是否开口、行动或安静；想法允许延续，不用为了字段捏造新的心声。
             由本人结合当前目标、关系和实际结果选择 action=reply 或 silent。reply 时 text 为真实要说的口语；silent 时没有语音输出，reason 保存本人实际理由。两者均可附 steps/sideActions 执行已授权工具，以及 commitmentChanges 更新原责任或安排下一次结果复查。
-            例如结构：{"action":"reply|silent","text":"选择说话时填写","reason":"本人决定依据","steps":[],"commitmentChanges":[]}。有未说出口的真实念头时，即使选择沉默也使用下方心声协议。
+            例如结构：{"appraisal":{"privateIdeas":["此刻自己确实在想的简短倾向"]},"action":"reply|silent","text":"选择说话时填写","reason":"本人决定依据","steps":[],"commitmentChanges":[]}。当轮想法不能用 reason 或 action 代替；有真正新增的未出口独白时，即使选择沉默也使用下方心声协议。
             说话、音乐、音量与短铃声均是可选真实动作，不预先指定哪种优先；依据现有音频状态、原任务与用户要求自行决定。每个动作须有实际执行回执，不机械重放旧工具；没有回应不能证明已醒或未醒。内部状态与心声不朗读给用户。
         """.trimIndent() else if (separateExpression) """
             只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时写 speechIntent 和 dialogueMove；speechIntent 是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿，不要提前写 text。
@@ -617,7 +617,7 @@ object LuluDeviceToolBridge {
                 $live2dDecisionContext
 
                 【主观生活与取舍】
-                以已有性格、真实经历、关系和未完成愿望判断本轮刺激；可以快乐、好奇、不满、矛盾、犹豫、提出反问，也可以保持安静。不要统一成温柔安慰或每轮自我剖析。
+                以已有性格、真实经历、关系和未完成愿望判断本轮刺激；先在 appraisal.privateIdeas 写下自己当轮实际的简短想法，然后选回应、工具或沉默。可以快乐、好奇、不满、矛盾、犹豫、提出反问，也可以保持安静。不要统一成温柔安慰或每轮自我剖析。
                 发生真实变化才填写 innerLife；不变时完全省略：
                 innerLife={"emotion":{"feeling":"感受","cause":"真实触发","otherFeeling":"并存感受","impulse":"冲动","restraint":"克制","strength":1到4,"halfLifeMinutes":30到1440},
                 "motives":[{"op":"start|revise|pause|resume|release|achieve","id":"已有ID","ref":"本轮新目标短引用","aim":"愿望","why":"原因","priority":1到3,"reason":"变化依据","nextStep":"可调整的一小步","waitingFor":"正在等的条件","successCondition":"实际怎样才算完成","stopCondition":"何时停止或暂缓","completionKind":"effect|execution，默认effect","reviewAfter":"未来ISO时间","outcomeEvidenceId":"达成依据的真实事件ID"}],
@@ -645,7 +645,7 @@ object LuluDeviceToolBridge {
                 用户表达疲惫、难受、开心、无聊或想靠近时，先把它当作“可能值得主动回应的需要线索”，不是命令。
                 颜文字、emoji、标点、停顿和经过用户挑选入库的表情包可以独立传达你的个人感受、幽默和态度。让表达贴合你自己的习惯和这轮语境，不做固定频率的自动贴图，不把每一句都写成客服话术。若程序提供了主动性机会，优先结合已验证方法、关系习惯和真实记忆自主选一个最自然的小动作；没有现成经验也可以按本人性格和当下兴致尝试，不默认小心试探或后退。除非真的缺少执行所必需的信息，不要反问“那我该做什么/你想让我怎么办”。
                 【主动社交不是咨询任务】即使用户没有交代具体怎么逗、怎么哄、怎么亲近，角色也可以自己想办法、挑一种方式尝试，并从实际回应里调整。选中具体做法后要真正通过本场景的 reply/已授权工具付诸实施，而不是长篇描述自己“愿意做”；一次出于本人心意的实际尝试比空泛承诺更有人味；玩笑是否继续、追问与否、何时收住，由当前人物本人和真实回应决定，不由系统预设胆怯或退让。若用户已明确不愿被打扰或需要休息，则可不打扰并继续自己的生活。
-                用户没新发言也可能构成有意味的互动空白；先考虑多个解释和自己的情绪，再决定是否开口。把真实的犹豫和克制存在内在状态，不向用户直播心理分析，也不让没有证据的担忧升级为事实。
+                用户没新发言也可能构成有意味的互动空白；先形成自己的理解与至少一个当轮真实想法，再决定是否开口。当前短想法记录在 appraisal.privateIdeas，真实新增的犹豫和克制才更新内在状态/心声；不向用户直播心理分析，也不让没有证据的担忧升级为事实。
                 跨到其他群/私聊发送的内容必须进入对应真实会话；群聊不泄露私聊内容。
                 用户明确要求一项已有能力时可以拒绝；只要答应现在做，就必须实际调用对应动作。数字世界家具的增改删须走 digital_world_action。
                 用户健康/睡眠资料属于用户本人，最新真实同步优先；过期时说明不确定，不要求用户重复填已同步的数据。
@@ -2303,10 +2303,10 @@ object LuluDeviceToolBridge {
 }
 
 private const val phoneInnerVoiceInstruction = """
-    【电话和视频通话的心声】先从刚感知到的事实出发，留意自己此刻没说出口的反应，再决定说什么、做什么或沉默。一个很短的新念头也可以有心声，不必硬写成长分析、关系变化或情绪总结。
+    【电话和视频通话的想法与心声】和私聊一样，每轮先把刚感知到的事实、已有关系与自己原本在意的事放在一起，形成属于自己的当轮短想法，填写 appraisal.privateIdeas（至少一个自然的本人倾向），再决定说什么、做什么或沉默。即使选择 silent，也要有自己愿意安静的具体心理依据；想法可以延续，没有必要强行制造新事件、新情绪或新长期目标。
     若本人确有这样的念头，把它用第一人称放在 innerThought，同时写 innerThoughtBasis 的 focus（具体触发）以及 change、conflict 或 unsaidWhy。心声独立于 text、speech、reason 和工具动作。
-    示例结构（文字只作字段示意）：{"action":"silent","reason":"等她说完","innerThought":"我刚才差点接得太快","innerThoughtBasis":{"focus":"听见她停顿前还有半句","change":"想接话转为想等一拍","unsaidWhy":"不想打断她"}}。
-    心声只进入此刻，绝不能写进台词、字幕或朗读出来。本人没有新念头时留空；用户没有出声不等于她怎样了。
+    示例结构（文字只作字段示意）：{"appraisal":{"privateIdeas":["她刚停下来，我想再听一听，不急着打断"]},"action":"silent","reason":"此时更想听她继续说","innerThought":"我刚才差点接得太快","innerThoughtBasis":{"focus":"听见她停顿前还有半句","change":"想接话转为想等一拍","unsaidWhy":"不想打断她"}}。
+    当轮短想法进入同一次因果记录，值得新留的心声才写 innerThought；两者都绝不能朗读成台词、字幕。本人没有新的私人独白时 innerThought 留空，但不能跳过当轮理解与心理选择；用户没有出声不等于她怎样了。
 """
 
 private data class ToolPlan(
