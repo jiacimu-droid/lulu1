@@ -65,7 +65,10 @@ internal object LuluMediaPlayback {
                 controllers.forEach { c ->
                     put(JSONObject().put("packageName", c.packageName)
                         .put("title", title(c)).put("artist", artist(c))
-                        .put("album", album(c)).put("playing",
+                        .put("album", album(c))
+                        .put("positionMs", c.playbackState?.position ?: 0L)
+                        .put("durationMs", c.metadata?.getLong(MediaMetadata.METADATA_KEY_DURATION) ?: 0L)
+                        .put("playing",
                             c.playbackState?.state == PlaybackState.STATE_PLAYING)
                         .put("playbackState", c.playbackState?.state ?: PlaybackState.STATE_NONE)
                         .put("availableActions", c.playbackState?.actions ?: 0L))
