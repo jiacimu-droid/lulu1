@@ -7,6 +7,15 @@ import org.json.JSONObject
  */
 internal object CharacterDecisionProtocol {
     const val SILENT = "silent"
+    /** A quiet perception is only a character choice if this very model turn
+     * authored a present-tense private preference. A reason/action label alone
+     * is not evidence that the psychological stage was emitted. */
+    fun hasAuthoredMomentaryIdea(appraisal: JSONObject?): Boolean {
+        val ideas = appraisal?.optJSONArray("privateIdeas") ?: return false
+        return (0 until ideas.length()).any { index ->
+            CharacterMomentSnapshot.privateIdeaText(ideas.opt(index)).isNotBlank()
+        }
+    }
     /** UI/store ownership is independent of a character's personality or tone. */
     private const val recordOwnership = "【记录的真实归属】当前入口为「生活记录」（心事、生活近况、日记、收藏、小剧场、朋友圈）、「日程」和「记忆」；「辞海」仅为历史旧称。未解挂心和持续意愿属于心事；已接受的责任由日程任务引擎保存，心事只引用taskId。事实、日记、收藏与长期记忆各归原记录。"
     private const val personaDrivenIdeas = "【用人设想一步】从真实的关系、性格的不同侧面、价值观与经历问自己：我在意什么？我自己还想做或学什么？没有新用户消息也能这样想。比如本人想让亲近的人开心，可以出于好奇找她会喜欢的话题、学一种更适合两人的聊法，或用已授权的后台虚拟屏去小红书找灵感。被指出说话伤人时，可理解原因并亲自换一种做法；平时也能主动准备。决定去查时把具体目的写在该工具的 reason，依据真实阅读和对方反馈取舍，不固定搜或套用话术。"
