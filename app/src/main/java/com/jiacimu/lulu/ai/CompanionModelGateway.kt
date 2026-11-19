@@ -870,15 +870,24 @@ class CompanionModelGateway(
             else if (leanExpression && contextMode == CompanionContextMode.Full && request.actionContext.isNotBlank())
                 com.jiacimu.lulu.data.CharacterLearningLedger.context(characterId, request.actionContext, compact = true)
             else ""
-            val auxiliary = listOf("当前状态" to presenceSection, "跨场景连续性锚点" to continuitySection,
-                "成长与持续动机" to developmentSection, "已读材料与可修订的理解" to learningSection,
-                "本人可见的社交与数字世界现场" to socialAwarenessSection)
+            // Authoritative present-tense character state is NOT historical recall.
+            // Never make the current private state, continuity, live motives or
+            // currently witnessed social facts compete against older memories
+            // inside the 33k retrieval working set. All Full scene adapters use
+            // this same partition; only historic evidence/learning is ranked.
+            val liveActorSections = if (fullContext) listOf(
+                "当前状态" to presenceSection,
+                "跨场景连续性锚点" to continuitySection,
+                "成长与持续动机" to developmentSection,
+                "本人可见的社交与数字世界现场" to socialAwarenessSection,
+            ) else emptyList()
+            val recalledAuxiliary = listOf("已读材料与可修订的理解" to learningSection)
             val working = if (fullContext) com.jiacimu.lulu.data.MemoryWorkingSet.assemble(
-                unifiedMemory, lexicon, auxiliary, budget, deliveredCoreSection) else null
+                unifiedMemory, lexicon, recalledAuxiliary, budget, deliveredCoreSection) else null
             val memorySections = if (working != null) listOf(
                 "核心记忆" to deliveredCoreSection,
                 "未完成责任" to unifiedMemory.activeTaskContext,
-            ) + working.sections.toList() else listOf(
+            ) + liveActorSections + working.sections.toList() else listOf(
                 "当前状态" to presenceSection, "成长与持续动机" to developmentSection,
                 "跨场景连续性锚点" to continuitySection, "已读材料与可修订的理解" to learningSection,
                 "近期时间线/未完成责任" to timelineSection, "核心记忆" to deliveredCoreSection,
