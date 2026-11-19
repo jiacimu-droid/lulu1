@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a4736363628e20889087dec61421bcd31083844c`
+- 基准提交：`0cf3a5a316d321dcf02c1cdde23a95511d0f63eb`
 - 分支：`main`
 - 已索引文件：1482
-- 已索引代码/文本行：315977
-- 已发现符号：4504
+- 已索引代码/文本行：315993
+- 已发现符号：4503
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1010,7 +1010,7 @@
 | `app/src/test/java/com/jiacimu/lulu/QqChatImageDisplayTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatImageViewerTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqChatPhotoAttachmentStoreTest.kt` | 57 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/QqChatSpeechLaunchTest.kt` | 38 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/QqChatSpeechLaunchTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt` | 228 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqReplySourceWatermarkTest.kt` | 900 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/QqShoppingProductLinkOpenerTest.kt` | 123 | 1 |
