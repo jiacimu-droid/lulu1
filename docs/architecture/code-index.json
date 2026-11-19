@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T13:35:03.944621+00:00",
-  "commit": "17c028a2070a3a97b94cad7e4358f41061b66152",
+  "generatedAt": "2026-11-19T13:36:08.233004+00:00",
+  "commit": "20bdc4193e35be0c9c7de83ff168babe9fe92fe9",
   "branch": "main",
-  "sourceFingerprint": "c62fedb63b7630f0befd89934d7f5a044cd57e92b976ecc8ddc5dbd89ca6be59",
+  "sourceFingerprint": "6c8b3500db2a067e2614a30a969c6e6e937301cbcf5c07aa881ca9d970c78388",
   "summary": {
     "files": 1486,
-    "lines": 316819,
+    "lines": 316841,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -50495,8 +50495,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt",
-      "lines": 77,
-      "sha256": "6c185b6f815ce20ea8fcd3fd5758ea3d89aba608b8b740296a28a1f25c226ee3",
+      "lines": 99,
+      "sha256": "d892e59803b20815418ea3cd711a5213829f57086c2885c788aab2e3c74d7590",
       "symbols": [
         {
           "name": "PromptContextRegressionTest",
