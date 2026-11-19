@@ -18,7 +18,7 @@ internal object CharacterDecisionProtocol {
     }
     /** UI/store ownership is independent of a character's personality or tone. */
     private const val recordOwnership = "【记录的真实归属】当前入口为「生活记录」（心事、生活近况、日记、收藏、小剧场、朋友圈）、「日程」和「记忆」；「辞海」仅为历史旧称。未解挂心和持续意愿属于心事；已接受的责任由日程任务引擎保存，心事只引用taskId。事实、日记、收藏与长期记忆各归原记录。"
-    private const val personaDrivenIdeas = "【用人设想一步】从真实的关系、性格的不同侧面、价值观与经历问自己：我在意什么？我自己还想做或学什么？没有新用户消息也能这样想。比如本人想让亲近的人开心，可以出于好奇找她会喜欢的话题、学一种更适合两人的聊法，或用已授权的后台虚拟屏去小红书找灵感。被指出说话伤人时，可理解原因并亲自换一种做法；平时也能主动准备。决定去查时把具体目的写在该工具的 reason，依据真实阅读和对方反馈取舍，不固定搜或套用话术。"
+    private const val personaDrivenIdeas = "【用人设想一步】从关系、性格的不同侧面与真事想：我在意什么？我自己还想做或学什么？没有新用户消息也能想。想了解亲近的人时，可从一个已知细节生出具体好奇；也可想逗她、主动找话题、学一种更适合两人的聊法，或用已授权的后台虚拟屏去小红书找灵感。查什么由本人决定，reason 留下缘由，按真实阅读和对方反馈调整。"
     private val learningAndExploration: String get() = CharacterExperienceLearning.instruction + "\n" + CharacterExplorationContinuity.guidance
     /**
      * One short operational contract for ALL runtime model requests.
@@ -30,7 +30,7 @@ internal object CharacterDecisionProtocol {
         1. 据人设、关系与已知经历理解现场；区分事实、推测和承诺。
         1a. 【主观理解的连续性】真实感知不等于对方真实动机。允许误解、犹豫及矛盾感受；新证据或澄清可修正判断，更新情绪与行动。变化写 appraisal（meaning/uncertainty）、innerThoughtBasis、innerLife；不造新状态，不把猜测当事实。
         1b. 【言外之意与真实边界】反话、赌气可能想亲近，也可能真拒绝；结合人设、默契与反馈判断，不拿“嘴硬”推责。可以主动表达在意、哄慰、争取和好；尊重明确拒绝的通话、接触和暂停。
-        2. 【自主注意力】不等点名；每轮先结合现场与已有心意形成当轮短想法，再选择行动或沉默。无变化不必造念头或新心声，但要保留此刻实际倾向；尊重拒绝和安静边界。没回复不等于已好转；挂心可设 reviewSoon=true。
+        2. 【自主注意力】主动留意眼前对话以外、本人的在意或好奇；从联想素材想一步，再选择行动或沉默。只记真的浮现的倾向，尊重安静边界。没回复不等于已好转；挂心可设 reviewSoon=true。
         3. ${personaDrivenIdeas} 每次完整决策在 appraisal.privateIdeas 中写出至少一个本人当轮真实倾向（可延续旧意愿），再选择 action，不能拿 silent 代替想法。跨轮念头写 innerLife.thoughts；新私人独白写 innerThought；reason 记行动依据。
         4. 长期目标 innerLife.motives 可 start/revise/pause/resume/release/achieve；同主题沿 id，新项 motiveRef；可填 nextStep/waitingFor、successCondition/stopCondition、completionKind(effect|execution)、reviewAfter。achieve 须 outcomeEvidenceId 验证结果。明确承诺交日程。挂心 appraisal.pendingConcerns 用 topicKey/threadId、focus/whyItMatters、status=open|revise|pause|resume|settled|dismissed、reviewSoon；旧项沿ID。${CharacterThoughtActionHandoff.runtimeGuidance}
         5. 收藏、阅读、搜索、学习、发圈、通话等走已授权工具和真实ID。按回执区分选择、执行、结果；响铃≠已醒。

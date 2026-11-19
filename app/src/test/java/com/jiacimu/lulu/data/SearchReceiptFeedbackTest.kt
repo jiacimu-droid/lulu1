@@ -93,6 +93,30 @@ class SearchReceiptFeedbackTest {
         assertTrue(SearchReceiptFeedback.requestsPrivateReply(JSONObject().put("reportToUser", "false")))
     }
 
+    @Test fun selfPrefaceReturnsActualPageToTheRoleWithoutRequiringAChatReport() {
+        val args = JSONObject().put("area", "thoughts").put("date", "latest")
+        val result = JSONObject().put("success", true).put("status", "succeeded")
+            .put("area", "所思").put("summary", "已读取所思")
+            .put("entries", JSONArray().put(JSONObject()
+                .put("title", "今天的见闻").put("body", "下课后第一次听了现场乐队")))
+        val receipt = SearchReceiptFeedback.from("read_self_preface", args, result)!!
+        assertEquals("thoughts:latest", receipt.operation)
+        assertTrue(receipt.details.contains("下课后第一次听了现场乐队"))
+        assertFalse(receipt.reportToUser)
+        assertFalse(SearchResultContinuation.requiresCompletion(true, "read_self_preface", null, args))
+
+        args.put("reportToUser", true)
+        assertTrue(SearchReceiptFeedback.from("read_self_preface", args, result)!!.reportToUser)
+        assertTrue(SearchResultContinuation.requiresCompletion(true, "read_self_preface", null, args))
+        assertTrue(SearchResultContinuation.requiresCompletion(true, "",
+            JSONArray().put(JSONObject().put("tool", "read_self_preface").put("args", args))))
+
+        val stored = JSONObject().put("tool", "read_self_preface")
+            .put("status", "succeeded").put("result", result.toString())
+        assertTrue(CharacterPerceptionContext.personalOutcome("tool-router", stored.toString())
+            .orEmpty().contains("下课后第一次听了现场乐队"))
+    }
+
     @Test fun failuresAndMissingProviderAreNotRewrittenIntoSuccess() {
         val failure = JSONObject().put("success", false).put("error", "搜索渠道尚未配置")
         val actual = SearchReceiptFeedback.from("web_search", JSONObject(), failure)!!

@@ -19,6 +19,29 @@ class CharacterDevelopmentRecallTest {
         assertEquals(5, chosen.size)
     }
 
+    @Test fun ownerDetailsRotateBeyondAnUnchangedMotiveWithoutGrowingTheWorkingSet() {
+        val currentTopic = (1..4).map {
+            record("exam-$it", "考研数学章节 ${('甲' + it)}")
+                .copy(kind = DevelopmentKind.UserFact)
+        }
+        val otherTopics = listOf(
+            record("music", "偏爱周末去听现场乐队", 90).copy(kind = DevelopmentKind.UserPreference),
+            record("walk", "下雨天喜欢走学校的长廊", 60).copy(kind = DevelopmentKind.UserHabit),
+        )
+        val hidden = listOf(
+            record("another-role", "未经共享的记录").copy(characterId = "other", kind = DevelopmentKind.UserFact),
+            record("retired", "已撤回的记录").copy(active = false, kind = DevelopmentKind.UserFact),
+            record("impression", "也许喜欢新的活动").copy(kind = DevelopmentKind.UserImpression),
+        )
+        val rotating = (0..7).map { pulse ->
+            CharacterDevelopmentRecall.selectOwnerDetails("role", currentTopic + otherTopics + hidden,
+                "考研数学章节", now.plusSeconds(pulse * 300L), 300)
+        }
+        assertTrue(rotating.all { it.size == 4 && it.take(3).all(currentTopic::contains) })
+        assertTrue(rotating.all { records -> records.none(hidden::contains) })
+        assertTrue(rotating.map { it.last() }.containsAll(otherTopics))
+    }
+
     @Test fun establishedHabitsRemainAvailableWithoutAKeywordMatch() {
         val stable = record("stable", "稳定的相处习惯", 90, DevelopmentMaturity.Established)
         val emerging = record("fresh", "一次新的兴趣", 0)

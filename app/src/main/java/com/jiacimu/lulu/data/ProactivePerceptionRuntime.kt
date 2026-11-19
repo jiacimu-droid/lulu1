@@ -2374,6 +2374,7 @@ object ProactivePerceptionRuntime {
             onlineUnread.text.isNotBlank(),
             if (decision.action == Action.TOOL) decision.tool else "",
             decision.sideActions,
+            decision.toolArgs,
         )
         // P0 shadow only, step 1: evaluate + Log.d, never branch performAction,
         // never rewrite decision/text, never change scheduling. No new storage,
@@ -3224,6 +3225,9 @@ object ProactivePerceptionRuntime {
         }
 
         val resultBearingTools = setOf("web_search", "image_search", "read_self_todo", "read_self_preface", "capture_screen", "read_screen")
+        fun awaitsReadReply(name: String, parameters: JSONObject?): Boolean =
+            name in resultBearingTools &&
+                (name != "read_self_preface" || SearchReceiptFeedback.requestsPrivateReply(name, parameters))
         val resultJson = if (tool.isBlank()) {
             JSONObject().put("success", true).put("status", "skipped")
                 .put("summary", "本轮不发言，继续执行角色实际选定的步骤")
@@ -3243,7 +3247,7 @@ object ProactivePerceptionRuntime {
             ))
             // A genuine user's read/search must finish with a receipt and follow-up,
             // even when the live online worker is superseded by another chat bubble.
-            if (hasFreshUserMessage && tool in resultBearingTools)
+            if (hasFreshUserMessage && awaitsReadReply(tool, args))
                 withContext(NonCancellable) { runTool() } else runTool()
         }
         if (tool == "background_phone") continueOwnedPhoneTask(
@@ -3297,9 +3301,10 @@ object ProactivePerceptionRuntime {
             acceptedOnlineRevision != null &&
                 !OnlineChatBatchStore.isCurrent(appContext, character.characterId, acceptedOnlineRevision)
         }
-        val searchIncluded = tool in resultBearingTools ||
+        val searchIncluded = awaitsReadReply(tool, args) ||
             (0 until (decision.sideActions?.length() ?: 0)).any { index ->
-                decision.sideActions?.optJSONObject(index)?.optString("tool").orEmpty() in resultBearingTools
+                val step = decision.sideActions?.optJSONObject(index)
+                awaitsReadReply(step?.optString("tool").orEmpty(), step?.optJSONObject("args"))
             }
         val stepReport = if (hasFreshUserMessage && searchIncluded) {
             // Once a user-requested search step has been accepted, finish its
@@ -3369,7 +3374,8 @@ object ProactivePerceptionRuntime {
         // A fast local 所行 read has one user-visible answer AFTER its receipt.
         // Do not send an extra "I'll check" bubble before the actual task data.
         if (decision.action == Action.TOOL && decision.text.isNotBlank() &&
-            tool !in setOf("send_private_message", "send_group_message", "read_self_todo", "read_self_preface") &&
+            tool !in setOf("send_private_message", "send_group_message", "read_self_todo") &&
+            (tool != "read_self_preface" || SearchReceiptFeedback.requestsPrivateReply(tool, args).not()) &&
             hasFreshUserMessage && replyConversationIds.isNotEmpty() &&
             !supersededByNewMessage()) {
             val destination = MigratedDomainStores.chat.conversations.value.firstOrNull {

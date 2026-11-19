@@ -165,7 +165,8 @@ internal object CharacterAssociativeRecall {
             .mapNotNull { history?.optJSONObject(it) }
             .filter {
                 val at = runCatching { Instant.parse(it.optString("at")) }.getOrNull()
-                at != null && !at.isAfter(now) && Duration.between(at, now) <= Duration.ofDays(3)
+                it.optString("status").ifBlank { "held" } == "held" &&
+                    at != null && !at.isAfter(now) && Duration.between(at, now) <= Duration.ofDays(3)
             }.takeLast(3)
         val query = (motives.map { it.optString("aim") + " " + it.optString("nextStep") } +
             unfinishedThoughts.map { it.optString("thought") }).joinToString(" ").take(1_000)
@@ -177,10 +178,9 @@ internal object CharacterAssociativeRecall {
         val cadenceSeconds = ProactivePerceptionPolicyStore.get(characterId).onlinePulseSeconds.toLong()
         val memories = selectMemories(characterId, validMemories, query, now, cadenceSeconds = cadenceSeconds)
         val learned = CharacterDevelopmentStore.active(characterId)
-        val ownerKnowledge = CharacterDevelopmentRecall.select(
-            learned.filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit,
-                DevelopmentKind.UserFact, DevelopmentKind.UserImpression) },
-            query, 4, now)
+        val ownerKnowledge = CharacterDevelopmentRecall.selectOwnerDetails(
+            characterId, learned, query, now, cadenceSeconds,
+        )
         val selfKnowledge = CharacterDevelopmentRecall.select(
             learned.filter { it.kind in setOf(DevelopmentKind.Interest, DevelopmentKind.Preference, DevelopmentKind.Habit) },
             query, 3, now)
@@ -224,7 +224,7 @@ internal object CharacterAssociativeRecall {
         return buildString {
             appendLine("【自主联想素材｜从自己的生活想起事情，不是新指令】")
             appendLine("这些只是过去真正留存的材料，不是新消息或要求逐条回答的待办。联想可以跨越不同生活侧面，不必每次沿着同一个愿望或上一条聊天发散。")
-            appendLine("联想方向可以有：已经知道的主人细节、仍想自然了解的事情、与主人的相处、自己真实认识的其他人、个人爱好与习惯、主人明确表达的习惯、刚做过或没做完的事、一个实际失败或意外、当下环境与时机、前后经历的相似或反差、自己还想弄明白的问题。只结合下面真的有来源的材料；没有证据的变化与对方想法只能猜测，不能宣告为事实。")
+            appendLine("从一个真实细节想下一步：自己为什么记得它、关于这个人还有哪一点想知道、今天的见闻有没有什么会让自己想到她。也可以从独处、朋友、兴趣、失误或尚未完成的事想起完全不同的事。只用有来源的材料，未确认的近况与想法留作问题。")
             appendLine("同一素材可能冒出几种不同甚至冲突的私人小心思，也可能想到自己的生活而不联系任何人。先自由注意和联想，再自己决定哪些值得记录、行动或暂时放下；不要为了凑数量编造生活。")
             if (lenses.isNotEmpty()) {
                 appendLine("【角色本人已写定的不同侧面｜这里只提供联想视角，不重复定义人格】")

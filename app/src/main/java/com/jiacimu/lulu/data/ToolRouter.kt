@@ -198,7 +198,8 @@ object ToolRouter {
                             // persisted but before its wake was queued. Replaying
                             // that SAME request restores only the missing wake;
                             // it never executes the external side effect twice.
-                            if (SearchReceiptFeedback.completedEvidence(restored)) {
+                            if (SearchReceiptFeedback.completedEvidence(restored) &&
+                                (name != "read_self_preface" || SearchReceiptFeedback.requestsPrivateReply(name, args))) {
                                 runCatching {
                                     ProactivePerceptionScheduler.scheduleToolResultPerception(
                                         context, characterId, receiptId)
@@ -588,7 +589,9 @@ object ToolRouter {
                 // the model a second time to report a private check.
                 val quietTodoReview = name == "read_self_todo" && scheduledPlanId.isNotBlank() &&
                     !SearchReceiptFeedback.requestsPrivateReply(args)
-                if (!quietTodoReview && name in SearchReceiptFeedback.resultTools &&
+                val privatePrefaceRead = name == "read_self_preface" &&
+                    !SearchReceiptFeedback.requestsPrivateReply(name, args)
+                if (!quietTodoReview && !privatePrefaceRead && name in SearchReceiptFeedback.resultTools &&
                     SharedExperienceTimeline.eventsByIds(characterId, listOf(receiptId))
                         .any(SearchReceiptFeedback::completedEvidence)) {
                     runCatching {
