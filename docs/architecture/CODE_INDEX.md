@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`0148f462ef63ece839cfcbb9b4329597ea2bd204`
+- 基准提交：`c1c423fa9f19d5f0619f1f8743e681ab8bb4b2bf`
 - 分支：`main`
 - 已索引文件：1486
-- 已索引代码/文本行：316885
+- 已索引代码/文本行：316892
 - 已发现符号：4511
 
 | 文件 | 行数 | 符号数 |
@@ -438,7 +438,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSceneCadence.kt` | 43 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt` | 431 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialActionOpportunities.kt` | 73 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 427 | 15 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt` | 429 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpeechIdentity.kt` | 55 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterSpontaneityGuide.kt` | 23 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt` | 446 | 9 |
@@ -962,7 +962,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ElevenLabsRoleSongPipelineTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GameInviteMessageParserTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt` | 308 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ListenTogetherPlaylistTest.kt` | 54 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ListenTogetherPlaylistTest.kt` | 59 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt` | 85 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DArchiveTest.kt` | 252 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/Live2DAssetsTest.kt` | 74 | 1 |
