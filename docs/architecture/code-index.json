@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T12:05:25.854521+00:00",
-  "commit": "09c7433657d13a9690e10653430eba9c8a3d8e76",
+  "generatedAt": "2026-11-19T12:29:30.820586+00:00",
+  "commit": "049660a4cb72f64e6487aa687ac1f584359b1e6d",
   "branch": "main",
-  "sourceFingerprint": "9b4ccdeb846545dab8ca9233973bbb4c6d3bfe56fb0813b553b2f2ff52683eef",
+  "sourceFingerprint": "69498b10046fa558756a7bfb70ffe3c5de71ec451740c742d41aafca50f8b57e",
   "summary": {
-    "files": 1480,
-    "lines": 315554,
-    "symbols": 4495
+    "files": 1481,
+    "lines": 315619,
+    "symbols": 4497
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1901,7 +1901,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-        "line": 114
+        "line": 132
       }
     ],
     "latest": [
@@ -4779,7 +4779,7 @@
     "clearAttachment": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-        "line": 120
+        "line": 138
       }
     ],
     "lastReadStatus": [
@@ -20894,6 +20894,18 @@
         "line": 19
       }
     ],
+    "QqChatSpeechLaunchTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/QqChatSpeechLaunchTest.kt",
+        "line": 14
+      }
+    ],
+    "unrelatedProgrammingErrorsAreNotHidden": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/QqChatSpeechLaunchTest.kt",
+        "line": 34
+      }
+    ],
     "QqMessageGroupingTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/QqMessageGroupingTest.kt",
@@ -28822,16 +28834,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-      "lines": 419,
-      "sha256": "a0ed4243121c02bbfbce5100775925ebbc22ecec6670e02cec09912a12373dce",
+      "lines": 446,
+      "sha256": "0173b6570f266bbb09ba297d4df65171c0ae79c26d285944f540db1bf59015f4",
       "symbols": [
         {
           "name": "payload",
-          "line": 114
+          "line": 132
         },
         {
           "name": "clearAttachment",
-          "line": 120
+          "line": 138
         }
       ]
     },
@@ -46658,6 +46670,21 @@
         {
           "name": "QqChatPhotoAttachmentStoreTest",
           "line": 19
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/QqChatSpeechLaunchTest.kt",
+      "lines": 38,
+      "sha256": "cc4dad7bbb549ab169600892345808526b2b6f9bf52fed2958b68950b2846003",
+      "symbols": [
+        {
+          "name": "QqChatSpeechLaunchTest",
+          "line": 14
+        },
+        {
+          "name": "unrelatedProgrammingErrorsAreNotHidden",
+          "line": 34
         }
       ]
     },
