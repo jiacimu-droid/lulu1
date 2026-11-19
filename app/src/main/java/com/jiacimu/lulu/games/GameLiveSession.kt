@@ -1,6 +1,9 @@
 package com.jiacimu.lulu.games
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -15,6 +18,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.SideEffect
@@ -158,6 +163,22 @@ internal fun GameTalkBar(
         .ifBlank { if (session.allowSoloHost) "主持人" else "同桌" }
     var textExpanded by remember(session) { mutableStateOf(false) }
     val microphoneOn = session.voiceMode && session.mic.active
+    // Live captions are a scrollable reading surface, not two truncated lines.
+    // Mute must not erase the last recognized words or spoken role reply.
+    val ownerCaption = session.mic.partial.ifBlank { session.lastOwnerLine }
+    val companionCaption = session.lastCompanionLine.takeIf(String::isNotBlank)?.let { line ->
+        if (session.lastSpeakerId == null) line
+        else "${roster[session.lastSpeakerId.orEmpty()]?.displayName ?: "角色"}：$line"
+    }.orEmpty()
+    val captionScroll = rememberScrollState()
+    LaunchedEffect(ownerCaption, companionCaption) {
+        // Follow freshly arriving speech only while the reader is at the end.
+        // A user scrolling upward is never yanked back by the next partial.
+        val followLatest = !captionScroll.isScrollInProgress &&
+            captionScroll.value >= captionScroll.maxValue - 24
+        withFrameNanos { }
+        if (followLatest) captionScroll.scrollTo(captionScroll.maxValue)
+    }
     val status = when {
         session.voiceMode && session.conversationStatus.isNotBlank() -> session.conversationStatus
         session.voiceMode && !session.mic.active -> session.mic.status.ifBlank { "已静音 · 字幕仍会保留" }
@@ -206,23 +227,31 @@ internal fun GameTalkBar(
                     }
                 }
             }
-            // Transcript belongs to the conversation, not to the microphone switch.
-            val ownerCaption = session.mic.partial.ifBlank { session.lastOwnerLine }
-            if (ownerCaption.isNotBlank()) {
-                Text("你：$ownerCaption", color = talkInk,
-                    fontSize = 12.sp, maxLines = 2, lineHeight = 17.sp)
+            // Entire last owner/companion utterances remain readable by swiping.
+            // Keep the transcript bounded so it never pushes controls offscreen.
+            if (ownerCaption.isNotBlank() || companionCaption.isNotBlank()) {
+                Column(
+                    Modifier.fillMaxWidth()
+                        .heightIn(max = 112.dp)
+                        .background(Color(0xFFF0F5EF), RoundedCornerShape(12.dp))
+                        .verticalScroll(captionScroll)
+                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    if (ownerCaption.isNotBlank()) {
+                        Text("你：$ownerCaption", color = talkInk,
+                            fontSize = 13.sp, lineHeight = 19.sp)
+                    }
+                    if (companionCaption.isNotBlank()) {
+                        Text(companionCaption, color = Color(0xFF356458),
+                            fontSize = 13.sp, lineHeight = 19.sp)
+                    }
+                }
             }
             if (session.voiceMode && session.mic.recoverablePartial) {
                 TextButton(onClick = session.mic::sendRecoveredPartial) {
                     Text("发送已识别的文字", color = mint, fontSize = 12.sp)
                 }
-            }
-            if (session.lastCompanionLine.isNotBlank()) {
-                Text(
-                    if (session.lastSpeakerId == null) session.lastCompanionLine
-                    else "${roster[session.lastSpeakerId.orEmpty()]?.displayName ?: "角色"}：${session.lastCompanionLine}",
-                    color = talkInk, fontSize = 12.sp, maxLines = 2, lineHeight = 17.sp,
-                )
             }
             if (showComposer && (!session.voiceMode || textExpanded)) {
                 Row(verticalAlignment = Alignment.CenterVertically,
