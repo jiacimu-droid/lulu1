@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T13:06:24.800307+00:00",
-  "commit": "26b7eb1a5b6c17b51fb338ad9027eedd64417828",
+  "generatedAt": "2026-11-19T13:08:33.868364+00:00",
+  "commit": "f4fb6b2327088172b8de246ff26b0857f1363b17",
   "branch": "main",
-  "sourceFingerprint": "d7afe667f540884da42a52504a24df365153d6b5793a507b1a2e6ca4100d7295",
+  "sourceFingerprint": "663cc5ceb62fc5508d72e4aee04df4a4f0476bbceac89d75037f697b4df0043a",
   "summary": {
     "files": 1486,
-    "lines": 316680,
+    "lines": 316695,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -18779,7 +18779,7 @@
     "control": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
-        "line": 122
+        "line": 137
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt",
@@ -43870,8 +43870,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
-      "lines": 216,
-      "sha256": "8f68bb4143abdd4afe42249c243a7cef133e2f85976a3ae7f9305c8319d75dc7",
+      "lines": 231,
+      "sha256": "0a9d7b5bd557a13ee484a26bf0d54e4456ed5177ea534fcbeee532acd1a0955d",
       "symbols": [
         {
           "name": "observation",
@@ -43883,7 +43883,7 @@
         },
         {
           "name": "control",
-          "line": 122
+          "line": 137
         }
       ]
     },
