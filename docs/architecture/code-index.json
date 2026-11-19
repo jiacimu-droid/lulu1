@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T01:46:21.516632+00:00",
-  "commit": "4e5f8642a2a71ede630f615eefcccb0432f5a935",
+  "generatedAt": "2026-11-19T02:11:59.328173+00:00",
+  "commit": "5da3e79b55ed1ed2b6bc950cf061631de95fd28c",
   "branch": "main",
-  "sourceFingerprint": "6c831e506533d8fe499e725bdfe4d74cca05185ebd4564840ffa5d1c747b91e4",
+  "sourceFingerprint": "94275d983b2cb91108e51a71e6affa4673d1acda41beb797927ef526c5fcabc0",
   "summary": {
     "files": 1480,
-    "lines": 313016,
+    "lines": 313039,
     "symbols": 4463
   },
   "symbolIndex": {
@@ -1437,25 +1437,25 @@
     "x": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DesktopGridLayout.kt",
-        "line": 13
+        "line": 24
       }
     ],
     "y": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DesktopGridLayout.kt",
-        "line": 14
+        "line": 26
       }
     ],
     "cellAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DesktopGridLayout.kt",
-        "line": 15
+        "line": 28
       }
     ],
     "fit": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/DesktopGridLayout.kt",
-        "line": 26
+        "line": 41
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt",
@@ -25901,24 +25901,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/DesktopGridLayout.kt",
-      "lines": 169,
-      "sha256": "f063bc9ae192fe7d9fdffe732a3282ee4b6e4a376a5a6950c2deb27ae4827ae8",
+      "lines": 192,
+      "sha256": "79c6fb36b12a7542ab43fb405b57bd4beca64c1bb3f127e490e999eb8221db2a",
       "symbols": [
         {
           "name": "x",
-          "line": 13
+          "line": 24
         },
         {
           "name": "y",
-          "line": 14
+          "line": 26
         },
         {
           "name": "cellAt",
-          "line": 15
+          "line": 28
         },
         {
           "name": "fit",
-          "line": 26
+          "line": 41
         }
       ]
     },
@@ -28198,7 +28198,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt",
       "lines": 677,
-      "sha256": "094cc1378842bd6987ffb49114a3a2d8d3d01e0b3c12ed581868ed43125e06a1",
+      "sha256": "2c74d08f71fd312764b346c30929a4bd24abd3489141034e49729ed373b958c7",
       "symbols": [
         {
           "name": "currentGrid",
