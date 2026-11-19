@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T17:16:18.880490+00:00",
-  "commit": "241c9775854b9e2df5ec54fe20272a433de52903",
+  "generatedAt": "2026-11-19T17:18:40.880559+00:00",
+  "commit": "f498cb2403141f221c51f5d3fe90d75b899f15b8",
   "branch": "main",
-  "sourceFingerprint": "d045f42aead1e966a4d286e0310d572417be33b4dc8336a32624c306e53f02c9",
+  "sourceFingerprint": "018dd5e9165af90b1b5267540da3da46536d6c2162748400bf2578c4a47006a9",
   "summary": {
     "files": 1486,
-    "lines": 316978,
+    "lines": 317006,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -623,7 +623,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 188
+        "line": 190
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationTurnEconomy.kt",
@@ -10085,13 +10085,13 @@
     "afterDecision": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 158
+        "line": 160
       }
     ],
     "evaluate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-        "line": 194
+        "line": 196
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt",
@@ -33842,8 +33842,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ConversationRuntime.kt",
-      "lines": 348,
-      "sha256": "1929f8cffa0bc24ec9e3156db4306b0ef34bf7ca9b4009a9dc8f2d61ead325a3",
+      "lines": 356,
+      "sha256": "0cae98e61db483b40c2e306fd96691346db7398546aa14640e19d94a60616091",
       "symbols": [
         {
           "name": "fromWire",
@@ -33863,15 +33863,15 @@
         },
         {
           "name": "afterDecision",
-          "line": 158
+          "line": 160
         },
         {
           "name": "context",
-          "line": 188
+          "line": 190
         },
         {
           "name": "evaluate",
-          "line": 194
+          "line": 196
         }
       ]
     },
@@ -50190,8 +50190,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PhoneInnerVoicePerceptionTest.kt",
-      "lines": 84,
-      "sha256": "61042c5e26b982b2a0924fc573d57c3ce90280ffa58945dc67611169cb5b11b2",
+      "lines": 104,
+      "sha256": "8e789f5297f3ba15fc8d6e9ee78a058ed612f17dd2645c53156b9acea5071237",
       "symbols": [
         {
           "name": "PhoneInnerVoicePerceptionTest",
