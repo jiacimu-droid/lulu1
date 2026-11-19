@@ -87,16 +87,18 @@ internal object PromptContextPolicy {
             sharedLifeTurn -> PromptContextBudget(
                 recallLimit = 40,
                 // Owner-configured recent turns are independent and complete.
-                // These per-category figures are soft first-pass targets;
-                // unused space may be borrowed within the 33k overall cap.
-                memoryCharacters = 12_000,
-                evidenceCharacters = 7_000,
+                // Only ranked historical recall has a modest cap: 30k chars.
+                // Core, current motives, tool contracts, responsibilities, world
+                // books and the complete owner-selected recent turns stay outside
+                // this budget. Category targets are soft and share spare space.
+                memoryCharacters = 11_000,
+                evidenceCharacters = 6_500,
                 recentCharacters = 0,
                 worldDetails = world,
                 richInnerLife = true,
                 lexiconCharacters = 4_000,
                 precise = precise,
-                workingSetCharacters = 33_000,
+                workingSetCharacters = 30_000,
             )
             precise -> PromptContextBudget(42, 10_000, 7_000, 6_400, world, true, 3_200, true)
             autonomous || immersive -> PromptContextBudget(38, 8_800, 4_600, 5_800, autonomous || world, true, 3_400, false)
