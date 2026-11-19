@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T09:09:42.705393+00:00",
-  "commit": "985be970ab5856fab7d7164d88553a7a9e8af66b",
+  "generatedAt": "2026-11-19T10:11:55.594165+00:00",
+  "commit": "0990637aeefb1fdebf644563e1497123b4b3ba30",
   "branch": "main",
-  "sourceFingerprint": "3e5894972c8b0b1d5583f2a8a781fc0741d3cde8bd005d56e7c12d67b0035ca3",
+  "sourceFingerprint": "fc2831a552d1e9ea39608c8d93769fde68d640d27519f33b14083a121760decc",
   "summary": {
     "files": 1480,
-    "lines": 315079,
+    "lines": 315066,
     "symbols": 4490
   },
   "symbolIndex": {
@@ -487,7 +487,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 760
+        "line": 747
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
@@ -3017,7 +3017,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 803
+        "line": 790
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt",
@@ -15531,7 +15531,7 @@
     "place": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 779
+        "line": 766
       }
     ],
     "nextRound": [
@@ -39795,8 +39795,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-      "lines": 906,
-      "sha256": "9ba805cd5a5ab9f27e4a98936223b5fe06e4d896c0ccd3e8159e307e874dcc45",
+      "lines": 893,
+      "sha256": "dc2d7ce1b7374cebe6503fede29d7b5b46bb0c4e9faa6ca4d5ebcaf683bdd16c",
       "symbols": [
         {
           "name": "persistMatch",
@@ -39820,15 +39820,15 @@
         },
         {
           "name": "finish",
-          "line": 760
+          "line": 747
         },
         {
           "name": "place",
-          "line": 779
+          "line": 766
         },
         {
           "name": "reset",
-          "line": 803
+          "line": 790
         }
       ]
     },
