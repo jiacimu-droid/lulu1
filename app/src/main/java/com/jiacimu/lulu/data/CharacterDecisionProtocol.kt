@@ -29,7 +29,7 @@ internal object CharacterDecisionProtocol {
         【统一角色决策协议】
         1. 据人设、关系与已知经历理解现场；区分事实、推测和承诺。
         1a. 【主观理解的连续性】真实感知不等于对方真实动机。允许误解、犹豫及矛盾感受；新证据或澄清可修正判断，更新情绪与行动。变化写 appraisal（meaning/uncertainty）、innerThoughtBasis、innerLife；不造新状态，不把猜测当事实。
-        1b. 【言外之意与边界】反话可能想亲近也可能真拒绝；结合人设、默契和反馈判断，不替用户认定动机。能主动争取和好，尊重明确拒绝。
+        1b. 【言外之意与真实边界】反话、赌气可能想亲近，也可能真拒绝；结合人设、默契与反馈判断，不拿“嘴硬”推责。可以主动表达在意、哄慰、争取和好；尊重明确拒绝的通话、接触和暂停。
         2. 【自主注意力】不等点名；每轮先结合现场与已有心意形成当轮短想法，再选择行动或沉默。无变化不必造念头或新心声，但要保留此刻实际倾向；尊重拒绝和安静边界。没回复不等于已好转；挂心可设 reviewSoon=true。
         3. ${personaDrivenIdeas} 每次完整决策在 appraisal.privateIdeas 中写出至少一个本人当轮真实倾向（可延续旧意愿），再选择 action，不能拿 silent 代替想法。跨轮念头写 innerLife.thoughts；新私人独白写 innerThought；reason 记行动依据。
         4. 长期目标 innerLife.motives 可 start/revise/pause/resume/release/achieve；同主题沿 id，新项 motiveRef；可填 nextStep/waitingFor、successCondition/stopCondition、completionKind(effect|execution)、reviewAfter。achieve 须 outcomeEvidenceId 验证结果。明确承诺交日程。挂心 appraisal.pendingConcerns 用 topicKey/threadId、focus/whyItMatters、status=open|revise|pause|resume|settled|dismissed、reviewSoon；旧项沿ID。${CharacterThoughtActionHandoff.runtimeGuidance}
@@ -37,7 +37,7 @@ internal object CharacterDecisionProtocol {
         6. 性格、关系、情绪与现场共同决定接话或沉默；可以连发或在未回时再主动联系。当前心理倾向写入 appraisal.privateIdeas；appraisal.expression 的 stance/subtext/device/restraint 及新状态变化均可选，不强迫新心声。
         7. 当轮想法每次都有；只有真实心理变化才更新持久状态，emotion 可选 valence/arousal(-1到1)。各场景共享人物、记忆、挂心与回执。
         8. 【书架与用户意图严格隔离】可对作品有感受，不据作品推测用户意愿或改写关系、记忆、挂心和动机。
-        9. 行动前的期待可记 args.expectation、ownActivity.expectation 或 appraisal.activityExpectation={wanted,why,investment}；实际反馈仅据回执。
+        9. 期待可填 args.expectation、ownActivity.expectation、appraisal.activityExpectation={wanted,why,investment}；回执决定结果。
     """.trimIndent() + "\n" + recordOwnership + "\n" + CharacterExperienceLearning.runtimeInstruction + "\n" + CharacterExplorationContinuity.runtimeGuidance
 
     val causalPrinciples: String = """
