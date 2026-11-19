@@ -831,10 +831,11 @@ object RoleDayScheduleStore {
      * plan remains due until a separately verified tool receipt resolves it. */
     @Synchronized
     internal fun acknowledgeDueDecisions(context: Context, characterId: String,
-        at: Instant = Instant.now()) {
+        at: Instant = Instant.now(), observedAt: Instant = at) {
         plans(context, characterId).filter {
             it.status in setOf("planned", "due") &&
-                !it.dueAt.isAfter(at) && it.lastWakeHandoffAt == null && it.concernStillOpen(at)
+                !it.dueAt.isAfter(observedAt) && !it.createdAt.isAfter(observedAt) &&
+                it.lastWakeHandoffAt == null && it.concernStillOpen(at)
         }.forEach { plan ->
             if (plan.status == "planned") {
                 markDue(context, characterId, plan.id, expectedDueAt = plan.dueAt)

@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T04:58:34.462281+00:00",
-  "commit": "65bc1d4864868d7d7e186f9fed9d9057f2342077",
+  "generatedAt": "2026-11-19T05:02:38.325831+00:00",
+  "commit": "bcb7728ffe04ea82e3fd516e7d7d3bb4a6e5933f",
   "branch": "main",
-  "sourceFingerprint": "29eeae674fb0ea0b57c12c506c8367c695e768d84868b75408766c5798ef8972",
+  "sourceFingerprint": "43378a86786011530be8d542135e856f88e9c74b76fb19200fa512cd5a636084",
   "summary": {
     "files": 1480,
-    "lines": 313987,
+    "lines": 313993,
     "symbols": 4479
   },
   "symbolIndex": {
@@ -7687,7 +7687,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 890
+        "line": 891
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -9771,7 +9771,7 @@
     "ensure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-        "line": 1122
+        "line": 1123
       }
     ],
     "text": [
@@ -14089,19 +14089,19 @@
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 857
+        "line": 858
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 897
+        "line": 898
       }
     ],
     "canResume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 913
+        "line": 914
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -23029,7 +23029,7 @@
     "verifiedReplyCanBeFollowedByRealCallInTheSameOrderedDecision": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-        "line": 489
+        "line": 492
       }
     ],
     "OnlineContinuationPolicyTest": [
@@ -33311,8 +33311,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
-      "lines": 1222,
-      "sha256": "af5a47505aa1b60dd108e301afc3d4468eb8fa568591376fb2801433cb7fd7d7",
+      "lines": 1224,
+      "sha256": "127664b2c9041a1b5bf3480ad8331b61a4336ba7197c71559f397e261781f394",
       "symbols": [
         {
           "name": "CompanionOnlineReason",
@@ -33404,7 +33404,7 @@
         },
         {
           "name": "ensure",
-          "line": 1122
+          "line": 1123
         }
       ]
     },
@@ -36891,7 +36891,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 4021,
-      "sha256": "7f3030dccb7d799c7d72aade59c6d5d7a3f8fd3fbfecf868d6332e24242ad7d9",
+      "sha256": "205478d2e3f28e38844d53eb5b793d533f71674ba31a70323ad81b98675bd18b",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -37652,8 +37652,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 1105,
-      "sha256": "369d35cbb6fcda006059840a5a2866022650c936a08e8fbcf8609b7ee06f20e4",
+      "lines": 1106,
+      "sha256": "00c5cb7629dbf9bf98e25dfb463abbe3645f8882303d198a3f5e290ad5c2441f",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -37733,19 +37733,19 @@
         },
         {
           "name": "dueContext",
-          "line": 857
+          "line": 858
         },
         {
           "name": "clearCharacter",
-          "line": 890
+          "line": 891
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 897
+          "line": 898
         },
         {
           "name": "canResume",
-          "line": 913
+          "line": 914
         }
       ]
     },
@@ -49759,8 +49759,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt",
-      "lines": 1241,
-      "sha256": "ab228d15f58265616df6d4b5b93d66890af3222f88a86d1cec5be936a85da221",
+      "lines": 1244,
+      "sha256": "11cb0d36070a2756f40096e755636c0df23717093d91c8d3ab68d38a5d63640b",
       "symbols": [
         {
           "name": "OnlineChatExperienceTest",
@@ -49772,7 +49772,7 @@
         },
         {
           "name": "verifiedReplyCanBeFollowedByRealCallInTheSameOrderedDecision",
-          "line": 489
+          "line": 492
         }
       ]
     },
