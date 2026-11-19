@@ -138,6 +138,7 @@ class ModelPostTransportTest {
         } catch (error: ModelPostTransportException) {
             assertEquals(ModelPostTransport.Phase.CONNECT, error.phase)
             assertTrue(error.diagnostic.contains("正文尚未发送"))
+            assertTrue(error.diagnostic.contains("网络异常类型="))
         }
     }
 
