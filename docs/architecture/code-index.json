@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T08:27:33.184754+00:00",
-  "commit": "f4e19ea49c5fafc0caf22df8b1319a45c398de0e",
+  "generatedAt": "2026-11-19T08:28:21.952155+00:00",
+  "commit": "c05bbd3be9479859aec2a69e5e054cbe5517497b",
   "branch": "main",
-  "sourceFingerprint": "57c0fa6227be8f0b9d118b69f5189c576c710e79abb68ad04b52ab6967abd58d",
+  "sourceFingerprint": "484defb7f2290cef4a990f797c1dda5227cd741faa45e5f5b8784d21f522eee7",
   "summary": {
     "files": 1480,
     "lines": 314798,
@@ -25546,7 +25546,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CallSilencePolicy.kt",
       "lines": 60,
-      "sha256": "dac5bc840fb8cd1ac60ee3d28db2326007deea01bbb7f68ff04837111b81b203",
+      "sha256": "c8a7e3821949d06f07b3bdf25ad64d073667240888344d50c63200f85aa02e01",
       "symbols": [
         {
           "name": "shouldRecoverStuckCapture",
@@ -43525,7 +43525,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2356,
-      "sha256": "99d8325f0ee6fba003b46402dac6e2a21d3c7fd9a1235cec72095b338f1dd3dc",
+      "sha256": "fa76ea6e115d62b93a4ca5deb149b201bec4db9990add4d9151e658973821b5b",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
