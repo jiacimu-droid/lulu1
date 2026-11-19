@@ -63,9 +63,9 @@ private fun selectSharedMediaSession(
     val selected = candidates.firstOrNull {
         it.optString("packageName") == "com.netease.cloudmusic" && it.optBoolean("playing")
     } ?: candidates.firstOrNull { it.optBoolean("playing") }
-        ?: if (allowPaused) candidates.firstOrNull {
+        ?: (if (allowPaused) candidates.firstOrNull {
             it.optString("packageName") == "com.netease.cloudmusic"
-        } ?: candidates.firstOrNull() else null
+        } ?: candidates.firstOrNull() else null)
         ?: return null to if (candidates.isEmpty()) {
             "未发现播放器。请在网易云音乐里播放一次，或检查通知使用权"
         } else {
