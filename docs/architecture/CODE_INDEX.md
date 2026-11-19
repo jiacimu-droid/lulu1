@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`786e33a371c2806b6a5020e908ab1b7c869f88d8`
+- 基准提交：`53f1c47a8f28b0209811d44f5903a7ed1d20c2b4`
 - 分支：`main`
 - 已索引文件：1480
-- 已索引代码/文本行：315076
+- 已索引代码/文本行：315079
 - 已发现符号：4490
 
 | 文件 | 行数 | 符号数 |
@@ -1169,7 +1169,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceFreshnessTest.kt` | 186 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt` | 165 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 2515 | 40 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 2516 | 40 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 365 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
@@ -1255,7 +1255,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveIncomingCallHistoryTest.kt` | 94 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveMessageGateTest.kt` | 317 | 25 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicyTest.kt` | 26 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 550 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 552 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt` | 327 | 11 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 224 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 77 | 1 |
