@@ -512,7 +512,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                             players.forEach { player ->
                                 val points = scores[player.id]?.get(category)
                                 Text(points?.toString() ?: "—", Modifier.width(82.dp),
-                                    color = if (points == null) GameDesign.muted else Color.White,
+                                    color = if (points == null) GameDesign.muted else GameDesign.ink,
                                     fontSize = 12.sp)
                             }
                         }
@@ -574,7 +574,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                             Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp),
                                 verticalAlignment = Alignment.CenterVertically) {
                                 Text("${index + 1}. ${player.name}", Modifier.weight(1f),
-                                    color = if (total == highest) mint else Color.White,
+                                    color = if (total == highest) mint else GameDesign.ink,
                                     fontWeight = FontWeight.Bold, fontSize = 15.sp)
                                 Text("$total 分", color = GameDesign.ink,
                                     fontWeight = FontWeight.Black, fontSize = 17.sp)
@@ -642,16 +642,19 @@ private fun YachtScoreTable(
     canScore: Boolean,
     onScore: (YachtCategory) -> Unit,
 ) {
-    val mint = Color(0xFF43766C)
+    val mint = Color(0xFF326B5E)
+    val titleInk = Color(0xFF263B34)
+    val settledInk = Color(0xFF4B5F56)
+    val detailInk = Color(0xFF64766D)
     Surface(shape = RoundedCornerShape(24.dp), color = Color(0xFFFFFDF9),
         border = BorderStroke(1.dp, Color(0xFFD5DDD7))) {
         Column(Modifier.fillMaxWidth().padding(vertical = 13.dp)) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 9.dp),
                 horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Column {
-                    Text("计分板", color = GameDesign.ink, fontWeight = FontWeight.Black, fontSize = 20.sp)
-                    Text(if (canScore) "选一项计分 · 每项整局只能使用一次" else "13 个项目，各填一次",
-                        color = GameDesign.muted, fontSize = 11.sp)
+                    Text("计分板", color = titleInk, fontWeight = FontWeight.Black, fontSize = 20.sp)
+                    Text("${scores.size}/13 项已填 · ${if (canScore) "选择一项计分" else "每项整局只使用一次"}",
+                        color = detailInk, fontSize = 11.sp)
                 }
                 Text("${scores.values.sum()} 分", color = mint, fontWeight = FontWeight.Black, fontSize = 20.sp)
             }
@@ -672,28 +675,32 @@ private fun YachtScoreTable(
                 }
                 Row(
                     Modifier.fillMaxWidth()
+                        .background(when {
+                            usedScore != null -> Color(0xFFF1F4F0)
+                            available -> Color(0xFFF0F7F2)
+                            else -> Color(0xFFFFFDF9)
+                        })
                         .clickable(enabled = available) { onScore(category) }
-                        .background(if (available) mint.copy(alpha = .065f) else Color.Transparent)
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                        .padding(horizontal = 16.dp, vertical = 11.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text(category.label, color = if (usedScore != null) GameDesign.muted else Color.White,
-                            fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        Text(description, color = GameDesign.muted, fontSize = 10.sp, lineHeight = 14.sp)
+                        Text(category.label, color = if (usedScore != null) settledInk else titleInk,
+                            fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Text(description, color = detailInk, fontSize = 11.sp, lineHeight = 16.sp)
                     }
                     Surface(color = when {
                         available -> mint
-                        usedScore != null -> Color(0xFFEAEFEC)
-                        else -> Color(0xFFF4F4F1)
+                        usedScore != null -> Color(0xFFDDE9E1)
+                        else -> Color(0xFFECEFEB)
                     }, shape = RoundedCornerShape(12.dp)) {
                         Text(when {
-                            usedScore != null -> "$usedScore ✓"
+                            usedScore != null -> "$usedScore  ✓"
                             available -> "+$preview  ›"
                             else -> "—"
                         }, modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
-                            color = if (available) Color.White else GameDesign.ink,
+                            color = if (available) Color.White else settledInk,
                             fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     }
                 }
