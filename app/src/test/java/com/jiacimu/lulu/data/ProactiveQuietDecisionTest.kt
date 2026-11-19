@@ -276,7 +276,7 @@ class ProactiveQuietDecisionTest {
         for (prompt in listOf(chat, life)) {
             assertEquals(1, prompt.split("【当轮想法与持久变化分开】").size - 1)
             assertTrue(prompt.contains("appraisal.privateIdeas"))
-            assertTrue(prompt.contains("只有真实心理变化才更新持久状态") || prompt.contains("只有确实发生变化时"))
+            assertTrue(prompt.contains("新的情绪/独立心声/持续状态/长期目标只在本轮确实发生变化时写入"))
             assertTrue(prompt.contains("不减少") || prompt.contains("不能为了省字漏掉该执行的事"))
             assertTrue(prompt.contains("真实"))
             assertTrue(prompt.contains("内心"))
