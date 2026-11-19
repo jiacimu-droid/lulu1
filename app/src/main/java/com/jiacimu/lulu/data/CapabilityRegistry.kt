@@ -117,13 +117,18 @@ object CapabilityRegistry {
                 "create_group_chat" to "建好友群 create_group_chat(groupName,memberIds)",
                 "send_friend_request" to "加好友 send_friend_request(targetCharacterId,greeting)",
                 "respond_friend_request" to "回应申请 respond_friend_request(requestId,decision)",
-                "digital_world_action" to "出门/拜访/当面交流 digital_world_action(worldAction,locationCode或itemId,activityId)",
+                "send_private_sticker" to "私聊发已收藏表情 send_private_sticker(stickerId)",
+                "send_group_sticker" to "群聊发已收藏表情 send_group_sticker(groupId,stickerId)",
+                "respond_duel_invite" to "回应收到的对战邀请 respond_duel_invite(challengeId,decision=accept|decline)",
+                "set_user_remark" to "更改用户备注 set_user_remark(nickname)",
+                "set_self_nickname" to "更改自己的昵称 set_self_nickname(nickname)",
+                "digital_world_action" to "数字世界出门 digital_world_action(worldAction=visit_public_place,locationCode=实际地点码)；拜访朋友家 worldAction=visit_character_home,targetCharacterId=已认识的ID；去居民家 worldAction=visit_resident_home,itemId=居民ID；面对面聊天 worldAction=interact_resident,itemId=在场居民ID,activityId=chat",
                 "send_world_invite" to "邀请见面 send_world_invite(location,text)",
                 "send_private_message" to "主动找用户聊天 send_private_message(text)",
                 "start_call" to "拨语音或Live2D视频 start_call(text,mediaMode=voice|video)",
                 "web_search" to "联网查询或读网页 web_search(op=search|search_read|read,query或url)",
                 "image_search" to "搜图/分享 image_search(op=search|send,query或searchId)",
-                "background_phone" to "后台虚拟屏/本机App background_phone(action=launch|observe|tap|type|search等,appName或packageName)",
+                "background_phone" to "后台虚拟屏/本机App background_phone(action=launch|observe|tap|type|search等,appName或packageName；点触用最新screenSnapshotId/控件ref)",
                 "capture_screen" to "看授权主屏 capture_screen()",
                 "read_book" to "亲自阅读 read_book(readingBookId)",
                 "play_solo_game" to "独自玩游戏 play_solo_game(gameId)",
@@ -138,8 +143,14 @@ object CapabilityRegistry {
                 "plan_personal_activity" to "安排自己的未来行动 plan_personal_activity(title,intent,dueAt,activityAction,activityArgs)",
                 "reschedule_personal_activity" to "改期 reschedule_personal_activity(planId,expectedDueAt,dueAt,reason)",
                 "start_study_watch" to "申请限时学习监督 start_study_watch(minutes)",
+                "verify_commitment" to "核实已承担责任 verify_commitment(taskId,真实证据)",
+                "reschedule_personal_activity" to "调整后续安排 reschedule_personal_activity(planId,expectedDueAt,dueAt,reason)",
+                "cancel_personal_activity" to "取消不再想做的安排 cancel_personal_activity(planId,expectedDueAt,reason)",
                 "get_battery" to "观察电量 get_battery()",
                 "get_location" to "查询授权定位 get_location()",
+                "get_current_app" to "了解当前应用 get_current_app()",
+                "read_recent_notifications" to "查看已授权的新通知 read_recent_notifications(limit)",
+                "control_volume" to "调节真实设备音量 control_volume(action,deltaPercent)",
             ).filter { (name, _) -> name in shown }
             if (examples.isNotEmpty()) {
                 appendLine("【何时想做即可选择的真实工具及参数线索｜需按现场ID和配置核实】")
@@ -154,7 +165,8 @@ object CapabilityRegistry {
                 appendLine("image_search 目前缺少图像搜索配置，不能宣称已搜索或发送。")
             appendLine("【选择与行动】本人随时可以从已有经历、关系、兴趣或未完事项中自选 0/1/N 个动作；" +
                 "前台私聊、在线窗口、后台感知使用同一真实工具。聊天不是工具禁用状态：" +
-                "若既想回复又想发朋友圈、搜网页、联系朋友或读书，同轮回复可附 steps；本轮回复照常填写，" +
+                "若既想回复又想发朋友圈、搜网页、联系朋友或读书，同轮回复可附 steps；" +
+                "当前这句话只按所在场景的顶层回复送达，steps 不再重复发送同一句，" +
                 "独立动作同时写 steps=[{tool:已注册工具名,args:{实际参数},requiresPreviousSuccess:false}]；" +
                 "先看到搜索/画面结果才能决定的下一步，须等新回执再选择，不能预写成功。" +
                 "每步独立校验授权、真实对象和持久回执；明确的未来行动由原 plan_personal_activity 保存，" +
