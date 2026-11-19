@@ -274,7 +274,9 @@ class ProactiveQuietDecisionTest {
         val chat = proactiveDecisionInstruction("output-delta-chat", directPrivateChat = true)
         val life = proactiveDecisionInstruction("output-delta-life")
         for (prompt in listOf(chat, life)) {
-            assertEquals(1, prompt.split("【输出只记录本轮新变化】").size - 1)
+            assertEquals(1, prompt.split("【当轮想法与持久变化分开】").size - 1)
+            assertTrue(prompt.contains("appraisal.privateIdeas"))
+            assertTrue(prompt.contains("只有真实心理变化才更新持久状态") || prompt.contains("只有确实发生变化时"))
             assertTrue(prompt.contains("不减少") || prompt.contains("不能为了省字漏掉该执行的事"))
             assertTrue(prompt.contains("真实"))
             assertTrue(prompt.contains("内心"))
