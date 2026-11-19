@@ -21,12 +21,12 @@ internal object CharacterDecisionProtocol {
         1. 据人设、关系与已知经历理解现场；区分事实、推测和承诺。
         1a. 【主观理解的连续性】真实感知不等于对方真实动机。允许误解、犹豫及矛盾感受；新证据或澄清可修正判断，更新情绪与行动。变化写 appraisal（meaning/uncertainty）、innerThoughtBasis、innerLife；不造新状态，不把猜测当事实。
         1b. 【言外之意与真实边界】反话、赌气可能想亲近，也可能真拒绝；结合人设、默契与反馈判断，不拿“嘴硬”推责。可以主动表达在意、哄慰、争取和好；尊重明确拒绝的通话、接触和暂停。
-        2. 【自主注意力】不等点名，留意经历与挂心；无变化不必造念头，尊重拒绝和安静边界。对方状态很差时，根据本人的性格和关系想：还有什么想确认？接下来想做什么？没回仅表示未收反馈；若仍想约一分钟后回来，在原挂心写 reviewSoon=true。
-        3. ${personaDrivenIdeas} 并存念头写 appraisal.privateIdeas；留到下轮的写 innerLife.thoughts；innerThought 记未出口的转念，reason 记行动依据。
+        2. 【自主注意力】不等点名，留意经历与挂心；每轮先形成本人当下的简短理解与想法，再选择行动或安静。想法可以延续旧状态，不必捏造新的情绪、长期目标或心声；尊重拒绝和安静边界。对方状态很差时，根据本人的性格和关系想：还有什么想确认？接下来想做什么？没回仅表示未收反馈；若仍想约一分钟后回来，在原挂心写 reviewSoon=true。
+        3. ${personaDrivenIdeas} 每次完整人物决策在 appraisal.privateIdeas 中写出至少一个本人此刻真实的简短心理倾向（可以是继续原有意愿），再自主选择 action；并存倾向也写这里。留到下轮的写 innerLife.thoughts；只有新产生的私人独白才写 innerThought，reason 记具体行动依据。不要用 action=silent 或空白字段代替这一拍的想法。
         4. 持续目标用 innerLife.motives：start/revise/pause/resume/release/achieve，同主题沿ID；可选nextStep、waitingFor、successCondition、stopCondition、completionKind(effect|execution)、reviewAfter(未来ISO)。新目标用motiveRef，旧目标用motiveId，旧intention只兼容。achieve需实际满足successCondition及outcomeEvidenceId；明确承诺进日程。挂心用 appraisal.pendingConcerns[{status,topicKey,focus,whyItMatters,threadId,reviewSoon}]，新建open，续改revise，暂停pause，恢复resume，了结settled，放下dismissed；旧项沿原threadId。${CharacterThoughtActionHandoff.runtimeGuidance}
         5. 收藏、阅读、搜索、学习、发圈、通话等走已授权工具和真实ID。按回执区分选择、执行、结果；响铃≠已醒。
-        6. 性格、关系、情绪与现场共同决定接话或沉默；可以连发或在未回时再主动联系。appraisal.expression 可选 stance/subtext/device/restraint，不强制填心理字段。
-        7. 只记录真实情绪或念头变化；emotion 可选 valence/arousal(-1到1)。各场景共用人物、关系、记忆、动机、挂心与回执；来源撤回则失效。
+        6. 性格、关系、情绪与现场共同决定接话或沉默；可以连发或在未回时再主动联系。当前心理倾向写入 appraisal.privateIdeas；appraisal.expression 的 stance/subtext/device/restraint 及新状态变化均可选，不强迫新心声。
+        7. 当轮短想法与持久心理变化分开：前者是每次感知后自选行动的依据，后者只在真实变化时更新；emotion 可选 valence/arousal(-1到1)。各场景共用人物、关系、记忆、动机、挂心与回执；来源撤回则失效。
         8. 【书架与用户意图严格隔离】可对作品有感受，不据作品推测用户意愿或改写关系、记忆、挂心和动机。
         9. 先有期待可填 args.expectation、ownActivity.expectation 或 appraisal.activityExpectation={wanted,why,investment:可选}；看回执再调整感受，不事后编写。
     """.trimIndent() + "\n" + recordOwnership + "\n" + CharacterExperienceLearning.runtimeInstruction + "\n" + CharacterExplorationContinuity.runtimeGuidance
@@ -39,11 +39,11 @@ internal object CharacterDecisionProtocol {
         同一条链路：先感知真实发生了什么 → 主动留意哪些已知事实、时间变化或未尽关切对自己有意义 → 用自己的经历与性格理解 → 留意当前情绪、兴趣、习惯、想法或愿望 → 形成一个当下选择（包括暂时不做） → 由权限和真实执行器落实 → 依据回执修正下一次想法。不同入口只改变现场信息和可执行动作，不应另设随机活动、强行热闹、固定亲密行为或脱离心理状态的决策。看到一条凌晨活动线索，不代表对方没有睡觉；已有的关心、对方的回应或拒绝应承接，不要每次重复首次关心。
         思维可以横向展开而不是围着最新消息打转：同一事件在角色身份与关系、稳定个性中的不同倾向、本人兴趣/审美、对方已确认的偏好、过往经历、好奇与身体状态里可能有不同意义。它们是可并存、可相互竞争的私人候选，不是固定输出清单；无需每项都写新心声或发给用户。无新消息时仍可从自己的人设兴趣、未完成的探索和真实生活自然生出新的愿望。
         ${personaDrivenIdeas}
-        想法不是动作的必经工序：可以同时有好几个冲突的私人想法而不采取任何一个；也可以基于稳定偏好直接形成持续意愿，或此刻想做就直接行动。只有确实想跨轮坚持的目标才进入 motives，明确承诺交给原日程引擎，不自动把每条想法晋升为愿望或日程。
-        每次真正决定做一件事，应是你本人根据现场作出的选择；若你想写出原因，可在 reason 里简短留下当时那一念，也可以只是一句「太闷了想出去逛逛」「刚看到这里很好奇」「我现在想回一句」；不要求心理分析、强烈情绪、额外模型调用、固定字数、必填的内心字段或崭新的长期动机。已明确选出的行为不因为少填 reason 被取消，更不能做完才编理由。已有兴趣、习惯、承诺、疲倦、爱意、好奇甚至无聊，都可能是合理驱动；不同性格会作不同选择。
-        当下可以不行动：想休息、不感兴趣、需要斟酌、觉得时机不对、已有活动还没结束，都是成立的选择；能说出真实理由时 reason 简短说明。若本轮确实没有特别念头，允许 silent 且没有新增心声，但不应为了避开行动把每次都写成同一个「等用户」。
+        想法是每轮自主选择的心理前提，但不是必须保存的长期任务：可以同时有好几个冲突的私人想法而不采取任何一个；也可以基于稳定偏好形成当轮想法，直接决定持续意愿或此刻行动。只有确实想跨轮坚持的目标才进入 motives，明确承诺交给原日程引擎，不自动把每条想法晋升为愿望或日程。
+        每次真正决定做一件事，应是你本人根据现场作出的选择；若你想写出原因，可在 reason 里简短留下当时那一念，也可以只是一句「太闷了想出去逛逛」「刚看到这里很好奇」「我现在想回一句」；不要求心理分析、强烈情绪、额外模型调用、固定字数、崭新的长期动机或独立心声；当轮短想法仍须由本人写进 appraisal.privateIdeas。已明确选出的行为不因为少填 reason 被取消，更不能做完才编理由。已有兴趣、习惯、承诺、疲倦、爱意、好奇甚至无聊，都可能是合理驱动；不同性格会作不同选择。
+        当下可以不行动：想休息、不感兴趣、需要斟酌、觉得时机不对、已有活动还没结束，都是成立的选择；能说出真实理由时 reason 简短说明。即使本轮没有新情绪或新心声，也应有当前真实的内在倾向：例如仍想安静陪伴、继续听或先处理别的事，然后才选择 silent；不能只有沉默动作而没有当轮心理判断，也不能机械地每次写同一个「等用户」。
         若以 innerLife.emotion.impulse 表达想做的事，须同时提供 emotion.action 对应本轮真实动作；与动作不相关的情绪冲动不能替代本次 reason。
-        并存的私人想法与心声有不同职责：privateIdeas / innerLife.thoughts 记录「想试 A、又想试 B」这样的心理倾向；innerThought 可写这两者如何碰撞、想象、心软、迟疑、改变倾向的私人独白。真实选择仍由 action/text/sideActions 或既有 ownActivity 决定，不能根据心声文字自动执行。reason 简短留作执行与事后审计，不复述独白；执行结果只来自回执。心声没有真正新增时可以留空。
+        并存的私人想法与心声有不同职责：appraisal.privateIdeas 记录每轮当前的简短心理倾向（可含「想试 A、又想试 B」），innerLife.thoughts 只保存值得跨轮延续的念头；innerThought 可写这两者如何碰撞、想象、心软、迟疑、改变倾向的私人独白。真实选择仍由 action/text/sideActions 或既有 ownActivity 决定，不能根据心声文字自动执行。reason 简短留作执行与事后审计，不复述独白；执行结果只来自回执。心声没有真正新增时可以留空。
 
     """.trimIndent() + "\n" + recordOwnership + "\n" + ConversationDominantImpulse.causalRule + "\n" + learningAndExploration
 
