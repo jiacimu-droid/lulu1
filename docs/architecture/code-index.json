@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T13:04:35.044528+00:00",
-  "commit": "1915cf230f524e4d15260fa094d27ab67d06aeae",
+  "generatedAt": "2026-11-19T13:05:26.655615+00:00",
+  "commit": "bd8b40238a1ddb0dffaadcb186e696c5ed2cf546",
   "branch": "main",
-  "sourceFingerprint": "1404d27f5f2893a0d1dfbd5f2ba0e7f95a574ba64e62fcec92454bb580973412",
+  "sourceFingerprint": "3a28195b201296ee736d7c2cb6b885b8ebb81a420fca2ace1632d92a496850d8",
   "summary": {
     "files": 1485,
-    "lines": 316632,
+    "lines": 316626,
     "symbols": 4510
   },
   "symbolIndex": {
@@ -2417,19 +2417,19 @@
     "recordListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-        "line": 108
+        "line": 117
       }
     ],
     "refreshExternal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-        "line": 120
+        "line": 129
       }
     ],
     "analyzeSharedFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-        "line": 126
+        "line": 135
       }
     ],
     "notifyCoreChanged": [
@@ -26897,20 +26897,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-      "lines": 313,
-      "sha256": "100bfd3a9b2b7eb0377859796706ab6c2677c1be989cea2eb124551c9b7c461d",
+      "lines": 306,
+      "sha256": "a402ccb90db4d60d555226ec77671a2420b41434339a1d63b5113af66b89455b",
       "symbols": [
         {
           "name": "recordListening",
-          "line": 108
+          "line": 117
         },
         {
           "name": "refreshExternal",
-          "line": 120
+          "line": 129
         },
         {
           "name": "analyzeSharedFile",
-          "line": 126
+          "line": 135
         }
       ]
     },
@@ -29096,8 +29096,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",
-      "lines": 1292,
-      "sha256": "70c6ac0d730815fbc298fdf5d39817fdf2a99f94fb5a35dd1f90c7d64eff74fc",
+      "lines": 1293,
+      "sha256": "064f8edc53f7c048ffe4768cd9ee35f6a16fce422b0c91dbe6ebbb40fc78cbb8",
       "symbols": [
         {
           "name": "QqStyleChatDetailScreen",
