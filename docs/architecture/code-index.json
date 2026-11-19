@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T00:45:49.122310+00:00",
-  "commit": "f15ace5cc0ea2736c9722bae2fb10f7a200dad05",
+  "generatedAt": "2026-11-19T00:46:13.239744+00:00",
+  "commit": "db0df739cd5347c82b4136398de8cfc0082db728",
   "branch": "main",
-  "sourceFingerprint": "9426b8f3eb2384f4c89da5f754a6b1ab0daaf3884f3e3024234d4fdfd5b0ce1b",
+  "sourceFingerprint": "cdd99ddd404a886e8272e53d8abca1e8c7e5888ed22736211a7db205d7113ffc",
   "summary": {
-    "files": 1479,
-    "lines": 312786,
-    "symbols": 4457
+    "files": 1480,
+    "lines": 312808,
+    "symbols": 4458
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20306,6 +20306,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/DesktopPageCountTest.kt",
         "line": 5
+      }
+    ],
+    "DesktopPearlStyleTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/DesktopPearlStyleTest.kt",
+        "line": 7
       }
     ],
     "DigitalResidentFurniturePoseTest": [
@@ -45636,6 +45642,17 @@
         {
           "name": "DesktopPageCountTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/DesktopPearlStyleTest.kt",
+      "lines": 22,
+      "sha256": "60f44f1c059cff5ffd9ac580f2b84dddfaea9e30f33aa70c79f21973495fda8e",
+      "symbols": [
+        {
+          "name": "DesktopPearlStyleTest",
+          "line": 7
         }
       ]
     },
