@@ -630,6 +630,7 @@ class CompanionModelGateway(
                 source.startsWith("电话口语·") ||
                 source.startsWith("角色本人·后台手机任务真实结果") ||
                 source == "自序所行真实读取回执" ||
+                source == "自序四栏真实读取回执" ||
                 source == "真实联网工具结果回流" ||
                 instruction.trimStart().startsWith("【通话哄睡：单次完整长篇语音】")
             val fullActorDecision = contextMode == CompanionContextMode.Full && !repairOrRendering
