@@ -276,6 +276,12 @@ class MigrationActivity : ComponentActivity() {
         resumePeripheral("后台角色唤醒排程初始化") {
             ProactivePerceptionScheduler.schedule(appContext)
         }
+        // After importing a data ZIP the user's enabled backup preference
+        // survives, but Android/WorkManager OS registrations might not.
+        // KEEP is idempotent and does not postpone an existing daily backup.
+        resumePeripheral("每日自动备份排程恢复") {
+            com.jiacimu.lulu.data.ensureLuluAutoBackupScheduled(appContext)
+        }
 
         incomingSharedNote.value = incomingLinkText(intent)
         navigationIntent.value = intent

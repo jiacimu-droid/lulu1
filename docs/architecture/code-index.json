@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T04:54:56.498796+00:00",
-  "commit": "a166e75cf1d543c468439149f1602d3fa5ad8fac",
+  "generatedAt": "2026-11-19T04:55:30.448548+00:00",
+  "commit": "94533486a9ef2c507afbda1cc88424c9f70c265d",
   "branch": "main",
-  "sourceFingerprint": "0196069d54309a6a5f274a6e109f4b66765da1db30d2a6bf0fa14b16a94c020c",
+  "sourceFingerprint": "85fd07c61d7789f9ff9d131143113bf3af2210d132d7124afac5ae045d5497d7",
   "summary": {
     "files": 1480,
-    "lines": 313733,
+    "lines": 313750,
     "symbols": 4477
   },
   "symbolIndex": {
@@ -3433,25 +3433,25 @@
     "LuluBackupScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
-        "line": 66
+        "line": 69
       }
     ],
     "saveCloud": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
-        "line": 77
+        "line": 81
       }
     ],
     "uploadNow": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
-        "line": 82
+        "line": 86
       }
     ],
     "restartApp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
-        "line": 166
+        "line": 171
       }
     ],
     "ViewState": [
@@ -27394,24 +27394,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt",
-      "lines": 333,
-      "sha256": "0ba5b6fc3b57ed4292764e1193ddf55087e3ee58aa73bea27dc76181671a14f2",
+      "lines": 350,
+      "sha256": "626f3bbfa31134da30dba089d34daf242330d2a445dd1dfafaff2992187ba88a",
       "symbols": [
         {
           "name": "LuluBackupScreen",
-          "line": 66
+          "line": 69
         },
         {
           "name": "saveCloud",
-          "line": 77
+          "line": 81
         },
         {
           "name": "uploadNow",
-          "line": 82
+          "line": 86
         },
         {
           "name": "restartApp",
-          "line": 166
+          "line": 171
         }
       ]
     },

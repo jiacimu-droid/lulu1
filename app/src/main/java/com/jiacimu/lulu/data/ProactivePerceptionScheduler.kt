@@ -1014,6 +1014,12 @@ class ProactivePerceptionWorker(
             // is awake for a newer event. No duplicate paid decision.
             return@runCatching Result.success()
         }
+        if (characterId != null && trigger.startsWith("强烈情绪的后续整理") &&
+            RoleDayScheduleStore.ownConcernChecksCoverActive(applicationContext, characterId, Instant.now())) {
+            // Follow the role's chosen dates instead of buying an earlier
+            // generic aftercare appraisal for these same pending concerns.
+            return@runCatching Result.success()
+        }
         if (preserveOffline && onlineExpiryAtMillis == 0L &&
             (characterId == null || CompanionOnlineStore.isOnline(characterId) ||
                 (failedExpiry == 0L && residentEpisodeId.isBlank() &&

@@ -60,6 +60,19 @@ fun setLuluAutoBackupEnabled(context: Context, enabled: Boolean) {
 }
 
 /**
+ * Restoring a ZIP may restore the enabled preference but not a live OS job.
+ * Reconcile the periodic registration after normal app initialization. KEEP
+ * does not reset an already-registered schedule each time the app is opened.
+ */
+fun ensureLuluAutoBackupScheduled(context: Context) {
+    if (!isLuluAutoBackupEnabled(context)) return
+    val request = PeriodicWorkRequestBuilder<LuluAutoBackupWorker>(24, TimeUnit.HOURS).build()
+    WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+        AUTO_BACKUP_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request,
+    )
+}
+
+/**
  * 每天自动备份一次：把数据打成包，写进下载文件夹里的 lulu-backups，
  * 只留最近 7 份。文件不在 app 私有空间，卸了 app 也还在；
  * 如果用户的网盘 app 会同步下载文件夹，包一生成就跟着上云。

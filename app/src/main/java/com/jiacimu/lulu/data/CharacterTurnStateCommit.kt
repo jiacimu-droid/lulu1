@@ -32,6 +32,7 @@ internal object CharacterTurnStateCommit {
         alternatives: JSONArray? = null,
         recordInnerVoice: Boolean = true,
         voiceFingerprint: String = "",
+        observationId: String = "",
         afterCausalRecord: () -> Unit = {},
     ) {
         CharacterInnerLifeStore.recordCausalTransition(
@@ -45,6 +46,7 @@ internal object CharacterTurnStateCommit {
             reason = reason,
             now = now,
             alternatives = alternatives,
+            observationId = observationId,
         )
         // Each adapter can persist its previously existing ancillary state
         // before an event is consumed. Failure must not claim that event.
@@ -76,12 +78,13 @@ internal object CharacterTurnStateCommit {
         alternatives: JSONArray? = null,
         recordInnerVoice: Boolean = true,
         voiceFingerprint: String = "",
+        observationId: String = "",
         afterCausalRecord: () -> Unit = {},
     ) {
         recordDurableDecision(
             characterId, evidenceId, appraisal, innerLife, innerThoughtBasis,
             selectedAction, innerThought, reason, now, alternatives, recordInnerVoice,
-            voiceFingerprint, afterCausalRecord,
+            voiceFingerprint, observationId, afterCausalRecord,
         )
         CharacterPerceptionContext.acknowledge(
             context, characterId, perception, direct = direct,

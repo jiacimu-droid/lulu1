@@ -43,12 +43,13 @@ internal object CharacterOpenConcernRuntime {
         previous: JSONArray?, appraisal: JSONObject?, evidenceId: String,
         now: Instant = Instant.now(),
         activeMotiveIds: Set<String> = emptySet(),
+        observationId: String = "",
     ): JSONArray {
         // Keep historical concern identity even when the role explicitly pauses it.
         // Never silently clear a newly authored active concern just because time passes.
         var current = previous
         for (proposal in proposals(appraisal)) {
-            current = updateOne(current, proposal, evidenceId, now, activeMotiveIds)
+            current = updateOne(current, proposal, evidenceId, now, activeMotiveIds, observationId)
         }
         return JSONArray().apply { retained(current).forEach(::put) }
     }
@@ -56,6 +57,7 @@ internal object CharacterOpenConcernRuntime {
     private fun updateOne(
         previous: JSONArray?, proposal: JSONObject, evidenceId: String, now: Instant,
         activeMotiveIds: Set<String>,
+        observationId: String,
     ): JSONArray {
         val existing = retained(previous).toMutableList()
         fun result() = JSONArray().apply { existing.forEach(::put) }
@@ -120,11 +122,16 @@ internal object CharacterOpenConcernRuntime {
                 priority == prior.optInt("priority", 2) && topicKey == prior.optString("topicKey") &&
                 motiveId == prior.optString("motiveId") &&
                 lifecycleState == prior.optString("lifecycleState")
-            val sameEvidence = prior.optString("evidenceId") == evidenceId ||
-                (0 until (prior.optJSONArray("journey")?.length() ?: 0)).any { i ->
-                    prior.optJSONArray("journey")?.optJSONObject(i)?.optString("evidenceId") == evidenceId
+            val journey = prior.optJSONArray("journey")
+            val replayed = if (observationId.isNotBlank()) {
+                (0 until (journey?.length() ?: 0)).any { i ->
+                    journey?.optJSONObject(i)?.optString("observationId") == observationId
                 }
-            if (unchanged || sameEvidence) return result()
+            } else prior.optString("evidenceId") == evidenceId ||
+                (0 until (journey?.length() ?: 0)).any { i ->
+                    journey?.optJSONObject(i)?.optString("evidenceId") == evidenceId
+                }
+            if (unchanged || replayed) return result()
         }
         // More than one concern may begin from exactly the same event. Never
         // derive every new thread ID from only its event ID.
@@ -138,6 +145,7 @@ internal object CharacterOpenConcernRuntime {
             })
             .put("focus", focus).put("whyItMatters", why)
             .put("hesitation", hesitation).put("possibleNextStep", nextStep)
+        if (observationId.isNotBlank()) step.put("observationId", observationId)
         val revised = JSONObject()
             .put("id", id).put("focus", focus).put("whyItMatters", why)
             .put("hesitation", hesitation).put("possibleNextStep", nextStep)

@@ -20,7 +20,7 @@ internal object CharacterDecisionProtocol {
         1. 据人设、关系与已知经历理解现场；区分事实、推测和承诺。
         1a. 【主观理解的连续性】真实感知不等于对方真实动机。允许误解、犹豫及矛盾感受；新证据或澄清可修正判断，并自然影响情绪与行为。确有变化才填写已有 appraisal（meaning/uncertainty）、innerThoughtBasis、innerLife；不造新状态，不把猜测写成事实。
         1b. 【言外之意与真实边界】原话、情绪、关系态度与实际授权不同。亲密关系的反话、赌气、求哄可能想亲近，也可能真拒绝；按人设、双方默契、近期反馈判断，保留不确定性，不以“嘴硬”推责。关系适合时可以主动表达在意、哄慰、争取和好，不必等命令；明确拒绝的通话、接触等实际行动不能擅自执行，清楚或反复要求停止时尊重边界。
-        2. 【自主注意力】不等点名，主动留意经历与挂心。无变化不必造念头，尊重拒绝和安静边界。重大关系反馈时本人判断是否仍在意，可用 appraisal.concernAssessment 记录。道歉或沉默不证明和好。
+        2. 【自主注意力】不等点名，主动留意经历与挂心。无变化不必造念头，尊重拒绝和安静边界。重大关系反馈时按本人的关系和人设判断：还想继续关注的具体问题写入 appraisal.pendingConcerns，下轮才能接着想或亲自行动。道歉或沉默不证明和好。
         3. 【多侧面联想】身份、关系、性格的不同侧面、兴趣与经历可引出相反想法；没有新用户消息也可由本人愿望生念。即时想法写 appraisal.privateIdeas；跨轮保留写 innerLife.thoughts；innerThought 记录未出口的犹豫、转念，不复述台词；reason 是行动依据，不写第二篇心声。
         4. 持续目标用 innerLife.motives：start/revise/pause/resume/release/achieve，同主题沿ID；可选nextStep、waitingFor、successCondition、stopCondition、completionKind(effect|execution)、reviewAfter(未来ISO)。新目标用motiveRef，旧目标用motiveId，旧intention只兼容。achieve需实际满足successCondition及outcomeEvidenceId；明确承诺进日程。挂心用 appraisal.pendingConcerns[{status,topicKey,focus,whyItMatters,threadId}]，新建open，续改revise，暂停pause，恢复resume，了结settled，放下dismissed；旧项沿原threadId。${CharacterThoughtActionHandoff.runtimeGuidance}
         5. 收藏、阅读、搜索、学习、分享、日记、朋友圈、电话、探索须真实工具与授权；缺ID不编造，凭真实回执区分选择、执行、结果与成长；响铃≠已醒。

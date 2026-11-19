@@ -54,6 +54,14 @@ data class RoleDayPlan(
     val lastWakeHandoffAt: Instant? = null,
 )
 
+internal fun RoleDayPlan.isConcernCheck(): Boolean =
+    concernId.isNotBlank() && activityAction.isBlank() && selfInitiated
+
+private fun RoleDayPlan.concernStillOpen(now: Instant): Boolean =
+    !isConcernCheck() || CharacterOpenConcernRuntime.active(
+        CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
+    ).any { it.optString("id") == concernId }
+
 /**
  * An executed personal plan has a durable action receipt, not a verdict on
  * the owner's real-life goal. A next-day rollover must not hide a late-night
@@ -269,6 +277,18 @@ object RoleDayScheduleStore {
                 "原时间版本 expectedDueAt=${plan.dueAt}。" +
                 plan.recentExecutionReceiptContext(now).let { if (it.isBlank()) "" else "；$it" }
         }
+    }
+
+    internal fun futureConcernChecks(context: Context, characterId: String, now: Instant): Map<String, Instant> =
+        plans(context, characterId).filter {
+            it.concernId.isNotBlank() && it.status == "planned" && it.dueAt.isAfter(now)
+        }.groupBy(RoleDayPlan::concernId).mapValues { (_, plans) -> plans.minOf(RoleDayPlan::dueAt) }
+
+    internal fun ownConcernChecksCoverActive(context: Context, characterId: String, now: Instant): Boolean {
+        val active = CharacterOpenConcernRuntime.active(
+            CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now)
+        val planned = futureConcernChecks(context, characterId, now)
+        return active.isNotEmpty() && active.all { it.optString("id") in planned }
     }
 
     /** Already persisted personal commitments outrank a generic periodic sleep timer.
@@ -766,8 +786,13 @@ object RoleDayScheduleStore {
         persist(context, records.map { item ->
             if (item.id == planId && item.characterId == characterId)
                 item.copy(lastWakeHandoffAt = at,
-                    resultSummary = if (item.resultSummary.startsWith("日程唤醒未完成："))
-                        "" else item.resultSummary) else item
+                    status = if (item.isConcernCheck()) "completed" else item.status,
+                    resolvedAt = if (item.isConcernCheck()) at else item.resolvedAt,
+                    resultSummary = when {
+                        item.isConcernCheck() -> "本人已重新考虑这件事；挂心状态依实际选择保留"
+                        item.resultSummary.startsWith("日程唤醒未完成：") -> ""
+                        else -> item.resultSummary
+                    }) else item
         })
         return true
     }
@@ -798,7 +823,7 @@ object RoleDayScheduleStore {
     ): Boolean = plans(context, characterId).any { plan ->
         plan.id == planId && plan.dueAt == expectedDueAt &&
             plan.status in setOf("planned", "due") &&
-            !plan.dueAt.isAfter(now) && plan.lastWakeHandoffAt == null
+            !plan.dueAt.isAfter(now) && plan.lastWakeHandoffAt == null && plan.concernStillOpen(now)
     }
 
     /** An enqueued WorkManager/online wake is not a model decision. Only a real
@@ -809,7 +834,7 @@ object RoleDayScheduleStore {
         at: Instant = Instant.now()) {
         plans(context, characterId).filter {
             it.status in setOf("planned", "due") &&
-                !it.dueAt.isAfter(at) && it.lastWakeHandoffAt == null
+                !it.dueAt.isAfter(at) && it.lastWakeHandoffAt == null && it.concernStillOpen(at)
         }.forEach { plan ->
             if (plan.status == "planned") {
                 markDue(context, characterId, plan.id, expectedDueAt = plan.dueAt)
@@ -830,10 +855,12 @@ object RoleDayScheduleStore {
 
     /** A due plan is not a completed activity. Only wake the original role's decision loop. */
     fun dueContext(context: Context, characterId: String, now: Instant = Instant.now()): String =
-        plans(context, characterId).filter { it.status == "due" ||
-            (it.status == "planned" && !it.dueAt.isAfter(now)) }
+        plans(context, characterId).filter { it.concernStillOpen(now) &&
+            (it.status == "due" || it.status == "planned" && !it.dueAt.isAfter(now)) }
             .joinToString("\n") {
                 "待处理的本人日程 planId=${it.id}；原定活动：${it.title}；本人缘由：${it.intent}；时间：${it.dueAt}；" +
+                    (if (it.isConcernCheck()) "这是本人安排的静默复查，可以思考后保持安静；只完成复查，挂心是否结束由实际反馈决定。"
+                    else "") +
                     "关联意愿：${it.motiveId.ifBlank { "独立日程" }}；关联挂心：${it.concernId.ifBlank { "无" }}；" +
                     "关联约定：${it.commitmentTaskId.ifBlank { "无" }}；" +
                     "相关人物：${it.targetCharacterId.ifBlank { it.targetResidentId.ifBlank { "无" } }}；" +
@@ -909,6 +936,11 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
                 "原约定已撤销或改为定时任务")
             return Result.success()
         }
+        if (!latest.concernStillOpen(Instant.now())) {
+            RoleDayScheduleStore.cancel(applicationContext, role, planId,
+                "原挂心已暂停、结束或撤回", retainRunningWake = true, expectedDueAt = latest.dueAt)
+            return Result.success()
+        }
         val covered = CommitmentTaskStore.snapshot(role).any {
             isAuthoritativeScheduledReminder(it) && duplicatesScheduledReminder(latest, it)
         }
@@ -954,7 +986,9 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         // Do not just enqueue an online-chat batch and immediately claim a
         // successful handoff: that second worker can be skipped or delayed while
         // the appointment appears "due" with no model request at all.
-        val trigger = "本人日程到点：${plan.title.take(80)}；请自行决定真实执行、改期或放弃"
+        val trigger = if (plan.isConcernCheck())
+            "本人日程到点：回看挂心 threadId=${plan.concernId}；看新的原话、状态与行动回执，自己选择是否继续"
+        else "本人日程到点：${plan.title.take(80)}；请自行决定真实执行、改期或放弃"
         return try {
             // A user chat/call already owns this role's next decision. Check
             // BEFORE entering the model pipeline: testing only after it returns
