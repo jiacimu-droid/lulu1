@@ -20,18 +20,18 @@ class LuluWidgetLiveIntegrationTest {
     private val app: Context get() = RuntimeEnvironment.getApplication()
 
     @Before fun setup() {
-        listOf("lulu_desktop_widgets_v1", "lulu_desktop_widget_role_notes_v1",
+        listOf("lulu_desktop_layout", "lulu_desktop_widgets_v1", "lulu_desktop_widget_role_notes_v1",
             "lulu_self_todo_v2", "lulu_self_preface_v1", "lulu_desktop_widget_daily_role_v1")
             .forEach { app.getSharedPreferences(it, Context.MODE_PRIVATE).edit().clear().commit() }
     }
 
     @After fun cleanup() {
-        listOf("lulu_desktop_widgets_v1", "lulu_desktop_widget_role_notes_v1",
+        listOf("lulu_desktop_layout", "lulu_desktop_widgets_v1", "lulu_desktop_widget_role_notes_v1",
             "lulu_self_todo_v2", "lulu_self_preface_v1", "lulu_desktop_widget_daily_role_v1")
             .forEach { app.getSharedPreferences(it, Context.MODE_PRIVATE).edit().clear().commit() }
     }
 
-    @Test fun sixRowUpgradePersistsAppSlotsAndWidgetSettingsTogether() {
+    @Test fun eightRowUpgradePersistsAppSlotsAndWidgetSettingsTogether() {
         val prefs = app.getSharedPreferences("lulu_desktop_widgets_v1", Context.MODE_PRIVATE)
         assertTrue(prefs.edit().putBoolean("home_cards_seeded_v1", true).putString("cards", """
             [{"id":"existing","kind":"note","page":0,"col":2,"row":6,"skin":1,
@@ -39,21 +39,40 @@ class LuluWidgetLiveIntegrationTest {
         """.trimIndent()).commit())
         val oldSlots = MutableList<String?>(32) { null }.also { it[31] = "settings" }
 
-        val slots = LuluDesktopWidgetStore.loadOrMigrateGrid(app) { widgets ->
-            assertEquals(6, widgets.single().row)
-            migrateDesktopGrid(oldSlots, widgets, 3, listOf("settings"))
-        }
+        assertTrue(app.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE).edit()
+            .putString("slots_v3", oldSlots.joinToString("|") { it.orEmpty() }).commit())
+        assertEquals(6, LuluDesktopWidgetStore.load(app).single().row)
+
+        val slots = LuluDesktopWidgetStore.loadOrMigrateGrid(app, listOf("settings"))
         val migrated = LuluDesktopWidgetStore.load(app).single()
-        assertEquals(4, migrated.row)
+        assertEquals(5, migrated.row)
         assertEquals("existing", migrated.id)
         assertEquals(1, migrated.skin)
         assertEquals("old-photo", migrated.imageToken)
         assertEquals("role-A", migrated.characterId)
         assertTrue(luluWidgetFits(migrated, listOf(migrated), slots))
         assertEquals(listOf("settings"), slots.filterNotNull())
-        assertEquals(slots, LuluDesktopWidgetStore.loadOrMigrateGrid(app) {
-            error("Already migrated")
-        })
+        assertEquals(slots, LuluDesktopWidgetStore.loadOrMigrateGrid(app, listOf("settings")))
+    }
+
+    @Test fun sixRowGridPersistsItsSecondPageAtTheNewStride() {
+        val prefs = app.getSharedPreferences("lulu_desktop_widgets_v1", Context.MODE_PRIVATE)
+        val old = MutableList(48) { "" }.apply {
+            this[23] = "settings"
+            this[24] = "chat"
+        }
+        assertTrue(prefs.edit().putBoolean("home_cards_seeded_v1", true)
+            .putString("slots_v4", old.joinToString("|"))
+            .putString("cards", """[{"id":"photo","kind":"photo","page":1,"col":2,"row":2,"imageToken":"album"}]""")
+            .commit())
+
+        val first = LuluDesktopWidgetStore.loadOrMigrateGrid(app, listOf("settings", "chat"))
+        assertEquals("settings", first[desktopSlotIndex(0, 5, 3)])
+        assertEquals("chat", first[desktopSlotIndex(1, 0, 0)])
+        assertEquals(1, LuluDesktopWidgetStore.load(app).single().page)
+        assertEquals("album", LuluDesktopWidgetStore.load(app).single().imageToken)
+        assertTrue(prefs.contains("slots_v5"))
+        assertEquals(first, LuluDesktopWidgetStore.loadOrMigrateGrid(app, listOf("settings", "chat")))
     }
 
     @Test fun checkboxUsesOneOwnerTodoRecordAndRejectsStaleOrDuplicateClicks() {

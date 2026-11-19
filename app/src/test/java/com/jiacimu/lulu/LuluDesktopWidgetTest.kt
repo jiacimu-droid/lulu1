@@ -17,13 +17,6 @@ class LuluDesktopWidgetTest {
         assertNotEquals(LuluWidgetKind.CHAT.defaultSkin, LuluWidgetKind.PHOTO.defaultSkin)
     }
 
-    @Test fun twoByTwoPhotoKeepsItsSquareFaceWhileOtherPhotoSizesCanBeRectangular() {
-        val photo = LuluDesktopWidget("photo", LuluWidgetKind.PHOTO, 1, 0, 0)
-        assertTrue(photo.hasSquareFace)
-        assertFalse(photo.copy(rows = 3).hasSquareFace)
-        assertFalse(photo.copy(columns = 4).hasSquareFace)
-    }
-
     @Test fun calendarAndClockUseTextOnlyWithoutChangingTheirGridSize() {
         val calendar = LuluDesktopWidget("calendar", LuluWidgetKind.CALENDAR, 1, 0, 0)
         val clock = LuluDesktopWidget("clock", LuluWidgetKind.CLOCK, 1, 2, 0)
@@ -95,13 +88,13 @@ class LuluDesktopWidgetTest {
 
     @Test fun lowerRowVacanciesAcceptAppsButNeverOverwrittenByWidgets() {
         val slots = MutableList<String?>(desktopPageStart(2)) { null }
-        val lastRow = desktopSlotIndex(1, 5, 3)
-        slots[lastRow] = "games"
+        val lastRow = DESKTOP_ROWS - 1
+        slots[desktopSlotIndex(1, lastRow, 3)] = "games"
         val note = LuluDesktopWidget("bottom", LuluWidgetKind.NOTE,
-            page = 1, col = 2, row = 4)
+            page = 1, col = 2, row = lastRow - 1)
         assertFalse(luluWidgetFits(note, emptyList(), slots))
         assertTrue(luluWidgetFits(note.copy(col = 0), emptyList(), slots))
-        assertFalse(luluWidgetFits(note.copy(col = 0, row = 5), emptyList(), slots))
+        assertFalse(luluWidgetFits(note.copy(col = 0, row = lastRow), emptyList(), slots))
     }
 
     @Test fun homeChatAndBulletinAreMovableAndMayChangeSizeWithoutCoveringIcons() {

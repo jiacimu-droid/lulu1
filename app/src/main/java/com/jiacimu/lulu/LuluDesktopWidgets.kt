@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -117,8 +118,6 @@ internal data class LuluDesktopWidget(
     val roleInk: String = "",
     val roleCornerDp: Int = -1,
 ) {
-    val hasSquareFace: Boolean get() = columns == 2 && rows == 2
-
     val hasBorderlessSkin: Boolean get() = skin == WIDGET_BORDERLESS_SKIN ||
         (skin == LULU_WIDGET_DESKTOP_SKIN && kind.isDateTime)
 }
@@ -232,7 +231,8 @@ internal fun luluPlaceWidget(
 internal object LuluDesktopWidgetStore {
     private const val PREFS = "lulu_desktop_widgets_v1"
     private const val KEY = "cards"
-    private const val GRID = "slots_v4"
+    private const val GRID = "slots_v5"
+    private const val SIX_ROW_GRID = "slots_v4"
     private const val HOME_SEEDED = "home_cards_seeded_v1"
     private const val SIGN = "profile_sign"
     private val mutex = Any()
@@ -250,7 +250,11 @@ internal object LuluDesktopWidgetStore {
     fun load(context: Context): List<LuluDesktopWidget> {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val raw = prefs.getString(KEY, null) ?: return emptyList()
-        val gridRows = if (prefs.contains(GRID)) DESKTOP_ROWS else LEGACY_DESKTOP_ROWS
+        val gridRows = when {
+            prefs.contains(GRID) -> DESKTOP_ROWS
+            prefs.contains(SIX_ROW_GRID) -> SIX_ROW_DESKTOP_ROWS
+            else -> LEGACY_DESKTOP_ROWS
+        }
         return runCatching {
             val array = JSONArray(raw)
             buildList {
@@ -327,11 +331,8 @@ internal object LuluDesktopWidgetStore {
         ok
     }
 
-    /** Layout and cards move to six rows together, so a restart cannot strand either half. */
-    fun loadOrMigrateGrid(
-        context: Context,
-        migrate: (List<LuluDesktopWidget>) -> DesktopGridLayout,
-    ): List<String?> = synchronized(mutex) {
+    /** Persist the new page stride and cards together, so a restart cannot strand either half. */
+    fun loadOrMigrateGrid(context: Context, launcherIds: List<String>): List<String?> = synchronized(mutex) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         prefs.getString(GRID, null)?.let { return@synchronized readDesktopSlots(it) }
         val existing = load(context).toMutableList()
@@ -345,7 +346,16 @@ internal object LuluDesktopWidgetStore {
                     luluWidgetFits(card, existing, emptyList())) existing.add(card)
             }
         }
-        val layout = migrate(existing)
+        val sixRowSlots = prefs.getString(SIX_ROW_GRID, null)
+        val older = context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
+        val oldVersion = when {
+            sixRowSlots != null -> 4
+            older.contains("slots_v3") -> 3
+            older.contains("slots_v2") -> 2
+            else -> 1
+        }
+        val oldSlots = readDesktopSlots(sixRowSlots ?: older.getString("slots_v$oldVersion", null))
+        val layout = migrateDesktopGrid(oldSlots, existing, oldVersion, launcherIds)
         val committed = prefs.edit().putString(GRID, serializeSlots(layout.slots))
             .putString(KEY, encode(layout.widgets)).putBoolean(HOME_SEEDED, true).commit()
         if (committed) {
@@ -515,24 +525,16 @@ internal fun LuluDesktopWidgetCard(
     )
     val outer = modifier.luluCssDecor(css, includeArtwork = false)
     BoxWithConstraints(outer.clipToBounds()) {
-        val squareEdge = if (widget.hasSquareFace) minOf(maxWidth, maxHeight) else null
-        val frameWidth = squareEdge ?: maxWidth
-        val frameHeight = squareEdge ?: maxHeight
-        val slimChat = widget.kind == LuluWidgetKind.CHAT && widget.rows == 2 && squareEdge == null
-        val surfaceHeight = if (slimChat) minOf(frameHeight * .86f, 170.dp) else frameHeight
-        val showLayers = layered && frameHeight >= 94.dp
+        val slimChat = widget.kind == LuluWidgetKind.CHAT && widget.rows == 2 &&
+            widget.columns == DESKTOP_COLUMNS
+        val surfaceHeight = if (slimChat) minOf(maxHeight * .86f, 170.dp) else maxHeight
+        val showLayers = layered && maxHeight >= 94.dp
         val inset = if (showLayers) 10.dp else 5.dp
-        val verticalInset = when {
-            squareEdge != null -> inset
-            showLayers -> 9.dp
-            slimChat || bareSkin -> 0.dp
-            else -> 5.dp
-        }
+        val verticalInset = if (slimChat || bareSkin) 0.dp else inset
         if (showLayers) {
-            val layerBounds = Modifier.align(Alignment.Center).width(frameWidth).height(frameHeight)
+            val layerBounds = Modifier.align(Alignment.Center).fillMaxSize().padding(13.dp)
             Surface(
-                layerBounds.padding(horizontal = 13.dp, vertical = if (squareEdge != null) 13.dp else 11.dp)
-                    .offset(x = 5.dp, y = 5.dp).graphicsLayer {
+                layerBounds.offset(x = 5.dp, y = 5.dp).graphicsLayer {
                         val movement = press.value
                         rotationZ = if (widget.skin == WIDGET_ALBUM_SKIN) 2.5f - movement else -2f + movement
                         translationX = movement * 2.dp.toPx()
@@ -541,8 +543,7 @@ internal fun LuluDesktopWidgetCard(
             ) {}
             if (widget.skin == WIDGET_ALBUM_SKIN) {
                 Surface(
-                    layerBounds.padding(horizontal = 13.dp, vertical = if (squareEdge != null) 13.dp else 10.dp)
-                        .offset(x = (-4).dp, y = 4.dp).graphicsLayer {
+                    layerBounds.offset(x = (-4).dp, y = 4.dp).graphicsLayer {
                             rotationZ = -2.5f + press.value
                             translationX = -press.value * 2.dp.toPx()
                         },
@@ -551,7 +552,7 @@ internal fun LuluDesktopWidgetCard(
             }
         }
         Surface(
-            modifier = Modifier.align(Alignment.Center).width(frameWidth).height(surfaceHeight)
+            modifier = Modifier.align(Alignment.Center).fillMaxWidth().height(surfaceHeight)
                 .padding(horizontal = inset, vertical = verticalInset)
                 .graphicsLayer {
                     val amount = press.value
@@ -834,6 +835,7 @@ private fun LuluWidgetPhoto(
 @Composable
 internal fun LuluDesktopWidgetCanvas(
     page: Int,
+    grid: DesktopGridGeometry,
     isSettledPage: Boolean,
     widgets: List<LuluDesktopWidget>,
     draggingWidgetId: String?,
@@ -851,22 +853,22 @@ internal fun LuluDesktopWidgetCanvas(
     onEditWidget: (LuluDesktopWidget) -> Unit,
     onBlankLongPress: () -> Unit,
 ) {
-    BoxWithConstraints(modifier.pointerInput(page, widgets, launcherSlots) {
+    val cellEdge = with(LocalDensity.current) { grid.cellPx.toDp() }
+    Box(modifier.pointerInput(page, grid, widgets, launcherSlots) {
         detectTapGestures(onLongPress = { p ->
-            val x = (p.x / (size.width / DESKTOP_COLUMNS.toFloat())).toInt()
-            val y = (p.y / (size.height / DESKTOP_ROWS.toFloat())).toInt()
-            if (x in 0 until DESKTOP_COLUMNS && y in 0 until DESKTOP_ROWS) {
-                val occupiedByIcon = launcherSlots.getOrNull(desktopSlotIndex(page, y, x)) != null
+            val cell = grid.cellAt(p.x, p.y)
+            if (cell == null) {
+                onBlankLongPress()
+            } else {
+                val occupiedByIcon = launcherSlots.getOrNull(desktopSlotIndex(page, cell.row, cell.column)) != null
                 val occupiedByWidget = widgets.any {
-                    it.page == page && x in it.col until it.col + it.columns &&
-                        y in it.row until it.row + it.rows
+                    it.page == page && cell.column in it.col until it.col + it.columns &&
+                        cell.row in it.row until it.row + it.rows
                 }
                 if (!occupiedByIcon && !occupiedByWidget) onBlankLongPress()
             }
         })
     }) {
-        val cellWidth = maxWidth / DESKTOP_COLUMNS
-        val cellHeight = maxHeight / DESKTOP_ROWS
         widgets.filter { it.page == page }.forEach { widget ->
             key(widget.id) {
                 LuluDesktopWidgetCard(
@@ -876,12 +878,9 @@ internal fun LuluDesktopWidgetCanvas(
                     roleReading = roleReadings[widget.id],
                     roleNote = roleNotes[widget.id],
                     plannerTasks = plannerTasks, onCompleteTask = onCompleteTask,
-                    modifier = Modifier.width(cellWidth * widget.columns)
-                        .height(cellHeight * widget.rows)
-                        .offset(
-                            x = cellWidth * widget.col,
-                            y = cellHeight * widget.row,
-                        ).graphicsLayer { alpha = if (widget.id == draggingWidgetId) 0f else 1f },
+                    modifier = Modifier.size(cellEdge * widget.columns, cellEdge * widget.rows)
+                        .absoluteOffset { IntOffset(grid.x(widget.col), grid.y(widget.row)) }
+                        .graphicsLayer { alpha = if (widget.id == draggingWidgetId) 0f else 1f },
                     onOpen = { onOpenWidget(widget) },
                     onEdit = { onEditWidget(widget) },
                     activeOnDesktop = isSettledPage && draggingWidgetId == null,
@@ -1055,13 +1054,13 @@ internal fun LuluDesktopWidgetEditor(
                 }
                 Text("皮肤", fontWeight = FontWeight.Medium)
                 BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    val sampleWidth = if (draft.columns == DESKTOP_COLUMNS) maxWidth else maxWidth / 2
+                    val previewCell = minOf(maxWidth / DESKTOP_COLUMNS, 70.dp)
                     LuluDesktopWidgetCard(
                         widget = draft,
                         today = rememberLuluDesktopDate(),
                         characterName = characters[draft.characterId],
                         lastConversationText = null,
-                        modifier = Modifier.width(sampleWidth).height(if (draft.rows == 1) 78.dp else 138.dp),
+                        modifier = Modifier.size(previewCell * draft.columns, previewCell * draft.rows),
                         onOpen = {},
                         onEdit = null,
                         specialContent = { item, ink, _ ->

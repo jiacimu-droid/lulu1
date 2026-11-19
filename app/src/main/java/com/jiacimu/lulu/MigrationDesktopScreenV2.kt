@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -191,23 +192,20 @@ internal fun MigrationHomeV2(
                 BoxWithConstraints(
                     Modifier.fillMaxWidth().weight(1f)
                         .padding(top = 12.dp + gridBreathingRoom, bottom = 16.dp + gridBreathingRoom)
-                        .pointerInput(slots, widgets) {
-                            val cellWidth = size.width.toFloat() / DESKTOP_COLUMNS
-                            val cellHeight = size.height.toFloat() / DESKTOP_ROWS
-                            if (cellWidth <= 0f || cellHeight <= 0f) return@pointerInput
+                        .pointerInput(slots, widgets, pageCount) {
                             val edgePx = 32.dp.toPx()
+                            fun currentGrid() = DesktopGridGeometry.fit(size.width, size.height)
 
-                            fun slotAt(position: Offset, page: Int): Int? {
-                                if (position.y < 0f || position.y >= size.height) return null
-                                val row = (position.y / cellHeight).toInt()
-                                val col = (position.x / cellWidth).toInt().coerceIn(0, DESKTOP_COLUMNS - 1)
-                                return desktopSlotIndex(page, row, col)
-                            }
+                            fun slotAt(grid: DesktopGridGeometry, position: Offset, page: Int): Int? =
+                                grid.cellAt(position.x, position.y)?.let { cell ->
+                                    desktopSlotIndex(page, cell.row, cell.column)
+                                }
 
                             detectDragGesturesAfterLongPress(
                                 onDragStart = { start ->
                                     val page = pagerState.currentPage
-                                    val source = slotAt(start, page)
+                                    val grid = currentGrid()
+                                    val source = slotAt(grid, start, page)
                                     if (source != null) {
                                         val local = source - desktopPageStart(page)
                                         val row = local / DESKTOP_COLUMNS
@@ -222,8 +220,8 @@ internal fun MigrationHomeV2(
                                             draggingSource = if (widget == null) source else null
                                             dragPosition = start
                                             dragGrabOffset = Offset(
-                                                start.x - (widget?.col ?: col) * cellWidth,
-                                                start.y - (widget?.row ?: row) * cellHeight,
+                                                start.x - grid.x(widget?.col ?: col),
+                                                start.y - grid.y(widget?.row ?: row),
                                             )
                                             edgePageHandled = -1
                                         }
@@ -248,8 +246,9 @@ internal fun MigrationHomeV2(
                                     }
                                 },
                                 onDragEnd = {
+                                    val grid = currentGrid()
                                     draggingSource?.let { from ->
-                                        val target = slotAt(dragPosition, pagerState.currentPage)
+                                        val target = slotAt(grid, dragPosition, pagerState.currentPage)
                                         if (target != null && widgets.none { w ->
                                             val destPage = desktopPageForSlot(target)
                                             val local = target - desktopPageStart(destPage)
@@ -270,13 +269,13 @@ internal fun MigrationHomeV2(
                                     }
                                     draggingWidgetId?.let { id ->
                                         val original = widgets.firstOrNull { it.id == id }
-                                        if (original != null && dragPosition.y in 0f..<size.height.toFloat()) {
+                                        if (original != null && grid.cellAt(dragPosition.x, dragPosition.y) != null) {
                                             val origin = dragPosition - dragGrabOffset
                                             val moved = original.copy(
                                                 page = pagerState.currentPage,
-                                                col = kotlin.math.round(origin.x / cellWidth).toInt()
+                                                col = ((origin.x - grid.leftPx) / grid.cellPx).roundToInt()
                                                     .coerceIn(0, DESKTOP_COLUMNS - original.columns),
-                                                row = kotlin.math.round(origin.y / cellHeight).toInt()
+                                                row = ((origin.y - grid.topPx) / grid.cellPx).roundToInt()
                                                     .coerceIn(0, DESKTOP_ROWS - original.rows),
                                             )
                                             if (luluWidgetFits(moved, widgets, slots)) {
@@ -297,8 +296,11 @@ internal fun MigrationHomeV2(
                             )
                         },
                 ) {
-                    val cellWidth = maxWidth / DESKTOP_COLUMNS
-                    val cellHeight = maxHeight / DESKTOP_ROWS
+                    val density = LocalDensity.current
+                    val grid = with(density) {
+                        DesktopGridGeometry.fit(maxWidth.roundToPx(), maxHeight.roundToPx())
+                    }
+                    val cellEdge = with(density) { grid.cellPx.toDp() }
                     // The page root is the drag surface so a long press can cross a
                     // page boundary without destroying its pointer gesture owner.
                     HorizontalPager(
@@ -309,7 +311,7 @@ internal fun MigrationHomeV2(
                     ) { page ->
                         Box(Modifier.fillMaxSize()) {
                             LuluDesktopWidgetCanvas(
-                                page = page, isSettledPage = pagerState.settledPage == page,
+                                page = page, grid = grid, isSettledPage = pagerState.settledPage == page,
                                 widgets = widgets, draggingWidgetId = draggingWidgetId,
                                 launcherSlots = slots, today = today,
                                 characterNames = widgetCharacterNames,
@@ -354,6 +356,7 @@ internal fun MigrationHomeV2(
                                 onBlankLongPress = { showWidgetPicker = true },
                             )
                             DesktopLauncherGrid(
+                                grid = grid,
                                 slots = slots.drop(desktopPageStart(page)).take(DESKTOP_SLOT_COUNT),
                                 modifier = Modifier.fillMaxSize(),
                                 draggedLauncherId = draggingSource?.let(slots::get),
@@ -368,8 +371,8 @@ internal fun MigrationHomeV2(
                     }?.let { active ->
                         DesktopV2LauncherItem(
                             launcher = active,
-                            modifier = Modifier.width(cellWidth).height(cellHeight)
-                                .offset { IntOffset(
+                            modifier = Modifier.size(cellEdge)
+                                .absoluteOffset { IntOffset(
                                     (dragPosition.x - dragGrabOffset.x).roundToInt(),
                                     (dragPosition.y - dragGrabOffset.y).roundToInt(),
                                 ) }
@@ -389,8 +392,8 @@ internal fun MigrationHomeV2(
                                 lastConversationText = widgetConversationTexts[w.characterId],
                                 roleReading = dailyReadings[w.id],
                                 roleNote = roleNotes[w.id],
-                                modifier = Modifier.width(cellWidth * w.columns).height(cellHeight * w.rows)
-                                    .offset {
+                                modifier = Modifier.size(cellEdge * w.columns, cellEdge * w.rows)
+                                    .absoluteOffset {
                                         IntOffset(
                                             (dragPosition.x - dragGrabOffset.x).roundToInt(),
                                             (dragPosition.y - dragGrabOffset.y).roundToInt(),
@@ -578,22 +581,22 @@ private fun DesktopCompanionCard(
 
 @Composable
 private fun DesktopLauncherGrid(
+    grid: DesktopGridGeometry,
     slots: List<String?>,
     modifier: Modifier,
     draggedLauncherId: String?,
     onOpen: (MigrationRoute) -> Unit,
 ) {
-    BoxWithConstraints(modifier) {
-        val cellWidth = maxWidth / DESKTOP_COLUMNS
-        val cellHeight = maxHeight / DESKTOP_ROWS
+    val cellEdge = with(LocalDensity.current) { grid.cellPx.toDp() }
+    Box(modifier) {
         slots.forEachIndexed { index, launcherId ->
             val launcher = DesktopV2Launchers.firstOrNull { it.id == launcherId } ?: return@forEachIndexed
             val column = index % DESKTOP_COLUMNS
             val row = index / DESKTOP_COLUMNS
             DesktopV2LauncherItem(
                 launcher = launcher,
-                modifier = Modifier.width(cellWidth).height(cellHeight)
-                    .offset { IntOffset((cellWidth * column).roundToPx(), (cellHeight * row).roundToPx()) }
+                modifier = Modifier.size(cellEdge)
+                    .absoluteOffset { IntOffset(grid.x(column), grid.y(row)) }
                     .graphicsLayer { alpha = if (launcherId == draggedLauncherId) 0f else 1f },
                 onClick = { onOpen(launcher.route) },
             )
@@ -662,18 +665,7 @@ private fun DesktopV2LauncherItem(
 
 private fun loadDesktopSlots(context: Context): List<String?> {
     val launcherIds = DesktopV2Launchers.map { it.id }
-    val slots = LuluDesktopWidgetStore.loadOrMigrateGrid(context) { widgets ->
-        val prefs = context.getSharedPreferences("lulu_desktop_layout", Context.MODE_PRIVATE)
-        val version = when {
-            prefs.contains("slots_v3") -> 3
-            prefs.contains("slots_v2") -> 2
-            else -> 1
-        }
-        migrateDesktopGrid(
-            oldSlots = readDesktopSlots(prefs.getString("slots_v" + version, null)),
-            oldWidgets = widgets, version = version, launcherIds = launcherIds,
-        )
-    }
+    val slots = LuluDesktopWidgetStore.loadOrMigrateGrid(context, launcherIds)
     val complete = completeDesktopSlots(slots, LuluDesktopWidgetStore.load(context), launcherIds)
     if (complete != slots) saveDesktopSlots(context, complete)
     return complete
