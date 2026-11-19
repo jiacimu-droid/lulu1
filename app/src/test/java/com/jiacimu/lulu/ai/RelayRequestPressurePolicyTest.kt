@@ -52,6 +52,43 @@ class RelayRequestPressurePolicyTest {
         assertTrue(reduced.contains("刚刚与主人谈到日记"))
     }
 
+    @Test fun fullRoleAuthoritySurvivesEvenWhenLargerThanFormerSceneCap() {
+        val old = "【较早的零散阅读】\\n" + "可替换的旧摘录。\\n".repeat(6_000)
+        val live = "【本轮仍未回应的真实新消息】\\n" +
+            "用户这次的完整原话不能被裁断。".repeat(800)
+        val commitments = "【当前已承担的目标与统一验收入口】\\n" +
+            "taskId=real-unfinished-1；真正验收条件不能删去。".repeat(120)
+        val tools = "【本人可选择的能力目录｜私聊、在线窗口和后台独自感知共用】\\n" +
+            "read_self_preface、read_self_todo、background_phone"
+        val facts = listOf(old, live, commitments, tools).joinToString("\\n")
+        val result = RelayRequestPressurePolicy.compactActorSceneFacts(facts)
+        assertTrue(result.length > 14_000) // No budget is allowed to cut live facts.
+        assertTrue(result.contains(live))
+        assertTrue(result.contains(commitments))
+        assertTrue(result.contains(tools))
+        assertFalse(result.contains("可替换的旧摘录。\\n".repeat(1_000)))
+    }
+
+    @Test fun emergencyRelayFallbackNeverCutsAuthoritativeActorSections() {
+        val labels = listOf("核心记忆", "未完成责任", "当前状态",
+            "跨场景连续性锚点", "成长与持续动机",
+            "本人可见的社交与数字世界现场", "当前真实游戏能力",
+            "角色视频能力和通话实况", "当前数字人物与QQ好友权威登记",
+            "任务规则/工具协议", "本轮任务指令", "权威现实时钟",
+            "角色人设", "当前人物关系")
+        val authoritative = labels.map { label ->
+            label to "原始有效信息:$label；字段条件完整保留。".repeat(270)
+        }
+        val result = RelayRequestPressurePolicy.compactSectionPairs(
+            authoritative + ("已读材料与可修订的理解" to "遥远的历史片段。".repeat(2_000))
+        ).toMap()
+        authoritative.forEach { (label, content) ->
+            assertEquals("Authoritative section was clipped: $label", content, result[label])
+        }
+        assertTrue(result.getValue("已读材料与可修订的理解").length <
+            "遥远的历史片段。".repeat(2_000).length)
+    }
+
     @Test fun compactRelayKeepsLiveClockEvenWhenOldHistoryIsDropped() {
         val clock = CharacterClockAuthority.render(
             java.time.Instant.parse("2026-11-12T01:39:00Z"),
