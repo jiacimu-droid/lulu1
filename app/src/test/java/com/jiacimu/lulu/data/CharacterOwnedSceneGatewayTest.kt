@@ -78,7 +78,10 @@ class CharacterOwnedSceneGatewayTest {
                 val prompt = body.getJSONArray("messages").getJSONObject(0).getString("content")
                 assertTrue("$source should recall its own phone event", prompt.contains(anchor))
                 assertFalse("$source must never see another person's private life", prompt.contains(secret))
-                assertTrue(prompt.contains("统一角色决策协议"))
+                assertEquals("$source must receive the same decision contract once", 1,
+                    prompt.split(CharacterDecisionProtocol.runtimePrinciples).size - 1)
+                assertEquals("$source must receive the common current clock once", 1,
+                    prompt.split("【当前现实时钟｜手机读取】").size - 1)
                 assertTrue("$source should keep rich actor inner-life continuity",
                     prompt.contains("【角色持续内在生活"))
             }

@@ -32,7 +32,6 @@ import kotlinx.coroutines.isActive
 import org.json.JSONObject
 import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 object LuluDeviceToolBridge {
@@ -516,10 +515,8 @@ object LuluDeviceToolBridge {
         val planner = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
-                appendLine("当前时间：${DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(now.atZone(zone))}")
-                appendLine("当前时区：${zone.id}")
                 appendLine(com.jiacimu.lulu.data.CommitmentDecisionProtocol.context(
-                    CommitmentTaskStore.active(characterId), now, zone))
+                    CommitmentTaskStore.active(characterId), now, zone, includeClock = false))
                 appendLine("【角色本轮可以选择的定时叫醒方式】真实来电start_call：" +
                     (if (MigratedDomainStores.characters.get(characterId).contactPolicy.proactiveCallsEnabled)
                         "已允许" else "此角色未开启主动来电"))
@@ -555,9 +552,6 @@ object LuluDeviceToolBridge {
                 if (turnContext.isNotBlank()) {
                     appendLine("【系统提供的本轮交互元信息｜不是用户说的话，不得归因给用户】")
                     appendLine(turnContext.take(4_000))
-                }
-                previousPresence?.let { presence ->
-                    appendLine("角色上一刻状态：${presence.statusText}；动作：${presence.gesture}；心情：${presence.mood}；没说出口：${presence.innerThought}")
                 }
                 appendLine("这一刻用户新增的消息：$userText")
                 appendLine(com.jiacimu.lulu.data.CapabilityRegistry.phoneOperationContext(appContext, characterId))
@@ -598,7 +592,6 @@ object LuluDeviceToolBridge {
                 程序独立执行30分钟的正常结束；模型/TTS临时失败不能冒充结束了陪伴。
             """.trimIndent() else """
                 你正在以当前角色自己的立场做这轮决定，而不是担任无条件回答问题的助手。
-                ${CharacterDecisionProtocol.runtimePrinciples}
                 ${com.jiacimu.lulu.data.CharacterConversationAgency.instruction}
                 ${com.jiacimu.lulu.data.CharacterExpressionContinuity.playfulGuide}
                 ${if (userText.isNotBlank() && !sceneContext.contains("电话") && !isGroupChat) com.jiacimu.lulu.data.ConversationDominantImpulse.planningGuidance(userText, history) else ""}
@@ -622,7 +615,7 @@ object LuluDeviceToolBridge {
                 "selfCorrection":{"realization":"新认识","nextTime":"打算修正的做法"},
                 "thoughts":[{"thought":"未说出的想法","impulse":"冲动","hesitation":"顾虑"}]}。
                 social.dimensions 只表示“这次真实互动让某个关系维度往哪边动了一点”，不是绝对好感分；没有明确证据就省略，单次变化不能定型整段关系。\n                心声与动作不是事实或承诺；冲突想法可以并存，后续需依据实际反馈改变。可选 afterglow={"feeling":"余波","impulse":"克制或行动冲动","holdHours":1到48}；
-                【一套动机来源】新的持续愿望只在 innerLife.motives 用 op=start 写入；继续同一愿望需带已有 motiveId 并使用 revise/pause/resume/release/achieve，不能重复建档。旧的 intention 字段仅用于更新仍存在的历史兼容目标（必须有准确 id 和 disposition），不再创建另一套愿望。行动关联已有动机用 motiveId，本轮 start 的动机用相同 ref 的 motiveRef；旧历史目标确实尚在履行才用 intentionId。工具完成不等于愿望已达成；涉及对方状态或感受须用effect等待真实效果。仅完成明确动作可选execution，且须关联该目标实际成功的回执。achieve须依据successCondition和真实outcomeEvidenceId，用户未回复不能证明已经睡着。重要目标可影响在线取舍，reviewAfter可让自己届时醒来重新判断。若本轮既新建动机又决定稍后执行自己的活动，可给新动机 ref，并在 appraisal.ownActivity.motiveRef 填同一 ref；旧动机在 ownActivity.motiveId 填准确ID。等待条件和重新考虑时机只影响后续选择，不能直接触发工具。
+                旧 intention 只更新仍有效的历史目标（id 与 disposition 必填）。ownActivity 关联已有目标用 motiveId，关联本轮新目标用同一 motiveRef。
 
                 【已有真实手机能力】
                 调用格式：{"action":"tool","tool":"能力名","args":{...}}。读取状态：get_battery、get_location、get_current_app、read_recent_notifications(args.limit)、
@@ -901,14 +894,6 @@ object LuluDeviceToolBridge {
                 IllegalStateException("重新回复只能重新组织语言，不重做工具或沉默决定")
             )
             plan.appraisal?.remove("ownActivity")
-        }
-        if (separateExpression && !rewriting) {
-            com.jiacimu.lulu.data.EmotionFollowThroughCoordinator.completeOmittedAssessment(
-                characterId, userText, history, sceneContext, plannedReply.text, title, connection,
-                plan.appraisal, plan.innerLife, now,
-            )?.let { review ->
-                plan = plan.copy(appraisal = review.appraisal, innerLife = review.innerLife)
-            }
         }
         if (separateExpression && plan.action == "reply" && plan.speechIntent.isBlank() && plan.text.isNotBlank()) {
             plan = plan.copy(speechIntent = plan.text)

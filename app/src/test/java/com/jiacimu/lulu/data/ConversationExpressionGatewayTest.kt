@@ -2394,7 +2394,9 @@ class ConversationExpressionGatewayTest {
         MigratedDomainStores.chat.sendUserMessage(chat.id, "还得接着读。")
         MigratedDomainStores.chat.appendCharacterMessage(chat.id, "你在担心什么？", role.characterId)
         CompanionOnlineStore.markSeen(role.characterId, CompanionOnlineStore.unreadChatSnapshot(role.characterId))
-        val current = MigratedDomainStores.chat.sendUserMessage(chat.id, "不读书就没钱，")
+        val current = MigratedDomainStores.chat.sendUserMessage(
+            chat.id, "你刚才的话让我难过。我也担心不读书就没钱。",
+        )
         OnlineChatBatchStore.cancel(context, role.characterId)
         val batch = OnlineChatBatchStore.onUserBubble(context, role.characterId,
             atMillis = System.currentTimeMillis() - OnlineChatBatchStore.QUIET_MILLIS - 1_000L)
@@ -2439,6 +2441,10 @@ class ConversationExpressionGatewayTest {
             assertEquals("user", messages.getJSONObject(5).getString("role"))
             assertEquals(current.content, messages.getJSONObject(5).getString("content"))
             val system = messages.getJSONObject(0).getString("content")
+            assertEquals(1, system.split(CharacterDecisionProtocol.runtimePrinciples).size - 1)
+            assertFalse(scene.contains(CharacterDecisionProtocol.runtimePrinciples))
+            assertEquals(1, system.split("【当前现实时钟｜手机读取】").size - 1)
+            assertFalse(scene.contains("用户设备本地时间"))
             assertTrue(system.contains("此刻是在和对方继续一段私聊"))
             // Live speech remains verbatim in the final user turn; only
             // its source ID belongs in the shared character scene evidence.
@@ -2495,6 +2501,7 @@ class ConversationExpressionGatewayTest {
                 it.contains("eventId=$sceneExperienceId") && it.contains(sceneExperience)
             })
             assertTrue(autonomousSystem.contains(agreement))
+            assertEquals(1, autonomousSystem.split(CharacterDecisionProtocol.runtimePrinciples).size - 1)
             assertFalse(autonomousSystem.contains(otherAgreement))
             assertTrue(autonomousSystem.contains(spontaneousInnerVoiceGuide))
             assertEquals(scenePolicy.autonomousTurn(), autonomousMessages.getJSONObject(3).getString("content"))

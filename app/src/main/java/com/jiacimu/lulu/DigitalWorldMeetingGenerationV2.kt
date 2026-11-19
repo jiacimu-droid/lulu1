@@ -259,7 +259,6 @@ internal suspend fun meetingGenerateReplyV2(
     val connection = ScopedModelSelections.resolveConnection(ScopedModelSelections.MEETING)
     val writing = MeetingExperienceStore.writingPreferences()
     val sceneBefore = MeetingExperienceStore.sceneFor(session)
-    val digitalNative = DigitalLifeProfileStore.isEnabled(characterId)
     val lengthInstruction = if (autonomous) {
         "自主在场：尊重安静，可一句话、一个小动作或一段内心想法。不要为凑篇幅制造事件；自然主动表达时通常不超过180字。"
     } else when (writing.length) {
@@ -303,7 +302,6 @@ internal suspend fun meetingGenerateReplyV2(
                     .takeIf(String::isNotBlank)
                     ?.let(::appendLine)
             }
-            if (digitalNative) appendLine(DigitalWorldStore.contextFor(characterId))
             if (directorGuidance.isNotBlank()) appendLine("本轮场面调度：$directorGuidance")
             when {
                 systemMoment -> appendLine("这一刻刚发生的系统确认事实：$latestMoment")
@@ -313,7 +311,6 @@ internal suspend fun meetingGenerateReplyV2(
         },
         instruction = """
             你正在以${character.displayName}的身份参与一场连续见面。
-            ${com.jiacimu.lulu.data.CharacterDecisionProtocol.runtimePrinciples}
             ${com.jiacimu.lulu.data.CharacterExpressionGuide.channelNote(com.jiacimu.lulu.data.CharacterSpeechChannel.MEETING)}
             ${if (autonomous) "这是你自己的在场意识和行动选择，不是用户向你发来了一条新消息。可以决定主动搭话、靠近、牵手邀请或继续做自己的事，也可以安静不动。主动时动作与说话由你的人设、记忆、心情和现实场景决定；不必每轮回应。若你决定暂时沉默，返回 sequence=[]，但可以写真实的 innerThought。不得虚构用户已经回应，也不要让剧情自动跳转。" else "这是同一个人从普通私聊走进真实见面现场：人格、记忆、情绪和心声保持连续。先自然接住主人的话，像平常聊天一样选择说什么；只有本人确实想动、现场需要时才穿插动作和神态。普通的一句回答或安静相伴已经足够，不必每轮强制制造事件、转场或长篇叙事。"}
 

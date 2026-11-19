@@ -553,6 +553,7 @@ class CompanionModelGateway(
          */
         backgroundEvidenceKey: String? = null,
         capturePrivateMoment: Boolean = false,
+        observedSocialContext: String? = null,
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
         val totalStartedAt = System.nanoTime()
         var requestUrl: String? = null
@@ -626,7 +627,6 @@ class CompanionModelGateway(
                 source.startsWith("同次") ||
                 source.startsWith("聊天发送前·") ||
                 source.startsWith("聊天决策结构补全") ||
-                source.startsWith("聊天重大关系反馈·") ||
                 source.startsWith("电话口语·") ||
                 source.startsWith("角色本人·后台手机任务真实结果") ||
                 source == "自序所行真实读取回执" ||
@@ -640,8 +640,6 @@ class CompanionModelGateway(
             if (dialogueRequest) require(conversation.last().role == ModelConversationMessage.Role.USER) {
                 "聊天必须从当前用户消息接话"
             }
-            val rendersChosenIntent = expressionOnly ||
-                source == com.jiacimu.lulu.data.CharacterExpressionGuide.PHONE_INTENT_RENDERING
             val leanExpression = expressionOnly &&
                 !budget.precise && !budget.worldDetails
             // A real citizen has the same role-owned autobiographical timeline
@@ -723,7 +721,7 @@ class CompanionModelGateway(
                 when (effectiveMode) {
                     CompanionContextMode.Full -> {
                         appendLine("你正在以‘$displayName’参与露露机中的当前活动。")
-                        appendLine("这是角色原本所属的露露机世界：角色身份与角色设定都必须生效，性格、关系边界和语言习惯必须保持；背景设定与实际亲历分开，当前物品、位置和行动结果以执行状态为准。")
+                        appendLine("设定给出本人身份与性格，亲历和当前世界状态以真实记录为准。")
                     }
                     CompanionContextMode.CharacterAndScenario -> {
                         appendLine("你正在以‘$displayName’参与露露机原世界的当前场景。")
@@ -743,14 +741,6 @@ class CompanionModelGateway(
                     }
                 }
                 if (effectiveMode != CompanionContextMode.Isolated) {
-                    if (!rendersChosenIntent && (effectiveMode == CompanionContextMode.Full ||
-                        effectiveMode == CompanionContextMode.CharacterAndScenario) &&
-                        !instruction.contains(com.jiacimu.lulu.data.CharacterDecisionProtocol.runtimePrinciples) &&
-                        !instruction.contains(com.jiacimu.lulu.data.CharacterDecisionProtocol.causalPrinciples)) {
-                        // Do not re-inject the historical long protocol when a scene
-                        // already supplied the unified compact contract.
-                        appendLine(com.jiacimu.lulu.data.CharacterDecisionProtocol.runtimePrinciples)
-                    }
                     // Scene instructions may already contain the shared turn-taking guide.
                     // Deduplicate authored static rules only, never user events or evidence.
                     appendLine(com.jiacimu.lulu.data.CharacterExpressionGuide.forGeneration(
@@ -764,13 +754,9 @@ class CompanionModelGateway(
                     } else {
                         appendLine("当前角色设定与人格行为字段是本次读取的最新用户设定；旧台词、记忆摘要和成长记录不能覆盖或补回旧设定。")
                     }
-                    appendLine("角色与用户是什么关系、如何称呼用户，只能来自角色设定、当前场景或明确提供的事实；不得默认用户是‘主人’，也不得默认恋人、朋友或上下级关系。")
-                    appendLine("你对用户习惯、偏好和相处方式的认识来自你本人实际收到的原话、观察、共同经历或有来源的真实转述；其他角色私聊里知道的事不自动等于你知道。共享群聊的现场发言可以作为你听闻的事，但不能冒充自己的亲历或照搬对方的主观判断。")
-                    appendLine("本轮用户明确纠正与较新的原始依据优先于旧记忆、日记和总结；保留当时与现在的区别，不能用旧摘要反驳新原话。临时情绪和假设不自动改写稳定事实。")
-                    appendLine("人设背景不是进入露露机后的亲历；主观想法、日记、自述不证明行动成功。无法找到依据时承认记不清，不补造事实。")
-                    appendLine("程序给出的题目、抽卡、计时、骰子、棋局、得分和历史记录都是不可修改的事实。")
-                    appendLine("不得默认温柔、亲密、活泼、顺从、吐槽或夸奖；只输出该角色按其设定真正会说的话。")
-                    appendLine("身份、人设、关系是你的内在依据，不是每轮要说出口的内容；对方已经知道你是谁，不要自我介绍、不要总结自己的人设、不要向对方汇报自己是什么角色，除非对方直接问你是谁。")
+                    appendLine("关系和称呼来自当前设定或现场事实；个人所知来自本人见证或有来源的转述。其他角色私聊里知道的事不自动等于你知道。")
+                    appendLine("新原话和真实回执优先于旧摘要、自述及推测；程序给出的局势和结果是事实。")
+                    appendLine("身份、关系和语言习惯自然体现在说话里，无须例行自我介绍或汇报人设。")
                 }
             }.trim()
             val identitySection = definition?.identity?.takeIf(String::isNotBlank)
@@ -852,9 +838,8 @@ class CompanionModelGateway(
             // Workers that already handed off this exact observed view do not
             // need a duplicate.
             val socialAwarenessSection = if (fullContext &&
-                com.jiacimu.lulu.data.DigitalLifeProfileStore.isEnabled(characterId) &&
-                !facts.contains("【自己的数字世界来往｜真实事件与可选的下一步】"))
-                com.jiacimu.lulu.data.CharacterEverydaySocialContext.render(characterId)
+                com.jiacimu.lulu.data.DigitalLifeProfileStore.isEnabled(characterId))
+                observedSocialContext ?: com.jiacimu.lulu.data.CharacterEverydaySocialContext.render(characterId)
             else ""
             // A small untrimmed authority register guards against old episodes
             // and unused NPC templates being mistaken for currently living
@@ -910,8 +895,13 @@ class CompanionModelGateway(
             // Stable prefix for Gemini implicit caches. Dynamic instructions,
             // retrieval speech examples, current world, time and turn evidence
             // must follow it. Preserve every authoritative original section.
+            val decisionRules = if (!repairOrRendering &&
+                (fullContext || effectiveMode == CompanionContextMode.CharacterAndScenario))
+                com.jiacimu.lulu.data.CharacterDecisionProtocol.runtimePrinciples else ""
             val fixedSections = listOf(
-                "任务规则/工具协议" to baseRules, "角色身份" to identitySection,
+                "任务规则/工具协议" to listOf(baseRules, decisionRules)
+                    .filter(String::isNotBlank).joinToString("\n\n"),
+                "角色身份" to identitySection,
                 "角色人设" to personaSection, "用户资料" to userProfileSection,
                 "当前人物关系" to relationshipSection,
                 "当前真实游戏能力" to gameCapabilitySection)

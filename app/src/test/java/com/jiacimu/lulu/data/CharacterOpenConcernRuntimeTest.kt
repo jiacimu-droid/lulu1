@@ -13,25 +13,16 @@ import java.time.Instant
 @Config(manifest = Config.NONE, sdk = [28])
 class CharacterOpenConcernRuntimeTest {
     @Test fun aReplyAndRejectedCallCanStillLeaveAnIndependentConcernForLater() {
-        val original = JSONObject("""{"meaning":"她拒绝这次通话","pendingConcerns":[]}""")
-        val userWords = "你刚才说的话让我难过。先不要打电话。"
-        assertTrue(EmotionFollowThroughCoordinator.needsConcernAssessment(userWords, original))
-        val completion = JSONObject("""{
-            "action":"call",
-            "appraisal":{
-                "meaning":"把拒绝看成同意",
-                "concernAssessment":"我还有话想等她愿意时说清楚",
-                "pendingConcerns":[{"topicKey":"trust","focus":"我想认真弄清哪句话伤到了她",
-                    "whyItMatters":"她明确说刚才的话伤到了她"}]
-            }
+        val choice = JSONObject("""{
+            "meaning":"她拒绝这次通话",
+            "concernAssessment":"我还有话想等她愿意时说清楚",
+            "pendingConcerns":[{"topicKey":"trust","focus":"我想弄清哪句话伤到了她",
+                "whyItMatters":"她明确说刚才的话伤到了她"}]
         }""")
-        val appraisal = EmotionFollowThroughCoordinator.mergeAssessment(original, null, completion)!!.appraisal!!
-        assertEquals("她拒绝这次通话", appraisal.getString("meaning"))
-        assertFalse(appraisal.has("action"))
-        assertEquals(0, original.getJSONArray("pendingConcerns").length())
-        val saved = CharacterOpenConcernRuntime.update(null, appraisal, "real-user-turn", now)
+        val saved = CharacterOpenConcernRuntime.update(null, choice, "real-user-turn", now)
+        assertEquals("她拒绝这次通话", choice.getString("meaning"))
         assertTrue(CharacterOpenConcernRuntime.meritsOneFollowThrough(saved, now.plusSeconds(300)))
-        assertFalse(EmotionFollowThroughCoordinator.needsConcernAssessment(userWords, appraisal))
+        assertTrue(CharacterOpenConcernRuntime.context(saved, now).contains("我想弄清哪句话伤到了她"))
     }
 
     @Test fun olderUnresolvedConcernsSurviveNewConcernsRevisionsAndReceiptWriteback() {
@@ -172,20 +163,9 @@ class CharacterOpenConcernRuntimeTest {
         assertEquals(one.getJSONObject(0).getString("id"), again.getJSONObject(0).getString("id"))
     }
 
-    @Test fun consequentialConflictRequiresAnExplicitAssessmentNotAnAutomaticConcern() {
-        assertTrue(EmotionFollowThroughCoordinator.needsConcernAssessment(
-            "你让我很生气，我现在真的很失望。",
-            JSONObject().put("meaning", "她真的不高兴了")))
-        assertFalse(EmotionFollowThroughCoordinator.needsConcernAssessment(
-            "今天天气真不错。",
-            JSONObject()))
-        assertFalse(EmotionFollowThroughCoordinator.needsConcernAssessment(
-            "我很生气！",
-            JSONObject().put("concernAssessment", "我已经认真考虑过，目前没有持续的心事")))
-        val authored = JSONObject().put("pendingConcerns", JSONArray().put(
-            JSONObject().put("status", "open").put("topicKey", "repair")
-                .put("focus", "怎样改善交流").put("whyItMatters", "明确的关系反馈")))
-        assertFalse(EmotionFollowThroughCoordinator.needsConcernAssessment("你让我失望了", authored))
+    @Test fun aDecisionToLetTheIssueRestDoesNotCreateAnOpenConcern() {
+        val choice = JSONObject().put("concernAssessment", "我认真想过了，目前没有持续的心事")
+        assertEquals(0, CharacterOpenConcernRuntime.update(null, choice, "real-user-turn", now).length())
     }
 
     @Test fun aSuspendedConcernSurvivesAnotherQuietTurn() {
