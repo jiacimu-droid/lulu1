@@ -8,25 +8,48 @@ internal const val LEGACY_DESKTOP_ROWS = 8
 
 internal data class DesktopGridCell(val row: Int, val column: Int)
 
-/** Integral pixels keep the drawn cells, hit targets and drag positions on the same grid. */
-internal data class DesktopGridGeometry(val cellPx: Int, val leftPx: Int, val topPx: Int) {
+/**
+ * A square 4×7 slot is always cellPx × cellPx. On a tall phone the spare height
+ * becomes *visible gutters between rows* instead of piling up above and below
+ * the launcher grid. Widget dimensions remain columns×cellPx by rows×cellPx:
+ * a 2×2 photo stays square even when rows are separated.
+ */
+internal data class DesktopGridGeometry(
+    val cellPx: Int,
+    val leftPx: Int,
+    val topPx: Int,
+    val rowGapPx: Int = 0,
+) {
+    val rowStridePx: Int get() = cellPx + rowGapPx
     fun x(column: Int): Int = leftPx + column * cellPx
-    fun y(row: Int): Int = topPx + row * cellPx
+    // y(DESKTOP_ROWS) is the bottom edge: no phantom gutter below the last row.
+    fun y(row: Int): Int =
+        topPx + row * cellPx + minOf(row, DESKTOP_ROWS - 1) * rowGapPx
 
     fun cellAt(pointerX: Float, pointerY: Float): DesktopGridCell? {
-        if (cellPx == 0 || pointerX < leftPx || pointerX >= x(DESKTOP_COLUMNS) ||
+        if (cellPx <= 0 || pointerX < leftPx || pointerX >= x(DESKTOP_COLUMNS) ||
             pointerY < topPx || pointerY >= y(DESKTOP_ROWS)) return null
+        // The small row gutter belongs to the preceding touch slot, so dragging
+        // from inside a multi-row widget still reaches its original grid cell.
         return DesktopGridCell(
-            row = ((pointerY - topPx) / cellPx).toInt(),
+            row = ((pointerY - topPx) / rowStridePx).toInt().coerceAtMost(DESKTOP_ROWS - 1),
             column = ((pointerX - leftPx) / cellPx).toInt(),
         )
     }
 
     companion object {
         fun fit(widthPx: Int, heightPx: Int): DesktopGridGeometry {
-            val cell = minOf(widthPx / DESKTOP_COLUMNS, heightPx / DESKTOP_ROWS)
-            return DesktopGridGeometry(cell, (widthPx - cell * DESKTOP_COLUMNS) / 2,
-                (heightPx - cell * DESKTOP_ROWS) / 2)
+            val cell = minOf(widthPx / DESKTOP_COLUMNS, heightPx / DESKTOP_ROWS).coerceAtLeast(0)
+            val gapCount = DESKTOP_ROWS - 1
+            val spare = (heightPx - cell * DESKTOP_ROWS).coerceAtLeast(0)
+            // Cap to about 1/7 of a square cell, and shrink gracefully on short screens.
+            val gap = if (gapCount > 0 && cell > 0)
+                minOf(spare / gapCount, cell / 7) else 0
+            val height = cell * DESKTOP_ROWS + gap * gapCount
+            return DesktopGridGeometry(
+                cell, (widthPx - cell * DESKTOP_COLUMNS) / 2,
+                (heightPx - height) / 2, gap,
+            )
         }
     }
 }
