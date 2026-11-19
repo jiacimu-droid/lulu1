@@ -86,6 +86,16 @@ internal object CharacterTurnStateCommit {
             selectedAction, innerThought, reason, now, alternatives, recordInnerVoice,
             voiceFingerprint, observationId, afterCausalRecord,
         )
+        if (CharacterOpenConcernRuntime.proposals(appraisal).any { it.opt("reviewSoon") == true }) {
+            runCatching {
+                RoleDayScheduleStore.arrangeQuickConcernCheck(
+                    context, characterId, appraisal, observationId.ifBlank { evidenceId }, now,
+                )
+            }.onFailure {
+                CompanionPresenceStore.recordPerceptionAttempt(
+                    characterId, "挂心的短时回看未保存：${it.message.orEmpty().take(120)}")
+            }
+        }
         CharacterPerceptionContext.acknowledge(
             context, characterId, perception, direct = direct,
             claimDirect = claimDirect,

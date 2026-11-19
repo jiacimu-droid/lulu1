@@ -321,6 +321,10 @@ object ProactivePerceptionRuntime {
             if (recoverExpiredWindowMillis > 0L && !needsFailedExpiryRecovery(
                     context, targetCharacterId, recoverExpiredWindowMillis, failedPerceptionAtMillis,
                 )) return@withLock 0
+            val quickConcernCheck = requiredDuePlanId.isNotBlank() &&
+                RoleDayScheduleStore.plans(context, targetCharacterId).any {
+                    it.id == requiredDuePlanId && it.quickConcernCheck
+                }
             if (requiredDuePlanId.isNotBlank() &&
                 (requiredDuePlanAt == null ||
                     !RoleDayScheduleStore.awaitingDueDecision(
@@ -481,7 +485,7 @@ object ProactivePerceptionRuntime {
                     }
                     // A lifestyle-review wake is not permission to disturb quiet
                     // hours just to produce a social post; unresolved cues persist.
-                    if ((trigger.startsWith("真实生活后续回想") ||
+                    if ((quickConcernCheck || trigger.startsWith("真实生活后续回想") ||
                         (preserveOffline && trigger.startsWith("合并后的自主生活回顾")) ||
                         trigger.startsWith("居民小事到了") ||
                         trigger.startsWith(ProactivePerceptionRecoveryPolicy.RETRY_TRIGGER)) &&
@@ -582,7 +586,7 @@ object ProactivePerceptionRuntime {
                     val result = runCatching {
                         evaluateCharacter(appContext, conversation, effectiveTrigger, now,
                             requiredInteractionEvidenceId, onlineExpiryAtMillis, onlineRevision,
-                            deferToNewUserBubble = requiredDuePlanId.isBlank() &&
+                            deferToNewUserBubble = (requiredDuePlanId.isBlank() || quickConcernCheck) &&
                                 requiredInteractionEvidenceId.isNullOrBlank() &&
                                 motiveReviewId.isBlank() && onlineExpiryAtMillis == 0L)
                     }
@@ -1111,7 +1115,7 @@ object ProactivePerceptionRuntime {
                 }
                 if (trigger.startsWith("持续目标定时复盘")) {
                     appendLine("【目标复盘】仅在原持续愿望仍真实存在且用户没有新反馈时检查：上一个动作执行了什么、有没有目标达成的直接证据、下一步是否值得采取不同方式。")
-                    appendLine("道歉成功送达不等于得到原谅；没有回复也不代表她还在生气。可以选择不打扰、换个真实可做的事情，或者一次有分寸的联系；绝不复读道歉。")
+                    appendLine("依据她实际说过的话、你上次的行动和这次仍然在意的事决定。可以主动继续说想说的话、确认近况、换一种可做的事，或结合她明确给出的边界留出空间。")
                     appendLine("不能为此复盘新造已经和好、用户正在伤心之类的事实。不勉强永久在线。")
                 }
                 if (awakeReflection) appendLine("【在线状态】本人仍在本轮在线感知中。")
