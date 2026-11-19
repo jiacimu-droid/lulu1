@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`dc39e96b6b1e6bf54e5de93159dd96d3f558e415`
+- 基准提交：`d0311c16a152953e0a577d1421cc9cf0d0bb26ad`
 - 分支：`main`
 - 已索引文件：1480
-- 已索引代码/文本行：314591
-- 已发现符号：4488
+- 已索引代码/文本行：314668
+- 已发现符号：4489
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -309,7 +309,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 180 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 339 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt` | 290 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt` | 147 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt` | 177 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt` | 653 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolderUi.kt` | 177 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt` | 103 | 7 |
@@ -467,7 +467,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 709 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 481 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 2065 | 13 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 2066 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 65 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 1224 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceMood.kt` | 24 | 1 |
@@ -603,7 +603,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt` | 196 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentSocialMailbox.kt` | 283 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentWorldLifeOpportunities.kt` | 84 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 1179 | 23 |
+| `app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt` | 1185 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/RoleReadablePerformanceBridge.kt` | 24 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/SearchActionIntegrity.kt` | 45 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt` | 990 | 23 |
@@ -613,7 +613,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineEvidence.kt` | 25 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/TimelineStatementOwnership.kt` | 92 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 176 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 749 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 754 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 381 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
@@ -1025,7 +1025,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt` | 332 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/SelfThoughtNotebookTest.kt` | 33 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt` | 148 | 13 |
-| `app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt` | 293 | 4 |
+| `app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt` | 328 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/SelfWishFoldersTest.kt` | 67 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SemanticDialogueWindowRegressionTest.kt` | 80 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SettingsHomeSearchTest.kt` | 47 | 1 |
