@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T06:34:56.438401+00:00",
-  "commit": "aea70b4ba8beccea986dec0b7ee3264a0e73a368",
+  "generatedAt": "2026-11-19T06:36:14.887901+00:00",
+  "commit": "e9ae9806b480eb969ae62173904c86c7d5775f98",
   "branch": "main",
-  "sourceFingerprint": "b8ee2082a5e14924b4163fc8b168affc03e8e796c8c7c2af18c2f465f61775ac",
+  "sourceFingerprint": "38a117e45c84b7b22386f057b05df6e48edca50dc31185f6f012a51f406e2299",
   "summary": {
     "files": 1480,
-    "lines": 314421,
+    "lines": 314426,
     "symbols": 4488
   },
   "symbolIndex": {
@@ -9321,7 +9321,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 53
+        "line": 58
       }
     ],
     "configure": [
@@ -11009,7 +11009,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 164
+        "line": 169
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterPerceptionContextTest.kt",
@@ -14607,31 +14607,31 @@
     "hasOfficialSavedConfiguration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 34
+        "line": 45
       }
     ],
     "configuredProvider": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 39
+        "line": 48
       }
     ],
     "saveDeepSeekKey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 56
+        "line": 61
       }
     ],
     "saveKey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 62
+        "line": 67
       }
     ],
     "extract": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-        "line": 110
+        "line": 115
       }
     ],
     "WorldFirstExplorationMemory": [
@@ -38407,8 +38407,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/WebSearchProvider.kt",
-      "lines": 220,
-      "sha256": "a3efef29a66d25b28b3a39016f6a751fb492ea3b11d512428c6e9958c827e73d",
+      "lines": 225,
+      "sha256": "e7df071a5a9fe561f74c7d4a4f6e3a0f3ffdc0e0cef5fd2a7d11f245e3194008",
       "symbols": [
         {
           "name": "savedKey",
@@ -38420,31 +38420,31 @@
         },
         {
           "name": "hasOfficialSavedConfiguration",
-          "line": 34
+          "line": 45
         },
         {
           "name": "configuredProvider",
-          "line": 39
+          "line": 48
         },
         {
           "name": "isConfigured",
-          "line": 53
+          "line": 58
         },
         {
           "name": "saveDeepSeekKey",
-          "line": 56
+          "line": 61
         },
         {
           "name": "saveKey",
-          "line": 62
+          "line": 67
         },
         {
           "name": "extract",
-          "line": 110
+          "line": 115
         },
         {
           "name": "search",
-          "line": 164
+          "line": 169
         }
       ]
     },
