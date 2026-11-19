@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T10:34:41.653238+00:00",
-  "commit": "058de8fc217425f8f65f3d8e51de8471c5efc5c8",
+  "generatedAt": "2026-11-19T10:35:20.330637+00:00",
+  "commit": "520946d3d730fe35193afd00159602cb29ab93d9",
   "branch": "main",
-  "sourceFingerprint": "788059f229952076cca2ec00ab0025c7a8a525f6ee2d32b4d9bc776dc1292057",
+  "sourceFingerprint": "3dae262205e8d4448e9a33994a7e9df7ea034b8ec6c39e340c7d3218b42dc73e",
   "summary": {
     "files": 1480,
-    "lines": 315073,
+    "lines": 315102,
     "symbols": 4490
   },
   "symbolIndex": {
@@ -2297,7 +2297,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 101
+        "line": 106
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
@@ -15749,31 +15749,31 @@
     "selectVoice": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 64
+        "line": 69
       }
     ],
     "receiveOwner": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 73
+        "line": 78
       }
     ],
     "companionSaid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 82
+        "line": 87
       }
     ],
     "fixedHostSaid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 94
+        "line": 99
       }
     ],
     "connectAudio": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 106
+        "line": 111
       }
     ],
     "attach": [
@@ -40121,32 +40121,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-      "lines": 253,
-      "sha256": "9e1f8fbda9c1c2721322cb4ec333f7b257c91df894832a0b8f62626850620e83",
+      "lines": 282,
+      "sha256": "3d9a94a8df8cfb0b311d5a3bbdfa1020e026e973f82f78036856df450276d907",
       "symbols": [
         {
           "name": "selectVoice",
-          "line": 64
+          "line": 69
         },
         {
           "name": "receiveOwner",
-          "line": 73
+          "line": 78
         },
         {
           "name": "companionSaid",
-          "line": 82
+          "line": 87
         },
         {
           "name": "fixedHostSaid",
-          "line": 94
+          "line": 99
         },
         {
           "name": "close",
-          "line": 101
+          "line": 106
         },
         {
           "name": "connectAudio",
-          "line": 106
+          "line": 111
         }
       ]
     },
