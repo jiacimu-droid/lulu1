@@ -14,6 +14,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import java.util.zip.CRC32
 
 /**
  * 整机数据备份：把应用私有数据目录打成一个 zip。
@@ -112,16 +113,26 @@ object LuluDataBackup {
                 require(seenPaths.add(entry.name)) { "备份含重复路径：${entry.name}" }
                 entries += 1
                 zip.getInputStream(entry).use { stream ->
+                    val checksum = CRC32()
                     if (entry.name == MANIFEST_NAME) {
-                        val text = stream.readBytes().toString(Charsets.UTF_8)
+                        if (entry.size > 16_384L) throw IOException("备份清单异常过大")
+                        val bytes = stream.readBytes()
+                        checksum.update(bytes)
+                        val text = bytes.toString(Charsets.UTF_8)
                         schema = Regex("\"schemaVersion\"\\s*:\\s*(\\d+)")
                             .find(text)?.groupValues?.get(1)?.toIntOrNull()
                     } else {
                         val buffer = ByteArray(8192)
-                        while (stream.read(buffer) >= 0) {
-                            // 只读不存：读完即完成 CRC 校验。
+                        while (true) {
+                            val n = stream.read(buffer)
+                            if (n < 0) break
+                            if (n > 0) checksum.update(buffer, 0, n)
                         }
                     }
+                    // ZipFile verifies the central directory but does not
+                    // guarantee CRC validation of every getInputStream payload.
+                    if (entry.crc >= 0 && checksum.value != entry.crc)
+                        throw IOException("备份数据校验失败：${entry.name}")
                 }
             }
         }
