@@ -368,10 +368,10 @@ class ProactiveQuietDecisionTest {
     @Test fun autonomousChoiceKeepsUnansweredOwnerActivityUncertainAndOffersRealConsentTools() {
         val independent = proactiveDecisionInstruction("uncertainty-test-role")
         val privateChat = proactiveDecisionInstruction("uncertainty-test-role", directPrivateChat = true)
-        assertTrue(independent.contains("未回复不自动取消尚未落实的关心与目标"))
+        assertTrue(independent.contains("未回复、切换应用、旧忙碌记录都不是取消监督"))
         assertTrue(independent.contains("经过授权用现有屏幕/监督工具获得真实观察"))
-        assertTrue(privateChat.contains("单纯未回复、切到别的应用或旧的忙碌记录"))
-        assertTrue(privateChat.contains("不能把猜测当作必须停止关心的事实"))
+        assertTrue(privateChat.contains("未回复、切换应用、旧忙碌记录都不是取消监督"))
+        assertTrue(privateChat.contains("是否关心、行动或安排复查由本人决定"))
         assertTrue(privateChat.contains("start_study_watch"))
         assertTrue(privateChat.contains("不能把一次拒绝推断成未来长期禁止"))
         assertTrue(privateChat.contains("必须获得新时段的主人明确许可"))
@@ -473,11 +473,12 @@ class ProactiveQuietDecisionTest {
 
     @Test fun autonomyPromptPreservesExplicitSupervisionWithoutForcingEveryRoleToTalk() {
         val instruction = proactiveDecisionInstruction("bedtime-prompt-test")
-        assertTrue(instruction.contains("已接受的责任与普通心事不同"))
-        assertTrue(instruction.contains("不能仅凭猜测替她撤回约定"))
-        assertTrue(instruction.contains("无论本轮说过话、用了其他工具还是选择 silent"))
-        assertTrue(instruction.contains("不自动变成取消监督或必须等她主动报备"))
+        // Assert the actual responsibility and permission safeguards, not old wording.
+        assertTrue(instruction.contains("【已接受的责任与监督授权】"))
+        assertTrue(instruction.contains("已接受的责任不因回复、其他行动或 silent 而取消"))
+        assertTrue(instruction.contains("未回复、切换应用、旧忙碌记录都不是取消监督"))
         assertTrue(instruction.contains("真实拒绝与权限不足继续遵守"))
+        assertTrue(instruction.contains("必须获得新时段的主人明确许可"))
     }
 
     @Test fun validSilentChoiceIsParsedAndKeepsItsReason() {

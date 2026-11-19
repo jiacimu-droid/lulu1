@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T17:19:47.406160+00:00",
-  "commit": "121c74b001aa6c9d89b9a2a6eea6467271dda89e",
+  "generatedAt": "2026-11-19T17:20:22.355707+00:00",
+  "commit": "b6c7ebd082163c49de7fe62906f7215b5436b79f",
   "branch": "main",
-  "sourceFingerprint": "12949d259bc5e00acb9819b1dbbf22322830e02c24ba89a901406558c0e2a700",
+  "sourceFingerprint": "b6d35657f591816bcf5011628596726806ef64b3c2d0ee573ddca8b42608de23",
   "summary": {
     "files": 1486,
-    "lines": 317200,
+    "lines": 317204,
     "symbols": 4514
   },
   "symbolIndex": {
@@ -43020,7 +43020,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
       "lines": 426,
-      "sha256": "b2ca078fb7f80260cd4f22ae4abfdffac83207dde0e89c705e5ce80ba47d9719",
+      "sha256": "85b1e5512d5a34c1e9beb0966c73eebeb7c13cfd7435ea1900225e38bf60e6b3",
       "symbols": [
         {
           "name": "startPomodoro",
@@ -48124,8 +48124,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterDecisionProtocolTest.kt",
-      "lines": 382,
-      "sha256": "c38821ae81c34596650ce373a009add8803ae2754ab695cd4c9e9f04359d9f08",
+      "lines": 384,
+      "sha256": "016386c4911b1e45b7c0dbc1f73008220c4256fde1d22348688758902d18fa4f",
       "symbols": [
         {
           "name": "CharacterDecisionProtocolTest",
@@ -48232,8 +48232,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 638,
-      "sha256": "f5dc81c7a2d8d7f3d2fcd862611bd992bcae376514e9a44a26abc511e500fd3f",
+      "lines": 640,
+      "sha256": "1ec6f9177c617f92f90940c5a69be8f0e43ff185fda85524be03dfe6ef76b145",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
