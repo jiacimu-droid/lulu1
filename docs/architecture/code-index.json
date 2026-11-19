@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T10:35:20.330637+00:00",
-  "commit": "520946d3d730fe35193afd00159602cb29ab93d9",
+  "generatedAt": "2026-11-19T11:22:40.302833+00:00",
+  "commit": "37accce406e58bfaf63c06d00bb42711bf7c3de4",
   "branch": "main",
-  "sourceFingerprint": "3dae262205e8d4448e9a33994a7e9df7ea034b8ec6c39e340c7d3218b42dc73e",
+  "sourceFingerprint": "96e2657a918e88158744a04d2b4e7d2ecadfbf562248d04f1964c65a42539601",
   "summary": {
     "files": 1480,
-    "lines": 315102,
-    "symbols": 4490
+    "lines": 315123,
+    "symbols": 4491
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2297,7 +2297,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 106
+        "line": 122
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
@@ -15746,34 +15746,40 @@
         "line": 58
       }
     ],
-    "selectVoice": [
+    "setMicrophoneEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 69
+        "line": 73
+      }
+    ],
+    "setCompanionAudioEnabled": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
+        "line": 83
       }
     ],
     "receiveOwner": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 78
+        "line": 92
       }
     ],
     "companionSaid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 87
+        "line": 103
       }
     ],
     "fixedHostSaid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 99
+        "line": 115
       }
     ],
     "connectAudio": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 111
+        "line": 128
       }
     ],
     "attach": [
@@ -40121,32 +40127,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-      "lines": 282,
-      "sha256": "3d9a94a8df8cfb0b311d5a3bbdfa1020e026e973f82f78036856df450276d907",
+      "lines": 303,
+      "sha256": "3d90b959b9f1d0405ad651aa9c2d7d5733b0f0cd49c7d9c2ddc88af303e963cd",
       "symbols": [
         {
-          "name": "selectVoice",
-          "line": 69
+          "name": "setMicrophoneEnabled",
+          "line": 73
+        },
+        {
+          "name": "setCompanionAudioEnabled",
+          "line": 83
         },
         {
           "name": "receiveOwner",
-          "line": 78
+          "line": 92
         },
         {
           "name": "companionSaid",
-          "line": 87
+          "line": 103
         },
         {
           "name": "fixedHostSaid",
-          "line": 99
+          "line": 115
         },
         {
           "name": "close",
-          "line": 106
+          "line": 122
         },
         {
           "name": "connectAudio",
-          "line": 111
+          "line": 128
         }
       ]
     },
