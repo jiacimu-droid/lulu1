@@ -29,4 +29,12 @@ class SelfThoughtNotebookTest {
     @Test fun emptyDateHasNoInventedPages() {
         assertEquals(emptyList<SelfThoughtPage>(), thoughtPagesOn(listOf(page("old", oct18, 1)), oct19))
     }
+
+    @Test fun untitledDiaryHasNoInventedHeadingAndKeepsItsBody() {
+        val original = SelfThoughtPage("untitled", oct19, "", "正文从纸张顶部开始", 1, 2)
+        assertNull(thoughtPageVisibleTitle(original))
+        assertNull(thoughtPageVisibleTitle(original.copy(title = "   ")))
+        assertEquals("正文从纸张顶部开始", original.body)
+        assertEquals("我的标题", thoughtPageVisibleTitle(original.copy(title = "  我的标题  ")))
+    }
 }
