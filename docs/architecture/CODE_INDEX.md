@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`dfa62c8fe4115d8eed88e0b08b01a922844eb7dc`
+- 基准提交：`8314b49c1ddd6ac03304c83eb7237a8bf9e95c75`
 - 分支：`main`
 - 已索引文件：1480
-- 已索引代码/文本行：314140
-- 已发现符号：4486
+- 已索引代码/文本行：314204
+- 已发现符号：4487
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -368,7 +368,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 209 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt` | 71 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 225 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 286 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 66 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
@@ -467,7 +467,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStatus.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt` | 709 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CommitmentTurnAutomation.kt` | 481 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 2048 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt` | 2051 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionContactClock.kt` | 65 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt` | 1224 | 23 |
 | `app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceMood.kt` | 24 | 1 |
