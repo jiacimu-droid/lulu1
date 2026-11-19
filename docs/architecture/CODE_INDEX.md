@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`78a5a3eb583eedbd983d91750d16892078f8e5c2`
+- 基准提交：`432db746d18d7b48a569bbb172d6ad2cb276de19`
 - 分支：`main`
 - 已索引文件：1480
-- 已索引代码/文本行：315541
+- 已索引代码/文本行：315554
 - 已发现符号：4495
 
 | 文件 | 行数 | 符号数 |
@@ -305,7 +305,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceKeyboard.kt` | 34 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefacePalette.kt` | 28 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt` | 706 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 445 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebook.kt` | 450 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/SelfThoughtNotebookArtwork.kt` | 180 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoArtwork.kt` | 339 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfTodoEditor.kt` | 290 | 0 |
@@ -1023,7 +1023,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeFailurePolicyTest.kt` | 20 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTranscriptStateTest.kt` | 30 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ScribeRealtimeTransportTest.kt` | 332 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/SelfThoughtNotebookTest.kt` | 33 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/SelfThoughtNotebookTest.kt` | 41 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SelfTodoCalendarTest.kt` | 148 | 13 |
 | `app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt` | 456 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/SelfWishFoldersTest.kt` | 67 | 1 |
