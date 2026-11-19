@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T08:29:33.655529+00:00",
-  "commit": "f4795ff9df33c80e88baaaf8eb18c158f0d48c1a",
+  "generatedAt": "2026-11-19T08:31:17.066715+00:00",
+  "commit": "c3e747b002ad4fdab4d68666f0b9b92f9045cc88",
   "branch": "main",
-  "sourceFingerprint": "f70bf22f319f90c8fe9880fca69f1e4fc6b6daabfe0a7bf2481b770cf97643af",
+  "sourceFingerprint": "c1200e5a370c288548d923ee0d49e9ff703c68822268cb363689dac81d1d0fd9",
   "summary": {
     "files": 1480,
-    "lines": 315030,
-    "symbols": 4489
+    "lines": 315039,
+    "symbols": 4490
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -7414,34 +7414,40 @@
         "line": 241
       }
     ],
+    "hasAuthoredMomentaryIdea": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
+        "line": 13
+      }
+    ],
     "expressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 113
+        "line": 122
       }
     ],
     "usesSeparateExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 174
+        "line": 183
       }
     ],
     "chatAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 176
+        "line": 185
       }
     ],
     "groupIsExplicitlySilent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 191
+        "line": 200
       }
     ],
     "speechIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 196
+        "line": 205
       }
     ],
     "conciseAppraisal": [
@@ -31119,28 +31125,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-      "lines": 200,
-      "sha256": "78e40113ee9d83b39054e0daf1b5667768e6704521b7d513c40a243087d97829",
+      "lines": 209,
+      "sha256": "496137f13c8f820a425d947cc78f94ba0098d480f4d1b74c5e4f4117d48ac578",
       "symbols": [
         {
+          "name": "hasAuthoredMomentaryIdea",
+          "line": 13
+        },
+        {
           "name": "expressionContext",
-          "line": 113
+          "line": 122
         },
         {
           "name": "usesSeparateExpression",
-          "line": 174
+          "line": 183
         },
         {
           "name": "chatAction",
-          "line": 176
+          "line": 185
         },
         {
           "name": "groupIsExplicitlySilent",
-          "line": 191
+          "line": 200
         },
         {
           "name": "speechIntent",
-          "line": 196
+          "line": 205
         }
       ]
     },
