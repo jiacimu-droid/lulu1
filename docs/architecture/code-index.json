@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T00:24:03.492684+00:00",
-  "commit": "c88199aaafddcf0d8802d0aa4bc3c8729885606d",
+  "generatedAt": "2026-11-19T00:35:39.327390+00:00",
+  "commit": "1bff078a2fca2ffea84260e37d434c22c2775bea",
   "branch": "main",
-  "sourceFingerprint": "e9db0e46269ea29f8863014d53e4cd89e8929254719c67dd02e2de9628086d88",
+  "sourceFingerprint": "c32c89778ef6be9b5b271cd9caeadb4c1009a85bf76c804ab27fff0723a593eb",
   "summary": {
-    "files": 1478,
-    "lines": 312708,
-    "symbols": 4456
+    "files": 1479,
+    "lines": 312740,
+    "symbols": 4457
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1635,7 +1635,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 717
+        "line": 712
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluCommunitySupportScreen.kt",
@@ -3353,25 +3353,25 @@
     "LuluVoiceSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 65
+        "line": 60
       }
     ],
     "saveVoiceSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 159
+        "line": 154
       }
     ],
     "LuluMemorySettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 704
+        "line": 699
       }
     ],
     "LuluImageSettingsScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-        "line": 795
+        "line": 790
       }
     ],
     "valid": [
@@ -20614,6 +20614,12 @@
         "line": 12
       }
     ],
+    "MossSpeechModelCatalogTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/MossSpeechModelCatalogTest.kt",
+        "line": 8
+      }
+    ],
     "OfflineStickerAssetsTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt",
@@ -27216,28 +27222,28 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt",
-      "lines": 984,
-      "sha256": "5db184a5acd9ceadc6368e18a39c56b0e2de39f6ad82d6d98e0f27769b0353a4",
+      "lines": 979,
+      "sha256": "c9d541dd66985e5ba719f4f46d980a535fcf8e04c17e37ef0b766e56e8486694",
       "symbols": [
         {
           "name": "LuluVoiceSettingsScreen",
-          "line": 65
+          "line": 60
         },
         {
           "name": "saveVoiceSettings",
-          "line": 159
+          "line": 154
         },
         {
           "name": "LuluMemorySettingsScreen",
-          "line": 704
+          "line": 699
         },
         {
           "name": "save",
-          "line": 717
+          "line": 712
         },
         {
           "name": "LuluImageSettingsScreen",
-          "line": 795
+          "line": 790
         }
       ]
     },
@@ -28246,8 +28252,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MossSpeech.kt",
-      "lines": 195,
-      "sha256": "272ebaa38499f6464e73a5a0120d7d5bd3826cbffdf4dbfa8a4a140eddd3e1c8",
+      "lines": 204,
+      "sha256": "5666966364bb1204458b159a2860eca74f0ba53149a30deade5d6382f054bae6",
       "symbols": [
         {
           "name": "stop",
@@ -46122,6 +46128,17 @@
         {
           "name": "MiniMaxAsrStreamAccumulatorTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/MossSpeechModelCatalogTest.kt",
+      "lines": 28,
+      "sha256": "ef8835ea77e3c49c29cef53c0a28e79add5a86532a195d1fa0503e71ec997eb2",
+      "symbols": [
+        {
+          "name": "MossSpeechModelCatalogTest",
+          "line": 8
         }
       ]
     },
