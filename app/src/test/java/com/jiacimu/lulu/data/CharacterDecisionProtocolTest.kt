@@ -143,7 +143,9 @@ class CharacterDecisionProtocolTest {
         assertFalse(p.contains("read_xiaohongshu"))
         assertTrue(p.contains("image_search"))
         assertTrue(p.contains("搜索结果标题不是已读"))
-        assertTrue(p.contains("不必等用户问到这个话题"))
+        // Independent curiosity is available without waiting for a new user request.
+        assertTrue(p.contains("没有新消息也可自主生活"))
+        assertTrue(p.contains("自主探索可选"))
     }
 
     @Test fun autonomousDiscoveryReadsRegisteredToolLinesWithoutInventingPermissions() {

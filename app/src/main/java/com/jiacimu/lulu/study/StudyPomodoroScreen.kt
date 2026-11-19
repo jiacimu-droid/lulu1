@@ -202,7 +202,7 @@ internal fun StudyPomodoroScreen(
                                 }
                                 Switch(
                                     checked = companion.microRestEnabled,
-                                    onCheckedChange = PomodoroCompanionSessions.store::updateMicroRestEnabled,
+                                    onCheckedChange = { enabled -> PomodoroCompanionSessions.store.updateMicroRestEnabled(enabled) },
                                 )
                             }
                         }

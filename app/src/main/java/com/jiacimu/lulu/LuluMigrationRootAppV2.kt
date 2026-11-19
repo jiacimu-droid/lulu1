@@ -1,6 +1,8 @@
 package com.jiacimu.lulu
 
 import android.content.Intent
+import android.media.AudioManager
+import android.media.ToneGenerator
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
@@ -572,6 +574,16 @@ private fun PomodoroRuntimeOverlay(
         while (PomodoroCompanionSessions.store.state.value.countdownRunning) {
             delay(500)
             if (PomodoroCompanionSessions.syncCountdownClock()) break
+            if (PomodoroCompanionSessions.syncMicroRestClock()) {
+                // A single gentle signal only when a new rest actually starts.
+                val tone = runCatching { ToneGenerator(AudioManager.STREAM_NOTIFICATION, 55) }.getOrNull()
+                try {
+                    runCatching { tone?.startTone(ToneGenerator.TONE_PROP_BEEP, 180) }
+                    delay(220)
+                } finally {
+                    tone?.release()
+                }
+            }
         }
     }
     LaunchedEffect(pomodoroCompanion.countUpRunning, pomodoroCompanion.countUpAnchorEpochMillis) {
@@ -595,6 +607,41 @@ private fun PomodoroRuntimeOverlay(
                 PomodoroCompanionSessions.finishActiveSession()
             },
         )
+    }
+    if (active && pomodoroCompanion.microRestEnabled &&
+        pomodoroCompanion.countdownRunning &&
+        pomodoroCompanion.microRestEndsAtEpochMillis > 0L &&
+        pomodoroCompanion.microRestRemainingSeconds > 0) {
+        Box(
+            modifier = Modifier.fillMaxSize().statusBarsPadding().padding(top = 58.dp),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            Surface(
+                modifier = Modifier.padding(horizontal = 22.dp).widthIn(max = 340.dp),
+                color = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                shape = RoundedCornerShape(24.dp),
+                shadowElevation = 14.dp,
+                tonalElevation = 3.dp,
+            ) {
+                Column(
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 18.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                ) {
+                    Text("十秒微休息", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+                    Text(
+                        "${pomodoroCompanion.microRestRemainingSeconds}",
+                        fontSize = 38.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text("闭眼，放空，不必刻意回想", fontSize = 12.sp)
+                    Text("主计时继续 · 结束后自动恢复", fontSize = 11.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
     }
 }
 
