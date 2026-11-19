@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`fd6cf21127281d40fe52024e216d73d56f5fa7f0`
+- 基准提交：`bc258967ba73b56b014df701800894807579c580`
 - 分支：`main`
 - 已索引文件：1480
-- 已索引代码/文本行：314245
+- 已索引代码/文本行：314295
 - 已发现符号：4487
 
 | 文件 | 行数 | 符号数 |
@@ -368,7 +368,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundCompanionService.kt` | 209 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/BackgroundModelRequestBudget.kt` | 71 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CallMediaSemanticBoundary.kt` | 23 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 296 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt` | 339 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionEvidence.kt` | 66 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFeedback.kt` | 46 | 1 |
@@ -840,7 +840,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 108 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 2318 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2345 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2352 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluForegroundPhoneSession.kt` | 430 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 64 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
