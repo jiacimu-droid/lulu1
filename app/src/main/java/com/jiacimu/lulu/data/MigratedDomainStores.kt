@@ -543,11 +543,13 @@ class InMemoryLuluChatStore : LuluChatStore {
             voiceNote = true,
         )
         val context = checkNotNull(appContext) { "聊天存储尚未初始化" }
-        com.jiacimu.lulu.ChatAutoVoicePlayback.saveOwnerVoiceNote(context, message.id, pcm)
+        val savedAudio = com.jiacimu.lulu.ChatAutoVoicePlayback
+            .saveOwnerVoiceNote(context, message.id, pcm)
         try {
             append(conversationId, message, incrementUnread = false, durable = true)
         } catch (error: Exception) {
-            com.jiacimu.lulu.ChatAutoVoicePlayback.remove(message.id)
+            // An uncommitted message must never leave orphaned private audio.
+            savedAudio.delete()
             throw error
         }
         com.jiacimu.lulu.LuluVoiceCallSession.onTextChatMessage(conversationId, words, message.id)
