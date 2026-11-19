@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`801dfa3bc5ed7773f27197be6d330c0eae4fa166`
+- 基准提交：`06662a2e770f05927d012b05578576fbaeb09346`
 - 分支：`main`
 - 已索引文件：1480
-- 已索引代码/文本行：313182
-- 已发现符号：4463
+- 已索引代码/文本行：313578
+- 已发现符号：4472
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -234,7 +234,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 219 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 198 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoiceSettingsUi.kt` | 60 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt` | 400 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt` | 409 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 631 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
@@ -444,7 +444,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterVoicePreferenceStore.kt` | 141 | 17 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt` | 72 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatLexiconAutomation.kt` | 664 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 125 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt` | 139 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt` | 42 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatTurnConsistencyAutomation.kt` | 79 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/ChatUnreadStore.kt` | 124 | 6 |
@@ -523,7 +523,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt` | 51 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1377 | 16 |
+| `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1470 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 610 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocationAddressCache.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt` | 103 | 5 |
@@ -545,11 +545,11 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingLifecycle.kt` | 129 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryEvidenceSelection.kt` | 74 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt` | 177 | 11 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt` | 86 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt` | 102 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt` | 112 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 33 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt` | 212 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt` | 79 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt` | 213 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt` | 454 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt` | 42 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 235 | 1 |
@@ -562,7 +562,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 127 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentOwnerUnread.kt` | 67 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt` | 1143 | 20 |
-| `app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt` | 141 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt` | 164 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineChatBatchStore.kt` | 279 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt` | 73 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/OnlineExpiryUnfinishedWork.kt` | 78 | 1 |
@@ -590,13 +590,13 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt` | 63 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldSourceAdapters.kt` | 655 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RealityWorldWindow.kt` | 509 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt` | 334 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt` | 331 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipExpressionGuard.kt` | 47 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRepairContinuity.kt` | 103 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 596 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 584 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 95 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 2579 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt` | 132 | 13 |
@@ -615,7 +615,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt` | 176 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt` | 746 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/TransientConversationStyle.kt` | 95 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 377 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt` | 381 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserAvatarVisionWorker.kt` | 104 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/UserDataUpgradeGuard.kt` | 163 | 4 |
@@ -1214,9 +1214,9 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryAffectAttentionTest.kt` | 52 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryAssociationPolicyTest.kt` | 95 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 123 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt` | 133 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryContinuityTest.kt` | 189 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceCommitIntegrationTest.kt` | 187 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceCommitIntegrationTest.kt` | 249 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceSelectionTest.kt` | 231 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryExtractionCheckpointTest.kt` | 350 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryLifecycleIntegrationTest.kt` | 217 | 1 |
@@ -1232,7 +1232,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MomentFriendAccessTest.kt` | 60 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MomentOwnerUnreadTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MomentsOwnerUnreadIntegrationTest.kt` | 124 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt` | 133 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt` | 162 | 3 |
 | `app/src/test/java/com/jiacimu/lulu/data/NativeResidentLifeIntegrationTest.kt` | 384 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatBatchStoreTest.kt` | 290 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/OnlineChatExperienceTest.kt` | 1186 | 3 |
@@ -1258,7 +1258,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt` | 403 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ProactiveSendAttributionTest.kt` | 327 | 11 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt` | 224 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 76 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt` | 77 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicyTest.kt` | 45 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatterTest.kt` | 49 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ReadingReactionIntegrationTest.kt` | 108 | 1 |
@@ -1292,7 +1292,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/ScreenVisionCapabilityContextTest.kt` | 180 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchActionIntegrityTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt` | 239 | 3 |
-| `app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt` | 215 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt` | 231 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryTurnPipelineTest.kt` | 206 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/SemanticWorldActionTurnRegressionTest.kt` | 166 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ShortVideoMobileReadingTest.kt` | 262 | 1 |
