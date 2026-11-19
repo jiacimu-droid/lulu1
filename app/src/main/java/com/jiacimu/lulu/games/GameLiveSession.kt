@@ -7,7 +7,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CallEnd
+import androidx.compose.material.icons.outlined.VolumeOff
+import androidx.compose.material.icons.outlined.VolumeUp
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.MicOff
 import androidx.compose.material3.Button
@@ -52,8 +53,11 @@ internal class GameLiveSession(
     private val voice: IslandCompanionVoice,
     private val toggleMic: () -> Unit,
 ) {
-    var voiceMode by mutableStateOf(false)
+    var companionAudioEnabled by mutableStateOf(false)
         private set
+    // Compatibility with game pacing: audio mode means either side opted into
+    // speech. It does not turn on the other side's microphone or TTS.
+    val voiceMode: Boolean get() = mic.active || companionAudioEnabled
     var draft by mutableStateOf("")
     var lastOwnerLine by mutableStateOf("")
         private set
@@ -67,18 +71,30 @@ internal class GameLiveSession(
     var playbackError by mutableStateOf("")
     var onOwnerMessage: (String, Boolean) -> Unit = { _, _ -> }
 
-    fun selectVoice(enabled: Boolean) {
+    fun setMicrophoneEnabled(enabled: Boolean) {
         if (participantIds.isEmpty() && !allowSoloHost) return
-        voiceMode = enabled
+        if (enabled) {
+            if (!mic.active) toggleMic()
+        } else {
+            // Do not discard the provider's final recognized words on mute.
+            mic.mute()
+        }
+    }
+
+    fun setCompanionAudioEnabled(enabled: Boolean) {
+        if (participantIds.isEmpty() && !allowSoloHost) return
+        companionAudioEnabled = enabled
         playbackError = ""
+        // Disabling cancels current speech and queued TTS immediately while
+        // preserving actual character decisions and visible captions.
         voice.setEnabled(enabled)
-        if (enabled && !mic.active) toggleMic()
-        if (!enabled) mic.stop()
     }
 
     fun receiveOwner(raw: String, fromSpeech: Boolean) {
         val text = raw.trim()
-        if (text.isEmpty() || (fromSpeech && !voiceMode)) return
+        // A final STT callback may arrive after the owner tapped mute.
+        // IslandGameOpenMic already validates the actual capture generation.
+        if (text.isEmpty()) return
         lastOwnerLine = text
         onOwnerMessage(text, fromSpeech)
     }
@@ -92,7 +108,7 @@ internal class GameLiveSession(
         GameTeamConversationTimeline.recordCompanion(
             context, gameId, runId, participantIds, actorId, line, utteranceId,
         )
-        if (voiceMode) voice.enqueue(actorId, line)
+        if (companionAudioEnabled) voice.enqueue(actorId, line)
     }
 
     /** A sealed puzzle's fixed AI host is not a companion participant. */
@@ -101,10 +117,11 @@ internal class GameLiveSession(
         if (line.isBlank()) return
         lastSpeakerId = null
         lastCompanionLine = "主持：$line"
-        if (voiceMode) voice.enqueue("lulu", line)
+        if (companionAudioEnabled) voice.enqueue("lulu", line)
     }
 
     fun close() {
+        companionAudioEnabled = false
         voice.setEnabled(false)
         mic.stop()
     }
@@ -162,7 +179,8 @@ internal fun GameTalkBar(
     val conversationTitle = session.participantIds.mapNotNull { roster[it]?.displayName }.joinToString("、")
         .ifBlank { if (session.allowSoloHost) "主持人" else "同桌" }
     var textExpanded by remember(session) { mutableStateOf(false) }
-    val microphoneOn = session.voiceMode && session.mic.active
+    val microphoneOn = session.mic.active
+    val speakerOn = session.companionAudioEnabled
     // Live captions are a scrollable reading surface, not two truncated lines.
     // Mute must not erase the last recognized words or spoken role reply.
     val ownerCaption = session.mic.partial.ifBlank { session.lastOwnerLine }
@@ -203,23 +221,26 @@ internal fun GameTalkBar(
                     )
                     Text(status, color = talkMuted, fontSize = 11.sp, maxLines = 2)
                 }
-                IconButton(
-                    onClick = {
-                        if (microphoneOn) session.mic.mute()
-                        else session.selectVoice(true)
-                    },
-                ) {
-                    Icon(
-                        if (microphoneOn) Icons.Outlined.Mic else Icons.Outlined.MicOff,
-                        contentDescription = if (microphoneOn) "关闭麦克风" else "接通或开启麦克风",
-                        tint = if (microphoneOn) mint else talkMuted,
-                    )
-                }
-                if (session.voiceMode) {
-                    IconButton(onClick = { session.selectVoice(false) }) {
-                        Icon(Icons.Outlined.CallEnd, contentDescription = "挂断连麦",
-                            tint = Color(0xFFF4B9BD))
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    IconButton(onClick = { session.setMicrophoneEnabled(!microphoneOn) }) {
+                        Icon(
+                            if (microphoneOn) Icons.Outlined.Mic else Icons.Outlined.MicOff,
+                            contentDescription = if (microphoneOn) "关闭我的麦克风" else "开启我的麦克风",
+                            tint = if (microphoneOn) mint else talkMuted,
+                        )
                     }
+                    Text("我说话", fontSize = 10.sp, color = talkMuted)
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    IconButton(onClick = { session.setCompanionAudioEnabled(!speakerOn) }) {
+                        Icon(
+                            if (speakerOn) Icons.Outlined.VolumeUp else Icons.Outlined.VolumeOff,
+                            contentDescription = if (speakerOn) "让角色改用文字" else "播放角色语音",
+                            tint = if (speakerOn) mint else talkMuted,
+                        )
+                    }
+                    Text(if (speakerOn) "角色语音" else "角色文字",
+                        fontSize = 10.sp, color = talkMuted)
                 }
                 if (showComposer) {
                     TextButton(onClick = { textExpanded = !textExpanded }) {
@@ -253,7 +274,7 @@ internal fun GameTalkBar(
                     Text("发送已识别的文字", color = mint, fontSize = 12.sp)
                 }
             }
-            if (showComposer && (!session.voiceMode || textExpanded)) {
+            if (showComposer && (!microphoneOn || textExpanded)) {
                 Row(verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                     OutlinedTextField(
