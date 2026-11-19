@@ -12,6 +12,30 @@ internal object SelfTodoRoleRead {
     // Historical/all-scope requests can grow without bound; keep them paged.
     private const val ALL_SCOPE_PAGE_SIZE = 30
 
+    const val followThroughGuidance = """【从持续关心到看进度】若备考、督学或陪她做完计划是你仍想坚持的意愿或已接受的责任，主动用本轮新读的所行看今日完成比例、已经做的事和还没做的具体一项；没有新消息也能跟进。依据任务时刻与最近谈话，选择认可进展、提醒下一项、帮她拆小一步，或留到合适的时刻。已看过同一进度就承接之前的行动。未勾选只代表所行尚未勾选。
+    想持续回看且没有现成日程，就在同轮调用 plan_personal_activity，填真实未来 dueAt、原 motiveId 或未定时责任的 commitmentTaskId、activityAction=read_self_todo、activityArgs={scope:today,reportToUser:false}；想每天查看可选 repeat=daily。沿已有 planId 维护、改期或取消。到期看设备当天的新清单，用 steps 实际读 read_self_todo(scope=today,planId=原ID,reportToUser=false)；同时可按本轮真实进度选择实际私聊或安静。一次读取的回执只完成本次回看，督学意愿可继续。"""
+
+    private data class TodayScheduleProgress(val total: Int, val completed: Int) {
+        val remaining: Int get() = total - completed
+        fun summary(): String = "今天明确安排的事项已完成${completed}/${total}项，剩余${remaining}项。"
+    }
+
+    private fun todayScheduleProgress(tasks: List<TodoTask>, today: LocalDate): TodayScheduleProgress {
+        var total = 0
+        var completed = 0
+        for (task in tasks) {
+            // Use the same occurrence calendar as 所行, before removing completed
+            // occurrences. Undated work can appear today but has no due date.
+            if (task.repeat == TodoRepeat.ONCE && !task.dateSpecified) continue
+            if (SelfTodoCalendar.pending(task.copy(completions = emptyList()), today).none { it.date == today })
+                continue
+            total++
+            if (task.repeat == TodoRepeat.ONCE && task.completions.isNotEmpty() ||
+                task.completions.any { it.date == today }) completed++
+        }
+        return TodayScheduleProgress(total, completed)
+    }
+
     fun execute(context: Context, args: JSONObject, now: Instant = Instant.now()): JSONObject {
         val tasks = SelfTodoStore.readForRole(context)
             ?: return JSONObject().put("success", false).put("status", "failed")
@@ -28,6 +52,7 @@ internal object SelfTodoRoleRead {
         val offset = args.optInt("offset", 0)
         require(offset in 0..100_000) { "offset 必须在 0 到 100000 之间" }
         val zone = ZoneId.systemDefault()
+        val scheduleProgress = todayScheduleProgress(tasks, today)
         val pending = SelfTodoCalendar.allPending(tasks, today)
         val overdue = pending.filter { it.date.isBefore(today) }
         val dueToday = pending.filter { it.date == today }
@@ -74,6 +99,7 @@ internal object SelfTodoRoleRead {
             append("自序·所行（设备本地日期${today}）：今天未完成${dueToday.size}项，")
             append("逾期未完成${overdue.size}项，今天勾选完成${checkedToday.size}次，")
             append("未来待办${future.size}项，未指定日期${unscheduled}项。")
+            append(scheduleProgress.summary())
             if (scope == "today") {
                 if (dueToday.isNotEmpty()) append("\n今天的待办：")
                 dueToday.forEach { item ->
@@ -100,6 +126,9 @@ internal object SelfTodoRoleRead {
             .put("pendingTodayCount", dueToday.size).put("overdueCount", overdue.size)
             .put("upcomingCount", future.size).put("unscheduledCount", unscheduled)
             .put("checkedTodayCount", checkedToday.size)
+            .put("scheduledTodayCount", scheduleProgress.total)
+            .put("scheduledTodayCompletedCount", scheduleProgress.completed)
+            .put("scheduledTodayRemainingCount", scheduleProgress.remaining)
             .put("pending", entries).put("completedToday", checked)
             .put("summary", summary)
     }
@@ -121,6 +150,7 @@ internal object SelfTodoRoleRead {
         }.sortedByDescending { it.second }
         return buildString {
             appendLine("【主人自序·所行｜本机当前已保存清单，读取日期${date}】今天未完成${dueToday.size}项，逾期${overdue.size}项，今天勾选${completedToday.size}次，未来待办${futureCount}项。")
+            appendLine(todayScheduleProgress(tasks, date).summary())
             if (dueToday.isNotEmpty()) {
                 appendLine("今天的全部待办：")
                 dueToday.forEach { item ->

@@ -2,6 +2,7 @@ package com.jiacimu.lulu
 
 import com.jiacimu.lulu.data.CapabilityRegistry
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.data.RoleDayScheduleStore
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.MemoryTestEnvironment
 import com.jiacimu.lulu.data.ToolRouter
@@ -63,6 +64,10 @@ class SelfTodoRoleReadTest {
         assertEquals(1, todayView.getInt("overdueCount"))
         assertEquals(1, todayView.getInt("upcomingCount"))
         assertEquals(2, todayView.getInt("checkedTodayCount"))
+        assertEquals(3, todayView.getInt("scheduledTodayCount"))
+        assertEquals(1, todayView.getInt("scheduledTodayCompletedCount"))
+        assertEquals(2, todayView.getInt("scheduledTodayRemainingCount"))
+        assertTrue(SelfTodoRoleRead.briefContext(tasks, now).contains("今天明确安排的事项已完成1/3项"))
         assertEquals(2, todayView.getJSONArray("pending").length())
         assertTrue(todayView.getString("summary").contains("学习时长"))
         assertFalse(todayView.getJSONArray("pending").toString().contains("future"))
@@ -137,6 +142,36 @@ class SelfTodoRoleReadTest {
         assertEquals(1, result.getInt("pendingTodayCount"))
         assertEquals("review", result.getJSONArray("pending").getJSONObject(0).getString("taskId"))
         assertTrue(result.getString("summary").contains("整理错题本"))
+        assertEquals(listOf(task), SelfTodoStore.read(app))
+    }
+
+    @Test fun realScheduledReadKeepsItsReceiptAndRollsTheSameDailyPlan() = runBlocking {
+        runCatching { androidx.work.WorkManager.initialize(app, androidx.work.Configuration.Builder().build()) }
+        val role = MigratedDomainStores.characters.create("每日看所行").characterId
+        val now = Instant.now()
+        val due = now.minusSeconds(10)
+        val today = now.atZone(ZoneId.systemDefault()).toLocalDate()
+        val task = TodoTask("finish-practice", "完成今天的练习", "", today, null,
+            TodoRepeat.ONCE, now.toEpochMilli())
+        assertTrue(SelfTodoStore.save(app, listOf(task)))
+        val quietRead = JSONObject().put("scope", "today").put("reportToUser", false)
+        val plan = RoleDayScheduleStore.arrange(
+            app, role, "看今日所行", "继续关心今天的学习计划", due, now.minusSeconds(90),
+            activityAction = "read_self_todo", repeat = "daily", activityArgs = quietRead,
+            selfInitiated = true,
+        )
+        val args = JSONObject(quietRead.toString()).put("planId", plan.id)
+        val requestId = "daily-todo-$role"
+        val result = JSONObject(ToolRouter.execute(app, role, "read_self_todo", args, requestId = requestId))
+        assertTrue(result.toString(), result.getBoolean("success"))
+        assertEquals(1, result.getInt("scheduledTodayRemainingCount"))
+        val next = RoleDayScheduleStore.plans(app, role).single()
+        assertEquals(plan.id, next.id)
+        assertEquals(due.plusSeconds(86_400), next.dueAt)
+        assertEquals(result.getString("evidenceId"), next.resultEvidenceId)
+        assertEquals("planned", next.status)
+        ToolRouter.execute(app, role, "read_self_todo", args, requestId = requestId)
+        assertEquals(next, RoleDayScheduleStore.plans(app, role).single())
         assertEquals(listOf(task), SelfTodoStore.read(app))
     }
 

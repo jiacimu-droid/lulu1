@@ -581,7 +581,12 @@ object ToolRouter {
                 // Central receipt-to-perception handoff. All scenes and all initiators use
                 // this exact persisted tool event and the ordinary character decision loop.
                 // Pending permissions are not returned knowledge; failures are still useful.
-                if (name in SearchReceiptFeedback.resultTools &&
+                // A routine checklist review already had the fresh snapshot
+                // in its decision. Keep its actual read receipt without asking
+                // the model a second time to report a private check.
+                val quietTodoReview = name == "read_self_todo" && scheduledPlanId.isNotBlank() &&
+                    !SearchReceiptFeedback.requestsPrivateReply(args)
+                if (!quietTodoReview && name in SearchReceiptFeedback.resultTools &&
                     SharedExperienceTimeline.eventsByIds(characterId, listOf(receiptId))
                         .any(SearchReceiptFeedback::completedEvidence)) {
                     runCatching {
