@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T04:36:23.502294+00:00",
-  "commit": "db25824bf4cf36661f3f047363bbfac473c262d3",
+  "generatedAt": "2026-11-19T04:53:42.499049+00:00",
+  "commit": "b78eeef58f874a557ccfe5ff6ceb4f45146a0cb4",
   "branch": "main",
-  "sourceFingerprint": "baed11be64365c45c10ad87dd21f836a9c8ed039e658b9645ccff93f3faf9080",
+  "sourceFingerprint": "ae0371b82f31e045a9199264c2c9d4cbd2309608a1e4899a9cfb91a17345b396",
   "summary": {
     "files": 1480,
-    "lines": 313584,
+    "lines": 313628,
     "symbols": 4472
   },
   "symbolIndex": {
@@ -11877,49 +11877,49 @@
     "restoreZip": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 139
+        "line": 140
       }
     ],
     "dataDir": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 177
+        "line": 206
       }
     ],
     "stagingDir": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 179
+        "line": 208
       }
     ],
     "hasPendingRestore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 181
+        "line": 210
       }
     ],
     "readRestoreResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 184
+        "line": 213
       }
     ],
     "clearRestoreResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 188
+        "line": 217
       }
     ],
     "stageForRestore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 194
+        "line": 243
       }
     ],
     "applyPendingRestoreIfNeeded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 209
+        "line": 251
       }
     ],
     "endpoint": [
@@ -35381,8 +35381,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-      "lines": 236,
-      "sha256": "cdd04b40ecb007041a8b97f7869130534de1f6dd22b536db462924616a8ded36",
+      "lines": 280,
+      "sha256": "1506f0a6cdcddddeac218c2ae6a2281fbc157038e9bdf600ef6849e43095feca",
       "symbols": [
         {
           "name": "LuluDataBackup",
@@ -35430,35 +35430,35 @@
         },
         {
           "name": "restoreZip",
-          "line": 139
+          "line": 140
         },
         {
           "name": "dataDir",
-          "line": 177
+          "line": 206
         },
         {
           "name": "stagingDir",
-          "line": 179
+          "line": 208
         },
         {
           "name": "hasPendingRestore",
-          "line": 181
+          "line": 210
         },
         {
           "name": "readRestoreResult",
-          "line": 184
+          "line": 213
         },
         {
           "name": "clearRestoreResult",
-          "line": 188
+          "line": 217
         },
         {
           "name": "stageForRestore",
-          "line": 194
+          "line": 243
         },
         {
           "name": "applyPendingRestoreIfNeeded",
-          "line": 209
+          "line": 251
         }
       ]
     },

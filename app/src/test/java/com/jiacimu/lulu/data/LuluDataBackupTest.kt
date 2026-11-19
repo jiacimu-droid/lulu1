@@ -95,6 +95,74 @@ class LuluDataBackupTest {
     }
 
     @Test
+    fun failedSecondImportCannotReplaceAnEarlierValidStagedBackup() {
+        val good = ByteArrayOutputStream()
+            .also { LuluDataBackup.exportZip(fakeDataDir(), it) }.toByteArray()
+        val staging = temp.newFolder("pending")
+        val first = LuluDataBackup.stageZip(staging, ByteArrayInputStream(good))
+        assertTrue(first.entryCount > 0)
+        val ready = File(staging, LuluDataBackup.STAGING_ZIP_NAME)
+        val marker = File(staging, LuluDataBackup.PENDING_FLAG_NAME)
+        assertTrue(marker.isFile)
+        assertTrue(ready.readBytes().contentEquals(good))
+
+        try {
+            LuluDataBackup.stageZip(staging, ByteArrayInputStream(good.copyOf(good.size / 2)))
+            fail("a second truncated candidate must not replace the good staged ZIP")
+        } catch (expected: IOException) {
+            // The first complete backup is still the pending restore.
+        }
+        assertTrue(marker.isFile)
+        assertTrue(ready.readBytes().contentEquals(good))
+    }
+
+    @Test
+    fun preflightRejectsMalformedZipBeforeAnyExistingDataIsOverwritten() {
+        val target = temp.newFolder("existing")
+        File(target, "shared_prefs").mkdirs()
+        val original = File(target, "shared_prefs/identity.xml")
+        original.writeText("keep-original-role")
+
+        val archive = ByteArrayOutputStream()
+        ZipOutputStream(archive).use { zip ->
+            zip.putNextEntry(ZipEntry(LuluDataBackup.MANIFEST_NAME))
+            zip.write("""{"schemaVersion":1}""".toByteArray())
+            zip.closeEntry()
+            zip.putNextEntry(ZipEntry("shared_prefs/identity.xml"))
+            zip.write("overwritten-role".toByteArray())
+            zip.closeEntry()
+            zip.putNextEntry(ZipEntry("../outside"))
+            zip.write("should-not-extract".toByteArray())
+            zip.closeEntry()
+        }
+
+        try {
+            LuluDataBackup.restoreZip(target, ByteArrayInputStream(archive.toByteArray()))
+            fail("a later unsafe entry must be rejected before writing the earlier valid entry")
+        } catch (expected: IllegalArgumentException) {
+            // Preflight covers all entries before any restore write.
+        }
+        assertEquals("keep-original-role", original.readText())
+    }
+
+    @Test
+    fun truncatedBackupWithAnExistingTargetNeverStartsRestore() {
+        val valid = ByteArrayOutputStream()
+            .also { LuluDataBackup.exportZip(fakeDataDir(), it) }.toByteArray()
+        val target = temp.newFolder("existing-truncated")
+        File(target, "files").mkdirs()
+        val existing = File(target, "files/notes.txt")
+        existing.writeText("newer-live-notes")
+        try {
+            LuluDataBackup.restoreZip(target, ByteArrayInputStream(valid.copyOf(valid.size / 2)))
+            fail("a ZIP with a missing central directory must be rejected")
+        } catch (expected: IOException) {
+            // A partially streamed archive is never allowed to overwrite notes.
+        }
+        assertEquals("newer-live-notes", existing.readText())
+    }
+
+    @Test
     fun zipSlipEntryIsRejected() {
         val bytes = ByteArrayOutputStream()
         ZipOutputStream(bytes).use { zip ->
