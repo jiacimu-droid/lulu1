@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T17:15:52.135351+00:00",
-  "commit": "2702477a6cc709119339c8e223103328f8549bca",
+  "generatedAt": "2026-11-19T17:16:18.880490+00:00",
+  "commit": "241c9775854b9e2df5ec54fe20272a433de52903",
   "branch": "main",
-  "sourceFingerprint": "40f677f9f04d91935020a26a0021438647e3fbc3af156010f61380129456bd2f",
+  "sourceFingerprint": "d045f42aead1e966a4d286e0310d572417be33b4dc8336a32624c306e53f02c9",
   "summary": {
     "files": 1486,
-    "lines": 316958,
+    "lines": 316978,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -21867,25 +21867,25 @@
     "evidenceInvalidationDoesNotHoldInnerLifeLockAcrossStoreCallbacks": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 19
+        "line": 37
       }
     ],
     "longTail": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 114
+        "line": 132
       }
     ],
     "social": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 684
+        "line": 702
       }
     ],
     "feeling": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 783
+        "line": 801
       }
     ],
     "CharacterKnowledgeBoundaryTest": [
@@ -48259,8 +48259,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-      "lines": 946,
-      "sha256": "8cbf51af61ba5551787b0a085bea13c070c49c0a2eb5aa56209e05004fc35431",
+      "lines": 964,
+      "sha256": "c90dd963a7aea0d5c575ef0d707878378732cda67b23db094d672f8c211658b1",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",
@@ -48268,19 +48268,19 @@
         },
         {
           "name": "evidenceInvalidationDoesNotHoldInnerLifeLockAcrossStoreCallbacks",
-          "line": 19
+          "line": 37
         },
         {
           "name": "longTail",
-          "line": 114
+          "line": 132
         },
         {
           "name": "social",
-          "line": 684
+          "line": 702
         },
         {
           "name": "feeling",
-          "line": 783
+          "line": 801
         }
       ]
     },
@@ -50238,8 +50238,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PositiveExpressionGuidanceTest.kt",
-      "lines": 219,
-      "sha256": "4faa5152550841830a89cbbba93f005b926a4642230385d4aa58b873a1761112",
+      "lines": 221,
+      "sha256": "2f3295a7abf6e82d621f324cf7eed737068d060cd2d76942c49fd0131242f261",
       "symbols": [
         {
           "name": "PositiveExpressionGuidanceTest",
