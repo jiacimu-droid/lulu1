@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T12:38:57.605516+00:00",
-  "commit": "c0f4125fb61b9bc6609891ee51dcb430e8e5766e",
+  "generatedAt": "2026-11-19T12:42:21.909336+00:00",
+  "commit": "68e63b108935a9a21cd3bb8112b925a75bcff8f8",
   "branch": "main",
-  "sourceFingerprint": "cca1e5305a89bb002b47cc080db783d0df66c0c5460e4f110819ef6b78c20dbb",
+  "sourceFingerprint": "35ecf5a7a4949887e44b05a51d35aae5a65234b754ae15755ce3684538e92fe6",
   "summary": {
-    "files": 1481,
-    "lines": 315675,
-    "symbols": 4498
+    "files": 1482,
+    "lines": 315979,
+    "symbols": 4504
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -480,6 +480,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CallSpeechRecording.kt",
         "line": 36
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt",
+        "line": 103
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoiceAcousticAnalyzer.kt",
@@ -4818,6 +4822,68 @@
         "line": 658
       }
     ],
+    "inform": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt",
+        "line": 57
+      }
+    ],
+    "begin": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt",
+        "line": 59
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/WatchPlaybackEvidence.kt",
+        "line": 10
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
+        "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
+        "line": 21
+      }
+    ],
+    "tick": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt",
+        "line": 99
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
+        "line": 120
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
+        "line": 122
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
+        "line": 136
+      }
+    ],
+    "retry": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt",
+        "line": 125
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
+        "line": 18
+      }
+    ],
+    "dispose": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt",
+        "line": 181
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
+        "line": 143
+      }
+    ],
     "Result": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt",
@@ -5666,20 +5732,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldFirstExplorationMemory.kt",
         "line": 58
-      }
-    ],
-    "begin": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/WatchPlaybackEvidence.kt",
-        "line": 10
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
-        "line": 11
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatGenerationActivity.kt",
-        "line": 21
       }
     ],
     "pause": [
@@ -10468,20 +10520,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
         "line": 79
-      }
-    ],
-    "tick": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
-        "line": 120
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-        "line": 122
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomyCallAndReceiptTest.kt",
-        "line": 136
       }
     ],
     "recordWitness": [
@@ -15978,12 +16016,6 @@
         "line": 136
       }
     ],
-    "dispose": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
-        "line": 143
-      }
-    ],
     "json": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
@@ -18872,12 +18904,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
         "line": 14
-      }
-    ],
-    "retry": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
-        "line": 18
       }
     ],
     "ambiguousFieldReadback": [
@@ -28944,6 +28970,37 @@
       "lines": 675,
       "sha256": "a75da49ca0152f4fae300080a38ffbb89a0920ca6bb049f396869c3a911ddb4d",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt",
+      "lines": 304,
+      "sha256": "cd9ee30af68320767f667b2b038034dd03dbf7c6b378b7bbe623c2b2568ecc61",
+      "symbols": [
+        {
+          "name": "inform",
+          "line": 57
+        },
+        {
+          "name": "begin",
+          "line": 59
+        },
+        {
+          "name": "tick",
+          "line": 99
+        },
+        {
+          "name": "finish",
+          "line": 103
+        },
+        {
+          "name": "retry",
+          "line": 125
+        },
+        {
+          "name": "dispose",
+          "line": 181
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt",
