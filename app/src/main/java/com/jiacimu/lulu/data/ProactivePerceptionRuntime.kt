@@ -1118,6 +1118,12 @@ object ProactivePerceptionRuntime {
                 appendLine(deviceContext)
                 appendLine(CapabilityRegistry.screenVisionContext(appContext, characterId))
                 appendLine(CapabilityRegistry.phoneOperationContext(appContext, characterId))
+                // Same actual registered action directory for an incoming private
+                // message, online interval, and quiet autonomous wake. Place it
+                // before the long personal scene so tools don't silently become
+                // invisible just because the scene has many history records.
+                appendLine(CompanionActionRuntime.autonomousDiscoveryContext(
+                    appContext, characterId))
                 // Read current owner todo facts cheaply in this existing decision.
                 // Only the role chooses if further checking/contact is warranted.
                 appendLine(com.jiacimu.lulu.SelfTodoRoleRead.opportunity(appContext, now))
@@ -1185,14 +1191,8 @@ object ProactivePerceptionRuntime {
                     // unless this role actually reaches/observes that place.
                     appendLine("寻找新朋友可以先亲自到公共场所；只有当前场景确实见到的居民、自己收到的消息和已知联系人，才是本人当前可确认的社会线索。")
                 }
-                // A new private message is ONE scene inside this person's
-                // ongoing day, not the end of their freedom to research,
-                // message friends, play, or schedule their own next activity.
-                // The identical capability projection and actual live IDs go
-                // to both private and autonomous decisions. This is a single
-                // model decision, not a second discovery/reply call.
-                appendLine(CompanionActionRuntime.autonomousDiscoveryContext(
-                    appContext, characterId))
+                // The common tool directory was already included earlier;
+                // here we supply live appointments and scene-specific IDs.
                 RoleDayScheduleStore.planningOpportunityContext(appContext, characterId, now)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
                 if (selfReviewDue && pendingUserContext.isBlank()) {
