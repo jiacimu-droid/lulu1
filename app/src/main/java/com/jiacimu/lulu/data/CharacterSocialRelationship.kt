@@ -77,9 +77,9 @@ object CharacterSocialRelationship {
     fun promptSection(characterId: String): String {
         val items = CharacterLifeStore.state(characterId)
             .optJSONObject("relationshipAgreements") ?: return ""
+        // These are CURRENT user-authored agreements, not historical recall.
+        // Never hide the ninth (or later) valid relationship by quota.
         val keys = items.keys().asSequence().toList()
-            // These are CURRENT user-authored agreements, not historical recall.
-            // Never hide the ninth (or later) valid relationship by quota.
             .sortedWith(compareByDescending<String> { it == "user" }.thenBy { it })
         val active = keys.mapNotNull { agreement(characterId, it) }
         if (active.isEmpty()) return ""
