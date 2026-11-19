@@ -92,6 +92,8 @@ interface LuluChatStore {
     fun clearConversationMessages(conversationId: String): Boolean
     fun appendVoiceMessage(conversationId: String, eventId: String, text: String, character: Boolean): LuluChatMessage
     fun sendUserMessage(conversationId: String, content: String, replyToMessageId: String? = null): LuluChatMessage
+    fun sendUserVoiceNote(conversationId: String, transcript: String, pcm: ByteArray,
+        replyToMessageId: String? = null): LuluChatMessage
     fun appendCharacterMessage(
         conversationId: String,
         content: String,
@@ -523,6 +525,33 @@ class InMemoryLuluChatStore : LuluChatStore {
             append(conversationId, message, incrementUnread = false)
             com.jiacimu.lulu.LuluVoiceCallSession.onTextChatMessage(conversationId, message.content, message.id)
         }
+    }
+
+    /** Record original audio before posting the message, and only publish a
+     * voice bubble once its transcript and recording are both durable. */
+    override fun sendUserVoiceNote(
+        conversationId: String, transcript: String, pcm: ByteArray,
+        replyToMessageId: String?,
+    ): LuluChatMessage {
+        val words = transcript.trim()
+        require(words.isNotBlank()) { "语音转写为空，不能冒充已识别的发言" }
+        val message = LuluChatMessage(
+            conversationId = conversationId,
+            sender = LuluChatMessage.Sender.User,
+            content = words,
+            replyToMessageId = replyToMessageId,
+            voiceNote = true,
+        )
+        val context = checkNotNull(appContext) { "聊天存储尚未初始化" }
+        com.jiacimu.lulu.ChatAutoVoicePlayback.saveOwnerVoiceNote(context, message.id, pcm)
+        try {
+            append(conversationId, message, incrementUnread = false, durable = true)
+        } catch (error: Exception) {
+            com.jiacimu.lulu.ChatAutoVoicePlayback.remove(message.id)
+            throw error
+        }
+        com.jiacimu.lulu.LuluVoiceCallSession.onTextChatMessage(conversationId, words, message.id)
+        return message
     }
 
     override fun appendCharacterMessage(
