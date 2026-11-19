@@ -17,6 +17,23 @@ class LuluDesktopWidgetTest {
         assertNotEquals(LuluWidgetKind.CHAT.defaultSkin, LuluWidgetKind.PHOTO.defaultSkin)
     }
 
+    @Test fun twoByTwoPhotoKeepsItsSquareFaceWhileOtherPhotoSizesCanBeRectangular() {
+        val photo = LuluDesktopWidget("photo", LuluWidgetKind.PHOTO, 1, 0, 0)
+        assertTrue(photo.hasSquareFace)
+        assertFalse(photo.copy(rows = 3).hasSquareFace)
+        assertFalse(photo.copy(columns = 4).hasSquareFace)
+    }
+
+    @Test fun calendarAndClockUseTextOnlyWithoutChangingTheirGridSize() {
+        val calendar = LuluDesktopWidget("calendar", LuluWidgetKind.CALENDAR, 1, 0, 0)
+        val clock = LuluDesktopWidget("clock", LuluWidgetKind.CLOCK, 1, 2, 0)
+        assertTrue(calendar.hasBorderlessSkin)
+        assertTrue(clock.hasBorderlessSkin)
+        assertEquals(2 to 1, clock.columns to clock.rows)
+        assertFalse(clock.copy(skin = 1).hasBorderlessSkin)
+        assertFalse(calendar.copy(kind = LuluWidgetKind.CHAT).hasBorderlessSkin)
+    }
+
     @Test fun horoscopeCardReplacesDailyHeadingWithTheChosenSign() {
         val horoscope = LuluDesktopWidget("daily", LuluWidgetKind.HOROSCOPE, 1, 0, 0,
             characterId = "example-role", sign = 0)

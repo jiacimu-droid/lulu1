@@ -2,8 +2,6 @@ package com.jiacimu.lulu
 
 import android.content.Context
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -19,22 +17,21 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.LuluConversation
-import com.jiacimu.lulu.data.LuluAppearance
 import com.jiacimu.lulu.data.MigratedDomainStores
 import com.jiacimu.lulu.design.LuluAppearancePattern
 import com.jiacimu.lulu.data.LuluCssSheet
@@ -48,7 +45,6 @@ import com.jiacimu.lulu.design.luluCssStyle
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.jiacimu.lulu.design.LocalLuluAppearance
-import com.jiacimu.lulu.design.LocalLuluCssSheet
 import com.jiacimu.lulu.design.JournalPatchIcon
 import com.jiacimu.lulu.design.isJournal
 import com.jiacimu.lulu.design.journalLinen
@@ -86,27 +82,11 @@ internal fun desktopCssApps(): List<Pair<String, String>> =
 
 
 // Resolve colors inside each composable, from the chosen desktop recipe.
-/**
- * The original Home skin has its own quiet material language. A custom profile
- * or even a single :root/#Home colour rule owns its palette and must win.
- */
-internal fun desktopUsesPearlStyle(appearance: LuluAppearance, pageRules: Map<String, String>): Boolean =
-    appearance.id == "paper" && !appearance.dark && pageRules.isEmpty()
-
-@Composable
-internal fun isDesktopPearlStyle(): Boolean =
-    desktopUsesPearlStyle(LocalLuluAppearance.current, LocalLuluCssSheet.current.page("Home"))
-
-private val DesktopIconSurface: Color @Composable get() =
-    if (isDesktopPearlStyle()) Color(0xFFF4F3F8) else MaterialTheme.colorScheme.surfaceVariant
-private val DesktopLine: Color @Composable get() =
-    if (isDesktopPearlStyle()) Color(0xFFE2E0EA) else MaterialTheme.colorScheme.outline
-private val DesktopAccent: Color @Composable get() =
-    if (isDesktopPearlStyle()) Color(0xFF706B7B) else MaterialTheme.colorScheme.primary
-private val DesktopInk: Color @Composable get() =
-    if (isDesktopPearlStyle()) Color(0xFF302D38) else MaterialTheme.colorScheme.onBackground
-private val DesktopIcon: Color @Composable get() =
-    if (isDesktopPearlStyle()) Color(0xFF514C5D) else MaterialTheme.colorScheme.onSurface
+private val DesktopIconSurface: Color @Composable get() = MaterialTheme.colorScheme.surfaceVariant
+private val DesktopLine: Color @Composable get() = MaterialTheme.colorScheme.outline
+private val DesktopAccent: Color @Composable get() = MaterialTheme.colorScheme.primary
+private val DesktopInk: Color @Composable get() = MaterialTheme.colorScheme.onBackground
+private val DesktopIcon: Color @Composable get() = MaterialTheme.colorScheme.onSurface
 
 @Composable
 internal fun MigrationHomeV2(
@@ -116,7 +96,7 @@ internal fun MigrationHomeV2(
     val context = LocalContext.current
     val appearance = LocalLuluAppearance.current
     val journal = appearance.isJournal()
-    val pearlDesktop = isDesktopPearlStyle()
+    val gridBreathingRoom = (LocalConfiguration.current.screenHeightDp - 520).coerceIn(0, 18).dp
     val conversations by MigratedDomainStores.chat.conversations.collectAsState()
     val characters by MigratedDomainStores.characters.settings.collectAsState()
     val ownerChats = ownerVisibleQqConversations(conversations)
@@ -199,20 +179,9 @@ internal fun MigrationHomeV2(
     var dragGrabOffset by remember { mutableStateOf(Offset.Zero) }
     var edgePageHandled by remember { mutableIntStateOf(-1) }
 
-    Surface(
-        modifier = Modifier.luluCssElement("page").fillMaxSize(),
-        color = if (pearlDesktop) Color(0xFFF8F9FC) else MaterialTheme.colorScheme.background,
-    ) {
+    Surface(modifier = Modifier.luluCssElement("page").fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Box(Modifier.fillMaxSize()) {
-            // Keep a barely visible cool pearl wash in the untouched Home skin.
-            // Wallpaper, custom palettes and journal styles are never painted over.
-            if (pearlDesktop) {
-                Box(Modifier.matchParentSize().background(Brush.verticalGradient(
-                    listOf(Color(0xFFFCFCFE), Color(0xFFF3F4F9), Color(0xFFF9F9FC)),
-                )))
-            } else if (!journal) {
-                LuluAppearancePattern(Modifier.fillMaxSize())
-            }
+            if (!journal) LuluAppearancePattern(Modifier.fillMaxSize())
             Column(
                 modifier = Modifier.fillMaxSize()
                     .then(if (journal) Modifier.journalLinen(appearance) else Modifier)
@@ -221,7 +190,7 @@ internal fun MigrationHomeV2(
             ) {
                 BoxWithConstraints(
                     Modifier.fillMaxWidth().weight(1f)
-                        .padding(top = 12.dp, bottom = 16.dp)
+                        .padding(top = 12.dp + gridBreathingRoom, bottom = 16.dp + gridBreathingRoom)
                         .pointerInput(slots, widgets) {
                             val cellWidth = size.width.toFloat() / DESKTOP_COLUMNS
                             val cellHeight = size.height.toFloat() / DESKTOP_ROWS
@@ -520,8 +489,7 @@ private fun DesktopV2PageIndicator(pagerState: PagerState, pageCount: Int) {
         repeat(pageCount) { index ->
             Surface(
                 modifier = Modifier.padding(horizontal = 3.dp)
-                    .width(if (index == selectedPage) 16.dp else 5.dp)
-                    .height(5.dp),
+                    .size(if (index == selectedPage) 7.dp else 5.dp),
                 shape = CircleShape,
                 color = if (index == selectedPage) DesktopAccent else DesktopLine,
             ) {}
@@ -547,13 +515,14 @@ private fun DesktopCompanionCard(
         .clickable(interactionSource = interaction, indication = null, onClick = onClick)) {
         val narrow = maxWidth < 232.dp
         val short = maxHeight < 106.dp
+        val showActionLabel = !narrow && maxHeight >= 132.dp
         if (narrow && maxHeight >= 210.dp) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 13.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                DesktopWidgetAvatar(avatarFallback, 60, avatarUri, foreground)
+                LuluProfileAvatar(imageUri = avatarUri, fallback = avatarFallback, size = 60)
                 Spacer(Modifier.height(12.dp))
                 Text(displayName, color = foreground, fontSize = 21.sp, fontWeight = FontWeight.SemiBold,
                     maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -571,7 +540,7 @@ private fun DesktopCompanionCard(
                 ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                DesktopWidgetAvatar(avatarFallback, avatarSize, avatarUri, foreground)
+                LuluProfileAvatar(imageUri = avatarUri, fallback = avatarFallback, size = avatarSize)
                 Spacer(Modifier.width(if (narrow) 9.dp else 14.dp))
                 Column(Modifier.weight(1f)) {
                     if (!short && !narrow) {
@@ -586,8 +555,17 @@ private fun DesktopCompanionCard(
                         modifier = if (short) Modifier.padding(end = 22.dp) else Modifier)
                     Spacer(Modifier.height(3.dp))
                     Text(recentMessage.trim(), color = secondary, fontSize = if (short) 12.sp else 14.sp,
-                        lineHeight = if (short) 16.sp else 19.sp, maxLines = if (short) 1 else 2,
-                        overflow = TextOverflow.Ellipsis)
+                        fontStyle = FontStyle.Italic, lineHeight = if (short) 16.sp else 19.sp,
+                        maxLines = if (short || showActionLabel) 1 else 2, overflow = TextOverflow.Ellipsis)
+                    if (showActionLabel) {
+                        Spacer(Modifier.height(7.dp))
+                        Surface(shape = CircleShape, color = Color.Transparent,
+                            border = BorderStroke(1.dp, foreground.copy(alpha = foreground.alpha * .14f))) {
+                            Text(if (isGroup) "进入群聊" else "点我聊天",
+                                Modifier.padding(horizontal = 9.dp, vertical = 3.dp),
+                                color = secondary, fontSize = 11.sp, lineHeight = 14.sp)
+                        }
+                    }
                 }
                 if (!narrow && !short) {
                     Spacer(Modifier.width(8.dp))
@@ -632,7 +610,6 @@ private fun DesktopV2LauncherItem(
     val tile = luluCssStyle("launcher", "app-" + launcher.id)
     val label = luluCssStyle("launcher-label")
     val cover = LuluCssSheet.assetToken(tile["background-image"])
-    val pearlIcon = isDesktopPearlStyle() && tile.isEmpty()
     if (LocalLuluAppearance.current.isJournal() && tile.isEmpty() && label.isEmpty()) {
         JournalPatchIcon(launcher.title, launcher.icon, modifier, onClick)
         return
@@ -643,21 +620,19 @@ private fun DesktopV2LauncherItem(
         val smallCell = maxHeight < 64.dp
         val twoLines = !smallCell && launcher.title.length > 4 && launcher.title != "Live2D"
         val labelSpace = if (smallCell) 12.dp else if (twoLines) 28.dp else 18.dp
-        val space = if (smallCell) 1.dp else if (pearlIcon) 5.dp else 3.dp
-        val iconHeight = minOf(tile.cssDp("height") ?: if (pearlIcon) 60.dp else 61.dp,
-            (maxHeight - labelSpace - space).coerceAtLeast(12.dp))
-        val iconWidth = minOf(tile.cssDp("width") ?: if (pearlIcon) 60.dp else 57.dp,
-            (maxWidth - 6.dp).coerceAtLeast(24.dp))
+        val space = if (smallCell) 1.dp else 3.dp
+        val iconHeight = minOf(tile.cssDp("height") ?: 61.dp, (maxHeight - labelSpace - space).coerceAtLeast(12.dp))
+        val iconWidth = minOf(tile.cssDp("width") ?: 57.dp, (maxWidth - 6.dp).coerceAtLeast(24.dp))
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
-            val borderWidth = tile.cssDp("border-width") ?: if (pearlIcon) .8.dp else 1.dp
+            val borderWidth = tile.cssDp("border-width") ?: 1.dp
             Surface(
                 shape = RoundedCornerShape(tile.cssDp("border-radius")
-                    ?: if (pearlIcon) 22.dp else LocalLuluAppearance.current.corner.dp),
+                    ?: LocalLuluAppearance.current.corner.dp),
                 color = tile.cssColor("background-color") ?: DesktopIconSurface,
                 border = if (borderWidth > 0.dp) BorderStroke(borderWidth,
                     tile.cssColor("border-color") ?: DesktopLine) else null,
-                shadowElevation = if (pearlIcon) 2.dp else 1.dp,
+                shadowElevation = 1.dp,
                 modifier = Modifier.width(iconWidth).height(iconHeight)
                     .semantics { contentDescription = launcher.title },
                 onClick = onClick,
@@ -665,12 +640,7 @@ private fun DesktopV2LauncherItem(
                 Box(contentAlignment = Alignment.Center) {
                     LuluCssArtwork(cover, Modifier.matchParentSize(), tile, maxEdge = 256) {
                         Icon(launcher.icon, null, tint = tile.cssColor("color") ?: DesktopIcon,
-                            modifier = Modifier.size(minOf(if (pearlIcon) 27.dp else 30.dp,
-                                (iconHeight - 8.dp).coerceAtLeast(0.dp))))
-                    }
-                    if (pearlIcon && iconWidth >= 42.dp && iconHeight >= 42.dp) {
-                        Box(Modifier.matchParentSize().padding(1.dp)
-                            .border(.8.dp, Color.White.copy(alpha = .82f), RoundedCornerShape(21.dp)))
+                            modifier = Modifier.size(minOf(30.dp, (iconHeight - 8.dp).coerceAtLeast(0.dp))))
                     }
                 }
             }
@@ -678,25 +648,15 @@ private fun DesktopV2LauncherItem(
             Text(
                 launcher.title, modifier = Modifier.luluCssDecor(label),
                 color = label.cssColor("color") ?: DesktopInk,
-                fontSize = label.cssFontSize() ?: if (smallCell) 8.sp else if (pearlIcon) 11.5.sp else 11.sp,
+                fontSize = label.cssFontSize() ?: if (smallCell) 8.sp else 11.sp,
                 lineHeight = label.cssFontSize()?.let { (it.value + 2).sp }
-                    ?: if (smallCell) 11.sp else if (pearlIcon) 15.sp else 13.sp,
+                    ?: if (smallCell) 11.sp else 13.sp,
                 fontWeight = FontWeight.Medium,
                 maxLines = if (twoLines) 2 else 1,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
             )
         }
-    }
-}
-
-@Composable
-private fun DesktopWidgetAvatar(text: String, size: Int, imageUri: String?, ink: Color) {
-    Box(Modifier.size((size + 6).dp), contentAlignment = Alignment.Center) {
-        Box(Modifier.matchParentSize().rotate(-5f).border(
-            1.dp, ink.copy(alpha = .30f), RoundedCornerShape(13.dp),
-        ))
-        LuluProfileAvatar(imageUri = imageUri, fallback = text, size = size)
     }
 }
 

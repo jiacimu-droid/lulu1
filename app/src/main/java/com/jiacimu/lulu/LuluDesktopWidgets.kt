@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -50,7 +52,9 @@ import com.jiacimu.lulu.design.LocalLuluAppearance
 import com.jiacimu.lulu.design.LocalLuluCssSheet
 import com.jiacimu.lulu.design.LuluCssArtwork
 import com.jiacimu.lulu.design.luluCssDecor
+import com.jiacimu.lulu.design.cssFontSize
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -70,6 +74,7 @@ import org.json.JSONObject
 internal const val LULU_WIDGET_DESKTOP_SKIN = 4
 private const val WIDGET_STACKED_SKIN = 5
 private const val WIDGET_ALBUM_SKIN = 6
+private const val WIDGET_BORDERLESS_SKIN = 7
 
 internal enum class LuluWidgetKind(val code: String, val title: String, val columns: Int, val rows: Int) {
     CHAT("chat", "聊天快捷卡", 4, 2),
@@ -79,7 +84,10 @@ internal enum class LuluWidgetKind(val code: String, val title: String, val colu
     COUNTDOWN("countdown", "纪念日", 2, 2),
     PLANNER("planner", "今日计划", 4, 2),
     CALENDAR("calendar", "日历", 2, 1),
+    CLOCK("clock", "时钟", 2, 1),
     PHOTO("photo", "照片叠片", 2, 2);
+
+    val isDateTime: Boolean get() = this == CALENDAR || this == CLOCK
 
     val defaultSkin: Int get() = when (this) {
         NOTE, COUNTDOWN -> WIDGET_STACKED_SKIN
@@ -108,7 +116,12 @@ internal data class LuluDesktopWidget(
     val roleBackground: String = "",
     val roleInk: String = "",
     val roleCornerDp: Int = -1,
-)
+) {
+    val hasSquareFace: Boolean get() = columns == 2 && rows == 2
+
+    val hasBorderlessSkin: Boolean get() = skin == WIDGET_BORDERLESS_SKIN ||
+        (skin == LULU_WIDGET_DESKTOP_SKIN && kind.isDateTime)
+}
 
 internal val luluZodiacNames = listOf(
     "摩羯座", "水瓶座", "双鱼座", "白羊座", "金牛座", "双子座",
@@ -150,7 +163,8 @@ internal fun luluSignFromBirthday(raw: String?): Int? {
 }
 private val luluWidgetSkins = linkedMapOf(
     LULU_WIDGET_DESKTOP_SKIN to "桌面原皮", WIDGET_STACKED_SKIN to "错落信笺",
-    WIDGET_ALBUM_SKIN to "相册叠片", 0 to "星夜", 1 to "植物信纸",
+    WIDGET_ALBUM_SKIN to "相册叠片", WIDGET_BORDERLESS_SKIN to "无边框",
+    0 to "星夜", 1 to "植物信纸",
     2 to "樱粉", 3 to "像素夜空",
 )
 internal fun isLuluWidgetSkin(skin: Int): Boolean = skin in luluWidgetSkins
@@ -404,6 +418,18 @@ internal fun rememberLuluDesktopDate(): LocalDate {
     return today
 }
 
+@Composable
+private fun rememberLuluDesktopTime(): LocalTime {
+    var time by remember { mutableStateOf(LocalTime.now()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(60_000L - Math.floorMod(System.currentTimeMillis(), 60_000L))
+            time = LocalTime.now()
+        }
+    }
+    return time
+}
+
 /** One atlas is split into four real image materials; never fetched from the network. */
 private object LuluWidgetMaterialCache {
     private var materials: List<ImageBitmap>? = null
@@ -443,13 +469,13 @@ internal fun LuluDesktopWidgetCard(
     val context = LocalContext.current
     val css = LocalLuluCssSheet.current.element("Home", "widget-" + widget.kind.code)
     val colors = MaterialTheme.colorScheme
-    val pearl = isDesktopPearlStyle()
     val themeSkin = widget.skin >= LULU_WIDGET_DESKTOP_SKIN
+    val bareSkin = widget.hasBorderlessSkin
     val layered = widget.skin == WIDGET_STACKED_SKIN || widget.skin == WIDGET_ALBUM_SKIN
     val defaultDark = if (themeSkin) LocalLuluAppearance.current.dark else widget.skin == 0 || widget.skin == 3
     val foreground = LuluCssSheet.parseColor(css["color"] ?: widget.roleInk)?.let { Color(it.toInt()) }
         ?: when {
-            themeSkin -> if (pearl) Color(0xFF35313F) else colors.onSurface
+            themeSkin -> colors.onSurface
             defaultDark -> Color(0xFFF8F3E8)
             else -> Color(0xFF3D3836)
         }
@@ -459,9 +485,8 @@ internal fun LuluDesktopWidgetCard(
             1 -> Color(0xFFF8F0E3)
             2 -> Color(0xFFF3DBEB)
             3 -> Color(0xFF1D443B)
-            WIDGET_STACKED_SKIN, WIDGET_ALBUM_SKIN ->
-                if (pearl) Color(0xFFFDFCFF) else colors.surface
-            else -> if (pearl) Color(0xFFFAF9FD) else colors.surfaceVariant
+            WIDGET_STACKED_SKIN, WIDGET_ALBUM_SKIN -> colors.surface
+            else -> if (bareSkin) Color.Transparent else colors.surface
         }
     val artwork = produceState<ImageBitmap?>(null, context, widget.skin) {
         value = if (themeSkin) null else withContext(Dispatchers.IO) {
@@ -472,12 +497,11 @@ internal fun LuluDesktopWidgetCard(
         ?: widget.imageToken.takeIf(String::isNotBlank))?.takeIf { LuluCssStore.assetFile(it) != null }
     val radius = (LuluCssSheet.dp(css["border-radius"])
         ?: widget.roleCornerDp.takeIf { it >= 0 }?.toFloat()
-        ?: if (pearl) 26f else LocalLuluAppearance.current.corner.toFloat()).coerceIn(0f, 60f).dp
+        ?: LocalLuluAppearance.current.corner.toFloat()).coerceIn(0f, 60f).dp
     val shape = RoundedCornerShape(radius)
     val outline = LuluCssSheet.parseColor(css["border-color"])?.let { Color(it.toInt()) }
-        ?: if (pearl && themeSkin) Color(0xFFE2DFE9)
-        else if (themeSkin) colors.outline else foreground.copy(alpha = .15f)
-    val borderWidth = (LuluCssSheet.dp(css["border-width"]) ?: if (pearl) .8f else 1f)
+        ?: if (themeSkin) colors.outline else foreground.copy(alpha = .15f)
+    val borderWidth = (LuluCssSheet.dp(css["border-width"]) ?: if (bareSkin) 0f else 1f)
         .coerceIn(0f, 12f).dp
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
@@ -486,37 +510,48 @@ internal fun LuluDesktopWidgetCard(
         tween(if (pressed) 115 else 190, easing = FastOutSlowInEasing),
         label = "widget press",
     )
-    val edge = rememberWidgetEdgeMotion(widget.id, activeOnDesktop, roleReading?.message ?: roleNote)
+    val edge = rememberWidgetEdgeMotion(
+        widget.id, activeOnDesktop && borderWidth > 0.dp, roleReading?.message ?: roleNote,
+    )
     val outer = modifier.luluCssDecor(css, includeArtwork = false)
     BoxWithConstraints(outer.clipToBounds()) {
-        val slimChat = widget.kind == LuluWidgetKind.CHAT && widget.rows == 2
-        val surfaceHeight = if (slimChat) minOf(maxHeight * .86f, 170.dp) else maxHeight
-        val inset = if (layered) 12.dp else if (pearl) 7.dp else 5.dp
-        val verticalInset = if (layered) 12.dp else if (slimChat) 0.dp
-            else if (pearl) 7.dp else 5.dp
-        if (layered && maxHeight >= 94.dp) {
+        val squareEdge = if (widget.hasSquareFace) minOf(maxWidth, maxHeight) else null
+        val frameWidth = squareEdge ?: maxWidth
+        val frameHeight = squareEdge ?: maxHeight
+        val slimChat = widget.kind == LuluWidgetKind.CHAT && widget.rows == 2 && squareEdge == null
+        val surfaceHeight = if (slimChat) minOf(frameHeight * .86f, 170.dp) else frameHeight
+        val showLayers = layered && frameHeight >= 94.dp
+        val inset = if (showLayers) 10.dp else 5.dp
+        val verticalInset = when {
+            squareEdge != null -> inset
+            showLayers -> 9.dp
+            slimChat || bareSkin -> 0.dp
+            else -> 5.dp
+        }
+        if (showLayers) {
+            val layerBounds = Modifier.align(Alignment.Center).width(frameWidth).height(frameHeight)
             Surface(
-                Modifier.align(Alignment.Center).fillMaxSize().padding(horizontal = 13.dp, vertical = 11.dp)
-                    .offset(x = 5.dp, y = 4.dp).graphicsLayer {
+                layerBounds.padding(horizontal = 13.dp, vertical = if (squareEdge != null) 13.dp else 11.dp)
+                    .offset(x = 5.dp, y = 5.dp).graphicsLayer {
                         val movement = press.value
-                        rotationZ = if (widget.skin == WIDGET_ALBUM_SKIN) 4f - movement * 1.7f else -3f + movement
+                        rotationZ = if (widget.skin == WIDGET_ALBUM_SKIN) 2.5f - movement else -2f + movement
                         translationX = movement * 2.dp.toPx()
                     },
-                shape = shape, color = colors.surfaceVariant, border = BorderStroke(1.dp, outline),
+                shape = shape, color = colors.surfaceVariant, border = BorderStroke(.8.dp, outline),
             ) {}
             if (widget.skin == WIDGET_ALBUM_SKIN) {
                 Surface(
-                    Modifier.align(Alignment.Center).fillMaxSize().padding(horizontal = 13.dp, vertical = 10.dp)
+                    layerBounds.padding(horizontal = 13.dp, vertical = if (squareEdge != null) 13.dp else 10.dp)
                         .offset(x = (-4).dp, y = 4.dp).graphicsLayer {
-                            rotationZ = -4f + press.value * 1.7f
+                            rotationZ = -2.5f + press.value
                             translationX = -press.value * 2.dp.toPx()
                         },
-                    shape = shape, color = colors.primaryContainer, border = BorderStroke(1.dp, outline),
+                    shape = shape, color = colors.surface, border = BorderStroke(.8.dp, outline),
                 ) {}
             }
         }
         Surface(
-            modifier = Modifier.align(Alignment.Center).fillMaxWidth().height(surfaceHeight)
+            modifier = Modifier.align(Alignment.Center).width(frameWidth).height(surfaceHeight)
                 .padding(horizontal = inset, vertical = verticalInset)
                 .graphicsLayer {
                     val amount = press.value
@@ -527,7 +562,7 @@ internal fun LuluDesktopWidgetCard(
             shape = shape,
             color = backing,
             border = if (borderWidth > 0.dp) BorderStroke(borderWidth, outline) else null,
-            shadowElevation = if (layered || pearl) 2.dp else 0.dp,
+            shadowElevation = if (showLayers) 1.dp else 0.dp,
         ) {
             BoxWithConstraints(Modifier.fillMaxSize().then(
                 if (widget.kind == LuluWidgetKind.CHAT || widget.kind == LuluWidgetKind.BULLETIN)
@@ -536,7 +571,7 @@ internal fun LuluDesktopWidgetCard(
                 val compact = maxHeight < 140.dp
                 val short = maxHeight < 95.dp
                 val framedPhoto = widget.kind == LuluWidgetKind.PHOTO && borderWidth > 0.dp
-                val photoInset = if (framedPhoto) 7.dp else 0.dp
+                val photoInset = if (framedPhoto) 6.dp else 0.dp
                 val photoShape = RoundedCornerShape((radius - photoInset).coerceAtLeast(0.dp))
                 val artPosition = if (framedPhoto) {
                     Modifier.matchParentSize().padding(photoInset).clip(photoShape)
@@ -557,14 +592,20 @@ internal fun LuluDesktopWidgetCard(
                 }
                 when (widget.kind) {
                     LuluWidgetKind.CHAT, LuluWidgetKind.BULLETIN -> specialContent?.invoke(widget, foreground, interaction)
-                    LuluWidgetKind.CALENDAR -> LuluWidgetCalendar(today, foreground, short)
+                    LuluWidgetKind.CALENDAR, LuluWidgetKind.CLOCK -> LuluWidgetDateTime(
+                        kind = widget.kind, today = today, ink = foreground,
+                        preferredFontSize = css.cssFontSize()?.value, hasEdit = onEdit != null,
+                    )
                     LuluWidgetKind.PHOTO -> LuluWidgetPhoto(
-                        widget, artworkToken != null || artwork != null, foreground,
+                        widget, artworkToken != null || artwork != null, foreground, short,
                         Modifier.fillMaxSize().padding(photoInset).clip(photoShape),
+                    )
+                    LuluWidgetKind.PLANNER -> LuluWidgetPlanner(
+                        plannerTasks, foreground, maxHeight, onCompleteTask,
                     )
                     else -> LuluWidgetTextContent(
                         widget, today, foreground, maxWidth, compact, short,
-                        characterName, lastConversationText, roleReading, roleNote, plannerTasks, onCompleteTask,
+                        characterName, lastConversationText, roleReading, roleNote,
                     )
                 }
                 if (onEdit != null) IconButton(
@@ -595,8 +636,6 @@ private fun LuluWidgetTextContent(
     lastConversationText: String?,
     roleReading: LuluWidgetDailyReading?,
     roleNote: String?,
-    plannerTasks: List<TodoOccurrence>,
-    onCompleteTask: (TodoOccurrence) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize().padding(
@@ -605,22 +644,18 @@ private fun LuluWidgetTextContent(
         ),
         verticalArrangement = if (short) Arrangement.Center else Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(end = 31.dp)) {
-            Text(luluWidgetCardHeading(widget), color = foreground,
-                fontSize = if (widget.kind == LuluWidgetKind.HOROSCOPE) 17.sp else 12.sp,
-                fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f, fill = false),
-                maxLines = 1, overflow = TextOverflow.Ellipsis)
-            if (widget.kind == LuluWidgetKind.HOROSCOPE && width >= 240.dp) {
-                Spacer(Modifier.width(10.dp))
-                Text(today.format(DateTimeFormatter.ofPattern("MM.dd")),
-                    color = foreground.copy(alpha = .77f), fontSize = 11.sp)
-            }
-        }
         when (widget.kind) {
-            LuluWidgetKind.CHAT, LuluWidgetKind.BULLETIN,
-            LuluWidgetKind.CALENDAR, LuluWidgetKind.PHOTO -> Unit
             LuluWidgetKind.HOROSCOPE -> {
+                Row(
+                    Modifier.fillMaxWidth().padding(end = 32.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Text(luluWidgetCardHeading(widget), color = foreground, fontSize = 17.sp,
+                        fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    if (width >= 240.dp) Text(today.format(DateTimeFormatter.ofPattern("MM.dd")),
+                        color = foreground.copy(alpha = foreground.alpha * .77f), fontSize = 11.sp)
+                }
                 val sign = widget.sign.coerceIn(0, 11)
                 val (good, caution) = luluDailyFortune(today, sign)
                 if (!short && width >= 210.dp) Text(
@@ -651,89 +686,146 @@ private fun LuluWidgetTextContent(
                 )
             }
             LuluWidgetKind.NOTE -> {
-                Text(characterName ?: "一封等待署名的信",
-                    color = foreground, fontSize = if (compact) 13.sp else 17.sp,
-                    fontWeight = FontWeight.SemiBold, maxLines = 1,
-                    overflow = TextOverflow.Ellipsis)
-                Text(roleNote?.takeIf(String::isNotBlank)
+                val note = roleNote?.takeIf(String::isNotBlank)
                     ?: lastConversationText?.takeIf(String::isNotBlank)
-                    ?: "绑定一个角色，等他留下亲自写的便签。",
-                    color = foreground, fontSize = 12.sp, lineHeight = 17.sp,
-                    maxLines = if (compact) 1 else 3, overflow = TextOverflow.Ellipsis)
-                if (!compact && roleNote == null && !lastConversationText.isNullOrBlank()) {
-                    Text("最近对话", color = foreground.copy(alpha = .79f), fontSize = 11.sp)
+                    ?: "点这里绑定角色"
+                Text(note, modifier = Modifier.padding(end = if (short) 25.dp else 4.dp),
+                    color = foreground, fontSize = if (short) 13.sp else 15.sp,
+                    lineHeight = if (short) 17.sp else 21.sp, fontWeight = FontWeight.Medium,
+                    maxLines = if (short) 2 else if (compact) 3 else 4, overflow = TextOverflow.Ellipsis)
+                if (!characterName.isNullOrBlank()) {
+                    val attribution = if (roleNote.isNullOrBlank() && !lastConversationText.isNullOrBlank())
+                        "$characterName · 最近对话" else characterName
+                    Text(attribution, color = foreground.copy(alpha = foreground.alpha * .72f),
+                        fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
             LuluWidgetKind.COUNTDOWN -> {
                 val date = runCatching { LocalDate.parse(widget.targetDate) }.getOrNull()
                 val remaining = date?.let { ChronoUnit.DAYS.between(today, it) }
-                Text(widget.title.ifBlank { "值得期待的日子" },
-                    color = foreground, fontSize = if (compact) 13.sp else 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = if (compact) 1 else 2, overflow = TextOverflow.Ellipsis)
-                Text(remaining?.let { if (it >= 0) "还有 " + it + " 天" else "已过去 " + (-it) + " 天" }
-                    ?: "点这里设置日期",
-                    color = foreground, fontSize = if (compact) 16.sp else 21.sp,
-                    fontWeight = FontWeight.SemiBold)
-                if (!compact && widget.targetDate.isNotBlank()) Text(widget.targetDate,
-                    color = foreground.copy(alpha = .80f), fontSize = 11.sp)
-            }
-            LuluWidgetKind.PLANNER -> {
-                if (plannerTasks.isEmpty()) {
-                    Text("今天没有待勾选的计划", color = foreground,
-                        fontSize = if (compact) 13.sp else 17.sp)
-                } else {
-                    plannerTasks.take(if (short) 1 else if (compact) 2 else 3).forEach { occurrence ->
-                        Row(verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()) {
-                            IconButton(onClick = { onCompleteTask(occurrence) },
-                                modifier = Modifier.size(32.dp)) {
-                                Icon(Icons.Outlined.RadioButtonUnchecked, "完成 " + occurrence.task.title,
-                                    tint = foreground, modifier = Modifier.size(19.dp))
-                            }
-                            Text(occurrence.task.title, color = foreground, fontSize = 12.sp,
-                                maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        }
+                Text(widget.title.ifBlank { "纪念日" },
+                    modifier = Modifier.padding(end = if (short) 26.dp else 4.dp), color = foreground,
+                    fontSize = if (short) 12.sp else 14.sp,
+                    fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                when {
+                    remaining == null -> Text("设置日期", color = foreground, fontSize = 14.sp)
+                    remaining == 0L -> Text("今天", color = foreground,
+                        fontSize = if (short) 21.sp else 30.sp, fontWeight = FontWeight.SemiBold)
+                    else -> Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        val size = if (short) 22.sp else 32.sp
+                        Text(kotlin.math.abs(remaining).toString(), Modifier.alignByBaseline(),
+                            color = foreground, fontSize = size, lineHeight = size,
+                            fontWeight = FontWeight.SemiBold, maxLines = 1)
+                        Text(if (remaining > 0) "天后" else "天前", Modifier.alignByBaseline(),
+                            color = foreground.copy(alpha = foreground.alpha * .77f),
+                            fontSize = 11.sp, maxLines = 1)
                     }
                 }
-                if (!short && plannerTasks.isNotEmpty()) {
-                    Text("剩余 ${plannerTasks.size} 项",
-                        color = foreground.copy(alpha = .85f), fontSize = 11.sp)
+                if (!short && date != null) Text(date.format(widgetDateFormat),
+                    color = foreground.copy(alpha = foreground.alpha * .77f), fontSize = 11.sp)
+            }
+            else -> Unit
+        }
+    }
+}
+
+@Composable
+private fun LuluWidgetPlanner(
+    tasks: List<TodoOccurrence>,
+    ink: Color,
+    availableHeight: Dp,
+    onCompleteTask: (TodoOccurrence) -> Unit,
+) {
+    val limit = ((availableHeight.value - 48f) / 40f).toInt().coerceIn(1, 4)
+    val extra = (tasks.size - limit).coerceAtLeast(0)
+    val subdued = ink.copy(alpha = ink.alpha * .72f)
+    Column(
+        Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 5.dp),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 28.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Text("今日计划", Modifier.weight(1f), color = ink, fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (extra > 0) Text("+$extra", color = subdued, fontSize = 11.sp)
+        }
+        if (tasks.isEmpty()) {
+            Spacer(Modifier.height(4.dp))
+            Text("今天没有待办", Modifier.padding(start = 4.dp), color = subdued,
+                fontSize = 13.sp, maxLines = 1)
+        }
+        tasks.take(limit).forEachIndexed { index, occurrence ->
+            if (index > 0) HorizontalDivider(Modifier.padding(start = 40.dp),
+                color = ink.copy(alpha = ink.alpha * .10f))
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { onCompleteTask(occurrence) }, modifier = Modifier.size(38.dp)) {
+                    Icon(Icons.Outlined.RadioButtonUnchecked, "完成 " + occurrence.task.title,
+                        tint = subdued, modifier = Modifier.size(17.dp))
                 }
+                Text(occurrence.task.title, color = ink, fontSize = 13.sp, maxLines = 1,
+                    overflow = TextOverflow.Ellipsis)
             }
         }
     }
 }
 
+private val widgetDateFormat = DateTimeFormatter.ofPattern("M月d日", Locale.SIMPLIFIED_CHINESE)
+private val widgetWeekdayFormat = DateTimeFormatter.ofPattern("EEEE", Locale.SIMPLIFIED_CHINESE)
+private val widgetTimeFormat = DateTimeFormatter.ofPattern("HH:mm", Locale.SIMPLIFIED_CHINESE)
+
 @Composable
-private fun LuluWidgetCalendar(today: LocalDate, ink: Color, short: Boolean) {
-    Row(Modifier.fillMaxSize().padding(start = 10.dp, end = 36.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(today.dayOfMonth.toString(), fontSize = if (short) 30.sp else 38.sp,
-            lineHeight = if (short) 34.sp else 42.sp, fontWeight = FontWeight.SemiBold, color = ink)
-        Column(Modifier.weight(1f)) {
-            Text(today.format(DateTimeFormatter.ofPattern("M月")), fontWeight = FontWeight.SemiBold,
-                maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 13.sp, color = ink)
-            Text(today.format(DateTimeFormatter.ofPattern("EEE", Locale.SIMPLIFIED_CHINESE)),
-                maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp, color = ink.copy(alpha = .8f))
+private fun LuluWidgetDateTime(
+    kind: LuluWidgetKind,
+    today: LocalDate,
+    ink: Color,
+    preferredFontSize: Float?,
+    hasEdit: Boolean,
+) {
+    val clock = kind == LuluWidgetKind.CLOCK
+    val heading = if (clock) rememberLuluDesktopTime().format(widgetTimeFormat) else today.format(widgetDateFormat)
+    val weekday = today.format(widgetWeekdayFormat)
+    val detail = if (clock) today.format(widgetDateFormat) + "  " + weekday else weekday
+    BoxWithConstraints(Modifier.fillMaxSize().padding(start = 10.dp, end = 8.dp),
+        contentAlignment = Alignment.CenterStart) {
+        val density = LocalDensity.current
+        val width = with(density) { maxWidth.toSp().value }
+        val height = with(density) { maxHeight.toSp().value }
+        val reserve = if (hasEdit && maxHeight < 75.dp) 30f else 0f
+        val glyphWidth = if (clock) 3.3f else if (heading.length > 5) 4.7f else 4f
+        val largest = minOf((width - reserve) / glyphWidth, height - 21f).coerceAtLeast(10f)
+        val size = minOf(preferredFontSize ?: if (clock) 56f else 48f, largest)
+        Column {
+            Text(heading, fontSize = size.sp, lineHeight = (size * 1.06f).sp,
+                fontWeight = FontWeight.SemiBold, color = ink, maxLines = 1,
+                overflow = TextOverflow.Clip)
+            if (height >= 40f) Text(detail, fontSize = 12.sp, lineHeight = 16.sp,
+                color = ink.copy(alpha = ink.alpha * .77f), maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
 
 @Composable
-private fun LuluWidgetPhoto(widget: LuluDesktopWidget, hasArtwork: Boolean, ink: Color, modifier: Modifier) {
+private fun LuluWidgetPhoto(
+    widget: LuluDesktopWidget,
+    hasArtwork: Boolean,
+    ink: Color,
+    short: Boolean,
+    modifier: Modifier,
+) {
     Box(modifier) {
         if (hasArtwork && widget.title.isNotBlank()) {
             Text(widget.title, modifier = Modifier.align(Alignment.BottomStart).fillMaxWidth()
-                .background(Color.Black.copy(alpha = .56f)).padding(horizontal = 10.dp, vertical = 7.dp),
+                .background(Brush.verticalGradient(listOf(Color.Transparent, Color.Black.copy(alpha = .68f))))
+                .padding(start = 10.dp, end = 10.dp, top = 14.dp, bottom = 8.dp),
                 color = Color.White, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
         } else if (!hasArtwork) {
             Column(Modifier.align(Alignment.Center).padding(horizontal = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Icon(Icons.Outlined.AddPhotoAlternate, null, tint = ink, modifier = Modifier.size(27.dp))
-                Text("添加照片", color = ink, fontWeight = FontWeight.Medium, fontSize = 13.sp, maxLines = 1)
+                Icon(Icons.Outlined.AddPhotoAlternate, null, tint = ink.copy(alpha = ink.alpha * .68f),
+                    modifier = Modifier.size(if (short) 21.dp else 25.dp))
+                Text("添加照片", color = ink, fontWeight = FontWeight.Medium, fontSize = 12.sp, maxLines = 1)
             }
         }
     }
@@ -884,6 +976,7 @@ internal fun LuluDesktopWidgetPicker(onAdd: (LuluWidgetKind) -> Unit, onClose: (
                         LuluWidgetKind.COUNTDOWN -> Icons.Outlined.Event
                         LuluWidgetKind.PLANNER -> Icons.Outlined.Checklist
                         LuluWidgetKind.CALENDAR -> Icons.Outlined.CalendarToday
+                        LuluWidgetKind.CLOCK -> Icons.Outlined.Schedule
                         LuluWidgetKind.PHOTO -> Icons.Outlined.Collections
                     }, null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.width(14.dp))
