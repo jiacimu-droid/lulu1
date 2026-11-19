@@ -113,7 +113,7 @@ internal object MemoryWorkingSet {
         }
         // Core memories and live commitment facts have their own unbounded,
         // authoritative gateway sections. Their bytes must not consume or
-        // eliminate this separately ranked 33k historical recall allowance.
+        // eliminate this separately ranked bounded historical recall allowance.
         // coreSection remains a caller input for compatibility; do not duplicate
         // the same facts inside the candidates or count them a second time.
         val result = MemoryWorkingSetPolicy.select(candidates, budget.workingSetCharacters, 0,
