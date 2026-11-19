@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T13:36:08.233004+00:00",
-  "commit": "20bdc4193e35be0c9c7de83ff168babe9fe92fe9",
+  "generatedAt": "2026-11-19T13:36:59.206904+00:00",
+  "commit": "f89c6e7868e3ef64578e7291aa691474f1f69d11",
   "branch": "main",
-  "sourceFingerprint": "6c8b3500db2a067e2614a30a969c6e6e937301cbcf5c07aa881ca9d970c78388",
+  "sourceFingerprint": "c00dbbae7ed8311d6ff2c9f05af23d1f4ea6fcf681f330b881512099b98c4496",
   "summary": {
     "files": 1486,
-    "lines": 316841,
+    "lines": 316847,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -21699,7 +21699,7 @@
     "scene": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityGatewayTest.kt",
-        "line": 186
+        "line": 192
       }
     ],
     "CharacterContinuityRuntimeTest": [
@@ -47996,8 +47996,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterContinuityGatewayTest.kt",
-      "lines": 282,
-      "sha256": "466e5f83dc8137e0c78bb443f906b9fcb00627fe4955d94500433b0578c06b47",
+      "lines": 288,
+      "sha256": "beaed73640ea5231d4819155bd770b2e06a14178fe586c8e7a3a7bd1414c94a3",
       "symbols": [
         {
           "name": "CharacterContinuityGatewayTest",
@@ -48005,7 +48005,7 @@
         },
         {
           "name": "scene",
-          "line": 186
+          "line": 192
         }
       ]
     },
