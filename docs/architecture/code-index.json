@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T04:17:41.283606+00:00",
-  "commit": "06662a2e770f05927d012b05578576fbaeb09346",
+  "generatedAt": "2026-11-19T04:36:23.502294+00:00",
+  "commit": "db25824bf4cf36661f3f047363bbfac473c262d3",
   "branch": "main",
-  "sourceFingerprint": "2c0b9c9812e240f50cac881a3fb50e68bb657298735408ebed225b8cb087b024",
+  "sourceFingerprint": "baed11be64365c45c10ad87dd21f836a9c8ed039e658b9645ccff93f3faf9080",
   "summary": {
     "files": 1480,
-    "lines": 313578,
+    "lines": 313584,
     "symbols": 4472
   },
   "symbolIndex": {
@@ -49392,8 +49392,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceCommitIntegrationTest.kt",
-      "lines": 249,
-      "sha256": "19f0597b0135439dcdc1ad055e0a039fc08aaed3e81f1333f9b7ce17721addbd",
+      "lines": 255,
+      "sha256": "8c384a1b69753264b2490ce8c2d229ab0d76bc8af078c5c9d2f8108539a9293b",
       "symbols": [
         {
           "name": "MemoryEvidenceCommitIntegrationTest",
