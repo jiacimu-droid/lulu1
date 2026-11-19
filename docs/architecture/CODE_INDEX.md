@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d0311c16a152953e0a577d1421cc9cf0d0bb26ad`
+- 基准提交：`3af8f4b77026f9ea1e86bf18e011ee681d48f908`
 - 分支：`main`
 - 已索引文件：1480
-- 已索引代码/文本行：314668
+- 已索引代码/文本行：314798
 - 已发现符号：4489
 
 | 文件 | 行数 | 符号数 |
@@ -348,8 +348,8 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/MultimodalContent.kt` | 22 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt` | 84 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/PromptCacheSectionOrder.kt` | 24 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt` | 239 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 242 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt` | 241 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 250 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 208 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 411 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 177 | 32 |
@@ -409,7 +409,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 682 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeDiagnostics.kt` | 53 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 374 | 12 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt` | 149 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt` | 207 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 684 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 278 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 242 | 2 |
@@ -581,7 +581,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 174 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 4026 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 4027 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1290 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 145 | 4 |
@@ -840,7 +840,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneNotice.kt` | 108 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhonePreviewGate.kt` | 39 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneSession.kt` | 2318 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2352 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt` | 2356 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluForegroundPhoneSession.kt` | 430 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 64 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
@@ -1058,7 +1058,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/MusicSignalSketchTest.kt` | 64 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/ai/PromptCacheSectionOrderTest.kt` | 48 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/PromptInputAuditTest.kt` | 180 | 2 |
-| `app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt` | 285 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicyTest.kt` | 303 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/VoiceCallModelSelectionTest.kt` | 105 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ActionFailureDiagnosticsTest.kt` | 147 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/AppointmentClockTest.kt` | 28 | 1 |
@@ -1124,7 +1124,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt` | 248 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeDiagnosticsTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 420 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt` | 182 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt` | 221 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 343 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt` | 248 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt` | 81 | 1 |
