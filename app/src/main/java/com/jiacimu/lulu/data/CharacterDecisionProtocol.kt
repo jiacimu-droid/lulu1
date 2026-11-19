@@ -34,7 +34,7 @@ internal object CharacterDecisionProtocol {
         3. ${personaDrivenIdeas} 每次完整决策在 appraisal.privateIdeas 中写出至少一个本人当轮真实倾向（可延续旧意愿），再选择 action，不能拿 silent 代替想法。跨轮念头写 innerLife.thoughts；本轮想法与历史有新变化时必须写 innerThought 及 innerThoughtBasis，不变时可不写；reason 记行动依据。
         4. 长期目标 innerLife.motives 可 start/revise/pause/resume/release/achieve；同主题沿 id，新项 motiveRef；可填 nextStep/waitingFor、successCondition/stopCondition、completionKind(effect|execution)、reviewAfter。achieve 须 outcomeEvidenceId 验证结果。明确承诺交日程。挂心 appraisal.pendingConcerns 用 topicKey/threadId、focus/whyItMatters、status=open|revise|pause|resume|settled|dismissed、reviewSoon；旧项沿ID。${CharacterThoughtActionHandoff.runtimeGuidance}
         5. 收藏、阅读、搜索、学习、发圈、通话等走已授权工具和真实ID。按回执区分选择、执行、结果；响铃≠已醒。
-        6. 性格、关系、情绪与现场共同决定接话或沉默；可以连发或在未回时再主动联系。当前心理倾向写入 appraisal.privateIdeas；appraisal.expression 的 stance/subtext/device/restraint 可选；对照历史后确有新内心变化则必须写新心声，无变化才允许留空。
+        6. 性格、关系、情绪与现场共同决定接话或沉默；可以连发或在未回时再主动联系。当前心理倾向写入 appraisal.privateIdeas；appraisal.expression 的 stance/subtext/device/restraint 可选；对照历史后确有新内心变化则必须写新心声，无变化才允许留空；无变化时不强迫新心声。
         7. 当轮想法每次都有；只有真实心理变化才更新持久状态，emotion 可选 valence/arousal(-1到1)。各场景共享人物、记忆、挂心与回执。
         8. 【书架与用户意图严格隔离】可对作品有感受，不据作品推测用户意愿或改写关系、记忆、挂心和动机。
         9. 期待可填 args.expectation、ownActivity.expectation、appraisal.activityExpectation={wanted,why,investment}；回执决定结果。
