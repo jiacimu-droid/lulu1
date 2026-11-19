@@ -109,13 +109,25 @@ internal object CompanionActionRuntime {
     }
 
     /**
-     * One authority for search/read availability: filter the normal live tool
-     * catalogue instead of maintaining a second, potentially stale, permission
-     * or provider list for offline autonomous decisions.
-     *
-     * Called by the shared perception for incoming private chat, online
-     * review and independent life. The foreground/phone planner uses the same
-     * CapabilityRegistry directory with its own scene-specific details.
+     * The same role-owned actionable menu and actual reachable contacts for
+     * foreground private/phone decisions and background independent life.
+     * Only the existing registry can offer tools; target IDs come from the
+     * existing relationship and world projections, never a second address book.
+     */
+    fun sharedDecisionCapabilities(context: Context, characterId: String): String {
+        val people = friendCandidateContext(context, characterId)
+        val presentResidents = if (DigitalLifeProfileStore.isEnabled(characterId))
+            residentContactContext(context, characterId) else ""
+        return listOf(
+            CapabilityRegistry.decisionCapabilityOverview(context, characterId),
+            people, presentResidents,
+        ).filter(String::isNotBlank).joinToString("\n")
+    }
+
+    /**
+     * Search/reading details supplement the common full decision directory.
+     * This is called by the same perception for private chat, online expiry,
+     * and independent life; foreground phone/chat uses the directory above.
      */
     fun autonomousDiscoveryContext(context: Context, characterId: String): String {
         // One bounded catalogue for BOTH live chat and solo life. Preserve
@@ -129,18 +141,11 @@ internal object CompanionActionRuntime {
         val learning = if (characterId.startsWith("resident:")) ""
             else AutonomousLearningRuntime.capabilityContext(context, characterId)
         val catalogue = listOf(tools, learning).filter(String::isNotBlank).joinToString("\n")
-        val unifiedMenu = CapabilityRegistry.decisionCapabilityOverview(context, characterId)
-        // Tool names without permitted target IDs lead to imagined messages.
-        // Reuse the existing role-scoped friendship and in-person projections
-        // instead of inventing contacts or a second address book.
-        val contacts = friendCandidateContext(context, characterId)
-        val residentsHere = if (DigitalLifeProfileStore.isEnabled(characterId))
-            residentContactContext(context, characterId) else ""
         val exploration = if (catalogue.isBlank())
             "外部探索暂未提供可用工具；可保留好奇，不能假装已经搜索。"
         else "【此刻外部探索真实工具与配置】\n$catalogue\n" +
             "任选符合本人兴趣与当前权限的一种渠道，真正执行后再依据回执形成理解；不要为展示活跃而把各渠道全搜一遍。"
-        return listOf(unifiedMenu, contacts, residentsHere, exploration)
+        return listOf(sharedDecisionCapabilities(context, characterId), exploration)
             .filter(String::isNotBlank).joinToString("\n")
     }
 
