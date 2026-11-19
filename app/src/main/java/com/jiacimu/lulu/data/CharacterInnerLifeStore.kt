@@ -2043,6 +2043,27 @@ object CharacterInnerLifeStore {
                     appendLine("  最近实际执行：${last?.optString("action")}；成功=${last?.optBoolean("success")}；结果=${last?.optString("summary")}")
                 }
             }
+            // A six-goal rotating focus is useful for detailed attention,
+            // but it must never erase the existence, real status or next
+            // conditions of OTHER still-active intentions from the model's
+            // present-tense awareness. All live motives get an unbounded
+            // identity/goal/condition index; only deep outcome narration rotates.
+            val focusedIds = visibleMotives.mapTo(mutableSetOf()) { it.optString("id") }
+            val otherActive = active.filterNot { it.optString("id") in focusedIds }
+            if (otherActive.isNotEmpty()) {
+                appendLine("【其余仍有效的本人动机｜完整状态索引，非本轮强制行动清单】")
+                otherActive.forEach { motive ->
+                    append("· 持续动机 id=${motive.optString("id")}；状态=${motive.optString("status")}" +
+                        "；优先级=${motive.optInt("priority")}；目标=${motive.optString("aim")}" +
+                        "；缘由=${motive.optString("why")}")
+                    for (field in listOf("waitingFor", "nextStep", "lastAttemptOutcome", "reviewAfter")) {
+                        motive.optString(field).takeIf(String::isNotBlank)?.let { value ->
+                            append("；$field=$value")
+                        }
+                    }
+                    appendLine()
+                }
+            }
             emotionInfluence(emotion, now)?.let { influence ->
                 appendLine("当前情绪：${emotion?.optString("feeling")}；另一层感受：${emotion?.optString("otherFeeling")}；触发原因：${emotion?.optString("cause")}；已经过去${influence.elapsedMinutes}分钟；当前影响=${influence.impact}。")
                 influence.dimensionContext.takeIf(String::isNotBlank)?.let {
