@@ -52,15 +52,23 @@ data class RoleDayPlan(
     val lastMutationRequestId: String = "",
     /** The schedule worker handed the due item to the role; NOT evidence of execution. */
     val lastWakeHandoffAt: Instant? = null,
+    val quickConcernCheck: Boolean = false,
 )
 
 internal fun RoleDayPlan.isConcernCheck(): Boolean =
     concernId.isNotBlank() && activityAction.isBlank() && selfInitiated
 
-private fun RoleDayPlan.concernStillOpen(now: Instant): Boolean =
-    !isConcernCheck() || CharacterOpenConcernRuntime.active(
+private val quickConcernInterval = Duration.ofMinutes(1)
+private val quickConcernWindow = Duration.ofMinutes(10)
+private val quickConcernDeliveryGrace = Duration.ofMinutes(3)
+
+private fun RoleDayPlan.concernStillOpen(now: Instant): Boolean {
+    if (!isConcernCheck()) return true
+    if (quickConcernCheck && now.isAfter(dueAt.plus(quickConcernDeliveryGrace))) return false
+    return CharacterOpenConcernRuntime.active(
         CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
     ).any { it.optString("id") == concernId }
+}
 
 /**
  * An executed personal plan has a durable action receipt, not a verdict on
@@ -109,7 +117,8 @@ object RoleDayScheduleStore {
                     o.optString("concernId"), o.optString("originEvidenceId"),
                     o.optLong("originEvidenceRevision", 0L),
                     o.optString("lastMutationRequestId"),
-                    o.optString("lastWakeHandoffAt").takeIf(String::isNotBlank)?.let(Instant::parse))
+                    o.optString("lastWakeHandoffAt").takeIf(String::isNotBlank)?.let(Instant::parse),
+                    o.optBoolean("quickConcernCheck"))
             }.getOrNull()
         }
     }.getOrDefault(emptyList())
@@ -137,7 +146,8 @@ object RoleDayScheduleStore {
                 .put("originEvidenceId", p.originEvidenceId)
                 .put("originEvidenceRevision", p.originEvidenceRevision)
                 .put("lastMutationRequestId", p.lastMutationRequestId)
-                .put("lastWakeHandoffAt", p.lastWakeHandoffAt?.toString().orEmpty()))
+                .put("lastWakeHandoffAt", p.lastWakeHandoffAt?.toString().orEmpty())
+                .put("quickConcernCheck", p.quickConcernCheck))
         }
         check(store(context).edit().putString(KEY, json.toString()).commit()) {
             "个人日程未能保存"
@@ -174,6 +184,8 @@ object RoleDayScheduleStore {
             existing.activityArgs != proposed.activityArgs ||
             existing.motiveId != proposed.motiveId ||
             existing.concernId != proposed.concernId ||
+            existing.quickConcernCheck != proposed.quickConcernCheck ||
+            (proposed.quickConcernCheck && existing.originEvidenceId != proposed.originEvidenceId) ||
             existing.commitmentTaskId != proposed.commitmentTaskId ||
             existing.targetCharacterId != proposed.targetCharacterId ||
             existing.targetResidentId != proposed.targetResidentId ||
@@ -279,6 +291,60 @@ object RoleDayScheduleStore {
         }
     }
 
+    /**
+     * A character can choose another short review while this conversation is
+     * recent. Each wake is a one-off appointment in the same calendar. Only one
+     * short appointment may be pending for this role, regardless of topic count.
+     */
+    @Synchronized
+    internal fun arrangeQuickConcernCheck(
+        context: Context, characterId: String, appraisal: JSONObject?, decisionEvidenceId: String,
+        observedAt: Instant, now: Instant = Instant.now(),
+    ) {
+        if (decisionEvidenceId.isBlank() || !ProactivePerceptionPolicyStore.get(characterId).enabled) return
+        val choices = CharacterOpenConcernRuntime.proposals(appraisal).filter {
+            it.opt("reviewSoon") == true &&
+                it.optString("status", "open").trim().lowercase() in setOf("open", "revise", "resume")
+        }
+        if (choices.isEmpty()) return
+        val dueAt = now.plus(quickConcernInterval)
+        val lastStatement = SharedExperienceTimeline.recentStatementEvents(characterId, now, 80)
+            .lastOrNull { it.channel == "私聊" && it.evidenceKind == EventEvidenceKind.UserStatement } ?: return
+        if (dueAt.isAfter(lastStatement.occurredAt.plus(quickConcernWindow))) return
+
+        val decisionEvent = SharedExperienceTimeline.eventsByIds(characterId, listOf(decisionEvidenceId))
+            .singleOrNull() ?: return
+        val existing = plans(context, characterId).filter(RoleDayPlan::quickConcernCheck)
+        if (existing.any {
+                (it.originEvidenceId == decisionEvent.id && it.originEvidenceRevision == decisionEvent.revision) ||
+                    (it.status == "planned" && it.dueAt.isAfter(observedAt) && it.concernStillOpen(now))
+            }) return
+        val active = CharacterOpenConcernRuntime.active(
+            CharacterInnerLifeStore.snapshot(characterId).optJSONArray("openConcerns"), now,
+        )
+        val grounded = CharacterPerceptionContext.liveEvidenceIds(characterId, active.map { it.optString("evidenceId") })
+        val concern = choices.firstNotNullOfOrNull { choice ->
+            val threadId = choice.optString("threadId").trim()
+            val topicKey = choice.optString("topicKey").trim().lowercase()
+                .replace(Regex("[^a-z0-9_-]"), "").take(70)
+            val focus = choice.optString("focus").trim()
+            active.singleOrNull {
+                it.optString("evidenceId") in grounded && when {
+                    threadId.isNotBlank() -> it.optString("id") == threadId
+                    topicKey.isNotBlank() -> it.optString("topicKey") == topicKey
+                    focus.isNotBlank() -> it.optString("focus") == focus && it.optString("evidenceId") == decisionEvidenceId
+                    else -> false
+                }
+            }
+        } ?: return
+        arrange(
+            context, characterId, "主动关心 · " + concern.optString("focus").take(80),
+            "本人选择约一分钟后回看当前情况", dueAt, now, selfInitiated = true,
+            concernId = concern.getString("id"), originEvidenceId = decisionEvent.id,
+            originEvidenceRevision = decisionEvent.revision, quickConcernCheck = true,
+        )
+    }
+
     internal fun futureConcernChecks(context: Context, characterId: String, now: Instant): Map<String, Instant> =
         plans(context, characterId).filter {
             it.concernId.isNotBlank() && it.status == "planned" && it.dueAt.isAfter(now)
@@ -375,7 +441,7 @@ object RoleDayScheduleStore {
         locationCode: String = "", activityArgs: JSONObject = JSONObject(),
         commitmentTaskId: String = "", selfInitiated: Boolean = false,
         concernId: String = "", originEvidenceId: String = "",
-        originEvidenceRevision: Long = 0L): RoleDayPlan {
+        originEvidenceRevision: Long = 0L, quickConcernCheck: Boolean = false): RoleDayPlan {
         require(characterId.isNotBlank()) { "角色不能为空" }
         require(originEvidenceRevision >= 0L &&
             (originEvidenceId.isNotBlank() || originEvidenceRevision == 0L)) {
@@ -384,7 +450,8 @@ object RoleDayScheduleStore {
         require(title.trim().length in 2..100 && intent.trim().length in 3..300) {
             "日程需要具体想做的事与本人的动机"
         }
-        require(dueAt.isAfter(now.plusSeconds(60))) { "日程需要明确的未来时间" }
+        require(dueAt.isAfter(now.plusSeconds(60)) ||
+            (quickConcernCheck && dueAt == now.plus(quickConcernInterval))) { "日程需要明确的未来时间" }
         val action = CapabilityRegistry.scheduledActionName(activityAction)
         require(action.isBlank() || canSchedule(action)) { "日程动作不是已注册的可执行工具" }
         require(action.isNotBlank() || activityArgs.length() == 0) { "预选参数必须对应一个真实工具" }
@@ -452,6 +519,7 @@ object RoleDayScheduleStore {
             locationCode = place, commitmentTaskId = linkedCommitment,
             concernId = linkedConcern,
             originEvidenceId = originEvidenceId, originEvidenceRevision = originEvidenceRevision,
+            quickConcernCheck = quickConcernCheck,
         )
         require(CommitmentTaskStore.snapshot(characterId).none { task ->
             task.status in setOf(CommitmentTaskStatus.Scheduled, CommitmentTaskStatus.Running,
@@ -489,7 +557,8 @@ object RoleDayScheduleStore {
             activityArgs = activityArgs.toString(),
             commitmentTaskId = linkedCommitment, concernId = linkedConcern,
             selfInitiated = selfInitiated && linkedCommitment.isBlank(),
-            originEvidenceId = originEvidenceId, originEvidenceRevision = originEvidenceRevision)
+            originEvidenceId = originEvidenceId, originEvidenceRevision = originEvidenceRevision,
+            quickConcernCheck = quickConcernCheck)
         persist(context, existing + plan)
         try {
             scheduleWake(context, plan, now)
@@ -612,7 +681,7 @@ object RoleDayScheduleStore {
         require(expectedDueAt == null || original.dueAt == expectedDueAt) {
             "原日程已被其他决定修改，禁止旧模型结果覆盖新时间"
         }
-        val revised = original.copy(dueAt = dueAt, status = "planned",
+        val revised = original.copy(dueAt = dueAt, status = "planned", quickConcernCheck = false,
             resultSummary = reason.trim().take(180), rescheduleCount = original.rescheduleCount + 1,
             lastMutationRequestId = mutationRequestId, lastWakeHandoffAt = null)
         persist(context, previous.map { if (it.id == planId) revised else it })
@@ -860,7 +929,7 @@ object RoleDayScheduleStore {
             (it.status == "due" || it.status == "planned" && !it.dueAt.isAfter(now)) }
             .joinToString("\n") {
                 "待处理的本人日程 planId=${it.id}；原定活动：${it.title}；本人缘由：${it.intent}；时间：${it.dueAt}；" +
-                    (if (it.isConcernCheck()) "这是本人安排的静默复查，可以思考后保持安静；只完成复查，挂心是否结束由实际反馈决定。"
+                    (if (it.isConcernCheck()) "这是本人安排的回看。结合实际反馈决定主动联系、采取行动、稍后再看或留出空间；这次回看只确认自己重新感知过。"
                     else "") +
                     "关联意愿：${it.motiveId.ifBlank { "独立日程" }}；关联挂心：${it.concernId.ifBlank { "无" }}；" +
                     "关联约定：${it.commitmentTaskId.ifBlank { "无" }}；" +
@@ -939,7 +1008,8 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         }
         if (!latest.concernStillOpen(Instant.now())) {
             RoleDayScheduleStore.cancel(applicationContext, role, planId,
-                "原挂心已暂停、结束或撤回", retainRunningWake = true, expectedDueAt = latest.dueAt)
+                "已错过短时回看，或原挂心已暂停、结束或撤回",
+                retainRunningWake = true, expectedDueAt = latest.dueAt)
             return Result.success()
         }
         val covered = CommitmentTaskStore.snapshot(role).any {
@@ -987,7 +1057,9 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
         // Do not just enqueue an online-chat batch and immediately claim a
         // successful handoff: that second worker can be skipped or delayed while
         // the appointment appears "due" with no model request at all.
-        val trigger = if (plan.isConcernCheck())
+        val trigger = if (plan.quickConcernCheck)
+            "本人主动关心到点：回看挂心 threadId=${plan.concernId}，结合对方原话、真实关系和上一轮反馈，再决定是否主动联系、观察或稍后回来。"
+        else if (plan.isConcernCheck())
             "本人日程到点：回看挂心 threadId=${plan.concernId}；看新的原话、状态与行动回执，自己选择是否继续"
         else "本人日程到点：${plan.title.take(80)}；请自行决定真实执行、改期或放弃"
         return try {
@@ -1015,6 +1087,7 @@ class RoleScheduleWakeWorker(context: Context, params: WorkerParameters) :
             // actually starts; no extra online-expiry worker is invented.
             val decisions = ProactivePerceptionRuntime.runDueCycle(
                 applicationContext, trigger, targetCharacterId = role, force = true,
+                preserveOffline = plan.quickConcernCheck,
                 requiredDuePlanId = plan.id, requiredDuePlanAt = plan.dueAt)
             if (decisions == 0 &&
                 !RoleDayScheduleStore.awaitingDueDecision(

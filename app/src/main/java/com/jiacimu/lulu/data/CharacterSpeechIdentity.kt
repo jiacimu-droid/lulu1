@@ -40,7 +40,7 @@ internal object CharacterSpeechIdentity {
                 // count can remove the user's next turn and teach a monologue.
                 appendLine(illustrativeDialogues)
                 appendLine("这是此角色个人资料里的示范（可能由用户编辑或随角色预置），不是逐字台词、现实经历或对方现在说过的话。")
-                appendLine("借鉴的是每一拍怎样接住对方、怎样停下来等她接话；示例中的下一条用户发言属于未来一轮，等她真实回应后再继续。从自己当下的立场、关系和情绪组织措辞，换情景可完全不同，不必每轮复现示例里的语气、行为或气泡数。")
+                appendLine("借鉴每一拍怎样接住对方、什么时候一口气说几句、什么时候留一点空间。例子里的用户台词只供示范，实际交流中由本人决定是否接着主动开口。从自己当下的立场、关系和情绪组织措辞，换情景可完全不同，不必每轮复现示例里的语气、行为或气泡数。")
                 appendLine("真实用户原话、最近关系变化和本人已经选定的行动优先；绝不把示例中的虚构对象、道具、经历带入当前现实。")
             }
             if (acquired.isNotEmpty()) {

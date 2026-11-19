@@ -1230,6 +1230,60 @@ class OnlineChatExperienceTest {
         assertTrue(conversation.id in unread.conversationIds)
     }
 
+    @Test fun quickConcernReviewCanRepeatWithoutAnIncomingReplyAndStopsWhenPaused() {
+        val context = RuntimeEnvironment.getApplication()
+        initializeStores(context)
+        runCatching { androidx.work.WorkManager.initialize(context, androidx.work.Configuration.Builder().build()) }
+        CharacterInnerLifeStore.initialize(context)
+        val role = MigratedDomainStores.characters.create("主动关心的短时回看").characterId
+        val now = java.time.Instant.now()
+        val messageId = "tired-message-$role"
+        SharedExperienceTimeline.record(messageId, role, "私聊", "用户", "今天真的好累，很难过",
+            now, triggerExtraction = false, evidenceKind = EventEvidenceKind.UserStatement)
+        val initial = JSONObject().put("pendingConcerns", org.json.JSONArray().put(
+            JSONObject().put("topicKey", "check-how-they-feel").put("reviewSoon", true)
+                .put("focus", "想知道她现在怎么样").put("whyItMatters", "她说很难过，我想关心她"),
+        ))
+        repeat(2) {
+            CharacterTurnStateCommit.commit(
+                context = context, characterId = role,
+                perception = CharacterPerceptionInput(emptyList(), null), direct = emptyList(),
+                claimDirect = true, evidenceId = messageId, appraisal = initial, innerLife = null,
+                innerThoughtBasis = null, selectedAction = "message", innerThought = "", reason = "", now = now,
+            )
+        }
+        val first = RoleDayScheduleStore.plans(context, role).single()
+        assertTrue(first.quickConcernCheck)
+        assertTrue(first.isConcernCheck())
+        assertEquals(first.createdAt.plusSeconds(60), first.dueAt)
+        assertTrue(RoleDayScheduleStore.awaitingDueDecision(context, role, first.id, first.dueAt, first.dueAt))
+
+        val observationId = "quick-recheck-$role"
+        SharedExperienceTimeline.record(observationId, role, "在线感知", "实际观察", "到点回看",
+            first.dueAt, triggerExtraction = false, evidenceKind = EventEvidenceKind.Observation)
+        val followUp = JSONObject().put("pendingConcerns", org.json.JSONArray().put(
+            JSONObject().put("threadId", first.concernId).put("status", "revise").put("reviewSoon", true),
+        ))
+        RoleDayScheduleStore.arrangeQuickConcernCheck(
+            context, role, followUp, observationId, first.dueAt, first.dueAt,
+        )
+        RoleDayScheduleStore.acknowledgeDueDecisions(context, role, first.dueAt, first.dueAt)
+        val (completed, next) = RoleDayScheduleStore.plans(context, role)
+        assertEquals("completed", completed.status)
+        assertEquals(first.concernId, next.concernId)
+        assertEquals(first.dueAt.plusSeconds(60), next.dueAt)
+        assertTrue(RoleDayScheduleStore.awaitingDueDecision(context, role, next.id, next.dueAt, next.dueAt))
+
+        val pause = JSONObject().put("pendingConcerns", org.json.JSONArray().put(
+            JSONObject().put("threadId", first.concernId).put("status", "pause"),
+        ))
+        CharacterInnerLifeStore.recordCausalTransition(
+            role, messageId, pause, null, null, "silent", "", "", first.dueAt,
+            observationId = observationId,
+        )
+        assertFalse(RoleDayScheduleStore.awaitingDueDecision(context, role, next.id, next.dueAt, next.dueAt))
+    }
+
     private fun initializeStores(context: Context) {
         // Each Robolectric test owns fresh preferences; the singleton must use this app's context.
         CompanionOnlineStore.javaClass.getDeclaredField("prefs").apply { isAccessible = true }.set(CompanionOnlineStore, null)
