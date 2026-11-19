@@ -136,7 +136,8 @@ internal object CharacterPerceptionContext {
         val execution = runCatching { JSONObject(content) }.getOrNull() ?: return null
         val status = execution.optString("status")
         val tool = execution.optString("tool")
-        val completedLifeAction = tool in CharacterActivityExpectation.tools ||
+        val privateBrowse = tool == "background_phone" && execution.optBoolean("privateBrowseObserved")
+        val completedLifeAction = privateBrowse || tool in CharacterActivityExpectation.tools ||
             tool in SearchReceiptFeedback.resultTools
         // Any registered tool can fail or be denied, not only reading/search.
         // Surface these *executor-authored* outcomes to the original perception
@@ -162,6 +163,11 @@ internal object CharacterPerceptionContext {
             if (result.optBoolean("success") && args.optString("worldAction") !in setOf(
                     "interact_resident", "handle_incident", "build_home_item",
                     "move_home_item", "remove_home_item")) return null
+        }
+        if (privateBrowse && result.optBoolean("success")) {
+            val app = result.optString("packageName")
+            val label = com.jiacimu.lulu.system.LuluInstalledAppResolver.browsingAppLabel(app) ?: app
+            return "本人在独立屏打开了$label，已看到实际应用画面。"
         }
         val summary = result.optString("summary").ifBlank { result.optString("error") }.trim()
         if (summary.isBlank()) return null

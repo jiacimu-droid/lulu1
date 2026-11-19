@@ -139,7 +139,7 @@ internal object AutonomousActionWireProtocol {
                 setOf("packageName", "appName", "screenSnapshotId", "elementRef",
                     "x", "y", "startX", "startY", "endX", "endY", "durationMs",
                     "expectedText", "sendToChat", "sendLinkToChat", "sendProductLinkToChat",
-                    "caption", "recipient").forEach { key ->
+                    "caption", "recipient", "mode", "reportToUser").forEach { key ->
                     if (!args.has(key) && step.has(key)) args.put(key, step.opt(key))
                 }
             }

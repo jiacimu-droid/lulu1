@@ -499,6 +499,9 @@ object ToolRouter {
                 // Prefer the actual outbound message/post. All other operations use
                 // the authoritative tool receipt rather than a model description.
                 if (parsed.optString("evidenceId").isBlank()) parsed.put("evidenceId", receiptId)
+                val privateBrowseObserved = name == "background_phone" && !userRequested &&
+                    com.jiacimu.lulu.system.LuluBackgroundPhoneArgumentPolicy.verifiedPrivateBrowseLaunch(args, parsed)
+                if (privateBrowseObserved) execution.put("privateBrowseObserved", true)
                 val confirmedResult = parsed.toString()
                 execution.put("status", parsed.optString("status").ifBlank { if (parsed.optBoolean("success")) "succeeded" else "failed" })
                     .put("result", confirmedResult).put("finishedAt", Instant.now().toString())
@@ -591,8 +594,8 @@ object ToolRouter {
                 // replayed request ID) can ease digital monotony once.
                 if (parsed.optBoolean("success") &&
                     execution.optString("status") !in setOf("pending", "waiting_user", "requested", "running") &&
-                    name in setOf("web_search", "image_search",
-                        "read_book", "play_solo_game")) {
+                    (privateBrowseObserved || name in setOf("web_search", "image_search",
+                        "read_book", "play_solo_game"))) {
                     runCatching { EmbodiedBodyRuntime.onExplorationReceipt(characterId) }
                 }
                 val outcome = parsed

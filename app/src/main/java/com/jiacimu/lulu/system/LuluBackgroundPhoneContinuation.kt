@@ -278,7 +278,11 @@ internal object LuluBackgroundPhoneContinuation {
         commitmentTaskId: String?,
     ): Outcome {
         val firstReceipt = runCatching { JSONObject(initialReceipt) }.getOrNull()
-        val visibleMainScreen = firstReceipt?.optString("mode") == "foreground_accessibility"
+        val displayMode = firstReceipt?.optString("mode").orEmpty()
+        val visibleMainScreen = displayMode == LuluBackgroundPhoneArgumentPolicy.FOREGROUND_MODE
+        val privateBrowse = !userRequested && LuluBackgroundPhoneArgumentPolicy.privateBrowse(initialArgs)
+        fun onCurrentDisplay(args: JSONObject): JSONObject =
+            LuluBackgroundPhoneArgumentPolicy.inheritMode(args, displayMode)
         if (!hasFreshExecutionReceipt(firstReceipt)) {
             return Outcome(
                 notes = "本次没有重新执行后台手机：只恢复了同一请求ID的历史回执。" +
@@ -389,7 +393,7 @@ internal object LuluBackgroundPhoneContinuation {
             val recoveryId = requestId + "-phone-snapshot-recovery-initial"
             val refreshed = ToolRouter.execute(
                 context = context, characterId = characterId, name = "background_phone",
-                args = JSONObject().put("action", "observe"),
+                args = onCurrentDisplay(JSONObject().put("action", "observe")),
                 requestId = recoveryId, userRequested = userRequested,
             )
             count++
@@ -449,7 +453,11 @@ internal object LuluBackgroundPhoneContinuation {
                     // The recent-step window gets trimmed on long tasks; the original
                     // role-authored goal must never disappear after step twelve.
                     appendLine("本人始终要完成的原目标与选择理由：" + roleReason.take(900))
-                    appendLine("你自己刚才决定开展的同一项后台手机任务，不是新人物。")
+                    if (privateBrowse) {
+                        appendLine("这是你给自己留的浏览时间。按真实画面决定跟着兴趣搜索、看下一条、或者到这里就好。想起什么可以留下私人感想，想分享才选择分享；无需给主人交结果。")
+                    } else {
+                        appendLine("你自己刚才决定开展的同一项后台手机任务，不是新人物。")
+                    }
                     appendLine(if (image == null) "本轮没有收到屏幕图像：只能依据实际执行回执决定下一步，绝不假称已经看过画面。" else "本轮附有真实屏幕图像；与设备回执一起判断。")
                     appendLine("已执行的步骤与真实结果：")
                     appendLine(history.toString().takeLast(9_000))
@@ -571,6 +579,9 @@ internal object LuluBackgroundPhoneContinuation {
                         history.appendLine("续接日程未保存：" + it.message.orEmpty().take(220))
                         return Outcome(history.toString().takeLast(5_000), image, false, count)
                     }
+                    onCurrentDisplay(plan.getJSONObject("activityArgs")).apply {
+                        if (privateBrowse) put("reportToUser", false)
+                    }
                     commitmentTaskId?.let { plan.put("commitmentTaskId", it) }
                     val actual = ToolRouter.execute(context = context, characterId = characterId,
                         name = "plan_personal_activity", args = plan,
@@ -673,9 +684,10 @@ internal object LuluBackgroundPhoneContinuation {
                 context = context,
                 characterId = characterId,
                 name = "background_phone",
-                args = args,
+                args = onCurrentDisplay(args),
                 requestId = nextId,
                 userRequested = userRequested,
+                reason = decision.optString("reason"),
             )
             count++
             image = LuluScreenFrameHandoff.take(characterId, nextId)
@@ -709,7 +721,7 @@ internal object LuluBackgroundPhoneContinuation {
                 val recoveryId = requestId + "-phone-snapshot-recovery-" + index
                 val observedReceipt = ToolRouter.execute(
                     context = context, characterId = characterId, name = "background_phone",
-                    args = JSONObject().put("action", "observe"),
+                    args = onCurrentDisplay(JSONObject().put("action", "observe")),
                     requestId = recoveryId, userRequested = userRequested,
                 )
                 count++
@@ -736,7 +748,7 @@ internal object LuluBackgroundPhoneContinuation {
             lastScreenReceipt = result
             if (result?.optBoolean("momentPublishAttempted") == true ||
                 result?.optBoolean("commentPublishAttempted") == true) momentResultReadOnly = true
-            if (result?.optString("errorCode") == "new_user_input")
+            if (result?.optString("errorCode") in setOf("new_user_input", "independent_display_unavailable"))
                 return Outcome(history.toString().takeLast(5_000), image, false, count)
             if (action == "send_chat_message") {
                 // Never repeat a clicked/ambiguous external side effect. A

@@ -9,6 +9,29 @@ import org.json.JSONObject
  * This policy only validates transport fields; it never chooses an action.
  */
 internal object LuluBackgroundPhoneArgumentPolicy {
+    const val INDEPENDENT_MODE = "independent_virtual_display"
+    const val FOREGROUND_MODE = "foreground_accessibility"
+
+    fun usesMainScreen(mode: String, foregroundActive: Boolean, independentAvailable: Boolean): Boolean =
+        when (mode) {
+            INDEPENDENT_MODE -> false
+            FOREGROUND_MODE -> true
+            else -> foregroundActive || !independentAvailable
+        }
+
+    fun inheritMode(args: JSONObject, actualMode: String): JSONObject = args.apply {
+        if (actualMode == INDEPENDENT_MODE || actualMode == FOREGROUND_MODE) put("mode", actualMode)
+    }
+
+    fun privateBrowse(args: JSONObject): Boolean =
+        args.optString("mode") == INDEPENDENT_MODE && args.opt("reportToUser") == false
+
+    fun verifiedPrivateBrowseLaunch(args: JSONObject, receipt: JSONObject): Boolean =
+        privateBrowse(args) && args.optString("action") == "launch" && receipt.optBoolean("success") &&
+            receipt.optString("mode") == INDEPENDENT_MODE && receipt.optInt("displayId", 0) > 0 &&
+            receipt.optString("packageName").isNotBlank() && receipt.optBoolean("targetWindowVerified") &&
+            receipt.optBoolean("imageForwardedToRole") && receipt.optBoolean("frameValidated")
+
     // The action contract is shared by the model's main turn and the background
     // continuation loop. Unknown actions are rejected as model arguments,
     // never as broken shell transport (which would discard a valid display).

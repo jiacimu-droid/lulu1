@@ -1,6 +1,11 @@
 package com.jiacimu.lulu.data
 
 import android.content.Context
+import android.os.Build
+import com.jiacimu.lulu.system.LuluBackgroundPhoneSession
+import com.jiacimu.lulu.system.LuluInstalledAppResolver
+import com.jiacimu.lulu.system.LuluRolePhoneAuthorization
+import com.jiacimu.lulu.system.LuluWirelessDebugging
 import org.json.JSONObject
 
 data class Capability(val name: String, val domain: String, val permission: String, val successEvidence: String, val retrySafe: Boolean, val retired: Boolean = false)
@@ -133,6 +138,19 @@ object CapabilityRegistry {
     }
 
 
+    internal fun independentBrowseExamples(context: Context, characterId: String): String? {
+        if (characterId.startsWith("resident:") ||
+            !LuluRolePhoneAuthorization.isGranted(context, characterId) ||
+            Build.VERSION.SDK_INT < 34 ||
+            !LuluWirelessDebugging.hasPriorPairing(context) ||
+            LuluBackgroundPhoneSession.ownerHasPaused(context)) return null
+
+        return LuluInstalledAppResolver.browsingExamples(context).joinToString("、") {
+            val label = LuluInstalledAppResolver.browsingAppLabel(it.packageName) ?: it.label
+            "$label（${it.packageName}）"
+        }
+    }
+
     /**
      * The role's factual phone-affordance snapshot, derived from live gates.
      * Paired ADB key != active shell != working display != successful action.
@@ -164,12 +182,12 @@ object CapabilityRegistry {
                 "免密/货到付款、支付或验证码；付款阶段主人亲自处理，" +
                 "后台第三方付款页不保证迁移到主屏。若本人想把挑中的商品直接发给主人，先在商家实际界面打开分享：真实控件可用时选最新快照tap_element，只有本次截图能清楚看到复制按钮而无控件编号时选截图坐标tap(target为复制按钮)，两种方式都可附sendLinkToChat=true；后台仅在真实复制、新鲜商家HTTPS链接核实且私聊卡片确实保存后反馈发送成功，绝不读取或转发无关剪贴板文字。复制目标过期须重新观察，不能因为一次控件校验失败就声称系统禁止复制；确实没有可用分享方式时才如实报告未完成，不编造链接、下单或付款。")
             if (!adbPaired || !supported) {
-                appendLine("【无无线调试的纯无障碍线路】当前 background_phone 将切换到 foreground_accessibility 主屏模式：无需配对ADB，但要开启Android无障碍、本角色手机授权和主人屏幕读取授权。先在露露机界面选 background_phone(action=launch,appName=真实应用名称)；手机会真实切到第三方App，主人不能同时使用其他App。后续同一角色可按实时主屏截图+screenSnapshotId执行observe/tap/tap_element/type/swipe/back/navigate，不能假装是独立后台屏。主人操作、锁屏、换App、撤权或点击停止就中断；无新照片或唯一控件就先观察，不猜坐标。")
+                appendLine("【无无线调试的纯无障碍线路】background_phone 未指定模式时可切换到 foreground_accessibility 主屏模式；显式指定 independent_virtual_display 时保留独立屏要求：无需配对ADB，但要开启Android无障碍、本角色手机授权和主人屏幕读取授权。先在露露机界面选 background_phone(action=launch,appName=真实应用名称)；手机会真实切到第三方App，主人不能同时使用其他App。后续同一角色可按实时主屏截图+screenSnapshotId执行observe/tap/tap_element/type/swipe/back/navigate，不能假装是独立后台屏。主人操作、锁屏、换App、撤权或点击停止就中断；无新照片或唯一控件就先观察，不猜坐标。")
                 appendLine("主屏模式的普通输入与点击可继续验证；send_chat_message、publish_comment等复合发表、sendLinkToChat自动转卡片尚不支持验证，不要假称发送成功。微信消息可以根据确切收件人界面依次选焦点、type全文、再点真实发送按钮并只读检查；复制链接不代表已经回传给主人。")
             } else {
                 appendLine("本机已经配对无线调试且支持独立屏，可优先使用 background_phone 的独立虚拟屏；想明确操作可见主屏时可传mode=foreground_accessibility。独立屏这不是capture_screen，绝不会把主屏截图当后台图；两者不能混用截图、坐标和控件。")
             }
-            appendLine("想自主逛任何已安装App（如小红书、抖音、网易云音乐、购物App）或帮主人操作时，统一选择 background_phone；实际mode字段决定是独立虚拟屏还是当前主屏，只有真实目标窗口观察回执才算看到内容。旧小红书 MCP、Termux、额外网页搜索或图片搜索不是使用这些App的必经路线。")
+            appendLine("想自主逛任何已安装App（如小红书、抖音、网易云音乐、购物App）或帮主人操作时，统一选择 background_phone。独处浏览明确传 mode=independent_virtual_display；独立屏不可用时可以暂缓或换一种消遣。只有真实目标窗口观察回执才算看到内容。旧小红书 MCP、Termux、额外网页搜索或图片搜索不是使用这些App的必经路线。")
             appendLine("想了解主人今天的运动、步数或睡眠，也可以自主选择 background_phone 打开已安装的华为运动健康 App（使用本机核实的启动器名称或包名）逐屏观察。旧健康数据接口已停用；只依据真正读到的页面、对应日期和真实回执判断，打不开或读不到时如实说明，不猜数值。")
             appendLine("购物也是本人可以自主产生的生活愿望，不必等主人先提出代购任务：可因自己的真实兴趣想收藏或拥有某件东西、因对主人的了解想帮她挑选，也可只是浏览或放下。主人常用闲鱼、淘宝闪购、拼多多；应先核实手机是否真的安装目标App，不必固定使用这些App。想要的东西可先在私人念头/持续愿望中留下，想现在做就自行选择已授权的后台手机步骤，想给主人看就发送真实商品链接并由本人自然表达理由；想让主人买给自己也可以直接说出愿望与理由。愿望不等于实际购物、主人已同意或订单已支付；程序不替你规定购物频率、预算、商品、发言或下一步。")
             appendLine("注意：已保存配对密钥≠本次已连接shell≠虚拟屏已创建≠某个App已打开。" +
@@ -182,7 +200,7 @@ object CapabilityRegistry {
             appendLine("实际决定操作某个App时：action=tool,tool=background_phone,args={\"action\":\"launch\",\"appName\":\"已安装App的准确显示名称\"}；也可传准确packageName。launch会在必要时先建立独立屏。需要给主人发后台截图时可在实际observe/launch回执允许的情况下选sendToChat=true；只有本角色目标独立屏新帧已核实、实际发送回执成功，才能称后台截图已发出。foreground_accessibility主屏模式不可冒充后台图；截图失败或发送失败就说明对应阶段，不能沿用旧图。")
             appendLine("type只输入草稿，绝不自动搜索/发送/发布；先核实输入框和草稿是否真的写入，随后由本人决定是否执行独立搜索、发送或发表动作。")
             appendLine("目标App有唯一真实搜索框时可用search(text)，系统自动聚焦、读回并提交搜索；submit仍只针对可确认的搜索框，不能拿回车替代发送消息。普通社交发表使用真实按钮的tap或tap_element。")
-            appendLine("独立后台画面这不是capture_screen；只有实测回执mode=independent_virtual_display和对应独立屏新帧才可称已经看过后台；绝不会把主屏截图当后台图。若设备不支持无线调试，background_phone实际是foreground_accessibility可见主屏，不得援引这条独立屏证据。")
+            appendLine("独立后台画面这不是capture_screen；只有实测回执mode=independent_virtual_display和对应独立屏新帧才可称已经看过后台；绝不会把主屏截图当后台图。若设备不支持独立屏，未指定模式的 background_phone 可用 foreground_accessibility 主屏；明确请求独立屏时不会改用主屏。")
             appendLine("只有mode=independent_virtual_display才是独立后台屏；mode=foreground_accessibility是主屏，绝不能称两者相同。后台图片不会混成主屏；主屏模式不可称隐藏后台操控。长任务未做完时保留真实进度，不假装已完成。")
         }.trim()
     }
@@ -199,7 +217,7 @@ object CapabilityRegistry {
             else if (cap.name == "bring_lulu_front") "；args={}；仅在主人于权限与能力独立开启直接切回授权、无障碍连接、主屏解锁且当前非敏感应用时，可由角色选择一次真实切回露露机；只核实主屏前台，不强行停止第三方App，也不保证用户之后不会再次打开。"
             else if (cap.name == "screen_sequence") "；args={allowedPackages:[用户授权的应用包名],steps:[{text:点击文字,expectedText:动作后验证文字}]}；最多5步"
             else if (cap.name == "phone_ui") "；前台操作（不是后台屏）；inspect实际截取主屏一帧交给本角色模型，同时附无障碍控件作为辅助，不会只靠文字声称看到了画面。args={action:inspect|launch|tap|swipe|scroll|type,packageName:准确包名,x:0..1000,y:0..1000,inputX:仅type视觉输入时可选本次截图的文本框中心0..1000,inputY:与inputX配对且需screenSnapshotId,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,direction:forward|backward,text:输入文本,expectedText:可选验证文字}。先inspect确认当前包名/控件，操作后查真实回执，不把accepted当成功"
-            else if (cap.name == "background_phone") "；手机操作：已配对无线调试时独立后台屏；未配对或系统不支持时使用可见主屏纯无障碍模式（需要主人角色手机授权、屏幕读取和通知；会占用主屏）。args={action:start|launch|adopt_app|observe|tap|long_press|tap_element|navigate|swipe|back|focus_search|type|submit|search|send_chat_message|publish_comment|stop|open_wechat_moments_composer|publish_wechat_moment,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),navigationLabels:launch可附或navigate必填的有序页面名称数组,screenSnapshotId:点击控件、发私信及发朋友圈所需当前快照编号,elementRef:点击控件或发表评论的提交按钮所需真实控件ref,editorRef:publish_comment的当前评论输入框ref,contextText:publish_comment目标帖子的真实原文片段,target:看图点击或长按的真实对象,screenSnapshotId:看图点击和控件操作必填最新编号,longPress:tap_element可选true长按,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type可填写任意已授权App当前聚焦普通编辑框,只写草稿；若无控件树可附当前截图inputX/inputY和screenSnapshotId;search才核实唯一搜索框并提交),expectedText:可选验证文字,recipient:send_chat_message必填的当前聊天对象准确标题,composerX/composerY:仅微信无障碍输入框为空但真实截图已有文字输入区时可选的0..1000输入区中心,text:send_chat_message或publish_wechat_moment所需全文(使用统一手机授权及最新screenSnapshotId),sendToChat:可选true发送真实后台截图到私聊,sendLinkToChat:在真实分享面板点击复制链接时设为true，把本次从当前App核实的帖子、商品或网页链接发为私聊卡片，linkSent=true代表已送达私聊,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
+            else if (cap.name == "background_phone") "；手机操作：显式 mode=independent_virtual_display 只用已配对的独立后台屏；未指定模式且独立屏不可用时才会使用可见主屏纯无障碍模式（需要角色手机授权、屏幕读取和通知）。args={action:start|launch|adopt_app|observe|tap|long_press|tap_element|navigate|swipe|back|focus_search|type|submit|search|send_chat_message|publish_comment|stop|open_wechat_moments_composer|publish_wechat_moment,packageName:可选准确包名,appName:launch时可选已安装App显示名称(两者任选其一),navigationLabels:launch可附或navigate必填的有序页面名称数组,screenSnapshotId:点击控件、发私信及发朋友圈所需当前快照编号,elementRef:点击控件或发表评论的提交按钮所需真实控件ref,editorRef:publish_comment的当前评论输入框ref,contextText:publish_comment目标帖子的真实原文片段,target:看图点击或长按的真实对象,screenSnapshotId:看图点击和控件操作必填最新编号,longPress:tap_element可选true长按,x:0..1000,y:0..1000,startX:0..1000,startY:0..1000,endX:0..1000,endY:0..1000,durationMs:400,text:输入文字(type可填写任意已授权App当前聚焦普通编辑框,只写草稿；若无控件树可附当前截图inputX/inputY和screenSnapshotId;search才核实唯一搜索框并提交),expectedText:可选验证文字,recipient:send_chat_message必填的当前聊天对象准确标题,composerX/composerY:仅微信无障碍输入框为空但真实截图已有文字输入区时可选的0..1000输入区中心,text:send_chat_message或publish_wechat_moment所需全文(使用统一手机授权及最新screenSnapshotId),sendToChat:可选true发送真实后台截图到私聊,sendLinkToChat:在真实分享面板点击复制链接时设为true，把本次从当前App核实的帖子、商品或网页链接发为私聊卡片，linkSent=true代表已送达私聊,caption:可选说明}。只对后台displayId操作；capture_screen只看主屏，后台图片＋无障碍文字由同一角色模型分析。accepted不是任务完成，可按实际结果再自主调用下一步。"
             else ""
         }
     }

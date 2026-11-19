@@ -66,11 +66,19 @@ internal object AutonomousAffordanceContext {
         homeFurniture: List<Pair<String, String>> = emptyList(),
         recentSoloGames: List<Pair<String, Int>> = emptyList(),
         recentSoloPlayRhythm: String = "",
+        independentBrowseExamples: String? = null,
     ): String = buildString {
         appendLine("【本人此刻与稍后的生活选择｜不是强制任务或固定动作轮换】")
         appendLine("这里列出此刻确实存在的行动机会，不是新任务或规定的日常安排；决定做、稍后安排或独处均由本人选择。")
         appendLine("注意：下面的 reading、solo_game、digital_world 是直接决策的 action 类别；未来日程 activityAction 对应已注册的 read_book、play_solo_game、digital_world_action。日程只保存意愿，到点仍须实际执行和取得回执。")
-        appendLine("【兴趣自己向外延伸】人设与长期经历里写明的兴趣即使没有用户新话题也仍属于你。若自己有真正想追的新问题，可以从本轮已配置且授权的能力里主动选：web_search(op=search_read,query=具体想弄懂的问题)了解外部资料；image_search(op=search,kind=gif|sticker,query=想看的动图或表情素材)搜图片候选；background_phone(action=launch,appName=实际已安装的App名称)自主浏览小红书、抖音、网易云音乐等App，再依据真实屏幕读回选择搜索、滑动或继续探索。使用后台手机真实观察，不需要另找专用的阅读器。搜图工具目前侧重 GIF/表情素材，不可当成已获得任意高清静态图或已看懂图片。未配置或权限、会话不可用则保留问题/换合法方式；不应反复请求失败接口。") 
+        appendLine("【兴趣自己向外延伸】独处时也可以追人设和长期经历里的兴趣。web_search(op=search_read,query=具体想弄懂的问题)用于读外部资料；image_search(op=search,kind=gif|sticker,query=想看的素材)用于找动图或表情候选。只选择本轮已配置且授权的能力；不可用时可换方式或暂缓。")
+        if (independentBrowseExamples != null) {
+            appendLine("【独处也能逛现实里的App】觉得单调、想看看外界、想追自己的兴趣时，可以选已经授权的独立后台屏。可随手逛推荐，也可因一个具体问题搜笔记或短视频；和阅读、游戏、出门一样，由你自己选择。")
+            if (independentBrowseExamples.isNotBlank()) {
+                appendLine("本机实际可启动的浏览示例：$independentBrowseExamples。")
+            }
+            appendLine("""实际想逛，现在选 action=tool,tool=background_phone,args={"action":"launch","appName":"已安装的准确名称","mode":"independent_virtual_display","reportToUser":false}，或传核实的 packageName。reason 写自己为何想看什么。打开后看真实画面，再自己选 search、看下一条或结束。只有亲自看到的发现才能成为感想或分享素材；想和主人聊再决定怎么分享。""")
+        }
         appendLine("真实读到的结果可让你形成新疑问、对原看法改观、准备向别人分享，或者觉得无趣就放下；只想以后看时可用同一个 plan_personal_activity 工具安排搜索的真实时间与动作，但不为了消除单调感强行搜索、更不默认把结果发给主人。")
         appendLine("- 想对某件已知小事发表意见：可以自己发朋友圈；只有真的有话想说时才做。")
         appendLine("【游戏意愿先于入口】想玩哪款、独自探索还是邀人共享，先看本人的兴趣、真实关系、近几次游戏经历和此刻状态。${if (com.jiacimu.lulu.games.LuluGameEdition.worldGamesEnabled) "四款已有真实独玩引擎：记忆配对、快艇骰子、方块小岛（独立持久生存存档）、迷雾摸金（独立探索、真实撤离）；" else "当前可独玩记忆配对和快艇骰子；"}不要误以为只有快艇骰子能独玩。主人可通过真实邀请加入游戏馆支持的更多项目，熟悉的数字人物可以互相发起已支持的双人对抗。可以真心喜欢某款而重玩，也可以尝试别的、邀朋友、独处或不玩；这不是强制轮换任务。发出邀请不等于已经开局。")
