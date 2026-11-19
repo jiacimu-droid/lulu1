@@ -105,8 +105,11 @@ object LuluDataBackup {
     fun validateZipFile(file: File): ValidatedZip {
         var entries = 0
         var schema: Int? = null
+        val seenPaths = hashSetOf<String>()
         ZipFile(file).use { zip ->
             for (entry in zip.entries().toList()) {
+                validateEntryPath(entry.name)
+                require(seenPaths.add(entry.name)) { "备份含重复路径：${entry.name}" }
                 entries += 1
                 zip.getInputStream(entry).use { stream ->
                     if (entry.name == MANIFEST_NAME) {
@@ -130,13 +133,41 @@ object LuluDataBackup {
         return ValidatedZip(entries)
     }
 
-    /**
-     * 把备份 zip 解压覆盖进 [dataDir]，返回写进的文件数。
-     * 拒绝绝对路径与含 .. 的条目（zip-slip），跳过恢复暂存区。
-     * 注意：同名文件会被覆盖；备份里没有、现在多出来的零散文件
-     * 不会被删，全新安装后恢复是最干净的。
+    /** A damaged archive must never start writing data before full CRC and
+     * central-directory validation. The staged app import uses the file form
+     * below to avoid copying an already-staged archive twice.
      */
     fun restoreZip(dataDir: File, input: InputStream): Int {
+        val candidate = File.createTempFile("lulu-restore-checked-", ".zip")
+        try {
+            input.use { source ->
+                FileOutputStream(candidate).use { dest -> source.copyTo(dest) }
+            }
+            return restoreVerifiedZip(dataDir, candidate)
+        } finally {
+            candidate.delete()
+        }
+    }
+
+    private fun restoreVerifiedZip(dataDir: File, archive: File): Int {
+        validateZipFile(archive)
+        return FileInputStream(archive).use { extractValidatedZip(dataDir, it) }
+    }
+
+    private fun validateEntryPath(name: String) {
+        // Reject traversal and Windows separators before extracting any file,
+        // not just when the corrupt ZIP reaches that entry.
+        require(name.isNotBlank() && !name.startsWith("/") && !name.startsWith("./") &&
+            !name.contains("..") && !name.contains('\\')) {
+            "备份里有非法路径：$name"
+        }
+    }
+
+    /**
+     * Already-validated ZIP: overlay files. Existing unmentioned files are
+     * intentionally left in place, so in-place restore is NOT an exact clone.
+     */
+    private fun extractValidatedZip(dataDir: File, input: InputStream): Int {
         var files = 0
         val base = dataDir.canonicalPath + File.separator
         ZipInputStream(BufferedInputStream(input)).use { zip ->
@@ -147,9 +178,7 @@ object LuluDataBackup {
                     zip.closeEntry()
                     continue
                 }
-                require(!name.startsWith("/") && !name.contains("..")) {
-                    "备份里有非法路径：$name"
-                }
+                validateEntryPath(name)
                 if (name == "files/$STAGING_DIR_NAME" ||
                     name.startsWith("files/$STAGING_DIR_NAME/")
                 ) {
@@ -190,17 +219,30 @@ object LuluDataBackup {
         File(context.filesDir, RESULT_FILE_NAME).delete()
     }
 
-    /** 把用户挑的备份文件拷进暂存区并整包校验，校验通过才标记待恢复。 */
-    fun stageForRestore(context: Context, input: InputStream): ValidatedZip {
-        val staging = stagingDir(context).apply { mkdirs() }
-        val zipFile = File(staging, STAGING_ZIP_NAME)
-        input.use { source ->
-            FileOutputStream(zipFile).use { dest -> source.copyTo(dest) }
+    /** Stage the next candidate atomically. A broken second import must not
+     * overwrite an earlier valid ZIP already marked for restoration.
+     */
+    internal fun stageZip(staging: File, input: InputStream): ValidatedZip {
+        if (!staging.isDirectory && !staging.mkdirs())
+            throw IOException("无法创建恢复暂存目录")
+        val candidate = File.createTempFile("candidate-", ".zip", staging)
+        try {
+            input.use { source ->
+                FileOutputStream(candidate).use { dest -> source.copyTo(dest) }
+            }
+            val validated = validateZipFile(candidate)
+            val ready = File(staging, STAGING_ZIP_NAME)
+            if (!candidate.renameTo(ready)) throw IOException("无法保存已校验的恢复包")
+            val flag = File(staging, PENDING_FLAG_NAME)
+            if (!flag.isFile && !flag.createNewFile()) throw IOException("无法登记待恢复状态")
+            return validated
+        } finally {
+            candidate.delete()
         }
-        val validated = validateZipFile(zipFile)
-        File(staging, PENDING_FLAG_NAME).createNewFile()
-        return validated
     }
+
+    fun stageForRestore(context: Context, input: InputStream): ValidatedZip =
+        stageZip(stagingDir(context), input)
 
     /**
      * 启动时、在任何数据层读文件之前调用一次。
@@ -213,13 +255,15 @@ object LuluDataBackup {
         if (!flag.exists()) return RestoreOutcome.None
         return try {
             if (!zipFile.isFile) throw IOException("备份文件不见了")
-            val count = FileInputStream(zipFile).use { restoreZip(dataDir(context), it) }
+            val count = restoreVerifiedZip(dataDir(context), zipFile)
             staging.deleteRecursively()
             writeResult(context, "成功：已恢复 $count 个文件（${Instant.now()}）。")
             RestoreOutcome.Applied(count)
         } catch (error: Exception) {
             runCatching { staging.deleteRecursively() }
-            writeResult(context, "失败：${error.message.orEmpty()}，原数据未动，可重新挑备份恢复。")
+            // A ZIP can be valid but the filesystem may fail mid-apply (e.g.
+            // disk full). Do not claim the original data is untouched.
+            writeResult(context, "失败：${error.message.orEmpty()}。若恢复已开始，部分文件可能被覆盖；请保留原 ZIP 并重试，勿依赖未完整恢复的数据。")
             RestoreOutcome.Failed(error.message.orEmpty())
         }
     }
