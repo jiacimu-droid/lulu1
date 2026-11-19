@@ -128,7 +128,7 @@ object CapabilityRegistry {
                 "read_book" to "亲自阅读 read_book(readingBookId)",
                 "play_solo_game" to "独自玩游戏 play_solo_game(gameId)",
                 "send_game_invite" to "约用户玩游戏 send_game_invite(gameId,text)",
-                "invite_duel_game" to "约数字朋友对战 invite_duel_game(gameId,targetCharacterId)",
+                "invite_duel_game" to "约数字朋友对战 invite_duel_game(gameId,targetCharacterId,text)",
                 "sing_song" to "创作原创歌曲 sing_song(prompt,durationSeconds)",
                 "control_music" to "操作真实媒体会话 control_music(command)",
                 "save_photo" to "相册收藏真实图片 save_photo(messageId或searchId,index)",
@@ -154,7 +154,7 @@ object CapabilityRegistry {
                 appendLine("image_search 目前缺少图像搜索配置，不能宣称已搜索或发送。")
             appendLine("【选择与行动】本人随时可以从已有经历、关系、兴趣或未完事项中自选 0/1/N 个动作；" +
                 "前台私聊、在线窗口、后台感知使用同一真实工具。聊天不是工具禁用状态：" +
-                "若既想回复又想发朋友圈、搜网页、联系朋友或读书，本轮回复照常填写，" +
+                "若既想回复又想发朋友圈、搜网页、联系朋友或读书，同轮回复可附 steps；本轮回复照常填写，" +
                 "独立动作同时写 steps=[{tool:已注册工具名,args:{实际参数},requiresPreviousSuccess:false}]；" +
                 "先看到搜索/画面结果才能决定的下一步，须等新回执再选择，不能预写成功。" +
                 "每步独立校验授权、真实对象和持久回执；明确的未来行动由原 plan_personal_activity 保存，" +
