@@ -45,19 +45,32 @@ internal data class SharedListeningTrack(
 internal fun shouldAutoAnalyzeSharedAudio(selectedUri: String, lastAttemptUri: String, busy: Boolean): Boolean =
     selectedUri.isNotBlank() && selectedUri != lastAttemptUri && !busy
 
-/** Metadata is NOT audible waveform evidence; no player control can change this distinction. */
-internal fun listenedMediaSession(raw: String): Pair<SharedListeningTrack?, String> {
+/**
+ * The room needs TWO distinct facts: an available controller (even paused,
+ * so the user can press Play), and an ACTUALLY playing session. Paused metadata
+ * must never become evidence that somebody is listening.
+ */
+private fun selectSharedMediaSession(
+    raw: String,
+    allowPaused: Boolean,
+): Pair<SharedListeningTrack?, String> {
     val root = runCatching { JSONObject(raw) }.getOrNull()
         ?: return null to "媒体会话数据无效"
-    if (!root.optBoolean("success")) return null to root.optString("error", "读取媒体会话失败")
+    if (!root.optBoolean("success"))
+        return null to root.optString("error", "读取媒体会话失败")
     val sessions = root.optJSONArray("sessions")
     val candidates = (0 until (sessions?.length() ?: 0)).mapNotNull { sessions?.optJSONObject(it) }
     val selected = candidates.firstOrNull {
         it.optString("packageName") == "com.netease.cloudmusic" && it.optBoolean("playing")
     } ?: candidates.firstOrNull { it.optBoolean("playing") }
-        ?: candidates.firstOrNull { it.optString("packageName") == "com.netease.cloudmusic" }
-        ?: candidates.firstOrNull()
-        ?: return null to "未发现播放器。请在网易云音乐里播放一次，或检查通知使用权"
+        ?: if (allowPaused) candidates.firstOrNull {
+            it.optString("packageName") == "com.netease.cloudmusic"
+        } ?: candidates.firstOrNull() else null
+        ?: return null to if (candidates.isEmpty()) {
+            "未发现播放器。请在网易云音乐里播放一次，或检查通知使用权"
+        } else {
+            "已找到播放器，但当前没有报告正在播放的歌曲"
+        }
     return SharedListeningTrack(
         selected.optString("title").ifBlank { "未提供歌曲名" },
         selected.optString("artist").ifBlank { "未知歌手" },
@@ -68,6 +81,14 @@ internal fun listenedMediaSession(raw: String): Pair<SharedListeningTrack?, Stri
         durationMs = selected.optLong("durationMs").coerceAtLeast(0L),
     ) to ""
 }
+
+/** Only a PLAYING session is evidence of active playback, never actual audio understanding. */
+internal fun listenedMediaSession(raw: String): Pair<SharedListeningTrack?, String> =
+    selectSharedMediaSession(raw, allowPaused = false)
+
+/** The UI may show a paused controller so its Play button can resume music. */
+internal fun controllableMediaSession(raw: String): Pair<SharedListeningTrack?, String> =
+    selectSharedMediaSession(raw, allowPaused = true)
 
 private fun listenedAudioName(context: Context, uri: Uri): String =
     runCatching {
@@ -128,7 +149,7 @@ internal fun ListenTogetherRoom(
     }
 
     fun refreshExternal() {
-        val result = listenedMediaSession(LuluMediaPlayback.sessions(context))
+        val result = controllableMediaSession(LuluMediaPlayback.sessions(context))
         track = result.first
         sessionError = result.second
     }
@@ -246,7 +267,7 @@ internal fun ListenTogetherRoom(
             }
         },
         onJoinExternal = {
-            track?.let {
+            track?.takeIf { it.playing }?.let {
                 recordListening(
                     "用户邀请角色一起听手机媒体会话：" + it.title +
                         "；歌手=" + it.artist + "；来源=" + it.packageName +
