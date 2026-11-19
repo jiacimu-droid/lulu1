@@ -23,6 +23,35 @@ class RelayRequestPressurePolicyTest {
         assertTrue(reduced.length < facts.length)
     }
 
+    @Test fun evenAnOversizedActorTurnIsNotPreemptivelyTrimmed() {
+        // Bytes measure transport size, not tokens; a billed-per-request model
+        // should see the full live scene unless the upstream actually refuses it.
+        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+            "后台主动感知", 1_000_000))
+        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+            "后台主动感知", 500_000))
+    }
+
+    @Test fun exceptional503RecoveryKeepsEveryRegisteredToolAndItsArguments() {
+        val catalogue = "【本人可选择的能力目录｜私聊、在线窗口和后台独自感知共用】\\n" +
+            "收藏与生活记录：read_self_preface、read_self_todo、write_phone_memo"
+        val examples = "【何时想做即可选择的真实工具及参数线索｜需按现场ID和配置核实】\\n" +
+            "自主查看主人自序 read_self_preface(area=thoughts|values|wishes|todo；" +
+            "用户正等本次结果时填reportToUser=true)"
+        val action = "【选择与行动】一次决定可使用已注册能力及 steps。"
+        val exploration = "【此刻外部探索真实工具与配置】\\n" +
+            "- web_search(op=search|read)；- background_phone(action=launch|observe)"
+        val old = "【旧的生活回顾】\\n" + "较早历史。\\n".repeat(9_000)
+        val facts = listOf(old, catalogue, examples, action, exploration,
+            "【最近自己经历的生活】\\n刚刚与主人谈到日记").joinToString("\\n")
+        val reduced = RelayRequestPressurePolicy.compactActorSceneFacts(facts)
+        assertTrue(reduced.length < facts.length)
+        for (essential in listOf(catalogue, examples, action, exploration)) {
+            assertTrue("Missing protected live tool contract: $essential", reduced.contains(essential))
+        }
+        assertTrue(reduced.contains("刚刚与主人谈到日记"))
+    }
+
     @Test fun compactRelayKeepsLiveClockEvenWhenOldHistoryIsDropped() {
         val clock = CharacterClockAuthority.render(
             java.time.Instant.parse("2026-11-12T01:39:00Z"),
@@ -132,21 +161,21 @@ class RelayRequestPressurePolicyTest {
         val withImage = RelayRequestPressurePolicy.payloadBytes(
             "江渡", "喂", emptyList(), listOf("data:image/jpeg;base64," + "A".repeat(128)))
         assertTrue(withImage > textOnly)
-        assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 500_000))
-        assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 360_000))
-        assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 263_226))
-        assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 280_000))
-        assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 196_618))
-        assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 220_000))
-        assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 160_000))
-        assertTrue(RelayRequestPressurePolicy.shouldCompactBeforeSend(
+        assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 100_001))
         assertFalse(RelayRequestPressurePolicy.shouldCompactBeforeSend(
             "后台主动感知", 100_000))
