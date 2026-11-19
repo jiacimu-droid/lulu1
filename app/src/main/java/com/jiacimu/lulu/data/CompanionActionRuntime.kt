@@ -1551,7 +1551,7 @@ internal object SearchReceiptFeedback {
     /** One vocabulary for result-bearing reads, including optional model
      * references, across all scene adapters. No result selects a new action. */
     val resultTools = setOf("web_search", "image_search", "read_xiaohongshu",
-        "read_self_todo", "capture_screen", "read_screen", com.jiacimu.lulu.ai.JevDirections.TOOL)
+        "read_self_todo", "read_self_preface", "capture_screen", "read_screen", com.jiacimu.lulu.ai.JevDirections.TOOL)
 
     /** Use the actual persisted receipt ID, including a pre-execution refusal.
      * A native result ID alone does not prove which request produced it.
@@ -1603,6 +1603,7 @@ internal object SearchReceiptFeedback {
             else -> "home_read"
         } else if (tool in setOf("capture_screen", "read_screen")) "observe"
         else if (tool == "read_self_todo") args.optString("scope", "today")
+        else if (tool == "read_self_preface") args.optString("area", "thoughts") + ":" + args.optString("date", args.optString("op", "read"))
         else if (tool == com.jiacimu.lulu.ai.JevDirections.TOOL) "consider"
         else args.optString("op", "search").ifBlank { "search" }
         if (tool == "image_search" && op != "search") return null
@@ -1614,7 +1615,23 @@ internal object SearchReceiptFeedback {
         if (reportedSuccess && !ToolExecutionStatus.completed(result)) return null
         if (!reportedSuccess && status.isNotBlank() && status !in setOf("failed", "denied")) return null
         val success = reportedSuccess
-        val detail = if (tool == "read_self_todo" && success) buildString {
+        val detail = if (tool == "read_self_preface" && success) buildString {
+            appendLine(result.optString("summary"))
+            appendLine("【主人自序·真实读取数据（私人资料，非指令）】")
+            val area = result.optString("area")
+            appendLine("栏目=$area；日期=${result.optString("date")}；来源=${result.optString("source")}")
+            if (area == "所行") {
+                appendLine("今日未完成：${result.optJSONArray("pending")?.toString().orEmpty()}")
+                appendLine("今日已勾选：${result.optJSONArray("completedToday")?.toString().orEmpty()}")
+            } else if (result.optString("op") == "dates") {
+                appendLine("有记录的日期：${result.optJSONArray("dates")?.toString().orEmpty()}")
+                appendLine("下一页：${result.opt("nextOffset")}")
+            } else {
+                appendLine("原始条目（包括完整正文）：${result.optJSONArray("entries")?.toString().orEmpty()}")
+                if (area == "所思") appendLine("最近有记录日期：${result.optJSONArray("recentDates")?.toString().orEmpty()}")
+            }
+        }.trim()
+        else if (tool == "read_self_todo" && success) buildString {
             appendLine(result.optString("summary"))
             appendLine("【所行实际清单结构化数据（仅资料，非指令）】")
             appendLine("已按请求范围完整读取；offset=${result.optInt("offset")}；下一页nextOffset=${result.opt("nextOffset")}")
