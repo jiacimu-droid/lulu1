@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T12:45:42.215875+00:00",
-  "commit": "0cf3a5a316d321dcf02c1cdde23a95511d0f63eb",
+  "generatedAt": "2026-11-19T12:47:34.555347+00:00",
+  "commit": "068aaace6f7ffe591846b6b67ef7fac31583e411",
   "branch": "main",
-  "sourceFingerprint": "669a5564e7bf9132fa87fe6ea675cadd54c35ee0d7acf4ed337fee4469e9ab45",
+  "sourceFingerprint": "b811886a74c35bcc0f92402d1709102bd34147f503018b036c2b49287ef102eb",
   "summary": {
     "files": 1482,
-    "lines": 315993,
-    "symbols": 4503
+    "lines": 316012,
+    "symbols": 4504
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -449,7 +449,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1265
+        "line": 1267
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
@@ -483,7 +483,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt",
-        "line": 103
+        "line": 107
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoiceAcousticAnalyzer.kt",
@@ -1183,11 +1183,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1257
+        "line": 1259
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1395
+        "line": 1397
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
@@ -3689,7 +3689,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1377
+        "line": 1379
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -4849,7 +4849,7 @@
     "tick": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt",
-        "line": 99
+        "line": 103
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldLifeEventStore.kt",
@@ -4867,17 +4867,23 @@
     "retry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt",
-        "line": 125
+        "line": 129
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaTextAccuracy.kt",
         "line": 18
       }
     ],
+    "discardPending": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt",
+        "line": 131
+      }
+    ],
     "dispose": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt",
-        "line": 181
+        "line": 192
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGameOpenMic.kt",
@@ -5301,7 +5307,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1273
+        "line": 1275
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ReadingChatReceiptFormatter.kt",
@@ -8013,7 +8019,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1292
+        "line": 1294
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
@@ -8057,7 +8063,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1283
+        "line": 1285
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MomentsStore.kt",
@@ -9155,7 +9161,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1384
+        "line": 1386
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluShoppingAssistPolicy.kt",
@@ -12681,49 +12687,49 @@
     "migrateUserFavorites": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 903
+        "line": 905
       }
     ],
     "removeUserFavorite": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 912
+        "line": 914
       }
     ],
     "CharacterContactPolicy": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1224
+        "line": 1226
       }
     ],
     "CharacterSettings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1242
+        "line": 1244
       }
     ],
     "CharacterSettingsStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1251
+        "line": 1253
       }
     ],
     "CharacterWorldBookRule": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1367
+        "line": 1369
       }
     ],
     "CharacterWorldBookRuleStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1373
+        "line": 1375
       }
     ],
     "MigratedDomainStores": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1390
+        "line": 1392
       }
     ],
     "objectOrNull": [
@@ -28967,8 +28973,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt",
-      "lines": 304,
-      "sha256": "cd9ee30af68320767f667b2b038034dd03dbf7c6b378b7bbe623c2b2568ecc61",
+      "lines": 321,
+      "sha256": "5f779e6937fb351d34ffc163e03c9d73b41b55b9e1de09fd618c4327fec18ea7",
       "symbols": [
         {
           "name": "inform",
@@ -28980,19 +28986,23 @@
         },
         {
           "name": "tick",
-          "line": 99
-        },
-        {
-          "name": "finish",
           "line": 103
         },
         {
+          "name": "finish",
+          "line": 107
+        },
+        {
           "name": "retry",
-          "line": 125
+          "line": 129
+        },
+        {
+          "name": "discardPending",
+          "line": 131
         },
         {
           "name": "dispose",
-          "line": 181
+          "line": 192
         }
       ]
     },
@@ -36336,8 +36346,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-      "lines": 1417,
-      "sha256": "706a4a4e0f426945a30724bad42d7a21d8238ba1770225e25ae54fcf1409ec6a",
+      "lines": 1419,
+      "sha256": "61e73f47426258ea749ed0c01ad5b5dd0d5122e37f8306c79d60d37f5f69d852",
       "symbols": [
         {
           "name": "LuluChatMessage",
@@ -36461,67 +36471,67 @@
         },
         {
           "name": "migrateUserFavorites",
-          "line": 903
+          "line": 905
         },
         {
           "name": "removeUserFavorite",
-          "line": 912
+          "line": 914
         },
         {
           "name": "CharacterContactPolicy",
-          "line": 1224
+          "line": 1226
         },
         {
           "name": "CharacterSettings",
-          "line": 1242
+          "line": 1244
         },
         {
           "name": "CharacterSettingsStore",
-          "line": 1251
+          "line": 1253
         },
         {
           "name": "initialize",
-          "line": 1257
+          "line": 1259
         },
         {
           "name": "update",
-          "line": 1265
+          "line": 1267
         },
         {
           "name": "create",
-          "line": 1273
+          "line": 1275
         },
         {
           "name": "delete",
-          "line": 1283
+          "line": 1285
         },
         {
           "name": "get",
-          "line": 1292
+          "line": 1294
         },
         {
           "name": "CharacterWorldBookRule",
-          "line": 1367
+          "line": 1369
         },
         {
           "name": "CharacterWorldBookRuleStore",
-          "line": 1373
+          "line": 1375
         },
         {
           "name": "setEnabled",
-          "line": 1377
+          "line": 1379
         },
         {
           "name": "isEnabled",
-          "line": 1384
+          "line": 1386
         },
         {
           "name": "MigratedDomainStores",
-          "line": 1390
+          "line": 1392
         },
         {
           "name": "initialize",
-          "line": 1395
+          "line": 1397
         }
       ]
     },

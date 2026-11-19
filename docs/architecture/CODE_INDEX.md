@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0cf3a5a316d321dcf02c1cdde23a95511d0f63eb`
+- 基准提交：`068aaace6f7ffe591846b6b67ef7fac31583e411`
 - 分支：`main`
 - 已索引文件：1482
-- 已索引代码/文本行：315993
-- 已发现符号：4503
+- 已索引代码/文本行：316012
+- 已发现符号：4504
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -278,7 +278,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqChatRetraction.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqForwardedChatCodec.kt` | 84 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqGroupChatSettingsDialog.kt` | 675 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt` | 304 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/QqHoldVoiceInput.kt` | 321 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqMessageGrouping.kt` | 17 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqPhotoTransform.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqSharedWebLinkCard.kt` | 147 | 0 |
@@ -558,7 +558,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryVectorCalibrationStore.kt` | 72 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt` | 138 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSetPolicy.kt` | 127 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1417 | 46 |
+| `app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt` | 1419 | 46 |
 | `app/src/main/java/com/jiacimu/lulu/data/ModelStructuredOutput.kt` | 355 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentFriendAccess.kt` | 127 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/MomentOwnerUnread.kt` | 67 | 3 |
