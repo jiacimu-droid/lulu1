@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T12:29:30.820586+00:00",
-  "commit": "049660a4cb72f64e6487aa687ac1f584359b1e6d",
+  "generatedAt": "2026-11-19T12:37:39.555299+00:00",
+  "commit": "ffb5701d5f220847ed1c760a1178d31e0f202975",
   "branch": "main",
-  "sourceFingerprint": "69498b10046fa558756a7bfb70ffe3c5de71ec451740c742d41aafca50f8b57e",
+  "sourceFingerprint": "eff83a5bf317dbc09f9fb9f5698b9b545978b9ef0b2c27f6152ffb3a2c99ba47",
   "summary": {
     "files": 1481,
-    "lines": 315619,
+    "lines": 315626,
     "symbols": 4497
   },
   "symbolIndex": {
@@ -129,7 +129,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 532
+        "line": 539
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameAmbientAudio.kt",
@@ -4765,15 +4765,15 @@
     "field": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 399
+        "line": 406
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 446
+        "line": 453
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-        "line": 488
+        "line": 495
       }
     ],
     "clearAttachment": [
@@ -28793,8 +28793,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt",
-      "lines": 557,
-      "sha256": "1086f255e50df963c10514ace0ecda8fcb1a6b9c2d0dadc2ca888cd2bf189fac",
+      "lines": 564,
+      "sha256": "aa731bd23da75bf3bb207785cb2e04ebb7334181dc4e1fd616cd073ef1a8c094",
       "symbols": [
         {
           "name": "start",
@@ -28810,19 +28810,19 @@
         },
         {
           "name": "field",
-          "line": 399
+          "line": 406
         },
         {
           "name": "field",
-          "line": 446
+          "line": 453
         },
         {
           "name": "field",
-          "line": 488
+          "line": 495
         },
         {
           "name": "stop",
-          "line": 532
+          "line": 539
         }
       ]
     },
