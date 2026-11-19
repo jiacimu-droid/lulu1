@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T13:09:23.852755+00:00",
-  "commit": "1b9c9489072abc0c0214ef8cf5460673da7e4007",
+  "generatedAt": "2026-11-19T13:21:06.630838+00:00",
+  "commit": "eb1e452e7b244cb5bda1c3f234edd6d4d0f185c6",
   "branch": "main",
-  "sourceFingerprint": "ef64e90320af9b590b084bcc4cc94b4765691e7962edfc3146add59e51eae33b",
+  "sourceFingerprint": "2e762efed0010061a3256220501472d2fa36b0f4af55444980081870d1564d96",
   "summary": {
     "files": 1486,
-    "lines": 316718,
+    "lines": 316769,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -2417,19 +2417,19 @@
     "recordListening": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-        "line": 117
+        "line": 138
       }
     ],
     "refreshExternal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-        "line": 129
+        "line": 150
       }
     ],
     "analyzeSharedFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-        "line": 135
+        "line": 156
       }
     ],
     "notifyCoreChanged": [
@@ -26893,7 +26893,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt",
       "lines": 373,
-      "sha256": "325521ff9a41230f4108a68baeb37b2c185e054aef0788e887ce1744e865bb2e",
+      "sha256": "3f10baf8d63eaa1e8752990889fbc46234097dbc732d03b4171f11c32bc76bb7",
       "symbols": [
         {
           "name": "reload",
@@ -26903,20 +26903,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-      "lines": 306,
-      "sha256": "a402ccb90db4d60d555226ec77671a2420b41434339a1d63b5113af66b89455b",
+      "lines": 327,
+      "sha256": "293f528f26c8060f9dae800fbad5e21e02be6f47c44ac8e869b31c1eccda0361",
       "symbols": [
         {
           "name": "recordListening",
-          "line": 117
+          "line": 138
         },
         {
           "name": "refreshExternal",
-          "line": 129
+          "line": 150
         },
         {
           "name": "analyzeSharedFile",
-          "line": 135
+          "line": 156
         }
       ]
     },
@@ -46264,8 +46264,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ListenTogetherRoomTest.kt",
-      "lines": 55,
-      "sha256": "376d35094073d6d2be26a7a3eb0e989a04fca62f3a9ab397c26818f777785058",
+      "lines": 85,
+      "sha256": "ad6f8d91d8435beb10939d69958a809843e022187056379680a3ae5a39c32134",
       "symbols": [
         {
           "name": "ListenTogetherRoomTest",

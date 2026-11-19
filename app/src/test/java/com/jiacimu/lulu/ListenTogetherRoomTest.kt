@@ -43,6 +43,36 @@ class ListenTogetherRoomTest {
         assertTrue(shouldAutoAnalyzeSharedAudio("content://user-selected/audio/2", clip, false))
     }
 
+    @Test fun pausedNeteaseTrackRemainsControllableButIsNotListeningEvidence() {
+        val source = JSONObject().put("success", true)
+            .put("sessions", JSONArray()
+                .put(JSONObject().put("title", "别的播放器暂停").put("packageName", "test.music")
+                    .put("playing", false))
+                .put(JSONObject().put("title", "网易云暂停的歌").put("artist", "某歌手")
+                    .put("packageName", "com.netease.cloudmusic").put("playing", false)))
+        val (controllable, error) = controllableMediaSession(source.toString())
+        assertEquals("", error)
+        assertEquals("网易云暂停的歌", controllable?.title)
+        assertEquals("com.netease.cloudmusic", controllable?.packageName)
+        assertFalse(controllable?.playing ?: true)
+        val (listening, reason) = listenedMediaSession(source.toString())
+        assertNull(listening)
+        assertTrue(reason.contains("没有报告正在播放"))
+    }
+
+    @Test fun aPlayingOtherPlayerTakesPrecedenceOverPausedNetease() {
+        val source = JSONObject().put("success", true)
+            .put("sessions", JSONArray()
+                .put(JSONObject().put("title", "网易云暂停").put("packageName", "com.netease.cloudmusic")
+                    .put("playing", false))
+                .put(JSONObject().put("title", "当前播放").put("packageName", "test.music")
+                    .put("playing", true)))
+        val (playing, error) = listenedMediaSession(source.toString())
+        assertEquals("", error)
+        assertEquals("当前播放", playing?.title)
+        assertTrue(playing?.playing == true)
+    }
+
     @Test fun noPlayingSessionIsNotProofOfListening() {
         val source = JSONObject().put("success", true)
             .put("sessions", JSONArray()
