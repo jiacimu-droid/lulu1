@@ -113,7 +113,9 @@ internal object CompanionActionRuntime {
      * catalogue instead of maintaining a second, potentially stale, permission
      * or provider list for offline autonomous decisions.
      *
-     * Only called for independent life turns, never for every user bubble.
+     * Called by the shared perception for incoming private chat, online
+     * review and independent life. The foreground/phone planner uses the same
+     * CapabilityRegistry directory with its own scene-specific details.
      */
     fun autonomousDiscoveryContext(context: Context, characterId: String): String {
         // One bounded catalogue for BOTH live chat and solo life. Preserve
@@ -128,11 +130,18 @@ internal object CompanionActionRuntime {
             else AutonomousLearningRuntime.capabilityContext(context, characterId)
         val catalogue = listOf(tools, learning).filter(String::isNotBlank).joinToString("\n")
         val unifiedMenu = CapabilityRegistry.decisionCapabilityOverview(context, characterId)
+        // Tool names without permitted target IDs lead to imagined messages.
+        // Reuse the existing role-scoped friendship and in-person projections
+        // instead of inventing contacts or a second address book.
+        val contacts = friendCandidateContext(context, characterId)
+        val residentsHere = if (DigitalLifeProfileStore.isEnabled(characterId))
+            residentContactContext(context, characterId) else ""
         val exploration = if (catalogue.isBlank())
             "外部探索暂未提供可用工具；可保留好奇，不能假装已经搜索。"
         else "【此刻外部探索真实工具与配置】\n$catalogue\n" +
             "任选符合本人兴趣与当前权限的一种渠道，真正执行后再依据回执形成理解；不要为展示活跃而把各渠道全搜一遍。"
-        return unifiedMenu + "\n" + exploration
+        return listOf(unifiedMenu, contacts, residentsHere, exploration)
+            .filter(String::isNotBlank).joinToString("\n")
     }
 
     /** Pure projection of existing tool information, never another capability registry. */

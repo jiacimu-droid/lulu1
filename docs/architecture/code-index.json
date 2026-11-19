@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T06:12:02.436639+00:00",
-  "commit": "e075447fe94164f7855905f35f206cfca1a57c67",
+  "generatedAt": "2026-11-19T06:14:44.858116+00:00",
+  "commit": "118338b7b14b7def7776dc7705d1b265a7934a13",
   "branch": "main",
-  "sourceFingerprint": "4a8e3b38fb42312fc0e9cdffadf8e679c22ef6c83c9149d4412f1c91481d23ed",
+  "sourceFingerprint": "2af5b2d53a4e7145967df9338c43b9364c10abb34f582a5a2949a6a54095796f",
   "summary": {
     "files": 1480,
-    "lines": 314344,
+    "lines": 314353,
     "symbols": 4487
   },
   "symbolIndex": {
@@ -3347,7 +3347,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1582
+        "line": 1591
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
@@ -6773,7 +6773,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 225
+        "line": 234
       }
     ],
     "Attempt": [
@@ -9591,55 +9591,55 @@
     "autonomousDiscoveryContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 118
+        "line": 120
       }
     ],
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1475
+        "line": 1484
       }
     ],
     "requestsPrivateReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1533
+        "line": 1542
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1544
+        "line": 1553
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1551
+        "line": 1560
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1565
+        "line": 1574
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1575
+        "line": 1584
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1629
+        "line": 1638
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 2003
+        "line": 2012
       }
     ],
     "age": [
@@ -33289,8 +33289,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 2051,
-      "sha256": "5f3a8c454250b7a75e17820b7b7e92837d662d0a0e2e025831dd17fce4292fcc",
+      "lines": 2060,
+      "sha256": "471c18247b6c87d945d5016c39fb30aa0f9b98adc6cb7087c62e3ca9c11c7cd5",
       "symbols": [
         {
           "name": "asJson",
@@ -33298,47 +33298,47 @@
         },
         {
           "name": "autonomousDiscoveryContext",
-          "line": 118
+          "line": 120
         },
         {
           "name": "capabilityContext",
-          "line": 225
+          "line": 234
         },
         {
           "name": "world",
-          "line": 1475
+          "line": 1484
         },
         {
           "name": "requestsPrivateReply",
-          "line": 1533
+          "line": 1542
         },
         {
           "name": "recordedReceiptId",
-          "line": 1544
+          "line": 1553
         },
         {
           "name": "completedEvidence",
-          "line": 1551
+          "line": 1560
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1565
+          "line": 1574
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1575
+          "line": 1584
         },
         {
           "name": "from",
-          "line": 1582
+          "line": 1591
         },
         {
           "name": "requiresCompletion",
-          "line": 1629
+          "line": 1638
         },
         {
           "name": "availableContext",
-          "line": 2003
+          "line": 2012
         }
       ]
     },
