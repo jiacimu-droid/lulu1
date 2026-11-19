@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T17:10:22.425386+00:00",
-  "commit": "767d34ed3c0449956b0e736738a793fd107952db",
+  "generatedAt": "2026-11-19T17:11:13.684294+00:00",
+  "commit": "a6d82f3011e5e28714dbeea981097fc8c64e1542",
   "branch": "main",
-  "sourceFingerprint": "99940a3d0fbab7398485ac2fc11202f7e8c7576380958b71141ce886839fd588",
+  "sourceFingerprint": "7c21c180fd8c51b607dcac8afb8d8c445f56cd80128f6e677c0f2d764a224e25",
   "summary": {
     "files": 1486,
-    "lines": 316945,
+    "lines": 316947,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -36381,7 +36381,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
       "lines": 141,
-      "sha256": "dd4380937fee7c3e0d2db49ed2cbe970fed13e1d19700bff7287da98ca759316",
+      "sha256": "0a6ff5d458f84f99c2559133f6477579ebd9c474db3cd07fe8626e1774ea52cb",
       "symbols": [
         {
           "name": "assemble",
@@ -50422,8 +50422,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ProactiveQuietDecisionTest.kt",
-      "lines": 552,
-      "sha256": "8f4c6b03d966f0d6634f83e3c1ffc931cfe4cd6d5c92fcef6a2d40150558ba44",
+      "lines": 554,
+      "sha256": "f9be293b9d93e52285d7e5515c6bdedc55d9d8d80c5ee2320485be83f2c16bd4",
       "symbols": [
         {
           "name": "ProactiveQuietDecisionTest",
