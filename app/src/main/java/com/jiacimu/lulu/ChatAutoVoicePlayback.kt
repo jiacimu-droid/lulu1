@@ -296,6 +296,26 @@ object ChatAutoVoicePlayback {
         ).firstOrNull { it.isFile && it.length() > 0L }
     }
 
+    /** Preserve the owner's ORIGINAL hold-to-talk audio under the message id.
+     * It is never synthesized, and remains replayable after app restart. */
+    internal fun saveOwnerVoiceNote(context: Context, messageId: String, pcm: ByteArray): File {
+        require(pcm.size in 6_400..(60 * 32_000)) { "录音长度不符合要求" }
+        val directory = File(context.filesDir, "call_voice_recordings").apply { mkdirs() }
+        val target = File(directory, "${sha256(messageId)}.wav")
+        val pending = File(directory, "${target.name}.partial")
+        try {
+            java.io.FileOutputStream(pending).use { output ->
+                output.write(pcmWav(pcm))
+                output.fd.sync()
+            }
+            check(pending.renameTo(target)) { "语音文件未能保存" }
+            return target
+        } catch (error: Exception) {
+            pending.delete()
+            throw error
+        }
+    }
+
     /** Call TTS writes the PCM actually heard, never another synthesis. */
     internal fun callRecordingTarget(messageId: String): File? {
         if (messageId.isBlank()) return null
