@@ -1029,6 +1029,7 @@ object ProactivePerceptionRuntime {
             groups = availableGroups.map { it.id to it.groupChat?.name.orEmpty() },
             recentSoloGames = recentSoloGames,
             recentSoloPlayRhythm = recentSoloPlayRhythm,
+            independentBrowseExamples = CapabilityRegistry.independentBrowseExamples(appContext, characterId),
             locationActivities = activityChoices,
             publicPlaces = if (digital) DigitalWorldPublicPlaces.all.map { it.code to it.label } else emptyList(),
             currentItems = itemChoices,

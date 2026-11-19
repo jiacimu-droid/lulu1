@@ -32,19 +32,32 @@ internal object LuluInstalledAppResolver {
         }
     }
 
-    fun resolve(context: Context, requestedName: String): String {
+    fun resolve(context: Context, requestedName: String): String =
+        exactPackage(requestedName, launchableApps(context))
+
+    fun browsingExamples(context: Context): List<LaunchableApp> =
+        launchableApps(context).filter { browsingAppLabel(it.packageName) != null }
+            .distinctBy(LaunchableApp::packageName)
+
+    fun browsingAppLabel(packageName: String): String? = when (packageName) {
+        "com.xingin.xhs" -> "小红书"
+        "com.ss.android.ugc.aweme" -> "抖音"
+        "com.ss.android.ugc.aweme.lite" -> "抖音极速版"
+        else -> null
+    }
+
+    private fun launchableApps(context: Context): List<LaunchableApp> {
         val manager = context.packageManager
         val launcher = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
-        val candidates = manager.queryIntentActivities(launcher, 0).asSequence()
+        return manager.queryIntentActivities(launcher, 0).asSequence()
             .mapNotNull { info ->
                 val pkg = info.activityInfo?.packageName?.trim().orEmpty()
-                if (LuluScreenAwareness.isExcluded(context, pkg)) null
+                if (pkg.isBlank() || LuluScreenAwareness.isExcluded(context, pkg)) null
                 else LaunchableApp(
                     label = info.loadLabel(manager)?.toString().orEmpty(),
                     packageName = pkg,
                 )
             }
             .toList()
-        return exactPackage(requestedName, candidates)
     }
 }

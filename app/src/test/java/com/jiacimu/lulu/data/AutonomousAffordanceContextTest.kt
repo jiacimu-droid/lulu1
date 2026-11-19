@@ -6,6 +6,25 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class AutonomousAffordanceContextTest {
+    @Test fun independentBrowsingIsAnOptionalActionWithRealAppExamples() {
+        val example = "抖音（com.ss.android.ugc.aweme）"
+        val available = AutonomousAffordanceContext.render(
+            digital = true, location = "", books = emptyList(), groups = emptyList(),
+            independentBrowseExamples = example,
+        )
+        assertTrue(available.contains(example))
+        assertTrue(available.contains("独处也能逛现实里的App"))
+        assertTrue(available.contains("tool=background_phone"))
+        assertTrue(available.contains("\"mode\":\"independent_virtual_display\""))
+        assertTrue(available.contains("\"reportToUser\":false"))
+        assertTrue(available.contains("想和主人聊再决定怎么分享"))
+        val unavailable = AutonomousAffordanceContext.render(
+            digital = true, location = "", books = emptyList(), groups = emptyList(),
+        )
+        assertFalse(unavailable.contains("独处也能逛现实里的App"))
+        assertFalse(unavailable.contains("tool=background_phone"))
+    }
+
     @Test fun offersOnlyExistingBookAndGroupsAndExistingWorldIdentifiers() {
         val text = AutonomousAffordanceContext.render(
             digital = true, location = "shared:reading_lounge",

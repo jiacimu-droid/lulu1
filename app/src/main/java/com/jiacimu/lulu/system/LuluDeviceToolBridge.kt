@@ -2053,17 +2053,19 @@ object LuluDeviceToolBridge {
             "screen_sequence" -> VerifiedScreenSequence.execute(args)
             "phone_ui" -> LuluPhoneUiOperator.execute(context, args)
             "background_phone" -> {
-                // No wireless-debugging pairing? Use the owner's VISIBLE main
-                // screen only, never pretend that display 0 is an isolated
-                // virtual screen. Same ToolRouter/role/receipt chain.
-                val useMainScreen = LuluForegroundPhoneSession.activeFor(characterId) ||
-                    args.optString("mode") == "foreground_accessibility" ||
-                    !LuluWirelessDebugging.hasPriorPairing(context) ||
-                    android.os.Build.VERSION.SDK_INT < 34
-                if (useMainScreen) LuluForegroundPhoneSession.execute(
-                    context, characterId, requestId, args)
-                else LuluBackgroundPhoneSession.execute(
-                    context, characterId, requestId, args)
+                val mode = args.optString("mode")
+                val independentAvailable = android.os.Build.VERSION.SDK_INT >= 34 &&
+                    LuluWirelessDebugging.hasPriorPairing(context)
+                val useMainScreen = LuluBackgroundPhoneArgumentPolicy.usesMainScreen(
+                    mode, LuluForegroundPhoneSession.activeFor(characterId), independentAvailable)
+                when {
+                    useMainScreen -> LuluForegroundPhoneSession.execute(context, characterId, requestId, args)
+                    !independentAvailable -> JSONObject().put("success", false).put("status", "denied")
+                        .put("mode", mode).put("errorCode", "independent_display_unavailable")
+                        .put("verification", "独立后台屏需要 Android 14 及以上并已保存无线调试配对；本次未操作主屏")
+                        .toString()
+                    else -> LuluBackgroundPhoneSession.execute(context, characterId, requestId, args)
+                }
             }
             "read_screen" -> {
                 // Legacy alias. The normal ToolRouter intercepts this name

@@ -2,6 +2,7 @@ package com.jiacimu.lulu.system
 
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -14,6 +15,44 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE, sdk = [33])
 class LuluBackgroundPhoneArgumentPolicyTest {
+    @Test fun explicitIndependentScreenNeverFallsBackToMainScreen() {
+        val policy = LuluBackgroundPhoneArgumentPolicy
+        assertFalse(policy.usesMainScreen(policy.INDEPENDENT_MODE,
+            foregroundActive = true, independentAvailable = true))
+        assertFalse(policy.usesMainScreen(policy.INDEPENDENT_MODE,
+            foregroundActive = false, independentAvailable = false))
+        assertTrue(policy.usesMainScreen("", foregroundActive = false, independentAvailable = false))
+        assertTrue(policy.usesMainScreen(policy.FOREGROUND_MODE,
+            foregroundActive = false, independentAvailable = true))
+        assertFalse(policy.usesMainScreen("", foregroundActive = false, independentAvailable = true))
+        val recovery = policy.inheritMode(JSONObject().put("action", "observe"), policy.INDEPENDENT_MODE)
+        assertEquals(policy.INDEPENDENT_MODE, recovery.getString("mode"))
+        val swipe = policy.inheritMode(JSONObject().put("mode", policy.FOREGROUND_MODE),
+            policy.INDEPENDENT_MODE)
+        assertEquals(policy.INDEPENDENT_MODE, swipe.getString("mode"))
+    }
+
+    @Test fun anActualIndependentAppFrameIsRequiredForPrivateBrowseExperience() {
+        val policy = LuluBackgroundPhoneArgumentPolicy
+        val args = JSONObject().put("action", "launch").put("mode", policy.INDEPENDENT_MODE)
+            .put("reportToUser", false)
+        val verified = JSONObject().put("mode", policy.INDEPENDENT_MODE).put("displayId", 3)
+            .put("packageName", "com.xingin.xhs").put("success", true)
+            .put("targetWindowVerified", true).put("imageForwardedToRole", true)
+            .put("frameValidated", true)
+        assertTrue(policy.verifiedPrivateBrowseLaunch(args, verified))
+        assertFalse(policy.verifiedPrivateBrowseLaunch(args, JSONObject(verified.toString())
+            .put("imageForwardedToRole", false)))
+        assertFalse(policy.verifiedPrivateBrowseLaunch(args, JSONObject(verified.toString())
+            .put("displayId", 0)))
+        assertFalse(policy.verifiedPrivateBrowseLaunch(args, JSONObject(verified.toString())
+            .put("success", false)))
+        assertFalse(policy.verifiedPrivateBrowseLaunch(JSONObject(args.toString())
+            .put("action", "swipe"), verified))
+        assertFalse(policy.verifiedPrivateBrowseLaunch(JSONObject(args.toString())
+            .put("reportToUser", true), verified))
+    }
+
     @Test fun incompleteSwipeIsRejectedInsteadOfDefaultingOrThrowing() {
         val invalid = JSONObject()
             .put("action", "swipe")

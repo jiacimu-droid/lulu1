@@ -196,7 +196,10 @@ class AutonomousActionWireProtocolTest {
 
         val withControls = AutonomousActionWireProtocol.normalizeStep(
             JSONObject().put("tool", "background_phone").put("action", "tap_element")
-                .put("screenSnapshotId", "snapshot-1").put("elementRef", "e4"))
+                .put("screenSnapshotId", "snapshot-1").put("elementRef", "e4")
+                .put("mode", "independent_virtual_display").put("reportToUser", false))
+        assertEquals("independent_virtual_display", withControls.getJSONObject("args").getString("mode"))
+        assertFalse(withControls.getJSONObject("args").getBoolean("reportToUser"))
         assertEquals("tap_element", withControls.getJSONObject("args").getString("action"))
         assertEquals("snapshot-1", withControls.getJSONObject("args").getString("screenSnapshotId"))
         assertEquals("e4", withControls.getJSONObject("args").getString("elementRef"))
