@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T13:08:33.868364+00:00",
-  "commit": "f4fb6b2327088172b8de246ff26b0857f1363b17",
+  "generatedAt": "2026-11-19T13:09:23.852755+00:00",
+  "commit": "1b9c9489072abc0c0214ef8cf5460673da7e4007",
   "branch": "main",
-  "sourceFingerprint": "663cc5ceb62fc5508d72e4aee04df4a4f0476bbceac89d75037f697b4df0043a",
+  "sourceFingerprint": "ef64e90320af9b590b084bcc4cc94b4765691e7962edfc3146add59e51eae33b",
   "summary": {
     "files": 1486,
-    "lines": 316695,
+    "lines": 316718,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -2407,7 +2407,7 @@
     "reload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt",
-        "line": 76
+        "line": 78
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
@@ -26892,12 +26892,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt",
-      "lines": 350,
-      "sha256": "1e0d9d821f66814d2f02f162ab3ffa7dea8a491edf4c5fe4993e9996f4b9e958",
+      "lines": 373,
+      "sha256": "325521ff9a41230f4108a68baeb37b2c185e054aef0788e887ce1744e865bb2e",
       "symbols": [
         {
           "name": "reload",
-          "line": 76
+          "line": 78
         }
       ]
     },
