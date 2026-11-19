@@ -73,7 +73,7 @@ class PromptContextPolicyTest {
             UnifiedMemoryRequest(currentInput = "想看看家里的书架能不能移动")).worldDetails)
         assertTrue(meeting.richInnerLife)
         assertTrue(background.evidenceCharacters >= 5_000)
-        assertTrue(background.workingSetCharacters >= 27_000)
+        assertTrue(background.workingSetCharacters >= 26_500)
         assertTrue(meeting.memoryCharacters >= 7_800)
         assertTrue(background.recallLimit >= 40)
     }
@@ -163,7 +163,7 @@ class PromptContextPolicyTest {
             assertEquals(realScenes[index], first.lexiconCharacters, actual.lexiconCharacters)
             assertEquals(realScenes[index], first.workingSetCharacters, actual.workingSetCharacters)
             assertTrue(realScenes[index], actual.richInnerLife)
-            assertEquals(33_000, actual.workingSetCharacters)
+            assertEquals(30_000, actual.workingSetCharacters)
         }
         // Distinct actual scenes can require different authoritative world
         // inventories; this is not a second personality or a different memory tier.
@@ -183,12 +183,12 @@ class PromptContextPolicyTest {
                 scene, request, fullCharacterDecision = true)
             assertTrue(budget.precise)
             assertTrue(budget.richInnerLife)
-            assertEquals(7_000, budget.evidenceCharacters)
-            assertEquals(12_000, budget.memoryCharacters)
+            assertEquals(6_500, budget.evidenceCharacters)
+            assertEquals(11_000, budget.memoryCharacters)
             assertEquals(4_000, budget.lexiconCharacters)
             // Owner-configured recent turns are complete and outside the work set.
             assertEquals(0, budget.recentCharacters)
-            assertEquals(33_000, budget.workingSetCharacters)
+            assertEquals(30_000, budget.workingSetCharacters)
         }
     }
 
@@ -200,12 +200,29 @@ class PromptContextPolicyTest {
             PromptContextPolicy.forRequest(it, request, fullCharacterDecision = true)
         }
         configured.forEach { budget ->
-            assertEquals(33_000, budget.workingSetCharacters)
-            assertEquals(12_000, budget.memoryCharacters)
-            assertEquals(7_000, budget.evidenceCharacters)
+            assertEquals(30_000, budget.workingSetCharacters)
+            assertEquals(11_000, budget.memoryCharacters)
+            assertEquals(6_500, budget.evidenceCharacters)
             assertEquals(4_000, budget.lexiconCharacters)
             assertEquals(0, budget.recentCharacters)
             assertEquals(40, budget.recallLimit)
+        }
+    }
+
+    @Test fun reducedHistoricalRecallIsStillEqualInEveryFullActorScene() {
+        val sources = listOf("私聊", "后台主动感知", "电话回复", "游戏 · 迷雾摸金")
+        val budgets = sources.map { source ->
+            PromptContextPolicy.forRequest(source,
+                UnifiedMemoryRequest(currentInput = "能核对一下当时的原话吗？"),
+                fullCharacterDecision = true)
+        }
+        budgets.forEach { budget ->
+            assertEquals(40, budget.recallLimit)
+            assertEquals(30_000, budget.workingSetCharacters)
+            assertEquals(11_000, budget.memoryCharacters)
+            assertEquals(6_500, budget.evidenceCharacters)
+            assertEquals(0, budget.recentCharacters)
+            assertTrue(budget.precise)
         }
     }
 
