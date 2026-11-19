@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T13:06:24.800307+00:00",
-  "commit": "26b7eb1a5b6c17b51fb338ad9027eedd64417828",
+  "generatedAt": "2026-11-19T13:09:23.852755+00:00",
+  "commit": "1b9c9489072abc0c0214ef8cf5460673da7e4007",
   "branch": "main",
-  "sourceFingerprint": "d7afe667f540884da42a52504a24df365153d6b5793a507b1a2e6ca4100d7295",
+  "sourceFingerprint": "ef64e90320af9b590b084bcc4cc94b4765691e7962edfc3146add59e51eae33b",
   "summary": {
     "files": 1486,
-    "lines": 316680,
+    "lines": 316718,
     "symbols": 4511
   },
   "symbolIndex": {
@@ -2407,7 +2407,7 @@
     "reload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt",
-        "line": 76
+        "line": 78
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
@@ -18779,7 +18779,7 @@
     "control": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
-        "line": 122
+        "line": 137
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt",
@@ -26892,12 +26892,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt",
-      "lines": 350,
-      "sha256": "1e0d9d821f66814d2f02f162ab3ffa7dea8a491edf4c5fe4993e9996f4b9e958",
+      "lines": 373,
+      "sha256": "325521ff9a41230f4108a68baeb37b2c185e054aef0788e887ce1744e865bb2e",
       "symbols": [
         {
           "name": "reload",
-          "line": 76
+          "line": 78
         }
       ]
     },
@@ -43870,8 +43870,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt",
-      "lines": 216,
-      "sha256": "8f68bb4143abdd4afe42249c243a7cef133e2f85976a3ae7f9305c8319d75dc7",
+      "lines": 231,
+      "sha256": "0a9d7b5bd557a13ee484a26bf0d54e4456ed5177ea534fcbeee532acd1a0955d",
       "symbols": [
         {
           "name": "observation",
@@ -43883,7 +43883,7 @@
         },
         {
           "name": "control",
-          "line": 122
+          "line": 137
         }
       ]
     },

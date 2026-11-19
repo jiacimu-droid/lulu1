@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`26b7eb1a5b6c17b51fb338ad9027eedd64417828`
+- 基准提交：`1b9c9489072abc0c0214ef8cf5460673da7e4007`
 - 分支：`main`
 - 已索引文件：1486
-- 已索引代码/文本行：316680
+- 已索引代码/文本行：316718
 - 已发现符号：4511
 
 | 文件 | 行数 | 符号数 |
@@ -168,7 +168,7 @@
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 715 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 111 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 350 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 373 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 306 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 977 | 3 |
@@ -849,7 +849,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 64 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 216 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 231 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaAppSwitch.kt` | 33 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaChangeWait.kt` | 80 | 0 |

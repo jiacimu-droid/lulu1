@@ -1,5 +1,7 @@
 package com.jiacimu.lulu
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -148,8 +150,14 @@ internal fun ListenTogetherPlayerScreen(
                         Row(verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             IconButton(onClick = {
-                                if (system) onExternalControl("previous")
-                                else onChooseLocal(localUri)
+                                if (system) onExternalControl("previous") else {
+                                    val tracks = lists.flatMap { it.tracks }.filter {
+                                        it.source == "local" && it.uri.isNotBlank()
+                                    }
+                                    val i = tracks.indexOfFirst { it.uri == localUri }
+                                    if (i > 0) onChooseLocal(tracks[i - 1].uri)
+                                    else libraryMessage = "已是歌单中第一首，或当前歌曲不在本地歌单"
+                                }
                             }, enabled = if (system) external != null else localUri.isNotBlank()) {
                                 Icon(Icons.Outlined.SkipPrevious, "上一首", tint = listeningInk)
                             }
@@ -167,7 +175,12 @@ internal fun ListenTogetherPlayerScreen(
                                     if (playing) "暂停" else "播放", Modifier.size(30.dp))
                             }
                             IconButton(onClick = { if (system) onExternalControl("next") else {
-                                libraryMessage = "本地歌曲请从歌单里选择；不会自动跳到未经选择的文件"
+                                val tracks = lists.flatMap { it.tracks }.filter {
+                                    it.source == "local" && it.uri.isNotBlank()
+                                }
+                                val i = tracks.indexOfFirst { it.uri == localUri }
+                                if (i >= 0 && i + 1 < tracks.size) onChooseLocal(tracks[i + 1].uri)
+                                else libraryMessage = "已是歌单中最后一首，或当前歌曲不在本地歌单"
                             } }, enabled = if (system) external != null else localUri.isNotBlank()) {
                                 Icon(Icons.Outlined.SkipNext, "下一首", tint = listeningInk)
                             }
@@ -217,7 +230,17 @@ internal fun ListenTogetherPlayerScreen(
                                 Spacer(Modifier.height(9.dp))
                                 Text(externalError.ifBlank { "正在寻找手机播放器…" },
                                     fontSize = 12.sp, color = listeningMuted)
-                                TextButton(onClick = onRefreshExternal) { Text("重新连接") }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    TextButton(onClick = onRefreshExternal) { Text("重新连接") }
+                                    TextButton(onClick = {
+                                        runCatching {
+                                            context.startActivity(
+                                                Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                                        }.onFailure {
+                                            libraryMessage = "无法打开系统通知使用权设置"
+                                        }
+                                    }) { Text("设置通知使用权") }
+                                }
                             }
                         } else {
                             OutlinedButton(onClick = onSelectLocal) {
