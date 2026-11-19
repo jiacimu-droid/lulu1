@@ -38,6 +38,12 @@ class CharacterDecisionProtocolTest {
         assertTrue(common.contains("横向展开"))
         assertTrue(common.contains("不是固定输出清单"))
         assertTrue(common.contains("无新消息"))
+        for (guidance in listOf(direct, common)) {
+            assertTrue(guidance.contains("我自己还想做或学什么"))
+            assertTrue(guidance.contains("学一种更适合两人的聊法"))
+            assertTrue(guidance.contains("已授权的后台虚拟屏去小红书找灵感"))
+            assertTrue(guidance.contains("真实阅读和对方反馈"))
+        }
         assertTrue(direct.contains("当前入口为「生活记录」"))
         assertTrue(common.contains("未解挂心和持续意愿属于心事"))
         assertTrue(direct.contains("日程任务引擎"))

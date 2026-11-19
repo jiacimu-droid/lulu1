@@ -290,7 +290,8 @@ class CharacterExpressionGuideTest {
         CharacterLifeStore.setProfile(role.characterId, "dialogueExamples", sample)
         val prompt = CharacterSpeechIdentity.promptSection(role.characterId)
         assertTrue(prompt.contains(sample))
-        assertTrue(prompt.contains("等她真实回应后再继续"))
+        assertTrue(prompt.contains("例子里的用户台词只供示范"))
+        assertTrue(prompt.contains("本人想关心、追问或补充时可主动连发"))
         assertFalse(CharacterLifeStore.profileContext(role.characterId).contains(sample))
     }
 
