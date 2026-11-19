@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T06:32:40.570864+00:00",
-  "commit": "7b88a3703badf417722b6cf5f284184f18ce77ba",
+  "generatedAt": "2026-11-19T06:33:36.547139+00:00",
+  "commit": "a439f978634434ae8005f56bf711bd13c4bcef54",
   "branch": "main",
-  "sourceFingerprint": "41de42791a2f1720db523a97f4b14168d05a81a924a3cf881e36b8979021ac97",
+  "sourceFingerprint": "d91ca5d6663aff3dde8aa049089cff6eb078c2627e742337d0257e944873b923",
   "summary": {
     "files": 1480,
-    "lines": 314358,
+    "lines": 314370,
     "symbols": 4488
   },
   "symbolIndex": {
@@ -551,7 +551,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 321
+        "line": 333
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -6891,25 +6891,25 @@
     "scheduledActionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 171
+        "line": 183
       }
     ],
     "allows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 182
+        "line": 194
       }
     ],
     "screenVisionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 217
+        "line": 229
       }
     ],
     "phoneOperationContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 273
+        "line": 285
       }
     ],
     "reflectionGuidance": [
@@ -30737,8 +30737,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 339,
-      "sha256": "1c36d140200578553bcef5320cae67998be051e73e82b8bc0f59dc59fde93fd6",
+      "lines": 351,
+      "sha256": "1d4660d541dcd814debfd1c2447a9d2158f0ff493c371b3a30d8c0de56f9bf8b",
       "symbols": [
         {
           "name": "Capability",
@@ -30762,23 +30762,23 @@
         },
         {
           "name": "scheduledActionName",
-          "line": 171
+          "line": 183
         },
         {
           "name": "allows",
-          "line": 182
+          "line": 194
         },
         {
           "name": "screenVisionContext",
-          "line": 217
+          "line": 229
         },
         {
           "name": "phoneOperationContext",
-          "line": 273
+          "line": 285
         },
         {
           "name": "context",
-          "line": 321
+          "line": 333
         }
       ]
     },
