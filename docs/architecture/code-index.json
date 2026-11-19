@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T05:18:23.208996+00:00",
-  "commit": "39e6fbb2d75f79ad1abf1e59700bdf0790831157",
+  "generatedAt": "2026-11-19T05:29:01.980274+00:00",
+  "commit": "dfa62c8fe4115d8eed88e0b08b01a922844eb7dc",
   "branch": "main",
-  "sourceFingerprint": "93eaaed3a8e9a9182beaf47272e0d323e680ba340eb3ca626ecab81c706f7477",
+  "sourceFingerprint": "919dad973e3148e37fb54e7f1b3ecb7a93483b7250c00f61eb3a96501df983e0",
   "summary": {
     "files": 1480,
-    "lines": 313993,
-    "symbols": 4479
+    "lines": 314140,
+    "symbols": 4486
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -551,7 +551,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 189
+        "line": 207
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -2229,7 +2229,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 318
+        "line": 324
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterUnfinishedActionContext.kt",
@@ -2833,7 +2833,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-        "line": 200
+        "line": 219
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
@@ -5125,7 +5125,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 200
+        "line": 206
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionJobStore.kt",
@@ -6029,7 +6029,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 627
+        "line": 630
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt",
@@ -6829,19 +6829,19 @@
     "Capability": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 5
+        "line": 10
       }
     ],
     "CapabilityRegistry": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 7
+        "line": 12
       }
     ],
     "find": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 43
+        "line": 48
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppearance.kt",
@@ -6879,31 +6879,31 @@
     "canChoose": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 44
+        "line": 49
       }
     ],
     "scheduledActionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 52
+        "line": 57
       }
     ],
     "allows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 63
+        "line": 68
       }
     ],
     "screenVisionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 98
+        "line": 103
       }
     ],
     "phoneOperationContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 141
+        "line": 159
       }
     ],
     "reflectionGuidance": [
@@ -8651,13 +8651,13 @@
     "selectRecent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 193
+        "line": 199
       }
     ],
     "stimulus": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-        "line": 301
+        "line": 307
       }
     ],
     "keepOrBlank": [
@@ -13179,7 +13179,7 @@
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3954
+        "line": 3955
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -18368,28 +18368,52 @@
         "line": 64
       }
     ],
+    "usesMainScreen": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
+        "line": 14
+      }
+    ],
+    "inheritMode": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
+        "line": 21
+      }
+    ],
+    "privateBrowse": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
+        "line": 25
+      }
+    ],
+    "verifiedPrivateBrowseLaunch": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
+        "line": 28
+      }
+    ],
     "isSupportedAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
-        "line": 20
+        "line": 43
       }
     ],
     "needsSnapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
-        "line": 22
+        "line": 45
       }
     ],
     "needsElement": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
-        "line": 26
+        "line": 49
       }
     ],
     "invalidReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
-        "line": 61
+        "line": 84
       }
     ],
     "decodeDecision": [
@@ -18398,28 +18422,34 @@
         "line": 123
       }
     ],
+    "onCurrentDisplay": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
+        "line": 284
+      }
+    ],
     "ownerHasNewInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 292
+        "line": 296
       }
     ],
     "rememberCompletionReceipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 302
+        "line": 306
       }
     ],
     "linkDeliveryCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 316
+        "line": 320
       }
     ],
     "rememberGesture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-        "line": 341
+        "line": 345
       }
     ],
     "showForeground": [
@@ -18566,6 +18596,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt",
         "line": 18
+      }
+    ],
+    "browsingExamples": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt",
+        "line": 37
+      }
+    ],
+    "browsingAppLabel": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt",
+        "line": 41
       }
     ],
     "candidateHosts": [
@@ -21295,7 +21337,7 @@
     "game": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-        "line": 222
+        "line": 241
       }
     ],
     "AutonomousDecisionRecoveryTest": [
@@ -24467,7 +24509,7 @@
     "LuluBackgroundPhoneArgumentPolicyTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt",
-        "line": 16
+        "line": 17
       }
     ],
     "LuluBackgroundPhoneCommandOutcomeTest": [
@@ -30462,7 +30504,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousActionWireProtocol.kt",
       "lines": 469,
-      "sha256": "e81089c8451032d20b92104803d62bb4e9a18b081892115440acf273a7f833f9",
+      "sha256": "77bfef489fa8bdaaec201da5bff11beed2fcd0dd81ecebdcbc65220f8c8b23fd",
       "symbols": [
         {
           "name": "normalizeStep",
@@ -30476,8 +30518,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousAffordanceContext.kt",
-      "lines": 164,
-      "sha256": "26bbfc0709a13b5b33172971cbdc29f5dddb3bcfa620786ea01c10abb635aa43",
+      "lines": 172,
+      "sha256": "712836f0be5083d4154aef34243a6d73ae56661dfbe059fb78d411841a539a52",
       "symbols": [
         {
           "name": "recentSoloGames",
@@ -30683,44 +30725,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 207,
-      "sha256": "bcd2136228762b3914652c55b91ed06231b2217580bb11afc581283b2dbd6133",
+      "lines": 225,
+      "sha256": "b0039a21f7326fc4ea2e45b96e9f06390a626739bb64db5affa1f8581c9492bb",
       "symbols": [
         {
           "name": "Capability",
-          "line": 5
+          "line": 10
         },
         {
           "name": "CapabilityRegistry",
-          "line": 7
+          "line": 12
         },
         {
           "name": "find",
-          "line": 43
+          "line": 48
         },
         {
           "name": "canChoose",
-          "line": 44
+          "line": 49
         },
         {
           "name": "scheduledActionName",
-          "line": 52
+          "line": 57
         },
         {
           "name": "allows",
-          "line": 63
+          "line": 68
         },
         {
           "name": "screenVisionContext",
-          "line": 98
+          "line": 103
         },
         {
           "name": "phoneOperationContext",
-          "line": 141
+          "line": 159
         },
         {
           "name": "context",
-          "line": 189
+          "line": 207
         }
       ]
     },
@@ -32143,8 +32185,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
-      "lines": 334,
-      "sha256": "1ad600cc4596686130caa8143f509aa03167460548a1d4d62cf716607033a55b",
+      "lines": 340,
+      "sha256": "b3b7bd65fbbb38cc0af38e80ee3d367eed9e7ad5aa4be76201516cfe6747506b",
       "symbols": [
         {
           "name": "integrate",
@@ -32176,19 +32218,19 @@
         },
         {
           "name": "selectRecent",
-          "line": 193
+          "line": 199
         },
         {
           "name": "pending",
-          "line": 200
+          "line": 206
         },
         {
           "name": "stimulus",
-          "line": 301
+          "line": 307
         },
         {
           "name": "render",
-          "line": 318
+          "line": 324
         }
       ]
     },
@@ -36890,8 +36932,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 4021,
-      "sha256": "205478d2e3f28e38844d53eb5b793d533f71674ba31a70323ad81b98675bd18b",
+      "lines": 4022,
+      "sha256": "012114060a98ac3b2f8ae1398c0b98d38fbd4ee99c8e19bba90708a0b8d1aaff",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -36923,7 +36965,7 @@
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3954
+          "line": 3955
         }
       ]
     },
@@ -38013,8 +38055,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 746,
-      "sha256": "97fff3572d68e50e340c3463cfe04676ff05e8f5e22f8a0ca415cdaa87428419",
+      "lines": 749,
+      "sha256": "758cefa6586794478e539ea6b164177e0bf521b4e160f106fa333019bb709c78",
       "symbols": [
         {
           "name": "completed",
@@ -38046,7 +38088,7 @@
         },
         {
           "name": "project",
-          "line": 627
+          "line": 630
         }
       ]
     },
@@ -43303,31 +43345,47 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicy.kt",
-      "lines": 136,
-      "sha256": "775aa134fd561a9dd9d5a5809a92bf6799843193557c47474d3e3a9f84a558bb",
+      "lines": 159,
+      "sha256": "c325b1489c5ede7fca3d97dbc6948972af84ae8f19df1bbeb809f359546de53b",
       "symbols": [
         {
+          "name": "usesMainScreen",
+          "line": 14
+        },
+        {
+          "name": "inheritMode",
+          "line": 21
+        },
+        {
+          "name": "privateBrowse",
+          "line": 25
+        },
+        {
+          "name": "verifiedPrivateBrowseLaunch",
+          "line": 28
+        },
+        {
           "name": "isSupportedAction",
-          "line": 20
+          "line": 43
         },
         {
           "name": "needsSnapshot",
-          "line": 22
+          "line": 45
         },
         {
           "name": "needsElement",
-          "line": 26
+          "line": 49
         },
         {
           "name": "invalidReason",
-          "line": 61
+          "line": 84
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluBackgroundPhoneContinuation.kt",
-      "lines": 874,
-      "sha256": "3a1909818b9d1e84e308b37cccac0b5b2c431d5b934d856cdb4f5a2a38f5e1ad",
+      "lines": 886,
+      "sha256": "57bae606c42bf6b2cb8c894cbd64f622d179cfd67edad8c14ada8ac0dfe0d419",
       "symbols": [
         {
           "name": "Outcome",
@@ -43338,20 +43396,24 @@
           "line": 123
         },
         {
+          "name": "onCurrentDisplay",
+          "line": 284
+        },
+        {
           "name": "ownerHasNewInput",
-          "line": 292
+          "line": 296
         },
         {
           "name": "rememberCompletionReceipt",
-          "line": 302
+          "line": 306
         },
         {
           "name": "linkDeliveryCompletion",
-          "line": 316
+          "line": 320
         },
         {
           "name": "rememberGesture",
-          "line": 341
+          "line": 345
         }
       ]
     },
@@ -43434,8 +43496,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2343,
-      "sha256": "9508cdc8946d61e28c31d17962ffa22c05d9c7fdb78226288ee821b55d1eb4fc",
+      "lines": 2345,
+      "sha256": "51324c86bd0683b3e82bd001d2c4df18e2aeb86b5b805cac6ce3e6087a7ec30a",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -43500,8 +43562,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt",
-      "lines": 51,
-      "sha256": "9334dacaafdebc3d24dcfdd241f7a6895c9b2d2158f3403a4c57688d6fc44a80",
+      "lines": 64,
+      "sha256": "0faeb1854e55ea47070e8fc5aa62b12ae7ef902e887f17c89cffd2b0d7464a1f",
       "symbols": [
         {
           "name": "LaunchableApp",
@@ -43514,6 +43576,14 @@
         {
           "name": "resolve",
           "line": 34
+        },
+        {
+          "name": "browsingExamples",
+          "line": 37
+        },
+        {
+          "name": "browsingAppLabel",
+          "line": 41
         }
       ]
     },
@@ -47230,8 +47300,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousActionWireProtocolTest.kt",
-      "lines": 497,
-      "sha256": "1a08d63934460038cb8309ffad374616540f470d011b97b9597fc3366fc8e4e2",
+      "lines": 500,
+      "sha256": "2eecb14d61425727bd7c86e2db1459ec60bef0566952f14ee6547c80c1cf16e6",
       "symbols": [
         {
           "name": "AutonomousActionWireProtocolTest",
@@ -47241,8 +47311,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-      "lines": 261,
-      "sha256": "353fba01533cf3fe00ad35f59bc85d786c355ae17e7bb90aaee56fe1c93f11e2",
+      "lines": 280,
+      "sha256": "729e0763fb89784ec05091c6c5de5c9c39936ee88df81e2a8754e069589a2eac",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",
@@ -47250,11 +47320,11 @@
         },
         {
           "name": "record",
-          "line": 200
+          "line": 219
         },
         {
           "name": "game",
-          "line": 222
+          "line": 241
         }
       ]
     },
@@ -52061,12 +52131,12 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/system/LuluBackgroundPhoneArgumentPolicyTest.kt",
-      "lines": 109,
-      "sha256": "cab352c39f5ca533f7875564fc99a682bb747d60ee4407677f0bb6d9f279cf82",
+      "lines": 148,
+      "sha256": "9c854cc212fd86355646d957ebda1db02b1a4a8e25e2f02889cf4691600f1678",
       "symbols": [
         {
           "name": "LuluBackgroundPhoneArgumentPolicyTest",
-          "line": 16
+          "line": 17
         }
       ]
     },
