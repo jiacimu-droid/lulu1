@@ -431,10 +431,10 @@ object LuluDeviceToolBridge {
             决策阶段只输出一个完整 JSON，必须有 action=reply、speechIntent 和 dialogueMove。
             speechIntent 是本人这次想让对方知道的意思，不是预先写好的台词。
             dialogueMove 选择真实适合当前用户消息的 type/target/contentIntent。
-            可选 innerThought、innerThoughtBasis、innerLife、appraisal、mood，但只在确有当下变化时填写。
+            对照历史心声和当轮新想法：确有新的私人心理变化时必须填写 innerThought 和 innerThoughtBasis（focus/change），没有新变化时才允许省略；innerLife、appraisal、mood 按真实变化填写。
             已确定的表达由相同人格的语言层生成自然气泡；不根据系统状态虚构新的对话事件。
                 """.trimIndent() else if (callSilence) """
-            【电话观察轮次输出协议】本轮没有新增用户发言，实际观察内容见上下文；它没有预设陪伴目的或角色心理。与私聊相同，先从真实观察、最近对话、本人关系和已有状态生成至少一个当轮简短心理倾向，写在 appraisal.privateIdeas，再自主选择是否开口、行动或安静；想法允许延续，不用为了字段捏造新的心声。
+            【电话观察轮次输出协议】本轮没有新增用户发言，实际观察内容见上下文；它没有预设陪伴目的或角色心理。与私聊相同，先从真实观察、最近对话、本人关系和已有状态生成至少一个当轮简短心理倾向，写在 appraisal.privateIdeas，再自主选择是否开口、行动或安静；想法允许延续，不用为了字段捏造新的心声；但与历史相比确有新想法时必须填写 innerThought 与 innerThoughtBasis。
             由本人结合当前目标、关系和实际结果选择 action=reply 或 silent。reply 时 text 为真实要说的口语；silent 时没有语音输出，reason 保存本人实际理由。两者均可附 steps/sideActions 执行已授权工具，以及 commitmentChanges 更新原责任或安排下一次结果复查。
             例如结构：{"appraisal":{"privateIdeas":["此刻自己确实在想的简短倾向"]},"action":"reply|silent","text":"选择说话时填写","reason":"本人决定依据","steps":[],"commitmentChanges":[]}。当轮想法不能用 reason 或 action 代替；有真正新增的未出口独白时，即使选择沉默也使用下方心声协议。
             说话、音乐、音量与短铃声均是可选真实动作，不预先指定哪种优先；依据现有音频状态、原任务与用户要求自行决定。每个动作须有实际执行回执，不机械重放旧工具；没有回应不能证明已醒或未醒。内部状态与心声不朗读给用户。
@@ -724,7 +724,7 @@ object LuluDeviceToolBridge {
                     只返回一个完整紧凑的 JSON 对象，必须包含 action=reply、speechIntent（这次真正想传达的具体意思）及 dialogueMove 对象。
                     dialogueMove.type 由本人根据当前对话从 acknowledge/answer/ask/backchannel/self_repair/other_initiated_repair/candidate_understanding/disagree/tease/reassure/topic_shift/defer/decline/close/share 中选择；再填写本轮实际的 target 和 contentIntent。
                     这是结构补正，不预设角色这次正在回答问题；气泡数量和表达长短由本人原有选择与当前互动需要决定。
-                    只有确实发生新的私有心理变化时才可选 innerThought、innerThoughtBasis、innerLife、appraisal、mood。
+                    对照最近的心理历史，确实出现新私人心理变化时必须保留 innerThought 和 innerThoughtBasis，完全没有新变化时才可不填；innerLife、appraisal、mood 仍按本人的真实变化选择。
                     若有 innerThought，basis 应提供 focus 以及 unsaidWhy/conflict/change，不重复对外说的话。
                     只规划思想和说话意图，下一阶段仍由正常聊天表达层生成气泡。
                 """.trimIndent(),
