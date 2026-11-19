@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T04:15:14.487428+00:00",
-  "commit": "801dfa3bc5ed7773f27197be6d330c0eae4fa166",
+  "generatedAt": "2026-11-19T04:17:41.283606+00:00",
+  "commit": "06662a2e770f05927d012b05578576fbaeb09346",
   "branch": "main",
-  "sourceFingerprint": "94c1d893809e3ba73fce893cd710c1312e2827c8bdcb2ef78873c7ded4252b16",
+  "sourceFingerprint": "2c0b9c9812e240f50cac881a3fb50e68bb657298735408ebed225b8cb087b024",
   "summary": {
     "files": 1480,
-    "lines": 313182,
-    "symbols": 4463
+    "lines": 313578,
+    "symbols": 4472
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1119,7 +1119,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 44
+        "line": 47
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluAppPreferences.kt",
@@ -2277,7 +2277,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 253
+        "line": 250
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterStoryExport.kt",
@@ -2840,6 +2840,10 @@
         "line": 103
       },
       {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt",
+        "line": 34
+      },
+      {
         "path": "app/src/test/java/com/jiacimu/lulu/data/TimelineLedgerTest.kt",
         "line": 145
       },
@@ -3049,7 +3053,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt",
-        "line": 67
+        "line": 83
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt",
@@ -3346,6 +3350,10 @@
         "line": 1579
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
+        "line": 142
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
         "line": 36
       }
@@ -3409,7 +3417,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1329
+        "line": 1425
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
@@ -6841,7 +6849,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 54
+        "line": 174
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
+        "line": 177
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -7223,7 +7235,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 541
+        "line": 538
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
@@ -7356,6 +7368,14 @@
         "line": 273
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
+        "line": 106
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
+        "line": 117
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
         "line": 171
       },
@@ -7463,7 +7483,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
-        "line": 49
+        "line": 53
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
@@ -7513,7 +7533,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1300
+        "line": 1396
       }
     ],
     "DevelopmentKind": [
@@ -11325,7 +11345,7 @@
     "clearCharacterHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 94
+        "line": 102
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
@@ -11335,61 +11355,61 @@
     "invalidateDerivedFromEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 712
+        "line": 709
       }
     ],
     "allowsRawRecall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 751
+        "line": 750
       }
     ],
     "shouldFlushPendingTail": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 764
+        "line": 763
       }
     ],
     "hasUnprocessedEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 775
+        "line": 792
       }
     ],
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 788
+        "line": 805
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 794
+        "line": 811
       }
     ],
     "contextTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 838
+        "line": 855
       }
     ],
     "refreshInspection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 924
+        "line": 973
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1191
+        "line": 1262
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1269
+        "line": 1365
       }
     ],
     "ApiUsageSource": [
@@ -12212,6 +12232,12 @@
         "line": 20
       }
     ],
+    "splitLongTurn": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt",
+        "line": 70
+      }
+    ],
     "MemoryRecallInspection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
@@ -12269,6 +12295,22 @@
     "MemoryPatternNotes": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt",
+        "line": 18
+      }
+    ],
+    "liveEvents": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
+        "line": 165
+      }
+    ],
+    "ranked": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
+        "line": 194
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/OriginalEvidenceSpans.kt",
         "line": 18
       }
     ],
@@ -12817,7 +12859,7 @@
     "annotations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
-        "line": 94
+        "line": 103
       }
     ],
     "userBubbleVersion": [
@@ -12864,12 +12906,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OnlineContinuationPolicy.kt",
         "line": 66
-      }
-    ],
-    "ranked": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/OriginalEvidenceSpans.kt",
-        "line": 18
       }
     ],
     "shouldUpdateVisibleState": [
@@ -13503,7 +13539,7 @@
     "renderComplete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-        "line": 233
+        "line": 230
       }
     ],
     "requiresBufferedSpeech": [
@@ -13623,19 +13659,19 @@
     "sourceEvidenceEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 224
+        "line": 240
       }
     ],
     "sourceEvidenceForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 260
+        "line": 276
       }
     ],
     "formatForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 286
+        "line": 302
       }
     ],
     "characterId": [
@@ -20461,7 +20497,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt",
-        "line": 80
+        "line": 109
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SearchReceiptFeedbackTest.kt",
@@ -22321,7 +22357,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt",
-        "line": 148
+        "line": 164
       }
     ],
     "ConversationGroundingEngineTest": [
@@ -22712,6 +22748,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceCommitIntegrationTest.kt",
         "line": 29
+      }
+    ],
+    "modelJson": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceCommitIntegrationTest.kt",
+        "line": 61
       }
     ],
     "MemoryEvidenceSelectionTest": [
@@ -28144,8 +28186,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt",
-      "lines": 400,
-      "sha256": "6091161541ee64ebdfcd60bb662f0a668f994bebf60b6d3154d4805ee7f89df5",
+      "lines": 409,
+      "sha256": "f4ee2d4d83bdd9328c923b41d84dda1e58be80d29f1e4e74ccf70caa8334e767",
       "symbols": []
     },
     {
@@ -32691,8 +32733,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ChatMemoryAutomation.kt",
-      "lines": 125,
-      "sha256": "a04be396dea7d6db6d24c66ebaca1818f9a48aaa9349d52575b5144640901a7d",
+      "lines": 139,
+      "sha256": "042a582726a42226ce12dd751cb915abfa8c3663aa6dc5ac800afbf933b11268",
       "symbols": [
         {
           "name": "ChatMemoryAutomation",
@@ -34897,8 +34939,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 1377,
-      "sha256": "5545c129894d540dbb6b570fea4d59bf18a638e2bf91a4f458d5934d3e660118",
+      "lines": 1470,
+      "sha256": "c81ceff0c99db3019ce2effd974395965ea7aae23e1a4aff3db54d9ff47b7091",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -34906,63 +34948,63 @@
         },
         {
           "name": "initialize",
-          "line": 44
+          "line": 47
         },
         {
           "name": "clearCharacterHistory",
-          "line": 94
+          "line": 102
         },
         {
           "name": "snapshot",
-          "line": 541
+          "line": 538
         },
         {
           "name": "invalidateDerivedFromEvent",
-          "line": 712
+          "line": 709
         },
         {
           "name": "allowsRawRecall",
-          "line": 751
+          "line": 750
         },
         {
           "name": "shouldFlushPendingTail",
-          "line": 764
+          "line": 763
         },
         {
           "name": "hasUnprocessedEvents",
-          "line": 775
+          "line": 792
         },
         {
           "name": "pendingMessageCount",
-          "line": 788
+          "line": 805
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 794
+          "line": 811
         },
         {
           "name": "contextTimelineEvents",
-          "line": 838
+          "line": 855
         },
         {
           "name": "refreshInspection",
-          "line": 924
+          "line": 973
         },
         {
           "name": "MemoryDebugState",
-          "line": 1191
+          "line": 1262
         },
         {
           "name": "grams",
-          "line": 1269
+          "line": 1365
         },
         {
           "name": "ids",
-          "line": 1300
+          "line": 1396
         },
         {
           "name": "valid",
-          "line": 1329
+          "line": 1425
         }
       ]
     },
@@ -35753,8 +35795,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryExtractionTurnView.kt",
-      "lines": 86,
-      "sha256": "aaab7e45ab8fc6e91583954b614062ac3ddfdceba9c23640fc126e82bc6b07ba",
+      "lines": 102,
+      "sha256": "8f269ccf9af606b4a96053da3ef2de4fa4d85579c9a3dc9e62f9b902815200c6",
       "symbols": [
         {
           "name": "Batch",
@@ -35765,8 +35807,12 @@
           "line": 51
         },
         {
+          "name": "splitLongTurn",
+          "line": 70
+        },
+        {
           "name": "build",
-          "line": 67
+          "line": 83
         }
       ]
     },
@@ -35853,12 +35899,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-      "lines": 79,
-      "sha256": "47682e7cb54c1314f8fbc993ef85a421737799806765b64008417c94444697e6",
+      "lines": 213,
+      "sha256": "e975cf3ad6faeed3dc53ceb9fea84fa3933776e4508736a2a03936dd9c2fd78a",
       "symbols": [
         {
+          "name": "matches",
+          "line": 106
+        },
+        {
+          "name": "matches",
+          "line": 117
+        },
+        {
+          "name": "from",
+          "line": 142
+        },
+        {
+          "name": "liveEvents",
+          "line": 165
+        },
+        {
           "name": "find",
-          "line": 54
+          "line": 174
+        },
+        {
+          "name": "find",
+          "line": 177
+        },
+        {
+          "name": "ranked",
+          "line": 194
         }
       ]
     },
@@ -36400,8 +36470,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/NarrativeEvidenceChain.kt",
-      "lines": 141,
-      "sha256": "68f800bf04878c197ff2191ce4a19af7491ad4510a950d8113fc636172654942",
+      "lines": 164,
+      "sha256": "686cc0f383d12cd25fc184074d237a8b2b06dfc967a1c0d6850feab16c21bfd3",
       "symbols": [
         {
           "name": "expand",
@@ -36409,11 +36479,11 @@
         },
         {
           "name": "add",
-          "line": 49
+          "line": 53
         },
         {
           "name": "annotations",
-          "line": 94
+          "line": 103
         }
       ]
     },
@@ -37101,8 +37171,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RecentSemanticTimeline.kt",
-      "lines": 334,
-      "sha256": "492e7e8a95e142c0e80dd29e8c7cd32aa647644828a5be7c4952271fd962bf91",
+      "lines": 331,
+      "sha256": "939a22f5e016fe3976e5131b9857e0b7046580d0ad28885ef8843e377b0769f7",
       "symbols": [
         {
           "name": "RecentSemanticTimeline",
@@ -37126,11 +37196,11 @@
         },
         {
           "name": "renderComplete",
-          "line": 233
+          "line": 230
         },
         {
           "name": "render",
-          "line": 253
+          "line": 250
         }
       ]
     },
@@ -37247,8 +37317,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-      "lines": 596,
-      "sha256": "70af894b1e387f01a9fd5321a62529f58885cbe49a7411f60bc234c66a0dfa5e",
+      "lines": 584,
+      "sha256": "deaecb2a41243d3fbf816f8856b4bf798a2c57f2e2aa8fb2178cde4666263106",
       "symbols": [
         {
           "name": "MemoryRecallResult",
@@ -37264,15 +37334,15 @@
         },
         {
           "name": "sourceEvidenceEvents",
-          "line": 224
+          "line": 240
         },
         {
           "name": "sourceEvidenceForPrompt",
-          "line": 260
+          "line": 276
         },
         {
           "name": "formatForPrompt",
-          "line": 286
+          "line": 302
         }
       ]
     },
@@ -37947,8 +38017,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 377,
-      "sha256": "ddf297803fd5f76274dcc251d1c68c216404658da5b33b4fd2e9e3bf5645b199",
+      "lines": 381,
+      "sha256": "c588184761ccaafa6a57e4c36422af3df82a8736fcf8686fb6ff34c9e5bd68b5",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -49300,8 +49370,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryContextPolicyTest.kt",
-      "lines": 123,
-      "sha256": "0ce7710edea36517c1a1bf5bd2122978342b19156073d47e737f1845bd6ea263",
+      "lines": 133,
+      "sha256": "3f7af2a56cbb0a127b1c66236ddd2acbe16450588877a0d246da7cb5cb895e5a",
       "symbols": [
         {
           "name": "MemoryContextPolicyTest",
@@ -49322,12 +49392,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryEvidenceCommitIntegrationTest.kt",
-      "lines": 187,
-      "sha256": "aca89c0194092bb15a0ea1df128dd6a66a703077e1ef4d652c09b42bd967bdbe",
+      "lines": 249,
+      "sha256": "19f0597b0135439dcdc1ad055e0a039fc08aaed3e81f1333f9b7ce17721addbd",
       "symbols": [
         {
           "name": "MemoryEvidenceCommitIntegrationTest",
           "line": 29
+        },
+        {
+          "name": "modelJson",
+          "line": 61
         }
       ]
     },
@@ -49574,16 +49648,20 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt",
-      "lines": 133,
-      "sha256": "5ccc7271050129ab623f45a0f96ae38116724629e1997190a62309f9756f7489",
+      "lines": 162,
+      "sha256": "cfe0556126b10880922a32be829869ec9a56d5f66b6ac49f81a34d3b8a0d3393",
       "symbols": [
         {
           "name": "NarrativeMemoryRecallIntegrationTest",
           "line": 21
         },
         {
+          "name": "record",
+          "line": 34
+        },
+        {
           "name": "event",
-          "line": 80
+          "line": 109
         }
       ]
     },
@@ -50012,8 +50090,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt",
-      "lines": 76,
-      "sha256": "b29c16168e16436e2c6a331354757043277fef03161217e22eadfff135cc02e3",
+      "lines": 77,
+      "sha256": "6c185b6f815ce20ea8fcd3fd5758ea3d89aba608b8b740296a28a1f25c226ee3",
       "symbols": [
         {
           "name": "PromptContextRegressionTest",
@@ -50534,8 +50612,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/SemanticMemoryLongTurnRegressionTest.kt",
-      "lines": 215,
-      "sha256": "d76e5d056e31f72775b053e80e2ae792930aa60cddd538d026df1f7110818eba",
+      "lines": 231,
+      "sha256": "349c100eced81bfe5f70550ed5e3c4b06393cc2d4773500f16f84a03323f64a1",
       "symbols": [
         {
           "name": "SemanticMemoryLongTurnRegressionTest",
@@ -50543,7 +50621,7 @@
         },
         {
           "name": "reply",
-          "line": 148
+          "line": 164
         }
       ]
     },
