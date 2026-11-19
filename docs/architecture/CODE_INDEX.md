@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`451bd7462150a7288ffc1a16ac6bf0edeeaab1aa`
+- 基准提交：`e0869df4d252a9fc3bff8d12d5417aa3c23551b4`
 - 分支：`main`
-- 已索引文件：1482
-- 已索引代码/文本行：316012
-- 已发现符号：4504
+- 已索引文件：1483
+- 已索引代码/文本行：316127
+- 已发现符号：4509
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -315,6 +315,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolderUi.kt` | 177 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt` | 103 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/SettingsHomeSearch.kt` | 96 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt` | 112 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 98 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt` | 60 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/SleepNarrativeStore.kt` | 90 | 1 |
@@ -846,7 +847,7 @@
 | `app/src/main/java/com/jiacimu/lulu/system/LuluInstalledAppResolver.kt` | 64 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocalAdbAddress.kt` | 60 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluLocationProvider.kt` | 69 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 213 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/system/LuluMediaPlayback.kt` | 216 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMediaVolume.kt` | 111 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaAppSwitch.kt` | 33 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/system/LuluMikaChangeWait.kt` | 80 | 0 |
