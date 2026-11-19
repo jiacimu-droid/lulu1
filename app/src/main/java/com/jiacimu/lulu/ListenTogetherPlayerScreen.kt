@@ -222,8 +222,8 @@ internal fun ListenTogetherPlayerScreen(
                                     Spacer(Modifier.width(5.dp))
                                     Text("打开网易云")
                                 }
-                                OutlinedButton(onClick = onJoinExternal, enabled = external != null) {
-                                    Text("一起听 ♡")
+                                OutlinedButton(onClick = onJoinExternal, enabled = external?.playing == true) {
+                                    Text(if (external != null && !external.playing) "播放后一起听" else "一起听 ♡")
                                 }
                             }
                             if (external == null) {
