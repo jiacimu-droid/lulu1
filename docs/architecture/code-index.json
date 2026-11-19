@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T13:05:26.655615+00:00",
-  "commit": "bd8b40238a1ddb0dffaadcb186e696c5ed2cf546",
+  "generatedAt": "2026-11-19T13:06:24.800307+00:00",
+  "commit": "26b7eb1a5b6c17b51fb338ad9027eedd64417828",
   "branch": "main",
-  "sourceFingerprint": "3a28195b201296ee736d7c2cb6b885b8ebb81a420fca2ace1632d92a496850d8",
+  "sourceFingerprint": "d7afe667f540884da42a52504a24df365153d6b5793a507b1a2e6ca4100d7295",
   "summary": {
-    "files": 1485,
-    "lines": 316626,
-    "symbols": 4510
+    "files": 1486,
+    "lines": 316680,
+    "symbols": 4511
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -20614,6 +20614,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/GroupChatTurnPlannerTest.kt",
         "line": 12
+      }
+    ],
+    "ListenTogetherPlaylistTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/ListenTogetherPlaylistTest.kt",
+        "line": 15
       }
     ],
     "ListenTogetherRoomTest": [
@@ -46242,6 +46248,17 @@
         {
           "name": "GroupChatTurnPlannerTest",
           "line": 12
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/ListenTogetherPlaylistTest.kt",
+      "lines": 54,
+      "sha256": "37efb4a20b44a79002192448482324acaaecc44b89bf0835a70463119c7c38c5",
+      "symbols": [
+        {
+          "name": "ListenTogetherPlaylistTest",
+          "line": 15
         }
       ]
     },

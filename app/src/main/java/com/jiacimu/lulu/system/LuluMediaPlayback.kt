@@ -63,13 +63,28 @@ internal object LuluMediaPlayback {
         JSONObject().put("success", true).put("count", controllers.size).put("sessions",
             JSONArray().apply {
                 controllers.forEach { c ->
+                    val state = c.playbackState
+                    val durationMs = c.metadata?.getLong(MediaMetadata.METADATA_KEY_DURATION)
+                        ?.coerceAtLeast(0L) ?: 0L
+                    val reportedPosition = state?.position?.coerceAtLeast(0L) ?: 0L
+                    // Many players report the start of a playing segment, not every second.
+                    // Advance only from a real monotonic last-update timestamp.
+                    val updateAt = state?.lastPositionUpdateTime ?: 0L
+                    val elapsedMs = if (state?.state == PlaybackState.STATE_PLAYING &&
+                        updateAt > 0L) {
+                        (android.os.SystemClock.elapsedRealtime() - updateAt).coerceAtLeast(0L)
+                    } else 0L
+                    val estimatedPosition = (reportedPosition +
+                        (elapsedMs * (state?.playbackSpeed ?: 1f)).toLong())
+                        .coerceAtLeast(0L)
+                        .let { if (durationMs > 0L) it.coerceAtMost(durationMs) else it }
                     put(JSONObject().put("packageName", c.packageName)
                         .put("title", title(c)).put("artist", artist(c))
                         .put("album", album(c))
-                        .put("positionMs", c.playbackState?.position ?: 0L)
-                        .put("durationMs", c.metadata?.getLong(MediaMetadata.METADATA_KEY_DURATION) ?: 0L)
+                        .put("positionMs", estimatedPosition)
+                        .put("durationMs", durationMs)
                         .put("playing",
-                            c.playbackState?.state == PlaybackState.STATE_PLAYING)
+                            state?.state == PlaybackState.STATE_PLAYING)
                         .put("playbackState", c.playbackState?.state ?: PlaybackState.STATE_NONE)
                         .put("availableActions", c.playbackState?.actions ?: 0L))
                 }
