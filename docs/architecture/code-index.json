@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T11:55:18.117808+00:00",
-  "commit": "432db746d18d7b48a569bbb172d6ad2cb276de19",
+  "generatedAt": "2026-11-19T12:05:25.854521+00:00",
+  "commit": "09c7433657d13a9690e10653430eba9c8a3d8e76",
   "branch": "main",
-  "sourceFingerprint": "34412ff97e0ee70aa5cc22269353800478b60f5a43ab496245864843105ec34f",
+  "sourceFingerprint": "9b4ccdeb846545dab8ca9233973bbb4c6d3bfe56fb0813b553b2f2ff52683eef",
   "summary": {
     "files": 1480,
     "lines": 315554,
@@ -31156,7 +31156,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 209,
-      "sha256": "1a5eb90e893d0d8ec74063ea8a5d1600d903581eb0de817ef9b2b6c5d36f481b",
+      "sha256": "df6df11bb3957e4f06a3cf7d748f387b96f734ec725126e25da5ed8d447a0bfb",
       "symbols": [
         {
           "name": "hasAuthoredMomentaryIdea",
