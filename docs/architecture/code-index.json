@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T04:57:45.861363+00:00",
-  "commit": "2a0822aa12e0c2b3032806564042a00ccbde4441",
+  "generatedAt": "2026-11-19T04:58:34.462281+00:00",
+  "commit": "65bc1d4864868d7d7e186f9fed9d9057f2342077",
   "branch": "main",
-  "sourceFingerprint": "1feac56816ab1568f1f7dfdd2387674cc7b4e2830dbadcad8d0f6278b08408a2",
+  "sourceFingerprint": "29eeae674fb0ea0b57c12c506c8367c695e768d84868b75408766c5798ef8972",
   "summary": {
     "files": 1480,
-    "lines": 313942,
-    "symbols": 4478
+    "lines": 313987,
+    "symbols": 4479
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4413,7 +4413,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 53
+        "line": 54
       }
     ],
     "MomentsScreen": [
@@ -11819,49 +11819,49 @@
     "LuluDataBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 37
+        "line": 38
       }
     ],
     "ExportResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 46
+        "line": 47
       }
     ],
     "ValidatedZip": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 48
+        "line": 49
       }
     ],
     "RestoreOutcome": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 49
+        "line": 50
       }
     ],
     "None": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 51
+        "line": 52
       }
     ],
     "Applied": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 52
+        "line": 53
       }
     ],
     "exportZip": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 57
+        "line": 58
       }
     ],
     "walk": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 64
+        "line": 65
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
@@ -11883,61 +11883,61 @@
     "validateZip": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 91
+        "line": 92
       }
     ],
     "validateZipFile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 104
+        "line": 105
       }
     ],
     "restoreZip": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 140
+        "line": 151
       }
     ],
     "dataDir": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 206
+        "line": 217
       }
     ],
     "stagingDir": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 208
+        "line": 219
       }
     ],
     "hasPendingRestore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 210
+        "line": 221
       }
     ],
     "readRestoreResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 213
+        "line": 224
       }
     ],
     "clearRestoreResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 217
+        "line": 228
       }
     ],
     "stageForRestore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 243
+        "line": 254
       }
     ],
     "applyPendingRestoreIfNeeded": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-        "line": 251
+        "line": 262
       }
     ],
     "endpoint": [
@@ -22699,49 +22699,55 @@
     "LuluDataBackupTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
-        "line": 22
+        "line": 23
       }
     ],
     "exportIncludesDataSkipsCacheAndStaging": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
-        "line": 55
+        "line": 56
       }
     ],
     "restoreRoundTrip": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
-        "line": 69
+        "line": 70
+      }
+    ],
+    "validCentralDirectoryCannotHideCorruptFileContents": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
+        "line": 81
       }
     ],
     "truncatedZipFailsValidation": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
-        "line": 80
+        "line": 114
       }
     ],
     "failedSecondImportCannotReplaceAnEarlierValidStagedBackup": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
-        "line": 98
+        "line": 132
       }
     ],
     "preflightRejectsMalformedZipBeforeAnyExistingDataIsOverwritten": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
-        "line": 120
+        "line": 154
       }
     ],
     "truncatedBackupWithAnExistingTargetNeverStartsRestore": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
-        "line": 149
+        "line": 183
       }
     ],
     "zipSlipEntryIsRejected": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
-        "line": 166
+        "line": 200
       }
     ],
     "MeetingCausalEvidenceTest": [
@@ -35429,84 +35435,84 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt",
-      "lines": 280,
-      "sha256": "1506f0a6cdcddddeac218c2ae6a2281fbc157038e9bdf600ef6849e43095feca",
+      "lines": 291,
+      "sha256": "d4ca3e1951ed485d77ad479bc687fe3c8112396c3d3621323332eb9331d24368",
       "symbols": [
         {
           "name": "LuluDataBackup",
-          "line": 37
+          "line": 38
         },
         {
           "name": "ExportResult",
-          "line": 46
+          "line": 47
         },
         {
           "name": "ValidatedZip",
-          "line": 48
-        },
-        {
-          "name": "RestoreOutcome",
           "line": 49
         },
         {
-          "name": "None",
-          "line": 51
+          "name": "RestoreOutcome",
+          "line": 50
         },
         {
-          "name": "Applied",
+          "name": "None",
           "line": 52
         },
         {
-          "name": "Failed",
+          "name": "Applied",
           "line": 53
         },
         {
+          "name": "Failed",
+          "line": 54
+        },
+        {
           "name": "exportZip",
-          "line": 57
+          "line": 58
         },
         {
           "name": "walk",
-          "line": 64
+          "line": 65
         },
         {
           "name": "validateZip",
-          "line": 91
+          "line": 92
         },
         {
           "name": "validateZipFile",
-          "line": 104
+          "line": 105
         },
         {
           "name": "restoreZip",
-          "line": 140
+          "line": 151
         },
         {
           "name": "dataDir",
-          "line": 206
-        },
-        {
-          "name": "stagingDir",
-          "line": 208
-        },
-        {
-          "name": "hasPendingRestore",
-          "line": 210
-        },
-        {
-          "name": "readRestoreResult",
-          "line": 213
-        },
-        {
-          "name": "clearRestoreResult",
           "line": 217
         },
         {
+          "name": "stagingDir",
+          "line": 219
+        },
+        {
+          "name": "hasPendingRestore",
+          "line": 221
+        },
+        {
+          "name": "readRestoreResult",
+          "line": 224
+        },
+        {
+          "name": "clearRestoreResult",
+          "line": 228
+        },
+        {
           "name": "stageForRestore",
-          "line": 243
+          "line": 254
         },
         {
           "name": "applyPendingRestoreIfNeeded",
-          "line": 251
+          "line": 262
         }
       ]
     },
@@ -49347,40 +49353,44 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt",
-      "lines": 181,
-      "sha256": "c2754fa7a1fe845899e9667e9e8b110664782c3a6df51f50d83ba495559d4477",
+      "lines": 215,
+      "sha256": "753aeee52c2b8f7218fc6888bfa29d34f48c12876b337659c031da152886bec2",
       "symbols": [
         {
           "name": "LuluDataBackupTest",
-          "line": 22
+          "line": 23
         },
         {
           "name": "exportIncludesDataSkipsCacheAndStaging",
-          "line": 55
+          "line": 56
         },
         {
           "name": "restoreRoundTrip",
-          "line": 69
+          "line": 70
+        },
+        {
+          "name": "validCentralDirectoryCannotHideCorruptFileContents",
+          "line": 81
         },
         {
           "name": "truncatedZipFailsValidation",
-          "line": 80
+          "line": 114
         },
         {
           "name": "failedSecondImportCannotReplaceAnEarlierValidStagedBackup",
-          "line": 98
+          "line": 132
         },
         {
           "name": "preflightRejectsMalformedZipBeforeAnyExistingDataIsOverwritten",
-          "line": 120
+          "line": 154
         },
         {
           "name": "truncatedBackupWithAnExistingTargetNeverStartsRestore",
-          "line": 149
+          "line": 183
         },
         {
           "name": "zipSlipEntryIsRejected",
-          "line": 166
+          "line": 200
         }
       ]
     },

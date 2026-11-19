@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2a0822aa12e0c2b3032806564042a00ccbde4441`
+- 基准提交：`65bc1d4864868d7d7e186f9fed9d9057f2342077`
 - 分支：`main`
 - 已索引文件：1480
-- 已索引代码/文本行：313942
-- 已发现符号：4478
+- 已索引代码/文本行：313987
+- 已发现符号：4479
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -536,7 +536,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt` | 185 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluCssStore.kt` | 86 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt` | 100 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt` | 280 | 19 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt` | 291 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 456 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 628 | 38 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt` | 96 | 4 |
@@ -1209,7 +1209,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt` | 216 | 8 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluCssRuntimeTest.kt` | 112 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt` | 181 | 8 |
+| `app/src/test/java/com/jiacimu/lulu/data/LuluDataBackupTest.kt` | 215 | 9 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingCausalEvidenceTest.kt` | 154 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MeetingLocationRenderingTest.kt` | 31 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryAffectAttentionTest.kt` | 52 | 1 |
