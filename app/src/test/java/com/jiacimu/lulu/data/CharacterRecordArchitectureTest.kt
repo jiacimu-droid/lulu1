@@ -176,6 +176,31 @@ class CharacterRecordArchitectureTest {
         assertEquals(1, SharedExperienceTimeline.eventsByIds(role, listOf("history-user")).size)
     }
 
+    @Test fun silentPhoneDecisionShowsItsAuthoredIdeaWithoutInventingHeartVoice() {
+        val observedId = "call-quiet-moment"
+        SharedExperienceTimeline.record(observedId, role, "电话感知", "设备观察",
+            "通话仍接通，本轮没有新的语音识别内容", now,
+            triggerExtraction = false, source = "call-silence",
+            evidenceKind = EventEvidenceKind.Observation)
+        val appraisal = JSONObject().put("privateIdeas", JSONArray()
+            .put("现在更想听听她会不会继续说，而不是自己抢着开口"))
+        assertTrue(CharacterDecisionProtocol.hasAuthoredMomentaryIdea(appraisal))
+        CharacterInnerLifeStore.recordCausalTransition(role, observedId,
+            appraisal = appraisal, innerLife = null, innerThoughtBasis = null,
+            selectedAction = "silent", innerThought = "",
+            reason = "电话仍接通，此刻愿意安静陪伴", now = now)
+        CharacterInnerLifeStore.recordDecision(role, "call-quiet-decision", "silent",
+            "电话仍接通，此刻愿意安静陪伴", "", null, "没有播报", false,
+            now = now, causalEvidenceId = observedId)
+        val history = CharacterStateHistory.entries(role, emptyList(), now.plusSeconds(1))
+        val visible = history.map(CharacterStateHistory::display)
+        assertTrue("The actual impulse is visible even without innerThought",
+            visible.any { it.otherThoughts.any { thought -> thought.second.contains("听听她") } })
+        assertTrue("The deliberate silence remains an action, not a fake heart voice",
+            history.any { row -> row.decisions.any { it.action == "暂时保持安静" } })
+        assertTrue(visible.all { it.voice.isEmpty() })
+    }
+
     @Test fun historicalMessageCannotShowAConcernRevisedAfterItOrAbsorbALaterDecision() {
         val state = CompanionPresenceState(role, innerThought = "当时的想法", updatedAt = now, provenanceId = "shared-cause")
         val later = CharacterRecordProjection.DecisionMoment("later", now.plusSeconds(60), "阅读", "稍后才决定", "已读", "shared-cause")
