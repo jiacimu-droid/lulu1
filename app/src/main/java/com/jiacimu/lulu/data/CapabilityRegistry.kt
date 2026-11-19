@@ -39,8 +39,8 @@ object CapabilityRegistry {
         Capability("cloud_task", "cloud", "cloud", "persistent task id; file success comes later", false),
     )
     val application = listOf("send_private_message", "send_group_message", "create_group_chat", "send_private_sticker", "send_group_sticker", "send_game_invite", "play_solo_game", "invite_duel_game", "respond_duel_invite",
-        "publish_moment", "set_phone_moments_cover", "like_moment", "comment_moment", "send_friend_request", "respond_friend_request", "send_character_message", "write_journal", "read_self_todo", "write_desktop_widget_note", "decorate_desktop_widget", "start_study_watch", "stop_study_watch", "strict_supervision", "verify_commitment", "schedule_commitment_review", "retire_development_record", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity", "go_offline", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "learn_topic", "web_search", "image_search", "save_photo", "write_phone_memo", "share_xiaohongshu")
-        .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", it == "read_self_todo", retired = it == "write_journal") }
+        "publish_moment", "set_phone_moments_cover", "like_moment", "comment_moment", "send_friend_request", "respond_friend_request", "send_character_message", "write_journal", "read_self_todo", "read_self_preface", "write_desktop_widget_note", "decorate_desktop_widget", "start_study_watch", "stop_study_watch", "strict_supervision", "verify_commitment", "schedule_commitment_review", "retire_development_record", "plan_personal_activity", "reschedule_personal_activity", "cancel_personal_activity", "go_offline", "start_call", "read_book", "send_world_invite", "digital_world_action", "set_user_remark", "set_self_nickname", "favorite_user_message", "learn_topic", "web_search", "image_search", "save_photo", "write_phone_memo", "share_xiaohongshu")
+        .map { Capability(it, if (it == "digital_world_action") "world" else "app", "existing_app_policy", "existing executor persisted result", it in setOf("read_self_todo", "read_self_preface"), retired = it == "write_journal") }
     val external = listOf(
         Capability(com.jiacimu.lulu.ai.JevDirections.TOOL, "analysis", "jev", "native TypeSafe response, named probabilities and actual usage; no action chosen", false),
     )
@@ -69,7 +69,7 @@ object CapabilityRegistry {
                 "invite_duel_game", "respond_duel_invite", "list_media_sessions",
                 "control_music", "sing_song", "play_saved_song", "stop_song"),
             "收藏与生活记录" to listOf("save_photo", "favorite_user_message",
-                "write_phone_memo", "read_self_todo", "write_desktop_widget_note",
+                "write_phone_memo", "read_self_todo", "read_self_preface", "write_desktop_widget_note",
                 "decorate_desktop_widget", "learn_topic"),
             "日程、责任与休息" to listOf("plan_personal_activity",
                 "reschedule_personal_activity", "cancel_personal_activity",
@@ -139,7 +139,8 @@ object CapabilityRegistry {
                 "save_photo" to "相册收藏真实图片 save_photo(messageId或searchId,index)",
                 "favorite_user_message" to "收藏用户原话 favorite_user_message(messageId,reason)",
                 "write_phone_memo" to "写本人备忘录 write_phone_memo(title,content)",
-                "read_self_todo" to "查看用户自序 read_self_todo(scope=today|all)",
+                "read_self_todo" to "查看今日/历史所行 read_self_todo(scope=today|all)",
+                "read_self_preface" to "自主查看主人自序 read_self_preface(area=thoughts|values|wishes|todo；所思选date=today|yesterday|latest|YYYY-MM-DD，或op=dates浏览日期；所重/所愿全读，所行读今日已完成和未完成)",
                 "plan_personal_activity" to "安排自己的未来行动 plan_personal_activity(title,intent,dueAt,activityAction,activityArgs)",
                 "reschedule_personal_activity" to "改期 reschedule_personal_activity(planId,expectedDueAt,dueAt,reason)",
                 "start_study_watch" to "申请限时学习监督 start_study_watch(minutes)",

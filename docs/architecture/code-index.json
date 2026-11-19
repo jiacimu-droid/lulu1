@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T11:27:16.147281+00:00",
-  "commit": "dee82e7e977e977284375c9d82a4b513d94b0ca6",
+  "generatedAt": "2026-11-19T11:36:53.415586+00:00",
+  "commit": "f0989f22c885ae69509059a77719e86bc71ee0cb",
   "branch": "main",
-  "sourceFingerprint": "e3151565d852943b36da7f1960ca5dd464cd11e8d2b6bf92dc12843779ed9137",
+  "sourceFingerprint": "aa5c00f6397d2ac230b96e9f9b71c140dfebf3515fcb12f698d8f342a4a8bd32",
   "summary": {
     "files": 1480,
-    "lines": 315172,
-    "symbols": 4491
+    "lines": 315271,
+    "symbols": 4492
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -551,7 +551,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 333
+        "line": 334
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt",
@@ -1675,7 +1675,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 198
+        "line": 296
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoScreen.kt",
@@ -4158,6 +4158,10 @@
         "line": 54
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
+        "line": 146
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
         "line": 38
       }
@@ -5087,7 +5091,7 @@
     "SelfPrefaceScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-        "line": 145
+        "line": 243
       }
     ],
     "day": [
@@ -6895,25 +6899,25 @@
     "scheduledActionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 183
+        "line": 184
       }
     ],
     "allows": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 194
+        "line": 195
       }
     ],
     "screenVisionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 229
+        "line": 230
       }
     ],
     "phoneOperationContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-        "line": 285
+        "line": 286
       }
     ],
     "reflectionGuidance": [
@@ -29212,8 +29216,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfPrefaceScreen.kt",
-      "lines": 607,
-      "sha256": "6cbedb779fc8a6091db9b4f8a11de98bc50a777719956633516678f896eab937",
+      "lines": 705,
+      "sha256": "21f9f5aaf57ee15f92009613c8514d871235c3bb09ddfca2305e2f2c70bd27a7",
       "symbols": [
         {
           "name": "readStrict",
@@ -29224,12 +29228,16 @@
           "line": 93
         },
         {
+          "name": "execute",
+          "line": 146
+        },
+        {
           "name": "SelfPrefaceScreen",
-          "line": 145
+          "line": 243
         },
         {
           "name": "save",
-          "line": 198
+          "line": 296
         }
       ]
     },
@@ -30757,8 +30765,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CapabilityRegistry.kt",
-      "lines": 351,
-      "sha256": "a56c16aecf8e79d93e0b42d7cdde31e854761f477dc656106ad82317388e33f9",
+      "lines": 352,
+      "sha256": "18d1ba30d1290f2694c1c2eb118feceabaf3c526b0706046e32f3751cca687b1",
       "symbols": [
         {
           "name": "Capability",
@@ -30782,23 +30790,23 @@
         },
         {
           "name": "scheduledActionName",
-          "line": 183
+          "line": 184
         },
         {
           "name": "allows",
-          "line": 194
+          "line": 195
         },
         {
           "name": "screenVisionContext",
-          "line": 229
+          "line": 230
         },
         {
           "name": "phoneOperationContext",
-          "line": 285
+          "line": 286
         },
         {
           "name": "context",
-          "line": 333
+          "line": 334
         }
       ]
     },
