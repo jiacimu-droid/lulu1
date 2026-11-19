@@ -68,6 +68,20 @@ class CharacterDecisionProtocolTest {
         assertTrue(soloLife.contains("plan_personal_activity"))
     }
 
+    @Test fun privateAndSoloDecisionsDoNotMistakeBedtimeAdviceForSleepAndCanCheckFreshScreen() {
+        val privateTurn = proactiveDecisionInstruction("wellbeing-private", directPrivateChat = true)
+        val soloTurn = proactiveDecisionInstruction("wellbeing-solo", directPrivateChat = false)
+        for (instruction in listOf(privateTurn, soloTurn)) {
+            assertTrue(instruction.contains("【睡眠与照护的事实边界】"))
+            assertTrue(instruction.contains("你提出“去休息吧”不等于她答应"))
+            assertTrue(instruction.contains("自己先前心里想“她可能睡了”"))
+            assertTrue(instruction.contains("在已授权情况下自主选择 capture_screen"))
+            assertTrue(instruction.contains("亮屏或截图本身也不能证明她此刻仍醒着"))
+            assertTrue(instruction.contains("是否联系、截图、休眠仍由你本人决定"))
+            assertTrue(instruction.contains("执行过才有新回执"))
+        }
+    }
+
     @Test fun relationshipCuriosityCanStartWithOldDetailsOrOnAnOrdinaryDay() {
         val direct = proactiveDecisionInstruction("curious-private", directPrivateChat = true)
         val autonomous = proactiveDecisionInstruction("curious-solo", directPrivateChat = false)
