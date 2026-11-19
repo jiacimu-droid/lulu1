@@ -206,9 +206,10 @@ internal object SelfPrefaceRoleRead {
         val selectedPages = pages.filter { it.area == area }
             .sortedWith(compareByDescending<SelfPageEntry> { it.starred }
                 .thenByDescending { it.updated }.thenBy { it.id })
-        val folders = if (area == "所愿") SelfWishFolders.read(context)
-            ?: return failure("所愿分类数据无法可靠读取，未擅自忽略或重写")
-            else emptyList()
+        val folders: List<SelfWishFolder> = if (area == "所愿") {
+            SelfWishFolders.read(context)
+                ?: return failure("所愿分类数据无法可靠读取，未擅自忽略或重写")
+        } else emptyList()
         val entries = JSONArray()
         selectedPages.forEach { page ->
             val entry = JSONObject().put("id", page.id).put("title", page.title)
