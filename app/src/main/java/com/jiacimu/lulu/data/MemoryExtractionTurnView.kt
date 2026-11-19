@@ -46,15 +46,15 @@ internal object MemoryExtractionTurnView {
      * Take the earliest WHOLE turns that safely fit a model request. A long
      * voice transcript never gets marked extracted merely because its first
      * 2,400 characters were supplied. If a single original turn exceeds the
-     * allowed input, fail without consuming its durable checkpoint.
+     * allowed input, let the caller run the span-based extraction path.
      */
-    fun fit(turns: List<RecentSemanticTimeline.Turn>): List<RecentSemanticTimeline.Turn> {
+    fun fit(turns: List<RecentSemanticTimeline.Turn>, allowEmpty: Boolean = false): List<RecentSemanticTimeline.Turn> {
         val result = mutableListOf<RecentSemanticTimeline.Turn>()
         var chars = 0
         turns.forEach { turn ->
             val size = shown(turn).text.length + 110
             if (chars + size > MAX_BATCH_CHARS) {
-                check(result.isNotEmpty()) {
+                check(allowEmpty || result.isNotEmpty()) {
                     "单个真实发言超出记忆提取输入上限，原文已保留，未标记整理完成"
                 }
                 return result
@@ -63,6 +63,22 @@ internal object MemoryExtractionTurnView {
             chars += size
         }
         return result
+    }
+
+    /** Cover an exceptional long utterance in bounded original spans. The caller
+     * checkpoints the whole turn only after every span is processed. */
+    fun splitLongTurn(turn: RecentSemanticTimeline.Turn): Sequence<Batch> = sequence {
+        for (event in turn.events) {
+            val original = event.evidenceContent
+            val spanSize = 24_000
+            for (start in original.indices step spanSize) {
+                val end = minOf(start + spanSize, original.length)
+                val heading = "[${event.occurredAt}] [${event.channel}] " +
+                    "eventId=${event.id}@${event.revision} ${event.speaker} " +
+                    "【同一原文字符 ${start + 1}–$end/${original.length}】"
+                yield(Batch("$heading\n" + original.substring(start, end), listOf(event), 1, 1))
+            }
+        }
     }
 
     fun build(turns: List<RecentSemanticTimeline.Turn>): Batch {

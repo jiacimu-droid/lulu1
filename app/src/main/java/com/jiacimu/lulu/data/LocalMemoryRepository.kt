@@ -30,7 +30,10 @@ internal class ResidentMemoryPaused(val resumeAt: Instant) :
  * Persistent memory store with retry-safe extraction checkpoints.
  * A batch is marked processed only after a valid model result has been parsed and saved.
  */
-class LocalMemoryRepository : MemoryRepository {
+class LocalMemoryRepository internal constructor(
+    private val extractionClock: () -> Instant,
+) : MemoryRepository {
+    constructor() : this(Instant::now)
     private val state = MutableStateFlow(MemoryStoreState())
     private val debugFlow = MutableStateFlow(MemoryDebugState())
     private val extractionLocks = mutableMapOf<String, Mutex>()
@@ -74,6 +77,9 @@ class LocalMemoryRepository : MemoryRepository {
         require(policy.excludedRecentMessages >= 0) { "最近消息排除数量不能为负数" }
         require(policy.readableThreshold > 0) { "总结阈值必须大于 0" }
         mutate { current -> current.copy(globalPolicy = policy) }
+        if (appContext != null && policy.autoSummarize) {
+            (MigratedDomainStores.characters.settings.value.keys + characterId).forEach { ChatMemoryAutomation.request(it) }
+        }
         refreshDebug("已保存全部角色共用的记忆规则", characterId)
     }
 
@@ -82,11 +88,13 @@ class LocalMemoryRepository : MemoryRepository {
         require(characterId.isNotBlank())
         require(policy.excludedRecentMessages >= 0 && policy.readableThreshold > 0)
         mutate { current -> current.copy(personalPolicies = current.personalPolicies + (characterId to policy)) }
+        if (appContext != null && policy.autoSummarize) ChatMemoryAutomation.request(characterId)
         refreshDebug("已保存当前角色的记忆规则", characterId)
     }
 
     suspend fun followGlobalPolicy(characterId: String) {
         mutate { current -> current.copy(personalPolicies = current.personalPolicies - characterId) }
+        if (appContext != null && state.value.resolvedPolicy(characterId).autoSummarize) ChatMemoryAutomation.request(characterId)
         refreshDebug("当前角色跟随统一记忆规则", characterId)
     }
 
@@ -98,6 +106,7 @@ class LocalMemoryRepository : MemoryRepository {
                 entries = current.entries.filterNot { it.characterId == characterId },
                 processedMessageIds = current.processedMessageIds - characterId,
                 extractionContinuationTurns = current.extractionContinuationTurns - characterId,
+                deferredExtraction = current.deferredExtraction - characterId,
                 immediateProcessedIds = current.immediateProcessedIds - characterId,
                 forgottenSourceIds = current.forgottenSourceIds - characterId,
                 deletedMemoryIds = current.deletedMemoryIds - characterId,
@@ -160,7 +169,12 @@ class LocalMemoryRepository : MemoryRepository {
             val events = memoryEligibleTimelineEvents(characterId)
             val done = state.value.immediateProcessedIds[characterId].orEmpty() +
                 state.value.processedMessageIds[characterId].orEmpty()
-            val targets = events.filter { it.id !in done && it.isUserMemoryStatement() && requestsImmediateMemory(it.content) }.take(8)
+            val deferred = state.value.deferredExtraction[characterId].orEmpty()
+            val now = extractionClock()
+            val targets = events.filter {
+                it.id !in done && deferred[it.id]?.retryAt?.isAfter(now) != true &&
+                    it.isUserMemoryStatement() && requestsImmediateMemory(it.content)
+            }.take(8)
             if (targets.isEmpty()) return
             deferPausedResidentMemory(characterId, targets.size)
             val targetIds = targets.mapTo(mutableSetOf(), SharedTimelineEvent::id)
@@ -175,7 +189,9 @@ class LocalMemoryRepository : MemoryRepository {
                 targetTurnIndices.any { selected -> index in
                     ((selected - 5).coerceAtLeast(0)..(selected + 3).coerceAtMost(turns.lastIndex)) }
             }
-            val view = MemoryExtractionTurnView.build(nearby)
+            val view = MemoryExtractionTurnView.build(
+                MemoryExtractionTurnView.fit(nearby, allowEmpty = true),
+            )
             // Always preserve the explicitly targeted original statement.
             // The compact episode view is background, not permission to cite
             // game steps that were never presented to this model request.
@@ -214,8 +230,9 @@ class LocalMemoryRepository : MemoryRepository {
                 source = "记忆", title = "重要信息即时记忆", maxTokens = 3_200,
                 contextMode = CompanionContextMode.Isolated, streamResponse = true,
                 connectionOverride = extractionConnection(),
-            ).getOrThrow()
-            val parsed = parseMemoryArray(result.text, characterId, context).filter { update ->
+            )
+            val response = readExtractionResult(result, characterId, context)
+            val parsed = response.updates.filter { update ->
                 update.memory.kind == MemoryKind.Fact && update.memory.sourceIds().any(targetIds::contains)
             }
             check(SharedExperienceTimeline.commitIfEvidenceUnchanged(characterId, context) {
@@ -224,13 +241,17 @@ class LocalMemoryRepository : MemoryRepository {
                     val valid = parsed.map { it.memory }.map { memory ->
                         memory.copy(sourceRevisions = context.filter { it.id in memory.sourceIds() }.associate { it.id to it.revision })
                     }
-                    current.copy(entries = mergeExtractedEntries(current, valid),
-                        immediateProcessedIds = current.immediateProcessedIds +
+                    current.withExtractionRetry(
+                        characterId, targetIds, response.hasRejectedRows, extractionClock(),
+                    ).copy(entries = mergeExtractedEntries(current, valid),
+                        immediateProcessedIds = if (response.hasRejectedRows) current.immediateProcessedIds
+                        else current.immediateProcessedIds +
                             (characterId to (current.immediateProcessedIds[characterId].orEmpty() + targetIds)))
                 }
                 applyUnderstandingUpdates(characterId, parsed, prior, context.associate { it.id to it.revision })
             }) { "原始上下文已改变，重要信息保留等待重新理解" }
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
+            if (response.hasRejectedRows) return
             maintain(characterId, silent = true)
         }
     }
@@ -239,7 +260,6 @@ class LocalMemoryRepository : MemoryRepository {
         val generation = synchronized(lock) { historyGenerations[characterId] ?: 0L }
         val policy = state.value.resolvedPolicy(characterId)
         val threshold = policy.readableThreshold.coerceAtLeast(1)
-        var processedThisRun = 0
         var processedTurnsThisRun = 0
         var extractedThisRun = 0
         // A size-bounded subrequest may finish only part of an eligible
@@ -263,61 +283,71 @@ class LocalMemoryRepository : MemoryRepository {
             val pending = readable.filter { turn ->
                 turn.events.any { it.id !in processed }
             }
-            // A ready 15-turn batch may need to be split at a real turn
-            // boundary to fit the extraction request's evidence-character
-            // budget. Do not mistake that smaller physical sub-batch for a
-            // shortage of eligible semantic turns or stop without processing.
-            if (triggeredTurnsRemaining == 0 && pending.size >= threshold) {
+            val deferred = state.value.deferredExtraction[characterId].orEmpty()
+            val (untried, retries) = pending.map { turn ->
+                turn to turn.events.mapNotNull { deferred[it.id] }.maxByOrNull { it.retryAt }
+            }.partition { (_, retry) -> retry == null }
+            val fresh = untried.map { (turn, _) -> turn }
+            // Committed source IDs define the starting point when the batch size changes.
+            if (triggeredTurnsRemaining == 0 && fresh.size >= threshold) {
                 triggeredTurnsRemaining = threshold
             }
-            val ready = flushTail || triggeredTurnsRemaining > 0
-            val requestedCount = if (flushTail && triggeredTurnsRemaining == 0) threshold
-                else triggeredTurnsRemaining.coerceAtLeast(1)
-            val batchTurns = if (ready) MemoryExtractionTurnView.fit(pending.take(requestedCount))
-                else pending.take(threshold)
-            val batch = batchTurns.flatMap { it.events }
+            val freshReady = fresh.isNotEmpty() && (flushTail || triggeredTurnsRemaining > 0)
+            val now = extractionClock()
+            val dueRetry = retries.mapNotNull { (_, retry) -> retry }
+                .filterNot { it.retryAt.isAfter(now) }.minByOrNull { it.retryAt }
+            val retrying = !freshReady && dueRetry != null
+            val requested = when {
+                freshReady -> fresh.take(triggeredTurnsRemaining.takeIf { it > 0 } ?: threshold)
+                dueRetry != null -> retries.filter { (_, retry) -> retry == dueRetry }.map { (turn, _) -> turn }
+                    .take(when {
+                        dueRetry.failures >= 3 -> 1
+                        dueRetry.failures == 2 -> minOf(threshold, 5)
+                        else -> threshold
+                    })
+                else -> emptyList()
+            }
 
-            if (pending.isEmpty() || !ready) {
-                if (pending.isEmpty() &&
-                    state.value.extractionContinuationTurns.containsKey(characterId)) {
+            if (requested.isEmpty()) {
+                if (fresh.isEmpty() && triggeredTurnsRemaining > 0) {
                     mutate { current -> current.copy(
-                        extractionContinuationTurns =
-                            current.extractionContinuationTurns - characterId,
+                        extractionContinuationTurns = current.extractionContinuationTurns - characterId,
                     ) }
                 }
-                if (processedThisRun > 0) maintain(characterId, silent = true)
+                if (processedTurnsThisRun > 0 || extractedThisRun > 0) maintain(characterId, silent = true)
+                val deferredTurns = pending.size - fresh.size
+                val freshCount = fresh.size
                 refreshDebug(
-                    message = if (processedThisRun == 0) {
-                        "可整理语义轮次 ${batchTurns.size}/$threshold，尚未达到阈值"
-                    } else {
-                        "连续整理完成：本次处理 $processedTurnsThisRun 轮（$processedThisRun 条原始事件），新增 $extractedThisRun 条记忆；剩余 ${batchTurns.size}/$threshold 轮等待下一批"
-                    },
-                    characterId = characterId,
-                    readableCount = readable.size,
-                    pendingCount = pending.size,
-                    batchCount = batchTurns.size,
-                    extracting = false,
-                    lastExtractedCount = extractedThisRun,
+                    message = if (deferredTurns > 0) {
+                        "$deferredTurns 轮原话已保留，将自动补提取；$freshCount/$threshold 轮等待下一批"
+                    } else if (processedTurnsThisRun > 0) {
+                        "本次处理 $processedTurnsThisRun 轮，新增 $extractedThisRun 条记忆"
+                    } else "可整理轮次 $freshCount/$threshold，等待下一批",
+                    characterId = characterId, readableCount = readable.size,
+                    pendingCount = pending.size, batchCount = 0, lastExtractedCount = extractedThisRun,
                 )
                 return
             }
 
             deferPausedResidentMemory(characterId, pending.size)
+            val fitted = MemoryExtractionTurnView.fit(requested, allowEmpty = true)
+            val batchTurns = fitted.ifEmpty { requested.take(1) }
+            val batch = batchTurns.flatMap { it.events }
+            val continuationAfterCommit = if (retrying) triggeredTurnsRemaining
+                else (triggeredTurnsRemaining - batchTurns.size).coerceAtLeast(0)
+            val batchCount = batchTurns.size
             val batchStart = processedTurnsThisRun + 1
-            val batchEnd = processedTurnsThisRun + batchTurns.size
+            val batchEnd = processedTurnsThisRun + batchCount
             refreshDebug(
-                message = "正在整理第 $batchStart-$batchEnd 轮真实交流与经历",
-                characterId = characterId,
-                readableCount = readable.size,
-                pendingCount = pending.size,
-                batchCount = batchTurns.size,
-                extracting = true,
-                lastExtractedCount = extractedThisRun,
+                message = if (retrying) "正在自动补提取 $batchCount 轮原话"
+                    else "正在整理第 $batchStart-$batchEnd 轮真实交流与经历",
+                characterId = characterId, readableCount = readable.size,
+                pendingCount = pending.size, batchCount = batchCount,
+                extracting = true, lastExtractedCount = extractedThisRun,
             )
 
             val batchIds = batch.mapTo(mutableSetOf(), SharedTimelineEvent::id)
             val batchEvents = SharedExperienceTimeline.eventsByIds(characterId, batchIds)
-            val expectedRevisions = batchEvents.associate { it.id to it.revision }
             // Some rows might have been deleted between selection and lookup.
             // Do not certify a partly missing episode as fully processed.
             check(batchEvents.size == batchIds.size) { "原始事件在准备总结时改变；保留整批等待重试" }
@@ -332,144 +362,111 @@ class LocalMemoryRepository : MemoryRepository {
                     canonical.getValue(event.id)
                 })
             }
-            val evidenceView = MemoryExtractionTurnView.build(canonicalTurns)
-            check(evidenceView.visibleSources.isNotEmpty()) {
-                "完整轮次未能提供任何可引用的真实来源；整批保留等待重试"
-            }
-            val facts = evidenceView.text
-            val prior = currentUnderstandingCandidates(characterId, facts)
-            val result = LuluAiServices.gateway.generate(
-                characterId = characterId,
-                facts = memorySelectionPerspective(characterId) +
-                    "\n【待提取的真实事件｜只有这里的事件ID可用于记忆来源】\n" +
-                    facts + renderPriorUnderstanding(prior),
-                instruction = """
-                    从给定真实对话与原始事件中提取日后值得回忆的记忆。根据当前角色本人的稳定价值、兴趣、真实关系和实际见闻判断哪些零碎细节对他有意义；不需要每件小事都高分，但不要把不起眼等同于不值得记。只返回 JSON 数组，不要代码块。
-                    每项只强制三字段：{"kind":"Fact|Emotion|Timeline","content":"包含人物、事件和必要语境的真实记忆","sourceEventIds":["真实事件ID"]}。
-                    其他字段 perspective(Record|Subjective)、tier(Core|Stable|Episode)、strength(1-10)、subject、slot、supersedes、occurredAt、
-                    sceneKey、measureKind、measureValue、measureUnit 均可选；确有依据时填写，
-                    不要用空字符串、null 或凑满所有字段增加输出体积。
-                    同一事实的更新优先沿用 subject+slot，并仅在明确纠正时用 supersedes 指向真实旧记忆ID。
-                    严格输出完整的 JSON 数组（没有返回 []），禁止前言、Markdown、未闭合括号。
-                    规则：
-                    0. 保留记录的证据类型。日记、心声、朋友圈和聊天仅证明表达过，不能把其中自述直接提取成客观亲历；虚构剧情不得合并为数字主世界经历。旧摘要与执行记录冲突时，以执行记录和当前世界状态为准。
-                    1. 不编造未发生事实，必须结合这一整批上下文理解语义，不能因为某一句出现“不是、其实、应该、喜欢、不要”等词就机械判定为纠正、偏好或边界。
-                    2. Fact 只保存上下文能够确认的长期稳定身份事实、持续计划、明确偏好与边界。口头反驳、临时观点、针对当下情境的一句话、语气性否定都不是长期事实。
-                    3. 如果用户是在纠正角色，必须从前后文确认“先前具体误解是什么、用户实际澄清的稳定事实是什么”，只保存澄清后的事实；无法确认就不要保存。
-                    4. Emotion 只保存明确情绪、触发原因和发生时间；不要把普通语气猜成情绪。
-                    5. Timeline 保存有具体人物、对象或辨识细节的真实经历，也包括普通日常小事；发生时间可直接使用原始事件时间，不必达到里程碑才记。只有寒暄或没有具体内容的通话/打开页面，不自动制造重要经历。日常小事通常strength=2—4，明显影响后续的经历5—7，用户明确重要或强烈触动才8—10；高分经历仍是Episode，不自动升级Core。
-                    6. 角色已承担的约定、提醒、责任和监督由任务与日程系统保存执行，不要重复放进记忆；未解决的个人顾虑进入心事，真实生活近况进入生活记录。
-                    7. 输入中的 [私聊]、[电话]、[群聊]、[朋友圈]、[收藏]、[此刻] 等方括号内容只是原始事件来源标签，不是用户说的话，也不是需要记住的提示词。
-                    8. 本批按完整的主人/角色发言或一次游戏、见面、工具任务经历分轮；重复游戏感知和步骤不能当成独立交流轮。每条记忆必须给出1—6个直接支持它的 sourceEventIds，只能引用上文**实际展示的 eventId**，不能引用未展开的步骤，更不能把整批ID都塞进去。
-                    9. 记忆必须保留将来理解同义改写所需的人物、对象、原因、结果和必要语境，避免只写模糊关键词；但不要复制无关寒暄。
-                    10. 日常寒暄、同义重复不要重复写入；电话和哄睡的普通陪伴、气音、反复夸奖、呼吸与全身放松引导、虚构睡前故事、角色单方面续讲，都不自动转为长期记忆。若用户在通话中明确透露真实重要事实、长期偏好、关系变化，仍按事实证据选择性提取；故事情节仅属于故事而非两人的现实经历。没有值得保存的内容时返回 []。
-                    11. Core 用于用户明确要求持续遵守或长期牢记的重要稳定事实、边界、关系、安排及偏好；普通偏好用 Stable，经历与情绪用 Episode。临时情况不能覆盖长期偏好。
-                    12. 每条记忆用一至两句写清必要语境，通常不超过160个中文字，避免复制原文或扩写。
-                    12a. 对整批来源逐项检查：①已明确说出的喜恶、兴趣、习惯自述及相处边界，②有明确原因的情绪，③有可辨识细节的普通日常与共同经历。零碎不等于不值得记：用户一次明确表达某种喜好便可以保存为可修订的 Stable 偏好，不必等第二次确认；与现有理解同义的表达要合并来源，不要造两条。某晚睡觉时间只是带日期的一次记录，不得归纳成长期作息；多日规律由已有习惯学习负责。不得强行凑数量、猜测偏好或把系统执行计划写作用户记忆。
-                    12b. 按同一批原始来源分别考虑两种记忆视角，但仍沿用 Fact/Emotion/Timeline 原有分类：
-                    - perspective=Record：客观记录“谁说过什么、哪次实际做了什么、结果是什么”，不把一方陈述当成已经核实的客观事实。按事件细节补足普通小事，而非只摘录高价值事项；优先补没有记录的生活事实/事件，不要重复同义内容。
-                    - perspective=Subjective：只有本角色自己真实说出过的感受、喜好、感想，或自己已留下的“此刻”心理原始记录，才用它描述“我当时在意什么”。必须引用当前角色亲自产出的 CharacterStatement 或 source=presence 的 Inference 事件；引用主人/其他人的话只能作为附加背景，不能当作自己心声。没有本人的真实主观来源就不要产出 Subjective，更不能让提取模型模拟角色制造一段内心独白。它仍可以记 Fact/Emotion/Timeline，并保留过去时间，不能把过去心情冒充当下。
-                    - 主人细节可以因为本角色的人格而提高 strength，但这只是回忆显著度，不等于角色曾作出某种主观反应；普通零碎经历不可自动升级 Core。
-                    13. 场景与可量数字只有原话明确给才填：sceneKey 写“活动|地点|参与人|时段”的短串（如睡觉|卧室|自己|夜里），原话没给地点或时段就留空；measureKind 只用于原话明确说出的可量数字（睡多久填 sleep_hours、几点睡填 bedtime），measureValue 填数字（bedtime 用 24 小时制小数，如 23.5 表示 23:30），measureUnit 填“小时”或“时”；没有就留空或 null，绝不换算、绝不猜测。
-                    ${understandingUpdateInstruction()}
-                """.trimIndent(),
-                source = "记忆",
-                title = "连续记忆提取",
-                // Receive progress through the same gateway; only the final validated JSON is committed.
-                streamResponse = true,
-                maxTokens = (1_200 + batchTurns.size.coerceAtMost(20) * 270).coerceIn(3_200, 8_000),
-                contextMode = CompanionContextMode.Isolated,
-                readTimeoutMillis = 180_000,
-                connectionOverride = extractionConnection(),
-            )
-
-            if (result.isFailure) {
-                val error = result.exceptionOrNull()
-                refreshDebug(
-                    message = "记忆提取失败，当前批次未跳过：${error?.message ?: "未知错误"}",
-                    characterId = characterId,
-                    readableCount = readable.size,
-                    pendingCount = pending.size,
-                    batchCount = batchTurns.size,
-                    extracting = false,
-                    lastError = error?.message,
-                    lastExtractedCount = extractedThisRun,
-                )
-                throw error ?: IllegalStateException("记忆提取失败")
-            }
-
-            val reply = result.getOrThrow()
-            // A generated source ID must have appeared in the bounded input,
-            // not merely somewhere among the game's hidden 200 action receipts.
-            val parsed = runCatching {
-                parseMemoryArray(reply.text, characterId, evidenceView.visibleSources)
-            }
-            if (parsed.isFailure) {
-                val error = parsed.exceptionOrNull()
-                refreshDebug(
-                    message = "模型记忆格式无效，当前批次未跳过：${error?.message ?: "无法解析"}",
-                    characterId = characterId,
-                    readableCount = readable.size,
-                    pendingCount = pending.size,
-                    batchCount = batchTurns.size,
-                    extracting = false,
-                    lastError = error?.message,
-                    lastExtractedCount = extractedThisRun,
-                )
-                throw IllegalStateException("模型记忆格式无效，批次保留等待重试", error)
-            }
-
-            val liveBatchIds = batchEvents.mapTo(mutableSetOf()) { it.id }
-            val continuationAfterCommit =
-                (triggeredTurnsRemaining - batchTurns.size).coerceAtLeast(0)
-            var added = 0
-            check(SharedExperienceTimeline.commitIfEvidenceUnchanged(characterId, batchEvents) {
-                mutate { current ->
-                    if ((historyGenerations[characterId] ?: 0L) != generation) return@mutate current
-                    val valid = parsed.getOrThrow().map { it.memory }.filter { entry -> entry.sourceIds().all(liveBatchIds::contains) }
-                        .map { entry -> entry.copy(sourceRevisions = expectedRevisions.filterKeys { it in entry.sourceIds() }) }
-                    val merged = mergeExtractedEntries(current, valid)
-                    added = (merged.size - current.entries.size).coerceAtLeast(0)
-                    current.copy(
-                        entries = merged,
-                        processedMessageIds = current.processedMessageIds +
-                            (characterId to (current.processedMessageIds[characterId].orEmpty() + liveBatchIds)),
-                        extractionContinuationTurns = if (continuationAfterCommit == 0)
-                            current.extractionContinuationTurns - characterId
-                        else current.extractionContinuationTurns +
-                            (characterId to continuationAfterCommit),
-                    )
+            val evidenceViews = if (fitted.isEmpty()) MemoryExtractionTurnView.splitLongTurn(canonicalTurns.single())
+                else sequenceOf(MemoryExtractionTurnView.build(canonicalTurns))
+            val responses = mutableListOf<ParsedMemoryResponse>()
+            val allPrior = mutableListOf<MemoryEntry>()
+            for (evidenceView in evidenceViews) {
+                if (evidenceView.visibleSources.isEmpty()) {
+                    responses += ParsedMemoryResponse(hasRejectedRows = true)
+                    continue
                 }
-                applyUnderstandingUpdates(characterId, parsed.getOrThrow(), prior, expectedRevisions)
-            }) { "原始上下文已改变，整批保留等待重新理解" }
-
+                val prior = currentUnderstandingCandidates(characterId, evidenceView.text)
+                try {
+                    responses += requestMemoryExtraction(characterId, evidenceView, prior)
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (error: Exception) {
+                    refreshDebug("后台记忆提取暂缓，原文已保留", characterId, lastError = error.message)
+                    throw error
+                }
+                allPrior += prior
+            }
+            val parsed = ParsedMemoryResponse(responses.flatMap { it.updates }, responses.any { it.hasRejectedRows })
+            val added = commitExtraction(
+                characterId, generation, batchEvents, parsed, allPrior.distinctBy { it.id }, continuationAfterCommit,
+            )
             if (synchronized(lock) { historyGenerations[characterId] ?: 0L } != generation) return
-            processedThisRun += liveBatchIds.size
-            processedTurnsThisRun += batchTurns.size
+            if (!parsed.hasRejectedRows) processedTurnsThisRun += batchTurns.size
             triggeredTurnsRemaining = continuationAfterCommit
             extractedThisRun += added
-            val freshReadable = extractableTurns(characterId, policy, flushTail)
-            val freshProcessed = state.value.processedMessageIds[characterId].orEmpty()
-            val remaining = freshReadable.count { turn ->
-                turn.events.any { it.id !in freshProcessed }
-            }
-            refreshDebug(
-                message = if (remaining >= threshold) {
-                    "第 $batchStart-$batchEnd 轮整理完成，新增 ${added} 条记忆；继续下一批"
-                } else {
-                    "本批处理 ${batchTurns.size} 轮 / ${liveBatchIds.size} 条原始事件，新增 ${added} 条记忆"
-                },
-                characterId = characterId,
-                readableCount = freshReadable.size,
-                pendingCount = remaining,
-                batchCount = batchTurns.size,
-                extracting = remaining >= threshold,
-                lastExtractedCount = extractedThisRun,
-            )
         }
     }
 
+    private suspend fun requestMemoryExtraction(
+        characterId: String,
+        evidenceView: MemoryExtractionTurnView.Batch,
+        prior: List<MemoryEntry>,
+    ): ParsedMemoryResponse {
+        val result = LuluAiServices.gateway.generate(
+            characterId = characterId,
+            facts = memorySelectionPerspective(characterId) +
+                "\n【待提取的真实事件｜只有这里的事件ID可用于记忆来源】\n" +
+                evidenceView.text + renderPriorUnderstanding(prior),
+            instruction = """
+                把当事人日后可能回想起的真实经历、感受及稳定事实整理成简短记忆。只返回完整 JSON 数组。
+                每条 {"kind":"Fact|Emotion|Timeline","content":"人物、事情及必要语境","sourceEventIds":["eventId"]}。
+                Fact 保留明确的长期事实、偏好、关系、边界与安排。临时情况按当时经历记录。主人明确要求长久记住的稳定事实用 tier=Core，普通偏好用 Stable，其他用 Episode。
+                Emotion 写明是谁、当时的感受、已知诱因。若前因或后果在本批另有原话或工具回执，可一起引用，方便从情绪想起整件事。
+                Timeline 记录有辨识细节的真实经历，包括普通日常小事。寒暄、重复陪伴、睡前故事、假设和虚构演绎不提取为现实经历。已交由任务系统执行的约定无需再摘录。
+                perspective 默认为 Record，按原话或回执注明主体，区分当事人陈述、实际观察与执行结果。只有角色本人实际说出或在「此刻」记录的感受才能使用 Subjective，并引用本人那条记录。
+                每条复制本批 1–6 个直接支持它的 eventId，允许带原文中的 @版本号。已有理解只供查重与修订。标记了原文范围时，只摘录该段能独立确认的内容。
+                可选字段仅在有依据时填写：occurredAt 是明确发生的时间（ISO 8601），strength 是重要程度 1–10，subject 是具体对象，slot 是该对象的事实槽位，sceneKey 是活动|地点|参与人|时段。
+                measureKind、measureValue、measureUnit 仅保存原话明确的量值，例如 sleep_hours（小时）或 bedtime（24 小时制，23:30 为 23.5）。没有可保存的内容就返回 []。
+                ${understandingUpdateInstruction()}
+            """.trimIndent(),
+            source = "记忆",
+            title = "连续记忆提取",
+            streamResponse = true,
+            maxTokens = (1_200 + evidenceView.turnCount.coerceAtMost(20) * 270).coerceIn(3_200, 8_000),
+            contextMode = CompanionContextMode.Isolated,
+            readTimeoutMillis = 180_000,
+            connectionOverride = extractionConnection(),
+        )
+        return readExtractionResult(result, characterId, evidenceView.visibleSources)
+    }
+
+    private fun commitExtraction(
+        characterId: String,
+        generation: Long,
+        batch: List<SharedTimelineEvent>,
+        response: ParsedMemoryResponse,
+        prior: List<MemoryEntry>,
+        remainingTurns: Int,
+    ): Int {
+        val revisions = batch.associate { it.id to it.revision }
+        val ids = revisions.keys
+        var added = 0
+        var committed = false
+        check(SharedExperienceTimeline.commitIfEvidenceUnchanged(characterId, batch) {
+            mutate { current ->
+                if ((historyGenerations[characterId] ?: 0L) != generation) return@mutate current
+                val valid = response.updates.map { it.memory }.map { entry ->
+                    entry.copy(sourceRevisions = revisions.filterKeys { it in entry.sourceIds() })
+                }
+                val merged = mergeExtractedEntries(current, valid)
+                added = (merged.size - current.entries.size).coerceAtLeast(0)
+                committed = true
+                current.withExtractionRetry(characterId, ids, response.hasRejectedRows, extractionClock()).copy(
+                    entries = merged,
+                    processedMessageIds = if (response.hasRejectedRows) current.processedMessageIds else
+                        current.processedMessageIds + (characterId to (current.processedMessageIds[characterId].orEmpty() + ids)),
+                    extractionContinuationTurns = if (remainingTurns == 0)
+                        current.extractionContinuationTurns - characterId
+                    else current.extractionContinuationTurns + (characterId to remainingTurns),
+                )
+            }
+            if (committed) applyUnderstandingUpdates(characterId, response.updates, prior, revisions)
+        }) { "原始上下文已改变，整批保留等待重新理解" }
+        return added
+    }
+
     private data class ExtractedMemoryUpdate(val memory: MemoryEntry, val supersedes: List<String>?)
+
+    private data class ParsedMemoryResponse(
+        val updates: List<ExtractedMemoryUpdate> = emptyList(),
+        val hasRejectedRows: Boolean = false,
+    )
 
     private fun currentUnderstandingCandidates(characterId: String, query: String): List<MemoryEntry> {
         val terms = memorySearchTerms(query)
@@ -718,6 +715,8 @@ class LocalMemoryRepository : MemoryRepository {
                 entries = current.entries.filterNot { entry -> eventId in entry.memorySourceEventIds() },
                 processedMessageIds = current.processedMessageIds.mapValues { (_, ids) -> ids - eventId },
                 immediateProcessedIds = current.immediateProcessedIds.mapValues { (_, ids) -> ids - eventId },
+                deferredExtraction = current.deferredExtraction.mapValues { (_, retries) -> retries - eventId }
+                    .filterValues { it.isNotEmpty() },
             )
         }
         removedEntries.forEach {
@@ -766,11 +765,29 @@ class LocalMemoryRepository : MemoryRepository {
         val policy = state.value.resolvedPolicy(characterId)
         val readable = extractableTurns(characterId, policy, flushTail = false)
         val processed = state.value.processedMessageIds[characterId].orEmpty()
-        val pendingTurns = readable.count { turn -> turn.events.any { it.id !in processed } }
-        // Never wake the paid extractor merely because an incomplete or
-        // protected tail has been idle for ten minutes.
-        return pendingTurns >= policy.readableThreshold &&
-            shouldFlushPendingMemoryTail(readable.flatMap { it.events }, processed, now)
+        val retries = state.value.deferredExtraction[characterId].orEmpty()
+        if (retries.isNotEmpty()) {
+            val due = retries.filterValues { !it.retryAt.isAfter(now) }.keys
+            if (readable.any { turn -> turn.events.any { it.id in due && it.id !in processed } }) return true
+            val immediate = state.value.immediateProcessedIds[characterId].orEmpty()
+            if (SharedExperienceTimeline.eventsByIds(characterId, due).any {
+                    it.id !in processed && it.id !in immediate && it.isUserMemoryStatement() &&
+                        requestsImmediateMemory(it.content)
+                }) return true
+        }
+        val fresh = readable.filter { turn ->
+            turn.events.any { it.id !in processed } && turn.events.none { it.id in retries }
+        }
+        return fresh.size >= policy.readableThreshold &&
+            shouldFlushPendingMemoryTail(fresh.flatMap { it.events }, processed, now)
+    }
+
+    internal fun deferredExtractionTurnCount(characterId: String): Int {
+        val retries = state.value.deferredExtraction[characterId].orEmpty()
+        if (retries.isEmpty()) return 0
+        return extractableTurns(characterId).count { turn ->
+            turn.events.any { it.id in retries }
+        }
     }
 
     fun hasUnprocessedEvents(characterId: String): Boolean {
@@ -847,29 +864,55 @@ class LocalMemoryRepository : MemoryRepository {
             }
 
  
-    private fun parseMemoryArray(raw: String, characterId: String, evidenceSnapshot: List<SharedTimelineEvent>): List<ExtractedMemoryUpdate> {
-        val array = decodeMemoryResponseArray(raw)
-        val allowedSourceIds = evidenceSnapshot.mapTo(mutableSetOf()) { it.id }
-        return buildList {
+    private fun readExtractionResult(
+        result: Result<com.jiacimu.lulu.ai.ModelReply>,
+        characterId: String,
+        sources: List<SharedTimelineEvent>,
+    ): ParsedMemoryResponse {
+        val reply = result.getOrElse { error ->
+            if (error is IllegalStateException && error.message == "模型没有返回可读取的内容")
+                return ParsedMemoryResponse(hasRejectedRows = true)
+            throw error
+        }
+        val parsed = parseMemoryResponse(reply.text, characterId, sources)
+        return if (reply.finishReason in setOf("length", "max_tokens"))
+            parsed.copy(hasRejectedRows = true) else parsed
+    }
+
+    private fun parseMemoryResponse(
+        raw: String,
+        characterId: String,
+        evidenceSnapshot: List<SharedTimelineEvent>,
+    ): ParsedMemoryResponse {
+        val array = runCatching { decodeMemoryResponseArray(raw) }.getOrElse {
+            return ParsedMemoryResponse(hasRejectedRows = true)
+        }
+        val exactIds = evidenceSnapshot.associateBy { it.id }
+        val versionedIds = evidenceSnapshot.associateBy { "${it.id}@${it.revision}" }
+        var rejected = false
+        val updates = buildList {
             for (index in 0 until array.length()) {
-                val item = requireNotNull(array.optJSONObject(index)) { "记忆数组包含非对象项" }
+                val item = array.getJSONObject(index)
                 val kind = when (item.optString("kind").trim().lowercase()) {
                     "fact" -> MemoryKind.Fact
                     "emotion" -> MemoryKind.Emotion
                     "timeline" -> MemoryKind.Timeline
-                    else -> error("记忆类型无效，批次保留")
+                    else -> null
                 }
                 val content = item.optString("content").trim()
-                require(content.isNotBlank()) { "记忆内容为空，批次保留" }
-                val occurredAt = item.optString("occurredAt").trim()
-                    .takeIf(String::isNotBlank)
-                    ?.let { value -> runCatching { Instant.parse(value) }.getOrNull() }
-                val sourceArray = item.optJSONArray("sourceEventIds") ?: error("记忆缺少来源事件，批次保留")
-                val sourceIds = (0 until sourceArray.length()).map { sourceArray.getString(it).trim() }.distinct()
-                require(sourceIds.isNotEmpty() && sourceIds.size <= 6 && sourceIds.all(allowedSourceIds::contains)) {
-                    "记忆包含不存在或跨批次来源，批次保留"
+                val sourceArray = item.optJSONArray("sourceEventIds")
+                val sources = sourceArray?.let { ids ->
+                    (0 until ids.length()).map { position ->
+                        val ref = (ids.opt(position) as? String)?.trim()
+                        exactIds[ref] ?: versionedIds[ref]
+                    }.distinct()
+                }.orEmpty()
+                if (kind == null || content.isBlank() || sources.size !in 1..6 || sources.any { it == null }) {
+                    rejected = true
+                    continue
                 }
-                val evidence = evidenceSnapshot.filter { it.id in sourceIds }
+                val evidence = sources.filterNotNull()
+                val sourceIds = evidence.map { it.id }
                 val perspective = when (item.optString("perspective").trim().lowercase()) {
                     "subjective" -> MemoryPerspective.Subjective
                     else -> MemoryPerspective.Record // Legacy model output remains compatible.
@@ -878,6 +921,11 @@ class LocalMemoryRepository : MemoryRepository {
                 // speaker's words cannot become this character's own remembered feeling.
                 if (perspective == MemoryPerspective.Subjective &&
                     evidence.none(SharedTimelineEvent::isOwnSubjectiveMemorySource)) continue
+                val ownFeelingAt = if (kind == MemoryKind.Emotion && perspective == MemoryPerspective.Subjective)
+                    evidence.firstOrNull { it.isOwnSubjectiveMemorySource() }?.occurredAt else null
+                val occurredAt = item.optString("occurredAt").trim().takeIf(String::isNotBlank)
+                    ?.let { value -> runCatching { Instant.parse(value) }.getOrNull() }
+                    ?: ownFeelingAt ?: evidence.minOf { it.occurredAt }
                 val attributedContent = if (evidence.isNotEmpty() && evidence.all {
                     it.evidenceLabel.startsWith("主观表达") || it.evidenceLabel.startsWith("对话记录")
                 }) "[表达记录的摘要，非独立执行事实] $content" else content
@@ -910,6 +958,7 @@ class LocalMemoryRepository : MemoryRepository {
                 ))
             }
         }
+        return ParsedMemoryResponse(updates, rejected)
     }
 
     private fun mutate(transform: (MemoryStoreState) -> MemoryStoreState) {
@@ -1014,6 +1063,15 @@ class LocalMemoryRepository : MemoryRepository {
                 if (remaining > 0) put(id, remaining)
             }
         })
+        .put("deferredExtraction", JSONObject().apply {
+            value.deferredExtraction.forEach { (characterId, retries) ->
+                put(characterId, JSONObject().apply {
+                    retries.forEach { (id, retry) ->
+                        put(id, JSONObject().put("failures", retry.failures).put("retryAt", retry.retryAt.toString()))
+                    }
+                })
+            }
+        })
         .put(
             "processedMessageIds",
             JSONObject().apply {
@@ -1100,6 +1158,19 @@ class LocalMemoryRepository : MemoryRepository {
                         .associateWith { key -> saved.optInt(key, 0) }
                         .filterValues { it > 0 }
                     }.orEmpty(),
+                deferredExtraction = root.optJSONObject("deferredExtraction")?.let { roles ->
+                    roles.keys().asSequence().associateWith { role ->
+                        val rows = roles.optJSONObject(role) ?: JSONObject()
+                        buildMap {
+                            rows.keys().forEach { id ->
+                                val row = rows.optJSONObject(id) ?: return@forEach
+                                val retryAt = runCatching { Instant.parse(row.optString("retryAt")) }.getOrNull()
+                                    ?: return@forEach
+                                put(id, DeferredMemoryExtraction(row.optInt("failures", 1).coerceIn(1, 5), retryAt))
+                            }
+                        }
+                    }
+                }.orEmpty(),
                 processedMessageIds = processed,
                 immediateProcessedIds = immediateProcessed,
                 forgottenSourceIds = forgotten,
@@ -1208,11 +1279,36 @@ private data class MemoryStoreState(
     val personalPolicies: Map<String, MemoryPolicy> = emptyMap(),
     val processedMessageIds: Map<String, Set<String>> = emptyMap(),
     val extractionContinuationTurns: Map<String, Int> = emptyMap(),
+    val deferredExtraction: Map<String, Map<String, DeferredMemoryExtraction>> = emptyMap(),
     val immediateProcessedIds: Map<String, Set<String>> = emptyMap(),
     val forgottenSourceIds: Map<String, Set<String>> = emptyMap(),
     val deletedMemoryKeys: Set<String> = emptySet(),
     val deletedMemoryIds: Map<String, Set<String>> = emptyMap(),
 )
+
+private data class DeferredMemoryExtraction(val failures: Int, val retryAt: Instant)
+
+private fun MemoryStoreState.withExtractionRetry(
+    characterId: String,
+    sourceIds: Set<String>,
+    deferred: Boolean,
+    now: Instant,
+): MemoryStoreState {
+    val previous = deferredExtraction[characterId].orEmpty()
+    val next = if (!deferred) previous - sourceIds else {
+        val failures = ((sourceIds.mapNotNull(previous::get).maxOfOrNull { it.failures } ?: 0) + 1).coerceAtMost(5)
+        val delay = when (failures) {
+            1 -> 15L
+            2 -> 60L
+            3 -> 240L
+            4 -> 720L
+            else -> 1440L
+        }
+        previous + sourceIds.associateWith { DeferredMemoryExtraction(failures, now.plusSeconds(delay * 60)) }
+    }
+    return copy(deferredExtraction = if (next.isEmpty()) deferredExtraction - characterId
+        else deferredExtraction + (characterId to next))
+}
 
 private fun Int?.orEmptyCount(): Int = (this ?: 0).coerceAtLeast(0)
 
@@ -1337,31 +1433,28 @@ internal fun decodeMemoryResponseArray(raw: String): JSONArray {
             envelope.optJSONArray(name)?.takeIf(::valid)?.let { return it }
         }
     }
-    // Scan balanced brackets, respecting strings and escapes. indexOf('[')
-    // through lastIndexOf(']') incorrectly swallowed extra display text and
-    // misclassified valid JSON as a failed paid extraction.
-    for (start in clean.indices) {
-        if (clean[start] != '[') continue
-        var depth = 0
-        var quoted = false
-        var escaped = false
-        for (i in start until clean.length) {
-            val ch = clean[i]
-            if (quoted) {
-                if (escaped) escaped = false
-                else if (ch == '\\') escaped = true
-                else if (ch == '"') quoted = false
-                continue
-            }
-            if (ch == '"') { quoted = true; continue }
-            if (ch == '[') depth++
-            if (ch == ']') {
-                depth--
-                if (depth == 0) {
-                    runCatching { JSONArray(clean.substring(start, i + 1)) }
-                        .getOrNull()?.takeIf(::valid)?.let { return it }
-                    break
-                }
+    // Recover a complete outer array surrounded by display prose. An inner
+    // array from a truncated reply is never an empty successful extraction.
+    var start = -1
+    var depth = 0
+    var quoted = false
+    var escaped = false
+    for ((index, ch) in clean.withIndex()) {
+        if (quoted) {
+            if (escaped) escaped = false
+            else if (ch == '\\') escaped = true
+            else if (ch == '"') quoted = false
+            continue
+        }
+        if (depth > 0 && ch == '"') quoted = true
+        if (ch == '[' || ch == '{') {
+            if (depth == 0) start = index
+            depth++
+        } else if (depth > 0 && (ch == ']' || ch == '}')) {
+            depth--
+            if (depth == 0 && clean[start] == '[' && ch == ']') {
+                runCatching { JSONArray(clean.substring(start, index + 1)) }
+                    .getOrNull()?.takeIf(::valid)?.let { return it }
             }
         }
     }

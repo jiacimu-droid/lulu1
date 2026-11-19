@@ -75,7 +75,10 @@ object RelevantMemoryRecall {
     ): MemoryRecallResult {
         val cleanQuery = focusQuery(query)
         if (cleanQuery.isBlank()) return MemoryRecallResult()
-        val queryTerms = terms(cleanQuery)
+        val range = memoryTimeRange(cleanQuery, now)
+        val recentCue = listOf("刚才", "刚刚", "最近").any(memoryTemporalQuery(cleanQuery)::contains)
+        val affect = MemoryAffectCue.from(cleanQuery, range != null)
+        val queryTerms = terms(if (range != null || affect != null) memoryTemporalQuery(cleanQuery) else cleanQuery)
         val allMemories = LuluRepositories.memory.snapshot(characterId)
         val excluded = allMemories.mapNotNull { memory ->
             val reason = when {
@@ -97,6 +100,10 @@ object RelevantMemoryRecall {
                     memory.occurredAt ?: memory.createdAt,
                 )
             }
+            .filter { memory ->
+                val at = memory.occurredAt ?: memory.createdAt
+                at <= now && (range == null || range.includes(at))
+            }
             .toList()
         if (memories.isEmpty()) return MemoryRecallResult(excluded = excluded)
 
@@ -104,14 +111,19 @@ object RelevantMemoryRecall {
         // 所以先把它从关键词集合里拿掉。记忆太少时频率没有意义，直接跳过；如果拿掉后一个词
         // 都不剩，就保留原集合，绝不因为过滤把查询变成无词查询。
         val effectiveTerms = gateCommonTerms(queryTerms, memories)
+        val affectRanked = if (affect == null) emptyList() else memories.filter(affect::matches)
+            .sortedWith(compareByDescending<MemoryEntry> {
+                effectiveTerms.intersect(terms(it.content)).size
+            }.thenByDescending { it.occurredAt ?: it.createdAt })
+        val affectIds = affectRanked.mapTo(mutableSetOf(), MemoryEntry::id)
         val lexicalScores = memories.associate { memory ->
-            memory.id to score(memory, effectiveTerms, cleanQuery, now)
+            memory.id to score(memory, effectiveTerms, recentCue, now)
         }
         val lexicalRanked = memories
             .asSequence()
             .filter { memory ->
                 memory.pinned || (
-                    hasLexicalSignal(memory, effectiveTerms, cleanQuery, now) &&
+                    hasLexicalSignal(memory, effectiveTerms) &&
                         (lexicalScores[memory.id] ?: 0.0) > MIN_RELEVANCE_SCORE
                     )
             }
@@ -125,7 +137,7 @@ object RelevantMemoryRecall {
         val lexicalPositiveIds = lexicalRanked
             .asSequence()
             .filterNot(MemoryEntry::pinned)
-            .filter { memory -> hasLexicalSignal(memory, effectiveTerms, cleanQuery, now) }
+            .filter { memory -> hasLexicalSignal(memory, effectiveTerms) }
             .map(MemoryEntry::id)
             .toSet()
 
@@ -144,19 +156,19 @@ object RelevantMemoryRecall {
         // Recency is not an independent excuse to inject unrelated memories. It participates only
         // when the user is explicitly referring to recent time, in which case date proximity itself
         // is semantic evidence.
-        val recentRanked = if (hasTemporalIntent(cleanQuery)) {
-            memories
-                .filter { memory -> temporalMatch(memory, cleanQuery, now) }
-                .sortedByDescending { memory -> memory.occurredAt ?: memory.createdAt }
-                .take(RECENT_CANDIDATES)
-        } else emptyList()
+        val recentRanked = if (range != null || recentCue) memories
+            .filter { range != null || Duration.between(it.occurredAt ?: it.createdAt, now) <= Duration.ofDays(3) }
+            .sortedWith(compareByDescending<MemoryEntry> { lexicalScores[it.id] ?: 0.0 }
+                .thenByDescending { it.occurredAt ?: it.createdAt })
+            .take(RECENT_CANDIDATES) else emptyList()
 
         var candidates = fuseRankings(
             memories = memories,
             rankings = listOf(
                 lexicalRanked to 3.2,
                 vectorRanked to 4.2,
-                recentRanked to 1.15,
+                recentRanked to (if (range == null) 1.15 else 3.2),
+                affectRanked to 7.0,
                 pinnedRanked to 5.0,
             ),
         ).take(RERANK_POOL)
@@ -189,7 +201,8 @@ object RelevantMemoryRecall {
             }
         }
 
-        val graph = MemoryAssociationPolicy.expand(memories, candidates, limit = 24)
+        val graphSeeds = (affectRanked + candidates).distinctBy(MemoryEntry::id)
+        val graph = MemoryAssociationPolicy.expand(memories, graphSeeds, limit = 24)
         // No extra recall, no synthetic emotions and no permanent memory edits:
         // only same-event evidence already in the relevant working set gets
         // a modest preference while this role's recorded feeling is still active.
@@ -204,11 +217,14 @@ object RelevantMemoryRecall {
                 MemoryAssociationPolicy.priority(memory,
                     if (directRank != null) 1.0 / (1.0 + directRank * 0.12) else 0.12,
                     if (hit != null) MemoryAssociationPolicy.associationWeight(hit) else 0.0, now) +
-                    MemoryAffectAttention.bonus(memory, characterId, currentEmotion, emotionInfluence)
+                    MemoryAffectAttention.bonus(memory, characterId, currentEmotion, emotionInfluence) +
+                    (if (memory.id in affectIds) 0.3 else if (hit?.viaId in affectIds) 0.2 else 0.0)
             }
         val reasons = ranked.associate { memory -> memory.id to buildString {
             if (MemoryAffectAttention.bonus(memory, characterId, currentEmotion, emotionInfluence) > 0.0)
                 append("与本角色当前情绪同源的真实经历，注意力略提高；")
+            if (memory.id in affectIds) append("当时的情绪记录；")
+            if (range != null) append("时间范围命中；")
             if (memory.id in lexicalPositiveIds) append("关键词/情境相关；")
             if (vectorRanked.any { it.id == memory.id }) append("语义相关；")
             graphById[memory.id]?.let { append("关联自=${it.viaId}，${it.reason}，${it.depth}跳；") }
@@ -438,35 +454,13 @@ object RelevantMemoryRecall {
         return gated.ifEmpty { queryTerms }
     }
 
-    private fun hasLexicalSignal(
-        memory: MemoryEntry,
-        queryTerms: Set<String>,
-        cleanQuery: String,
-        now: Instant,
-    ): Boolean {
-        if (memory.pinned) return true
-        val memoryTerms = terms(memory.content)
-        if (queryTerms.intersect(memoryTerms).isNotEmpty()) return true
-        return hasTemporalIntent(cleanQuery) && temporalMatch(memory, cleanQuery, now)
-    }
-
-    private fun temporalMatch(memory: MemoryEntry, query: String, now: Instant): Boolean {
-        val at = memory.occurredAt ?: memory.createdAt
-        val range = memoryTimeRange(query, now)
-        return if (range != null) at >= range.first && at < range.second else recentTemporalMatch(memory, now)
-    }
-
-    private fun recentTemporalMatch(memory: MemoryEntry, now: Instant): Boolean {
-        val ageDays = Duration.between(memory.occurredAt ?: memory.createdAt, now)
-            .toDays()
-            .coerceAtLeast(0)
-        return ageDays <= 3L
-    }
+    private fun hasLexicalSignal(memory: MemoryEntry, queryTerms: Set<String>): Boolean =
+        memory.pinned || queryTerms.any(terms(memory.content)::contains)
 
     private fun score(
         memory: MemoryEntry,
         queryTerms: Set<String>,
-        cleanQuery: String,
+        recentCue: Boolean,
         now: Instant,
     ): Double {
         val memoryTerms = terms(memory.content)
@@ -482,7 +476,7 @@ object RelevantMemoryRecall {
             .toDays()
             .coerceAtLeast(0)
         val recencyBoost = 1.0 / (1.0 + ln(2.0 + ageDays.toDouble()))
-        val temporalIntentBoost = if (hasTemporalIntent(cleanQuery)) {
+        val temporalIntentBoost = if (recentCue) {
             when (ageDays) {
                 0L -> 1.25
                 1L -> 1.1
@@ -559,8 +553,6 @@ object RelevantMemoryRecall {
             normalized.startsWith("instruction", ignoreCase = true)
     }
 
-    private fun hasTemporalIntent(text: String): Boolean = TEMPORAL_WORDS.any(memoryTemporalQuery(text)::contains)
-
     private fun cosine(left: FloatArray, right: FloatArray): Double {
         if (left.size != right.size || left.isEmpty()) return -1.0
         var dot = 0.0
@@ -577,10 +569,6 @@ object RelevantMemoryRecall {
     }
 
     private fun terms(text: String): Set<String> = memorySearchTerms(text)
-
-    private val TEMPORAL_WORDS = listOf(
-        "上个月", "本月", "这个月", "上周", "这周", "本周", "上星期", "一个月前", "今天", "昨天", "前天", "昨晚", "昨夜", "今早", "刚才", "刚刚", "之前", "最近", "那天", "上次",
-    )
 
     private const val LEXICAL_CANDIDATES = 128
     private const val VECTOR_CANDIDATES = 128

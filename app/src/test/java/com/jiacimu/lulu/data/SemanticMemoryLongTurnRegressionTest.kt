@@ -124,23 +124,39 @@ class SemanticMemoryLongTurnRegressionTest {
             assertTrue(LuluRepositories.memory.hasUnprocessedEvents(role))
         } finally { server.shutdown() }
     }
-    @Test fun oversizeActualSpeechLeavesAllFifteenTurnCheckpointsUnprocessed() = runBlocking {
-        val app = RuntimeEnvironment.getApplication() as Context
-        LuluRepositories.initialize(app)
-        SharedExperienceTimeline.initialize(app)
-        repeat(20) { i ->
-            val raw = event(i, if (i == 0) "过长语音正文".repeat(9_000)
-                else "一条普通发言-$i")
-            SharedExperienceTimeline.record(raw.id, role, raw.channel, raw.speaker,
-                raw.content, raw.occurredAt, triggerExtraction = false,
-                sessionId = raw.sessionId, source = raw.source,
-                evidenceKind = raw.evidenceKind)
-        }
-        assertEquals(15, LuluRepositories.memory.pendingMessageCount(role))
-        val result = runCatching { LuluRepositories.memory.summarizeNow(role) }
-        assertTrue(result.isFailure)
-        assertEquals(15, LuluRepositories.memory.pendingMessageCount(role))
-        assertTrue(LuluRepositories.memory.snapshot(role).isEmpty())
+    @Test(timeout = 60000) fun oversizeSpeechReadsEverySpanAndContinuesWithLaterTurns() = runBlocking {
+        val server = MockWebServer()
+        val empty = JSONObject().put("choices", JSONArray().put(JSONObject()
+            .put("message", JSONObject().put("content", "[]"))
+            .put("finish_reason", "stop"))).toString()
+        repeat(4) { server.enqueue(MockResponse().setHeader("Content-Type", "application/json").setBody(empty)) }
+        server.start()
+        try {
+            val app = RuntimeEnvironment.getApplication() as Context
+            app.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE).edit()
+                .putString("memory_extract_url", server.url("/").toString())
+                .putString("memory_extract_key", "test-only")
+                .putString("memory_extract_model", "test-memory").commit()
+            LuluRepositories.initialize(app)
+            SharedExperienceTimeline.initialize(app)
+            LuluAiServices.initialize(app)
+            repeat(20) { i ->
+                val raw = event(i, if (i == 0) "起点" + "过长语音正文".repeat(9_000) + "末尾细节"
+                    else "一条普通发言-$i")
+                SharedExperienceTimeline.record(raw.id, role, raw.channel, raw.speaker,
+                    raw.content, raw.occurredAt, triggerExtraction = false,
+                    sessionId = raw.sessionId, source = raw.source, evidenceKind = raw.evidenceKind)
+            }
+            assertEquals(15, LuluRepositories.memory.pendingMessageCount(role))
+            LuluRepositories.memory.summarizeNow(role)
+            assertEquals(4, server.requestCount)
+            assertEquals(0, LuluRepositories.memory.pendingMessageCount(role))
+            val requestBodies = List(4) { server.takeRequest(5, java.util.concurrent.TimeUnit.SECONDS)!!.body.readUtf8() }
+            assertTrue(requestBodies[0].contains("起点"))
+            assertTrue(requestBodies[2].contains("末尾细节"))
+            assertTrue(requestBodies[3].contains("一条普通发言-14"))
+            assertFalse(requestBodies.any { it.contains("一条普通发言-19") })
+        } finally { server.shutdown() }
     }
 
     @Test(timeout = 60000) fun interruptedSplitBatchResumesRemainingTurnsAfterRepositoryReopen() = runBlocking {
@@ -174,20 +190,19 @@ class SemanticMemoryLongTurnRegressionTest {
             }
             val pendingBefore = LuluRepositories.memory.pendingMessageCount(role)
             assertEquals(15, pendingBefore)
-            assertTrue(runCatching { LuluRepositories.memory.summarizeNow(role) }.isFailure)
+            LuluRepositories.memory.summarizeNow(role)
             val remaining = LuluRepositories.memory.pendingMessageCount(role)
             assertTrue("Only first complete subrequest should advance",
                 remaining in 1..14)
             val prefs = app.getSharedPreferences("lulu_memory_store", Context.MODE_PRIVATE)
             val disk = JSONObject(prefs.getString("state_v1", "{}")!!)
-            assertEquals(remaining,
-                disk.getJSONObject("extractionContinuationTurns").getInt(role))
-            val reloaded = LocalMemoryRepository().apply { initialize(app) }
+            assertEquals(remaining, disk.getJSONObject("deferredExtraction").getJSONObject(role).length())
+            var clock = Instant.now()
+            val reloaded = LocalMemoryRepository { clock }.apply { initialize(app) }
             assertEquals(remaining, reloaded.pendingMessageCount(role))
             // A malformed (potentially billable) response must not be sent again
             // immediately just because the app or repository was reopened.
-            val premature = runCatching { reloaded.summarizeNow(role) }.exceptionOrNull()
-            assertTrue(premature is BackgroundModelBudgetDeferred)
+            reloaded.summarizeNow(role)
             assertEquals(2, server.requestCount)
             assertEquals(remaining, reloaded.pendingMessageCount(role))
 
@@ -202,6 +217,7 @@ class SemanticMemoryLongTurnRegressionTest {
             assertTrue(attempts.edit().apply {
                 claimKeys.forEach { putLong(it, eligibleAt) }
             }.commit())
+            clock = clock.plusSeconds(16 * 60)
             reloaded.summarizeNow(role)
             assertEquals(0, reloaded.pendingMessageCount(role))
             assertEquals(3, server.requestCount)

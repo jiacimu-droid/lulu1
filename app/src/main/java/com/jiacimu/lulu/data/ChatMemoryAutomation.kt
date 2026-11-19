@@ -26,7 +26,9 @@ object ChatMemoryAutomation {
         started = true
         scope.launch {
             // Recover pre-queue timelines too; summarizeNow is threshold aware.
-            MigratedDomainStores.characters.settings.value.keys.forEach { request(it) }
+            MigratedDomainStores.characters.settings.value.keys.forEach { characterId ->
+                runCatching { request(characterId) }.onFailure { reportSchedulingFailure(it) }
+            }
             var lastTailCheck = Instant.EPOCH
             var lastMaintenanceCheck = Instant.EPOCH
             while (true) {
@@ -50,6 +52,7 @@ object ChatMemoryAutomation {
                     val admitted = synchronized(activeCharacters) { activeCharacters.add(job.characterId) }
                     if (admitted) scope.launch {
                         try { drain(job.characterId) }
+                        catch (error: Exception) { reportSchedulingFailure(error) }
                         finally { synchronized(activeCharacters) { activeCharacters.remove(job.characterId) } }
                     }
                 }
@@ -98,10 +101,17 @@ object ChatMemoryAutomation {
         }
     }
 
+    private fun reportSchedulingFailure(error: Throwable) {
+        if (error is CancellationException) throw error
+        android.util.Log.w("ChatMemoryAutomation", "Memory queue could not be persisted or checked", error)
+    }
+
     private fun enqueueIdleTails() {
         val queued = MemoryExtractionJobStore.pending().mapTo(mutableSetOf()) { it.characterId }
         MigratedDomainStores.characters.settings.value.keys.filterNot(queued::contains).forEach { characterId ->
-            if (LuluRepositories.memory.shouldFlushPendingTail(characterId)) request(characterId)
+            runCatching {
+                if (LuluRepositories.memory.shouldFlushPendingTail(characterId)) request(characterId)
+            }.onFailure { reportSchedulingFailure(it) }
         }
     }
 }
@@ -109,6 +119,10 @@ object ChatMemoryAutomation {
 internal fun memoryExtractionRetryDue(job: MemoryExtractionJob, now: Instant = Instant.now()): Boolean {
     // Quota deferral is a normal state, independent of network failure backoff.
     if (job.deferredUntil?.isAfter(now) == true) return false
+    // Earlier versions put a bad output in role-wide backoff. The new
+    // extractor defers that source batch on its own, so upgrade can resume.
+    if (job.lastError == "模型记忆格式无效，批次保留等待重试" ||
+        job.lastError == "记忆包含不存在或跨批次来源，批次保留") return true
     if (job.attempts == 0) return true
     // A malformed JSON batch or an ambiguous relay timeout can be billed.
     // After the first failure, never submit the unchanged batch every

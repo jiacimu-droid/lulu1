@@ -205,16 +205,20 @@ object UnifiedMemoryOrchestrator {
             val sourceIds = memory.sourceEventIds()
             sourceIds.isEmpty() || sourceIds.any { sourceId -> sourceId !in seenIds }
         }, characterBudget = memoryCharacterBudget.coerceAtLeast(0), safetyLimit = recallLimit)
-        val directSourceEvents = (RelevantMemoryRecall.sourceEvidenceEvents(
+        val liveEvents = RawTimelineMemoryRecall.liveEvents(characterId, excluded)
+        val rawMatches = RawTimelineMemoryRecall.find(query, liveEvents, limit = 16)
+        val summarySources = RelevantMemoryRecall.sourceEvidenceEvents(
             characterId = characterId,
             query = query,
             memories = memories,
             limit = evidenceLimit,
-        ) + RawTimelineMemoryRecall.find(characterId, query, limit = 16))
-            .distinctBy(SharedTimelineEvent::id)
+        )
+        val focus = RelevantMemoryRecall.focusQuery(query)
+        val dateRange = memoryTimeRange(focus)
+        val focusedRecall = dateRange != null || MemoryAffectCue.from(focus) != null
+        val directSourceEvents = (if (focusedRecall) rawMatches.take(8) + summarySources + rawMatches
+            else summarySources + rawMatches).distinctBy(SharedTimelineEvent::id)
             .filterNot { event -> event.id in seenIds || event.id in excluded }
-        val liveEvents = SharedExperienceTimeline.withoutRecalledGroupSpeech(SharedExperienceTimeline.all(characterId))
-            .filter { it.id !in excluded && LuluRepositories.memory.allowsRawRecall(it) }
         val sourceEvents = MemoryEvidenceSelection.expand(directSourceEvents, liveEvents, evidenceLimit)
             .filterNot { it.id in seenIds || it.id in excluded }
         val activeTasks = if (localOnly) "" else renderActiveCommitmentTasks(characterId)

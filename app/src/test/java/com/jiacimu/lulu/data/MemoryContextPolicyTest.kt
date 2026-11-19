@@ -119,4 +119,14 @@ class MemoryContextPolicyTest {
         assertFalse(query.contains("通用规则"))
         assertEquals(setOf("橘猫"), memorySearchTerms("当前输入：橘猫"))
     }
+    @Test fun yesterdayNightIncludesAfterMidnightAndExcludesYesterdayAfternoon() {
+        val zone = ZoneId.of("Asia/Shanghai")
+        val now = Instant.parse("2026-11-19T01:00:00Z")
+        val range = memoryTimeRange("昨晚我们聊了什么", now, zone)!!
+        assertEquals(Instant.parse("2026-11-18T10:00:00Z"), range.first)
+        assertEquals(Instant.parse("2026-11-18T22:00:00Z"), range.second)
+        val minute = memoryTimeRange("11月18日晚上9点半发生什么", now, zone)!!
+        assertEquals(Instant.parse("2026-11-18T13:30:00Z"), minute.first)
+        assertEquals(Instant.parse("2026-11-18T13:31:00Z"), minute.second)
+    }
 }

@@ -193,14 +193,11 @@ object RecentSemanticTimeline {
         // original session/day to avoid counting every background perception
         // heartbeat as a new "conversation".
         unlinkedPresence.forEach { event ->
-            val prefix = "presence-"
-            val suffix = "-${event.characterId}"
-            val sourceId = if (event.id.startsWith(prefix) && event.id.endsWith(suffix))
-                event.id.removePrefix(prefix).removeSuffix(suffix) else ""
-            val parent = idToTurn[sourceId]
+            val sourceId = event.presenceParentEventId()
+            val parent = sourceId?.let(idToTurn::get)
             if (parent != null) {
                 groups[parent]?.add(event)
-            } else if (sourceId.isBlank()) {
+            } else if (sourceId == null) {
                 // An explicitly source-bound snapshot whose owner message
                 // has been deleted/revoked/filtered must NOT return as an
                 // apparently independent feeling. Only genuinely self-owned

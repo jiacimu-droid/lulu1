@@ -71,5 +71,6 @@ class PromptContextRegressionTest {
     @Test fun truncatedMemoryArrayFailsRatherThanAdvancingCheckpoint() {
         assertTrue(runCatching { decodeMemoryResponseArray("[{\"content\":\"长记忆\",\"sourceEventIds\":[\"one\"]") }.isFailure)
         assertTrue(runCatching { decodeMemoryResponseArray("没有返回数组") }.isFailure)
+        assertTrue(runCatching { decodeMemoryResponseArray("""[{"content":"仍在生成","sourceEventIds":[]""") }.isFailure)
     }
 }
