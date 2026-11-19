@@ -403,6 +403,9 @@ object LuluDeviceToolBridge {
         // Group members must decide and speak within their own single model turn.
         // Private text chat retains its deliberate two-stage renderer.
         val isGroupChat = sceneContext.contains("群聊《")
+        val lifeAttention = if (!rewriting && !isGroupChat)
+            com.jiacimu.lulu.data.CharacterLifeSelfReview.context(appContext, characterId, now, detailed = false)
+        else ""
         val separateExpression = !isGroupChat && CharacterDecisionProtocol.usesSeparateExpression(sceneContext)
         val expressionConversation = if (separateExpression && !rewriting && currentSessionId.isNotBlank() &&
             MigratedDomainStores.chat.conversations.value.any {
@@ -637,6 +640,7 @@ object LuluDeviceToolBridge {
                 $companionActionContext
 
                 【生活、社交与责任】
+                $lifeAttention
                 角色可按自己的动机主动来电、邀约、发朋友圈、阅读、游戏、修改私人备注或网名；是否接近、追问、暂缓或保持安静由本人依据关系与此刻对话选择；不要把谨慎退让当默认态度，也不为展示工具机械执行。真实动作先执行再描述结果；失败不能冒充成功。
                 用户表达疲惫、难受、开心、无聊或想靠近时，先把它当作“可能值得主动回应的需要线索”，不是命令。
                 颜文字、emoji、标点、停顿和经过用户挑选入库的表情包可以独立传达你的个人感受、幽默和态度。让表达贴合你自己的习惯和这轮语境，不做固定频率的自动贴图，不把每一句都写成客服话术。若程序提供了主动性机会，优先结合已验证方法、关系习惯和真实记忆自主选一个最自然的小动作；没有现成经验也可以按本人性格和当下兴致尝试，不默认小心试探或后退。除非真的缺少执行所必需的信息，不要反问“那我该做什么/你想让我怎么办”。

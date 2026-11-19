@@ -2,9 +2,27 @@ package com.jiacimu.lulu.ai
 
 import org.junit.Assert.*
 import org.junit.Test
+import com.jiacimu.lulu.data.CharacterLifeSelfReview
 import com.jiacimu.lulu.data.MemoryWorkingSet
 
 class RelayRequestPressurePolicyTest {
+    @Test fun normalAndReducedScenesKeepTheRolesCurrentLifeReview() {
+        val review = CharacterLifeSelfReview.HEADING +
+            "\n本人自己的日程已复查，接下来想回看一段真实交流。"
+        val facts = listOf(
+            review,
+            "【当前实际同场】\n" + "当前场景的实际观察。\n".repeat(650),
+            "【本轮仍未回应的真实新消息】\n" + "当前真实输入证据。\n".repeat(650),
+            "【本轮数字世界程序事件｜不可改写】\n" + "实际发生的事件。\n".repeat(650),
+            "【当前已承担的目标与统一验收入口】\n" + "现有任务真实状态。\n".repeat(650),
+            "【之前的生活记录】\n" + "旧材料。\n".repeat(650),
+        ).joinToString("\n")
+        val reduced = RelayRequestPressurePolicy.compactActorSceneFacts(facts)
+        assertTrue(reduced.contains(review))
+        assertTrue(reduced.contains("当前真实输入证据。"))
+        assertTrue(reduced.length < facts.length)
+    }
+
     @Test fun compactRelayKeepsLiveClockEvenWhenOldHistoryIsDropped() {
         val clock = CharacterClockAuthority.render(
             java.time.Instant.parse("2026-11-12T01:39:00Z"),

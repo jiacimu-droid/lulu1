@@ -928,12 +928,11 @@ object ProactivePerceptionRuntime {
                 onlineUnread,
             ) else emptyList() // A group-only wake must never masquerade as an owner DM.
         val privateInput = privateDialogue.lastOrNull()?.content.orEmpty()
-        // One optional, character-authored review on an ordinary independent
-        // perception. Incoming user messages keep their own reply priority.
-        val selfReviewDue = onlineUnread.text.isBlank() && privateDialogue.isEmpty() &&
-            CharacterLifeSelfReview.isDue(
-                prefs.getString("last_self_review_day_$characterId", "").orEmpty(), now,
-            )
+        // Keep a compact view of the role's own life even while they talk.
+        // Use the full daily review when nothing is waiting for a direct reply.
+        val selfReviewDue = CharacterLifeSelfReview.isDue(
+            prefs.getString("last_self_review_day_$characterId", "").orEmpty(), now,
+        )
         val lastUserPrivateAt = messages.takeIf { conversation.groupChat == null }
             ?.filter { it.sender == LuluChatMessage.Sender.User && it.createdAt <= now }
             ?.maxByOrNull { it.createdAt }?.createdAt
@@ -1054,6 +1053,11 @@ object ProactivePerceptionRuntime {
         LuluRepositories.performance.recordTiming("感知现场准备",
             (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
             "批次=" + (onlineRevision?.toString() ?: "自主"), traceId = turnTraceId)
+        val detailedLifeReview = selfReviewDue && onlineUnread.text.isBlank() &&
+            privateDialogue.isEmpty() && pendingUserContext.isBlank()
+        val lifeAttention = CharacterLifeSelfReview.context(
+            appContext, characterId, now, detailed = detailedLifeReview, dailyReview = selfReviewDue,
+        )
         suspend fun generateDecision() = LuluAiServices.gateway.generate(
             characterId = characterId,
             turnTraceId = turnTraceId,
@@ -1063,6 +1067,7 @@ object ProactivePerceptionRuntime {
                 appendLine("\n【用户现实设备与用户状态感知层】")
                 appendLine("重要归属：下面的电量、前台应用、通知、位置、健康/手环和学习信息都属于用户本人或用户正在使用的现实设备，不属于角色自己的手机或身体。")
                 appendLine("触发来源：$trigger")
+                lifeAttention.takeIf(String::isNotBlank)?.let(::appendLine)
                 appendLine("【你自己的数字手机 · 不是用户的Android设备】")
                 appendLine(CharacterPhoneInbox.modelContext(characterId, phoneUnread))
                 appendLine(CharacterPhoneInbox.requestContext(characterId))
@@ -1199,10 +1204,6 @@ object ProactivePerceptionRuntime {
                 // here we supply live appointments and scene-specific IDs.
                 RoleDayScheduleStore.planningOpportunityContext(appContext, characterId, now)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
-                if (selfReviewDue && pendingUserContext.isBlank()) {
-                    CharacterLifeSelfReview.context(appContext, characterId, now)
-                        .takeIf(String::isNotBlank)?.let(::appendLine)
-                }
                 val futurePlans = RoleDayScheduleStore.plannedContext(appContext, characterId, now)
                 if (futurePlans.isNotBlank()) {
                     appendLine("【本人的未来日程｜来源是实际存档，可维持、改期、取消，不要重复建立】")
@@ -2683,7 +2684,7 @@ object ProactivePerceptionRuntime {
         }
         // A normal decision alone does not prove the daily review happened.
         // Keep the opportunity pending when a chosen primary/side action failed.
-        if (selfReviewDue && pendingUserContext.isBlank() &&
+        if (selfReviewDue &&
             CharacterLifeSelfReview.completed(decision.appraisal, execution.success)) {
             check(prefs.edit().putString(
                 "last_self_review_day_$characterId", CharacterLifeSelfReview.localDay(now),

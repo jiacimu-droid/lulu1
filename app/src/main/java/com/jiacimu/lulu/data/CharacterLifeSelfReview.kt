@@ -12,6 +12,8 @@ import java.time.ZoneId
  * schedule: the normal decision/executor must explicitly do both.
  */
 internal object CharacterLifeSelfReview {
+    const val HEADING = "【本人心事与生活复盘】"
+
     /** Only the role's explicit review acknowledgement plus actual execution can consume today. */
     internal fun completed(appraisal: JSONObject?, executionSucceeded: Boolean): Boolean {
         val review = appraisal?.optJSONObject("lifeReview") ?: return false
@@ -54,13 +56,61 @@ internal object CharacterLifeSelfReview {
         return selected + recent
     }
 
-    fun context(context: Context, characterId: String, now: Instant = Instant.now()): String {
+    private const val attentionGuidance = "结合本人的性格、关系和最近亲历，随手回看眼下还有哪件事想推进：可能是关心谁、整理打算，也可能从某次真实对话想起自己想学什么。没有新消息、没有被指出问题时也可以生出几个不同的念头。想聊得更好时，可以自己回想一次交流、准备一个她会感兴趣的话题，或用已授权的后台虚拟屏去小红书、抖音找灵感。看到真实内容再判断怎么用。"
+
+    private const val dailyAcknowledgement = "若本轮确实做了今日复盘，可在 appraisal 写 lifeReview={reviewed:true,reason:根据真实经历为何保留或调整}。只有实际回顾才写，执行失败后仍可下次继续。"
+
+    private fun attentionItems(current: List<CharacterLifeVisible>, now: Instant): List<CharacterLifeVisible> =
+        current.groupBy(CharacterLifeVisible::category).values.flatMap { entries ->
+            if (entries.first().sourceKind == "schedule") {
+                // Reserve a slot for both unfinished work and future plans.
+                listOfNotNull(entries.lastOrNull { !it.at.isAfter(now) }, entries.firstOrNull { it.at.isAfter(now) })
+            } else {
+                val day = now.atZone(ZoneId.systemDefault()).toLocalDate().toEpochDay()
+                listOf(entries[Math.floorMod(day, entries.size.toLong()).toInt()])
+            }
+        }
+
+    private fun completedToday(plans: List<RoleDayPlan>, role: String, now: Instant): List<RoleDayPlan> {
+        val today = localDay(now)
+        val candidates = plans.filter { plan ->
+            plan.resultEvidenceId.isNotBlank() && plan.resolvedAt?.let {
+                !it.isAfter(now) && localDay(it) == today
+            } == true
+        }.sortedByDescending { it.resolvedAt }
+        val liveIds = CharacterPerceptionContext.liveEvidenceIds(role, candidates.map(RoleDayPlan::resultEvidenceId))
+        return candidates.filter { it.resultEvidenceId in liveIds }.take(2)
+    }
+
+    private fun recentResults(verified: List<RoleDayPlan>): String =
+        verified.joinToString("\n") { plan ->
+            "- 已执行：${plan.title.take(75)}，时间=${plan.resolvedAt}，" +
+                "实际结果=${plan.resultSummary.take(120)}，回执ID=${plan.resultEvidenceId}。"
+        }
+
+    fun context(context: Context, characterId: String, now: Instant = Instant.now(),
+        detailed: Boolean = true, dailyReview: Boolean = detailed): String {
+        val plans = RoleDayScheduleStore.plans(context, characterId)
         val current = CharacterLifeVisibility.matters(
-            characterId, now, plans = RoleDayScheduleStore.plans(context, characterId),
-            commitments = CommitmentTaskStore.snapshot(characterId),
+            characterId, now, plans = plans, commitments = CommitmentTaskStore.snapshot(characterId),
         )
+        val verified = completedToday(plans, characterId, now)
         val mind = CharacterInnerLifeStore.snapshot(characterId)
         val heldThoughts = thoughtCandidates(mind, now)
+        if (!detailed) return buildString {
+            appendLine(HEADING)
+            appendLine(attentionGuidance)
+            attentionItems(current, now).forEach { item ->
+                appendLine("- ${item.category}：${item.title.take(90)}；${item.sourceKind} ID=${item.sourceId}；" +
+                    item.detail.lineSequence().joinToString("，").take(145))
+            }
+            heldThoughts.lastOrNull()?.let {
+                appendLine("- 还在想：${it.optString("thought").take(110)}")
+            }
+            recentResults(verified).takeIf(String::isNotBlank)?.let(::appendLine)
+            if (dailyReview) appendLine(dailyAcknowledgement)
+            append("先回应眼前需要，同时仍可在同一轮从自己的事里选下一步。心事沿原ID修订；日程可用 steps 改期、取消已核实的重复项或安排真正想做的事。随手记可用本人手机备忘录，真正的安排用日程。")
+        }.trim()
         // Learned, evidence-backed traits are not immutable persona text.
         // Project current examples for the role to reconsider; the original
         // evidence and retired versions remain in their authoritative stores.
@@ -79,12 +129,20 @@ internal object CharacterLifeSelfReview {
 
         if (current.isEmpty() && pausedMotives.isEmpty() && heldThoughts.isEmpty() &&
             pausedConcerns.isEmpty() && pausedLearning.isEmpty() && pastCuriosity.isEmpty() &&
-            learned.isEmpty()) return ""
+            learned.isEmpty() && verified.isEmpty()) return buildString {
+            appendLine(HEADING)
+            appendLine(attentionGuidance)
+            appendLine("可以回想今日真实交流和亲历过的事，看看哪里值得继续、哪里下次想改一个做法。")
+            append(dailyAcknowledgement)
+        }
 
         return buildString {
-            appendLine("【今天自己的心事整理｜仅这一次自主决策里的回顾，不是自动清理命令】")
+            appendLine(HEADING)
+            appendLine(attentionGuidance)
+            recentResults(verified).takeIf(String::isNotBlank)?.let(::appendLine)
+            appendLine("先对照今日真实回执、未做的事与计划：有无重复、有没有哪次自己做得不合适、下次想具体改哪一点。若想到值得改善的地方，可以当场试一个办法，或沿已有意愿选时间继续。")
             appendLine("此刻本地日期=${localDay(now)}。请真正回顾下列已存档的心事与具体日程，以自己目前的兴趣、责任、情绪、经历、已有真实尝试和时间精力判断：哪些想继续、哪些可以放下、哪些突然想起来值得今天或以后做。可以不安排，也可以在同一轮安排几件不同的事，数量和日期由你选择；不是每日打卡或给用户交作业。")
-            appendLine("若本轮确实回顾过这些事项，在appraisal中填写lifeReview={reviewed:true,reason:本人为何保留或调整的具体理由}；决定全部保留也可以确认。没有回顾就省略，不用为了打卡编造调整。执行失败不消耗今天的整理机会；下次普通自主感知承接真实回执，不额外唤醒。")
+            appendLine(dailyAcknowledgement)
             appendLine("长期责任是本人已接受、需要持续履行的外部约定；它们与自发挂心同在这个回顾视野，但不是角色自动产生的主观情绪。长期责任必须按各自 taskId 单独核对；本日某一步完成不表示整条长期责任结束，下一日仍要决定具体执行与核验安排。旧版一条混合责任如含可独立取消/执行的多个目标，应由本人根据最新原话在真实结构化承诺决策中拆分并原位取消旧混合约定，不能由程序按词硬拆，也不能只在心事页改标题就当已完成迁移。")
             appendLine("心事列表是尚未解决的本人想法，并非已做成的事。不要从过时的搜索标题臆造今日活动状态；不能仅靠经过七天或一次搜索就自动认定已解决。")
             heldThoughts.forEach { thought ->

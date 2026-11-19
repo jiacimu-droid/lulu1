@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T07:35:42.876552+00:00",
-  "commit": "dc39e96b6b1e6bf54e5de93159dd96d3f558e415",
+  "generatedAt": "2026-11-19T07:55:52.128859+00:00",
+  "commit": "d0311c16a152953e0a577d1421cc9cf0d0bb26ad",
   "branch": "main",
-  "sourceFingerprint": "fbb2c1dbda3b0e0c33c839ede0efcb0cab92780df8838389e84e48b8711fa7d9",
+  "sourceFingerprint": "ae7ca5a94d7746552db684e70db3a25ed452c3a4d277b2a0556e75af1c284881",
   "summary": {
     "files": 1480,
-    "lines": 314591,
-    "symbols": 4488
+    "lines": 314668,
+    "symbols": 4489
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -3347,7 +3347,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1596
+        "line": 1597
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
@@ -4159,7 +4159,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
-        "line": 14
+        "line": 38
       }
     ],
     "failure": [
@@ -5108,10 +5108,32 @@
         "line": 117
       }
     ],
+    "summary": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
+        "line": 20
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt",
+        "line": 31
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt",
+        "line": 47
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
+        "line": 193
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
+        "line": 26
+      }
+    ],
     "opportunity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
-        "line": 141
+        "line": 171
       }
     ],
     "pending": [
@@ -5608,24 +5630,6 @@
         "line": 49
       }
     ],
-    "summary": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt",
-        "line": 31
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDeliberationContext.kt",
-        "line": 47
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPhoneInbox.kt",
-        "line": 193
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
-        "line": 26
-      }
-    ],
     "recent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt",
@@ -6029,7 +6033,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-        "line": 630
+        "line": 635
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluSharedWebLinks.kt",
@@ -7693,7 +7697,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 960
+        "line": 963
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt",
@@ -9603,49 +9607,49 @@
     "world": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1489
+        "line": 1490
       }
     ],
     "requestsPrivateReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1547
+        "line": 1548
       }
     ],
     "recordedReceiptId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1558
+        "line": 1559
       }
     ],
     "completedEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1565
+        "line": 1566
       }
     ],
     "firstUnacknowledged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1579
+        "line": 1580
       }
     ],
     "awaitsPrimaryConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1589
+        "line": 1590
       }
     ],
     "requiresCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 1643
+        "line": 1644
       }
     ],
     "availableContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-        "line": 2017
+        "line": 2018
       }
     ],
     "age": [
@@ -14095,25 +14099,25 @@
     "markDue": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 828
+        "line": 831
       }
     ],
     "dueContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 927
+        "line": 930
       }
     ],
     "RoleScheduleWakeWorker": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 967
+        "line": 970
       }
     ],
     "canResume": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-        "line": 983
+        "line": 986
       }
     ],
     "RoleReadablePerformanceBridge": [
@@ -21041,23 +21045,23 @@
     "SelfTodoRoleReadTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-        "line": 27
+        "line": 28
       }
     ],
     "task": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-        "line": 46
+        "line": 47
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-        "line": 213
+        "line": 248
       }
     ],
     "item": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-        "line": 186
+        "line": 221
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterRecordArchitectureTest.kt",
@@ -29261,16 +29265,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SelfTodoRoleRead.kt",
-      "lines": 147,
-      "sha256": "ae221a6085db54930b08b375770c17d278cdc0bbb563ba5d3dc6837ae0e99655",
+      "lines": 177,
+      "sha256": "55cef7226489e91bbe768c481e42f4be9cfabe32b68db832911729cb85c62148",
       "symbols": [
         {
+          "name": "summary",
+          "line": 20
+        },
+        {
           "name": "execute",
-          "line": 14
+          "line": 38
         },
         {
           "name": "opportunity",
-          "line": 141
+          "line": 171
         }
       ]
     },
@@ -33295,8 +33303,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionActionRuntime.kt",
-      "lines": 2065,
-      "sha256": "c3caa119df5149e131404528352439e90a229a772648f4db964e5f4604e51e0a",
+      "lines": 2066,
+      "sha256": "b070e2c2b5638d4e95594c42d17b7284c09d509879b25b80d2d70e85df31fab8",
       "symbols": [
         {
           "name": "asJson",
@@ -33316,39 +33324,39 @@
         },
         {
           "name": "world",
-          "line": 1489
+          "line": 1490
         },
         {
           "name": "requestsPrivateReply",
-          "line": 1547
+          "line": 1548
         },
         {
           "name": "recordedReceiptId",
-          "line": 1558
+          "line": 1559
         },
         {
           "name": "completedEvidence",
-          "line": 1565
+          "line": 1566
         },
         {
           "name": "firstUnacknowledged",
-          "line": 1579
+          "line": 1580
         },
         {
           "name": "awaitsPrimaryConversation",
-          "line": 1589
+          "line": 1590
         },
         {
           "name": "from",
-          "line": 1596
+          "line": 1597
         },
         {
           "name": "requiresCompletion",
-          "line": 1643
+          "line": 1644
         },
         {
           "name": "availableContext",
-          "line": 2017
+          "line": 2018
         }
       ]
     },
@@ -36953,7 +36961,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
       "lines": 4026,
-      "sha256": "236a8a2b96665c2c17c15eb1a4f44f07111af32072f1aad505ec91286224a6ec",
+      "sha256": "68d5deb08afba2e6a69214e16a2360844115c31482dcd6a8e32e5d8f14683b57",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -37714,8 +37722,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
-      "lines": 1179,
-      "sha256": "ce870e5f5db6d834ade40cf0cfc76963073e0b2a30b85e4fd8ca2c99eb0f2723",
+      "lines": 1185,
+      "sha256": "804c652a1b97ab57cbf5808bde479285fa1fab524627a39aa09fa4906c6fa854",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -37791,23 +37799,23 @@
         },
         {
           "name": "markDue",
-          "line": 828
+          "line": 831
         },
         {
           "name": "dueContext",
-          "line": 927
+          "line": 930
         },
         {
           "name": "clearCharacter",
-          "line": 960
+          "line": 963
         },
         {
           "name": "RoleScheduleWakeWorker",
-          "line": 967
+          "line": 970
         },
         {
           "name": "canResume",
-          "line": 983
+          "line": 986
         }
       ]
     },
@@ -38075,8 +38083,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ToolRouter.kt",
-      "lines": 749,
-      "sha256": "758cefa6586794478e539ea6b164177e0bf521b4e160f106fa333019bb709c78",
+      "lines": 754,
+      "sha256": "5bc021fc2ae3ef0fb329aa2e8aac0a33e843b7b9a2d37730111a1af8392ac1af",
       "symbols": [
         {
           "name": "completed",
@@ -38108,7 +38116,7 @@
         },
         {
           "name": "project",
-          "line": 630
+          "line": 635
         }
       ]
     },
@@ -46835,24 +46843,24 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/SelfTodoRoleReadTest.kt",
-      "lines": 293,
-      "sha256": "5bd724c4315265f615c51e341d30c0c9787a7fb43c09f1bbe482bd5ae62783cd",
+      "lines": 328,
+      "sha256": "39283e6aea2cea3304a30bda58637c6433d979803796fd217ffd0e0ed6dee923",
       "symbols": [
         {
           "name": "SelfTodoRoleReadTest",
-          "line": 27
+          "line": 28
         },
         {
           "name": "task",
-          "line": 46
+          "line": 47
         },
         {
           "name": "item",
-          "line": 186
+          "line": 221
         },
         {
           "name": "task",
-          "line": 213
+          "line": 248
         }
       ]
     },
