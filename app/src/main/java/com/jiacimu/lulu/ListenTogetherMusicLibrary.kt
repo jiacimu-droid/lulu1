@@ -118,6 +118,9 @@ internal fun ListenTogetherMusicLibrary(onBack: () -> Unit) {
                 Text("选好一首歌，回聊天里一起听。", color = musicInk,
                     fontSize = 16.sp, modifier = Modifier.padding(top = 5.dp, bottom = 10.dp))
             }
+            item {
+                NeteaseCloudLibrarySection(room)
+            }
             if (available.isEmpty()) {
                 item { Text("先创建角色并打开一次私聊，才能建立双人一起听房间。",
                     color = Color.Gray, fontSize = 13.sp) }
@@ -281,7 +284,7 @@ internal fun ListenTogetherMusicLibrary(onBack: () -> Unit) {
                     HorizontalDivider(color = Color(0xFFE7E1E4))
                     Text("网易云账号", fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(top = 8.dp))
-                    Text("账号登录仍在网易云官方 App 中进行。这里管理你主动导入的单曲和本地文件，不会索取密码，也不会假装已经读取网易云云端歌单。",
+                    Text("可在上方通过网易云官网网页登录、同步红心及其他云端歌单。这里也保留手动单曲和本地音频；登录凭证不会交给模型。",
                         color = Color.Gray, fontSize = 11.sp)
                     OutlinedButton(onClick = {
                         val launch = context.packageManager.getLaunchIntentForPackage(
