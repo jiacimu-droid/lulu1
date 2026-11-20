@@ -206,7 +206,7 @@ class ModelPostTransportTest {
                 .build()
             val url = server.url("/chat/completions").newBuilder()
                 .host("model-relay.test").build().toString()
-            val body = "{\\"message\\":\\"only one paid post\\"}"
+            val body = """{"message":"only one paid post"}"""
             val result = ModelPostTransport.execute(url, emptyMap(), body, 30_000,
                 transportClient = testClient) { it.body!!.string() }
             assertEquals("recovered through second IP", result)
