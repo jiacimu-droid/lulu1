@@ -111,15 +111,17 @@ internal object StickerPackArchive {
                 for (candidate in candidates) {
                     val detail = details[candidate.name]
                         ?: details[candidate.name.substringAfterLast('/')]
-                    val name = detail?.name?.ifBlank { candidate.name.substringAfterLast('.').substringBeforeLast('.') }
-                        ?: candidate.name.substringAfterLast('/').substringBeforeLast('.')
+                    val fallbackName = candidate.name.substringAfterLast('/').substringBeforeLast('.')
+                    val name = detail?.name?.ifBlank { fallbackName } ?: fallbackName
+                    val previousCount = StickerLibraryStore.items.value.size
                     val result = StickerLibraryStore.importPackedImage(
                         contextApp, candidate.file, candidate.extension, name,
                         detail?.pack?.ifBlank { usedPack } ?: usedPack,
                         detail?.description.orEmpty(), detail?.usage.orEmpty(),
                     )
-                    result.onSuccess { imported++ }
-                        .onFailure { errors += "${candidate.name}: ${it.message.orEmpty()}" }
+                    result.onSuccess {
+                        if (StickerLibraryStore.items.value.size > previousCount) imported++ else skipped++
+                    }.onFailure { errors += "${candidate.name}: ${it.message.orEmpty()}" }
                     // A full shelf should not trigger repeated work on remaining images.
                     if (errors.lastOrNull()?.contains("上限") == true) break
                 }
