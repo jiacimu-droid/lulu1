@@ -166,7 +166,9 @@ fun LexiconFeatureScreenV2(
         Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
             if (isHome) {
                 LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                    items(listOf("心事" to 4, "生活近况" to 5, "日记" to 0,
+                    // Life notes now live in Memory > 记住的事 > 生活近况.
+                    // Legacy sectionIndex=5 remains readable for existing deep links.
+                    items(listOf("心事" to 4, "日记" to 0,
                         "收藏" to 1, "小剧场" to 2, "朋友圈" to 3), key = { it.second }) { (label, index) ->
                         Surface(color = Color.White, shape = RoundedCornerShape(19.dp),
                             border = BorderStroke(1.dp, LuluColors.Border),

@@ -51242,8 +51242,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt",
-      "lines": 72,
-      "sha256": "96960567d55daabf70600a1264ef81a1a38bc9e14a47cf71a7b58dce404cdca8",
+      "lines": 75,
+      "sha256": "3cb4003abcfd392162b281f69bbdbaafdcde303b5eb6aa62db903db421b296e2",
       "symbols": [
         {
           "name": "PersonalCharacterSettingsTest",
