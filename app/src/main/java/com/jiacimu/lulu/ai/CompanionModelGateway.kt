@@ -903,8 +903,9 @@ class CompanionModelGateway(
             // the memory working set decides what fits this turn\'s budget.
             val ownerRecall = if (fullContext)
                 com.jiacimu.lulu.data.CharacterDevelopmentRecall.select(
-                    com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId).filter {
-                        it.kind in setOf(com.jiacimu.lulu.data.DevelopmentKind.UserPreference,
+                    com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId).filter { record ->
+                        record.evidence.keys.none { it in request.unavailableEventIds } &&
+                        record.kind in setOf(com.jiacimu.lulu.data.DevelopmentKind.UserPreference,
                             com.jiacimu.lulu.data.DevelopmentKind.UserHabit,
                             com.jiacimu.lulu.data.DevelopmentKind.UserFact,
                             com.jiacimu.lulu.data.DevelopmentKind.UserImpression)
