@@ -867,7 +867,8 @@ class CompanionModelGateway(
                 fullContext -> com.jiacimu.lulu.data.CharacterRuntime.developmentContext(
                     characterId, compact = !budget.richInnerLife,
                     query = request.retrievalQuery(), includeActiveCommitments = false,
-                    freshAnswer = request.excludedEventIds.isNotEmpty())
+                    freshAnswer = request.excludedEventIds.isNotEmpty(),
+                    includeOwnerKnowledge = false)
                 // Private chat's second model pass renders text only. It still
                 // receives the same character's unfinished intention, but no
                 // broad timeline or new decision-making authority.
@@ -897,8 +898,21 @@ class CompanionModelGateway(
             val recalledAuxiliary = listOf("已读材料与可修订的理解" to learningSection)
             val actorContextMillis = elapsedMillis(actorContextStartedAt)
             val promptAssemblyStartedAt = System.nanoTime()
+            // Owner preferences/facts belong in historical recall, NOT the always-on
+            // self-growth block. The source-valid growth store remains untouched;
+            // the memory working set decides what fits this turn\'s budget.
+            val ownerRecall = if (fullContext)
+                com.jiacimu.lulu.data.CharacterDevelopmentRecall.select(
+                    com.jiacimu.lulu.data.CharacterDevelopmentStore.active(characterId).filter {
+                        it.kind in setOf(com.jiacimu.lulu.data.DevelopmentKind.UserPreference,
+                            com.jiacimu.lulu.data.DevelopmentKind.UserHabit,
+                            com.jiacimu.lulu.data.DevelopmentKind.UserFact,
+                            com.jiacimu.lulu.data.DevelopmentKind.UserImpression)
+                    }, request.retrievalQuery(), limit = 12)
+            else emptyList()
             val working = if (fullContext) com.jiacimu.lulu.data.MemoryWorkingSet.assemble(
-                unifiedMemory, lexicon, recalledAuxiliary, budget, deliveredCoreSection) else null
+                unifiedMemory, lexicon, recalledAuxiliary, budget, deliveredCoreSection,
+                ownerKnowledge = ownerRecall) else null
             val memorySections = if (working != null) listOf(
                 "核心记忆" to deliveredCoreSection,
                 "未完成责任" to unifiedMemory.activeTaskContext,
