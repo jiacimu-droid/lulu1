@@ -85,17 +85,22 @@ internal fun NeteaseCloudLibrarySection(room: SharedMusicRoom?) {
                 val me = NeteaseCloudAccount.verifyLogin()
                 profile = me
                 if (me == null) {
-                    notice = "尚未获得网易云网页授权，可能网页端没有完成登录。也可输入自己的主页 ID 先读取公开歌单。"
+                    notice = "尚未获得网易云网页授权。可以尝试网页登录，或使用主页 ID 读取公开歌单。"
                 } else {
                     userIdDraft = me.uid
-                    notice = "已连接 ${me.nickname}，正在同步歌单…"
-                    // Release the busy guard before reusing the same picker.
-                    loading = false
-                    loadLists(me.uid)
-                    return@launch
+                    val remote = NeteaseCloudAccount.lists(me.uid)
+                    loadedUid = me.uid
+                    lists = remote
+                    selected = null
+                    ids = emptyList()
+                    songs = emptyList()
+                    pageEnd = 0
+                    skipped = 0
+                    notice = if (remote.isEmpty()) "已连接 ${me.nickname}，但没有读到可访问的歌单"
+                        else "已连接 ${me.nickname}，同步 ${remote.size} 张歌单"
                 }
             } catch (t: Exception) {
-                notice = "核实失败：${t.message ?: "网络异常"}。可以稍后重试。"
+                notice = "核实或同步失败：${t.message ?: "网络异常"}。可以稍后重试。"
             } finally {
                 loading = false
             }
