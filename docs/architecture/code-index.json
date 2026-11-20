@@ -6682,6 +6682,88 @@
         "line": 21
       }
     ],
+    "stages": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
+        "line": 44
+      }
+    ],
+    "snapshot": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
+        "line": 73
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
+        "line": 33
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
+        "line": 28
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt",
+        "line": 34
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
+        "line": 127
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
+        "line": 27
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt",
+        "line": 21
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DriveState.kt",
+        "line": 87
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 41
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 138
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
+        "line": 456
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
+        "line": 538
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
+        "line": 80
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldSceneParticipantProfile.kt",
+        "line": 7
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
+        "line": 85
+      },
+      {
+        "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
+        "line": 28
+      }
+    ],
+    "between": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
+        "line": 75
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
+        "line": 44
+      }
+    ],
     "user": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/MultimodalContent.kt",
@@ -7684,68 +7766,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCausalTrace.kt",
         "line": 722
-      }
-    ],
-    "snapshot": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
-        "line": 33
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
-        "line": 28
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRelationshipPreferences.kt",
-        "line": 34
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSocialRelationship.kt",
-        "line": 127
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CommitmentTaskStore.kt",
-        "line": 27
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalWorldEnvironment.kt",
-        "line": 21
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DriveState.kt",
-        "line": 87
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 41
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 138
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/InMemoryRepositories.kt",
-        "line": 456
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 538
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
-        "line": 80
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldSceneParticipantProfile.kt",
-        "line": 7
-      },
-      {
-        "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellClipboard.kt",
-        "line": 85
-      },
-      {
-        "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
-        "line": 28
       }
     ],
     "absorb": [
@@ -19202,12 +19222,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
         "line": 19
-      }
-    ],
-    "between": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
-        "line": 44
       }
     ],
     "sameName": [
@@ -31106,9 +31120,22 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
-      "lines": 158,
-      "sha256": "3c9c125d3d4db99f45670b4ac25cb0b4bcdd23cfe809892f974dab659ea9e30d",
-      "symbols": []
+      "lines": 227,
+      "sha256": "f03c53559a1539785d63f52cc68fd10b8edf1ec78560098b4985fe9198afa77a",
+      "symbols": [
+        {
+          "name": "stages",
+          "line": 44
+        },
+        {
+          "name": "snapshot",
+          "line": 73
+        },
+        {
+          "name": "between",
+          "line": 75
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt",

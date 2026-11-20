@@ -358,7 +358,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelConversationMessage.kt` | 7 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelLocalRouteHealth.kt` | 43 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt` | 158 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt` | 227 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ModelResponsePayload.kt` | 120 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/MultimodalContent.kt` | 22 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/MusicSignalSketch.kt` | 84 | 1 |
