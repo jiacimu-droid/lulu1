@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T07:58:11.245384+00:00",
-  "commit": "2914daf012a3c3caf95dec9f577fd68eaf18bd22",
+  "generatedAt": "2026-11-20T08:11:45.437019+00:00",
+  "commit": "fee97906cb5fc05d459e0eac9f8b1bb66534f777",
   "branch": "main",
-  "sourceFingerprint": "2b2948f9fd5b990a96ff92084807ed7df8d5a7e719253d51efd8e0107280fff5",
+  "sourceFingerprint": "6d377dba33b79e171ee0bac50301f1096bbd3f1b94a1df542ab91a953a43a80a",
   "summary": {
     "files": 1503,
-    "lines": 322493,
-    "symbols": 4571
+    "lines": 322531,
+    "symbols": 4574
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -391,7 +391,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 129
+        "line": 138
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
+        "line": 142
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterAccountabilityContext.kt",
@@ -1307,7 +1311,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 171
+        "line": 175
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterStateHistory.kt",
@@ -5533,7 +5537,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 150
+        "line": 154
       }
     ],
     "categoryId": [
@@ -5958,10 +5962,16 @@
         "line": 117
       }
     ],
+    "promptCandidates": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
+        "line": 129
+      }
+    ],
     "toggleFavorite": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 160
+        "line": 164
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
@@ -5971,7 +5981,7 @@
     "move": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-        "line": 164
+        "line": 168
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -6013,7 +6023,7 @@
     "AutoCaptionReport": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt",
-        "line": 93
+        "line": 91
       }
     ],
     "wordsToSubmitOnMute": [
@@ -10141,7 +10151,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt",
-        "line": 17
+        "line": 27
       }
     ],
     "resetCharacter": [
@@ -13585,13 +13595,13 @@
     "awaitsReadReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3234
+        "line": 3238
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3987
+        "line": 3991
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -14836,6 +14846,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
         "line": 163
+      }
+    ],
+    "hasPrivateReplyReceipt": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt",
+        "line": 17
       }
     ],
     "Attachment": [
@@ -30202,8 +30218,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-      "lines": 461,
-      "sha256": "cdd305beeca6ee22741b3b8f7784bc06f7f29d2aa8de37a69e6ba47f949d93e2",
+      "lines": 465,
+      "sha256": "a6d0c056bed84d778152ef1d0773c806235591ca1a113da81b7e9811e9ebe12c",
       "symbols": [
         {
           "name": "byId",
@@ -30214,24 +30230,32 @@
           "line": 117
         },
         {
-          "name": "prompt",
+          "name": "promptCandidates",
           "line": 129
         },
         {
+          "name": "prompt",
+          "line": 138
+        },
+        {
+          "name": "prompt",
+          "line": 142
+        },
+        {
           "name": "rename",
-          "line": 150
+          "line": 154
         },
         {
           "name": "toggleFavorite",
-          "line": 160
-        },
-        {
-          "name": "move",
           "line": 164
         },
         {
+          "name": "move",
+          "line": 168
+        },
+        {
           "name": "remove",
-          "line": 171
+          "line": 175
         }
       ]
     },
@@ -30259,8 +30283,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt",
-      "lines": 139,
-      "sha256": "26b337900221b28aae712e1412556dee73b772f32c8904d09082c64864465f2f",
+      "lines": 137,
+      "sha256": "1ead08c38556d36e608a2ea531d237efb3534dac93ede8a3794d97e2266031ea",
       "symbols": [
         {
           "name": "mode",
@@ -30276,7 +30300,7 @@
         },
         {
           "name": "AutoCaptionReport",
-          "line": 93
+          "line": 91
         }
       ]
     },
@@ -30658,7 +30682,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
       "lines": 1791,
-      "sha256": "83bc37f6f31259d9161ed70ca11107012de4f120896be26d46c1a65d88cf7c22",
+      "sha256": "225016f00ab4da77876899130ba43293e3603e15e5228ff41611a3ab4b5f5fce",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -32235,8 +32259,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionPreferences.kt",
-      "lines": 24,
-      "sha256": "162fa86ed88e34bb6b7c9678beef041c5ea77dfbd3c85b40b3b9fe8cb2c868a0",
+      "lines": 28,
+      "sha256": "b153edbbcc38cc8c7c0a098cfa796a6298fa0cf6e1903fd26d9242593b78dcce",
       "symbols": [
         {
           "name": "selected",
@@ -37586,8 +37610,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactiveDecisionPrompt.kt",
-      "lines": 165,
-      "sha256": "fc637cc4cad9ea33c3a0d70f39043838055aed4ffcc793e2ec9990c142e021ea",
+      "lines": 166,
+      "sha256": "fba5a9df221836b24ae8da009c817d48a0bf11f3b6ad767583381f2f7c562b4e",
       "symbols": []
     },
     {
@@ -37747,8 +37771,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 4054,
-      "sha256": "024ab41a4fc237423a7f0e19165f2336eff78624d16dd34f255f47b69732036d",
+      "lines": 4058,
+      "sha256": "1f26b576a4a2d1dc9f342c169625baafd5ffd96ce27c14fbd05fa3ba5f6fff16",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -37780,11 +37804,11 @@
         },
         {
           "name": "awaitsReadReply",
-          "line": 3234
+          "line": 3238
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3987
+          "line": 3991
         }
       ]
     },
@@ -38967,12 +38991,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicy.kt",
-      "lines": 39,
-      "sha256": "0ac12cc50b0558eeeec92ae18bb0321f56a53b2e2b60b255c6a7cd1b62cec852",
+      "lines": 49,
+      "sha256": "82cb89af48d9e27e47ed1a896e6a9d4c716523df375e939d7fc78184d3294f6d",
       "symbols": [
         {
-          "name": "markSeen",
+          "name": "hasPrivateReplyReceipt",
           "line": 17
+        },
+        {
+          "name": "markSeen",
+          "line": 27
         }
       ]
     },
@@ -51859,8 +51887,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/UnifiedReplyAndActionPolicyTest.kt",
-      "lines": 63,
-      "sha256": "3ce922d5cc88f6148b640b60aad1c685a890e69faeca9a6befd66443dc399802",
+      "lines": 80,
+      "sha256": "c8b13812d6f9d1cd3249ee657395acad9ff5732cbaff7597b552ef0c3b871be7",
       "symbols": [
         {
           "name": "UnifiedReplyAndActionPolicyTest",
