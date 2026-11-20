@@ -185,7 +185,7 @@ object CharacterRuntime {
                 narrative.forEach { record ->
                     val maturity = if (record.maturity == DevelopmentMaturity.Established) "较稳定" else "形成中"
                     if (compact) appendLine("- [$maturity] ${record.slot}：${record.content.take(260)}")
-                    else appendLine("- [$maturity] ${record.slot} v${record.version}：${record.content}；依据=${record.evidence.keys.joinToString()}")
+                    else appendLine("- [$maturity] ${record.slot} v${record.version}：${record.content}；真实来源${record.evidence.size}条（原始ID保存在成长记录中，可按需查验）")
                 }
             }
             // At likely familiar times, make actual repeated activities available
@@ -208,7 +208,7 @@ object CharacterRuntime {
                 adaptive.forEach { record ->
                     val maturity = if (record.maturity == DevelopmentMaturity.Established) "较稳定" else "形成中"
                     if (compact) appendLine("- [$maturity] ${record.kind}/${record.slot}：${record.content.take(230)}")
-                    else appendLine("- [$maturity] ${record.kind} ${record.slot} v${record.version}：${record.content}；可信度=${record.confidence}；依据=${record.evidence.keys.joinToString()}")
+                    else appendLine("- [$maturity] ${record.kind} ${record.slot} v${record.version}：${record.content}；可信度=${record.confidence}；真实来源${record.evidence.size}条")
                 }
             }
         }.trim()
