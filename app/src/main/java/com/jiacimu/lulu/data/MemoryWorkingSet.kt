@@ -7,12 +7,14 @@ import com.jiacimu.lulu.core.LexiconSection
 internal object MemoryWorkingSet {
     const val RECENT = "近期原始时间线（新原话优先；旧理解不得覆盖本轮纠正）："
     const val EVIDENCE = "召回的原始依据（按证据类型理解）："
-    const val SUMMARY = "往事与当前理解（摘要仅供联想，以原始依据为准）："
+    const val SUMMARY = "往事与当前理解（摘要仅供联想，以原始依据为准）：" 
+    const val OWNER = "关于主人的记忆认识（按话题召回，旧印象不覆盖新原话）："
     const val LEXICON = "生活记录（日记和收藏只证明写作或收藏；旧版挂心笔记不进入当前心理决策）："
 
     fun assemble(context: UnifiedMemoryContext, lexicon: List<LexiconEntry>,
                  auxiliary: List<Pair<String, String>>, budget: PromptContextBudget,
-                 coreSection: String): MemoryWorkingSelection {
+                 coreSection: String,
+                 ownerKnowledge: List<DevelopmentRecord> = emptyList()): MemoryWorkingSelection {
         // Old callers may supply only a single-role lexicon with an empty
         // UnifiedMemoryContext. Preserve that path, but never merge diary
         // entries from two characters when no owner was selected.
@@ -81,6 +83,26 @@ internal object MemoryWorkingSet {
                         if (memory.perspective == com.jiacimu.lulu.core.MemoryPerspective.Subjective || memory.kind == com.jiacimu.lulu.core.MemoryKind.Emotion) "（过去当时的个人表达／情绪，不代表此刻状态或已执行结果）" else "",
                     650, payload = memory.content, sources = memory.sourceIds().toSet(),
                     derivedSummary = memory.kind != com.jiacimu.lulu.core.MemoryKind.Emotion))
+            }
+            // Owner facts, likes and habits are MEMORY recall, not the character\'s
+            // self-development or an always-on personality appendix. The gateway
+            // selects a small, evidence-checked, role-owned candidate set; only
+            // entries fitting the SAME historical working-set budget are sent.
+            val recentEventIds = context.ownedRecentTurns.flatMapTo(mutableSetOf()) { turn ->
+                turn.events.map { it.id }
+            }
+            ownerKnowledge.filter { record ->
+                owner.isNotBlank() && record.characterId == owner &&
+                    record.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit,
+                        DevelopmentKind.UserFact, DevelopmentKind.UserImpression) &&
+                    !(record.evidence.isNotEmpty() && record.evidence.keys.all(recentEventIds::contains))
+            }.forEach { record ->
+                val scope = if (record.kind == DevelopmentKind.UserImpression)
+                    "过去未证实的印象，不当成事实" else "有原话或可核验依据的过往认识"
+                add(MemoryPromptCandidate("owner:${record.id}", OWNER,
+                    "- [${record.kind.label}；$scope；${record.createdAt}] ${record.content}",
+                    690, payload = record.content, sources = record.evidence.keys,
+                    derivedSummary = true))
             }
             lexicon.filter { owner.isNotBlank() && it.characterId == owner }
                 .forEachIndexed { index, entry ->
