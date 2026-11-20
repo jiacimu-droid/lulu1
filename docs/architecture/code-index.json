@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T05:14:33.444560+00:00",
-  "commit": "b35d472c08ad0006f11f2f09c7a99c19f69c11b8",
+  "generatedAt": "2026-11-20T05:15:14.078632+00:00",
+  "commit": "74e5224e637b89c0356691778b465e609d322f11",
   "branch": "main",
-  "sourceFingerprint": "e4458702e1763041705be74a4dd904282c26a3852c988fcd147d86e45a1007d8",
+  "sourceFingerprint": "66aa45ba49ada04fa4be4d3b20d6c1cd70a55a81cd111c462ad234e25120aff3",
   "summary": {
     "files": 1501,
-    "lines": 321264,
+    "lines": 321263,
     "symbols": 4563
   },
   "symbolIndex": {
@@ -28938,8 +28938,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudAccount.kt",
-      "lines": 214,
-      "sha256": "3250fc3e7ad60394c4c6b1735d0daa672b2518aa76dfc200c72b986de5f76ca9",
+      "lines": 213,
+      "sha256": "761a239418b30d7f2e134b390cd646897ff1df14db974cc681daacb9862b1026",
       "symbols": [
         {
           "name": "userId",
