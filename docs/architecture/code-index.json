@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T06:20:34.094899+00:00",
-  "commit": "532b4f74592a3996908681ba7614e81facf6495a",
+  "generatedAt": "2026-11-20T06:25:08.044950+00:00",
+  "commit": "afbe2a5f7672b2b8f8d7760c39913046e538c9c2",
   "branch": "main",
-  "sourceFingerprint": "9a6eb9d821c7d41db697c396e25164a041a3eb426d48fcee22230426f853433c",
+  "sourceFingerprint": "ad7725d63d92cabe944b3b486f9b4bb432b9d5544e9000d5e0b2b14f8b5f3e4c",
   "summary": {
     "files": 1503,
-    "lines": 321991,
+    "lines": 321997,
     "symbols": 4566
   },
   "symbolIndex": {
@@ -41014,8 +41014,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt",
-      "lines": 147,
-      "sha256": "26b520f5df8fe5b346a13dbcfe62897412e14eeb8f0478be6f1f6bcd7bfa9a2d",
+      "lines": 144,
+      "sha256": "4790c475b515ebd5e9b1a41a7ef0313443a00d18956612719028fbd8758efcea",
       "symbols": [
         {
           "name": "Keep",
@@ -52323,8 +52323,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameRoleChoiceContractTest.kt",
-      "lines": 103,
-      "sha256": "07a88efacbd82658765965e9c0aeea7a49ec16fa9384398cba88976be8d1ffd7",
+      "lines": 112,
+      "sha256": "314016bbf6694bbd190d4afc9b1431a3c848626893a848858ea15240787a0095",
       "symbols": [
         {
           "name": "GameRoleChoiceContractTest",
