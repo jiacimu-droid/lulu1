@@ -1019,7 +1019,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1782
+        "line": 1783
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -4691,7 +4691,7 @@
     "duration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
-        "line": 331
+        "line": 332
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt",
@@ -6621,19 +6621,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1494
+        "line": 1495
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1506
+        "line": 1507
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1772
+        "line": 1773
       }
     ],
     "addStreamingUsageWhenSupported": [
@@ -6699,13 +6699,13 @@
     "stages": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
-        "line": 44
+        "line": 48
       }
     ],
     "snapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
-        "line": 73
+        "line": 105
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
@@ -6771,7 +6771,7 @@
     "between": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
-        "line": 75
+        "line": 107
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
@@ -11873,31 +11873,31 @@
     "PerformanceErrorRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 116
+        "line": 117
       }
     ],
     "List": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 126
+        "line": 127
       }
     ],
     "LocalPerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 139
+        "line": 140
       }
     ],
     "recordModelHandoff": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 255
+        "line": 257
       }
     ],
     "updateDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 406
+        "line": 408
       }
     ],
     "Key": [
@@ -29330,8 +29330,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
-      "lines": 573,
-      "sha256": "b8c99153efd2a8c2d1d9a57f74d4867235e2f5a714964ea8abec074e28d181bf",
+      "lines": 584,
+      "sha256": "295d53028d2b0bbd842494527b835d23e690b4e609972596dd1a770c7e563799",
       "symbols": [
         {
           "name": "OptimizedPerformanceFeatureScreen",
@@ -29339,7 +29339,7 @@
         },
         {
           "name": "duration",
-          "line": 331
+          "line": 332
         }
       ]
     },
@@ -30931,8 +30931,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1790,
-      "sha256": "7e1001163987f06cc1282f53fee66b77571adb46a2fba79bdb8fa06ef2d90fb1",
+      "lines": 1791,
+      "sha256": "83bc37f6f31259d9161ed70ca11107012de4f120896be26d46c1a65d88cf7c22",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -31040,19 +31040,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1494
+          "line": 1495
         },
         {
           "name": "consumeEvent",
-          "line": 1506
+          "line": 1507
         },
         {
           "name": "LuluAiServices",
-          "line": 1772
+          "line": 1773
         },
         {
           "name": "initialize",
-          "line": 1782
+          "line": 1783
         }
       ]
     },
@@ -31128,20 +31128,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
-      "lines": 227,
-      "sha256": "f03c53559a1539785d63f52cc68fd10b8edf1ec78560098b4985fe9198afa77a",
+      "lines": 263,
+      "sha256": "9cd74115060d91966876a7c739d807d058c3345a6264daeb7589e7b2c2117ab1",
       "symbols": [
         {
           "name": "stages",
-          "line": 44
+          "line": 48
         },
         {
           "name": "snapshot",
-          "line": 73
+          "line": 105
         },
         {
           "name": "between",
-          "line": 75
+          "line": 107
         }
       ]
     },
@@ -36175,8 +36175,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-      "lines": 662,
-      "sha256": "34ceb203fac77fa4b67c312f99f4cbea1df9ef386b869d17c1572bd02d24a9d1",
+      "lines": 666,
+      "sha256": "1b671374f2a5927cf8523c62418462e9d6380483cddc00098f431fc0f9bfdd8b",
       "symbols": [
         {
           "name": "ApiUsageSource",
@@ -36212,23 +36212,23 @@
         },
         {
           "name": "PerformanceErrorRecord",
-          "line": 116
+          "line": 117
         },
         {
           "name": "List",
-          "line": 126
+          "line": 127
         },
         {
           "name": "LocalPerformanceRepository",
-          "line": 139
+          "line": 140
         },
         {
           "name": "recordModelHandoff",
-          "line": 255
+          "line": 257
         },
         {
           "name": "updateDurations",
-          "line": 406
+          "line": 408
         }
       ]
     },
@@ -48430,7 +48430,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt",
       "lines": 284,
-      "sha256": "e2e2a8f56829b698a6d41570a17d20cce8fffb22594d06d8932db0ce93c08418",
+      "sha256": "21f52b5b1ce4acec3800f3094ad76117fbc87d1da61963e48ad182c493b8b048",
       "symbols": [
         {
           "name": "ModelPostTransportTest",
