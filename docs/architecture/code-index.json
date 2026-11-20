@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:32:20.845851+00:00",
-  "commit": "07b9d6000561c92eb47f827c73e97fa23dcd4970",
+  "generatedAt": "2026-11-20T03:33:48.604418+00:00",
+  "commit": "dbd43a9531970a3c5fc78d71a663311bf26aa251",
   "branch": "main",
-  "sourceFingerprint": "430b9f7740532b8b56d43251311b20e2975e7678279b5c0421be6b27bff6ac3c",
+  "sourceFingerprint": "81628d92ba966c6b9ffb25dda235c8602eb6eb11546baee9b8595383396e2ccd",
   "summary": {
-    "files": 1497,
-    "lines": 320238,
-    "symbols": 4551
+    "files": 1498,
+    "lines": 320486,
+    "symbols": 4556
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2470,6 +2470,68 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
         "line": 322
+      }
+    ],
+    "hasPermission": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+        "line": 38
+      }
+    ],
+    "present": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+        "line": 41
+      }
+    ],
+    "text": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+        "line": 63
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceMood.kt",
+        "line": 13
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
+        "line": 22
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
+        "line": 86
+      }
+    ],
+    "action": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+        "line": 71
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
+        "line": 29
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
+        "line": 137
+      }
+    ],
+    "dismiss": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+        "line": 235
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
+        "line": 13
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
+        "line": 70
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
+        "line": 45
       }
     ],
     "notifyCoreChanged": [
@@ -10064,20 +10126,6 @@
         "line": 1123
       }
     ],
-    "text": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceMood.kt",
-        "line": 13
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
-        "line": 22
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
-        "line": 86
-      }
-    ],
     "repeatsConfirmedAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceStore.kt",
@@ -16288,16 +16336,6 @@
         "line": 23
       }
     ],
-    "action": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
-        "line": 29
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 137
-      }
-    ],
     "canInteract": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
@@ -16912,20 +16950,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
         "line": 48
-      }
-    ],
-    "dismiss": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
-        "line": 13
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 70
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
-        "line": 45
       }
     ],
     "afterWorldAction": [
@@ -27157,6 +27181,33 @@
         {
           "name": "skipLocal",
           "line": 322
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+      "lines": 248,
+      "sha256": "67df9cee14c3cf36f84b1545e8c45d17204aa701f96aff031ec03a75e9e1a968",
+      "symbols": [
+        {
+          "name": "hasPermission",
+          "line": 38
+        },
+        {
+          "name": "present",
+          "line": 41
+        },
+        {
+          "name": "text",
+          "line": 63
+        },
+        {
+          "name": "action",
+          "line": 71
+        },
+        {
+          "name": "dismiss",
+          "line": 235
         }
       ]
     },
