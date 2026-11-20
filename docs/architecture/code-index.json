@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T05:51:13.525835+00:00",
-  "commit": "2a2d6ab7f9e66a9f45879348aa79e3d91b9985fa",
+  "generatedAt": "2026-11-20T05:53:51.037084+00:00",
+  "commit": "008fce20ac674df7a6953bf48714672708dd43b2",
   "branch": "main",
-  "sourceFingerprint": "0566aa0299f86dce42640df2bf8861a7eae1ca32ad49ee9f8c1058167fad4f37",
+  "sourceFingerprint": "aa2478fab94e157890ac207787d5fa2f057e365e080411f3dd446031a42bfe2e",
   "summary": {
     "files": 1503,
-    "lines": 321845,
+    "lines": 321927,
     "symbols": 4566
   },
   "symbolIndex": {
@@ -491,7 +491,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 754
+        "line": 775
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
@@ -2979,7 +2979,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt",
-        "line": 164
+        "line": 185
       }
     ],
     "attemptReload": [
@@ -3143,11 +3143,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 100
+        "line": 102
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 797
+        "line": 818
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt",
@@ -10651,7 +10651,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
-        "line": 42
+        "line": 45
       }
     ],
     "beginReading": [
@@ -11171,7 +11171,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
-        "line": 22
+        "line": 24
       }
     ],
     "fromJson": [
@@ -11197,7 +11197,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
-        "line": 53
+        "line": 56
       }
     ],
     "stat": [
@@ -15879,31 +15879,31 @@
     "persistMatch": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 84
+        "line": 85
       }
     ],
     "recordFinalResult": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 105
+        "line": 107
       }
     ],
     "saveTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 175
+        "line": 177
       }
     ],
     "rollForUser": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 196
+        "line": 199
       }
     ],
     "place": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 773
+        "line": 794
       }
     ],
     "nextRound": [
@@ -16201,7 +16201,7 @@
     "Score": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt",
-        "line": 14
+        "line": 19
       }
     ],
     "eventPrefix": [
@@ -40546,40 +40546,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-      "lines": 900,
-      "sha256": "191a86ac2f6a540b1d32af894fb43613ba90094c56e9ff22f57a97737e0304d2",
+      "lines": 921,
+      "sha256": "6612d5b00227b42221e2ba7aed6975860ae1ac2bdfcbe31f01a91acff058046e",
       "symbols": [
         {
           "name": "persistMatch",
-          "line": 84
+          "line": 85
         },
         {
           "name": "reset",
-          "line": 100
+          "line": 102
         },
         {
           "name": "recordFinalResult",
-          "line": 105
+          "line": 107
         },
         {
           "name": "saveTurn",
-          "line": 175
+          "line": 177
         },
         {
           "name": "rollForUser",
-          "line": 196
+          "line": 199
         },
         {
           "name": "finish",
-          "line": 754
+          "line": 775
         },
         {
           "name": "place",
-          "line": 773
+          "line": 794
         },
         {
           "name": "reset",
-          "line": 797
+          "line": 818
         }
       ]
     },
@@ -41014,8 +41014,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt",
-      "lines": 102,
-      "sha256": "308631c91387592c1435b90a6073e084575e1cc6ccb2289ffadb96229d2392c7",
+      "lines": 114,
+      "sha256": "7cb7a8c5ffd071fa55387583bef01f3d423e855ac33c11b10694e1cd09d2dded",
       "symbols": [
         {
           "name": "Keep",
@@ -41023,7 +41023,7 @@
         },
         {
           "name": "Score",
-          "line": 14
+          "line": 19
         }
       ]
     },
@@ -42766,20 +42766,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt",
-      "lines": 89,
-      "sha256": "6323066ba60fda505b9561e80e0cb2139ff952fb8b5b3ae1c79771420c237dfb",
+      "lines": 95,
+      "sha256": "0e66884f1b22fd3bcae253d07dd4132100465bfe792c2a72d13b9e5eb916377e",
       "symbols": [
         {
           "name": "toJson",
-          "line": 22
+          "line": 24
         },
         {
           "name": "contextFor",
-          "line": 42
+          "line": 45
         },
         {
           "name": "fromJson",
-          "line": 53
+          "line": 56
         }
       ]
     },
@@ -52323,8 +52323,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameRoleChoiceContractTest.kt",
-      "lines": 54,
-      "sha256": "bb1e5297da8641dbd0bac3c204eae25fafd58a5d3bd760e8303e62f2232f5a43",
+      "lines": 76,
+      "sha256": "814cf1e39ce2038d1528760ea9f8470ef0de9094df2f5925ea91ab37c302aaa2",
       "symbols": [
         {
           "name": "GameRoleChoiceContractTest",
@@ -52826,8 +52826,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt",
-      "lines": 201,
-      "sha256": "6859dd1fc86bfb264b597e44391ac415a4f2f204231f7fedcb269bb9e4535ac0",
+      "lines": 222,
+      "sha256": "e29003b0c694a424182d0d2321fcc7322fda2b46ef078151c26f0ce1c968d8b3",
       "symbols": [
         {
           "name": "YachtMatchContinuityTest",
@@ -52835,7 +52835,7 @@
         },
         {
           "name": "record",
-          "line": 164
+          "line": 185
         }
       ]
     },
