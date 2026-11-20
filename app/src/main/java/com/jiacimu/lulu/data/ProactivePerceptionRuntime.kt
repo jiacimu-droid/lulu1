@@ -1050,6 +1050,10 @@ object ProactivePerceptionRuntime {
         val unreadPhotos = com.jiacimu.lulu.QqChatImageModelInput.prepare(
             appContext, characterId, onlineUnread.imageEvidenceIds,
         )
+        val stickerVisuals = if (onlineUnread.text.isNotBlank())
+            com.jiacimu.lulu.StickerVisionRouting.prepareForMultimodalChat(
+                appContext, onlineUnread.text, "", unreadPhotos.urls.size,
+            ) else com.jiacimu.lulu.StickerVisionRouting.PreparedImages(emptyList(), "")
         LuluRepositories.performance.recordTiming("感知现场准备",
             (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
             "批次=" + (onlineRevision?.toString() ?: "自主"), traceId = turnTraceId)
@@ -1063,6 +1067,7 @@ object ProactivePerceptionRuntime {
             turnTraceId = turnTraceId,
             facts = buildString {
                 if (unreadPhotos.promptNote.isNotBlank()) appendLine(unreadPhotos.promptNote)
+                if (stickerVisuals.explanation.isNotBlank()) appendLine(stickerVisuals.explanation)
                 // Persona is already supplied once by the gateway.
                 appendLine("\n【用户现实设备与用户状态感知层】")
                 appendLine("重要归属：下面的电量、前台应用、通知、位置、健康/手环和学习信息都属于用户本人或用户正在使用的现实设备，不属于角色自己的手机或身体。")
@@ -1400,7 +1405,7 @@ object ProactivePerceptionRuntime {
                     .filter(String::isNotBlank).joinToString("\n"),
                 taskIntent = "只依据程序已记录的真实状态选择可执行动作；可对本轮权威事件产生反应，但不得生成新的事实",
             ),
-            imageDataUrls = unreadPhotos.urls,
+            imageDataUrls = unreadPhotos.urls + stickerVisuals.urls,
             observedSocialContext = if (digital)
                 CharacterEverydaySocialContext.render(characterId, now, pendingMail) else null,
         )
