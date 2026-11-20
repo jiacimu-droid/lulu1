@@ -66,6 +66,7 @@ internal fun Modifier.luluCssPaint(
     defaultShape: Shape? = null,
     defaultBackground: Color? = null,
     defaultBorder: BorderStroke? = null,
+    backgroundMaxEdge: Int = 1024,
 ): Modifier {
     if (style.isEmpty() && defaultShape != null) {
         var plain = this
@@ -77,7 +78,7 @@ internal fun Modifier.luluCssPaint(
     val after = remember(style) { style.cssLayer("after") }
     val fill = style.cssColor("background-color") ?: defaultBackground
     val shape = remember(style, defaultShape) { style.cssShape(defaultShape) }
-    val image = cssPainter(style, maxEdge = 1024)
+    val image = cssPainter(style, maxEdge = backgroundMaxEdge)
     val gradient = remember(style) { LuluCssSheet.gradient(style["background-image"]) }
     val shadow = remember(style) { LuluCssSheet.shadow(style["box-shadow"]) }
     val borderColor = style.cssColor("border-color")
