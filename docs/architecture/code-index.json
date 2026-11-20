@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T05:13:43.682483+00:00",
-  "commit": "0be72d63ae892748add956780cdb39f9ede5cc7d",
+  "generatedAt": "2026-11-20T05:14:33.444560+00:00",
+  "commit": "b35d472c08ad0006f11f2f09c7a99c19f69c11b8",
   "branch": "main",
-  "sourceFingerprint": "ff766765e7903a4b9e6aea17c7de7ebd5f34a65907c26f6ff61703e083ec0c3b",
+  "sourceFingerprint": "e4458702e1763041705be74a4dd904282c26a3852c988fcd147d86e45a1007d8",
   "summary": {
-    "files": 1500,
-    "lines": 321185,
-    "symbols": 4562
+    "files": 1501,
+    "lines": 321264,
+    "symbols": 4563
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21102,6 +21102,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/MossSpeechModelCatalogTest.kt",
         "line": 8
+      }
+    ],
+    "NeteaseCloudAccountTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/NeteaseCloudAccountTest.kt",
+        "line": 13
       }
     ],
     "OfflineStickerAssetsTest": [
@@ -47167,6 +47173,17 @@
         {
           "name": "MossSpeechModelCatalogTest",
           "line": 8
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/NeteaseCloudAccountTest.kt",
+      "lines": 79,
+      "sha256": "73151be1807eb9bd95e0c6ba0b69d63dff92fab3a5a49f5adeb2d492b78312af",
+      "symbols": [
+        {
+          "name": "NeteaseCloudAccountTest",
+          "line": 13
         }
       ]
     },

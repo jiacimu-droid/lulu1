@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`0be72d63ae892748add956780cdb39f9ede5cc7d`
+- 基准提交：`b35d472c08ad0006f11f2f09c7a99c19f69c11b8`
 - 分支：`main`
-- 已索引文件：1500
-- 已索引代码/文本行：321185
-- 已发现符号：4562
+- 已索引文件：1501
+- 已索引代码/文本行：321264
+- 已发现符号：4563
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1008,6 +1008,7 @@
 | `app/src/test/java/com/jiacimu/lulu/MeetingWalkAndTalkContractTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MossSpeechModelCatalogTest.kt` | 28 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/NeteaseCloudAccountTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PerceptionStatusPresentationTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt` | 54 | 1 |
