@@ -160,7 +160,7 @@ internal fun ImmersiveMemoryMatchScreen(store: LuluGameStore) {
         label = "memory-arena-phase",
     )
 
-    Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize().imePadding()) {
         MemoryArenaBackground(phase)
         Column(
             modifier = Modifier.fillMaxSize().padding(horizontal = 14.dp, vertical = 10.dp),
