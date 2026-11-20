@@ -146,8 +146,15 @@ internal object NeteaseSongLink {
     private val queryId = Regex("(?:[?&#])id=([0-9]{1,20})(?:$|[&#])")
 
     fun songId(text: String): String? {
-        val candidate = text.trim().substringBefore(' ').substringBefore('\\n')
-        if (digits.matches(candidate)) return candidate
+        val trimmed = text.trim()
+        if (digits.matches(trimmed)) return trimmed
+        // Android's Share copies descriptions before the URL; extract only
+        // a verified NetEase URL instead of treating the first word as a link.
+        val candidate = Regex(
+            """(?:orpheus://song/|https?://(?:y\\.)?music\\.163\\.com/)[^\\s<>）)]+""",
+            RegexOption.IGNORE_CASE,
+        ).find(trimmed)?.value?.trimEnd('。', '，', '.', ',')
+            ?: return null
         val uri = runCatching { Uri.parse(candidate) }.getOrNull() ?: return null
         if (uri.scheme == "orpheus" && uri.host == "song") {
             return uri.pathSegments.firstOrNull()?.takeIf(digits::matches)
