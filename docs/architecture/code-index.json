@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:24:50.217208+00:00",
-  "commit": "bdb1ab5e5483af0d1f4150e488d31de300d22b61",
+  "generatedAt": "2026-11-20T03:26:16.222381+00:00",
+  "commit": "32991864a1e31923a426841ea8da52e164ee7a24",
   "branch": "main",
-  "sourceFingerprint": "c4b53d26f68a64a4db35149728b85401fcd72cb785766557f04a1e3b7896fac1",
+  "sourceFingerprint": "394c9e2ed4423b38b54cdad9bc1fce48d2063c977817c53f346a64de8adc8e1c",
   "summary": {
     "files": 1496,
-    "lines": 319768,
-    "symbols": 4545
+    "lines": 319815,
+    "symbols": 4548
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2448,6 +2448,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
         "line": 156
+      }
+    ],
+    "controlExternal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
+        "line": 288
+      }
+    ],
+    "toggleLocal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
+        "line": 305
+      }
+    ],
+    "skipLocal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
+        "line": 322
       }
     ],
     "notifyCoreChanged": [
@@ -27086,8 +27104,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-      "lines": 327,
-      "sha256": "293f528f26c8060f9dae800fbad5e21e02be6f47c44ac8e869b31c1eccda0361",
+      "lines": 374,
+      "sha256": "f839d8b4f725a4b72a97f0a30008fbb316028661317278b4ade08ea088a4e651",
       "symbols": [
         {
           "name": "recordListening",
@@ -27100,6 +27118,18 @@
         {
           "name": "analyzeSharedFile",
           "line": 156
+        },
+        {
+          "name": "controlExternal",
+          "line": 288
+        },
+        {
+          "name": "toggleLocal",
+          "line": 305
+        },
+        {
+          "name": "skipLocal",
+          "line": 322
         }
       ]
     },

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`bdb1ab5e5483af0d1f4150e488d31de300d22b61`
+- 基准提交：`32991864a1e31923a426841ea8da52e164ee7a24`
 - 分支：`main`
 - 已索引文件：1496
-- 已索引代码/文本行：319768
-- 已发现符号：4545
+- 已索引代码/文本行：319815
+- 已发现符号：4548
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -169,7 +169,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 156 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherMiniWindow.kt` | 201 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 413 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 327 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 374 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 977 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 80 | 1 |
