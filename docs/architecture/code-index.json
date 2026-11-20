@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:37:09.820649+00:00",
-  "commit": "c0cbfc8453a85802ffd191438af6e6628de6fc86",
+  "generatedAt": "2026-11-20T03:37:50.886145+00:00",
+  "commit": "b7ebf0f4fd42b9b189b5e34ebc04e6bfbbff8da4",
   "branch": "main",
-  "sourceFingerprint": "c6fa6740bb461ea2487c46b6efd074c35ec09dce99e7fd4c7032d980554b9061",
+  "sourceFingerprint": "8afd452fb386a1dc91d7333a31a2fd4530a8f9393b14692638c22e007ecc25cf",
   "summary": {
     "files": 1498,
-    "lines": 320578,
+    "lines": 320579,
     "symbols": 4556
   },
   "symbolIndex": {
@@ -46694,8 +46694,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ListenTogetherPlaylistTest.kt",
-      "lines": 91,
-      "sha256": "556df368a9fc5b3bee9df6b0b3eb8c5b2e3fea4498241d47bb280fbd0ab4833b",
+      "lines": 92,
+      "sha256": "2a9d4ed0a219a33991607f811e4942b0e1a16d21910b15f21c48a5e9710cc024",
       "symbols": [
         {
           "name": "ListenTogetherPlaylistTest",
