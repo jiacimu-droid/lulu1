@@ -247,6 +247,8 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                             val snippet = """
                                 #ListenTogether { --paper: #fff5f8; --ink: #47343e; }
                                 #ListenTogether .music-room { border-radius: 28dp; }
+                                #ListenTogether .music-mini { background-color: #fff5f8; border-radius: 25dp; }
+                                #ListenTogether .music-mini-compact { background-color: #fff5f8; }
                                 #ListenTogether .music-artwork { height: 210dp; }
                                 #ListenTogether .music-links { color: #d79aaf; border-color: #e8c7d3; border-width: 8dp; }
                                 #ListenTogether .music-avatar-role { width: 60dp; }
