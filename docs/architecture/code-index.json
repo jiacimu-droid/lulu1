@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:34:15.312017+00:00",
-  "commit": "f95aa4ba4c3966e65bdd9435d193168315c3dcae",
+  "generatedAt": "2026-11-20T01:34:45.704560+00:00",
+  "commit": "7842ebf1263b684b875f973f914c66eae259dc1a",
   "branch": "main",
-  "sourceFingerprint": "288cb4b3fee18809794854e3689f7f167a98d0c4d2ce3da03487bd77c5af4beb",
+  "sourceFingerprint": "2d00e15dc007536b079fef38deefd70409ff61df19e15f5825d419a078a24138",
   "summary": {
     "files": 1492,
-    "lines": 318895,
+    "lines": 318876,
     "symbols": 4530
   },
   "symbolIndex": {
@@ -29787,7 +29787,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerFlexibleTextImport.kt",
       "lines": 174,
-      "sha256": "e70d065773dfda88acaae399fd50a9f18aaf0ae50aec444c60684154afde80f7",
+      "sha256": "d80879a63f1c33ba434e0f67e2d9236a8e4b3caa44a77ac7aef7f9dcba485752",
       "symbols": [
         {
           "name": "withField",
@@ -29881,8 +29881,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerWordDocument.kt",
-      "lines": 312,
-      "sha256": "fcf0b339a886e780da478c78b454d787a1ebaf45e0ad63097962ffda92397618",
+      "lines": 293,
+      "sha256": "de767d540bccba4f00cf3f8771615d502c3abbe9327fd794845d0f41f318d846",
       "symbols": []
     },
     {
