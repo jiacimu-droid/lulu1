@@ -3,6 +3,8 @@ package com.jiacimu.lulu
 import com.jiacimu.lulu.design.LuluCssScaffold
 import com.jiacimu.lulu.design.LuluCssTopAppBar
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -185,7 +187,8 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 10.dp),
                 shape = RoundedCornerShape(16.dp))
             if (area == 0) {
-                Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp),
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+                    .padding(horizontal = 18.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf("all" to "全部", "life" to "生活近况",
                         "record" to "客观记录", "subjective" to "角色主观").forEach { (key, label) ->
