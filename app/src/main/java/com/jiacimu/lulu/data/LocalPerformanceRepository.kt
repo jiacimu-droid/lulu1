@@ -234,17 +234,18 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         source: String, title: String, model: String, provider: String,
         durationMillis: Long, requestId: String, traceId: String,
         networkStages: List<Pair<String, Long>> = emptyList(),
+        failureStatus: String = "失败",
     ) {
         val now = System.currentTimeMillis()
         val stages = networkStages.map { (stage, duration) ->
             PerformanceTimingRecord(stage = stage, durationMillis = duration,
                 detail = title, recordedAtMillis = now, traceId = traceId,
                 requestId = requestId, model = model, source = source, provider = provider,
-                status = "失败")
+                status = failureStatus)
         } + PerformanceTimingRecord(stage = "API调用失败", durationMillis = durationMillis,
             detail = title, recordedAtMillis = now, traceId = traceId,
             requestId = requestId, model = model, source = source, provider = provider,
-            status = "失败")
+            status = failureStatus)
         update { current -> current.copy(timings = (stages + current.timings).take(TIMING_RECORD_LIMIT)) }
     }
 
