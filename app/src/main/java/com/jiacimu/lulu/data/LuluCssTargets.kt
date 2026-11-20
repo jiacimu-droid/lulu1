@@ -79,7 +79,8 @@ object LuluCssTargets {
     // Each nested room is an independent native CSS surface, inheriting its
     // Chat -> ChatDetail parent rules rather than becoming another app.
     private val listenElements = setOf(
-        "music-room", "music-header", "music-source", "music-artwork", "music-links",
+        "music-room", "music-mini", "music-mini-compact", "music-mini-hidden",
+        "music-header", "music-source", "music-artwork", "music-links",
         "music-avatar-role", "music-avatar-user", "music-vinyl",
         "music-track-title", "music-track-artist", "music-progress", "music-controls",
         "music-play", "music-caption", "music-actions", "music-playlist",
