@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T07:46:29.636242+00:00",
-  "commit": "4b6ef3c460cfe349d2b3be0470ce78cb734aa556",
+  "generatedAt": "2026-11-20T07:48:56.835445+00:00",
+  "commit": "fe57745b2cf9fc3abe144ebf174e659f1dcdf9c2",
   "branch": "main",
-  "sourceFingerprint": "8e81f134c5a5db9bc649f286dc1eb432ca0efca9c43d3cb214fcf5e58b65dfea",
+  "sourceFingerprint": "2a40f705f2f37a4a65e7d4ba5d0db4e2947641ea59283db5aa5f93152ee31ca7",
   "summary": {
     "files": 1503,
-    "lines": 322246,
-    "symbols": 4570
+    "lines": 322303,
+    "symbols": 4571
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4670,6 +4670,20 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
         "line": 39
+      }
+    ],
+    "duration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
+        "line": 331
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt",
+        "line": 32
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt",
+        "line": 31
       }
     ],
     "shouldCapture": [
@@ -9664,16 +9678,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
         "line": 34
-      }
-    ],
-    "duration": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt",
-        "line": 32
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt",
-        "line": 31
       }
     ],
     "ChatTurnConsistencyAutomation": [
@@ -29052,12 +29056,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
-      "lines": 499,
-      "sha256": "491873b23aebba249b5c0f0d79bcd0f63ca82e8721b3c7745769762f60e9762c",
+      "lines": 556,
+      "sha256": "46fe4ddc831407c3c20c5ca2bda82c4e7021a5b1c08117a38bcb4182365ee681",
       "symbols": [
         {
           "name": "OptimizedPerformanceFeatureScreen",
           "line": 39
+        },
+        {
+          "name": "duration",
+          "line": 331
         }
       ]
     },
