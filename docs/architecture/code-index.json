@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T06:25:08.044950+00:00",
-  "commit": "afbe2a5f7672b2b8f8d7760c39913046e538c9c2",
+  "generatedAt": "2026-11-20T06:27:03.316145+00:00",
+  "commit": "4bca1efb64c77be39889b00b67daac26008739c0",
   "branch": "main",
-  "sourceFingerprint": "ad7725d63d92cabe944b3b486f9b4bb432b9d5544e9000d5e0b2b14f8b5f3e4c",
+  "sourceFingerprint": "c9c687e6feac08326ecccaca4420c51daa8c4a7402731b42e4b37d068f2403e7",
   "summary": {
     "files": 1503,
-    "lines": 321997,
+    "lines": 322017,
     "symbols": 4566
   },
   "symbolIndex": {
@@ -2313,7 +2313,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 122
+        "line": 127
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
@@ -16111,37 +16111,37 @@
     "setMicrophoneEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 73
+        "line": 78
       }
     ],
     "changeCompanionAudioEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 83
+        "line": 88
       }
     ],
     "receiveOwner": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 92
+        "line": 97
       }
     ],
     "companionSaid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 103
+        "line": 108
       }
     ],
     "fixedHostSaid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 115
+        "line": 120
       }
     ],
     "connectAudio": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 128
+        "line": 133
       }
     ],
     "attach": [
@@ -40547,7 +40547,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
       "lines": 925,
-      "sha256": "0abdc669f36c3ef4995a702d506bb18a9bb5d2f88ba8558afeb3f25ffe9b8a03",
+      "sha256": "6905e8ed8918ab9ce9199f3edfde2c2e4828ddd2407b247899b529389129c6b4",
       "symbols": [
         {
           "name": "persistMatch",
@@ -40872,36 +40872,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-      "lines": 309,
-      "sha256": "e26fa3f170c1ecdd8868c70e5fc6ad1a1dd969a078f3448bf0f3adf2e5563172",
+      "lines": 318,
+      "sha256": "c744c099709a4223d9071275fe49658d705cf548ba67dafd9acf7213265436da",
       "symbols": [
         {
           "name": "setMicrophoneEnabled",
-          "line": 73
+          "line": 78
         },
         {
           "name": "changeCompanionAudioEnabled",
-          "line": 83
+          "line": 88
         },
         {
           "name": "receiveOwner",
-          "line": 92
+          "line": 97
         },
         {
           "name": "companionSaid",
-          "line": 103
+          "line": 108
         },
         {
           "name": "fixedHostSaid",
-          "line": 115
+          "line": 120
         },
         {
           "name": "close",
-          "line": 122
+          "line": 127
         },
         {
           "name": "connectAudio",
-          "line": 128
+          "line": 133
         }
       ]
     },
@@ -41030,7 +41030,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt",
       "lines": 433,
-      "sha256": "1cb0bf88376b92492752a125b78d64136d3ba24270b736582c7445692f5b277a",
+      "sha256": "1102366c32aa242150b0b7ec459f10b60aeb5e6c960ee831b1e1dd6cf45a9f2c",
       "symbols": []
     },
     {
@@ -41776,8 +41776,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 981,
-      "sha256": "34ee5eb56dc5ea65daedf030928846728ef48ac04eaa160855fbe82125fc8b4b",
+      "lines": 989,
+      "sha256": "ce8771a0758840bdefc6dde38092bceb2c35208cf01cee9749943d6c51a6b7d9",
       "symbols": [
         {
           "name": "Home",
@@ -42745,8 +42745,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupTable.kt",
-      "lines": 485,
-      "sha256": "e818a153f7b18df8feb620c5b407b04a7238554dd64d82c14cc1d72d60fdd0e6",
+      "lines": 488,
+      "sha256": "fdffb8bc85c21e141349ea44ba4a255cf730858d4e6a8fc61c81f4d96fe959bf",
       "symbols": []
     },
     {
