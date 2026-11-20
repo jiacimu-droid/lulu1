@@ -612,11 +612,11 @@ class CompanionModelGateway(
             val dialogueRequest = conversation.isNotEmpty() && contextMode in setOf(
                 CompanionContextMode.Full, CompanionContextMode.CharacterAndScenario,
             )
-            // A scene is NOT a different person. Every Full-mode primary
-            // character decision (DM, phone, group, meeting, game, Moments,
-            // resident or independent life) gets one common actor memory tier.
-            // The context may still contain different, authoritative scene
-            // evidence; we never pad the request to a token quota.
+            // A scene is NOT a different person: all Full actor calls retain
+            // one identity, relationship, live inner life, core responsibilities
+            // and configured complete recent dialogue. Game turns alone can
+            // select fewer optional historical recall candidates; no source
+            // material is deleted and we never pad prompts to a token quota.
             //
             // Rendering, bedtime narration and narrow repair steps only
             // complete a decision already made. They must not purchase a
