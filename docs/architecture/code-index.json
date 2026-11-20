@@ -1023,7 +1023,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1797
+        "line": 1798
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -6631,19 +6631,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1509
+        "line": 1510
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1521
+        "line": 1522
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1787
+        "line": 1788
       }
     ],
     "addStreamingUsageWhenSupported": [
@@ -30955,8 +30955,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1805,
-      "sha256": "47247052c8ad7e4775c6eb48f96b6071486499900a6aa0c7a94bca7538448cb8",
+      "lines": 1806,
+      "sha256": "b7b222ba91fe87d2f56a68d0dc56b391a05b575d0b0b12d8f2fc74850fff4ea8",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -31064,19 +31064,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1509
+          "line": 1510
         },
         {
           "name": "consumeEvent",
-          "line": 1521
+          "line": 1522
         },
         {
           "name": "LuluAiServices",
-          "line": 1787
+          "line": 1788
         },
         {
           "name": "initialize",
-          "line": 1797
+          "line": 1798
         }
       ]
     },
@@ -49408,8 +49408,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt",
-      "lines": 221,
-      "sha256": "99adb3e925bda050c0600e71384e38579cbf6ce7dd8ac971e6bb39d08fb748cb",
+      "lines": 222,
+      "sha256": "21ebf0f78cc88ff72d692d8581ece5552f9a6415fe0f0d163248f13ee3cc3b31",
       "symbols": [
         {
           "name": "CharacterLifeSelfReviewTest",
@@ -51558,8 +51558,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextRegressionTest.kt",
-      "lines": 99,
-      "sha256": "d892e59803b20815418ea3cd711a5213829f57086c2885c788aab2e3c74d7590",
+      "lines": 126,
+      "sha256": "3d0058e27461c8a7eaeaee4c3c90cf53414ff6c8398a45b4134583fd46bde889",
       "symbols": [
         {
           "name": "PromptContextRegressionTest",
@@ -52207,8 +52207,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/TokenConsolePresentationTest.kt",
-      "lines": 99,
-      "sha256": "e635801aace19e4a7e08c1bb1cb5aa55f8ab54cef69b8edc6466fe4434b21325",
+      "lines": 115,
+      "sha256": "7ad29364925a5a75e14d62b187a4bb474874bf1fb0b3ca823baeebac1910da58",
       "symbols": [
         {
           "name": "TokenConsolePresentationTest",
