@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T00:59:11.649340+00:00",
-  "commit": "f261d9b7d38986b2f276a8d6e6a6c5bdef7f98d9",
+  "generatedAt": "2026-11-20T00:59:52.375263+00:00",
+  "commit": "0324c7a19b713c12bf048737b934225fe55bb809",
   "branch": "main",
-  "sourceFingerprint": "5e3e598a040954806b2f6774842ed4e340614d2641c8fccc91969ec7703eccaf",
+  "sourceFingerprint": "373629b9d18ac16ae07857684d2cb2ff01db35fb0e276e0173220ce79985b14b",
   "summary": {
     "files": 1487,
-    "lines": 317585,
+    "lines": 317664,
     "symbols": 4517
   },
   "symbolIndex": {
@@ -29734,8 +29734,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
-      "lines": 336,
-      "sha256": "ac4cc133d827b5024bdf67326951eecf6b13f9fe960c89aec3f4def4c02b57fa",
+      "lines": 415,
+      "sha256": "1098c32a4d4386840d9cbd5c94a08d4a31afe943a01e3cf467bb335aeb2e3e9b",
       "symbols": [
         {
           "name": "byId",
