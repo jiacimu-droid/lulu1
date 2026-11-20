@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`24d61b43c6530af80403e290ebc021aeb5bac571`
+- 基准提交：`eadb532cef947adc0c877d4065fc61e4f40010d5`
 - 分支：`main`
 - 已索引文件：1503
-- 已索引代码/文本行：322625
+- 已索引代码/文本行：322628
 - 已发现符号：4574
 
 | 文件 | 行数 | 符号数 |
@@ -390,7 +390,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActionFollowThroughPolicy.kt` | 94 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterActivityExpectation.kt` | 56 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAddressPreference.kt` | 79 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt` | 309 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterAssociativeRecall.kt` | 312 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterAttentionWorkingSet.kt` | 38 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterBehaviorMotivation.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterCausalActionPolicy.kt` | 37 | 2 |
