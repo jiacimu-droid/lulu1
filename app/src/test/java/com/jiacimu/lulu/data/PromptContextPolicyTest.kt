@@ -103,7 +103,9 @@ class PromptContextPolicyTest {
         assertEquals(ordinaryChat.workingSetCharacters, chatting.workingSetCharacters)
         val game = PromptContextPolicy.forRequest("游戏 · 方块小岛自主同行", input)
         assertTrue(game.richInnerLife)
-        assertEquals(independent.workingSetCharacters, game.workingSetCharacters)
+        assertTrue(game.workingSetCharacters < independent.workingSetCharacters)
+        assertEquals(0, game.recentCharacters)
+        assertTrue(game.richInnerLife)
     }
 
     @Test fun actualWorldOrPromiseEvidenceCanExpandWithoutChangingTheSharedPerson() {
@@ -143,9 +145,6 @@ class PromptContextPolicyTest {
             "朋友圈独立感知",
             "数字世界见面",
             "数字世界居民交流",
-            "游戏 · 方块小岛自主同行",
-            "游戏 · 迷雾摸金自主同行",
-            "游戏",
             "一起看",
             "原住民个人日程到点",
         )
@@ -175,6 +174,35 @@ class PromptContextPolicyTest {
             fullCharacterDecision = true))
     }
 
+    @Test fun realGameActorTrimsHistoricalRecallButKeepsFullLiveActorTier() {
+        val request = UnifiedMemoryRequest(
+            currentInput = "我们刚刚结束了上一局，现在一起玩这个",
+            sceneContext = "同一人正在和主人继续玩游戏",
+        )
+        listOf("游戏", "游戏 · 海龟汤同伴推理", "游戏 · 快艇骰子本人决策",
+            "游戏 · 迷雾摸金自主同行").forEach { scene ->
+            val budget = PromptContextPolicy.forRequest(scene, request, fullCharacterDecision = true)
+            assertEquals(16, budget.recallLimit)
+            assertEquals(6_000, budget.memoryCharacters)
+            assertEquals(3_000, budget.evidenceCharacters)
+            assertEquals(1_200, budget.lexiconCharacters)
+            assertEquals(12_000, budget.workingSetCharacters)
+            assertEquals(0, budget.recentCharacters)
+            assertTrue(budget.richInnerLife)
+            assertFalse(budget.worldDetails)
+        }
+        // These same actors still use the normal full-evidence tier for a
+        // direct request to verify an old promise, instead of dropping proof.
+        val exact = PromptContextPolicy.forRequest(
+            "游戏 · 海龟汤同伴推理",
+            UnifiedMemoryRequest(currentInput = "你上次答应的事，实际执行了吗？"),
+            fullCharacterDecision = true)
+        assertTrue(exact.precise)
+        assertEquals(30_000, exact.workingSetCharacters)
+        assertEquals(40, exact.recallLimit)
+        assertEquals(0, exact.recentCharacters)
+    }
+
     @Test fun sharedActorStillExpandsSourceEvidenceWhenActualPromiseMustBeChecked() {
         val request = UnifiedMemoryRequest(
             currentInput = "你答应过的那次电话，实际完成了吗？")
@@ -195,7 +223,7 @@ class PromptContextPolicyTest {
     @Test fun sharedLifeUsesOneBalancedBudgetAndNeverChargesForRecentTurns() {
         val request = UnifiedMemoryRequest(currentInput = "今天一起做了什么")
         val channels = listOf("私聊", "后台主动感知", "电话回复",
-            "数字世界见面", "游戏 · 迷雾摸金自主同行")
+            "数字世界见面")
         val configured = channels.map {
             PromptContextPolicy.forRequest(it, request, fullCharacterDecision = true)
         }
