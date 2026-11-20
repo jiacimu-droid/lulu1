@@ -1019,7 +1019,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1732
+        "line": 1737
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -2245,7 +2245,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-        "line": 180
+        "line": 224
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
@@ -6607,19 +6607,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1444
+        "line": 1449
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1456
+        "line": 1461
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1722
+        "line": 1727
       }
     ],
     "addStreamingUsageWhenSupported": [
@@ -8198,10 +8198,16 @@
         "line": 16
       }
     ],
+    "gameUpdates": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
+        "line": 140
+      }
+    ],
     "friendshipThreads": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-        "line": 155
+        "line": 199
       }
     ],
     "Receipt": [
@@ -30903,8 +30909,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1740,
-      "sha256": "cc16ad928111f2ec9ef757840ca54812550f64a05a2fce6b5eb2801c4d2d2467",
+      "lines": 1745,
+      "sha256": "9c012f9f86460832b779ef7eea2d2eaf0f528ee7d572d59d537862add43237b5",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -31012,19 +31018,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1444
+          "line": 1449
         },
         {
           "name": "consumeEvent",
-          "line": 1456
+          "line": 1461
         },
         {
           "name": "LuluAiServices",
-          "line": 1722
+          "line": 1727
         },
         {
           "name": "initialize",
-          "line": 1732
+          "line": 1737
         }
       ]
     },
@@ -32321,8 +32327,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 445,
-      "sha256": "5909e80bcd8a065730d8a801987aca29e7ea8f6ec4512cca3659c91f2c54ff3f",
+      "lines": 489,
+      "sha256": "960e01d74c5cfe6a7976f26467c278b3685cec6b3c2043980a248966b4ed68e7",
       "symbols": [
         {
           "name": "currentSocialAuthority",
@@ -32333,12 +32339,16 @@
           "line": 75
         },
         {
+          "name": "gameUpdates",
+          "line": 140
+        },
+        {
           "name": "friendshipThreads",
-          "line": 155
+          "line": 199
         },
         {
           "name": "render",
-          "line": 180
+          "line": 224
         }
       ]
     },

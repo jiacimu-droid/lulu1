@@ -840,7 +840,12 @@ class CompanionModelGateway(
             // need a duplicate.
             val socialAwarenessSection = if (fullContext &&
                 com.jiacimu.lulu.data.DigitalLifeProfileStore.isEnabled(characterId))
-                observedSocialContext ?: com.jiacimu.lulu.data.CharacterEverydaySocialContext.render(characterId)
+                observedSocialContext ?: if (source == "游戏" || source.startsWith("游戏 ·")) {
+                    // Digital-life identity/world ontology is protected above in
+                    // identitySection. Only this live social *detail* is compact.
+                    if (budget.precise) com.jiacimu.lulu.data.CharacterEverydaySocialContext.render(characterId)
+                    else com.jiacimu.lulu.data.CharacterEverydaySocialContext.gameUpdates(characterId)
+                } else com.jiacimu.lulu.data.CharacterEverydaySocialContext.render(characterId)
             else ""
             // A small untrimmed authority register guards against old episodes
             // and unused NPC templates being mistaken for currently living
