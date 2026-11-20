@@ -4,6 +4,9 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Bitmap
+import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.Path
 import android.graphics.PixelFormat
 import android.graphics.Typeface
@@ -96,6 +99,14 @@ internal object ListenTogetherSystemOverlay {
         base.addView(header)
 
         if (SharedMusicWindowController.display == SharedMusicWindow.Expanded) {
+            // Reuse the same local/cached portraits as chat; never fetch remote
+            // images or block on the network from the overlay's draw pass.
+            val rolePortrait = luluNotificationAvatarBitmap(app, room.characterAvatarUri)
+            val userPrefs = app.getSharedPreferences("lulu_user_profile", Context.MODE_PRIVATE)
+            val ownerPortrait = luluNotificationAvatarBitmap(app,
+                userPrefs.getString("avatar_uri", null))
+            val ownerInitial = userPrefs.getString("display_name", "我")
+                .orEmpty().ifBlank { "我" }.take(1)
             val art = object : View(app) {
                 private val pen = Paint(Paint.ANTI_ALIAS_FLAG)
                 override fun onDraw(canvas: Canvas) {
@@ -128,17 +139,36 @@ internal object ListenTogetherSystemOverlay {
                     canvas.drawCircle(center, y, dp(app, 19).toFloat(), pen)
                     pen.color = Color.rgb(35, 31, 42)
                     canvas.drawCircle(center, y, dp(app, 3).toFloat(), pen)
-                    pen.color = Color.rgb(230, 216, 225)
-                    canvas.drawCircle(dp(app, 31).toFloat(), y, dp(app, 26).toFloat(), pen)
-                    canvas.drawCircle(width - dp(app, 31).toFloat(), y,
-                        dp(app, 26).toFloat(), pen)
-                    pen.color = Color.rgb(80, 53, 72)
-                    pen.textAlign = Paint.Align.CENTER
-                    pen.typeface = Typeface.DEFAULT_BOLD
-                    pen.textSize = dp(app, 15).toFloat()
-                    canvas.drawText(room.characterName.take(1).ifBlank { "角" },
-                        dp(app, 31).toFloat(), y + dp(app, 5), pen)
-                    canvas.drawText("我", width - dp(app, 31).toFloat(), y + dp(app, 5), pen)
+                    fun avatar(x: Float, photo: Bitmap?, fallback: String) {
+                        val radius = dp(app, 28).toFloat()
+                        pen.color = Color.rgb(230, 216, 225)
+                        canvas.drawCircle(x, y, radius, pen)
+                        if (photo != null && photo.width > 0 && photo.height > 0) {
+                            val side = minOf(photo.width, photo.height)
+                            val crop = Rect((photo.width - side) / 2,
+                                (photo.height - side) / 2,
+                                (photo.width + side) / 2, (photo.height + side) / 2)
+                            canvas.save()
+                            val circle = Path().apply {
+                                addCircle(x, y, radius, Path.Direction.CW)
+                            }
+                            canvas.clipPath(circle)
+                            pen.style = Paint.Style.FILL
+                            pen.isFilterBitmap = true
+                            canvas.drawBitmap(photo, crop,
+                                RectF(x - radius, y - radius, x + radius, y + radius), pen)
+                            canvas.restore()
+                        } else {
+                            pen.color = Color.rgb(80, 53, 72)
+                            pen.textAlign = Paint.Align.CENTER
+                            pen.typeface = Typeface.DEFAULT_BOLD
+                            pen.textSize = dp(app, 15).toFloat()
+                            canvas.drawText(fallback, x, y + dp(app, 5), pen)
+                        }
+                    }
+                    avatar(dp(app, 31).toFloat(), rolePortrait,
+                        room.characterName.take(1).ifBlank { "角" })
+                    avatar(width - dp(app, 31).toFloat(), ownerPortrait, ownerInitial)
                 }
             }
             base.addView(art, LinearLayout.LayoutParams(
