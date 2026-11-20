@@ -332,7 +332,7 @@ class ProactiveQuietDecisionTest {
             "web_search", "background_phone", "learn_topic",
             "action=tool", "silent", "真实", "innerLife.motives",
         )) assertTrue("Missing autonomous capability: $required", prompt.contains(required))
-        assertTrue(prompt.contains("自己确实决定暂不行动"))
+        assertTrue(prompt.contains("对方没有发新消息时，也可以主动发起话题"))
     }
 
     @Test fun compiledAutonomousPromptKeepsUniqueActionContractsAfterRuleConsolidation() {
@@ -368,13 +368,14 @@ class ProactiveQuietDecisionTest {
     @Test fun autonomousChoiceKeepsUnansweredOwnerActivityUncertainAndOffersRealConsentTools() {
         val independent = proactiveDecisionInstruction("uncertainty-test-role")
         val privateChat = proactiveDecisionInstruction("uncertainty-test-role", directPrivateChat = true)
-        assertTrue(independent.contains("未回复、切换应用、旧忙碌记录都不是取消监督"))
-        assertTrue(independent.contains("经过授权用现有屏幕/监督工具获得真实观察"))
-        assertTrue(privateChat.contains("未回复、切换应用、旧忙碌记录都不是取消监督"))
-        assertTrue(privateChat.contains("是否关心、行动或安排复查由本人决定"))
+        for (prompt in listOf(independent, privateChat)) {
+            assertTrue(prompt.contains("待办没勾、切换应用、亮屏或未回复，各自只说明该条记录里的事实"))
+            assertTrue(prompt.contains("设备观察需实际授权，已授权的自主单帧可直接调用 capture_screen"))
+            assertTrue(prompt.contains("想查证、联系、落实约定或安排复查，由本人选择对应行动"))
+        }
         assertTrue(privateChat.contains("start_study_watch"))
         assertTrue(privateChat.contains("不能把一次拒绝推断成未来长期禁止"))
-        assertTrue(privateChat.contains("必须获得新时段的主人明确许可"))
+        assertTrue(privateChat.contains("每次开启新的持续监督时段需取得该时段许可"))
     }
 
     @Test fun acceptedBedtimeSupervisionIsNotReducedToUnspokenConcern() {
@@ -474,11 +475,10 @@ class ProactiveQuietDecisionTest {
     @Test fun autonomyPromptPreservesExplicitSupervisionWithoutForcingEveryRoleToTalk() {
         val instruction = proactiveDecisionInstruction("bedtime-prompt-test")
         // Assert the actual responsibility and permission safeguards, not old wording.
-        assertTrue(instruction.contains("【已接受的责任与监督授权】"))
-        assertTrue(instruction.contains("已接受的责任不因回复、其他行动或 silent 而取消"))
-        assertTrue(instruction.contains("未回复、切换应用、旧忙碌记录都不是取消监督"))
-        assertTrue(instruction.contains("真实拒绝与权限不足继续遵守"))
-        assertTrue(instruction.contains("必须获得新时段的主人明确许可"))
+        assertTrue(instruction.contains("是否交谈本身不改变承诺状态"))
+        assertTrue(instruction.contains("设备观察需实际授权"))
+        assertTrue(instruction.contains("按她说的范围理解"))
+        assertTrue(instruction.contains("每次开启新的持续监督时段需取得该时段许可"))
     }
 
     @Test fun validSilentChoiceIsParsedAndKeepsItsReason() {

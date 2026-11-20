@@ -61,6 +61,7 @@ private fun biGrams(text: String): Set<String> =
  */
 internal fun selectPromptStickers(
     items: List<LuluSticker>, limit: Int, context: StickerRetrievalContext,
+    isAvailable: (LuluSticker) -> Boolean = { true },
 ): List<LuluSticker> {
     val budget = limit.coerceIn(0, 8)
     if (budget == 0) return emptyList()
@@ -93,19 +94,19 @@ internal fun selectPromptStickers(
     }
 
     val ranked = items.distinctBy(LuluSticker::id).sortedByDescending(::score)
-    val result = ranked.take((budget * 3 / 4).coerceAtLeast(1)).toMutableList()
-    val picked = result.mapTo(mutableSetOf(), LuluSticker::id)
+    val checked = mutableSetOf<String>()
+    val result = ranked.asSequence().filter { checked.add(it.id) && isAvailable(it) }
+        .take((budget * 3 / 4).coerceAtLeast(1)).toMutableList()
     // Reserve a couple of places for other packs, so a single prolific pack
     // doesn't make imported stickers or different reactions invisible.
-    val packs = ranked.filterNot { it.id in picked }.groupBy(LuluSticker::pack)
-        .values.map { it.toMutableList() }
+    val packs = ranked.filterNot { it.id in checked }.groupBy(LuluSticker::pack)
+        .values.map { it.asSequence().filter(isAvailable).iterator() }
     while (result.size < budget) {
         var added = false
         for (pack in packs) {
             if (result.size >= budget) break
-            if (pack.isNotEmpty()) {
-                val candidate = pack.removeAt(0)
-                if (picked.add(candidate.id)) result += candidate
+            if (pack.hasNext()) {
+                result += pack.next()
                 added = true
             }
         }

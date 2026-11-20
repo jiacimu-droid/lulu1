@@ -440,7 +440,7 @@ object LuluDeviceToolBridge {
             说话、音乐、音量与短铃声均是可选真实动作，不预先指定哪种优先；依据现有音频状态、原任务与用户要求自行决定。每个动作须有实际执行回执，不机械重放旧工具；没有回应不能证明已醒或未醒。内部状态与心声不朗读给用户。
         """.trimIndent() else if (separateExpression) """
             只返回完整 JSON，先自主选择 action=reply、tool 或 silent。选择 reply 时写 speechIntent 和 dialogueMove；speechIntent 是“具体想让对方知道/确认的内容与事实边界”，不是台词设计稿，不要提前写 text。
-            想发一张真正的表情包时，仅从上面程序列出的已入库 stickerId 选填 stickerId；可选 stickerOnly=true 表示此刻只想独立发一张图、不说一句多余的话。单发图片仍用 action=reply；程序真实发送选中的图，不再强迫语言表达层配文字。若想文字加图片就不要填 stickerOnly；不能猜 ID，也不用每次都配一张。
+            选择候选图库里实际提供的 stickerId 就能发图片表情。单发图片用 action=reply 和 stickerOnly=true，文字加图片用 action=reply 和 stickerId。什么时候用图、配什么话，由本人按照这段对话和用户设定的使用偏好决定。
             dialogueMove={"type":"acknowledge|answer|ask|backchannel|self_repair|other_initiated_repair|candidate_understanding|disagree|tease|reassure|topic_shift|defer|decline|close|share","repairFormat":"none|open|candidate","target":"当前局部互动目标","candidate":"只有候选修复时才写一个候选","confidence":0到1,"contentIntent":"本轮内容意图"}。
             speechIntent 交接本人这次真正想传达的核心意思、立场和必要答案；本人性格先影响怎样理解、在意什么，再延续到表达。她在说现实困难时，担忧本身可以成立；结合上下文理解她是在倾诉、讨论还是请求办法，由你选择回应方式和展开程度。
             先选这一拍的交流动作，再写 speechIntent：它只承载本轮真要说出口的内容，不是把所有已知背景、可能的劝告和后续几轮话合成一份提纲。对方没有请你规划时，是否给建议仍由你按关系与现场决定；若只是想接住她的一句话，那个真实反应本身就可完成这一轮。认真求助、多项明确问题或自己确实想深谈时，则保留必要的完整说明。
@@ -652,7 +652,7 @@ object LuluDeviceToolBridge {
                 角色可按自己的动机主动来电、邀约、发朋友圈、阅读、游戏、修改私人备注或网名；是否接近、追问、暂缓或保持安静由本人依据关系与此刻对话选择；不要把谨慎退让当默认态度，也不为展示工具机械执行。真实动作先执行再描述结果；失败不能冒充成功。
                 用户表达疲惫、难受、开心、无聊或想靠近时，先把它当作“可能值得主动回应的需要线索”，不是命令。
                 颜文字、emoji、标点、停顿和经过用户挑选入库的表情包可以独立传达你的个人感受、幽默和态度。让表达贴合你自己的习惯和这轮语境，不做固定频率的自动贴图，不把每一句都写成客服话术。若程序提供了主动性机会，优先结合已验证方法、关系习惯和真实记忆自主选一个最自然的小动作；没有现成经验也可以按本人性格和当下兴致尝试，不默认小心试探或后退。除非真的缺少执行所必需的信息，不要反问“那我该做什么/你想让我怎么办”。
-                【主动社交不是咨询任务】即使用户没有交代具体怎么逗、怎么哄、怎么亲近，角色也可以自己想办法、挑一种方式尝试，并从实际回应里调整。选中具体做法后要真正通过本场景的 reply/已授权工具付诸实施，而不是长篇描述自己“愿意做”；一次出于本人心意的实际尝试比空泛承诺更有人味；玩笑是否继续、追问与否、何时收住，由当前人物本人和真实回应决定，不由系统预设胆怯或退让。若用户已明确不愿被打扰或需要休息，则可不打扰并继续自己的生活。
+                【主动社交不是咨询任务】即使用户没有交代具体怎么逗、怎么哄、怎么亲近，角色也可以自己想办法、挑一种方式尝试，并从实际回应里调整。选中具体做法后要真正通过本场景的 reply/已授权工具付诸实施，而不是长篇描述自己“愿意做”；一次出于本人心意的实际尝试比空泛承诺更有人味；玩笑是否继续、追问与否、何时收住，由当前人物本人和真实回应决定，不由系统预设胆怯或退让。对方明确提出的相处要求按其原话理解。
                 用户没新发言也可能构成有意味的互动空白；先形成自己的理解与至少一个当轮真实想法，再决定是否开口。当前短想法记录在 appraisal.privateIdeas，真实新增的犹豫和克制才更新内在状态/心声；不向用户直播心理分析，也不让没有证据的担忧升级为事实。
                 跨到其他群/私聊发送的内容必须进入对应真实会话；群聊不泄露私聊内容。
                 用户明确要求一项已有能力时可以拒绝；只要答应现在做，就必须实际调用对应动作。数字世界家具的增改删须走 digital_world_action。
@@ -1435,9 +1435,12 @@ object LuluDeviceToolBridge {
                 plan = plan.copy(text = phoneSpoken)
             // The phone remains single-pass. In text chat, only the expression model
             // renders the planner's intent; it must not re-decide actions.
-            val imageOnly = !sceneContext.contains("电话") && plan.stickerOnly &&
-                plan.stickerId.isNotBlank() &&
-                com.jiacimu.lulu.StickerLibraryStore.byId(appContext, plan.stickerId) != null
+            val chosenSticker = if (sceneContext.contains("电话") || plan.stickerId.isBlank()) null
+                else com.jiacimu.lulu.StickerLibraryStore.byId(appContext, plan.stickerId)
+                    ?.takeIf { com.jiacimu.lulu.StickerLibraryStore.canActuallySend(appContext, it) }
+            val imageOnly = plan.stickerOnly && chosenSticker != null
+            if (plan.stickerOnly && !imageOnly) return Result.failure(
+                IllegalStateException("角色选了只发图，但表情包不可读取或场景不支持图片"))
             val expressed = if (separateExpression && plan.speechIntent.isNotBlank() && !imageOnly) {
                 val expressionHandoff = com.jiacimu.lulu.data.CharacterDecisionProtocol.expressionContext(
                     plan.appraisal, plan.innerLife, plan.mood,
@@ -1567,13 +1570,6 @@ object LuluDeviceToolBridge {
             }
             val safeText = com.jiacimu.lulu.data.RelationshipExpressionGuard.apply(
                 characterId, verifiedSpeech)
-            // A sticker exists only if the user has imported and approved that
-            // exact ID. Invalid guesses silently yield no image.
-            val chosenSticker = if (!sceneContext.contains("电话"))
-                plan.stickerId.takeIf(String::isNotBlank)?.let { com.jiacimu.lulu.StickerLibraryStore.byId(appContext, it) }
-            else null
-            if (plan.stickerOnly && !imageOnly) return Result.failure(
-                IllegalStateException("角色选了只发图，但表情包已不存在或场景不支持图片"))
             if (safeText.isBlank() && chosenSticker == null) return Result.failure(
                 IllegalStateException("角色决定回复但没有生成可发送内容"))
             // The tool receipt is recorded separately. Do not append a fixed

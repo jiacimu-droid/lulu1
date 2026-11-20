@@ -11,6 +11,37 @@ import org.robolectric.annotation.Config
 @Config(manifest = Config.NONE, sdk = [28])
 class AutonomousActionWireProtocolTest {
 
+    @Test fun stickerOnlyReplyUsesTheActualStickerToolAndHasNoSpokenText() {
+        val original = AutonomousActionWireProtocol.normalize(JSONObject("""
+            {"action":"tool","tool":"send_private_message","args":{
+              "text":"不用一起发","stickerId":"my-sticker","stickerOnly":true}}
+        """))
+        val decision = AutonomousActionWireProtocol.normalizePrivateStickerReply(original, hasSpeech = true)
+        assertEquals("sticker", decision.getString("action"))
+        assertEquals("send_private_sticker", decision.getString("tool"))
+        assertEquals("my-sticker", decision.getString("stickerId"))
+        assertFalse(decision.has("text"))
+        assertFalse(decision.getJSONObject("args").has("text"))
+        assertNull(AutonomousActionWireProtocol.appendPrivateStickerAttachment(decision, null))
+    }
+
+    @Test fun privateSpeechCanCarryOneImageWithoutMovingAuthoredSteps() {
+        val original = JSONObject("""
+            {"action":"reply","bubbles":["给你看个好玩的"],"stickerId":"my-sticker",
+             "steps":[{"tool":"web_search","args":{"text":"小猫"},"requiresPreviousSuccess":true}]}
+        """)
+        val decision = AutonomousActionWireProtocol.normalizePrivateStickerReply(original, hasSpeech = true)
+        val steps = AutonomousActionWireProtocol.appendPrivateStickerAttachment(
+            decision, CharacterThoughtActionHandoff.actions(decision),
+        )!!
+        assertEquals("reply", decision.getString("action"))
+        assertEquals("web_search", steps.getJSONObject(0).getString("tool"))
+        assertTrue(steps.getJSONObject(0).getBoolean("requiresPreviousSuccess"))
+        assertEquals("send_private_sticker", steps.getJSONObject(1).getString("tool"))
+        assertEquals("my-sticker", steps.getJSONObject(1).getJSONObject("args").getString("stickerId"))
+        assertEquals(2, AutonomousActionWireProtocol.appendPrivateStickerAttachment(decision, steps)?.length())
+    }
+
     @Test fun flatNativeMessageStepPreservesExactlyModelAuthoredBubbles() {
         val authored = org.json.JSONArray().put("刚看到").put("其实还想再说一句")
         val flat = JSONObject().put("tool", "send_character_message")

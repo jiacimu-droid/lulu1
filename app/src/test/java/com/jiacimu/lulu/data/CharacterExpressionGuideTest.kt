@@ -141,7 +141,7 @@ class CharacterExpressionGuideTest {
         val renderer = CharacterExpressionGuide.forGeneration("聊天表达渲染")
         val online = proactiveDecisionInstruction("rhythm-test-role", directPrivateChat = true)
         listOf(private, renderer, online).forEach { prompt ->
-            assertTrue(prompt.contains("表达已经足够时可以直接停下来"))
+            assertTrue(prompt.contains("想起什么再发一条"))
             assertTrue(prompt.contains("复杂问题"))
             assertTrue(prompt.contains("具体节奏由本人个性"))
             assertEquals(1, prompt.split("【随谈话需要展开与停留】").size - 1)
@@ -291,7 +291,7 @@ class CharacterExpressionGuideTest {
         val prompt = CharacterSpeechIdentity.promptSection(role.characterId)
         assertTrue(prompt.contains(sample))
         assertTrue(prompt.contains("例子里的用户台词只供示范"))
-        assertTrue(prompt.contains("本人想关心、追问或补充时可主动连发"))
+        assertTrue(prompt.contains("顺势连着说几句、主动关心或提出自己感兴趣的话题"))
         assertFalse(CharacterLifeStore.profileContext(role.characterId).contains(sample))
     }
 
@@ -342,6 +342,8 @@ class CharacterExpressionGuideTest {
         assertTrue(autonomous.contains("【本轮自主决策｜一套人物认知与执行规则】"))
         assertTrue(freshPrivate.contains(sharedFullLifeDecisionGuide))
         assertTrue(autonomous.contains(sharedFullLifeDecisionGuide))
+        assertTrue(autonomous.contains("对方没有发新消息时，也可以主动发起话题"))
+        assertFalse(autonomous.contains("怕不怕打扰"))
         val sceneAdapterDifference = kotlin.math.abs(freshPrivate.length - autonomous.length)
         assertTrue("Only the dialogue/solo channel adapter may differ: $sceneAdapterDifference",
             sceneAdapterDifference < 2_000)
