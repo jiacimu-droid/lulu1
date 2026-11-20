@@ -954,7 +954,7 @@ object RoleDayScheduleStore {
                     (if (it.locationCode.isNotBlank() && it.activityAction == "digital_world_action")
                         "与居民当面交流须先在约定地点；回执按真实会面地点核验，不能以参数声称到场。若决定换地点，取消原项并另行安排。" else "") +
                     "想做就执行真实工具并把 planId 放入同一次最终动作 args；只有成功回执才算完成。" +
-                    "如对方已经在学习、正在休息或不需打扰，可改期或取消，绝不照表打卡。" +
+                    "主动消息是正常沟通；横幅和提示音由用户的通知设置控制。学习、忙碌、未回复本身不表示拒绝联系，也不自动取消已接受的监督提醒；依据原计划、明确调整或拒绝、实际权限和新事实决定执行、改期或取消，不机械打卡。" +
                     "改期调用 reschedule_personal_activity，放弃调用 cancel_personal_activity；" +
                     "仅想一想、聊天、失败、没有证据都不能冒充完成。"
             }
