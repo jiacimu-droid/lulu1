@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T05:53:51.037084+00:00",
-  "commit": "008fce20ac674df7a6953bf48714672708dd43b2",
+  "generatedAt": "2026-11-20T06:20:34.094899+00:00",
+  "commit": "532b4f74592a3996908681ba7614e81facf6495a",
   "branch": "main",
-  "sourceFingerprint": "aa2478fab94e157890ac207787d5fa2f057e365e080411f3dd446031a42bfe2e",
+  "sourceFingerprint": "9a6eb9d821c7d41db697c396e25164a041a3eb426d48fcee22230426f853433c",
   "summary": {
     "files": 1503,
-    "lines": 321927,
+    "lines": 321991,
     "symbols": 4566
   },
   "symbolIndex": {
@@ -491,7 +491,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 775
+        "line": 779
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt",
@@ -3147,7 +3147,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 818
+        "line": 822
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityEventBudget.kt",
@@ -15903,7 +15903,7 @@
     "place": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-        "line": 794
+        "line": 798
       }
     ],
     "nextRound": [
@@ -40546,8 +40546,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt",
-      "lines": 921,
-      "sha256": "6612d5b00227b42221e2ba7aed6975860ae1ac2bdfcbe31f01a91acff058046e",
+      "lines": 925,
+      "sha256": "0abdc669f36c3ef4995a702d506bb18a9bb5d2f88ba8558afeb3f25ffe9b8a03",
       "symbols": [
         {
           "name": "persistMatch",
@@ -40571,15 +40571,15 @@
         },
         {
           "name": "finish",
-          "line": 775
+          "line": 779
         },
         {
           "name": "place",
-          "line": 794
+          "line": 798
         },
         {
           "name": "reset",
-          "line": 818
+          "line": 822
         }
       ]
     },
@@ -41014,8 +41014,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt",
-      "lines": 114,
-      "sha256": "7cb7a8c5ffd071fa55387583bef01f3d423e855ac33c11b10694e1cd09d2dded",
+      "lines": 147,
+      "sha256": "26b520f5df8fe5b346a13dbcfe62897412e14eeb8f0478be6f1f6bcd7bfa9a2d",
       "symbols": [
         {
           "name": "Keep",
@@ -52323,8 +52323,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameRoleChoiceContractTest.kt",
-      "lines": 76,
-      "sha256": "814cf1e39ce2038d1528760ea9f8470ef0de9094df2f5925ea91ab37c302aaa2",
+      "lines": 103,
+      "sha256": "07a88efacbd82658765965e9c0aeea7a49ec16fa9384398cba88976be8d1ffd7",
       "symbols": [
         {
           "name": "GameRoleChoiceContractTest",
