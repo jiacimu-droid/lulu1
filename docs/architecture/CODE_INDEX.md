@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`eadb532cef947adc0c877d4065fc61e4f40010d5`
+- 基准提交：`4c72a0a2237d0e6d8646810e6bfd5895d7a47764`
 - 分支：`main`
 - 已索引文件：1503
-- 已索引代码/文本行：322628
+- 已索引代码/文本行：322655
 - 已发现符号：4574
 
 | 文件 | 行数 | 符号数 |
@@ -537,7 +537,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LearningResearchPolicy.kt` | 13 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyConversationMigration.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LegacyLuluBackupImporter.kt` | 548 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt` | 51 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt` | 63 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt` | 1470 | 16 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt` | 666 | 13 |
 | `app/src/main/java/com/jiacimu/lulu/data/LocationAddressCache.kt` | 41 | 1 |
@@ -1227,7 +1227,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCompetencyPolicyTest.kt` | 24 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningCyclePolicyTest.kt` | 36 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LearningResearchPolicyTest.kt` | 18 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt` | 98 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt` | 113 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LocationAddressCacheTest.kt` | 50 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluAppearanceLibraryTest.kt` | 71 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/LuluCloudBackupTest.kt` | 216 | 8 |

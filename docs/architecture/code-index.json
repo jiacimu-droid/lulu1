@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T08:27:59.992758+00:00",
-  "commit": "eadb532cef947adc0c877d4065fc61e4f40010d5",
+  "generatedAt": "2026-11-20T08:30:01.946181+00:00",
+  "commit": "4c72a0a2237d0e6d8646810e6bfd5895d7a47764",
   "branch": "main",
-  "sourceFingerprint": "9117e12525d956f71287bae40ab4d7c33934d07f198bf3e1c9553ecdc8446eef",
+  "sourceFingerprint": "6d80a71ef7c66d39d34f6bab63770bfff4f5407efd8f29365e599cba9e653e4f",
   "summary": {
     "files": 1503,
-    "lines": 322628,
+    "lines": 322655,
     "symbols": 4574
   },
   "symbolIndex": {
@@ -35839,8 +35839,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt",
-      "lines": 51,
-      "sha256": "adf47ad7a7797a23349cf14499d345c666db8d492472df5362aa6c75dc896efb",
+      "lines": 63,
+      "sha256": "a691a964fd9501962a7db34aa952155fb648ca3c832095d5d02614117b341143",
       "symbols": [
         {
           "name": "LexiconMemoryContext",
@@ -50311,8 +50311,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt",
-      "lines": 98,
-      "sha256": "840a4de224ef23d4e73ee8463ebd89a3e3c261ae31ffe2a404765c7b0f961057",
+      "lines": 113,
+      "sha256": "8b0da3fed1e39ba9724cdf76676dd486734d90031b7366f12ea10d6207358e5e",
       "symbols": [
         {
           "name": "LexiconWorkingSetTest",
