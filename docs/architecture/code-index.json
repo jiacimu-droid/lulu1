@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T07:49:47.748284+00:00",
-  "commit": "d53c5ec13728ec7dc4da1af2c217a65545f85d33",
+  "generatedAt": "2026-11-20T07:50:26.073235+00:00",
+  "commit": "a401f23b2a82998a2092110da7457516c53169b5",
   "branch": "main",
-  "sourceFingerprint": "7735c479a3464758080c1bcc67d5003b2ce3a12e3c9d60ee523562ce3b781b2d",
+  "sourceFingerprint": "60a3a632d72aa479deef14cb8cfc0f944f8070c2466da029c06221fa03a215f6",
   "summary": {
     "files": 1503,
-    "lines": 322340,
+    "lines": 322405,
     "symbols": 4571
   },
   "symbolIndex": {
@@ -50846,8 +50846,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt",
-      "lines": 156,
-      "sha256": "3c0f706ff8e0897ad3c6d5686fca368f8e01b6b3329875f3d17e65f362dd24ce",
+      "lines": 221,
+      "sha256": "851ec6689da0a47e67890cb183d3f92e8eb47f5b6b1d3bf6bca44c143023dae6",
       "symbols": [
         {
           "name": "PerformanceAuditPersistenceTest",
