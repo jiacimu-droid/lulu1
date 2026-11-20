@@ -57,6 +57,7 @@ private val kaomojiChoices = listOf(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun QqStickerShelf(
+    characterId: String,
     onSendSticker: (LuluSticker) -> Boolean,
     onInsertText: (String) -> Unit,
     onNotice: (String) -> Unit,
@@ -85,10 +86,10 @@ internal fun QqStickerShelf(
     var showVisionDialog by remember { mutableStateOf(false) }
     var visionBusy by remember { mutableStateOf(false) }
     var importPackName by remember { mutableStateOf("我的添加") }
-    var stickerVisionMode by remember { mutableStateOf(StickerVisionRouting.mode(context)) }
+    var stickerVisionMode by remember { mutableStateOf(StickerVisionRouting.mode(context, characterId)) }
     suspend fun summarizeVision(pack: String): String {
         if (stickerVisionMode != StickerVisionRouting.DEDICATED_ON_IMPORT) return ""
-        val captioned = StickerVisionRouting.labelMissingAfterImport(context, pack)
+        val captioned = StickerVisionRouting.labelMissingAfterImport(context, pack, characterId)
         return when {
             captioned.error.isNotBlank() -> "；自动补描述 ${captioned.labeled} 张后中止：${captioned.error}"
             captioned.attempted > 0 -> "；已自动识图补描述 ${captioned.labeled} 张（${captioned.attempted} 次请求）"
@@ -236,7 +237,7 @@ internal fun QqStickerShelf(
                                 text = { Text("识图：关闭（仅导入原有描述）") },
                                 onClick = {
                                     stickerVisionMode = StickerVisionRouting.OFF
-                                    StickerVisionRouting.setMode(context, stickerVisionMode)
+                                    StickerVisionRouting.setMode(context, stickerVisionMode, characterId)
                                     showAddMenu = false
                                     onNotice("已关闭自动识图；已有文字描述不受影响")
                                 },
@@ -245,7 +246,7 @@ internal fun QqStickerShelf(
                                 text = { Text("识图：聊天模型支持图片（同轮直接看图）") },
                                 onClick = {
                                     stickerVisionMode = StickerVisionRouting.MULTIMODAL_CHAT
-                                    StickerVisionRouting.setMode(context, stickerVisionMode)
+                                    StickerVisionRouting.setMode(context, stickerVisionMode, characterId)
                                     showAddMenu = false
                                     onNotice("聊天模型已标记为支持图片。只会在聊天时附少量候选原图，不使用独立识图模型；若模型其实不支持图片，请关闭此模式。")
                                 },
@@ -254,7 +255,7 @@ internal fun QqStickerShelf(
                                 text = { Text("识图：缺描述时自动调用独立识图模型（收费）") },
                                 onClick = {
                                     stickerVisionMode = StickerVisionRouting.DEDICATED_ON_IMPORT
-                                    StickerVisionRouting.setMode(context, stickerVisionMode)
+                                    StickerVisionRouting.setMode(context, stickerVisionMode, characterId)
                                     showAddMenu = false
                                     onNotice("今后导入时仅对缺描述的表情自动识图；可能产生 API 费用，每批只尝试一次")
                                 },
