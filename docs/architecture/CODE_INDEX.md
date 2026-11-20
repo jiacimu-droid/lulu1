@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b221b6737dbe9b1b95bfba5ca5faab30e4d1b8e6`
+- 基准提交：`14b7892191617e7796c70e97384dbf2d7d8ec38c`
 - 分支：`main`
-- 已索引文件：1494
-- 已索引代码/文本行：319451
-- 已发现符号：4538
+- 已索引文件：1495
+- 已索引代码/文本行：319499
+- 已发现符号：4544
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -167,7 +167,7 @@
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 715 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 144 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 411 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 412 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 327 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 977 | 3 |
@@ -317,6 +317,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt` | 103 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/SettingsHomeSearch.kt` | 96 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt` | 171 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt` | 46 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 98 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt` | 60 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/SleepNarrativeStore.kt` | 90 | 1 |
@@ -339,7 +340,7 @@
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 53 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/WatchPlaybackEvidence.kt` | 87 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt` | 871 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt` | 872 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 274 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 195 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 115 | 0 |
