@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`67ffe3f827d134c96b38acb91c0184a08b44613d`
+- 基准提交：`c05cea6a18f1fd33ad0a72af8e3dd5eab215bcc3`
 - 分支：`main`
 - 已索引文件：1494
-- 已索引代码/文本行：319162
+- 已索引代码/文本行：319200
 - 已发现符号：4535
 
 | 文件 | 行数 | 符号数 |
@@ -322,7 +322,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SleepNarrativeStore.kt` | 90 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StartupFailureRecovery.kt` | 114 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/StatefulCharacterPortrait.kt` | 24 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/StickerFlexibleTextImport.kt` | 173 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/StickerFlexibleTextImport.kt` | 200 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/StickerImportManifest.kt` | 129 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt` | 461 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/StickerPackArchive.kt` | 171 | 1 |
@@ -1043,7 +1043,7 @@
 | `app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SleepNarrativeStoreTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StartupFailureRecoveryTest.kt` | 40 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/StickerFlexibleTextImportTest.kt` | 70 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/StickerFlexibleTextImportTest.kt` | 81 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StickerImportManifestTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StickerPackArchiveTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StickerPromptSelectionTest.kt` | 79 | 1 |
