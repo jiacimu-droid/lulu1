@@ -367,7 +367,7 @@ internal object CharacterOpenConcernRuntime {
                         }
                     }
                 }
-                appendLine("这些心事可能已经变化：可以改变看法、采取行动或放下；不必为了结束心事去打扰用户。")
+                appendLine("这些心事可能已经变化：可以联系对方、自己采取行动、继续思考或放下；联系与否由真实关系和当下心意决定，不是为了清空心事列表而机械发送消息。")
             }
             if (dormant.isNotEmpty()) {
                 appendLine("【暂停关注的旧心路】共${dormant.size}件；仅供在新证据出现时回看。" +

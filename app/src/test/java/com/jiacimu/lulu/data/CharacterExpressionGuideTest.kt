@@ -32,12 +32,14 @@ class CharacterExpressionGuideTest {
     @Test fun proactiveContactIsNotPresumedAnInterruptionOrInstantReplyDemand() {
         val shared = CharacterDecisionProtocol.runtimePrinciples
         val common = CharacterDecisionProtocol.causalPrinciples
-        assertTrue(shared.contains("普通消息是正常沟通，不等于要求对方立即回复"))
-        assertTrue(shared.contains("忙碌、未回复"))
+        assertTrue(shared.contains("角色发消息、关心和分享是正常相处"))
+        assertTrue(shared.contains("横幅、声音由App和主人自己的通知设置控制"))
+        assertTrue(shared.contains("学习、未回复、过往某次犹豫都不是对方拒绝联系的证据"))
         assertTrue(shared.contains("勿扰设置"))
         assertTrue(shared.contains("等约定时刻"))
-        assertTrue(common.contains("不能凭空把一次普通联系想象为必然打扰"))
-        assertTrue(common.contains("旧心声"))
+        assertTrue(shared.contains("已接受的监督提醒要按真实约定兑现"))
+        assertTrue(common.contains("旧心声中的犹豫只是过去的感受"))
+        assertTrue(common.contains("现在是否联系须由本人重新依据真实情况决定"))
     }
 
     @Test fun rendererReceivesTheSelectedPersonRatherThanAnInvitationToPlanAgain() {
