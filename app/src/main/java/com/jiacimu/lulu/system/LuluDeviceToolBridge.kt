@@ -484,7 +484,7 @@ object LuluDeviceToolBridge {
         val stickerVisuals = if (!sceneContext.contains("电话") && userText.isNotBlank())
             com.jiacimu.lulu.StickerVisionRouting.prepareForMultimodalChat(
                 appContext, userText, history, chatPhotos.urls.size,
-                previousPresence?.mood.orEmpty(),
+                previousPresence?.mood.orEmpty(), characterId,
             ) else com.jiacimu.lulu.StickerVisionRouting.PreparedImages(emptyList(), "")
         com.jiacimu.lulu.LuluRepositories.performance.recordTiming("前台回复准备",
             (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
