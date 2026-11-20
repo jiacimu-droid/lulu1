@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:37:50.886145+00:00",
-  "commit": "b7ebf0f4fd42b9b189b5e34ebc04e6bfbbff8da4",
+  "generatedAt": "2026-11-20T04:58:17.151180+00:00",
+  "commit": "2b4715c590cfb94334d84c7ae4c2b8ccdc4eff45",
   "branch": "main",
-  "sourceFingerprint": "8afd452fb386a1dc91d7333a31a2fd4530a8f9393b14692638c22e007ecc25cf",
+  "sourceFingerprint": "0ae2a188e9f84e61a581492a5dee413719bfcc8679d4b00eda03f56e7aea3546",
   "summary": {
     "files": 1498,
-    "lines": 320579,
-    "symbols": 4556
+    "lines": 320609,
+    "symbols": 4557
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2475,19 +2475,19 @@
     "hasPermission": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
-        "line": 38
+        "line": 41
       }
     ],
     "present": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
-        "line": 41
+        "line": 44
       }
     ],
     "text": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
-        "line": 63
+        "line": 66
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceMood.kt",
@@ -2505,7 +2505,7 @@
     "action": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
-        "line": 71
+        "line": 74
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
@@ -2516,10 +2516,16 @@
         "line": 137
       }
     ],
+    "avatar": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+        "line": 142
+      }
+    ],
     "dismiss": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
-        "line": 235
+        "line": 265
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
@@ -27186,28 +27192,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
-      "lines": 248,
-      "sha256": "67df9cee14c3cf36f84b1545e8c45d17204aa701f96aff031ec03a75e9e1a968",
+      "lines": 278,
+      "sha256": "984479b020ba6d04cc864178641e90637e7f848d406a959a525fce531dec548b",
       "symbols": [
         {
           "name": "hasPermission",
-          "line": 38
-        },
-        {
-          "name": "present",
           "line": 41
         },
         {
+          "name": "present",
+          "line": 44
+        },
+        {
           "name": "text",
-          "line": 63
+          "line": 66
         },
         {
           "name": "action",
-          "line": 71
+          "line": 74
+        },
+        {
+          "name": "avatar",
+          "line": 142
         },
         {
           "name": "dismiss",
-          "line": 235
+          "line": 265
         }
       ]
     },
