@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:38:11.050774+00:00",
-  "commit": "4f7846faf6c555eca313fe37bc8737a3bb26f098",
+  "generatedAt": "2026-11-20T01:39:02.633447+00:00",
+  "commit": "cde7aa25eed9e7d42baa35743c40e4d8da33fa40",
   "branch": "main",
-  "sourceFingerprint": "7ae9c478282a32ab01b3fece89aa7f6533523936d5d060b7b422a5e85575c98a",
+  "sourceFingerprint": "66a5d3db96074684c2dc9c674a1fd02b91f01c4ec59752f9d5f866c625e78a5a",
   "summary": {
     "files": 1493,
-    "lines": 318998,
+    "lines": 319011,
     "symbols": 4534
   },
   "symbolIndex": {
@@ -13379,13 +13379,13 @@
     "awaitsReadReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3228
+        "line": 3233
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3981
+        "line": 3986
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -18753,49 +18753,49 @@
     "phoneReceiptChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 488
+        "line": 495
       }
     ],
     "phoneObservationChanged": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 494
+        "line": 501
       }
     ],
     "phoneDecisionInvalidated": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 498
+        "line": 505
       }
     ],
     "phoneInvalidationReason": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 502
+        "line": 509
       }
     ],
     "stalePhoneTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 507
+        "line": 514
       }
     ],
     "queuedReceiptAlreadyObserved": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 517
+        "line": 524
       }
     ],
     "alreadyObservedPhoneTurn": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 521
+        "line": 528
       }
     ],
     "staleReplyExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-        "line": 1547
+        "line": 1555
       }
     ],
     "LaunchableApp": [
@@ -37372,8 +37372,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 4048,
-      "sha256": "7e3961fcdf0ba5f6292c512116a63e60322f029cc70286f693b643575a2eca49",
+      "lines": 4053,
+      "sha256": "a582a830d2d6d3712a0667125dca966606ecb7d5eda5f1f0e348f8587dda59d0",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -37405,11 +37405,11 @@
         },
         {
           "name": "awaitsReadReply",
-          "line": 3228
+          "line": 3233
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3981
+          "line": 3986
         }
       ]
     },
@@ -43956,8 +43956,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
-      "lines": 2366,
-      "sha256": "8a74f713bfecf18293e5b80434d949ecb85b0a37c575725714072ae4659c7344",
+      "lines": 2374,
+      "sha256": "35902a53694e98c11629a27e6608c67ff608dd3fb91f321ea4bf1f76b958340a",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
@@ -43977,35 +43977,35 @@
         },
         {
           "name": "phoneReceiptChanged",
-          "line": 488
+          "line": 495
         },
         {
           "name": "phoneObservationChanged",
-          "line": 494
+          "line": 501
         },
         {
           "name": "phoneDecisionInvalidated",
-          "line": 498
+          "line": 505
         },
         {
           "name": "phoneInvalidationReason",
-          "line": 502
+          "line": 509
         },
         {
           "name": "stalePhoneTurn",
-          "line": 507
+          "line": 514
         },
         {
           "name": "queuedReceiptAlreadyObserved",
-          "line": 517
+          "line": 524
         },
         {
           "name": "alreadyObservedPhoneTurn",
-          "line": 521
+          "line": 528
         },
         {
           "name": "staleReplyExpression",
-          "line": 1547
+          "line": 1555
         }
       ]
     },
