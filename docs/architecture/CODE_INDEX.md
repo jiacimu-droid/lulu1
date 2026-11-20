@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`30970ffd2a295a50d7665dae9f05a6b8040497c8`
+- 基准提交：`39550a9b11d6fa167b482339d84e35db17cf7369`
 - 分支：`main`
 - 已索引文件：1498
-- 已索引代码/文本行：320491
+- 已索引代码/文本行：320539
 - 已发现符号：4556
 
 | 文件 | 行数 | 符号数 |
@@ -167,10 +167,10 @@
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 715 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 156 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ListenTogetherMiniWindow.kt` | 241 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherMiniWindow.kt` | 247 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherMusicLibrary.kt` | 307 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 413 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 374 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 416 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt` | 248 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 977 | 3 |
