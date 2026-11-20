@@ -47,16 +47,12 @@ internal object PromptContextPolicy {
         hasLiveConversation: Boolean = false,
         fullCharacterDecision: Boolean = false,
     ): PromptContextBudget {
-        // A live DM, an independent life decision, and in-game choices belong
-        // to the SAME PERSON. They cannot silently select different memory and
-        // mental-life tiers merely because the owner just sent a message.
-        // Context scope varies with real evidence/tool needs, not with
-        // whether the owner sent a chat bubble. Full actor modes share one tier.
-        // Neither tier deletes stored memories or disables autonomous steps.
-        // Full-mode actor decisions share a single memory and mental-life
-        // budget regardless of whether the surface is phone, QQ, meeting,
-        // Moments, games or independent life. Rendering and isolated tooling
-        // retain their deliberately narrow budgets (gateway selects that).
+        // Every Full actor remains the SAME PERSON, using the same identity,
+        // relationships, live inner-life, core facts and continuous owner-selected
+        // recent conversation. Ordinary Full modes keep one historical budget.
+        // Games alone get the owner's expressly requested lean historical
+        // retrieval window; this never deletes stores or reduces the live actor.
+        // Rendering and isolated tools retain their separate narrow budgets.
         val sharedLifeTurn = fullCharacterDecision || source == "后台主动感知" ||
             source == "私聊" || source.startsWith("游戏 ·")
         val gameTurn = source == "游戏" || source.startsWith("游戏 ·")
@@ -96,11 +92,9 @@ internal object PromptContextPolicy {
                 precise = false,
                 workingSetCharacters = 12_000,
             )
-            // EVERY full, actor-owned decision gets exactly the same memory
-            // sections, recall counts and total working-set cap. A request to
-            // verify an old promise changes which relevant evidence ranks first,
-            // NOT which persona/scene has a larger brain. The original facts
-            // stay in their stores and the existing exact-source search remains.
+            // Non-game Full actors share one historical tier. An exact quote or
+            // responsibility check in a game also falls back here for evidence.
+            // Original source facts remain stored and searchable in every mode.
             sharedLifeTurn -> PromptContextBudget(
                 recallLimit = 40,
                 // Owner-configured recent turns are independent and complete.

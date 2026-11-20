@@ -2245,7 +2245,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-        "line": 224
+        "line": 203
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
@@ -8207,7 +8207,7 @@
     "friendshipThreads": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-        "line": 199
+        "line": 178
       }
     ],
     "Receipt": [
@@ -32327,8 +32327,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 489,
-      "sha256": "960e01d74c5cfe6a7976f26467c278b3685cec6b3c2043980a248966b4ed68e7",
+      "lines": 468,
+      "sha256": "01c2928d3dd6407c97613e775abb8f324cfebb12e90a80200dedfe093c999dfb",
       "symbols": [
         {
           "name": "currentSocialAuthority",
@@ -32344,11 +32344,11 @@
         },
         {
           "name": "friendshipThreads",
-          "line": 199
+          "line": 178
         },
         {
           "name": "render",
-          "line": 224
+          "line": 203
         }
       ]
     },

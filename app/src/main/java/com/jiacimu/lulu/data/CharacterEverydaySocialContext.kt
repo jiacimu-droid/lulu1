@@ -139,7 +139,8 @@ internal object CharacterEverydaySocialContext {
      */
     fun gameUpdates(characterId: String): String {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return ""
-        val pending = ResidentSocialMailbox.pendingIncoming(characterId).take(3)
+        val pending = ResidentSocialMailbox.pendingIncoming(characterId)
+            .sortedByDescending { it.createdAt }.take(3).asReversed()
         if (pending.isEmpty()) return ""
         return buildString {
             appendLine("【游戏期间仍待本人处理的数字人物新消息｜真实已送达】")

@@ -127,15 +127,15 @@ class PromptContextPolicyTest {
         }
     }
 
-    @Test fun fullCharacterDecisionsUseIdenticalMemoryTierAcrossEveryRealScene() {
+    @Test fun nonGameFullActorsKeepIdenticalHistoricalRecallBudget() {
         val request = UnifiedMemoryRequest(
             currentInput = "我在想今天那些真实经历",
             sceneContext = "这个角色本人的当前场景",
             taskIntent = "按已有真实经历独立做决定",
         )
-        // Not a heuristic source list in production: Full is the authoritative
-        // actor decision flag. The scene label must never deprive this person
-        // of its other memories, commitments, feelings or desired activities.
+        // All Full decisions retain the complete actor. The owner's game-only
+        // optimization is limited to optional historical retrieval; ordinary
+        // Full scenes continue to share one budget.
         val realScenes = listOf(
             "后台主动感知",
             "私聊",
