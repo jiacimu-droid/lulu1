@@ -269,6 +269,10 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                             pendingImageSelector = "#ListenTogether .music-room"
                             importImage.launch("image/*")
                         }) { Text("房间背景") }
+                        OutlinedButton(onClick = {
+                            pendingImageSelector = "#ListenTogether .music-mini"
+                            importImage.launch("image/*")
+                        }) { Text("悬浮窗皮肤") }
                     }
                 }
             }
