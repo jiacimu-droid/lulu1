@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a269f0dd95d78ab90920466ff86d444239ad9626`
+- 基准提交：`2914daf012a3c3caf95dec9f577fd68eaf18bd22`
 - 分支：`main`
 - 已索引文件：1503
-- 已索引代码/文本行：322487
+- 已索引代码/文本行：322493
 - 已发现符号：4571
 
 | 文件 | 行数 | 符号数 |
@@ -260,7 +260,7 @@
 | `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 58 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 584 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 590 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt` | 63 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt` | 902 | 2 |
