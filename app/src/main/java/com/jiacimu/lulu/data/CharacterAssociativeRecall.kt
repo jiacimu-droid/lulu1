@@ -179,9 +179,11 @@ internal object CharacterAssociativeRecall {
         val cadenceSeconds = ProactivePerceptionPolicyStore.get(characterId).onlinePulseSeconds.toLong()
         val memories = selectMemories(characterId, validMemories, query, now, cadenceSeconds = cadenceSeconds)
         val learned = CharacterDevelopmentStore.active(characterId)
-        val ownerKnowledge = CharacterDevelopmentRecall.selectOwnerDetails(
+        // Full decision gateways already retrieve owner knowledge inside their
+        // historical budget. Avoid a second background-scene copy of it.
+        val ownerKnowledge = if (includeOwnerKnowledge) CharacterDevelopmentRecall.selectOwnerDetails(
             characterId, learned, query, now, cadenceSeconds,
-        )
+        ) else emptyList()
         val selfKnowledge = CharacterDevelopmentRecall.select(
             learned.filter { it.kind in setOf(DevelopmentKind.Interest, DevelopmentKind.Preference, DevelopmentKind.Habit) },
             query, 3, now)
