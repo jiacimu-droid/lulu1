@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T06:35:38.780909+00:00",
-  "commit": "a435bb61bdc5702cdd062a2e9016fbcc0bddbf8e",
+  "generatedAt": "2026-11-20T07:43:33.493645+00:00",
+  "commit": "90051c42bafe2f0f3c85ad100dc39462808a84ba",
   "branch": "main",
-  "sourceFingerprint": "c4a5e46972d376d0c1b97158020f108991319afc265a2c0d108c62dd524e2af9",
+  "sourceFingerprint": "b93a5863fb4820f65e66a470bd241e61351fab48cfaede67f8c60b3cfe417597",
   "summary": {
     "files": 1503,
-    "lines": 322093,
+    "lines": 322144,
     "symbols": 4567
   },
   "symbolIndex": {
@@ -11829,31 +11829,31 @@
     "PerformanceErrorRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 110
+        "line": 116
       }
     ],
     "List": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 120
+        "line": 126
       }
     ],
     "LocalPerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 133
+        "line": 139
       }
     ],
     "recordModelHandoff": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 229
+        "line": 254
       }
     ],
     "updateDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 364
+        "line": 405
       }
     ],
     "Key": [
@@ -35866,8 +35866,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-      "lines": 610,
-      "sha256": "862b5118d11421925fe3933cb9d8b046916a0fe6672d07e7f2d86850c85faf49",
+      "lines": 661,
+      "sha256": "af4d332bc99342da9466cffd9ce60416f28b7b83efce0a84fc0df3d7ea9ca6bc",
       "symbols": [
         {
           "name": "ApiUsageSource",
@@ -35903,23 +35903,23 @@
         },
         {
           "name": "PerformanceErrorRecord",
-          "line": 110
+          "line": 116
         },
         {
           "name": "List",
-          "line": 120
+          "line": 126
         },
         {
           "name": "LocalPerformanceRepository",
-          "line": 133
+          "line": 139
         },
         {
           "name": "recordModelHandoff",
-          "line": 229
+          "line": 254
         },
         {
           "name": "updateDurations",
-          "line": 364
+          "line": 405
         }
       ]
     },
