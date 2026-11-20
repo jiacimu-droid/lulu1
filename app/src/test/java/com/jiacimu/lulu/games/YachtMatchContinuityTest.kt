@@ -36,6 +36,27 @@ class YachtMatchContinuityTest {
         assertEquals("", after.contextFor("different-role"))
     }
 
+    @Test fun roleBackupSurvivesThirdRollSerializationWithoutReroll() {
+        val before = YachtMatchSnapshot(
+            companionIds = listOf("river"),
+            currentPlayerIndex = 1,
+            dice = listOf(6, 6, 3, 3, 2),
+            held = setOf(0, 1, 2, 3),
+            rolls = 3,
+            fallbackScoreCategory = YachtCategory.Chance,
+        )
+        val after = YachtMatchSnapshot.fromJson(before.toJson())!!
+        assertEquals(before, after)
+        assertEquals(3, after.rolls)
+        assertEquals(listOf(6, 6, 3, 3, 2), after.dice)
+        assertEquals(YachtCategory.Chance, after.fallbackScoreCategory)
+        assertEquals(20, scoreYacht(after.fallbackScoreCategory!!, after.dice))
+        val legacy = YachtMatchSnapshot.fromJson(before.toJson().replace(
+            "\"fallbackScoreCategory\":\"Chance\",", ""
+        ))!!
+        assertNull(legacy.fallbackScoreCategory)
+    }
+
     @Test fun storageKeepsSameMatchIdAndCurrentScoreWhenLeavingTheScreen() {
         val context = RuntimeEnvironment.getApplication() as android.content.Context
         context.getSharedPreferences("lulu_games", 0).edit().clear().commit()
