@@ -327,6 +327,7 @@ private data class ApiTimingCall(val id: String, val records: List<PerformanceTi
     val source: String get() = outcome?.source.orEmpty()
     val model: String get() = outcome?.model.orEmpty()
     val provider: String get() = outcome?.provider.orEmpty()
+    val bodyBytes: Long get() = outcome?.requestBodyBytes ?: 0L
     val status: String get() = outcome?.status?.takeIf(String::isNotBlank) ?: "进行中"
     fun duration(key: String): Long? = records.firstOrNull { it.stage == key }?.durationMillis
 }
@@ -416,6 +417,8 @@ private fun FastDurationTab(onClear: () -> Unit) {
                 FastMetric("模型", call.model.ifBlank { "未知" })
                 FastMetric("来源", call.source.ifBlank { "未知" })
                 FastMetric("中转/服务商域名", call.provider.ifBlank { "未知" })
+                if (call.bodyBytes > 0L) FastMetric("请求体大小",
+                    String.format(java.util.Locale.getDefault(), "%.1f KB", call.bodyBytes / 1024.0))
                 val httpAttempts = call.records.count { it.stage == "上传请求正文" }
                 if (httpAttempts > 1) Text("这一轮含 " + httpAttempts +
                     " 次实际 HTTP 请求尝试（例如协议回退），总耗时覆盖整轮。",
@@ -428,7 +431,9 @@ private fun FastDurationTab(onClear: () -> Unit) {
                     "APK·拼装与审计" to "提示词拼装与审计",
                     "本地准备" to "APK 本地准备",
                     "模型请求" to "模型请求总阶段",
-                    "连接与建链（DNS/代理/TLS）" to "连接/DNS/代理/TLS",
+                    "连接与建链（DNS/代理/TLS）" to "连接阶段（合计）",
+                    "DNS解析" to "DNS 解析",
+                    "TLS握手" to "TLS 握手",
                     "上传请求正文" to "上传请求正文",
                     "等待响应头（中转站+模型）" to "等待中转/模型响应",
                     "读取响应/流式输出" to "接收回复/流式生成",
@@ -444,6 +449,8 @@ private fun FastDurationTab(onClear: () -> Unit) {
                 val actor = call.duration("APK·人物与世界资料")
                 val assembly = call.duration("APK·拼装与审计")
                 val connect = call.duration("连接与建链（DNS/代理/TLS）")
+                val dns = call.duration("DNS解析")
+                val tls = call.duration("TLS握手")
                 val upload = call.duration("上传请求正文")
                 val wait = call.duration("等待响应头（中转站+模型）")
                 val streaming = call.duration("读取响应/流式输出")
@@ -457,6 +464,10 @@ private fun FastDurationTab(onClear: () -> Unit) {
                         "提示词拼装和审计偏慢，排查超长文本或重复处理。"
                     prep != null && prep >= 5_000 && prep >= (call.totalMillis ?: 0L) / 3 ->
                         "APK 本地准备明显偏慢，可以继续对照上方分段耗时。"
+                    dns != null && dns >= 1_000 ->
+                        "DNS 解析用时较长，可能与 DNS 配置、代理路线或网络有关。"
+                    tls != null && tls >= 2_000 ->
+                        "TLS 握手偏慢，排查网络链路、代理或中转站连接。"
                     connect != null && connect >= 3_000 ->
                         "连接建链偏慢，检查网络、代理/VPN、DNS 或 TLS。"
                     upload != null && upload >= 3_000 ->
