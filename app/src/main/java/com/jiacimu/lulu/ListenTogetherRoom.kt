@@ -109,7 +109,7 @@ internal fun ListenTogetherRoom(
     characterId: String,
     characterName: String,
     characterAvatarUri: String? = null,
-    onDiscuss: (String) -> Boolean,
+    onOpenMusic: () -> Unit,
     onClose: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -134,7 +134,7 @@ internal fun ListenTogetherRoom(
     var busy by remember { mutableStateOf(false) }
     var lastAnalysisAttemptUri by remember(conversationId) { mutableStateOf("") }
     var draft by remember { mutableStateOf("") }
-    val messages by MigratedDomainStores.chat.messages(conversationId).collectAsState()
+    var autoPlaySelectedUri by remember { mutableStateOf("") }
 
     fun recordListening(note: String) {
         SharedExperienceTimeline.record(
@@ -219,6 +219,51 @@ internal fun ListenTogetherRoom(
         }
         duration = prepared.duration.coerceAtLeast(0)
         player = prepared
+        if (autoPlaySelectedUri == uri) {
+            autoPlaySelectedUri = ""
+            runCatching {
+                prepared.start()
+                playing = prepared.isPlaying
+                if (playing) {
+                    recordListening("用户在一起听歌单中选中并播放本地音频：" + audioName +
+                        "；角色是否听懂以独立音频感知回执为准。")
+                    analyzeSharedFile(uri)
+                }
+            }.onFailure { status = "播放选中音频失败：" + it.message.orEmpty() }
+        }
+    }
+
+    LaunchedEffect(SharedMusicWindowController.requestedTrack?.id) {
+        val entry = SharedMusicWindowController.requestedTrack ?: return@LaunchedEffect
+        if (SharedMusicWindowController.room?.characterId != characterId) return@LaunchedEffect
+        if (entry.source == "local") {
+            if (entry.uri.isBlank()) {
+                status = "这条本地收藏没有可访问的文件"
+            } else {
+                mode = "local"
+                if (entry.uri == uri) {
+                    runCatching {
+                        player?.seekTo(0)
+                        player?.start()
+                        playing = player?.isPlaying == true
+                    }.onFailure { status = "无法播放：" + it.message.orEmpty() }
+                    if (playing) {
+                        recordListening("用户在歌单中播放本地歌曲：" + entry.title)
+                        analyzeSharedFile(uri)
+                    }
+                } else {
+                    autoPlaySelectedUri = entry.uri
+                    uri = entry.uri
+                    lastAnalysisAttemptUri = ""
+                    prefs.edit().putString(key + "audio", uri).putInt(key + "position", 0).apply()
+                }
+            }
+        } else {
+            mode = "system"
+            status = NeteaseSongLink.open(context, entry)
+            // The external app owns playback; only a later real MediaSession
+            // state may confirm the track rather than this open request.
+        }
     }
     LaunchedEffect(player) {
         while (isActive) {
@@ -241,86 +286,88 @@ internal fun ListenTogetherRoom(
         }
     }
 
-    ListenTogetherPlayerScreen(
-        characterId = characterId,
-        characterName = characterName,
-        characterAvatarUri = characterAvatarUri,
-        mode = mode,
-        onModeChange = { mode = it; status = "" },
+    fun controlExternal(command: String) {
+        scope.launch {
+            val raw = withContext(Dispatchers.IO) {
+                LuluMediaPlayback.control(context, command, track?.packageName.orEmpty())
+            }
+            val result = runCatching { JSONObject(raw) }.getOrNull()
+            status = when {
+                result?.optBoolean("success") == true -> ""
+                result?.optBoolean("accepted") == true ->
+                    "已发出控制请求，等待播放器报告新状态"
+                else -> result?.optString("error").orEmpty().ifBlank { "播放器未接受操作" }
+            }
+            delay(400L)
+            refreshExternal()
+        }
+    }
+
+    fun toggleLocal() {
+        player?.let { active ->
+            runCatching {
+                if (active.isPlaying) active.pause()
+                else {
+                    active.start()
+                    if (active.isPlaying) {
+                        recordListening("用户与角色播放本地音频：" + audioName +
+                            "；音频内容仍以实际感知回执为准。")
+                        analyzeSharedFile(uri)
+                    }
+                }
+                playing = active.isPlaying
+            }.onFailure { status = "播放失败：" + it.message.orEmpty() }
+        }
+    }
+
+    fun skipLocal(next: Boolean) {
+        val songs = SharedListenPlaylists.read(context, characterId)
+            .flatMap { it.tracks }.filter { it.source == "local" && it.uri.isNotBlank() }
+        val index = songs.indexOfFirst { it.uri == uri }
+        val target = if (next) index + 1 else index - 1
+        if (index < 0 || target !in songs.indices) {
+            status = "当前歌曲不在歌单顺序中，或已是第一/最后一首"
+        } else {
+            autoPlaySelectedUri = songs[target].uri
+            uri = songs[target].uri
+            lastAnalysisAttemptUri = ""
+            prefs.edit().putString(key + "audio", uri).putInt(key + "position", 0).apply()
+        }
+    }
+
+    ListenTogetherMiniWindow(
+        roleName = characterName,
+        roleAvatar = characterAvatarUri,
+        systemMode = mode == "system",
         external = track,
         externalError = sessionError,
-        onRefreshExternal = { refreshExternal() },
-        onExternalControl = { command ->
-            scope.launch {
-                val raw = withContext(Dispatchers.IO) {
-                    LuluMediaPlayback.control(context, command, track?.packageName.orEmpty())
-                }
-                val result = runCatching { JSONObject(raw) }.getOrNull()
-                status = when {
-                    result?.optBoolean("success") == true -> ""
-                    result?.optBoolean("accepted") == true ->
-                        "请求已发给播放器，正在等待最新播放状态"
-                    else -> result?.optString("error").orEmpty().ifBlank { "播放器未接受此操作" }
-                }
-                delay(400L)
-                refreshExternal()
-            }
-        },
-        onJoinExternal = {
-            track?.takeIf { it.playing }?.let {
-                recordListening(
-                    "用户邀请角色一起听手机媒体会话：" + it.title +
-                        "；歌手=" + it.artist + "；来源=" + it.packageName +
-                        "。只取得媒体元数据，尚未提供实际音频或歌词。")
-                status = "你们已加入一起听 ♡"
-            }
-        },
-        onOpenNetease = {
-            val launch = context.packageManager.getLaunchIntentForPackage("com.netease.cloudmusic")
-            if (launch == null) {
-                status = "未发现网易云音乐 App，请先在手机安装并播放歌曲"
-            } else runCatching { context.startActivity(launch) }
-                .onFailure { status = "打开网易云失败：" + it.message.orEmpty() }
-        },
         localName = audioName,
-        localUri = uri,
         localPlaying = playing,
+        localUri = uri,
         localPosition = elapsed,
         localDuration = duration,
-        onSelectLocal = { picker.launch(arrayOf("audio/*")) },
-        onLocalToggle = {
-            player?.let { active ->
-                runCatching {
-                    if (active.isPlaying) {
-                        active.pause()
-                    } else {
-                        active.start()
-                        if (active.isPlaying) {
-                            recordListening(
-                                "用户与角色在同一房间播放本地音频：" + audioName +
-                                    "；是否听懂以随后独立音频感知回执为准。")
-                            analyzeSharedFile(uri)
-                        }
-                    }
-                    playing = active.isPlaying
-                }.onFailure { status = "播放失败：" + it.message.orEmpty() }
-            }
-        },
-        onAnalyzeLocal = { analyzeSharedFile(uri, retry = true) },
-        onChooseLocal = { selected ->
-            if (selected == uri) {
-                runCatching { player?.seekTo(0) }
-            } else {
-                uri = selected
-                lastAnalysisAttemptUri = ""
-                prefs.edit().putString(key + "audio", uri).putInt(key + "position", 0).apply()
-            }
-            mode = "local"
-        },
-        busy = busy,
         status = status,
-        messages = messages.takeLast(5),
-        onDiscuss = onDiscuss,
+        onToggleMode = { mode = if (mode == "system") "local" else "system"; status = "" },
+        onToggle = { if (mode == "system") controlExternal(if (track?.playing == true) "pause" else "play")
+            else toggleLocal() },
+        onPrevious = { if (mode == "system") controlExternal("previous") else skipLocal(false) },
+        onNext = { if (mode == "system") controlExternal("next") else skipLocal(true) },
+        onSelectLocal = { picker.launch(arrayOf("audio/*")) },
+        onOpenMusic = onOpenMusic,
+        onOpenNetease = {
+            val launch = context.packageManager.getLaunchIntentForPackage(NeteaseSongLink.packageName)
+            status = if (launch == null) "请先安装网易云音乐并在官方 App 登录"
+                else runCatching { context.startActivity(launch); "已打开网易云，请在官方 App 选择歌曲" }
+                    .getOrElse { "打开网易云失败：" + it.message.orEmpty() }
+        },
+        onJoin = {
+            track?.takeIf { it.playing }?.let {
+                recordListening("用户邀请角色一起听手机媒体会话：" + it.title +
+                    "；歌手=" + it.artist + "；来源=" + it.packageName +
+                    "。仅获得媒体元数据，未获取实际音频。")
+                status = "已加入一起听 ♡"
+            }
+        },
         onClose = onClose,
     )
 }
