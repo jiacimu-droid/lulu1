@@ -131,46 +131,25 @@ internal object CharacterEverydaySocialContext {
     }
 
     /**
-     * Lightweight original-world game view. Keep genuinely new, actor-witnessed
-     * social life available without reprinting the entire contacts, group,
-     * activity and decoration inventory each time the player rolls or asks.
-     * The full authority register is still supplied separately by the gateway.
-     * This never reads another character's private timeline or unread posts.
+     * Game turns do not need the full resident activity inventory. The gateway
+     * already includes currentSocialAuthority(), including actually read
+     * Moments, friends, pending applications and delivered mail. Keep only
+     * outstanding incoming letters here, without duplicating those sources.
+     * A letter is personal evidence, not a requirement to interrupt the game.
      */
-    fun gameUpdates(characterId: String, now: Instant = Instant.now()): String {
+    fun gameUpdates(characterId: String): String {
         if (!DigitalLifeProfileStore.isEnabled(characterId)) return ""
         val pending = ResidentSocialMailbox.pendingIncoming(characterId).take(3)
-        val seen = SharedExperienceTimeline.recentEvents(characterId, 120)
-            .asSequence()
-            .filter { it.source == "moment:phone-read" &&
-                it.evidenceKind == EventEvidenceKind.Observation &&
-                it.revision == 1L && !it.occurredAt.isAfter(now) }
-            .sortedByDescending { it.occurredAt }.take(3).toList()
-        val recentFriends = CharacterFriendRequests.historyFor(characterId)
-            .asSequence().filter { it.status == "accepted" && it.resolvedAt != null &&
-                !it.resolvedAt!!.isAfter(now) &&
-                it.resolvedAt!!.isAfter(now.minusSeconds(172_800)) &&
-                MomentFriendAccess.areFriends(it.fromId, it.toId) }
-            .sortedByDescending { it.resolvedAt }.take(2).toList()
-        if (pending.isEmpty() && seen.isEmpty() && recentFriends.isEmpty()) return ""
+        if (pending.isEmpty()) return ""
         return buildString {
-            appendLine("【游戏期间仍可能牵挂的数字世界新动态｜仅本人有来源的事实】")
+            appendLine("【游戏期间仍待本人处理的数字人物新消息｜真实已送达】")
             pending.forEach { message ->
                 val name = MigratedDomainStores.characters.get(message.fromId).displayName
-                appendLine("- 尚待处理的真实来信 mailId=${message.id}；${message.createdAt}；" +
+                appendLine("- mailId=${message.id}；${message.createdAt}；" +
                     "${name}(${message.fromId})：${message.content}" +
                     if (message.author == "owner-on-behalf") "（主人代发）" else "")
             }
-            seen.forEach { event ->
-                appendLine("- 本人已实际浏览的动态 evidenceId=${event.id}；${event.occurredAt}：" +
-                    event.evidenceContent.take(360) +
-                    if (event.evidenceContent.length > 360) "（原文较长，未完整显示）" else "")
-            }
-            recentFriends.forEach { request ->
-                appendLine("- 新确认的QQ好友申请 requestId=${request.id}；" +
-                    "${request.fromId}→${request.toId}；确认于${request.resolvedAt}")
-            }
-            append("只是已见的消息、动态与有效关系变化；未知、未读和计划中的动作不当成亲历。")
+            append("是否回复由本人选择；不能把未读动态、未送达动作或他人私事当作已见事实。")
         }.trim()
     }
 
