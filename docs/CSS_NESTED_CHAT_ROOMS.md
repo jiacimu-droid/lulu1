@@ -28,7 +28,10 @@ CSS 采用继承关系：
 | 选择器 | 控制对象 |
 | --- | --- |
 | `#ListenTogether` | 房间主题、页面背景 |
-| `#ListenTogether .music-room` | 小窗框体与背景图 |
+| `#ListenTogether .music-room` | 完整房间框体与背景图 |
+| `#ListenTogether .music-mini` | 展开的聊天悬浮窗皮肤 |
+| `#ListenTogether .music-mini-compact` | 收起后的迷你播放条 |
+| `#ListenTogether .music-mini-hidden` | 隐藏时的入口小图标 |
 | `#ListenTogether .music-header` | 房间顶部标题栏 |
 | `#ListenTogether .music-source` | 本机媒体 / 本地音乐入口 |
 | `#ListenTogether .music-artwork` | 双人唱片区域的整体高度 |
