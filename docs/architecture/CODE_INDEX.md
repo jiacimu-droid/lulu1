@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2b4715c590cfb94334d84c7ae4c2b8ccdc4eff45`
+- 基准提交：`2535797695391eb5d0b9f4624f9530b0dd03389d`
 - 分支：`main`
-- 已索引文件：1498
-- 已索引代码/文本行：320609
-- 已发现符号：4557
+- 已索引文件：1499
+- 已索引代码/文本行：320823
+- 已发现符号：4558
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -255,6 +255,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MossSpeech.kt` | 204 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/NeteaseCloudAccount.kt` | 214 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 58 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |

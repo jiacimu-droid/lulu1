@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T04:58:17.151180+00:00",
-  "commit": "2b4715c590cfb94334d84c7ae4c2b8ccdc4eff45",
+  "generatedAt": "2026-11-20T05:11:40.826068+00:00",
+  "commit": "2535797695391eb5d0b9f4624f9530b0dd03389d",
   "branch": "main",
-  "sourceFingerprint": "0ae2a188e9f84e61a581492a5dee413719bfcc8679d4b00eda03f56e7aea3546",
+  "sourceFingerprint": "e24836cd7b574b6ee556bf84164c1eab4ea3cca17bdad1cacf2483c7a0bdb4c2",
   "summary": {
-    "files": 1498,
-    "lines": 320609,
-    "symbols": 4557
+    "files": 1499,
+    "lines": 320823,
+    "symbols": 4558
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4578,6 +4578,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt",
         "line": 34
+      }
+    ],
+    "userId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudAccount.kt",
+        "line": 39
       }
     ],
     "errorFor": [
@@ -28899,6 +28905,17 @@
       "lines": 22,
       "sha256": "d2b544703f11bfe355259a89310c7fa52209b8c14273c67f664cba45ce4f8012",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudAccount.kt",
+      "lines": 214,
+      "sha256": "3250fc3e7ad60394c4c6b1735d0daa672b2518aa76dfc200c72b986de5f76ca9",
+      "symbols": [
+        {
+          "name": "userId",
+          "line": 39
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt",
