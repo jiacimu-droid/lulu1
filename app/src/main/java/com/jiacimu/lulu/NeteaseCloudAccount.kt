@@ -176,12 +176,15 @@ internal object NeteaseCloudAccount {
         return withContext(Dispatchers.IO) {
             val collected = ArrayList<NeteaseCloudList>()
             var offset = 0
-            for (pageIndex in 0 until 20) {
+            var pageIndex = 0
+            var hasMore = true
+            while (pageIndex < 20 && hasMore) {
                 val page = request("/api/user/playlist?uid=$uid&limit=100&offset=$offset", cookie)
                 val chunk = parseLists(page)
                 collected.addAll(chunk)
-                if (chunk.isEmpty() || !page.optBoolean("more", false)) break
+                hasMore = chunk.isNotEmpty() && page.optBoolean("more", false)
                 offset += chunk.size
+                pageIndex++
             }
             collected.distinctBy { it.id }
         }

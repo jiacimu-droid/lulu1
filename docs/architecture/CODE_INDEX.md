@@ -256,7 +256,7 @@
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/NeteaseCloudAccount.kt` | 213 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt` | 364 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt` | 372 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 58 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
