@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T05:31:21.294253+00:00",
-  "commit": "b3f1f34068fe8b088faf281d7732fd6301d77da5",
+  "generatedAt": "2026-11-20T05:32:27.455365+00:00",
+  "commit": "d8f2cc76870f371b05c7b8ab3b3cdc757887ceb2",
   "branch": "main",
-  "sourceFingerprint": "4e81b4862433e9c0afdba2f6be62a04c751ee95ecc3a4094e263f740bfbb478e",
+  "sourceFingerprint": "7e1745781dd4d31e00ec88dbefa7bf0e00028c55fa9d3a0b48bfb2a7697eb940",
   "summary": {
     "files": 1503,
-    "lines": 321840,
+    "lines": 321841,
     "symbols": 4566
   },
   "symbolIndex": {
@@ -15297,13 +15297,13 @@
     "length": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssPaint.kt",
-        "line": 187
+        "line": 188
       }
     ],
     "dimension": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssPaint.kt",
-        "line": 195
+        "line": 196
       }
     ],
     "LuluCssPageScope": [
@@ -39589,7 +39589,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt",
       "lines": 249,
-      "sha256": "391cf51e2ee906d139d438684c1e800c964ec1dad0dc3901cf2a2de13410deed",
+      "sha256": "3dd7621ea919c60280e7da70241a734729f4d35c1a3c8f4ff4327adb61d61597",
       "symbols": [
         {
           "name": "luluCssStyle",
@@ -39615,16 +39615,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssPaint.kt",
-      "lines": 252,
-      "sha256": "8f9ba08fa8ba515f1daea9f0195ffacb35df12386d755f33eb285c9df98edc3b",
+      "lines": 253,
+      "sha256": "6c106b4a418555e0c296bc3e14e3aa975aec10335f9811e48fef05cc6a045edf",
       "symbols": [
         {
           "name": "length",
-          "line": 187
+          "line": 188
         },
         {
           "name": "dimension",
-          "line": 195
+          "line": 196
         }
       ]
     },

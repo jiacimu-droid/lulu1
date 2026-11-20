@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b3f1f34068fe8b088faf281d7732fd6301d77da5`
+- 基准提交：`d8f2cc76870f371b05c7b8ab3b3cdc757887ceb2`
 - 分支：`main`
 - 已索引文件：1503
-- 已索引代码/文本行：321840
+- 已索引代码/文本行：321841
 - 已发现符号：4566
 
 | 文件 | 行数 | 符号数 |
@@ -663,7 +663,7 @@
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt` | 199 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 167 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt` | 249 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/design/LuluCssPaint.kt` | 252 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/design/LuluCssPaint.kt` | 253 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluCssScaffold.kt` | 196 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluEditorialComponents.kt` | 114 | 3 |
