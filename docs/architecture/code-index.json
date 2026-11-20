@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:35:54.508941+00:00",
-  "commit": "ed2b23eb99c432ccab7c6bf1da5b3f998fb42fe3",
+  "generatedAt": "2026-11-20T03:37:09.820649+00:00",
+  "commit": "c0cbfc8453a85802ffd191438af6e6628de6fc86",
   "branch": "main",
-  "sourceFingerprint": "d141ab3bb288e91303513b8fdf3dec677cd91f2e7a052f27b3741e881534112c",
+  "sourceFingerprint": "c6fa6740bb461ea2487c46b6efd074c35ec09dce99e7fd4c7032d980554b9061",
   "summary": {
     "files": 1498,
-    "lines": 320571,
+    "lines": 320578,
     "symbols": 4556
   },
   "symbolIndex": {
@@ -771,7 +771,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 164
+        "line": 171
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
@@ -5599,7 +5599,7 @@
     "directUri": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 161
+        "line": 168
       }
     ],
     "updatePlayback": [
@@ -29842,8 +29842,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-      "lines": 188,
-      "sha256": "47c3689f7c25b17609bda8527087dcd818bb0e4845bc1892da8187835464896f",
+      "lines": 195,
+      "sha256": "36eb45f371bd7607872ad88735f3f7f4d4f197b43c5452cb0601bf6135c14fd9",
       "symbols": [
         {
           "name": "read",
@@ -29875,11 +29875,11 @@
         },
         {
           "name": "directUri",
-          "line": 161
+          "line": 168
         },
         {
           "name": "open",
-          "line": 164
+          "line": 171
         }
       ]
     },
