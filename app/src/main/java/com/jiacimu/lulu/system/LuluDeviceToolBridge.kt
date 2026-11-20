@@ -479,6 +479,13 @@ object LuluDeviceToolBridge {
         val chatPhotos = if (!sceneContext.contains("电话") && userEvidenceIds.isNotEmpty())
             com.jiacimu.lulu.QqChatImageModelInput.prepare(appContext, characterId, userEvidenceIds)
         else com.jiacimu.lulu.QqPreparedChatPhotos(emptyList(), 0, 0)
+        // Uncaptioned stickers are actual candidate pixels in the SAME chat
+        // request only when the owner declares this chat model multimodal.
+        val stickerVisuals = if (!sceneContext.contains("电话") && userText.isNotBlank())
+            com.jiacimu.lulu.StickerVisionRouting.prepareForMultimodalChat(
+                appContext, userText, history, chatPhotos.urls.size,
+                previousPresence?.mood.orEmpty(),
+            ) else com.jiacimu.lulu.StickerVisionRouting.PreparedImages(emptyList(), "")
         com.jiacimu.lulu.LuluRepositories.performance.recordTiming("前台回复准备",
             (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
             "角色=$characterId；会话=$currentSessionId")
@@ -575,6 +582,7 @@ object LuluDeviceToolBridge {
                 if (sceneContext.contains("电话") && !callSilence && !rewriting)
                     appendLine(com.jiacimu.lulu.data.CharacterSocialActionOpportunities.prompt(characterId))
                 if (chatPhotos.promptNote.isNotBlank()) appendLine(chatPhotos.promptNote)
+                if (stickerVisuals.explanation.isNotBlank()) appendLine(stickerVisuals.explanation)
                 // CharacterRuntime supplies persona, live duties and self-reflection
                 // in the same Full-context gateway; no keyword-specific speech gate.
             },
@@ -685,7 +693,7 @@ object LuluDeviceToolBridge {
                 hasSafeStreamConsumer = onReplyStream != null,
             ),
             onStreamText = if (separateExpression) null else onReplyStream,
-            imageDataUrls = chatPhotos.urls,
+            imageDataUrls = chatPhotos.urls + stickerVisuals.urls,
             connectionOverride = connection,
             memoryRequest = UnifiedMemoryRequest(
                 currentInput = userText,
