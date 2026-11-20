@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextOverflow
@@ -32,7 +33,7 @@ import com.jiacimu.lulu.design.luluCssStyle
 private val rose = Color(0xFFB98A98)
 private val ink = Color(0xFF25232A)
 
-/** Curved duet orbit: two real portraits embrace the spinning record, without a rigid bar. */
+/** Two lightning-shaped links connect the enlarged portraits to a compact record. */
 @Composable
 internal fun ListenTogetherArtwork(
     roleName: String,
@@ -56,32 +57,43 @@ internal fun ListenTogetherArtwork(
     val roleStyle = luluCssStyle("music-avatar-role")
     val userStyle = luluCssStyle("music-avatar-user")
     val vinylStyle = luluCssStyle("music-vinyl")
-    val roleSize = roleStyle.cssDp("width")?.coerceIn(40.dp, 72.dp) ?: 54.dp
-    val userSize = userStyle.cssDp("width")?.coerceIn(40.dp, 72.dp) ?: 54.dp
-    val discSize = vinylStyle.cssDp("width")?.coerceIn(90.dp, 166.dp) ?: 148.dp
+    val roleSize = roleStyle.cssDp("width")?.coerceIn(40.dp, 80.dp) ?: 64.dp
+    val userSize = userStyle.cssDp("width")?.coerceIn(40.dp, 80.dp) ?: 64.dp
+    val discSize = vinylStyle.cssDp("width")?.coerceIn(80.dp, 166.dp) ?: 108.dp
     val discAsset = LuluCssSheet.assetToken(vinylStyle["background-image"])
     BoxWithConstraints(Modifier.fillMaxWidth()
-        .height(artStyle.cssDp("height")?.coerceIn(170.dp, 320.dp) ?: 224.dp)
+        .height(artStyle.cssDp("height")?.coerceIn(120.dp, 320.dp) ?: 140.dp)
         .luluCssElement("music-artwork")) {
         Canvas(Modifier.fillMaxSize()) {
             val mid = size.width / 2f
             val y = size.height * .46f
-            val left = size.width * .12f
-            val right = size.width * .88f
-            val topArc = Path().apply {
-                moveTo(left, y)
-                cubicTo(size.width * .26f, size.height * .06f, size.width * .74f, size.height * .06f, right, y)
+            val left = 40.dp.toPx()
+            val right = size.width - left
+            val discEdge = mid - (discSize.toPx() / 2f) - 2.dp.toPx()
+            val lineSpan = (discEdge - left).coerceAtLeast(8f)
+            val color = connectionStyle.cssColor("color") ?: Color(0xFFBA8199)
+            val glow = connectionStyle.cssColor("border-color") ?: Color(0xFFEEDDE5)
+            val lineWidth = connectionStyle.cssDp("border-width")?.coerceIn(1.dp, 7.dp) ?: 2.6.dp
+            fun signal(leftSide: Boolean): Path {
+                val start = if (leftSide) left else right
+                val sign = if (leftSide) 1f else -1f
+                return Path().apply {
+                    moveTo(start, y)
+                    lineTo(start + sign * lineSpan * .28f, y - 10.dp.toPx())
+                    lineTo(start + sign * lineSpan * .49f, y + 8.dp.toPx())
+                    lineTo(start + sign * lineSpan * .71f, y - 7.dp.toPx())
+                    lineTo(start + sign * lineSpan, y)
+                }
             }
-            val bottomArc = Path().apply {
-                moveTo(left, y)
-                cubicTo(size.width * .3f, size.height * .91f, size.width * .7f, size.height * .91f, right, y)
+            for (side in listOf(true, false)) {
+                val path = signal(side)
+                drawPath(path, glow.copy(alpha = .70f), style = Stroke(
+                    width = (lineWidth * 2.8f).toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+                drawPath(path, color, style = Stroke(width = lineWidth.toPx(),
+                    cap = StrokeCap.Round, join = StrokeJoin.Round))
             }
-            val connectionColor = connectionStyle.cssColor("color") ?: Color(0xFFE7D4D9)
-            val backColor = connectionStyle.cssColor("border-color") ?: Color(0xFFF0E7E8)
-            val thick = connectionStyle.cssDp("border-width")?.coerceIn(2.dp, 20.dp) ?: 14.dp
-            drawPath(topArc, connectionColor, style = Stroke(width = thick.toPx(), cap = StrokeCap.Round))
-            drawPath(bottomArc, backColor, style = Stroke(width = (thick * .57f).toPx(), cap = StrokeCap.Round))
-            drawCircle(rose.copy(alpha = .12f), radius = 102.dp.toPx(), center = androidx.compose.ui.geometry.Offset(mid, y))
+            drawCircle(rose.copy(alpha = .08f), radius = 61.dp.toPx(),
+                center = androidx.compose.ui.geometry.Offset(mid, y))
         }
         Row(
             Modifier.fillMaxWidth().align(Alignment.Center).padding(horizontal = 6.dp),
@@ -95,7 +107,7 @@ internal fun ListenTogetherArtwork(
                         LuluProfileAvatar(roleAvatar, roleName.take(1).ifBlank { "角" }, roleSize.value.toInt())
                     }
                 }
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(4.dp))
                 Text(roleName, style = MaterialTheme.typography.labelSmall, maxLines = 1,
                     overflow = TextOverflow.Ellipsis, color = roleStyle.cssColor("color") ?: ink)
             }
@@ -134,7 +146,7 @@ internal fun ListenTogetherArtwork(
                         LuluProfileAvatar(userAvatar, userName.take(1).ifBlank { "我" }, userSize.value.toInt())
                     }
                 }
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(4.dp))
                 Text(userName, style = MaterialTheme.typography.labelSmall, maxLines = 1,
                     overflow = TextOverflow.Ellipsis, color = userStyle.cssColor("color") ?: ink)
             }
