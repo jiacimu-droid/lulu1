@@ -223,7 +223,7 @@ internal object StickerWordDocument {
                     }
                     "t" -> if (insideParagraph) insideText = true
                     "tab" -> if (insideParagraph) text.append(' ')
-                    "br" -> if (insideParagraph) text.append('\\n')
+                    "br" -> if (insideParagraph) text.append('\n')
                     "blip" -> if (insideParagraph) {
                         parser.attribute("embed").takeIf(String::isNotBlank)?.let(ids::add)
                     }
