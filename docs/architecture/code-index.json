@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:30:42.505735+00:00",
-  "commit": "2dbeb0dbeb2060f68056b3e7d12b177afa1ae2c1",
+  "generatedAt": "2026-11-20T03:31:12.699673+00:00",
+  "commit": "838fdbf81951cf1e3be6b92bb5e9e986259f6bc5",
   "branch": "main",
-  "sourceFingerprint": "343e0d5c21c958fcd51dcf852af9b7c6f1c8f29fc6b5aced1bb33ee5098eff49",
+  "sourceFingerprint": "5c6e2afda0fb15c21d1bd1ef98d84e662091d3aa1d8abfc69ce70f1ed6b483fe",
   "summary": {
     "files": 1497,
-    "lines": 320210,
+    "lines": 320213,
     "symbols": 4550
   },
   "symbolIndex": {
@@ -50117,8 +50117,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCssRuntimeTest.kt",
-      "lines": 160,
-      "sha256": "5a8aaea058102e1118b00368526b008e61d1f4c31cd9b618b4705392c816a4d4",
+      "lines": 163,
+      "sha256": "fb3095339b8f984e6f52259e3b0446975be98ff3ab7e52f3b07dd78af25373dc",
       "symbols": [
         {
           "name": "LuluCssRuntimeTest",
