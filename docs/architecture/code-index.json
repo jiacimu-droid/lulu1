@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T08:11:45.437019+00:00",
-  "commit": "fee97906cb5fc05d459e0eac9f8b1bb66534f777",
+  "generatedAt": "2026-11-20T08:24:48.858301+00:00",
+  "commit": "67bf48b0633586370fa10c26ebb237b7896baff5",
   "branch": "main",
-  "sourceFingerprint": "6d377dba33b79e171ee0bac50301f1096bbd3f1b94a1df542ab91a953a43a80a",
+  "sourceFingerprint": "21a4485752ef1f7118d8faccecb91e45cd7104bf2aad69cb92c3fefa839c5ff8",
   "summary": {
     "files": 1503,
-    "lines": 322531,
+    "lines": 322580,
     "symbols": 4574
   },
   "symbolIndex": {
@@ -1019,7 +1019,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1783
+        "line": 1797
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -6611,19 +6611,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1495
+        "line": 1509
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1507
+        "line": 1521
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1773
+        "line": 1787
       }
     ],
     "addStreamingUsageWhenSupported": [
@@ -9265,19 +9265,19 @@
     "learningContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 213
+        "line": 218
       }
     ],
     "leanExpressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 224
+        "line": 229
       }
     ],
     "developmentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-        "line": 248
+        "line": 253
       }
     ],
     "offer": [
@@ -12827,7 +12827,7 @@
     "assemble": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-        "line": 12
+        "line": 13
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PromptRuleAssemblyPolicy.kt",
@@ -12837,7 +12837,7 @@
     "evidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-        "line": 42
+        "line": 44
       }
     ],
     "auxiliaryCandidates": [
@@ -14755,19 +14755,19 @@
     "groups": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
-        "line": 120
+        "line": 121
       }
     ],
     "allocateReportedInput": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
-        "line": 136
+        "line": 137
       }
     ],
     "calibratedEstimate": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
-        "line": 156
+        "line": 157
       }
     ],
     "shouldReportPerformanceError": [
@@ -30681,8 +30681,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1791,
-      "sha256": "225016f00ab4da77876899130ba43293e3603e15e5228ff41611a3ab4b5f5fce",
+      "lines": 1805,
+      "sha256": "47247052c8ad7e4775c6eb48f96b6071486499900a6aa0c7a94bca7538448cb8",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -30790,19 +30790,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1495
+          "line": 1509
         },
         {
           "name": "consumeEvent",
-          "line": 1507
+          "line": 1521
         },
         {
           "name": "LuluAiServices",
-          "line": 1773
+          "line": 1787
         },
         {
           "name": "initialize",
-          "line": 1783
+          "line": 1797
         }
       ]
     },
@@ -32609,8 +32609,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt",
-      "lines": 207,
-      "sha256": "7b98518a9716732440a7f0122112d13cabbf10b749b1810d28fa0b27badca18e",
+      "lines": 212,
+      "sha256": "bf65aa35b3f7cd57742f063e05c54ce86bd3f5ca85752a9657bfcb460a2dbac6",
       "symbols": [
         {
           "name": "localDay",
@@ -33188,8 +33188,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterRuntime.kt",
-      "lines": 255,
-      "sha256": "b9400148718ff9f729d0b82799598e25638b6dec0c99c9a1e2fa6f242bd4a2c5",
+      "lines": 262,
+      "sha256": "d614fda84c2f10489d2ea82d23dbf7daa2605fc10c698b42c08bad2e63ae8365",
       "symbols": [
         {
           "name": "CharacterDefinitionSnapshot",
@@ -33237,15 +33237,15 @@
         },
         {
           "name": "learningContext",
-          "line": 213
+          "line": 218
         },
         {
           "name": "leanExpressionContext",
-          "line": 224
+          "line": 229
         },
         {
           "name": "developmentContext",
-          "line": 248
+          "line": 253
         }
       ]
     },
@@ -36984,16 +36984,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryWorkingSet.kt",
-      "lines": 141,
-      "sha256": "0a6ff5d458f84f99c2559133f6477579ebd9c474db3cd07fe8626e1774ea52cb",
+      "lines": 163,
+      "sha256": "e662ad20331ff1fd32ce1f8571f2972c6091a4e1d800c2124b92e009af78a9f1",
       "symbols": [
         {
           "name": "assemble",
-          "line": 12
+          "line": 13
         },
         {
           "name": "evidence",
-          "line": 42
+          "line": 44
         }
       ]
     },
@@ -38879,20 +38879,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/TokenConsolePresentation.kt",
-      "lines": 176,
-      "sha256": "e1339b7bc81c27df62741ae783dd479df3a2456383a1baf01fec673059b4ff5e",
+      "lines": 177,
+      "sha256": "40ec31ad31fc710c0945382d4622844bf425ac04690d9258d60ca232e589eceb",
       "symbols": [
         {
           "name": "groups",
-          "line": 120
+          "line": 121
         },
         {
           "name": "allocateReportedInput",
-          "line": 136
+          "line": 137
         },
         {
           "name": "calibratedEstimate",
-          "line": 156
+          "line": 157
         }
       ]
     },
