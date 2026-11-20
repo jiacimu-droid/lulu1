@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`4b1ca96cee3097eafe5c2bbdd36d740b0512eb84`
+- 基准提交：`3c7c778fdd310a5008dca8fdd48dc4fe47a1aaa1`
 - 分支：`main`
 - 已索引文件：1494
-- 已索引代码/文本行：319341
+- 已索引代码/文本行：319351
 - 已发现符号：4535
 
 | 文件 | 行数 | 符号数 |
@@ -339,7 +339,7 @@
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 53 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/WatchPlaybackEvidence.kt` | 87 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt` | 861 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt` | 871 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 274 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 195 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 115 | 0 |
