@@ -30,10 +30,10 @@ object LexiconMemoryContext {
             it.first.section == LexiconSection.Promise }.map { it.first }
         val life = ranked.filter { it.first.status == LexiconStatus.Active &&
             it.first.section == LexiconSection.Life }
-        val recentLife = life.firstOrNull { (entry, _) ->
+        val recentLife = life.filter { (entry, _) ->
             val age = java.time.Duration.between(entry.updatedAt, java.time.Instant.now()).toDays()
             age in 0L..7L
-        }?.first
+        }.maxByOrNull { it.first.updatedAt }?.first
         val selectedLife = (life.filter { it.second >= 2 }.map { it.first } +
             listOfNotNull(recentLife)).distinctBy { it.id }.take(6)
         val active = promises + selectedLife

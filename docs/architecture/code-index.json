@@ -26516,8 +26516,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt",
-      "lines": 549,
-      "sha256": "0b2bcae73f00e12951a265b026664cc9728394e743badba9d1aa3520e6723035",
+      "lines": 557,
+      "sha256": "169fd06024f36d9b416f13bf87d2c21d28b4442d030e173fc50de632b6f2cf5b",
       "symbols": [
         {
           "name": "MemoryFeatureScreen",
