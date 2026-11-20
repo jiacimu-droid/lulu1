@@ -112,6 +112,9 @@ class LuluCssRuntimeTest {
             #ChatDetail { --ink: #332b30; }
             #ListenTogether { --paper: #e0f0ff; }
             #ListenTogether .music-room { background-image: url("$token"); }
+            #ListenTogether .music-mini { background-image: url("$token"); }
+            #ListenTogether .music-mini-compact { background-color: #faf8fa; }
+            #ListenTogether .music-mini-hidden { background-color: #aa6688; }
             #ListenTogether .music-vinyl { width: 110dp; background-image: url("$token"); }
             #ListenTogether .music-avatar-role { width: 62dp; }
             #ListenTogether .music-links { color: #f59ca5; border-width: 6dp; }
@@ -123,6 +126,10 @@ class LuluCssRuntimeTest {
         assertEquals(0xFFAB3456L, sheet.profile("ListenTogether", base).palette.accent)
         assertEquals(0xFFE0F0FFL, sheet.profile("ListenTogether", base).palette.paper)
         assertEquals(0xFFFAF0EEL, sheet.profile("WatchTogether", base).palette.paper)
+        assertEquals(token, LuluCssSheet.assetToken(
+            sheet.element("ListenTogether", "music-mini")["background-image"]))
+        assertEquals("#faf8fa", sheet.element("ListenTogether", "music-mini-compact")["background-color"])
+        assertEquals("#aa6688", sheet.element("ListenTogether", "music-mini-hidden")["background-color"])
         assertEquals("110dp", sheet.element("ListenTogether", "music-vinyl")["width"])
         assertEquals(token, LuluCssSheet.assetToken(
             sheet.element("ListenTogether", "music-vinyl")["background-image"]))
