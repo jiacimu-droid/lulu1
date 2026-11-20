@@ -1078,7 +1078,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicyTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt` | 186 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt` | 56 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt` | 247 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt` | 284 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 536 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt` | 61 | 1 |
@@ -1268,7 +1268,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusLedgerTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionStimulusTest.kt` | 53 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PerceptionWakePlanStoreTest.kt` | 200 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 156 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt` | 221 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PersonalCharacterSettingsTest.kt` | 72 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneInnerVoicePerceptionTest.kt` | 104 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/PhoneModelTransportPolicyTest.kt` | 239 | 2 |

@@ -67,6 +67,71 @@ class PerformanceAuditPersistenceTest {
         assertEquals(1, saved.breakdown.size)
     }
 
+    @Test fun oneApiCallKeepsModelTimeProviderAndMeasuredStagesAcrossReload() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val pref = app.getSharedPreferences("lulu_performance_monitor", android.content.Context.MODE_PRIVATE)
+        val before = pref.getString("state_v1", null)
+        try {
+            pref.edit().remove("state_v1").commit()
+            val repository = LocalPerformanceRepository(app)
+            repository.recordGeneration(
+                source = "游戏", title = "快艇骰子连麦", model = "model-test",
+                provider = "relay.example", reportedInputTokens = 100,
+                reportedOutputTokens = 25, cachedTokens = 0,
+                estimatedInputTokens = 100, estimatedOutputTokens = 25,
+                breakdown = emptyList(), promptMillis = 13_200,
+                modelMillis = 17_900, totalMillis = 31_200,
+                turnTraceId = "game-turn", requestId = "api-call-1",
+                networkStages = listOf(
+                    "连接与建链（DNS/代理/TLS）" to 100L,
+                    "上传请求正文" to 200L,
+                    "等待响应头（中转站+模型）" to 15_000L,
+                    "读取响应/流式输出" to 2_600L,
+                ),
+            )
+            val saved = LocalPerformanceRepository(app)
+            val console = saved.consoleRecords.first().single()
+            assertEquals("api-call-1", console.id)
+            val phases = saved.timingRecords.first().filter { it.requestId == "api-call-1" }
+            assertEquals(7, phases.size)
+            assertTrue(phases.all { it.model == "model-test" && it.provider == "relay.example" })
+            assertTrue(phases.all { it.traceId == "game-turn" && it.source == "游戏" })
+            assertEquals(31_200L, phases.single { it.stage == "总耗时" }.durationMillis)
+            assertEquals(15_000L, phases.single {
+                it.stage == "等待响应头（中转站+模型）"
+            }.durationMillis)
+        } finally {
+            if (before == null) pref.edit().remove("state_v1").commit()
+            else pref.edit().putString("state_v1", before).commit()
+        }
+    }
+
+    @Test fun failedApiCallPersistsStatusAndDoesNotInventTokenUsage() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        val pref = app.getSharedPreferences("lulu_performance_monitor", android.content.Context.MODE_PRIVATE)
+        val before = pref.getString("state_v1", null)
+        try {
+            pref.edit().remove("state_v1").commit()
+            val repository = LocalPerformanceRepository(app)
+            repository.recordFailedGeneration(
+                source = "游戏", title = "快艇骰子", model = "bad-model",
+                provider = "relay.example", durationMillis = 39_050,
+                requestId = "rejected-call", traceId = "game-turn",
+                networkStages = listOf("等待响应头（中转站+模型）" to 38_000L),
+                failureStatus = "HTTP 400",
+            )
+            val reloaded = LocalPerformanceRepository(app)
+            val stages = reloaded.timingRecords.first().filter { it.requestId == "rejected-call" }
+            assertEquals(2, stages.size)
+            assertEquals("HTTP 400", stages.first { it.stage == "API调用失败" }.status)
+            assertEquals("bad-model", stages.first().model)
+            assertFalse(reloaded.consoleRecords.first().any { it.id == "rejected-call" })
+        } finally {
+            if (before == null) pref.edit().remove("state_v1").commit()
+            else pref.edit().putString("state_v1", before).commit()
+        }
+    }
+
     @Test fun timingTraceSurvivesReloadAndLegacyIsNeverGuessed() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         val pref = app.getSharedPreferences("lulu_performance_monitor", android.content.Context.MODE_PRIVATE)

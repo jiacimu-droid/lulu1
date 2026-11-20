@@ -48429,8 +48429,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt",
-      "lines": 247,
-      "sha256": "9d249d7f26819f7eef241faf245f770d53b3c5f237d8926e008ef52f35a6e7a4",
+      "lines": 284,
+      "sha256": "e2e2a8f56829b698a6d41570a17d20cce8fffb22594d06d8932db0ce93c08418",
       "symbols": [
         {
           "name": "ModelPostTransportTest",
@@ -51203,8 +51203,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PerformanceAuditPersistenceTest.kt",
-      "lines": 156,
-      "sha256": "3c0f706ff8e0897ad3c6d5686fca368f8e01b6b3329875f3d17e65f362dd24ce",
+      "lines": 221,
+      "sha256": "851ec6689da0a47e67890cb183d3f92e8eb47f5b6b1d3bf6bca44c143023dae6",
       "symbols": [
         {
           "name": "PerformanceAuditPersistenceTest",
