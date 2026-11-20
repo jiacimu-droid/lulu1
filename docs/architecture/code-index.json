@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:24:50.217208+00:00",
-  "commit": "bdb1ab5e5483af0d1f4150e488d31de300d22b61",
+  "generatedAt": "2026-11-20T03:26:42.695448+00:00",
+  "commit": "78af6f8b80805ff8a41e8f1c211de4ac42a4d0e9",
   "branch": "main",
-  "sourceFingerprint": "c4b53d26f68a64a4db35149728b85401fcd72cb785766557f04a1e3b7896fac1",
+  "sourceFingerprint": "439261a1991809fd45d6b45ad41e562e74a9e5f86a768a03d8edd0462f6c936e",
   "summary": {
     "files": 1496,
-    "lines": 319768,
-    "symbols": 4545
+    "lines": 319832,
+    "symbols": 4549
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -771,7 +771,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 147
+        "line": 164
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
@@ -2448,6 +2448,24 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
         "line": 156
+      }
+    ],
+    "controlExternal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
+        "line": 288
+      }
+    ],
+    "toggleLocal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
+        "line": 305
+      }
+    ],
+    "skipLocal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
+        "line": 322
       }
     ],
     "notifyCoreChanged": [
@@ -5468,16 +5486,22 @@
         "line": 61
       }
     ],
+    "bindSongId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
+        "line": 110
+      }
+    ],
     "removeTrack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 108
+        "line": 125
       }
     ],
     "delete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 116
+        "line": 133
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
@@ -5503,13 +5527,13 @@
     "songId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 130
+        "line": 147
       }
     ],
     "directUri": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 144
+        "line": 161
       }
     ],
     "compact": [
@@ -27086,8 +27110,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-      "lines": 327,
-      "sha256": "293f528f26c8060f9dae800fbad5e21e02be6f47c44ac8e869b31c1eccda0361",
+      "lines": 374,
+      "sha256": "f839d8b4f725a4b72a97f0a30008fbb316028661317278b4ade08ea088a4e651",
       "symbols": [
         {
           "name": "recordListening",
@@ -27100,6 +27124,18 @@
         {
           "name": "analyzeSharedFile",
           "line": 156
+        },
+        {
+          "name": "controlExternal",
+          "line": 288
+        },
+        {
+          "name": "toggleLocal",
+          "line": 305
+        },
+        {
+          "name": "skipLocal",
+          "line": 322
         }
       ]
     },
@@ -29734,8 +29770,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-      "lines": 171,
-      "sha256": "fe6b04dae481c88c916b8f64025e9ba07d13dfe12978ee91a72e89fc80def065",
+      "lines": 188,
+      "sha256": "47c3689f7c25b17609bda8527087dcd818bb0e4845bc1892da8187835464896f",
       "symbols": [
         {
           "name": "read",
@@ -29750,24 +29786,28 @@
           "line": 91
         },
         {
+          "name": "bindSongId",
+          "line": 110
+        },
+        {
           "name": "removeTrack",
-          "line": 108
+          "line": 125
         },
         {
           "name": "delete",
-          "line": 116
+          "line": 133
         },
         {
           "name": "songId",
-          "line": 130
+          "line": 147
         },
         {
           "name": "directUri",
-          "line": 144
+          "line": 161
         },
         {
           "name": "open",
-          "line": 147
+          "line": 164
         }
       ]
     },
