@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:08:24.232435+00:00",
-  "commit": "17c14a5ef9ee0fb8ec6871fb89e6d5e4502f798b",
+  "generatedAt": "2026-11-20T01:10:31.378551+00:00",
+  "commit": "c08853326bb6da32ae2db4d9bb43d165937030b7",
   "branch": "main",
-  "sourceFingerprint": "3275245c649dbc57d80fe9831171214c67f5f3775f953948eb35e99e46ed5aed",
+  "sourceFingerprint": "933432e2665afc552e3186864bf0632aa4bd0aa2274d3701d19f664ef0060ecd",
   "summary": {
     "files": 1488,
-    "lines": 318199,
+    "lines": 318200,
     "symbols": 4521
   },
   "symbolIndex": {
@@ -29141,7 +29141,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt",
       "lines": 497,
-      "sha256": "a6b3dcc2ae8a0eb74d1e27185e5b505d54b1dbdaead8f8b4ebadd877b00dc4d7",
+      "sha256": "3f4d85c6d756d657ba5c2fc6469b49b87f4904a543485b7c3e2ece5f287f0388",
       "symbols": [
         {
           "name": "importManifest",
@@ -29736,8 +29736,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerImportManifest.kt",
-      "lines": 128,
-      "sha256": "5384ec82215534a9b338608803e049e720e00b3a331d6aad8aa1c63a728ae417",
+      "lines": 129,
+      "sha256": "f729592b425b046eba676ca46e512ad7f4b1359debd06a1f3324c808af5c1b03",
       "symbols": [
         {
           "name": "parse",
