@@ -377,6 +377,7 @@ internal fun QqChatComposer(
         }
         if (showStickerShelf) {
             QqStickerShelf(
+                characterId = characterId,
                 onSendSticker = onSendSticker,
                 onInsertText = { kaomoji -> inputState.value += kaomoji },
                 onNotice = { stickerNotice = it },

@@ -1053,6 +1053,7 @@ object ProactivePerceptionRuntime {
         val stickerVisuals = if (onlineUnread.text.isNotBlank())
             com.jiacimu.lulu.StickerVisionRouting.prepareForMultimodalChat(
                 appContext, onlineUnread.text, "", unreadPhotos.urls.size,
+                characterId = characterId,
             ) else com.jiacimu.lulu.StickerVisionRouting.PreparedImages(emptyList(), "")
         LuluRepositories.performance.recordTiming("感知现场准备",
             (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
