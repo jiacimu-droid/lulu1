@@ -54,6 +54,7 @@ internal fun ListenTogetherMiniWindow(
     onSelectLocal: () -> Unit,
     onOpenMusic: () -> Unit,
     onOpenNetease: () -> Unit,
+    onEnableSystemOverlay: () -> Unit,
     onJoin: () -> Unit,
     onClose: () -> Unit,
 ) {
@@ -147,6 +148,11 @@ internal fun ListenTogetherMiniWindow(
                                 fontSize = 14.sp, modifier = Modifier.weight(1f))
                             IconButton(onClick = onOpenMusic, modifier = Modifier.size(33.dp)) {
                                 Icon(Icons.Outlined.LibraryMusic, "打开音乐与歌单",
+                                    Modifier.size(19.dp), tint = rose)
+                            }
+                            IconButton(onClick = onEnableSystemOverlay,
+                                modifier = Modifier.size(33.dp)) {
+                                Icon(Icons.Outlined.OpenInNew, "允许跨应用悬浮",
                                     Modifier.size(19.dp), tint = rose)
                             }
                             IconButton(onClick = { SharedMusicWindowController.compact() },
