@@ -187,7 +187,8 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
             if (area == 0) {
                 Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("all" to "全部", "record" to "客观记录", "subjective" to "角色主观").forEach { (key, label) ->
+                    listOf("all" to "全部", "life" to "生活近况",
+                        "record" to "客观记录", "subjective" to "角色主观").forEach { (key, label) ->
                         FilterChip(selected = perspectiveFilter == key,
                             onClick = { perspectiveFilter = key }, label = { Text(label) })
                     }
