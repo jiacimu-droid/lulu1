@@ -75,8 +75,8 @@ export function playImpact(hit) {
   }
   const source=audio.createBufferSource(), gain=audio.createGain();
   source.buffer=strikeBuffer;
-  source.playbackRate.value=({block:1.72,bow:1.32,enemy:.78,sweep:.91,spear:1.09})[hit.style]||1;
-  gain.gain.value=hit.style==='block'?.25:hit.defeated||hit.target==='player'?.47:.36;
+  source.playbackRate.value=({block:1.72,bow:1.32,enemy:.78,sweep:.91,spear:1.09,chest:.94})[hit.style]||1;
+  gain.gain.value=hit.style==='block'?.25:hit.style==='chest'?.43:hit.defeated||hit.target==='player'?.47:.36;
   source.connect(gain).connect(audio.destination);
   source.start();
   if(hit.style==='block')note(980,0,.11,.07,'triangle');
@@ -215,17 +215,29 @@ export function chestShow() {
   const scene=lookup('chest-scene'), game=lookup('game');
   const model=lookup('chest-model'), nextModel=lookup('chest-model-next'), loot=lookup('chest-loot');
   const meter=lookup('chest-meter'), stage=lookup('chest-stage'), threat=lookup('chest-threat');
+  const quality=lookup('chest-quality'), visual=model.closest('.chest-visual'), map=lookup('map-2d');
   const holdButton=lookup('chest-hold'), message=lookup('chest-message'), next=lookup('chest-continue');
   const fx=lookup('chest-fx'), ctx=fx.getContext('2d');
   const frames=chestFrames.map(src=>{const img=new Image();img.src=src;return img;});
   const prepared=Promise.allSettled(frames.map(img=>img.decode()));
   let animation=0, motion, saved=0, shown=0, rank=0, reward, began=0;
-  let colourStart=0, oldRank=0, revealStart=0, revealFrom=0;
+  let promotion=null, shellGrade=0, revealStart=0, revealFrom=0;
+  const promotionMs=470;
 
-  function colour(grade,now=performance.now()) {
-    if(grade!==rank){oldRank=rank;rank=grade;colourStart=now;}
+  function colour(grade,confirmed=false) {
+    grade=clamp(Number(grade)||0,0,6);
+    const previous=rank;
+    rank=grade;
     scene.style.setProperty('--gem',palette(rank).light[0]);
-    lookup('chest-quality').textContent=palette(rank).name+'宝箱';
+    quality.textContent=palette(rank).name+(rank>shellGrade?'辉光':'宝箱');
+    if(confirmed&&grade>previous){
+      promotion={from:previous,at:performance.now(),lid:shown*2.7};
+      playImpact({style:'chest'});
+      const root=392*2**(rank/5);
+      note(root,.024,.22,.091,'triangle');
+      note(root*1.5,.069,.27,.066);
+      if(rank>=4)note(root*2,.12,.30,.052);
+    }
   }
 
   function drawFrames(position){
@@ -235,7 +247,7 @@ export function chestShow() {
     nextModel.style.opacity=frames[upper].naturalWidth?String(position-lower):'0';
   }
 
-  function drawLight(lid,seconds,release,now){
+  function drawLight(lid,seconds,release,pulse,age){
     if(!ctx)return;
     const w=fx.clientWidth,h=fx.clientHeight;
     if(!w||!h)return;
@@ -243,29 +255,30 @@ export function chestShow() {
     if(fx.width!==width||fx.height!==height){fx.width=width;fx.height=height;}
     ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
     const profile=palette(rank), [primary]=profile.light;
-    const tint=now-colourStart<85?palette(oldRank).light[0]:primary;
     const x=w*.49, y=h*(.621-lid*.040);
-    const seam=clamp(.025+shown*.58+release*.44);
-    const radius=Math.min(w,h)*(.21+release*.15);
+    const seam=clamp(.04+shown*.68+release*.38+pulse*.38);
+    const radius=Math.min(w,h)*(.22+shown*.13+release*.12+pulse*.21);
     const glow=ctx.createRadialGradient(x,y,0,x,y,radius);
-    glow.addColorStop(0,tint+'95');glow.addColorStop(1,tint+'00');
-    ctx.globalAlpha=seam*.8;
+    glow.addColorStop(0,primary+'c4');glow.addColorStop(.40,primary+'53');glow.addColorStop(1,primary+'00');
+    ctx.globalAlpha=seam*.9;
     ctx.fillStyle=glow;ctx.fillRect(x-radius,y-radius,radius*2,radius*2);
     const slit=ctx.createLinearGradient(x-w*.16,y,x+w*.14,y);
-    slit.addColorStop(0,primary+'00');slit.addColorStop(.46,primary);slit.addColorStop(1,primary+'00');
+    slit.addColorStop(0,primary+'00');
+    slit.addColorStop(.46,pulse>.72?'#fff7e7':primary);
+    slit.addColorStop(1,primary+'00');
     ctx.globalAlpha=seam*.63;ctx.strokeStyle=slit;
     ctx.beginPath();ctx.moveTo(x-w*.16,y-h*.027);ctx.lineTo(x+w*.14,y+h*.036);
-    ctx.lineWidth=2+seam*8;ctx.stroke();
+    ctx.lineWidth=2+seam*8+pulse*6;ctx.stroke();
     ctx.globalAlpha=seam;ctx.lineWidth=.7+release*1.6;ctx.stroke();
     if(reducedMotion.matches){ctx.globalAlpha=1;return;}
     ctx.globalCompositeOperation='screen';
     for(let i=0;i<profile.beams;i++){
       const color=profile.light[i%profile.light.length];
       const spread=(i-(profile.beams-1)/2)*.075, height=profile.height*(.55+i%3*.18);
-      const endX=x+w*spread*(.6+release*.53),endY=y-h*height;
+      const endX=x+w*spread*(.64+release*.53+pulse*.43),endY=y-h*height*(1+pulse*.44);
       const beam=ctx.createLinearGradient(x,y,endX,endY);
       beam.addColorStop(0,color+'bc');beam.addColorStop(.30,color+'53');beam.addColorStop(1,color+'00');
-      ctx.fillStyle=beam;ctx.globalAlpha=seam*(.34+release*.76);
+      ctx.fillStyle=beam;ctx.globalAlpha=seam*(.39+release*.44+pulse*.35);
       ctx.beginPath();ctx.moveTo(x+w*spread*.30-w*.015,y);
       ctx.lineTo(endX-w*.025,endY);ctx.lineTo(endX+w*.032,endY);
       ctx.lineTo(x+w*spread*.30+w*.017,y);ctx.fill();
@@ -285,11 +298,41 @@ export function chestShow() {
       ctx.strokeStyle=profile.light[i%profile.light.length];ctx.lineWidth=1;
       ctx.beginPath();ctx.ellipse(x,y-h*.14,rx,ry,-.23+i*.2,0,Math.PI*2);ctx.stroke();
     }
+    if(age<1)drawPromotion(x,y,w,h,profile,age);
     ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';
+  }
+
+  function drawPromotion(x,y,w,h,profile,age){
+    const travel=1-(1-age)**2.8;
+    const fade=(1-age)**2, scale=Math.min(w,h);
+    const rays=rank>=5?18:rank>=3?13:9;
+    ctx.lineCap='round';
+    for(let i=0;i<rays;i++){
+      const angle=-Math.PI*(.07+.88*i/(rays-1));
+      const distance=scale*(.07+travel*(.29+i%4*.065));
+      const dx=Math.cos(angle),dy=Math.sin(angle);
+      const px=x+dx*distance,py=y+dy*distance+scale*.12*age*age;
+      ctx.beginPath();
+      ctx.moveTo(px,py);
+      ctx.lineTo(px+dx*scale*.058*(1-age),py+dy*scale*.058*(1-age));
+      ctx.strokeStyle=i%4===0?'#fff4db':profile.light[i%profile.light.length];
+      ctx.globalAlpha=fade*(.66+i%3*.14);
+      ctx.lineWidth=1.3+i%3*.65;
+      ctx.stroke();
+    }
+    const rx=scale*(.16+travel*.29), ry=rx*.27;
+    ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);
+    ctx.strokeStyle=profile.light[0];ctx.lineWidth=2.2;
+    ctx.globalAlpha=fade*.75;ctx.stroke();
+    ctx.lineCap='butt';
   }
 
   function paint(now){
     animation=0;
+    const elapsed=promotion?Math.max(0,now-promotion.at):promotionMs;
+    const age=clamp(elapsed/promotionMs);
+    const pulse=reducedMotion.matches?0:(1-clamp(elapsed/285))**2;
+    if(age===1)promotion=null;
     let lid, release=0;
     if(reward){
       const quick=reducedMotion.matches;
@@ -311,15 +354,23 @@ export function chestShow() {
         shown=p===1?motion.to:mix(motion.from,motion.to,motion.linear?p:ease(p));
         if(p===1)motion=null;
       }
-      lid=shown*2.7;
-      stage.textContent=shown<.06?'铜锁未开':shown<.43?'锁舌松动':shown<.72?'封条剥落':'箱缝透光';
+      lid=promotion&&elapsed<43&&!reducedMotion.matches?promotion.lid:shown*2.7;
+      stage.textContent=promotion?`${palette(promotion.from).name} → ${palette(rank).name}`:
+        shown<.06?'铜锁未开':shown<.43?'锁舌松动':shown<.72?'封条剥落':'箱缝透光';
     }
     meter.value=shown;
-    holdButton.style.setProperty('--hold',`${shown*100}%`);
+    const fill=`${shown*100}%`;
+    holdButton.style.setProperty('--hold',fill);
+    scene.style.setProperty('--chest-fill',fill);
+    scene.style.setProperty('--chest-spark',String(Math.min(1,pulse*1.45)));
+    const kick=rank>=5?9:rank>=3?7:5;
+    const x=Math.cos(elapsed*.075)*pulse*kick, y=Math.sin(elapsed*.104)*pulse*kick*.57;
+    visual.style.translate=pulse?`${x}px ${y}px`:'';
+    map.style.translate=pulse?`${x*.56}px ${y*.56}px`:'';
     drawFrames(lid);
-    drawLight(lid/8,Math.min((now-began)/1000,reward?8:12),release,now);
+    drawLight(lid/8,Math.min((now-began)/1000,reward?8:12),release,pulse,age);
     if ((reward&&now-revealStart<(reducedMotion.matches?180:1740)) ||
-        (!reward&&motion)) {
+        (!reward&&motion)||promotion) {
       animation=requestAnimationFrame(paint);
     }
   }
@@ -338,7 +389,7 @@ export function chestShow() {
     begin(box,progress,warning,guard) {
       primeGameSound();
       if(animation)cancelAnimationFrame(animation);
-      animation=0;motion=null;reward=null;
+      animation=0;motion=null;reward=null;promotion=null;
       shown=saved=progress;began=performance.now();
       model.parentElement.style.opacity='1';
       model.parentElement.style.transform='';
@@ -346,7 +397,8 @@ export function chestShow() {
       message.hidden=next.hidden=loot.hidden=true;
       lookup('chest-stop').hidden=holdButton.hidden=false;
       holdButton.textContent='按住撬锁';
-      colour(box.glowGrade??box.shellGrade??box.grade,began);
+      shellGrade=box.shellGrade??box.grade;
+      colour(box.glowGrade??shellGrade);
       threat.textContent=warning;lookup('chest-cover').hidden=!guard;
       redraw();
       note(212,0,.13,.063,'triangle');
@@ -365,22 +417,23 @@ export function chestShow() {
       redraw();
     },
     step(ratio,grade,warning,guard) {
-      const advanced=ratio>saved, upgraded=grade>rank;
+      const advanced=ratio>saved, upgraded=advanced&&grade>rank;
       saved=ratio;
-      colour(grade);
+      colour(grade,advanced);
       threat.textContent=warning;
       lookup('chest-cover').hidden=!guard;
       redraw();
       if(advanced){
         settle();
-        note(235+saved*230,0,.12,.068,'triangle');
-        note(810+saved*340,.028,.09,.037);
-        if(upgraded)note(1047,.065,.27,.042);
+        if(!upgraded){
+          note(235+saved*230,0,.12,.068,'triangle');
+          note(810+saved*340,.028,.09,.037);
+        }
       }
     },
     reveal(receipt) {
       motion=null;reward=receipt;revealStart=performance.now();revealFrom=shown;
-      colour(gradeOf(receipt));
+      colour(gradeOf(receipt),true);
       scene.dataset.phase='reward';
       lookup('chest-stop').hidden=lookup('chest-cover').hidden=holdButton.hidden=true;
       threat.textContent='带着宝物安全撤离';
@@ -395,7 +448,8 @@ export function chestShow() {
     },
     close() {
       if(animation)cancelAnimationFrame(animation);
-      animation=0;motion=reward=null;
+      animation=0;motion=reward=promotion=null;
+      visual.style.translate=map.style.translate='';
       scene.hidden=true;delete game.dataset.chest;
     }
   };

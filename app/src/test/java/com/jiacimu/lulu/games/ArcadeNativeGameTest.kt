@@ -67,6 +67,32 @@ class ArcadeNativeGameTest {
         assertTrue(saved.hero.bag.isEmpty())
     }
 
+    @Test fun violetChestExposesEachConfirmedPromotionBeforeAwardingThePrismaticLoot() {
+        // Seed 101 gives this specific chest a three-rank lift.
+        val base = ArcadeMaps.cloister(RelicEscapeWorld.create(101, 1, emptyList(), 0, 1), false)
+        val placed = base.copy(mobs = emptyList(), chests = base.chests.map {
+            if (it.id == 0) it.copy(tier = RelicTier.RARE, grade = 3) else it
+        })
+        assertTrue(context.getSharedPreferences(arcadeRelicSave, Context.MODE_PRIVATE).edit()
+            .putString("ledger", RelicSnapshot(run = placed).json().toString()).commit())
+        val game = ArcadeNativeGame(context, LuluGameStore(context), "relic", emptyList())
+        val request = JSONObject().put("verb", "act").put("session", placed.id)
+            .put("action", "cinematic_step").put("x", 4).put("y", 4)
+
+        for (grade in listOf(3, 4, 5, 6)) {
+            val result = game.request(request)
+            val chest = result.getJSONArray("chests").getJSONObject(0)
+            assertEquals(3, chest.getInt("shellGrade"))
+            assertEquals(grade, chest.getInt("glowGrade"))
+            assertFalse(chest.getBoolean("opened"))
+            assertFalse(result.has("receipt"))
+        }
+        val receipt = game.request(request).getJSONObject("receipt")
+        assertEquals(6, receipt.getInt("displayGrade"))
+        assertEquals(180_000, receipt.getInt("value"))
+        assertEquals(180_000, checkNotNull(game.relic()).hero.bag.single().value)
+    }
+
     @Test fun exactPlayerHitIsReturnedOnceAndItsDamageIsPersisted() {
         val base = ArcadeMaps.cloister(RelicEscapeWorld.create(42, 1, emptyList(), 0, 1), false)
         val placed = base.copy(mobs = listOf(RelicMob(17, 3, 5, 2, 0)))
