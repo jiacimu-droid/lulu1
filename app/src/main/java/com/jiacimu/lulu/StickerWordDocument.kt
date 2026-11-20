@@ -134,18 +134,28 @@ internal object StickerWordDocument {
                 if (ordered.isEmpty() && linkedEntries.isEmpty()) {
                     error("Word 里没有可导入的图片或 HTTPS 图片地址")
                 }
-                // Text following the picture (including text in the adjacent
-                // table cell) belongs to that picture until the next image.
+                // Authors may put the caption before the picture, after it,
+                // or in its adjacent table cell. Prefer the following block
+                // when it is clearly labeled; otherwise fall back to preceding
+                // labeled text. Never attribute a caption to two images.
                 val sortedFiles = ordered.keys.toList()
                 for ((position, file) in sortedFiles.withIndex()) {
                     val start = imageLocations[file] ?: continue
+                    val previous = sortedFiles.getOrNull(position - 1)
+                        ?.let { imageLocations[it] } ?: -1
                     val next = sortedFiles.getOrNull(position + 1)
                         ?.let { imageLocations[it] } ?: paragraphs.size
-                    val end = minOf(next, start + 7)
-                    for (i in start + 1 until end) {
-                        val paragraph = paragraphs[i]
-                        if (paragraph.imageIds.isNotEmpty()) break
-                        if (paragraph.text.isNotBlank()) ordered[file]?.add(paragraph.text)
+                    val after = paragraphs.subList(start + 1, minOf(next, start + 7))
+                        .filter { it.imageIds.isEmpty() }.map { it.text }.filter(String::isNotBlank)
+                    val preceding = paragraphs.subList(maxOf(previous + 1, start - 6), start)
+                        .filter { it.imageIds.isEmpty() }.map { it.text }.filter(String::isNotBlank)
+                    val labelled = Regex("""^(名称|标题|名字|表情名称|画面描述|图片描述|描述|使用场景|用途|语气|情绪)\s*[：:]""")
+                    val afterTagged = after.any { labelled.containsMatchIn(it.trim()) }
+                    val beforeTagged = preceding.any { labelled.containsMatchIn(it.trim()) }
+                    when {
+                        afterTagged -> ordered[file]?.addAll(after)
+                        beforeTagged -> ordered[file]?.addAll(preceding)
+                        else -> ordered[file]?.addAll(after)
                     }
                 }
                 var imported = 0
@@ -264,15 +274,15 @@ internal object StickerWordDocument {
             .orEmpty()
         var usage = ""
         val extras = mutableListOf<String>()
-        val key = Regex("^(名称|名字|表情名称|画面描述|描述|画面|用途|语气|使用场景)\\s*[：:]\\s*(.*)$")
+        val key = Regex("^(名称|标题|名字|表情名称|图片名称|画面描述|图片描述|描述|画面|内容|用途|语气|情绪|使用场景|适用场景)\\s*[：:]\\s*(.*)$")
         for (line in lines.map(String::trim).filter(String::isNotBlank)) {
             val match = key.matchEntire(line)
             if (match != null) {
                 val value = match.groupValues[2]
                 when (match.groupValues[1]) {
-                    "名称", "名字", "表情名称" -> name = value.take(90)
-                    "描述", "画面", "画面描述" -> description = value.take(400)
-                    "用途", "语气", "使用场景" -> usage = value.take(160)
+                    "名称", "标题", "名字", "表情名称", "图片名称" -> name = value.take(90)
+                    "描述", "画面", "画面描述", "图片描述", "内容" -> description = value.take(400)
+                    "用途", "语气", "使用场景", "适用场景", "情绪" -> usage = value.take(160)
                 }
             } else extras += line
         }

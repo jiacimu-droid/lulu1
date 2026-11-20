@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:40:51.720500+00:00",
-  "commit": "6870b6202b93508eab0f320ee11675d3e1278431",
+  "generatedAt": "2026-11-20T01:42:35.992954+00:00",
+  "commit": "9f7907371630c541c8d5f8173485ce91666e76d4",
   "branch": "main",
-  "sourceFingerprint": "1ac464ed54146add64f1de99ea8bf6f42a95995ccb9fc05a2845104716b9816b",
+  "sourceFingerprint": "2074be32d2c28d9ae0b304a2a4ae65f58235c6b245319fd9a00ab5e2633dcc70",
   "summary": {
-    "files": 1493,
-    "lines": 319063,
-    "symbols": 4534
+    "files": 1494,
+    "lines": 319143,
+    "symbols": 4535
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21320,6 +21320,12 @@
         "line": 14
       }
     ],
+    "StickerFlexibleTextImportTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/StickerFlexibleTextImportTest.kt",
+        "line": 5
+      }
+    ],
     "StickerImportManifestTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/StickerImportManifestTest.kt",
@@ -29906,7 +29912,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt",
       "lines": 123,
-      "sha256": "da2470e16f9ba8fe745861784aa8340853805823922eff282893e9e075bb8c8a",
+      "sha256": "47500375f441da52f7270fa0a5dd713cf04008adf6d2b55038628603dcc62f39",
       "symbols": [
         {
           "name": "mode",
@@ -29928,8 +29934,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerWordDocument.kt",
-      "lines": 293,
-      "sha256": "d47bfd0b24a27ad0ccae2c70d9241274e576c3665a7f6c1bf949d97e351c0c87",
+      "lines": 303,
+      "sha256": "821d7768c20d8c8bbc9e9694f3cb120333de7f9c2aa667cde9d9132543f5cb50",
       "symbols": []
     },
     {
@@ -47408,6 +47414,17 @@
         {
           "name": "StartupFailureRecoveryTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/StickerFlexibleTextImportTest.kt",
+      "lines": 70,
+      "sha256": "fb9d8e716ec3b6e2963c765e9a45b5c4ac30405b0279196770d319d52401d918",
+      "symbols": [
+        {
+          "name": "StickerFlexibleTextImportTest",
+          "line": 5
         }
       ]
     },

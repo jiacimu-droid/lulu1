@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`6870b6202b93508eab0f320ee11675d3e1278431`
+- 基准提交：`9f7907371630c541c8d5f8173485ce91666e76d4`
 - 分支：`main`
-- 已索引文件：1493
-- 已索引代码/文本行：319063
-- 已发现符号：4534
+- 已索引文件：1494
+- 已索引代码/文本行：319143
+- 已发现符号：4535
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -328,7 +328,7 @@
 | `app/src/main/java/com/jiacimu/lulu/StickerPackArchive.kt` | 171 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StickerPromptSelection.kt` | 120 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt` | 123 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/StickerWordDocument.kt` | 293 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/StickerWordDocument.kt` | 303 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt` | 98 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt` | 73 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 157 | 2 |
@@ -1043,6 +1043,7 @@
 | `app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SleepNarrativeStoreTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StartupFailureRecoveryTest.kt` | 40 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/StickerFlexibleTextImportTest.kt` | 70 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StickerImportManifestTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StickerPackArchiveTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StickerPromptSelectionTest.kt` | 79 | 1 |
