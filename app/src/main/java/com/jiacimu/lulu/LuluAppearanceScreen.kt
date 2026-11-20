@@ -235,6 +235,61 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                     Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "更换页面")
                 }
             }
+            if (scope == "ListenTogether") {
+                item {
+                    Text("一起听 · 独立皮肤", style = MaterialTheme.typography.titleMedium)
+                    Text("聊天的配色自动继承进房间；下面只覆盖音乐小窗。可自定义唱片、头像、连接线、歌单及播放区。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = {
+                            val snippet = """
+                                #ListenTogether { --paper: #fff5f8; --ink: #47343e; }
+                                #ListenTogether .music-room { border-radius: 28dp; }
+                                #ListenTogether .music-artwork { height: 210dp; }
+                                #ListenTogether .music-links { color: #d79aaf; border-color: #e8c7d3; border-width: 8dp; }
+                                #ListenTogether .music-avatar-role { width: 60dp; }
+                                #ListenTogether .music-avatar-user { width: 60dp; }
+                                #ListenTogether .music-vinyl { width: 120dp; }
+                                #ListenTogether .music-track-title { color: #47343e; font-size: 19sp; }
+                                #ListenTogether .music-play { background-color: #b67893; color: #ffffff; width: 58dp; }
+                                #ListenTogether .music-playlist-card { background-color: #fff; border-radius: 18dp; }
+                            """.trimIndent()
+                            if (!source.contains("#ListenTogether .music-vinyl")) {
+                                source += "\n" + snippet + "\n"
+                                status = "已插入一起听模板；可修改数值和导入局部图片后应用"
+                            } else status = "已存在一起听唱片样式，可以直接编辑"
+                        }) { Text("插入一起听样式") }
+                        OutlinedButton(onClick = {
+                            pendingImageSelector = "#ListenTogether .music-vinyl"
+                            importImage.launch("image/*")
+                        }) { Text("替换唱片图片") }
+                        OutlinedButton(onClick = {
+                            pendingImageSelector = "#ListenTogether .music-room"
+                            importImage.launch("image/*")
+                        }) { Text("房间背景") }
+                    }
+                }
+            }
+            if (scope == "WatchTogether") {
+                item {
+                    Text("一起看 · 独立皮肤", style = MaterialTheme.typography.titleMedium)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = {
+                            if (!source.contains("#WatchTogether .watch-player")) {
+                                source += "\n#WatchTogether .watch-player { background-color: #252333; border-radius: 22dp; }\n" +
+                                    "#WatchTogether .watch-chat { background-color: #f9f5fb; border-radius: 20dp; }\n"
+                            }
+                            status = "已加入一起看的播放器和聊天区域样式"
+                        }) { Text("插入一起看样式") }
+                        OutlinedButton(onClick = {
+                            pendingImageSelector = "#WatchTogether"
+                            importImage.launch("image/*")
+                        }) { Text("放映室背景") }
+                    }
+                }
+            }
             if (scope == "Home" && widget != null) {
                 item {
                     val selector = LuluCssTargets.widgetSelector(widget.code)
