@@ -425,7 +425,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeDiagnostics.kt` | 53 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt` | 374 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeSelfReview.kt` | 212 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 684 | 10 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt` | 697 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt` | 278 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageFavorites.kt` | 242 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterMessageNotifications.kt` | 184 | 5 |
@@ -1152,7 +1152,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeDiagnosticsTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStoreTest.kt` | 420 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeSelfReviewTest.kt` | 222 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 343 | 4 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt` | 359 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLifeVisibilityTest.kt` | 248 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMomentSnapshotIdeasTest.kt` | 81 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterMotivationOwnershipTest.kt` | 62 | 1 |
