@@ -316,86 +316,143 @@ private fun FastTokenPartLine(part: com.jiacimu.lulu.data.TokenBreakdownItem, al
     }
 }
 
+/** Each row is one attempted model generation, independent of the role's full timeline. */
+private data class ApiTimingCall(val id: String, val records: List<PerformanceTimingRecord>) {
+    val outcome: PerformanceTimingRecord? get() = records.firstOrNull {
+        it.stage == "总耗时" || it.stage == "API调用失败"
+    }
+    val finishedAt: Long get() = outcome?.recordedAtMillis
+        ?: records.maxOfOrNull { it.recordedAtMillis } ?: 0L
+    val totalMillis: Long? get() = outcome?.durationMillis
+    val source: String get() = outcome?.source.orEmpty()
+    val model: String get() = outcome?.model.orEmpty()
+    val provider: String get() = outcome?.provider.orEmpty()
+    val status: String get() = outcome?.status?.takeIf(String::isNotBlank) ?: "进行中"
+    fun duration(key: String): Long? = records.firstOrNull { it.stage == key }?.durationMillis
+}
+
 @Composable
 private fun FastDurationTab(onClear: () -> Unit) {
     val timings by LuluRepositories.performance.timingRecords.collectAsState(initial = emptyList())
     val durations by LuluRepositories.performance.observeDurations()
         .collectAsState(initial = DurationSummary(0, 0, 0))
-    val grouped = remember(timings) { com.jiacimu.lulu.data.ChatTimingTrace.group(timings) }
-    val legacy = remember(timings) { com.jiacimu.lulu.data.ChatTimingTrace.legacy(timings) }
-    var showLegacy by rememberSaveable { mutableStateOf(false) }
+    val requests = remember(timings) {
+        timings.filter { it.requestId.isNotBlank() }
+            .groupBy { it.requestId }
+            .map { (id, entries) -> ApiTimingCall(id, entries) }
+            .sortedByDescending { it.finishedAt }
+    }
+    val older = remember(timings) { timings.filter { it.requestId.isBlank() } }
+    var showOld by rememberSaveable { mutableStateOf(false) }
+
     PaginatedPerformanceList(
-        title = "时长监测",
-        subtitle = "按真实轮次关联，不再把不同请求的最新耗时拼成一条链。",
-        records = grouped,
+        title = "每次 API 调用",
+        subtitle = "逐次查看调用时刻、模型、来源、总耗时与慢在哪个环节。",
+        records = requests,
         keyOf = { it.id },
         onClear = onClear,
         summary = {
             FastPerformanceCard {
-                Text("真实请求时间线", fontWeight = FontWeight.SemiBold)
-                Text("首条气泡耗时包括等待、排队、模型和动作。模型及工具阶段可能嵌套，数字不可简单相加。",
-                    fontSize = 12.sp, color = FastPerformanceMuted)
-                FastMetric("学习", durations.studyMinutes.toString() + " 分钟")
-                FastMetric("聊天", durations.chatMinutes.toString() + " 分钟")
-                FastMetric("通话", durations.callMinutes.toString() + " 分钟")
+                Text("耗时诊断说明", fontWeight = FontWeight.SemiBold)
+                Text("本地准备属于 APK；连接和上传受手机网络、代理与中转影响；等待响应头包含中转排队和模型处理，不能直接归咎于某一方。",
+                    color = FastPerformanceMuted, fontSize = 12.sp)
+                Text("以下网络阶段包含在模型请求总时间内，不要与总时间重复累加。测速不额外发送 API 请求。",
+                    color = FastPerformanceMuted, fontSize = 11.sp)
             }
-            if (legacy.isNotEmpty()) {
+            if (older.isNotEmpty()) {
                 FastPerformanceCard {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("未关联的旧记录 · " + legacy.size + " 条",
-                            modifier = Modifier.weight(1f), fontWeight = FontWeight.Medium, fontSize = 13.sp)
-                        TextButton(onClick = { showLegacy = !showLegacy }) {
-                            Text(if (showLegacy) "收起" else "查看")
+                        Text("旧版阶段记录 · " + older.size + " 条",
+                            Modifier.weight(1f), fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                        TextButton(onClick = { showOld = !showOld }) {
+                            Text(if (showOld) "收起" else "查看")
                         }
                     }
-                    Text("旧记录没有同一轮的确切身份，不能倒推归属。",
-                        color = FastPerformanceMuted, fontSize = 11.sp)
-                    if (showLegacy) legacy.take(16).forEach { item ->
-                        FastMetric(item.stage,
-                            com.jiacimu.lulu.data.ChatTimingTrace.duration(item.durationMillis))
-                        Text(item.recordedAtMillis.fastDateTime(),
-                            color = FastPerformanceMuted, fontSize = 11.sp)
+                    Text("旧记录没有单次请求编号，不能可靠地把不同轮次拼成某个 API 调用。",
+                        fontSize = 11.sp, color = FastPerformanceMuted)
+                    if (showOld) {
+                        older.take(24).forEach { item ->
+                            FastMetric(item.stage,
+                                com.jiacimu.lulu.data.ChatTimingTrace.duration(item.durationMillis))
+                            Text(item.recordedAtMillis.fastDateTime() +
+                                item.detail.takeIf(String::isNotBlank)?.let { " · " + it.take(90) }.orEmpty(),
+                                color = FastPerformanceMuted, fontSize = 11.sp)
+                        }
                     }
                 }
             }
+            FastPerformanceCard {
+                Text("生活累计时长", fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                Text("学习 " + durations.studyMinutes + " 分钟 · 聊天 " +
+                    durations.chatMinutes + " 分钟 · 通话 " + durations.callMinutes + " 分钟",
+                    color = FastPerformanceMuted, fontSize = 12.sp)
+            }
         },
-    ) { group ->
-        var expanded by rememberSaveable(group.id) { mutableStateOf(false) }
+    ) { call ->
+        var expanded by rememberSaveable(call.id) {
+            mutableStateOf(call.id == requests.firstOrNull()?.id)
+        }
         FastPerformanceCard(modifier = Modifier.clickable { expanded = !expanded }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text(if (group.firstBubbleMillis != null) "私聊 · 首条回复已入库"
-                        else "模型 / 工具执行时间线",
+                    Text(call.finishedAt.fastDateTime() + " · " + call.status,
                         fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
-                    Text(group.latestAt.fastDateTime() + " · " + group.id.takeLast(8),
-                        color = FastPerformanceMuted, fontSize = 11.sp)
+                    Text(call.source.ifBlank { "来源未知" } + " · " +
+                        call.model.ifBlank { "模型未知" },
+                        fontSize = 12.sp, maxLines = 2)
                 }
                 Icon(if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
-                    contentDescription = if (expanded) "收起耗时阶段" else "查看耗时阶段",
-                    tint = FastPerformanceMuted)
+                    contentDescription = if (expanded) "收起" else "展开", tint = FastPerformanceMuted)
             }
-            group.firstBubbleMillis?.let { elapsed ->
-                FastMetric("发消息 → 首条气泡",
-                    com.jiacimu.lulu.data.ChatTimingTrace.duration(elapsed))
-            }
-            Text("已记录 " + group.records.size + " 个阶段 · " +
-                (if (expanded) "点击收起" else "点击查看逐段耗时"),
-                color = FastPerformanceMuted, fontSize = 12.sp)
+            FastMetric("总耗时", call.totalMillis?.let {
+                com.jiacimu.lulu.data.ChatTimingTrace.duration(it)
+            } ?: "未结束")
             if (expanded) {
                 HorizontalDivider(color = FastPerformanceBorder)
-                group.records.takeLast(32).forEach { part ->
-                    val eventOnly = part.stage.startsWith("P08a") && part.durationMillis == 0L
-                    FastMetric(part.stage,
-                        if (eventOnly) "事件（非耗时）" else
+                FastMetric("开始", call.totalMillis?.let {
+                    (call.finishedAt - it).fastDateTime()
+                } ?: "未知")
+                FastMetric("结束", call.finishedAt.fastDateTime())
+                FastMetric("模型", call.model.ifBlank { "未知" })
+                FastMetric("来源", call.source.ifBlank { "未知" })
+                FastMetric("中转/服务商域名", call.provider.ifBlank { "未知" })
+                val sections = listOf(
+                    "Prompt" to "APK 本地准备",
+                    "本地准备" to "APK 本地准备",
+                    "模型请求" to "模型请求总阶段",
+                    "连接与建链（DNS/代理/TLS）" to "连接/DNS/代理/TLS",
+                    "上传请求正文" to "上传请求正文",
+                    "等待响应头（中转站+模型）" to "等待中转/模型响应",
+                    "读取响应/流式输出" to "接收回复/流式生成",
+                )
+                sections.forEach { (key, label) ->
+                    call.records.filter { it.stage == key }.forEach { part ->
+                        FastMetric(label,
                             com.jiacimu.lulu.data.ChatTimingTrace.duration(part.durationMillis))
-                    Text(part.recordedAtMillis.fastTime() +
-                        part.detail.takeIf(String::isNotBlank)?.let { " · " + it }.orEmpty(),
-                        color = FastPerformanceMuted, fontSize = 11.sp)
+                    }
                 }
-                if (group.records.size > 32) Text("仅展示最后 32 个阶段，原始记录未因此删除。",
-                    color = FastPerformanceMuted, fontSize = 11.sp)
-                if (group.firstBubbleMillis == null) Text("尚未记录该轮首条回复；不等于已经回复。",
-                    color = FastPerformanceMuted, fontSize = 11.sp)
+                val prep = call.duration("Prompt") ?: call.duration("本地准备")
+                val connect = call.duration("连接与建链（DNS/代理/TLS）")
+                val upload = call.duration("上传请求正文")
+                val wait = call.duration("等待响应头（中转站+模型）")
+                val streaming = call.duration("读取响应/流式输出")
+                val hint = when {
+                    call.status != "成功" -> "检查报错日志中的 HTTP 状态和传输阶段，不能假定请求未被计费。"
+                    prep != null && prep >= 5_000 && prep >= (call.totalMillis ?: 0L) / 3 ->
+                        "APK 本地准备明显偏慢，重点排查记忆召回和提示词组装。"
+                    connect != null && connect >= 3_000 ->
+                        "连接建链偏慢，检查网络、代理/VPN、DNS 或 TLS。"
+                    upload != null && upload >= 3_000 ->
+                        "上传偏慢，检查网络上行和请求体积。"
+                    wait != null && wait >= 5_000 ->
+                        "等待服务端响应偏慢，需要对照中转站日志区分排队与模型推理。"
+                    streaming != null && streaming >= 5_000 ->
+                        "读取/流式输出耗时较长，可能与模型持续生成或传输有关。"
+                    else -> "未发现单一明显瓶颈，详情可与中转站请求日志对照。"
+                }
+                Text("排查提示：" + hint, fontSize = 12.sp, color = FastPerformanceMuted)
+                Text("请求编号 " + call.id.takeLast(12), fontSize = 11.sp,
+                    color = FastPerformanceMuted)
             }
         }
     }
