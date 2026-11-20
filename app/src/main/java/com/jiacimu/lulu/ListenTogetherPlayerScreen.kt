@@ -147,7 +147,8 @@ internal fun ListenTogetherPlayerScreen(
                         onClick = { onModeChange("local"); showLibrary = false },
                         label = { Text("本地音乐") })
                 }
-                Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),
+                val scrollStyle = if (showLibrary) Modifier.luluCssElement("music-playlist") else Modifier
+                Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).then(scrollStyle),
                     horizontalAlignment = Alignment.CenterHorizontally) {
                     if (!showLibrary) {
                         ListenTogetherArtwork(
