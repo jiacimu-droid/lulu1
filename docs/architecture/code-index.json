@@ -29330,8 +29330,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
-      "lines": 584,
-      "sha256": "295d53028d2b0bbd842494527b835d23e690b4e609972596dd1a770c7e563799",
+      "lines": 590,
+      "sha256": "dda021d422b284763687b7f93852c62dbb01755c0fedf7240738de118a08ea6d",
       "symbols": [
         {
           "name": "OptimizedPerformanceFeatureScreen",

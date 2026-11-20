@@ -58,16 +58,14 @@ internal object StickerVisionRouting {
     suspend fun prepareForMultimodalChat(
         context: Context, cues: String, recent: String,
         priorImages: Int, mood: String = "", characterId: String = "",
+        candidates: List<LuluSticker>? = null,
     ): PreparedImages {
         if (mode(context, characterId) != MULTIMODAL_CHAT || priorImages >= 5) {
             return PreparedImages(emptyList(), "")
         }
-        val choice = selectPromptStickers(
-            StickerLibraryStore.items.value,
-            8, StickerRetrievalContext(cues, recent, mood),
-        ).filter { it.visualDescription.isBlank() &&
-            StickerLibraryStore.canActuallySend(context, it)
-        }.take(minOf(2, 5 - priorImages))
+        val available = candidates ?: StickerLibraryStore.promptCandidates(context, cues, recent, mood)
+        val choice = available.filter { it.visualDescription.isBlank() }
+            .take(minOf(2, 5 - priorImages))
         val urls = mutableListOf<String>()
         val records = mutableListOf<String>()
         for (sticker in choice) {

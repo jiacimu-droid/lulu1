@@ -127,24 +127,28 @@ internal object StickerLibraryStore {
         }
     }
 
-    fun prompt(
-        context: Context, limit: Int = 8, cues: String = "",
-        recentConversation: String = "", actorMood: String = "",
-    ): String {
+    fun promptCandidates(
+        context: Context, cues: String = "", recentConversation: String = "", actorMood: String = "",
+    ): List<LuluSticker> {
         initialize(context)
-        val available = selectPromptStickers(items.value, (limit * 2).coerceAtMost(MAX_ITEMS),
-            StickerRetrievalContext(
-                userMessage = cues, recentConversation = recentConversation, actorMood = actorMood,
-            )).filter { canActuallySend(context, it) }.take(limit.coerceAtLeast(0))
+        return selectPromptStickers(items.value, 8, StickerRetrievalContext(
+            userMessage = cues, recentConversation = recentConversation, actorMood = actorMood,
+        )).filter { canActuallySend(context, it) }
+    }
+
+    fun prompt(
+        context: Context, cues: String = "", recentConversation: String = "", actorMood: String = "",
+    ): String = prompt(promptCandidates(context, cues, recentConversation, actorMood))
+
+    fun prompt(available: List<LuluSticker>): String {
         if (available.isEmpty()) return "角色支持图片表情包（与颜文字是两种不同功能），但本次真实可选图库暂时为空或内置素材仍在加载。此时不要捏造 stickerId、不要尝试发送不存在的图片；也不要说角色永远没有表情包功能。仍可用颜文字、emoji 和正常语言。" 
         return buildString {
             appendLine("【本轮社交语境检索的真实可发送表情包候选】")
             appendLine("这里的「实际画面」是已存的文字说明；若同一轮另附了候选原图，你可依据实际可见像素判断对应图片，未附图且无描述的表情不可猜画面。可能用法只是社交语气建议，不代表图片里真的有这些动作。")
-            appendLine("这些只是候选，不代表本轮必须发表情。用户的情绪不等于你自己的态度：先决定自己这一拍想表达的情绪和话外音，再考虑纯文字、颜文字、文字配图或独立一张图哪种更贴切。独立发图不必追加解释情绪的长段；认真反馈先认真回应，不用玩笑图回避责任。无合适图片就不发。只能选择下列真实 stickerId，不按频率凑图。")
+            appendLine("根据本人想表达的态度与已设置的图片表情偏好，选贴切的真实 stickerId。合适的图可以独立成一拍，也可以跟在文字后面。")
             available.forEach { sticker ->
                 appendLine("- stickerId=${sticker.id}；分组=${sticker.pack}；表情名=${sticker.name}；实际画面=${sticker.visualDescription.ifBlank { "未经识图，画面内容尚不确定" }}；可能用法=${sticker.usageHint.ifBlank { sticker.name }}；${if (sticker.favorite) "用户收藏" else "普通"}")
             }
-            appendLine("不知道合适哪张就不发；不自行编造图片链接、库外ID或把所有表情都塞进同一轮。")
         }
     }
 

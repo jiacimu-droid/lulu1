@@ -803,11 +803,11 @@ class CompanionModelGateway(
             }.orEmpty()
             val presenceSection = presence?.let { state ->
                 buildString {
-                    appendLine("角色当前私密状态（只能内化后自然延续，不得原样复述标签或把心声全部说出口）：")
+                    appendLine("角色上次记录的私密状态（记录时间：${state.updatedAt}）。用来承接本人变化；里面对用户的推测和当时的决定仍是过去的主观记录。")
                     if (state.statusText.isNotBlank()) appendLine("- 状态：${state.statusText}")
                     if (state.gesture.isNotBlank()) appendLine("- 此刻动作：${state.gesture}")
                     if (state.mood.isNotBlank()) appendLine("- 心情：${state.mood}")
-                    if (state.innerThought.isNotBlank()) appendLine("- 没说出口：${state.innerThought}")
+                    if (state.innerThought.isNotBlank()) appendLine("- 上次没说出口的心声：${state.innerThought}")
                 }.trim()
             }.orEmpty()
             val lexiconSection = if (lexicon.isEmpty()) "" else buildString {
