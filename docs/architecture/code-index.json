@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:20:07.005054+00:00",
-  "commit": "3c7c778fdd310a5008dca8fdd48dc4fe47a1aaa1",
+  "generatedAt": "2026-11-20T03:21:24.054041+00:00",
+  "commit": "b221b6737dbe9b1b95bfba5ca5faab30e4d1b8e6",
   "branch": "main",
-  "sourceFingerprint": "fdb595e2f732f9c4347b7ee8efa26835976b677b75a357461fc65f3de78a48bd",
+  "sourceFingerprint": "236d1a0a6d5111c7d4b5dce45e8de667d15d39531301e4ff23e566dc999d49d6",
   "summary": {
     "files": 1494,
-    "lines": 319351,
-    "symbols": 4535
+    "lines": 319451,
+    "symbols": 4538
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -768,6 +768,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SelfCompassScreen.kt",
         "line": 118
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
+        "line": 147
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -2937,7 +2941,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 30
+        "line": 34
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt",
@@ -5327,7 +5331,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 77
+        "line": 83
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
@@ -5403,7 +5407,7 @@
     "add": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 85
+        "line": 91
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDevelopmentRuntime.kt",
@@ -5445,13 +5449,13 @@
     "removeTrack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 100
+        "line": 108
       }
     ],
     "delete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 108
+        "line": 116
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
@@ -5472,6 +5476,18 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
         "line": 151
+      }
+    ],
+    "songId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
+        "line": 130
+      }
+    ],
+    "directUri": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
+        "line": 144
       }
     ],
     "nextPauseMillis": [
@@ -29675,28 +29691,40 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-      "lines": 112,
-      "sha256": "4833a01ac4c6395379e86a42db6eb040f1fe01a2a3c60a38b0fdddd21fa6704a",
+      "lines": 171,
+      "sha256": "fe6b04dae481c88c916b8f64025e9ba07d13dfe12978ee91a72e89fc80def065",
       "symbols": [
         {
           "name": "read",
-          "line": 30
+          "line": 34
         },
         {
           "name": "create",
-          "line": 77
+          "line": 83
         },
         {
           "name": "add",
-          "line": 85
+          "line": 91
         },
         {
           "name": "removeTrack",
-          "line": 100
+          "line": 108
         },
         {
           "name": "delete",
-          "line": 108
+          "line": 116
+        },
+        {
+          "name": "songId",
+          "line": 130
+        },
+        {
+          "name": "directUri",
+          "line": 144
+        },
+        {
+          "name": "open",
+          "line": 147
         }
       ]
     },
@@ -49960,8 +49988,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCssRuntimeTest.kt",
-      "lines": 112,
-      "sha256": "5e04aa5120d0a530b6985c88059711076acc812d3aa10194d881eb49a8dedd37",
+      "lines": 153,
+      "sha256": "c486f9741d551d39028169d40a337d65afeb37823626eeafda239972a70102c6",
       "symbols": [
         {
           "name": "LuluCssRuntimeTest",
