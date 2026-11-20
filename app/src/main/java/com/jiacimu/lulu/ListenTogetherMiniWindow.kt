@@ -17,6 +17,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jiacimu.lulu.design.LuluCssPageScope
+import com.jiacimu.lulu.design.cssColor
+import com.jiacimu.lulu.design.cssFontSize
+import com.jiacimu.lulu.design.luluCssElement
+import com.jiacimu.lulu.design.luluCssStyle
 
 private val ink = Color(0xFF29242B)
 private val rose = Color(0xFFA87288)
@@ -63,15 +68,24 @@ internal fun ListenTogetherMiniWindow(
     val userName = owner.getString("display_name", "我").orEmpty().ifBlank { "我" }
     val userAvatar = owner.getString("avatar_uri", null)
 
-    Box(Modifier.fillMaxSize().statusBarsPadding().padding(top = 41.dp, end = 12.dp, start = 12.dp),
-        contentAlignment = Alignment.TopCenter) {
+    LuluCssPageScope("ListenTogether") {
+        val miniSkin = luluCssStyle("music-mini")
+        val compactSkin = luluCssStyle("music-mini-compact")
+        val hiddenSkin = luluCssStyle("music-mini-hidden")
+        val trackSkin = luluCssStyle("music-track-title")
+        val artistSkin = luluCssStyle("music-track-artist")
+        val progressSkin = luluCssStyle("music-progress")
+        val playSkin = luluCssStyle("music-play")
+        Box(Modifier.fillMaxSize().statusBarsPadding().padding(top = 41.dp, end = 12.dp, start = 12.dp),
+            contentAlignment = Alignment.TopCenter) {
         when (display) {
             SharedMusicWindow.Hidden -> {
                 Surface(
-                    modifier = Modifier.align(Alignment.TopEnd).clickable {
+                    modifier = Modifier.align(Alignment.TopEnd).luluCssElement("music-mini-hidden").clickable {
                         SharedMusicWindowController.expand()
                     },
-                    color = rose, shape = CircleShape, shadowElevation = 8.dp,
+                    color = hiddenSkin.cssColor("background-color") ?: rose,
+                    shape = CircleShape, shadowElevation = 8.dp,
                 ) {
                     Icon(Icons.Outlined.MusicNote, "展开一起听",
                         Modifier.padding(14.dp).size(22.dp), tint = Color.White)
@@ -79,8 +93,10 @@ internal fun ListenTogetherMiniWindow(
             }
             SharedMusicWindow.Compact -> {
                 Surface(
+                    modifier = Modifier.luluCssElement("music-mini-compact"),
                     shape = RoundedCornerShape(24.dp),
-                    color = paper, shadowElevation = 9.dp,
+                    color = compactSkin.cssColor("background-color") ?: paper,
+                    shadowElevation = 9.dp,
                     border = BorderStroke(1.dp, Color(0xFFE7DFE4)),
                 ) {
                     Row(Modifier.fillMaxWidth().height(54.dp).padding(start = 13.dp, end = 5.dp),
@@ -107,13 +123,16 @@ internal fun ListenTogetherMiniWindow(
             }
             SharedMusicWindow.Expanded -> {
                 Surface(
+                    modifier = Modifier.luluCssElement("music-mini"),
                     shape = RoundedCornerShape(25.dp),
-                    color = paper, shadowElevation = 12.dp,
+                    color = miniSkin.cssColor("background-color") ?: paper,
+                    shadowElevation = 12.dp,
                     border = BorderStroke(1.dp, Color(0xFFE7DFE4)),
                 ) {
                     Column(Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 7.dp),
                         horizontalAlignment = Alignment.CenterHorizontally) {
-                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Row(Modifier.fillMaxWidth().luluCssElement("music-header"),
+                            verticalAlignment = Alignment.CenterVertically) {
                             Text("一起听", color = ink, fontWeight = FontWeight.SemiBold,
                                 fontSize = 14.sp, modifier = Modifier.weight(1f))
                             IconButton(onClick = onOpenMusic, modifier = Modifier.size(33.dp)) {
@@ -137,10 +156,15 @@ internal fun ListenTogetherMiniWindow(
                             userAvatar = userAvatar, userName = userName, spinning = playing)
                         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
-                                Text(trackName, color = ink, fontSize = 15.sp,
+                                Text(trackName,
+                                    modifier = Modifier.luluCssElement("music-track-title"),
+                                    color = trackSkin.cssColor("color") ?: ink,
+                                    fontSize = trackSkin.cssFontSize() ?: 15.sp,
                                     fontWeight = FontWeight.SemiBold, maxLines = 1,
                                     overflow = TextOverflow.Ellipsis)
-                                Text(artist, color = rose, fontSize = 11.sp,
+                                Text(artist, modifier = Modifier.luluCssElement("music-track-artist"),
+                                    color = artistSkin.cssColor("color") ?: rose,
+                                    fontSize = artistSkin.cssFontSize() ?: 11.sp,
                                     maxLines = 1, overflow = TextOverflow.Ellipsis)
                             }
                             TextButton(onClick = onToggleMode) {
@@ -151,9 +175,12 @@ internal fun ListenTogetherMiniWindow(
                         LinearProgressIndicator(
                             progress = { if (duration > 0L) (position.toFloat() / duration).coerceIn(0f, 1f)
                                 else 0f },
-                            modifier = Modifier.fillMaxWidth().padding(top = 5.dp).height(3.dp),
-                            color = rose, trackColor = Color(0xFFF0E7EA))
-                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth().padding(top = 5.dp).height(3.dp)
+                                .luluCssElement("music-progress"),
+                            color = progressSkin.cssColor("color") ?: rose,
+                            trackColor = progressSkin.cssColor("background-color") ?: Color(0xFFF0E7EA))
+                        Row(Modifier.fillMaxWidth().luluCssElement("music-controls"),
+                            verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(clock(position), fontSize = 10.sp, color = Color.Gray)
                             IconButton(onClick = onPrevious, enabled = controlsAvailable,
@@ -161,9 +188,10 @@ internal fun ListenTogetherMiniWindow(
                                 Icon(Icons.Outlined.SkipPrevious, "上一首", tint = ink)
                             }
                             FilledIconButton(onClick = onToggle, enabled = controlsAvailable,
-                                modifier = Modifier.size(42.dp),
+                                modifier = Modifier.size(42.dp).luluCssElement("music-play"),
                                 colors = IconButtonDefaults.filledIconButtonColors(
-                                    containerColor = rose, contentColor = Color.White)) {
+                                    containerColor = playSkin.cssColor("background-color") ?: rose,
+                                    contentColor = playSkin.cssColor("color") ?: Color.White)) {
                                 Icon(if (playing) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
                                     if (playing) "暂停" else "播放")
                             }
@@ -174,7 +202,8 @@ internal fun ListenTogetherMiniWindow(
                             Text(if (duration > 0L) clock(duration) else "—:—",
                                 fontSize = 10.sp, color = Color.Gray)
                         }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                        Row(Modifier.fillMaxWidth().luluCssElement("music-actions"),
+                            horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically) {
                             TextButton(onClick = if (systemMode) onOpenNetease else onSelectLocal) {
                                 Text(if (systemMode) "网易云" else "选择音频", fontSize = 11.sp)
@@ -195,6 +224,7 @@ internal fun ListenTogetherMiniWindow(
                     }
                 }
             }
+        }
         }
     }
 }
