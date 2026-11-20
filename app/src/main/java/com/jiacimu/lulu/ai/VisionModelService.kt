@@ -118,7 +118,7 @@ object VisionModelService {
                 若是动图，仅观察到第一帧，不得捏造后续动作。
                 看不清则 description 留空，不杜撰。不要标题、Markdown 或说明文字。
             """.trimIndent()
-            val output = describeWith(dedicated, data, prompt)
+            val output = describeWith(dedicated, data, prompt, maxTokens = 1400, maxCharacters = 5000)
             val start = output.indexOf('[')
             val end = output.lastIndexOf(']')
             require(start >= 0 && end > start) { "识图模型没有按约定返回 JSON" }
@@ -341,7 +341,8 @@ object VisionModelService {
             }.onFailure { if (it is CancellationException) throw it }
         }
 
-    private fun describeWith(config: Configuration, dataUrls: List<String>, prompt: String): String {
+    private fun describeWith(config: Configuration, dataUrls: List<String>, prompt: String,
+                             maxTokens: Int = 900, maxCharacters: Int = 1800): String {
         val userContent = JSONArray().put(JSONObject().put("type", "text").put("text", prompt))
         dataUrls.forEach { dataUrl ->
             userContent.put(JSONObject().put("type", "image_url")
@@ -349,7 +350,7 @@ object VisionModelService {
         }
         val body = JSONObject()
             .put("model", config.model)
-            .put("max_tokens", 900)
+            .put("max_tokens", maxTokens)
             .put(
                 "messages",
                 JSONArray().put(JSONObject().put("role", "user").put("content", userContent)),
@@ -383,7 +384,7 @@ object VisionModelService {
                 .ifBlank { extractText(root.opt("output")) }
                 .trim()
             check(text.isNotBlank()) { "模型没有返回可读取的图片描述" }
-            return text.take(1_800)
+            return text.take(maxCharacters)
         } finally {
             connection.disconnect()
         }
