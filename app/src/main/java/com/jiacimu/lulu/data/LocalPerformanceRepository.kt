@@ -615,6 +615,11 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         detail = item.optString("detail"),
         recordedAtMillis = item.optLong("recordedAtMillis", System.currentTimeMillis()),
         traceId = item.optString("traceId"),
+        requestId = item.optString("requestId"),
+        model = item.optString("model"),
+        source = item.optString("source"),
+        provider = item.optString("provider"),
+        status = item.optString("status"),
     )
 
     private companion object {
