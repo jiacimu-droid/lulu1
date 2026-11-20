@@ -556,6 +556,10 @@ class CompanionModelGateway(
         observedSocialContext: String? = null,
     ): Result<ModelReply> = withContext(Dispatchers.IO) {
         val totalStartedAt = System.nanoTime()
+        val performanceRequestId = java.util.UUID.randomUUID().toString()
+        val networkStages = mutableListOf<Pair<String, Long>>()
+        var requestHandoffStarted = false
+        var modelStartedAtNanos: Long? = null
         var requestUrl: String? = null
         var attemptedModel: String? = null
         // Only input sizes are persisted, never raw prompts, user messages,
@@ -979,6 +983,7 @@ class CompanionModelGateway(
             )
             val promptMillis = elapsedMillis(promptStartedAt)
             val modelStartedAt = System.nanoTime()
+            modelStartedAtNanos = modelStartedAt
             // Build the compact projection from the very same assembled facts
             // and single-character decision. No second semantic planner, no
             // new role identity, no fake reply or action is introduced.
@@ -1027,6 +1032,7 @@ class CompanionModelGateway(
             check(ResidentDailyPolicy.recordModelAttemptIfEnabled(connectionStore.appContext, characterId)) {
                 "居民活动已暂停或无法记录请求；本次没有发送模型请求"
             }
+            requestHandoffStarted = true
             LuluRepositories.performance.recordModelHandoff(source, connection.model)
             val reply = try {
                 openAiCompatible(
@@ -1040,6 +1046,8 @@ class CompanionModelGateway(
                     imageDataUrls = imagesForThisTurn,
                     conversationHistory = if (sentReduced) reducedHistory else wireHistory,
                     onRequestBodyBytes = { sentRequestBodyBytes = it; failedRequestBytes = it },
+                    onRequestTiming = { timing -> networkStages.addAll(timing.stages()) },
+                    onRequestTiming = { timing -> networkStages.addAll(timing.stages()) },
                     onAdditionalHttpAttempt = {
                         check(ResidentDailyPolicy.recordModelAttemptIfEnabled(connectionStore.appContext, characterId)) {
                             "居民活动已暂停或无法记录请求；本次没有发送回退请求"
@@ -1186,6 +1194,8 @@ class CompanionModelGateway(
                 contextMode = effectiveMode.name,
                 streamedRequest = streamResponse,
                 turnTraceId = turnTraceId,
+                requestId = performanceRequestId,
+                networkStages = networkStages,
             )
             if (collectMoment) com.jiacimu.lulu.data.CharacterObservedMoment.detach(characterId, reply) else reply
         }.onFailure { error ->
@@ -1194,6 +1204,23 @@ class CompanionModelGateway(
             // essential: callers must not interpret a cancelled extraction
             // as a successful empty result and mark that turn processed.
             if (error is CancellationException) throw error
+            if (requestHandoffStarted) {
+                val prepMillis = modelStartedAtNanos?.let {
+                    ((it - totalStartedAt).coerceAtLeast(0L) / 1_000_000L)
+                }
+                LuluRepositories.performance.recordFailedGeneration(
+                    source = source, title = title, model = attemptedModel.orEmpty(),
+                    provider = requestUrl?.let { runCatching { URL(it).host }.getOrDefault("") }.orEmpty(),
+                    durationMillis = elapsedMillis(totalStartedAt), requestId = performanceRequestId,
+                    traceId = turnTraceId,
+                    networkStages = listOfNotNull(prepMillis?.let { "本地准备" to it }) + networkStages,
+                    failureStatus = when (error) {
+                        is ModelHttpException -> "HTTP ${error.status}"
+                        is ModelPostTransportException -> "传输失败：${error.phase}"
+                        else -> "失败"
+                    },
+                )
+            }
             LuluRepositories.performance.recordError(
                 source = source,
                 title = attemptedModel?.let { "$title · $it" } ?: title,
@@ -1237,6 +1264,7 @@ class CompanionModelGateway(
         imageDataUrls: List<String> = emptyList(),
         conversationHistory: List<ModelConversationMessage> = emptyList(),
         onRequestBodyBytes: ((Long) -> Unit)? = null,
+        onRequestTiming: ((ModelPostTransport.Timing) -> Unit)? = null,
         onAdditionalHttpAttempt: (() -> Unit)? = null,
     ): ModelReply {
         val nativeClaude = isNativeClaude(connection.baseUrl)
@@ -1265,8 +1293,8 @@ class CompanionModelGateway(
             val url = "${claudeBase(connection.baseUrl)}/messages"
             val headers = mapOf("x-api-key" to connection.apiKey, "anthropic-version" to "2023-06-01")
             onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
-            if (streamResponse) return requestPostStreamingReply(url, headers, body, readTimeoutMillis, onStreamText)
-            val json = requestPostJson(url, headers, body, readTimeoutMillis)
+            if (streamResponse) return requestPostStreamingReply(url, headers, body, readTimeoutMillis, onStreamText, onRequestTiming)
+            val json = requestPostJson(url, headers, body, readTimeoutMillis, onRequestTiming)
             val blocks = json.optJSONArray("content") ?: JSONArray()
             val text = (0 until blocks.length()).mapNotNull { blocks.optJSONObject(it)?.takeIf { block -> block.optString("type") == "text" }?.optString("text") }.joinToString("")
             val usage = json.optJSONObject("usage")
@@ -1313,6 +1341,7 @@ class CompanionModelGateway(
                     body = body,
                     readTimeoutMillis = readTimeoutMillis,
                     onStreamText = onStreamText,
+                    onTiming = onRequestTiming,
                 )
             } catch (error: ModelHttpException) {
                 // A few OpenAI-compatible relays reject the stream flag even though their normal
@@ -1337,6 +1366,7 @@ class CompanionModelGateway(
             headers = headers,
             body = body,
             readTimeoutMillis = readTimeoutMillis,
+            onTiming = onRequestTiming,
         )
         return modelReplyFromJson(json).also { reply -> onStreamText?.invoke(reply.text) }
     }
@@ -1407,8 +1437,9 @@ class CompanionModelGateway(
         headers: Map<String, String>,
         body: JSONObject,
         readTimeoutMillis: Int = DEFAULT_MODEL_READ_TIMEOUT_MILLIS,
+        onTiming: ((ModelPostTransport.Timing) -> Unit)? = null,
     ): JSONObject {
-        return ModelPostTransport.executeCancellable(url, headers, body.toString(), readTimeoutMillis) {
+        return ModelPostTransport.executeCancellable(url, headers, body.toString(), readTimeoutMillis, onTiming = onTiming) {
             parseJsonResponse(it.code, it.body?.string().orEmpty())
         }
     }
@@ -1419,10 +1450,11 @@ class CompanionModelGateway(
         body: JSONObject,
         readTimeoutMillis: Int,
         onStreamText: ((String) -> Unit)?,
+        onTiming: ((ModelPostTransport.Timing) -> Unit)? = null,
     ): ModelReply {
         return ModelPostTransport.executeCancellable(
             url, headers + ("Accept" to "text/event-stream, application/json"),
-            body.toString(), readTimeoutMillis,
+            body.toString(), readTimeoutMillis, onTiming = onTiming,
         ) { connection ->
             val status = connection.code
             if (status !in 200..299) {
