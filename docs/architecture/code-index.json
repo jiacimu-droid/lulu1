@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:03:24.242885+00:00",
-  "commit": "1481fc1b2c73260e162074eec8517941ecfeb4a5",
+  "generatedAt": "2026-11-20T01:03:59.463155+00:00",
+  "commit": "f3825a236889ed4dccbe3cea6e88cf63acdeeabf",
   "branch": "main",
-  "sourceFingerprint": "9cc66320d2d6faa34b9585bce9e9aaa68af13ea2a69f2b6be9ef84a2af7363c7",
+  "sourceFingerprint": "a16e51074d12d89b5de00096b477b864e0e039a602fdda385c67b6a63689e4ca",
   "summary": {
     "files": 1488,
     "lines": 317867,
@@ -29720,7 +29720,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerImportManifest.kt",
       "lines": 128,
-      "sha256": "238d7c5fea8c5a6990464fa65ba14bf5ae4c99d2c0381a6d37c4b1e4f8755af4",
+      "sha256": "5384ec82215534a9b338608803e049e720e00b3a331d6aad8aa1c63a728ae417",
       "symbols": [
         {
           "name": "parse",

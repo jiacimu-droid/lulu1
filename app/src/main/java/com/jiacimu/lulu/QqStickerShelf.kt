@@ -28,7 +28,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
 private val kaomojiChoices = listOf(
     "开心" to "(๑˃̵ᴗ˂̵)و",
@@ -73,16 +76,84 @@ internal fun QqStickerShelf(
     var editName by remember { mutableStateOf("") }
     var editDescription by remember { mutableStateOf("") }
     var editUsage by remember { mutableStateOf("") }
+    var showAddMenu by remember { mutableStateOf(false) }
+    var showManifestDialog by remember { mutableStateOf(false) }
+    var manifestText by remember { mutableStateOf("") }
+    var importingManifest by remember { mutableStateOf(false) }
+    var importPackName by remember { mutableStateOf("我的添加") }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
         if (uris.isEmpty()) return@rememberLauncherForActivityResult
         scope.launch {
             var added = 0
             var failure = ""
             for (uri in uris.take(30)) {
-                StickerLibraryStore.importImage(context, uri).onSuccess { added++ }
+                StickerLibraryStore.importImage(context, uri, pack = importPackName).onSuccess { added++ }
                     .onFailure { error -> failure = error.message.orEmpty() }
             }
-            onNotice(if (added > 0) "已加入 $added 张自选表情；长按表情可命名、收藏或排序" else failure.ifBlank { "添加失败" })
+            if (added > 0) { selectedTab = 0; selectedPack = importPackName }
+            onNotice(if (added > 0) "已加入 $added 张到「$importPackName」；缺少画面描述的图片可稍后补充" else failure.ifBlank { "添加失败" })
+        }
+    }
+
+    val packPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) scope.launch {
+            runCatching { StickerPackArchive.import(context, uri, "表情包") }
+                .onSuccess {
+                    selectedTab = 0
+                    selectedPack = it.pack
+                    onNotice("已导入整组「${it.pack}」：${it.imported} 张" +
+                        if (it.errors.isNotEmpty()) "；${it.errors.size} 张失败：${it.errors.first().take(90)}" else "")
+                }.onFailure { onNotice(it.message ?: "ZIP 导入失败") }
+        }
+    }
+    val manifestPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) scope.launch {
+            runCatching {
+                withContext(Dispatchers.IO) {
+                    context.contentResolver.openInputStream(uri)?.use { stream ->
+                        val out = ByteArrayOutputStream()
+                        val buffer = ByteArray(8192)
+                        var total = 0
+                        while (true) {
+                            val read = stream.read(buffer)
+                            if (read < 0) break
+                            total += read
+                            require(total <= 200_000) { "清单过大，请拆分导入" }
+                            out.write(buffer, 0, read)
+                        }
+                        out.toString("UTF-8")
+                    } ?: error("无法读取清单")
+                }
+            }.onSuccess { manifestText = it; showManifestDialog = true }
+                .onFailure { onNotice(it.message ?: "清单读取失败") }
+        }
+    }
+    fun importManifest() {
+        if (importingManifest) return
+        val entries = runCatching {
+            StickerImportManifest.parse(manifestText, importPackName)
+        }.getOrElse {
+            onNotice(it.message ?: "清单格式错误")
+            return
+        }
+        importingManifest = true
+        scope.launch {
+            var imported = 0
+            var failed = 0
+            var firstError = ""
+            for (entry in entries) {
+                StickerLibraryStore.importRemote(context, entry)
+                    .onSuccess { imported++ }
+                    .onFailure {
+                        failed++
+                        if (firstError.isBlank()) firstError = it.message.orEmpty()
+                    }
+            }
+            importingManifest = false
+            if (imported > 0) { selectedTab = 0; selectedPack = entries.first().pack }
+            showManifestDialog = false
+            onNotice("已处理 ${entries.size} 张，成功 $imported，失败 $failed" +
+                if (failed > 0) "；$firstError" else "")
         }
     }
     Surface(color = QqPage, border = BorderStroke(1.dp, QqBorder)) {
@@ -101,8 +172,47 @@ internal fun QqStickerShelf(
                 }
                 Spacer(Modifier.weight(1f))
                 if (selectedTab != 1) {
-                    IconButton(onClick = { picker.launch("image/*") }) {
-                        Icon(Icons.Outlined.AddPhotoAlternate, "从相册添加表情包")
+                    Box {
+                        IconButton(onClick = { showAddMenu = true }) {
+                            Icon(Icons.Outlined.AddPhotoAlternate, "批量导入表情包")
+                        }
+                        DropdownMenu(expanded = showAddMenu, onDismissRequest = { showAddMenu = false }) {
+                            Text("整组导入", color = QqInk, fontSize = 13.sp,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp))
+                            OutlinedTextField(
+                                value = importPackName,
+                                onValueChange = { importPackName = it.take(40) },
+                                label = { Text("分组名称") },
+                                singleLine = true,
+                                modifier = Modifier.width(230.dp).padding(horizontal = 8.dp),
+                            )
+                            DropdownMenuItem(
+                                text = { Text("从相册多选图片") },
+                                onClick = { showAddMenu = false; picker.launch("image/*") },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("导入整组 ZIP（支持图片＋描述）") },
+                                onClick = {
+                                    showAddMenu = false
+                                    packPicker.launch(arrayOf("application/zip", "application/x-zip-compressed", "application/octet-stream"))
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("导入 JSON / CSV / TXT 清单") },
+                                onClick = {
+                                    showAddMenu = false
+                                    manifestPicker.launch(arrayOf("application/json", "text/*", "application/octet-stream"))
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("粘贴图片链接 / 清单") },
+                                onClick = {
+                                    showAddMenu = false
+                                    manifestText = ""
+                                    showManifestDialog = true
+                                },
+                            )
+                        }
                     }
                 }
             }
@@ -209,6 +319,32 @@ internal fun QqStickerShelf(
                 fontSize = 9.sp,
             )
         }
+    }
+
+    if (showManifestDialog) {
+        AlertDialog(
+            onDismissRequest = { if (!importingManifest) showManifestDialog = false },
+            title = { Text("整组导入表情包") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("每行：HTTPS图片直链 | 名称 | 画面描述 | 使用语气 | 分组。也支持 JSON / CSV 清单；描述已填好的无需识图。",
+                        color = QqMuted, fontSize = 12.sp)
+                    OutlinedTextField(
+                        value = manifestText, onValueChange = { manifestText = it.take(200_000) },
+                        label = { Text("链接或清单内容") }, minLines = 4, maxLines = 8,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text("导入只下载并保存图片，不会自动调用付费识图模型。",
+                        color = QqMuted, fontSize = 11.sp)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { importManifest() }, enabled = !importingManifest && manifestText.isNotBlank()) {
+                    Text(if (importingManifest) "正在导入…" else "整组保存")
+                }
+            },
+            dismissButton = { TextButton(onClick = { showManifestDialog = false }, enabled = !importingManifest) { Text("取消") } },
+        )
     }
 
     selectedSticker?.let { sticker ->
