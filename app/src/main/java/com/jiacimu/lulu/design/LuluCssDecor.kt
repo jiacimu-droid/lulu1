@@ -1,9 +1,9 @@
 package com.jiacimu.lulu.design
 
 import android.graphics.BitmapFactory
+import android.util.LruCache
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.ProvideTextStyle
@@ -22,14 +21,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.font.FontFamily
@@ -41,6 +39,8 @@ import androidx.compose.ui.zIndex
 import com.jiacimu.lulu.data.LuluCssSheet
 import com.jiacimu.lulu.data.LuluCssStore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
@@ -61,17 +61,30 @@ internal fun Map<String, String>.cssFontSize(): TextUnit? =
     get("font-size")?.removeSuffix("sp")?.toFloatOrNull()?.takeIf { it.isFinite() && it > 0f }
         ?.coerceIn(1f, 160f)?.sp
 
-private fun Map<String, String>.cssFontFamily(): FontFamily? = when (get("font-family")) {
+internal fun Map<String, String>.cssFontFamily(): FontFamily? = when (get("font-family")) {
     "serif", "songti" -> FontFamily.Serif
     "mono", "monospace" -> FontFamily.Monospace
     "sans", "sans-serif" -> FontFamily.SansSerif
     else -> null
 }
 
-private fun Map<String, String>.cssImageScale(): ContentScale = when (get("background-size")) {
+internal fun Map<String, String>.cssImageScale(fallback: ContentScale = ContentScale.Crop): ContentScale = when (get("background-size")) {
     "contain" -> ContentScale.Fit
     "stretch" -> ContentScale.FillBounds
-    else -> ContentScale.Crop
+    "cover" -> ContentScale.Crop
+    else -> fallback
+}
+
+internal fun Map<String, String>.cssImageAlignment(): Alignment = when (get("background-position")) {
+    "top" -> Alignment.TopCenter
+    "bottom" -> Alignment.BottomCenter
+    "left" -> Alignment.CenterStart
+    "right" -> Alignment.CenterEnd
+    "top left" -> Alignment.TopStart
+    "top right" -> Alignment.TopEnd
+    "bottom left" -> Alignment.BottomStart
+    "bottom right" -> Alignment.BottomEnd
+    else -> Alignment.Center
 }
 
 internal fun Map<String, String>.cssAlignment(fallback: Alignment): Alignment = when (get("align")) {
@@ -87,27 +100,36 @@ internal fun Map<String, String>.cssAlignment(fallback: Alignment): Alignment = 
     else -> fallback
 }
 
+private val cssImageCache = object : LruCache<Pair<String, Int>, ImageBitmap>(24 * 1024 * 1024) {
+    override fun sizeOf(key: Pair<String, Int>, value: ImageBitmap): Int = value.width * value.height * 4
+}
+private val cssImageDecodeLock = Mutex()
+
 @Composable
-private fun luluCssBitmap(token: String?, maxEdge: Int): ImageBitmap? {
-    val file = LuluCssStore.assetFile(token)
+internal fun luluCssBitmap(token: String?, maxEdge: Int): ImageBitmap? {
+    val file = remember(token) { LuluCssStore.assetFile(token) }
+    val key = file?.path?.let { it to maxEdge }
     // Key the result with the file: a previous image must never appear on a new page/tile.
-    val decoded by produceState<Pair<String, ImageBitmap?>?>(null, file?.path, maxEdge) {
+    val decoded by produceState<Pair<Pair<String, Int>, ImageBitmap?>?>(null, key) {
         val path = file?.path ?: return@produceState
-        value = path to withContext(Dispatchers.IO) {
-            runCatching {
-                val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                BitmapFactory.decodeFile(path, bounds)
-                var factor = 1
-                while (bounds.outWidth / factor > maxEdge || bounds.outHeight / factor > maxEdge) {
-                    factor *= 2
-                }
-                BitmapFactory.decodeFile(path, BitmapFactory.Options().apply {
-                    inSampleSize = factor
-                })?.asImageBitmap()
-            }.getOrNull()
+        val cacheKey = key ?: return@produceState
+        value = cacheKey to withContext(Dispatchers.IO) {
+            cssImageCache.get(cacheKey) ?: cssImageDecodeLock.withLock {
+                cssImageCache.get(cacheKey) ?: runCatching {
+                    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                    BitmapFactory.decodeFile(path, bounds)
+                    var factor = 1
+                    while (bounds.outWidth / factor > maxEdge || bounds.outHeight / factor > maxEdge) {
+                        factor *= 2
+                    }
+                    BitmapFactory.decodeFile(path, BitmapFactory.Options().apply {
+                        inSampleSize = factor
+                    })?.asImageBitmap()?.also { cssImageCache.put(cacheKey, it) }
+                }.getOrNull()
+            }
         }
     }
-    return decoded?.takeIf { it.first == file?.path }?.second
+    return decoded?.takeIf { it.first == key }?.second ?: key?.let { cssImageCache.get(it) }
 }
 
 @Composable
@@ -117,12 +139,13 @@ fun Modifier.luluCssElement(vararg elements: String): Modifier = luluCssDecor(lu
 internal fun Modifier.luluCssDecor(
     style: Map<String, String>,
     includeArtwork: Boolean = true,
+    includePadding: Boolean = true,
+    defaultShape: Shape? = null,
+    defaultBackground: Color? = null,
+    defaultBorder: BorderStroke? = null,
 ): Modifier {
-    if (style.isEmpty()) return this
-    val radius = style.cssDp("border-radius", 512f)
-    val shape = RoundedCornerShape(radius ?: 0.dp)
+    if (style.isEmpty() && defaultShape == null && defaultBackground == null && defaultBorder == null) return this
     val margin = style.cssDp("margin")
-    val padding = style.cssDp("padding")
     val x = style["offset-x"]
     val y = style["offset-y"]
 
@@ -157,23 +180,20 @@ internal fun Modifier.luluCssDecor(
     LuluCssSheet.percent(style["width"])?.let { result = result.fillMaxWidth(it.coerceIn(0f, 100f) / 100) }
     LuluCssSheet.percent(style["height"])?.let { result = result.fillMaxHeight(it.coerceIn(0f, 100f) / 100) }
     if (includeArtwork) {
-        if (radius != null) result = result.clip(shape)
-        style.cssColor("background-color")?.let { result = result.background(it, shape) }
-        val border = style.cssColor("border-color")
-        if (border != null) {
-            val borderWidth = style.cssDp("border-width") ?: 1.dp
-            if (borderWidth > 0.dp) result = result.border(borderWidth, border, shape)
-        }
-        val token = LuluCssSheet.assetToken(style["background-image"])
-        if (token != null) {
-            val image = luluCssBitmap(token, maxEdge = 1024)
-            if (image != null) result = result.paint(BitmapPainter(image), sizeToIntrinsics = false,
-                contentScale = style.cssImageScale())
-        }
+        result = result.luluCssPaint(style, defaultShape, defaultBackground, defaultBorder)
     }
-    return result.padding(
-        horizontal = style.cssDp("padding-inline") ?: padding ?: 0.dp,
-        vertical = style.cssDp("padding-block") ?: padding ?: 0.dp,
+    return if (includePadding) result.luluCssPadding(style) else result
+}
+
+internal fun Modifier.luluCssPadding(
+    style: Map<String, String>,
+    horizontal: Dp = 0.dp,
+    vertical: Dp = 0.dp,
+): Modifier {
+    val padding = style.cssDp("padding")
+    return padding(
+        horizontal = style.cssDp("padding-inline") ?: padding ?: horizontal,
+        vertical = style.cssDp("padding-block") ?: padding ?: vertical,
     )
 }
 
@@ -213,12 +233,16 @@ fun LuluCssArtwork(
 ) {
     val image = if (token != null) luluCssBitmap(token, maxEdge) else null
     if (image == null) fallback()
-    else Image(image, contentDescription = null, modifier = modifier, contentScale = style.cssImageScale())
+    else Image(image, contentDescription = null, modifier = modifier, contentScale = style.cssImageScale(),
+        alignment = style.cssImageAlignment())
 }
 
 @Composable
 fun LuluCssBackground(modifier: Modifier = Modifier.fillMaxSize()) {
     val scope = LocalLuluCssScope.current
     val sheet = LocalLuluCssSheet.current
-    LuluCssArtwork(sheet.imageToken(scope), modifier, sheet.page(scope))
+    val background = sheet.page(scope).filterKeys { it.startsWith("background-") }
+    if (background["background-image"] != null && background["background-image"] != "none") {
+        Box(modifier.luluCssPaint(background))
+    }
 }

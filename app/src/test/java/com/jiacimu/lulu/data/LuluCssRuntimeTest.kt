@@ -156,6 +156,67 @@ class LuluCssRuntimeTest {
         assertEquals("12dp", sheet.element("WatchTogether", "watch-chat")["padding"])
     }
 
+    @Test fun bubbleDecorationsFollowScopeAndSenderWithoutOverwritingTheBubble() {
+        val token = "asset://123e4567-e89b-12d3-a456-426614174000.png"
+        val sheet = LuluCssSheet.parse("""
+            #Chat .bubble { background-color: #fff; }
+            #Chat .bubble::before { background-color: #fea; }
+            #ChatDetail .bubble-role::after {
+                content: ""; background-image: url("$token"); position: absolute;
+                right: -6dp; top: -4dp; width: 32dp; height: 24dp; rotate: -12deg; opacity: .8;
+            }
+            #GroupChat .bubble-role::after { content: none; }
+        """.trimIndent())
+        assertTrue(sheet.errors.toString(), sheet.errors.isEmpty())
+        assertTrue(sheet.warnings.toString(), sheet.warnings.isEmpty())
+        val role = sheet.element("ChatDetail", "bubble", "bubble-role")
+        assertEquals("#fff", role["background-color"])
+        assertEquals("#fea", role["before/background-color"])
+        assertEquals(token, LuluCssSheet.assetToken(role["after/background-image"]))
+        assertEquals("-6dp", role["after/right"])
+        assertEquals("-4dp", role["after/top"])
+        assertEquals("none", sheet.element("GroupChat", "bubble", "bubble-role")["after/content"])
+        assertNull(sheet.element("ChatDetail", "bubble", "bubble-user")["after/background-image"])
+        assertTrue(sheet.element("Settings", "bubble", "bubble-role").isEmpty())
+    }
+
+    @Test fun radiusAndBorderShorthandsRespectOverrides() {
+        val sheet = LuluCssSheet.parse("""
+            .bubble { border: 2dp solid #aec; border-radius: 5dp 18dp 14dp; }
+            #ChatDetail .bubble-role { border: none; border-top-left-radius: 7dp; }
+            #GroupChat .bubble-role { border-radius: 12dp; }
+        """.trimIndent())
+        assertTrue(sheet.errors.toString(), sheet.errors.isEmpty())
+        val style = sheet.element("ChatDetail", "bubble", "bubble-role")
+        assertEquals("0dp", style["border-width"])
+        assertEquals(listOf("7dp", "18dp", "14dp", "18dp"), LuluCssSheet.CORNERS.map { style[it] })
+        val group = sheet.element("GroupChat", "bubble", "bubble-role")
+        assertEquals(List(4) { "12dp" }, LuluCssSheet.CORNERS.map { group[it] })
+    }
+
+    @Test fun gradientsAndShadowsAcceptFiniteValuesAndRejectRemoteLayerImages() {
+        val sheet = LuluCssSheet.parse("""
+            #ChatDetail .bubble {
+                background-image: linear-gradient(135deg, #fff, #faa8);
+                box-shadow: 0 3dp 10dp #11223380;
+                background-position: top right;
+            }
+        """.trimIndent())
+        assertTrue(sheet.errors.toString(), sheet.errors.isEmpty())
+        val style = sheet.element("ChatDetail", "bubble")
+        val gradient = LuluCssSheet.gradient(style["background-image"])
+        assertEquals(135f, gradient?.angle)
+        assertEquals(listOf(0xFFFFFFFFL, 0x88FFAAAAL), gradient?.colors)
+        val shadow = LuluCssSheet.shadow(style["box-shadow"])
+        assertEquals(10f, shadow?.blur)
+        assertEquals(0x80112233L, shadow?.color)
+        assertTrue(LuluCssSheet.parse(".bubble::after { background-image: url(https://example.org/ribbon.png); }").errors.isNotEmpty())
+        assertTrue(LuluCssSheet.parse(".bubble { box-shadow: 0 2dp -1dp #000; }").errors.isNotEmpty())
+        assertTrue(LuluCssSheet.parse(".bubble { background-image: linear-gradient(90deg, #fff); }").errors.isNotEmpty())
+        assertTrue(LuluCssSheet.parse(".bubble::before { opacity: 2; }").errors.isNotEmpty())
+        assertTrue(LuluCssSheet.parse(".bubble::active { background-color: #fff; }").warnings.isNotEmpty())
+    }
+
     @Test fun noBundledAppearancePacksRemain() {
         assertEquals(listOf("paper"), LuluAppearanceCatalog.builtIns.map { it.id })
     }

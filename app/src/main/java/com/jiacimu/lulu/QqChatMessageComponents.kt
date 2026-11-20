@@ -2,7 +2,6 @@ package com.jiacimu.lulu
 
 import com.jiacimu.lulu.design.luluCssStyle
 import com.jiacimu.lulu.design.cssColor
-import com.jiacimu.lulu.design.cssDp
 import com.jiacimu.lulu.design.cssFontSize
 import com.jiacimu.lulu.design.luluCssDecor
 import com.jiacimu.lulu.design.LuluAlertDialog as AlertDialog
@@ -54,7 +53,6 @@ import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.CompanionPresenceStore
 import com.jiacimu.lulu.data.LuluChatMessage
 import com.jiacimu.lulu.design.LocalLuluAppearance
-import com.jiacimu.lulu.design.JournalChatBubble
 import com.jiacimu.lulu.design.isJournal
 import com.jiacimu.lulu.data.LuluGroupChat
 import com.jiacimu.lulu.data.ReadingChatReceiptFormatter
@@ -98,6 +96,7 @@ internal fun QqMessageRow(
     }
 
     val mine = message.sender == LuluChatMessage.Sender.User
+    val bubbleStyle = qqBubbleStyle(mine)
     val forwardBundle = remember(message.content) { decodeQqForwardedChat(message.content) }
     val xhsShare = remember(message.content) { decodeQqXhsSharedNote(message.content) }
     val shoppingLink = remember(message.content) { decodeQqShoppingProductLink(message.content) }
@@ -243,12 +242,13 @@ internal fun QqMessageRow(
                 }
                 bubbles.filter(String::isNotBlank).forEachIndexed { index, bubble ->
                     val isLastBubble = index == bubbles.lastIndex
-                    MessageLineWithTime(mine, showTime && isLastBubble && sharedLinks.links.isEmpty() && gameInvite == null, timeText) { bubbleModifier ->
+                    MessageLineWithTime(
+                        mine, showTime && isLastBubble && sharedLinks.links.isEmpty() && gameInvite == null,
+                        timeText, qqBubbleAlignment(mine, bubbleStyle),
+                    ) { bubbleModifier ->
                         val journal = LocalLuluAppearance.current.isJournal()
-                        val variant = if (mine) "bubble-user" else "bubble-role"
-                        val bubbleStyle = luluCssStyle("bubble", variant)
                         val bubbleContent: @Composable () -> Unit = {
-                            Column(Modifier.padding(horizontal = 12.dp, vertical = 7.dp)) {
+                            Column {
                                 repliedMessageContent?.let { quoted ->
                                     Surface(
                                         color = if (mine) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.78f),
@@ -264,51 +264,22 @@ internal fun QqMessageRow(
                                     }
                                     Spacer(Modifier.height(6.dp))
                                 }
-                                Text(bubble, color = bubbleStyle.cssColor("color") ?: if (mine && !journal) QqMineInk else QqInk,
-                                    fontSize = bubbleStyle.cssFontSize() ?: if (message.voiceNote) 13.sp else 15.sp,
-                                    lineHeight = bubbleStyle.cssFontSize()?.let { (it.value + 6).sp } ?: 21.sp)
+                                QqBubbleText(bubble, mine, bubbleStyle, voiceNote = message.voiceNote)
                                 if (message.favorite && isLastBubble) {
                                     Spacer(Modifier.height(4.dp))
                                     Text("★ 已收藏", color = if (mine && !journal) Color.White.copy(alpha = 0.68f) else QqMuted, fontSize = 10.sp)
                                 }
                             }
                         }
-                        val interactiveModifier = bubbleModifier.luluCssDecor(bubbleStyle, includeArtwork = false).combinedClickable(
-                            onClick = {}, onLongClick = onLongClick,
-                        )
                         if (message.voiceNote) {
                             // Keep the voice control compact even when the automatic transcript is long.
                             // Both surfaces belong to this one message, retaining its reply/long-press/time.
-                            Column(bubbleModifier.luluCssDecor(bubbleStyle, includeArtwork = false), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Column(bubbleModifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
                                 QqVoicePlaybackBar(message.id, mine, onLongClick)
-                                if (journal) {
-                                    JournalChatBubble(mine = mine, modifier = Modifier.combinedClickable(
-                                        onClick = {}, onLongClick = onLongClick,
-                                    )) { bubbleContent() }
-                                } else {
-                                    Surface(
-                                        modifier = Modifier.combinedClickable(
-                                            onClick = {}, onLongClick = onLongClick,
-                                        ),
-                                        color = bubbleStyle.cssColor("background-color") ?: if (mine) QqMine else QqOther,
-                                        shape = RoundedCornerShape(bubbleStyle.cssDp("border-radius") ?: 15.dp),
-                                        border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
-                                        shadowElevation = 0.dp,
-                                    ) { bubbleContent() }
-                                }
-                            }
-                        } else if (journal) {
-                            JournalChatBubble(mine = mine, modifier = interactiveModifier) {
-                                bubbleContent()
+                                QqTextBubble(mine, bubbleStyle, onLongClick = onLongClick, content = bubbleContent)
                             }
                         } else {
-                            Surface(
-                                modifier = interactiveModifier,
-                                color = bubbleStyle.cssColor("background-color") ?: if (mine) QqMine else QqOther,
-                                shape = RoundedCornerShape(bubbleStyle.cssDp("border-radius") ?: 15.dp),
-                                border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
-                                shadowElevation = 0.dp,
-                            ) { bubbleContent() }
+                            QqTextBubble(mine, bubbleStyle, bubbleModifier, onLongClick, bubbleContent)
                         }
                     }
                     if (!isLastBubble || sharedLinks.links.isNotEmpty()) Spacer(Modifier.height(3.dp))
@@ -384,16 +355,17 @@ private fun QqVoicePlaybackBar(messageId: String, mine: Boolean, onLongClick: ()
             else ((file.length() - 44L) / 32_000L).coerceAtLeast(1L)
         }
     }
-    val ink = if (mine) QqMineInk else QqInk
-    Surface(
-        modifier = Modifier.width(148.dp).heightIn(min = 44.dp).combinedClickable(
-            onClick = { ChatAutoVoicePlayback.replayCached(messageId) },
-            onLongClick = onLongClick,
+    val style = luluCssStyle("bubble-voice")
+    val ink = style.cssColor("color") ?: if (mine) QqMineInk else QqInk
+    Box(
+        Modifier.luluCssDecor(
+            style, defaultShape = RoundedCornerShape(15.dp),
+            defaultBackground = if (mine) QqMine else QqOther,
+            defaultBorder = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
+        ).width(148.dp).heightIn(min = 44.dp).combinedClickable(
+            onClick = { ChatAutoVoicePlayback.replayCached(messageId) }, onLongClick = onLongClick,
         ),
-        color = if (mine) QqMine else QqOther,
-        shape = RoundedCornerShape(15.dp),
-        border = BorderStroke(1.dp, if (mine) QqMine else QqBorder),
-        shadowElevation = 0.dp,
+        propagateMinConstraints = true,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp).padding(horizontal = 12.dp),
@@ -420,7 +392,7 @@ private fun QqVoicePlaybackBar(messageId: String, mine: Boolean, onLongClick: ()
                 }
             }
             duration?.let {
-                Text("${it}s", color = ink.copy(alpha = 0.8f), fontSize = 11.sp)
+                Text("${it}s", color = ink.copy(alpha = 0.8f), fontSize = style.cssFontSize() ?: 11.sp)
             }
         }
     }
@@ -431,9 +403,10 @@ private fun MessageLineWithTime(
     mine: Boolean,
     showTime: Boolean,
     timeText: String,
+    alignment: Alignment = if (mine) Alignment.BottomEnd else Alignment.BottomStart,
     content: @Composable (Modifier) -> Unit,
 ) {
-    Box(Modifier.fillMaxWidth(), contentAlignment = if (mine) Alignment.BottomEnd else Alignment.BottomStart) {
+    Box(Modifier.fillMaxWidth(), contentAlignment = alignment) {
         Layout(
             modifier = Modifier.widthIn(max = 300.dp),
             content = {

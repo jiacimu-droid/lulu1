@@ -75,7 +75,7 @@ object LuluCssTargets {
     private val desktopElements = setOf("launcher", "launcher-label", "companion", "desktop-dock",
         "widget-chat", "widget-bulletin", "widget-horoscope", "widget-note", "widget-countdown", "widget-planner",
         "widget-calendar", "widget-clock", "widget-photo")
-    private val chatElements = setOf("bubble", "bubble-user", "bubble-role", "messages", "composer",
+    private val chatElements = setOf("bubble", "bubble-user", "bubble-role", "bubble-voice", "messages", "composer",
         "composer-input", "composer-send", "composer-tools")
     // Each nested room is an independent native CSS surface, inheriting its
     // Chat -> ChatDetail parent rules rather than becoming another app.
@@ -101,7 +101,7 @@ object LuluCssTargets {
         val scope = selector.takeIf { it.startsWith('#') }?.substringBefore(' ')?.drop(1)
         if (scope != null && scope !in byId) return false
         if ('.' !in selector) return true
-        val name = selector.substringAfter('.')
+        val name = selector.substringAfter('.').substringBefore("::")
         if (name in sharedElements) return true
         val allowed = scope?.let(::lineage).orEmpty()
         return ((scope == null || "Home" in allowed) && (name in desktopElements ||
