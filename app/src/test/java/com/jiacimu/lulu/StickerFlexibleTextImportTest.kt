@@ -59,6 +59,17 @@ class StickerFlexibleTextImportTest {
         assertEquals("日常狗", actual[1].pack)
     }
 
+    @Test fun supportsQuotedCsvWithDescriptionAndUrlInDifferentColumns() {
+        val entries = StickerFlexibleTextImport.parse(
+            "名称,图片链接,描述,用途,分组\\n" +
+                "\"撒娇\",https://example.org/a.png,\"猫咪伸手,靠近镜头\",求抱抱,萌猫",
+        )
+        assertEquals(1, entries.size)
+        assertEquals("撒娇", entries[0].name)
+        assertEquals("猫咪伸手,靠近镜头", entries[0].visualDescription)
+        assertEquals("萌猫", entries[0].pack)
+    }
+
     @Test fun absentDescriptionRemainsUnknown() {
         val actual = StickerFlexibleTextImport.parse(
             "名称：神秘猫\n图片：https://example.org/unknown.gif",

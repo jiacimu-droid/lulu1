@@ -160,11 +160,38 @@ internal object StickerFlexibleTextImport {
         listOf("一只", "一张", "图中", "画面", "猫咪", "小猫", "双手", "眼睛", "嘴巴", "文字", "表情", "背景", "头上")
             .any(line::contains)
 
+    private fun parseCsv(line: String): List<String> {
+        val values = mutableListOf<String>()
+        val part = StringBuilder()
+        var quoted = false
+        var index = 0
+        while (index < line.length) {
+            val char = line[index]
+            when {
+                char == '"' && quoted && index + 1 < line.length && line[index + 1] == '"' -> {
+                    part.append('"')
+                    index++
+                }
+                char == '"' -> quoted = !quoted
+                char == ',' && !quoted -> {
+                    values += part.toString().trim()
+                    part.clear()
+                }
+                else -> part.append(char)
+            }
+            index++
+        }
+        if (quoted) return listOf(line)
+        values += part.toString().trim()
+        return values
+    }
+
     private fun splitColumns(line: String): List<String> {
         val separator = when {
             '|' in line -> '|'
             '｜' in line -> '｜'
             '\t' in line -> '\t'
+            ',' in line && url.containsMatchIn(line) -> return parseCsv(line)
             else -> return listOf(line)
         }
         return line.trim(separator).split(separator).map(String::trim)
