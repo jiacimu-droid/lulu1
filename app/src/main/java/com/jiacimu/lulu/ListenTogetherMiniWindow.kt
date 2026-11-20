@@ -18,6 +18,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.design.LuluCssPageScope
+import com.jiacimu.lulu.design.LocalLuluAppearance
+import com.jiacimu.lulu.design.LocalLuluCssSheet
+import com.jiacimu.lulu.data.LuluCssSheet
 import com.jiacimu.lulu.design.cssColor
 import com.jiacimu.lulu.design.cssFontSize
 import com.jiacimu.lulu.design.luluCssElement
@@ -76,6 +79,13 @@ internal fun ListenTogetherMiniWindow(
         val artistSkin = luluCssStyle("music-track-artist")
         val progressSkin = luluCssStyle("music-progress")
         val playSkin = luluCssStyle("music-play")
+        val inheritedPaper = LocalLuluCssSheet.current.page("ListenTogether")["--paper"]
+        val themePaper = if (inheritedPaper != null)
+            Color(LocalLuluAppearance.current.palette.paper.toInt()) else paper
+        val miniColor = if (LuluCssSheet.assetToken(miniSkin["background-image"]) != null)
+            Color.Transparent else miniSkin.cssColor("background-color") ?: themePaper
+        val compactColor = if (LuluCssSheet.assetToken(compactSkin["background-image"]) != null)
+            Color.Transparent else compactSkin.cssColor("background-color") ?: themePaper
         Box(Modifier.fillMaxSize().statusBarsPadding().padding(top = 41.dp, end = 12.dp, start = 12.dp),
             contentAlignment = Alignment.TopCenter) {
         when (display) {
@@ -95,7 +105,7 @@ internal fun ListenTogetherMiniWindow(
                 Surface(
                     modifier = Modifier.luluCssElement("music-mini-compact"),
                     shape = RoundedCornerShape(24.dp),
-                    color = compactSkin.cssColor("background-color") ?: paper,
+                    color = compactColor,
                     shadowElevation = 9.dp,
                     border = BorderStroke(1.dp, Color(0xFFE7DFE4)),
                 ) {
@@ -125,7 +135,7 @@ internal fun ListenTogetherMiniWindow(
                 Surface(
                     modifier = Modifier.luluCssElement("music-mini"),
                     shape = RoundedCornerShape(25.dp),
-                    color = miniSkin.cssColor("background-color") ?: paper,
+                    color = miniColor,
                     shadowElevation = 12.dp,
                     border = BorderStroke(1.dp, Color(0xFFE7DFE4)),
                 ) {

@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`9bced2d102ac6a3e77028abbbc51372419021691`
+- 基准提交：`6b17cdc651d0eed5d5b473cd3e9228ed8c4df69c`
 - 分支：`main`
-- 已索引文件：1496
-- 已索引代码/文本行：319863
-- 已发现符号：4549
+- 已索引文件：1497
+- 已索引代码/文本行：320160
+- 已发现符号：4550
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -168,6 +168,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 715 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 156 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherMiniWindow.kt` | 231 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherMusicLibrary.kt` | 291 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 413 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 374 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
@@ -198,7 +199,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 979 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAlipayDonationQr.kt` | 96 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 445 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 449 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt` | 364 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt` | 279 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 145 | 4 |
@@ -241,8 +242,8 @@
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/MigrationActivity.kt` | 323 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 677 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 103 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationDesktopScreenV2.kt` | 678 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/MigrationRoutes.kt` | 104 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulator.kt` | 28 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MiniMaxStreamingSpeech.kt` | 123 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ModelArchivePickerSheet.kt` | 342 | 0 |
