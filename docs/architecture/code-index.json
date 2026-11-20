@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:37:09.820649+00:00",
-  "commit": "c0cbfc8453a85802ffd191438af6e6628de6fc86",
-  "branch": "main",
-  "sourceFingerprint": "c6fa6740bb461ea2487c46b6efd074c35ec09dce99e7fd4c7032d980554b9061",
+  "generatedAt": "2026-11-20T04:19:59.248522+00:00",
+  "commit": "a0c93d136380d8435b1b92afdb2b79e86ad5619e",
+  "branch": "game",
+  "sourceFingerprint": "4aca4262f1876993f141eec7445bf47e3b55b035bb8bbbe1b2575b811818b525",
   "summary": {
-    "files": 1498,
-    "lines": 320578,
-    "symbols": 4556
+    "files": 1510,
+    "lines": 323693,
+    "symbols": 4608
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -202,6 +202,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ResidentDailyRoutine.kt",
         "line": 127
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ArcadeAndroidScreen.kt",
+        "line": 61
       }
     ],
     "preferredMicrophoneType": [
@@ -2008,6 +2012,10 @@
         "line": 46
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ArcadePresentation.kt",
+        "line": 196
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/AutonomousDuelGames.kt",
         "line": 23
       },
@@ -2741,7 +2749,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 21
+        "line": 22
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
@@ -2953,7 +2961,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-        "line": 219
+        "line": 194
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt",
@@ -3050,6 +3058,10 @@
         "line": 21
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ArcadePresentation.kt",
+        "line": 145
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandHouseProjects.kt",
         "line": 34
       },
@@ -3059,11 +3071,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 39
+        "line": 41
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 204
+        "line": 226
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSoloReplay.kt",
@@ -4326,6 +4338,10 @@
         "line": 341
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ArcadeAndroidScreen.kt",
+        "line": 65
+      },
+      {
         "path": "app/src/main/java/com/wangzan101/mika/cap/phone/shell/LuluShellTextInput.kt",
         "line": 55
       }
@@ -4407,7 +4423,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 203
+        "line": 204
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
@@ -5807,15 +5823,15 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 187
+        "line": 188
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt",
-        "line": 12
+        "line": 14
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt",
-        "line": 13
+        "line": 15
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
@@ -5880,6 +5896,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
         "line": 313
+      },
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 30
       }
     ],
     "cell": [
@@ -12189,7 +12209,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 170
+        "line": 192
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -12539,6 +12559,14 @@
       },
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/Spake2.kt",
+        "line": 60
+      },
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 22
+      },
+      {
+        "path": "preview/arcade/browser/Json.kt",
         "line": 60
       }
     ],
@@ -14161,7 +14189,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 374
+        "line": 378
       }
     ],
     "allowedLeisureLocation": [
@@ -15354,6 +15382,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseChapterSummaryV5.kt",
         "line": 45
+      },
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 27
       }
     ],
     "upsert": [
@@ -15644,6 +15676,44 @@
         "line": 484
       }
     ],
+    "coast": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ArcadeMaps.kt",
+        "line": 10
+      }
+    ],
+    "tile": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ArcadeMaps.kt",
+        "line": 27
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 191
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt",
+        "line": 16
+      }
+    ],
+    "cloister": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ArcadeMaps.kt",
+        "line": 55
+      }
+    ],
+    "room": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ArcadeMaps.kt",
+        "line": 59
+      }
+    ],
+    "annotate": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ArcadePresentation.kt",
+        "line": 185
+      }
+    ],
     "Match": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/AutonomousDuelGames.kt",
@@ -15720,34 +15790,40 @@
         "line": 286
       }
     ],
+    "isSwimmable": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
+        "line": 296
+      }
+    ],
     "canPlaceBuilding": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 312
+        "line": 316
       }
     ],
     "canBuild": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 336
+        "line": 340
       }
     ],
     "canPlantAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 343
+        "line": 347
       }
     ],
     "canRemoveAt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 358
+        "line": 362
       }
     ],
     "act": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 370
+        "line": 374
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt",
@@ -15759,31 +15835,39 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 393
+        "line": 417
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/ArcadeNativeGameTest.kt",
+        "line": 76
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/ArcadeNativeGameTest.kt",
+        "line": 118
       }
     ],
     "near": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 375
+        "line": 379
       }
     ],
     "nextStep": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 906
+        "line": 911
       }
     ],
     "occupiedByOther": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 912
+        "line": 917
       }
     ],
     "actionName": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-        "line": 951
+        "line": 956
       }
     ],
     "playSound": [
@@ -15907,7 +15991,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 321
+        "line": 344
       }
     ],
     "dist": [
@@ -15941,7 +16025,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 167
+        "line": 189
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterCanonEvidence.kt",
@@ -16149,23 +16233,23 @@
     "eventPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 20
+        "line": 21
       }
     ],
     "applyLive": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 312
+        "line": 313
       }
     ],
     "facts": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 318
+        "line": 319
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-        "line": 327
+        "line": 328
       }
     ],
     "cycle": [
@@ -16283,39 +16367,43 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 30
+        "line": 31
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 71
+        "line": 73
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 80
+        "line": 82
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 91
+        "line": 93
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 99
+        "line": 101
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 106
+        "line": 108
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 113
+        "line": 115
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 120
+        "line": 125
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 176
+        "line": 141
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 198
       }
     ],
     "season": [
@@ -17117,13 +17205,13 @@
     "satchelCost": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 81
+        "line": 87
       }
     ],
     "syncExperiences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-        "line": 196
+        "line": 244
       }
     ],
     "namesFor": [
@@ -17138,116 +17226,124 @@
         "line": 52
       }
     ],
-    "displayRank": [
+    "displayGrade": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
         "line": 55
       }
     ],
+    "displayRank": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 65
+      }
+    ],
+    "onMob": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 130
+      }
+    ],
+    "onActor": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
+        "line": 133
+      }
+    ],
     "bounds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 168
-      }
-    ],
-    "tile": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 169
-      },
-      {
-        "path": "app/src/test/java/com/jiacimu/lulu/games/IslandTargetActionTest.kt",
-        "line": 16
+        "line": 190
       }
     ],
     "visible": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 171
+        "line": 193
       }
     ],
     "log": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 174
+        "line": 196
       }
     ],
     "observeLens": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 284
+        "line": 306
       }
     ],
     "unseal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 300
+        "line": 322
       }
     ],
     "heroCapacity": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 320
+        "line": 343
       }
     ],
     "allyReadyToExtract": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 323
+        "line": 346
       }
     ],
     "reveal": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 325
+        "line": 348
       }
     ],
     "canSurvey": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 335
+        "line": 358
       }
     ],
     "openSteps": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 344
+        "line": 367
       }
     ],
     "openingGlowGrade": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 346
+        "line": 369
       }
     ],
     "treasure": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 355
+        "line": 378
       }
     ],
     "enemyThreatRange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 829
+        "line": 864
       }
     ],
     "canEnemyStrike": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 830
+        "line": 865
       }
     ],
     "path": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 907
+        "line": 944
       }
     ],
     "abandon": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-        "line": 943
+        "line": 980
       }
     ],
     "change": [
@@ -17532,6 +17628,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt",
         "line": 158
+      },
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 16
       }
     ],
     "disconnect": [
@@ -20115,7 +20215,7 @@
       },
       {
         "path": "preview/arcade/RulesPreview.kt",
-        "line": 219
+        "line": 93
       }
     ],
     "mayPaste": [
@@ -21703,7 +21803,7 @@
     "game": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-        "line": 241
+        "line": 216
       }
     ],
     "AutonomousDecisionRecoveryTest": [
@@ -24404,6 +24504,18 @@
         "line": 5
       }
     ],
+    "ArcadeNativeGameTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/ArcadeNativeGameTest.kt",
+        "line": 16
+      }
+    ],
+    "step": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/games/ArcadeNativeGameTest.kt",
+        "line": 135
+      }
+    ],
     "AutonomousDuelGamesTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/AutonomousDuelGamesTest.kt",
@@ -25259,27 +25371,189 @@
     "Island": [
       {
         "path": "preview/arcade/RulesPreview.kt",
-        "line": 11
+        "line": 10
       }
     ],
     "Relic": [
       {
         "path": "preview/arcade/RulesPreview.kt",
+        "line": 11
+      }
+    ],
+    "arcadeRequest": [
+      {
+        "path": "preview/arcade/browser/BrowserEntry.kt",
+        "line": 8
+      }
+    ],
+    "arcadeSave": [
+      {
+        "path": "preview/arcade/browser/BrowserEntry.kt",
+        "line": 11
+      }
+    ],
+    "arcadeRestore": [
+      {
+        "path": "preview/arcade/browser/BrowserEntry.kt",
+        "line": 14
+      }
+    ],
+    "Random": [
+      {
+        "path": "preview/arcade/browser/JavaCompat.kt",
+        "line": 6
+      }
+    ],
+    "nextInt": [
+      {
+        "path": "preview/arcade/browser/JavaCompat.kt",
         "line": 12
+      }
+    ],
+    "UUID": [
+      {
+        "path": "preview/arcade/browser/JavaCompat.kt",
+        "line": 26
+      }
+    ],
+    "randomUUID": [
+      {
+        "path": "preview/arcade/browser/JavaCompat.kt",
+        "line": 28
+      }
+    ],
+    "keys": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 28
+      }
+    ],
+    "opt": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 31
+      }
+    ],
+    "getString": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 32
+      },
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 68
+      }
+    ],
+    "getInt": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 33
+      },
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 67
+      }
+    ],
+    "getLong": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 34
+      }
+    ],
+    "getBoolean": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 35
+      }
+    ],
+    "getJSONObject": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 36
+      },
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 64
+      }
+    ],
+    "getJSONArray": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 37
+      }
+    ],
+    "optJSONObject": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 38
+      },
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 65
+      }
+    ],
+    "optJSONArray": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 40
+      }
+    ],
+    "optString": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 42
+      },
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 70
+      }
+    ],
+    "optInt": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 44
+      },
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 69
+      }
+    ],
+    "optLong": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 45
+      }
+    ],
+    "optBoolean": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 46
+      }
+    ],
+    "JSONArray": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 54
+      }
+    ],
+    "length": [
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 58
       }
     ],
     "Mesh": [
       {
         "path": "preview/arcade/island-map.js",
-        "line": 32
+        "line": 53
       }
     ]
   },
   "files": [
     {
       "path": "app/build.gradle.kts",
-      "lines": 240,
-      "sha256": "8e1284026a69a6fac70aac91d0ae19f67927b5e4f050656c20a269003d2672a7",
+      "lines": 259,
+      "sha256": "20501ed908efab09186d00a418ed292d14126b1fe21c7f9f5dce511ac453284c",
       "symbols": []
     },
     {
@@ -40274,6 +40548,69 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ArcadeAndroidScreen.kt",
+      "lines": 222,
+      "sha256": "f075314c112269700f29fc0b4debb6a1ad4542734278624d8819797242b7eade",
+      "symbols": [
+        {
+          "name": "refresh",
+          "line": 61
+        },
+        {
+          "name": "back",
+          "line": 65
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ArcadeMaps.kt",
+      "lines": 94,
+      "sha256": "ff56508f7a235c0925c6e0527f101a610032a090a53ce159463fdda382dfd8a4",
+      "symbols": [
+        {
+          "name": "coast",
+          "line": 10
+        },
+        {
+          "name": "tile",
+          "line": 27
+        },
+        {
+          "name": "cloister",
+          "line": 55
+        },
+        {
+          "name": "room",
+          "line": 59
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ArcadeNativeGame.kt",
+      "lines": 190,
+      "sha256": "13cabc7dd38cc8d70f29720f297e61f37df5a438419fd09ae0c90dbddde6d85d",
+      "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/games/ArcadePresentation.kt",
+      "lines": 240,
+      "sha256": "c2a462c7ac63cace740fe63898a623b23233bcf167edc24d1fab0974df740978",
+      "symbols": [
+        {
+          "name": "read",
+          "line": 145
+        },
+        {
+          "name": "annotate",
+          "line": 185
+        },
+        {
+          "name": "play",
+          "line": 196
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/games/AutonomousDuelGames.kt",
       "lines": 316,
       "sha256": "a1332b8275d18efcae7aea8247a8a4cd1552670f6af19b1cb40eccb7c0c88c85",
@@ -40319,8 +40656,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt",
-      "lines": 959,
-      "sha256": "bd81673eb57bd04e8429c843485b28537b66b07c6c6cd9efcc3dabb0ed348b9a",
+      "lines": 964,
+      "sha256": "701a681a8101af6999d6cac14d3817e095222fcd601511c2b3303379c4582147",
       "symbols": [
         {
           "name": "toJson",
@@ -40355,44 +40692,48 @@
           "line": 286
         },
         {
+          "name": "isSwimmable",
+          "line": 296
+        },
+        {
           "name": "canPlaceBuilding",
-          "line": 312
+          "line": 316
         },
         {
           "name": "canBuild",
-          "line": 336
+          "line": 340
         },
         {
           "name": "canPlantAt",
-          "line": 343
+          "line": 347
         },
         {
           "name": "canRemoveAt",
-          "line": 358
+          "line": 362
         },
         {
           "name": "act",
-          "line": 370
-        },
-        {
-          "name": "reject",
           "line": 374
         },
         {
+          "name": "reject",
+          "line": 378
+        },
+        {
           "name": "near",
-          "line": 375
+          "line": 379
         },
         {
           "name": "nextStep",
-          "line": 906
+          "line": 911
         },
         {
           "name": "occupiedByOther",
-          "line": 912
+          "line": 917
         },
         {
           "name": "actionName",
-          "line": 951
+          "line": 956
         }
       ]
     },
@@ -40914,32 +41255,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-      "lines": 382,
-      "sha256": "6e8231c8b1e76d5ba48add6390254a6072cac80c3f0490a8097933dfa93e9d34",
+      "lines": 384,
+      "sha256": "61319095646d3bd3b70b35ea2ca5ac754691a553f050faac27599f2cc7ba03fb",
       "symbols": [
         {
           "name": "eventPrefix",
-          "line": 20
-        },
-        {
-          "name": "options",
           "line": 21
         },
         {
+          "name": "options",
+          "line": 22
+        },
+        {
           "name": "parse",
-          "line": 187
+          "line": 188
         },
         {
           "name": "apply",
-          "line": 203
+          "line": 204
         },
         {
           "name": "applyLive",
-          "line": 312
+          "line": 313
         },
         {
           "name": "facts",
-          "line": 318
+          "line": 319
         }
       ]
     },
@@ -40975,8 +41316,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionPanel.kt",
-      "lines": 416,
-      "sha256": "a3addcef7600906db960a30f967a78216b7617b32dbf2454a9e70f9a9ff229c0",
+      "lines": 426,
+      "sha256": "920e9b26935b97aa2ba00fa666a9b09d815478f46416462a5dd652f2c8b583c0",
       "symbols": [
         {
           "name": "submitPlayerMessage",
@@ -41263,19 +41604,19 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt",
-      "lines": 48,
-      "sha256": "d6310889fc1e861b7c3e71571048c2b9f51f6a318ad14162fb98642acda88bbe",
+      "lines": 56,
+      "sha256": "10cff6674eb7cd9a1f850a0c9e5356c6dfc41beb0f28102dd0bc9138c343bff6",
       "symbols": [
         {
           "name": "parse",
-          "line": 12
+          "line": 14
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandManualMovement.kt",
       "lines": 55,
-      "sha256": "11e8b023a6372b89b777c906ca4c436bb2b84bde3635f45570e63d7467d0f4e8",
+      "sha256": "48d9fb1770b4b90b2389b2ca96f1ece4535fd5dadf210599014e67b46126bfc9",
       "symbols": [
         {
           "name": "blockedHint",
@@ -41525,7 +41866,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGameStore.kt",
       "lines": 860,
-      "sha256": "6d44f7edcbe679bb6f240d8bd092c2e005291030114f3c9ab6f16cc4cdacc414",
+      "sha256": "7568003f33283859d94d91f54e29f1e48ffb31830f4f67384a1d755d9918a01d",
       "symbols": [
         {
           "name": "available",
@@ -41655,8 +41996,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 981,
-      "sha256": "34ee5eb56dc5ea65daedf030928846728ef48ac04eaa160855fbe82125fc8b4b",
+      "lines": 952,
+      "sha256": "6327299b487e6eca0a2dfac4c86616adf8919f54bde5044cc59a17dd3d019c64",
       "symbols": [
         {
           "name": "Home",
@@ -41729,8 +42070,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-      "lines": 382,
-      "sha256": "564461684d5f62ceb3343880a469ad80a0f8702a9fc92adfa10db44ece1375a7",
+      "lines": 384,
+      "sha256": "5d121e872abbef11c13050fdaf54f0a431b056ad12ae9ae7c90678782d1627af",
       "symbols": [
         {
           "name": "acted",
@@ -41746,7 +42087,7 @@
         },
         {
           "name": "facts",
-          "line": 327
+          "line": 328
         }
       ]
     },
@@ -41959,8 +42300,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicCompanionPanel.kt",
-      "lines": 348,
-      "sha256": "1b2da8290f61a1150625da9f144e82ed3cc11a95be6bd613a493423c9f020855",
+      "lines": 358,
+      "sha256": "70f91bc995f03f3c2f923b7037dddce3a9ced4c53cb774ad023f29747a9a85c3",
       "symbols": [
         {
           "name": "send",
@@ -42063,37 +42404,37 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLedger.kt",
-      "lines": 240,
-      "sha256": "ed872b731a2ddf282a980df24919485dc1afb5dcafae010e6cb09dccd0a8be50",
+      "lines": 288,
+      "sha256": "d7f060acd7422dada5b8e4709cdbbd836b5415716f6f2103029fa589a2c557c5",
       "symbols": [
         {
           "name": "json",
-          "line": 30
+          "line": 31
         },
         {
           "name": "read",
-          "line": 39
+          "line": 41
         },
         {
           "name": "satchelCost",
-          "line": 81
+          "line": 87
         },
         {
           "name": "syncExperiences",
-          "line": 196
+          "line": 244
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeLobby.kt",
       "lines": 486,
-      "sha256": "50f9dca3fd163b08c1484d1b654d3e1dd9e19e0674fc48073cd3db59699af2ee",
+      "sha256": "53fb0e1a2632433a92f472f21ce41fcabe2c193fe9c329ceb75da4fb675959d5",
       "symbols": []
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeRules.kt",
-      "lines": 946,
-      "sha256": "d3872b0a7f329c075f64e017c76e2cc16c8f83d7e5e758327bf57070dac0ee4b",
+      "lines": 983,
+      "sha256": "72e62087cad33de6263188d41e85a8d157ab693870d7de1c863efa94efadecea",
       "symbols": [
         {
           "name": "at",
@@ -42108,135 +42449,151 @@
           "line": 52
         },
         {
-          "name": "displayRank",
+          "name": "displayGrade",
           "line": 55
         },
         {
-          "name": "json",
-          "line": 71
+          "name": "displayRank",
+          "line": 65
         },
         {
           "name": "json",
-          "line": 80
+          "line": 73
         },
         {
           "name": "json",
-          "line": 91
+          "line": 82
         },
         {
           "name": "json",
-          "line": 99
+          "line": 93
         },
         {
           "name": "json",
-          "line": 106
+          "line": 101
         },
         {
           "name": "json",
-          "line": 113
+          "line": 108
         },
         {
           "name": "json",
-          "line": 120
+          "line": 115
+        },
+        {
+          "name": "json",
+          "line": 125
+        },
+        {
+          "name": "onMob",
+          "line": 130
+        },
+        {
+          "name": "onActor",
+          "line": 133
+        },
+        {
+          "name": "json",
+          "line": 141
         },
         {
           "name": "index",
-          "line": 167
+          "line": 189
         },
         {
           "name": "bounds",
-          "line": 168
+          "line": 190
         },
         {
           "name": "tile",
-          "line": 169
+          "line": 191
         },
         {
           "name": "walk",
-          "line": 170
+          "line": 192
         },
         {
           "name": "visible",
-          "line": 171
+          "line": 193
         },
         {
           "name": "log",
-          "line": 174
+          "line": 196
         },
         {
           "name": "json",
-          "line": 176
+          "line": 198
         },
         {
           "name": "read",
-          "line": 204
+          "line": 226
         },
         {
           "name": "observeLens",
-          "line": 284
+          "line": 306
         },
         {
           "name": "unseal",
-          "line": 300
+          "line": 322
         },
         {
           "name": "heroCapacity",
-          "line": 320
+          "line": 343
         },
         {
           "name": "distance",
-          "line": 321
-        },
-        {
-          "name": "allyReadyToExtract",
-          "line": 323
-        },
-        {
-          "name": "reveal",
-          "line": 325
-        },
-        {
-          "name": "canSurvey",
-          "line": 335
-        },
-        {
-          "name": "openSteps",
           "line": 344
         },
         {
-          "name": "openingGlowGrade",
+          "name": "allyReadyToExtract",
           "line": 346
         },
         {
+          "name": "reveal",
+          "line": 348
+        },
+        {
+          "name": "canSurvey",
+          "line": 358
+        },
+        {
+          "name": "openSteps",
+          "line": 367
+        },
+        {
+          "name": "openingGlowGrade",
+          "line": 369
+        },
+        {
           "name": "treasure",
-          "line": 355
+          "line": 378
         },
         {
           "name": "act",
-          "line": 393
+          "line": 417
         },
         {
           "name": "enemyThreatRange",
-          "line": 829
+          "line": 864
         },
         {
           "name": "canEnemyStrike",
-          "line": 830
+          "line": 865
         },
         {
           "name": "path",
-          "line": 907
+          "line": 944
         },
         {
           "name": "abandon",
-          "line": 943
+          "line": 980
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-      "lines": 1363,
-      "sha256": "24e5ff6a87d3e86b85f671e834d2328bdc44f7074d59aee8630edc8db1dfd73e",
+      "lines": 1364,
+      "sha256": "95a1420ee77dbac0aa644006a864e824673fa96fbe96cb18b90ed1cabcbe4bde",
       "symbols": [
         {
           "name": "change",
@@ -42285,12 +42642,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt",
-      "lines": 47,
-      "sha256": "1d099aebaa9c26f093c739ddb2b7b949f489077a27adfb1cc2c657957f043398",
+      "lines": 57,
+      "sha256": "ba7a8be8389ff239a730a2b6613325a810b481047e49e91ecd0d6b10a7946f19",
       "symbols": [
         {
           "name": "parse",
-          "line": 13
+          "line": 15
         }
       ]
     },
@@ -42485,8 +42842,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicVaultPage.kt",
-      "lines": 225,
-      "sha256": "d9048882b77109519ecccb86aa15ccfe8f8b46296a94dd83999b8c6ec34fc997",
+      "lines": 234,
+      "sha256": "c8c1d6a8982b36e3ac02efa8be03a8369cbad5c36c3f52fae8335febd0b07fcb",
       "symbols": []
     },
     {
@@ -46694,8 +47051,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ListenTogetherPlaylistTest.kt",
-      "lines": 91,
-      "sha256": "556df368a9fc5b3bee9df6b0b3eb8c5b2e3fea4498241d47bb280fbd0ab4833b",
+      "lines": 92,
+      "sha256": "2a9d4ed0a219a33991607f811e4942b0e1a16d21910b15f21c48a5e9710cc024",
       "symbols": [
         {
           "name": "ListenTogetherPlaylistTest",
@@ -48077,8 +48434,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/AutonomousAffordanceContextTest.kt",
-      "lines": 280,
-      "sha256": "729e0763fb89784ec05091c6c5de5c9c39936ee88df81e2a8754e069589a2eac",
+      "lines": 255,
+      "sha256": "6b38b2b82c03cfc671cd847a9ecd2d45b98de443da959e184facaf0e0ff3af3d",
       "symbols": [
         {
           "name": "AutonomousAffordanceContextTest",
@@ -48086,11 +48443,11 @@
         },
         {
           "name": "record",
-          "line": 219
+          "line": 194
         },
         {
           "name": "game",
-          "line": 241
+          "line": 216
         }
       ]
     },
@@ -49157,8 +49514,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntimeTest.kt",
-      "lines": 269,
-      "sha256": "4069f80a0ee8cb5e55ca22746b3aefda43aa062cf29fec64dfdc648fa5b24dba",
+      "lines": 286,
+      "sha256": "6db160c0f611820fb721cdbb2214b152d0207aef9117e23ed7ca01dd727467be",
       "symbols": [
         {
           "name": "CharacterSelfActivityRuntimeTest",
@@ -52047,6 +52404,29 @@
       ]
     },
     {
+      "path": "app/src/test/java/com/jiacimu/lulu/games/ArcadeNativeGameTest.kt",
+      "lines": 145,
+      "sha256": "ee6c5986571973d89e36952182890b7860fc90ecfcebceebd023430229735860",
+      "symbols": [
+        {
+          "name": "ArcadeNativeGameTest",
+          "line": 16
+        },
+        {
+          "name": "act",
+          "line": 76
+        },
+        {
+          "name": "act",
+          "line": 118
+        },
+        {
+          "name": "step",
+          "line": 135
+        }
+      ]
+    },
+    {
       "path": "app/src/test/java/com/jiacimu/lulu/games/AutonomousDuelGamesTest.kt",
       "lines": 174,
       "sha256": "002a873f2b5125e466c63f55b12e01a6a161b56116e2e212575a71acf2612743",
@@ -52070,8 +52450,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt",
-      "lines": 277,
-      "sha256": "3fe5008689f363aa98f0a99dd53cc80487515fe978b0170e3d0512c3176fa46f",
+      "lines": 273,
+      "sha256": "bb300fda39a35651e2bedb6e875d880a5a345d56ab6dae29de0b9fbf7b09272e",
       "symbols": [
         {
           "name": "CharacterSoloWorldPlayTest",
@@ -52147,8 +52527,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/GameInvitationContinuityTest.kt",
-      "lines": 137,
-      "sha256": "90d29b4eb94ffc592fbe6571d593b98423342c6864ee227aeeaad8d565bf0cb8",
+      "lines": 130,
+      "sha256": "40f548d5b7583dac7c1e3b3b6ee92bef08164826e096d72e2ec9703011bbf00c",
       "symbols": [
         {
           "name": "GameInvitationContinuityTest",
@@ -52672,8 +53052,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/RelicVaultPersistenceTest.kt",
-      "lines": 44,
-      "sha256": "f4e9817582efcda8bd917257c57b6718f329bd5b03a58f8e1151a4ab5e6d131b",
+      "lines": 135,
+      "sha256": "d1f1a582c0d0f55c467b8121d780678f890c401488780c072582589564c9ab78",
       "symbols": [
         {
           "name": "RelicVaultPersistenceTest",
@@ -53600,62 +53980,243 @@
     },
     {
       "path": "preview/arcade/DESIGN.md",
-      "lines": 62,
-      "sha256": "82432cf996190e7e898263af0923d1411d5e50847eae73c8e6700d836704d988",
+      "lines": 60,
+      "sha256": "064247d13aeb24b32aa1c64017de29cf3ba63c5c7b3012675bcc268e0c855e11",
       "symbols": []
     },
     {
       "path": "preview/arcade/RulesPreview.kt",
-      "lines": 228,
-      "sha256": "25344560465e3ad67595a4ec21522aa6337aa216838153c348518032844b6651",
+      "lines": 98,
+      "sha256": "ad67bf5a46383f9ae1a77691885c3d52f0d91aa96908ca1d6a2d18850d35bc00",
       "symbols": [
         {
           "name": "Island",
-          "line": 11
+          "line": 10
         },
         {
           "name": "Relic",
-          "line": 12
+          "line": 11
         },
         {
           "name": "main",
-          "line": 219
+          "line": 93
         }
       ]
     },
     {
       "path": "preview/arcade/arcade.css",
-      "lines": 18,
-      "sha256": "21e7b69ada91c6dc0bea100a674f99d96843c1a5a8ff8abece962d3992cee936",
+      "lines": 177,
+      "sha256": "4a5a8c6ecb80c5efc52c57aa5d1a0341e1543fc8f34e84e3019bc1eb589429dc",
       "symbols": []
     },
     {
       "path": "preview/arcade/arcade.js",
-      "lines": 340,
-      "sha256": "786e9a477123efc317c6530508e554c50a8c751f56aaaec99d351836d2993d75",
+      "lines": 981,
+      "sha256": "ee0b73604f9650bb2008a6540df299d4b6ef1c75af8d0966f88e25375ad56bc4",
+      "symbols": []
+    },
+    {
+      "path": "preview/arcade/art/create_assets.py",
+      "lines": 303,
+      "sha256": "cb7ddcbba3032543707b8a09cb1dbed8f8f6dc885368ba251032266a624b581a",
+      "symbols": []
+    },
+    {
+      "path": "preview/arcade/art/island-meshes.json",
+      "lines": 1,
+      "sha256": "40deced33c7f50ff77a213ca04dc5991f323a394bde6d0617cd82620ec38e8c1",
+      "symbols": []
+    },
+    {
+      "path": "preview/arcade/browser/BrowserEntry.kt",
+      "lines": 16,
+      "sha256": "185c93cfe1a8f282a0744effdb3f400280a5bcb164fa6b2f9933367e5918c20d",
+      "symbols": [
+        {
+          "name": "arcadeRequest",
+          "line": 8
+        },
+        {
+          "name": "arcadeSave",
+          "line": 11
+        },
+        {
+          "name": "arcadeRestore",
+          "line": 14
+        }
+      ]
+    },
+    {
+      "path": "preview/arcade/browser/JavaCompat.kt",
+      "lines": 34,
+      "sha256": "1a3993f01c68a27b88ec3029cdba1d28eb504a0f2f88700c609922a5061dae1a",
+      "symbols": [
+        {
+          "name": "Random",
+          "line": 6
+        },
+        {
+          "name": "nextInt",
+          "line": 12
+        },
+        {
+          "name": "UUID",
+          "line": 26
+        },
+        {
+          "name": "randomUUID",
+          "line": 28
+        }
+      ]
+    },
+    {
+      "path": "preview/arcade/browser/Json.kt",
+      "lines": 73,
+      "sha256": "1f5cdaa0087c2d7705623de2393de8b191707a02aa0fb6c350168c6400eed946",
+      "symbols": [
+        {
+          "name": "JSONObject",
+          "line": 16
+        },
+        {
+          "name": "put",
+          "line": 22
+        },
+        {
+          "name": "has",
+          "line": 27
+        },
+        {
+          "name": "keys",
+          "line": 28
+        },
+        {
+          "name": "get",
+          "line": 30
+        },
+        {
+          "name": "opt",
+          "line": 31
+        },
+        {
+          "name": "getString",
+          "line": 32
+        },
+        {
+          "name": "getInt",
+          "line": 33
+        },
+        {
+          "name": "getLong",
+          "line": 34
+        },
+        {
+          "name": "getBoolean",
+          "line": 35
+        },
+        {
+          "name": "getJSONObject",
+          "line": 36
+        },
+        {
+          "name": "getJSONArray",
+          "line": 37
+        },
+        {
+          "name": "optJSONObject",
+          "line": 38
+        },
+        {
+          "name": "optJSONArray",
+          "line": 40
+        },
+        {
+          "name": "optString",
+          "line": 42
+        },
+        {
+          "name": "optInt",
+          "line": 44
+        },
+        {
+          "name": "optLong",
+          "line": 45
+        },
+        {
+          "name": "optBoolean",
+          "line": 46
+        },
+        {
+          "name": "JSONArray",
+          "line": 54
+        },
+        {
+          "name": "length",
+          "line": 58
+        },
+        {
+          "name": "put",
+          "line": 60
+        },
+        {
+          "name": "getJSONObject",
+          "line": 64
+        },
+        {
+          "name": "optJSONObject",
+          "line": 65
+        },
+        {
+          "name": "getInt",
+          "line": 67
+        },
+        {
+          "name": "getString",
+          "line": 68
+        },
+        {
+          "name": "optInt",
+          "line": 69
+        },
+        {
+          "name": "optString",
+          "line": 70
+        }
+      ]
+    },
+    {
+      "path": "preview/arcade/browser/design.css",
+      "lines": 7,
+      "sha256": "0ab0e0b8fb575efc1fd6e10a8d3f0b4d4eebc895fbe9febac645591f8d5ddaf5",
+      "symbols": []
+    },
+    {
+      "path": "preview/arcade/chest-show.js",
+      "lines": 403,
+      "sha256": "d9b23e6b410113c30a7dedeee3564fa5d72138915cac3b170d577c7bb933deaf",
       "symbols": []
     },
     {
       "path": "preview/arcade/index.html",
-      "lines": 103,
-      "sha256": "c2d455addfcbab842644a613d61167d38acb63b461356deaa278ebfb12dd68e7",
+      "lines": 152,
+      "sha256": "b1a9355e8a8a5c9c61e1bdfa8ceea9edf28daa086abec6c3f7de4882d335dc9e",
       "symbols": []
     },
     {
       "path": "preview/arcade/island-map.js",
-      "lines": 353,
-      "sha256": "4ca329e2aec2a484a73068d623c58fe48383c21489ae975ecf9b75b4e38d7448",
+      "lines": 629,
+      "sha256": "bfc69dc52c2acf50003f9dbb8bcf976b0884e58fa8f2adcd9dc6d9f82a9b6fdd",
       "symbols": [
         {
           "name": "Mesh",
-          "line": 32
+          "line": 53
         }
       ]
     },
     {
       "path": "preview/arcade/relic-map.js",
-      "lines": 155,
-      "sha256": "cef2dd72a087ce35373237e2e8ff6f1dd3436f4b2395fa5ce26f3e67467e21c2",
+      "lines": 344,
+      "sha256": "11422aab86cc932ba336c6339dbe06924a2c0a12c589fb6c10e64b5732ab5d32",
       "symbols": []
     },
     {
