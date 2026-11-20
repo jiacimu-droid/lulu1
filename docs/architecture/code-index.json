@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:34:31.267051+00:00",
-  "commit": "30970ffd2a295a50d7665dae9f05a6b8040497c8",
+  "generatedAt": "2026-11-20T03:35:02.270155+00:00",
+  "commit": "39550a9b11d6fa167b482339d84e35db17cf7369",
   "branch": "main",
-  "sourceFingerprint": "f0ea286cbd43afb6ac50621d1a2dd1166b87ab2b98e52d3c0cfd61a892623c08",
+  "sourceFingerprint": "3e0427a70eb742356cfc935918949796630f18e0d2c6297e0c97d0edd4c23602",
   "summary": {
     "files": 1498,
-    "lines": 320491,
+    "lines": 320539,
     "symbols": 4556
   },
   "symbolIndex": {
@@ -27127,8 +27127,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherMiniWindow.kt",
-      "lines": 241,
-      "sha256": "7e17aa53c07b596b151452620c088a34325c28d04bd6669731577041a06a4f83",
+      "lines": 247,
+      "sha256": "03fc41d708af5d2fb0655e559db0a9471f7c9c13d2d1935981397d2b0a561a8e",
       "symbols": []
     },
     {
@@ -27155,8 +27155,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
-      "lines": 374,
-      "sha256": "f839d8b4f725a4b72a97f0a30008fbb316028661317278b4ade08ea088a4e651",
+      "lines": 416,
+      "sha256": "536db398ed03f092c7840dac6dcb37cca5fb713f6a763391ddc3135716906b29",
       "symbols": [
         {
           "name": "recordListening",

@@ -335,6 +335,33 @@ internal fun ListenTogetherRoom(
         }
     }
 
+    SideEffect {
+        SharedMusicWindowController.updatePlayback(
+            title = if (mode == "system") track?.title.orEmpty().ifBlank { "选择一首歌" }
+                else audioName.ifBlank { "本地歌曲" },
+            artist = if (mode == "system") track?.artist.orEmpty() else "本地音频",
+            playing = if (mode == "system") track?.playing == true else playing,
+            external = mode == "system",
+        )
+        SharedMusicWindowController.togglePlayback = {
+            if (mode == "system") controlExternal(if (track?.playing == true) "pause" else "play")
+            else toggleLocal()
+        }
+        SharedMusicWindowController.previousPlayback = {
+            if (mode == "system") controlExternal("previous") else skipLocal(false)
+        }
+        SharedMusicWindowController.nextPlayback = {
+            if (mode == "system") controlExternal("next") else skipLocal(true)
+        }
+    }
+    DisposableEffect(conversationId) {
+        onDispose {
+            SharedMusicWindowController.togglePlayback = null
+            SharedMusicWindowController.previousPlayback = null
+            SharedMusicWindowController.nextPlayback = null
+        }
+    }
+
     ListenTogetherMiniWindow(
         roleName = characterName,
         roleAvatar = characterAvatarUri,
@@ -354,6 +381,21 @@ internal fun ListenTogetherRoom(
         onNext = { if (mode == "system") controlExternal("next") else skipLocal(true) },
         onSelectLocal = { picker.launch(arrayOf("audio/*")) },
         onOpenMusic = onOpenMusic,
+        onEnableSystemOverlay = {
+            if (ListenTogetherSystemOverlay.hasPermission(context)) {
+                status = "跨应用悬浮已获授权；切到其他 App 时自动显示"
+            } else {
+                runCatching {
+                    context.startActivity(android.content.Intent(
+                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + context.packageName)))
+                }.onSuccess {
+                    status = "请开启「显示在其他应用上层」，然后返回一起听"
+                }.onFailure {
+                    status = "无法打开悬浮窗授权页：" + it.message.orEmpty()
+                }
+            }
+        },
         onOpenNetease = {
             val launch = context.packageManager.getLaunchIntentForPackage(NeteaseSongLink.packageName)
             status = if (launch == null) "请先安装网易云音乐并在官方 App 登录"
