@@ -21,6 +21,27 @@ class RoleDayScheduleStoreTest {
         activityAction = "read_book",
     )
 
+    @Test fun dueReminderTreatsOrdinaryMessagesAsContactRatherThanPresumedInterruption() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        val role = "scheduled-contact-not-interruption"
+        val dueAt = Instant.now().plusSeconds(3600)
+        val created = RoleDayScheduleStore.arrange(app, role,
+            "23点提醒休息", "对方已经委托我提醒她按时休息", dueAt,
+            activityAction = "send_private_message")
+        try {
+            assertNotNull(RoleDayScheduleStore.markDue(app, role, created.id,
+                expectedDueAt = dueAt))
+            val scene = RoleDayScheduleStore.dueContext(app, role, dueAt.plusSeconds(1))
+            assertTrue(scene, scene.contains(created.id))
+            assertTrue(scene, scene.contains("主动消息是正常沟通"))
+            assertTrue(scene, scene.contains("横幅和提示音由用户的通知设置控制"))
+            assertTrue(scene, scene.contains("学习、忙碌、未回复本身不表示拒绝联系"))
+            assertFalse(scene, scene.contains("如对方已经在学习、正在休息或不需打扰"))
+        } finally {
+            RoleDayScheduleStore.remove(app, role, created.id)
+        }
+    }
+
     @Test fun yesterdayExecutedPlanReceiptDoesNotProveOwnerSlept() {
         val now = Instant.parse("2026-11-17T19:00:00Z") // 03:00 after 23:00
         val deliveredAt = Instant.parse("2026-11-17T15:00:00Z")
