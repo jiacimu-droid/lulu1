@@ -125,46 +125,14 @@ internal object StickerWordDocument {
                         if (paragraph.altText.isNotBlank()) alternate[file] = paragraph.altText
                     }
                 }
-                if (ordered.isEmpty()) {
-                    // Some curated Word packs contain a picture URL followed
-                    // by its written name/description instead of an image embed.
-                    val entries = mutableListOf<StickerImportEntry>()
-                    val rows = paragraphs.map { it.text.trim() }
-                    for (i in rows.indices) {
-                        val line = rows[i]
-                        val candidate = line.substringAfter("：", line).trim()
-                        if (!candidate.startsWith("https://")) continue
-                        val url = candidate.substringBefore(' ').trim().trimEnd('，', ',', '。', ';', '；')
-                        val parsed = runCatching {
-                            StickerImportManifest.parse(url, pack).single()
-                        }.getOrNull() ?: continue
-                        val descriptionLines = mutableListOf<String>()
-                        for (next in (i + 1) until minOf(rows.size, i + 7)) {
-                            val value = rows[next]
-                            if (value.contains("https://")) break
-                            if (value.isNotBlank()) descriptionLines += value
-                        }
-                        val caption = captionOf(descriptionLines, "", "自选表情")
-                        entries += parsed.copy(
-                            name = caption.name, visualDescription = caption.description,
-                            usageHint = caption.usage,
-                        )
-                    }
-                    check(entries.isNotEmpty()) {
-                        "Word 里没有可导入的图片或 HTTPS 图片地址，请确认图片已插入文档"
-                    }
-                    var imported = 0
-                    var skipped = 0
-                    val errors = mutableListOf<String>()
-                    for (entry in entries.distinctBy { it.url }.take(220)) {
-                        val known = StickerLibraryStore.items.value.mapTo(hashSetOf()) { it.id }
-                        val result = StickerLibraryStore.importRemote(context, entry)
-                        result.onSuccess {
-                            if (it.id in known) skipped++ else imported++
-                        }.onFailure { errors += "${entry.url.take(80)}: ${it.message.orEmpty()}" }
-                        if (errors.lastOrNull()?.contains("上限") == true) break
-                    }
-                    return@withContext StickerPackImportResult(pack, imported, skipped, errors.take(8))
+                // A document may mix real pasted pictures and ordinary links.
+                // Parse titles, URL fields and descriptions regardless of the
+                // author's template; URLs are downloaded into the same pack.
+                val linkedEntries = StickerFlexibleTextImport.parse(
+                    paragraphs.joinToString("\\n") { it.text }, pack,
+                )
+                if (ordered.isEmpty() && linkedEntries.isEmpty()) {
+                    error("Word 里没有可导入的图片或 HTTPS 图片地址")
                 }
                 // Text following the picture (including text in the adjacent
                 // table cell) belongs to that picture until the next image.
@@ -195,6 +163,13 @@ internal object StickerWordDocument {
                     result.onSuccess {
                         if (it.id in known) skipped++ else imported++
                     }.onFailure { errors += "${file.substringAfterLast('/')}: ${it.message.orEmpty()}" }
+                    if (errors.lastOrNull()?.contains("上限") == true) break
+                }
+                for (entry in linkedEntries) {
+                    val known = StickerLibraryStore.items.value.mapTo(hashSetOf()) { it.id }
+                    val result = StickerLibraryStore.importRemote(context, entry)
+                    result.onSuccess { if (it.id in known) skipped++ else imported++ }
+                        .onFailure { errors += "${entry.url.take(75)}: ${it.message.orEmpty()}" }
                     if (errors.lastOrNull()?.contains("上限") == true) break
                 }
                 StickerPackImportResult(pack, imported, skipped, errors.take(8))
@@ -234,34 +209,40 @@ internal object StickerWordDocument {
         val text = StringBuilder()
         val ids = mutableListOf<String>()
         var alt = ""
-        var depth = 0
+        var insideParagraph = false
+        var insideText = false
         while (parser.eventType != XmlPullParser.END_DOCUMENT) {
             when (parser.eventType) {
-                XmlPullParser.START_TAG -> {
-                    if (parser.name == "p" && depth == 0) {
-                        depth = 1
+                XmlPullParser.START_TAG -> when (parser.name) {
+                    "p" -> {
+                        insideParagraph = true
+                        insideText = false
                         text.clear()
                         ids.clear()
                         alt = ""
-                    } else if (depth > 0) {
-                        depth++
-                        when (parser.name) {
-                            "t" -> text.append(parser.nextText())
-                            "blip" -> parser.attribute("embed").takeIf(String::isNotBlank)?.let(ids::add)
-                            "imagedata" -> parser.attribute("id").takeIf(String::isNotBlank)?.let(ids::add)
-                            "docPr" -> {
-                                alt = parser.attribute("descr").ifBlank { parser.attribute("title") }
-                                    .take(400)
-                            }
-                        }
+                    }
+                    "t" -> if (insideParagraph) insideText = true
+                    "tab" -> if (insideParagraph) text.append(' ')
+                    "br" -> if (insideParagraph) text.append('\\n')
+                    "blip" -> if (insideParagraph) {
+                        parser.attribute("embed").takeIf(String::isNotBlank)?.let(ids::add)
+                    }
+                    "imagedata" -> if (insideParagraph) {
+                        parser.attribute("id").takeIf(String::isNotBlank)?.let(ids::add)
+                    }
+                    "docPr" -> if (insideParagraph) {
+                        alt = parser.attribute("descr").ifBlank { parser.attribute("title") }.take(400)
                     }
                 }
-                XmlPullParser.END_TAG -> {
-                    if (depth > 0) {
-                        depth--
-                        if (depth == 0) {
-                            paragraphs += Paragraph(text.toString().trim(), ids.distinct(), alt.trim())
-                        }
+                XmlPullParser.TEXT -> if (insideParagraph && insideText) {
+                    text.append(parser.text.orEmpty())
+                }
+                XmlPullParser.END_TAG -> when (parser.name) {
+                    "t" -> insideText = false
+                    "p" -> if (insideParagraph) {
+                        paragraphs += Paragraph(text.toString().trim(), ids.distinct(), alt.trim())
+                        insideParagraph = false
+                        insideText = false
                     }
                 }
             }
