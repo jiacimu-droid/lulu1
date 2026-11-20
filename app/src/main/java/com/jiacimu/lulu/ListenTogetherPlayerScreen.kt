@@ -3,6 +3,7 @@ package com.jiacimu.lulu
 import android.content.Intent
 import android.provider.Settings
 import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -23,6 +24,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.jiacimu.lulu.data.LuluChatMessage
+import com.jiacimu.lulu.design.LocalLuluAppearance
+import com.jiacimu.lulu.design.LuluCssBackground
+import com.jiacimu.lulu.design.LuluCssPageScope
+import com.jiacimu.lulu.design.cssColor
+import com.jiacimu.lulu.design.cssDp
+import com.jiacimu.lulu.design.cssFontSize
+import com.jiacimu.lulu.design.luluCssElement
+import com.jiacimu.lulu.design.luluCssStyle
 
 private val listeningInk = Color(0xFF29242B)
 private val listeningMuted = Color(0xFF797179)
@@ -93,18 +102,34 @@ internal fun ListenTogetherPlayerScreen(
     }
 
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(
-            Modifier.fillMaxWidth().fillMaxHeight(.98f)
-                .padding(horizontal = 7.dp, vertical = 4.dp).imePadding(),
-            shape = RoundedCornerShape(28.dp), color = listeningPaper,
-        ) {
-            Column(Modifier.fillMaxSize().padding(horizontal = 17.dp, vertical = 10.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+        LuluCssPageScope("ListenTogether") {
+            // An embedded chat room, not another launcher/App. Parent #Chat and
+            // #ChatDetail rules inherit; #ListenTogether rules override locally.
+            val roomStyle = luluCssStyle("music-room")
+            val baseInk = roomStyle.cssColor("color") ?: listeningInk
+            val roomColor = roomStyle.cssColor("background-color")
+                ?: Color(LocalLuluAppearance.current.palette.paper.toInt()).let {
+                    if (luluCssStyle("music-room").isEmpty()) listeningPaper else it
+                }
+            val titleStyle = luluCssStyle("music-track-title")
+            val artistStyle = luluCssStyle("music-track-artist")
+            val progressStyle = luluCssStyle("music-progress")
+            val playStyle = luluCssStyle("music-play")
+            Box(
+                Modifier.fillMaxWidth().fillMaxHeight(.98f)
+                    .padding(horizontal = 7.dp, vertical = 4.dp).imePadding()
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(roomColor).luluCssElement("music-room"),
+            ) {
+                LuluCssBackground(Modifier.matchParentSize())
+                Column(Modifier.fillMaxSize().padding(horizontal = 17.dp, vertical = 10.dp)) {
+                Row(Modifier.fillMaxWidth().luluCssElement("music-header"),
+                    verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onClose) {
                         Icon(Icons.Outlined.ArrowBack, "返回聊天", tint = listeningInk)
                     }
                     Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("一起听", fontSize = 19.sp, color = listeningInk,
+                        Text("一起听", fontSize = 19.sp, color = baseInk,
                             fontWeight = FontWeight.SemiBold)
                         Text("OUR LITTLE MUSIC ROOM", fontSize = 9.sp,
                             letterSpacing = 1.sp, color = listeningMuted)
@@ -113,7 +138,7 @@ internal fun ListenTogetherPlayerScreen(
                         Icon(Icons.Outlined.LibraryMusic, "我的歌单", tint = listeningRose)
                     }
                 }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                Row(Modifier.fillMaxWidth().luluCssElement("music-source"), horizontalArrangement = Arrangement.Center) {
                     FilterChip(selected = system,
                         onClick = { onModeChange("system"); showLibrary = false },
                         label = { Text("手机播放器") })
@@ -128,18 +153,23 @@ internal fun ListenTogetherPlayerScreen(
                         ListenTogetherArtwork(
                             roleName = characterName, roleAvatar = characterAvatarUri,
                             userName = userName, userAvatar = userAvatarUri, spinning = playing)
-                        Text(name, color = listeningInk, fontSize = 20.sp,
+                        Text(name, modifier = Modifier.luluCssElement("music-track-title"),
+                            color = titleStyle.cssColor("color") ?: baseInk,
+                            fontSize = titleStyle.cssFontSize() ?: 20.sp,
                             fontWeight = FontWeight.SemiBold, maxLines = 2,
                             overflow = TextOverflow.Ellipsis)
                         Spacer(Modifier.height(4.dp))
-                        Text(artist, color = listeningMuted, fontSize = 13.sp,
+                        Text(artist, modifier = Modifier.luluCssElement("music-track-artist"),
+                            color = artistStyle.cssColor("color") ?: listeningMuted,
+                            fontSize = artistStyle.cssFontSize() ?: 13.sp,
                             maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Spacer(Modifier.height(20.dp))
                         LinearProgressIndicator(
                             progress = { if (duration > 0L) (position.toFloat() / duration)
                                 .coerceIn(0f, 1f) else 0f },
-                            modifier = Modifier.fillMaxWidth(),
-                            color = listeningRose, trackColor = Color(0xFFEDE5E9))
+                            modifier = Modifier.fillMaxWidth().luluCssElement("music-progress"),
+                            color = progressStyle.cssColor("color") ?: listeningRose,
+                            trackColor = progressStyle.cssColor("background-color") ?: Color(0xFFEDE5E9))
                         Row(Modifier.fillMaxWidth().padding(top = 5.dp),
                             horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(musicTime(position), fontSize = 11.sp, color = listeningMuted)
@@ -147,7 +177,8 @@ internal fun ListenTogetherPlayerScreen(
                                 fontSize = 11.sp, color = listeningMuted)
                         }
                         Spacer(Modifier.height(10.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically,
+                        Row(Modifier.luluCssElement("music-controls"),
+                            verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             IconButton(onClick = {
                                 if (system) onExternalControl("previous") else {
@@ -167,9 +198,11 @@ internal fun ListenTogetherPlayerScreen(
                                     else onLocalToggle()
                                 },
                                 enabled = if (system) external != null else localUri.isNotBlank(),
-                                modifier = Modifier.size(58.dp),
+                                modifier = Modifier.size(playStyle.cssDp("width")?.coerceIn(48.dp, 80.dp)
+                                    ?: 58.dp).luluCssElement("music-play"),
                                 colors = IconButtonDefaults.filledIconButtonColors(
-                                    containerColor = listeningRose, contentColor = Color.White),
+                                    containerColor = playStyle.cssColor("background-color") ?: listeningRose,
+                                    contentColor = playStyle.cssColor("color") ?: Color.White),
                             ) {
                                 Icon(if (playing) Icons.Outlined.Pause else Icons.Outlined.PlayArrow,
                                     if (playing) "暂停" else "播放", Modifier.size(30.dp))
@@ -188,9 +221,12 @@ internal fun ListenTogetherPlayerScreen(
                         Spacer(Modifier.height(15.dp))
                         Text(if (system) "歌词尚未由手机媒体会话提供"
                             else "听过的歌，可以慢慢变成你们的回忆",
-                            color = listeningMuted, fontSize = 12.sp)
+                            modifier = Modifier.luluCssElement("music-caption"),
+                            color = luluCssStyle("music-caption").cssColor("color") ?: listeningMuted,
+                            fontSize = luluCssStyle("music-caption").cssFontSize() ?: 12.sp)
                         Spacer(Modifier.height(11.dp))
-                        Row(horizontalArrangement = Arrangement.Center) {
+                        Row(Modifier.luluCssElement("music-actions"),
+                            horizontalArrangement = Arrangement.Center) {
                             TextButton(onClick = { showAdd = !showAdd }, enabled = current != null) {
                                 Icon(Icons.Outlined.PlaylistAdd, null, Modifier.size(19.dp))
                                 Text("加入歌单")
@@ -295,8 +331,9 @@ internal fun ListenTogetherPlayerScreen(
                         }
                         lists.forEach { list ->
                             Spacer(Modifier.height(16.dp))
-                            Surface(color = Color.White, shape = RoundedCornerShape(18.dp),
-                                modifier = Modifier.fillMaxWidth()) {
+                            Surface(color = luluCssStyle("music-playlist-card").cssColor("background-color")
+                                ?: Color.White, shape = RoundedCornerShape(18.dp),
+                                modifier = Modifier.fillMaxWidth().luluCssElement("music-playlist-card")) {
                                 Column(Modifier.padding(13.dp)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(Icons.Outlined.LibraryMusic, null, tint = listeningRose)
@@ -355,16 +392,17 @@ internal fun ListenTogetherPlayerScreen(
                 }
                 if (!showLibrary) {
                     HorizontalDivider(color = Color(0xFFEDE7E9))
-                    Row(Modifier.fillMaxWidth().padding(top = 8.dp),
+                    Row(Modifier.fillMaxWidth().padding(top = 8.dp).luluCssElement("music-chat"),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                         OutlinedTextField(draft, onValueChange = { draft = it },
-                            modifier = Modifier.weight(1f), singleLine = true,
+                            modifier = Modifier.weight(1f).luluCssElement("music-chat-input"), singleLine = true,
                             placeholder = { Text("想和TA聊聊…", fontSize = 13.sp) },
                             shape = RoundedCornerShape(22.dp))
                         Button(onClick = { if (onDiscuss(draft.trim())) draft = "" },
                             enabled = draft.isNotBlank()) { Text("发送") }
                     }
+                }
                 }
             }
         }
