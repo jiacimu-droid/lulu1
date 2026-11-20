@@ -24,6 +24,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.data.MigratedDomainStores
+import com.jiacimu.lulu.design.LuluCssPageScope
+import com.jiacimu.lulu.design.LocalLuluAppearance
+import com.jiacimu.lulu.design.LocalLuluCssSheet
+import com.jiacimu.lulu.design.luluCssElement
+import com.jiacimu.lulu.design.luluCssStyle
+import com.jiacimu.lulu.design.cssColor
 
 private val musicRose = Color(0xFFA87288)
 private val musicInk = Color(0xFF29242B)
@@ -82,8 +88,12 @@ internal fun ListenTogetherMusicLibrary(onBack: () -> Unit) {
         }
     }
 
-    Scaffold(
-        containerColor = Color(0xFFFCFAFB),
+    LuluCssPageScope("MusicLibrary") {
+        val pagePaper = if (LocalLuluCssSheet.current.page("MusicLibrary")["--paper"] != null)
+            Color(LocalLuluAppearance.current.palette.paper.toInt()) else Color(0xFFFCFAFB)
+        val listStyle = luluCssStyle("music-playlist-card")
+        Scaffold(
+        containerColor = pagePaper,
         topBar = {
             TopAppBar(
                 title = { Text("音乐", color = musicInk, fontWeight = FontWeight.SemiBold) },
@@ -92,12 +102,13 @@ internal fun ListenTogetherMusicLibrary(onBack: () -> Unit) {
                         Icon(Icons.Outlined.ArrowBack, "返回")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFFCFAFB)),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = pagePaper),
             )
         },
     ) { padding ->
         LazyColumn(
-            Modifier.fillMaxSize().padding(padding).padding(horizontal = 18.dp),
+            Modifier.fillMaxSize().padding(padding).padding(horizontal = 18.dp)
+                .luluCssElement("music-playlist"),
             contentPadding = PaddingValues(bottom = 140.dp),
             verticalArrangement = Arrangement.spacedBy(11.dp),
         ) {
@@ -158,8 +169,10 @@ internal fun ListenTogetherMusicLibrary(onBack: () -> Unit) {
                 }
                 if (playlist != null) {
                     item {
-                        Card(shape = RoundedCornerShape(20.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                        Card(modifier = Modifier.luluCssElement("music-playlist-card"),
+                            shape = RoundedCornerShape(20.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = listStyle.cssColor("background-color") ?: Color.White),
                             border = BorderStroke(1.dp, Color(0xFFE8E2E5))) {
                             Column(Modifier.fillMaxWidth().padding(14.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -213,7 +226,9 @@ internal fun ListenTogetherMusicLibrary(onBack: () -> Unit) {
                     }
                     items(playlist.tracks, key = { it.id }) { entry ->
                         Surface(
-                            shape = RoundedCornerShape(16.dp), color = Color.White,
+                            modifier = Modifier.luluCssElement("music-playlist-card"),
+                            shape = RoundedCornerShape(16.dp),
+                            color = listStyle.cssColor("background-color") ?: Color.White,
                             border = BorderStroke(1.dp, Color(0xFFECE6EA))) {
                             Row(Modifier.fillMaxWidth().padding(start = 13.dp, end = 4.dp, top = 7.dp, bottom = 7.dp),
                                 verticalAlignment = Alignment.CenterVertically) {
@@ -285,6 +300,7 @@ internal fun ListenTogetherMusicLibrary(onBack: () -> Unit) {
             if (message.isNotBlank()) {
                 item { Text(message, color = musicRose, fontSize = 12.sp) }
             }
+        }
         }
     }
 }
