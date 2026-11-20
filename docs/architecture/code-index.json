@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:29:24.692464+00:00",
-  "commit": "be288ce740695746fefe0a8b6e230afbc955bbe8",
+  "generatedAt": "2026-11-20T03:30:42.505735+00:00",
+  "commit": "2dbeb0dbeb2060f68056b3e7d12b177afa1ae2c1",
   "branch": "main",
-  "sourceFingerprint": "e7608ffab1fdd7140d7fe3b3b4daba4b37cbbf12002d1e3dae08cde79c61ab46",
+  "sourceFingerprint": "343e0d5c21c958fcd51dcf852af9b7c6f1c8f29fc6b5aced1bb33ee5098eff49",
   "summary": {
     "files": 1497,
-    "lines": 320193,
+    "lines": 320210,
     "symbols": 4550
   },
   "symbolIndex": {
@@ -2425,7 +2425,7 @@
     "reload": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherMusicLibrary.kt",
-        "line": 63
+        "line": 69
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt",
@@ -12065,25 +12065,25 @@
     "lineage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt",
-        "line": 92
+        "line": 93
       }
     ],
     "knowsSelector": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt",
-        "line": 97
+        "line": 98
       }
     ],
     "coverSelector": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt",
-        "line": 112
+        "line": 113
       }
     ],
     "widgetSelector": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt",
-        "line": 114
+        "line": 115
       }
     ],
     "LuluDataBackup": [
@@ -27103,12 +27103,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherMusicLibrary.kt",
-      "lines": 291,
-      "sha256": "8a24b8f6bb4beabb0ed5e376c921beda2007ae6362abea7382d7675c669db24c",
+      "lines": 307,
+      "sha256": "aaa0a7114c7ccd20857ee84fa70c36a17a56951f652b2e3a58b978fddae0d1c2",
       "symbols": [
         {
           "name": "reload",
-          "line": 63
+          "line": 69
         }
       ]
     },
@@ -36045,8 +36045,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt",
-      "lines": 117,
-      "sha256": "c3b98fc015c65feba6e795d065f8ed5258b262ed930e31d3d2505b7b18962187",
+      "lines": 118,
+      "sha256": "88c525a2c7b98c271335a845d919ced4e0ae2156354cc1fb18107bb06af1f49d",
       "symbols": [
         {
           "name": "LuluCssTargets",
@@ -36058,19 +36058,19 @@
         },
         {
           "name": "lineage",
-          "line": 92
+          "line": 93
         },
         {
           "name": "knowsSelector",
-          "line": 97
+          "line": 98
         },
         {
           "name": "coverSelector",
-          "line": 112
+          "line": 113
         },
         {
           "name": "widgetSelector",
-          "line": 114
+          "line": 115
         }
       ]
     },
