@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:26:16.222381+00:00",
-  "commit": "32991864a1e31923a426841ea8da52e164ee7a24",
+  "generatedAt": "2026-11-20T03:26:42.695448+00:00",
+  "commit": "78af6f8b80805ff8a41e8f1c211de4ac42a4d0e9",
   "branch": "main",
-  "sourceFingerprint": "394c9e2ed4423b38b54cdad9bc1fce48d2063c977817c53f346a64de8adc8e1c",
+  "sourceFingerprint": "439261a1991809fd45d6b45ad41e562e74a9e5f86a768a03d8edd0462f6c936e",
   "summary": {
     "files": 1496,
-    "lines": 319815,
-    "symbols": 4548
+    "lines": 319832,
+    "symbols": 4549
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -771,7 +771,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 147
+        "line": 164
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
@@ -5486,16 +5486,22 @@
         "line": 61
       }
     ],
+    "bindSongId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
+        "line": 110
+      }
+    ],
     "removeTrack": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 108
+        "line": 125
       }
     ],
     "delete": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 116
+        "line": 133
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
@@ -5521,13 +5527,13 @@
     "songId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 130
+        "line": 147
       }
     ],
     "directUri": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-        "line": 144
+        "line": 161
       }
     ],
     "compact": [
@@ -29764,8 +29770,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt",
-      "lines": 171,
-      "sha256": "fe6b04dae481c88c916b8f64025e9ba07d13dfe12978ee91a72e89fc80def065",
+      "lines": 188,
+      "sha256": "47c3689f7c25b17609bda8527087dcd818bb0e4845bc1892da8187835464896f",
       "symbols": [
         {
           "name": "read",
@@ -29780,24 +29786,28 @@
           "line": 91
         },
         {
+          "name": "bindSongId",
+          "line": 110
+        },
+        {
           "name": "removeTrack",
-          "line": 108
+          "line": 125
         },
         {
           "name": "delete",
-          "line": 116
+          "line": 133
         },
         {
           "name": "songId",
-          "line": 130
+          "line": 147
         },
         {
           "name": "directUri",
-          "line": 144
+          "line": 161
         },
         {
           "name": "open",
-          "line": 147
+          "line": 164
         }
       ]
     },
