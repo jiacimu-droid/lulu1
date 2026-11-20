@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T06:28:57.333577+00:00",
-  "commit": "5c578379aa7424f76ea7083a50c36d12f69dd255",
+  "generatedAt": "2026-11-20T06:29:50.361099+00:00",
+  "commit": "f86bfbff8d5d1205b95e48ab2e51ec40bdaa6597",
   "branch": "main",
-  "sourceFingerprint": "c07939a798b0ade3378465bb261692a8c83ef894efb49d7c0cf23b07c531c4e8",
+  "sourceFingerprint": "75ebcf14a3243cfa13e4f905d5b247a4413c0bcee45f378f59e11b9c6a53623d",
   "summary": {
     "files": 1503,
-    "lines": 322025,
+    "lines": 322042,
     "symbols": 4566
   },
   "symbolIndex": {
@@ -13821,7 +13821,7 @@
     "compactWorld": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
-        "line": 114
+        "line": 131
       }
     ],
     "renderWithTrace": [
@@ -37907,8 +37907,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
-      "lines": 147,
-      "sha256": "8d7359b47e11bc463f15b0f2bd5fadfe2af5f492207f1a0c9b7f620bfb294460",
+      "lines": 164,
+      "sha256": "4a48a855af3dece84effaa83d6fff4069fec8c7ed93d2b56257ee70da118fddd",
       "symbols": [
         {
           "name": "PromptContextBudget",
@@ -37924,7 +37924,7 @@
         },
         {
           "name": "compactWorld",
-          "line": 114
+          "line": 131
         }
       ]
     },
