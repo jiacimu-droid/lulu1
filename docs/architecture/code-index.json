@@ -8571,7 +8571,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-        "line": 381
+        "line": 402
       }
     ],
     "axis": [
@@ -24285,7 +24285,7 @@
     "savedPlan": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-        "line": 512
+        "line": 533
       }
     ],
     "ScheduledReminderDeliveryTest": [
@@ -52018,8 +52018,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/RoleDayScheduleStoreTest.kt",
-      "lines": 591,
-      "sha256": "56e1dd6e30a1e99e9e4995514b4c41fd810d45908375661717b52f7f665da880",
+      "lines": 612,
+      "sha256": "cb6836610be882d1b0b4e45e53e9d69437da71b5e2a7210b5d467317d9c01b41",
       "symbols": [
         {
           "name": "RoleDayScheduleStoreTest",
@@ -52027,11 +52027,11 @@
         },
         {
           "name": "completed",
-          "line": 381
+          "line": 402
         },
         {
           "name": "savedPlan",
-          "line": 512
+          "line": 533
         }
       ]
     },
