@@ -976,7 +976,10 @@ object ProactivePerceptionRuntime {
                     event.channel.startsWith("独自游戏") ||
                     event.channel.startsWith("现实世界窗口")
             }
-            .takeLast(12)
+            // Keep only a small latest-life handoff here. Full historical
+            // experiences stay in SharedExperienceTimeline and topical recall,
+            // rather than being re-sent on every autonomous heartbeat.
+            .takeLast(5)
         val recentLifeContext = recentLifeEvents.joinToString("\n") { event ->
             "- [evidenceId=${event.id}；${event.occurredAt.atZone(zoneId).format(DateTimeFormatter.ofPattern("M月d日 HH:mm"))}] ${event.channel}：${event.evidenceContent.replace(Regex("\\s+"), " ").take(500)}"
         }
