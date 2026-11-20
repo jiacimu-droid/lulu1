@@ -663,7 +663,7 @@
 | `app/src/main/java/com/jiacimu/lulu/design/LuluAppearanceTheme.kt` | 199 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluComponents.kt` | 167 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt` | 249 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/design/LuluCssPaint.kt` | 252 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/design/LuluCssPaint.kt` | 253 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluCssScaffold.kt` | 196 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluDesignSystem.kt` | 113 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/design/LuluEditorialComponents.kt` | 114 | 3 |
