@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:10:31.378551+00:00",
-  "commit": "c08853326bb6da32ae2db4d9bb43d165937030b7",
+  "generatedAt": "2026-11-20T01:11:48.291873+00:00",
+  "commit": "b0fd7c69711d5230d8c73c1faf680ca1d3602701",
   "branch": "main",
-  "sourceFingerprint": "933432e2665afc552e3186864bf0632aa4bd0aa2274d3701d19f664ef0060ecd",
+  "sourceFingerprint": "4ba9ad22e29d1ff4bc9fea177faea806e375b2da39390ca71f05406f1c230832",
   "summary": {
-    "files": 1488,
-    "lines": 318200,
-    "symbols": 4521
+    "files": 1489,
+    "lines": 318263,
+    "symbols": 4522
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21280,6 +21280,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/StickerImportManifestTest.kt",
         "line": 9
+      }
+    ],
+    "StickerPackArchiveTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/StickerPackArchiveTest.kt",
+        "line": 19
       }
     ],
     "StickerPromptSelectionTest": [
@@ -47297,6 +47303,17 @@
         {
           "name": "StickerImportManifestTest",
           "line": 9
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/StickerPackArchiveTest.kt",
+      "lines": 63,
+      "sha256": "62fb3726dc1bd8fdd8f4456b317aa795a015a0273eeb2326dbd02614ccd60054",
+      "symbols": [
+        {
+          "name": "StickerPackArchiveTest",
+          "line": 19
         }
       ]
     },
