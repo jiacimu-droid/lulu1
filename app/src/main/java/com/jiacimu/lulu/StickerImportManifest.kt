@@ -111,6 +111,7 @@ internal object StickerImportManifest {
 
     private fun normalize(entry: StickerImportEntry, defaultPack: String): StickerImportEntry {
         val url = entry.url.trim()
+        require(url.length <= 2048) { "图片链接过长" }
         val parsed = runCatching { URL(url) }.getOrNull()
         require(parsed?.protocol == "https" && !parsed.host.isNullOrBlank()) {
             "请使用 HTTPS 图片直链：${url.take(90)}"
