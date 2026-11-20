@@ -48,6 +48,33 @@ class PromptContextRegressionTest {
         assertFalse(selected.sections.values.joinToString().contains("未完成的真实任务。"))
     }
 
+    @Test fun ownerProfileIsBoundedRecallAndNeverAnotherRolesSelfGrowth() {
+        val owner = DevelopmentRecord(
+            id = "about-owner", characterId = "knowing", slot = "user:preference",
+            kind = DevelopmentKind.UserPreference, content = "喜欢晴天和柑橘茶",
+            confidence = 0.8, evidence = mapOf("owner-message" to 1L),
+            counterEvidence = emptyMap(), version = 1,
+            createdAt = Instant.parse("2026-11-10T00:00:00Z"),
+        )
+        val stranger = owner.copy(id = "private-to-other", characterId = "other",
+            content = "其他人的私密认识")
+        val budget = PromptContextBudget(20, 1200, 1000, 0, false, true,
+            1000, false, workingSetCharacters = 1600)
+        val selected = MemoryWorkingSet.assemble(
+            UnifiedMemoryContext(characterId = "knowing"), emptyList(), emptyList(), budget,
+            coreSection = "", ownerKnowledge = listOf(owner, stranger))
+        val rendered = selected.sections[MemoryWorkingSet.OWNER].orEmpty()
+        assertTrue(rendered.contains(owner.content))
+        assertFalse(rendered.contains(stranger.content))
+        assertTrue(selected.selected.contains("owner:about-owner"))
+        assertTrue(selected.usedCharacters <= budget.workingSetCharacters)
+        val tiny = MemoryWorkingSet.assemble(UnifiedMemoryContext(characterId = "knowing"),
+            emptyList(), emptyList(), budget.copy(workingSetCharacters = 20),
+            coreSection = "", ownerKnowledge = listOf(owner))
+        assertFalse(tiny.sections.values.joinToString().contains(owner.content))
+        assertTrue(tiny.omitted.containsKey("owner:about-owner"))
+    }
+
     @Test fun largeBacklogKeepsNewestEventsWithinHardBudget() {
         val events = (0 until 1000).map { index -> SharedTimelineEvent(
             id = "event-$index", characterId = "role", channel = "私聊", speaker = "用户",
