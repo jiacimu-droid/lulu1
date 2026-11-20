@@ -149,7 +149,7 @@ internal object StickerWordDocument {
                         .filter { it.imageIds.isEmpty() }.map { it.text }.filter(String::isNotBlank)
                     val preceding = paragraphs.subList(maxOf(previous + 1, start - 6), start)
                         .filter { it.imageIds.isEmpty() }.map { it.text }.filter(String::isNotBlank)
-                    val labelled = Regex("""^(名称|标题|名字|表情名称|画面描述|图片描述|描述|使用场景|用途|语气|情绪)\\s*[：:]""")
+                    val labelled = Regex("""^(名称|标题|名字|表情名称|画面描述|图片描述|描述|使用场景|用途|语气|情绪)\s*[：:]""")
                     val afterTagged = after.any { labelled.containsMatchIn(it.trim()) }
                     val beforeTagged = preceding.any { labelled.containsMatchIn(it.trim()) }
                     when {
