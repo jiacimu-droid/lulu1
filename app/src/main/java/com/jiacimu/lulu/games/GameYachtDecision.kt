@@ -85,7 +85,11 @@ internal suspend fun requestYachtRoleDecision(
         characterId = characterId, facts = facts, instruction = instruction,
         source = "游戏 · 快艇骰子本人决策", title = "快艇骰子 · 本人行动",
         capturePrivateMoment = true,
-        maxTokens = 260, usage = ModelUsage.Game,
+        // Reasoning models may spend the former 260 + 260 moment budget entirely
+        // on hidden thought (finish_reason=length, zero visible action). Reserve
+        // room for both reasoning and the authored JSON in this same paid call.
+        // The gateway adds 260 for optional privateMoment; no automatic retry.
+        maxTokens = 2_048, usage = ModelUsage.Game,
         contextMode = CompanionContextMode.Full,
     ).mapCatching { reply ->
         when (val choice = parseYachtRoleDecision(reply.text, available, roll)) {
