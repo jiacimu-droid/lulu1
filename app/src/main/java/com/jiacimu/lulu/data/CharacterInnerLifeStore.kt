@@ -1990,6 +1990,7 @@ object CharacterInnerLifeStore {
             // after later quiet decisions crowd it out of the causal summary.
             if (recentInnerVoices.length() > 0) {
                 appendLine("【最近真实心声｜用于对照心理变化，不代表当下事实】")
+                appendLine("这是本人过去的感受，不是对方拒绝联系的证据；当前是否联系仍按新事实、已接受的约定及明确边界判断。")
                 for (i in maxOf(0, recentInnerVoices.length() - 2) until recentInnerVoices.length()) {
                     val voiceMoment = recentInnerVoices.optJSONObject(i) ?: continue
                     appendLine("· " + voiceMoment.optString("thought").take(180) + "（" +
@@ -2154,7 +2155,7 @@ object CharacterInnerLifeStore {
                     appendLine("· ${voiceMoment.optString("thought")}" +
                         (if (voiceAt.isNotBlank()) "（$voiceAt）" else ""))
                 }
-                appendLine("若情境有关，可让旧念头继续、碰撞或自然淡化；避免逐字复读、反复提起同一念头。")
+                appendLine("旧念头可继续、碰撞或自然改变，不逐字复读；它们不能替代对方当下明确的联系边界，也不自动决定本轮是否发送消息。")
             }
             if (decisions.length() > 0) {
                 appendLine("最近有依据的取舍与真实结果（仅供以后规划参考）：")
