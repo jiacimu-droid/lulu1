@@ -22,6 +22,12 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.jiacimu.lulu.data.LuluCssSheet
+import com.jiacimu.lulu.design.LuluCssArtwork
+import com.jiacimu.lulu.design.cssColor
+import com.jiacimu.lulu.design.cssDp
+import com.jiacimu.lulu.design.luluCssElement
+import com.jiacimu.lulu.design.luluCssStyle
 
 private val rose = Color(0xFFB98A98)
 private val ink = Color(0xFF25232A)
@@ -42,9 +48,21 @@ internal fun ListenTogetherArtwork(
             repeatMode = RepeatMode.Restart),
         label = "record-rotation",
     )
+
     var lastAngle by remember { mutableFloatStateOf(0f) }
     LaunchedEffect(spinning) { if (!spinning) lastAngle = currentAngle }
-    BoxWithConstraints(Modifier.fillMaxWidth().height(224.dp)) {
+    val artStyle = luluCssStyle("music-artwork")
+    val connectionStyle = luluCssStyle("music-links")
+    val roleStyle = luluCssStyle("music-avatar-role")
+    val userStyle = luluCssStyle("music-avatar-user")
+    val vinylStyle = luluCssStyle("music-vinyl")
+    val roleSize = roleStyle.cssDp("width")?.coerceIn(40.dp, 72.dp) ?: 54.dp
+    val userSize = userStyle.cssDp("width")?.coerceIn(40.dp, 72.dp) ?: 54.dp
+    val discSize = vinylStyle.cssDp("width")?.coerceIn(90.dp, 166.dp) ?: 148.dp
+    val discAsset = LuluCssSheet.assetToken(vinylStyle["background-image"])
+    BoxWithConstraints(Modifier.fillMaxWidth()
+        .height(artStyle.cssDp("height")?.coerceIn(170.dp, 320.dp) ?: 224.dp)
+        .luluCssElement("music-artwork")) {
         Canvas(Modifier.fillMaxSize()) {
             val mid = size.width / 2f
             val y = size.height * .46f
@@ -58,8 +76,11 @@ internal fun ListenTogetherArtwork(
                 moveTo(left, y)
                 cubicTo(size.width * .3f, size.height * .91f, size.width * .7f, size.height * .91f, right, y)
             }
-            drawPath(topArc, Color(0xFFE7D4D9), style = Stroke(width = 14.dp.toPx(), cap = StrokeCap.Round))
-            drawPath(bottomArc, Color(0xFFF0E7E8), style = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round))
+            val connectionColor = connectionStyle.cssColor("color") ?: Color(0xFFE7D4D9)
+            val backColor = connectionStyle.cssColor("border-color") ?: Color(0xFFF0E7E8)
+            val thick = connectionStyle.cssDp("border-width")?.coerceIn(2.dp, 20.dp) ?: 14.dp
+            drawPath(topArc, connectionColor, style = Stroke(width = thick.toPx(), cap = StrokeCap.Round))
+            drawPath(bottomArc, backColor, style = Stroke(width = (thick * .57f).toPx(), cap = StrokeCap.Round))
             drawCircle(rose.copy(alpha = .12f), radius = 102.dp.toPx(), center = androidx.compose.ui.geometry.Offset(mid, y))
         }
         Row(
@@ -67,39 +88,51 @@ internal fun ListenTogetherArtwork(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Column(Modifier.width(66.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(Modifier.size(54.dp).clip(CircleShape)) {
-                    LuluProfileAvatar(roleAvatar, roleName.take(1).ifBlank { "角" }, 54)
+            Column(Modifier.width(72.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(Modifier.size(roleSize).clip(CircleShape).luluCssElement("music-avatar-role")) {
+                    LuluCssArtwork(LuluCssSheet.assetToken(roleStyle["background-image"]),
+                        Modifier.fillMaxSize(), roleStyle) {
+                        LuluProfileAvatar(roleAvatar, roleName.take(1).ifBlank { "角" }, roleSize.value.toInt())
+                    }
                 }
                 Spacer(Modifier.height(8.dp))
                 Text(roleName, style = MaterialTheme.typography.labelSmall, maxLines = 1,
                     overflow = TextOverflow.Ellipsis, color = ink)
             }
-            Box(Modifier.size(156.dp), contentAlignment = Alignment.Center) {
-                Canvas(
-                    Modifier.size(148.dp).graphicsLayer {
-                        rotationZ = if (spinning) currentAngle else lastAngle
+            Box(Modifier.size(discSize + 8.dp), contentAlignment = Alignment.Center) {
+                Box(Modifier.size(discSize)
+                    .graphicsLayer { rotationZ = if (spinning) currentAngle else lastAngle }
+                    .clip(CircleShape).luluCssElement("music-vinyl"),
+                    contentAlignment = Alignment.Center) {
+                    LuluCssArtwork(discAsset, Modifier.fillMaxSize(), vinylStyle) {
+                        Canvas(Modifier.fillMaxSize()) {
+                            val r = size.minDimension / 2f
+                            val discTint = vinylStyle.cssColor("background-color")
+                            if (discTint != null) drawCircle(discTint)
+                            else drawCircle(brush = Brush.radialGradient(
+                                listOf(Color(0xFF57515B), Color(0xFF19171C),
+                                    Color(0xFF313038), Color(0xFF101015))))
+                            for (fraction in listOf(.58f,.64f,.71f,.78f,.84f,.90f,.96f)) {
+                                drawCircle(Color.White.copy(alpha = .10f), radius = r*fraction,
+                                    style = Stroke(width = .65.dp.toPx()))
+                            }
+                            drawCircle(brush = Brush.linearGradient(
+                                listOf(Color(0xFFCCB3BE), Color(0xFFD9CDC5), Color(0xFF987F90))),
+                                radius = r*.43f)
+                            drawCircle(Color.White.copy(alpha = .27f), radius = r*.36f,
+                                style = Stroke(width = 1.dp.toPx()))
+                            drawCircle(Color(0xFF24212A), radius = r*.065f)
+                            drawCircle(Color(0xFFEBDFE3), radius = r*.025f)
+                        }
                     }
-                ) {
-                    val r = size.minDimension / 2f
-                    drawCircle(brush = Brush.radialGradient(
-                        listOf(Color(0xFF57515B), Color(0xFF19171C), Color(0xFF313038), Color(0xFF101015))))
-                    for (fraction in listOf(.58f,.64f,.71f,.78f,.84f,.90f,.96f)) {
-                        drawCircle(Color.White.copy(alpha = .10f), radius = r*fraction,
-                            style = Stroke(width = .65.dp.toPx()))
-                    }
-                    drawCircle(brush = Brush.linearGradient(
-                        listOf(Color(0xFFCCB3BE), Color(0xFFD9CDC5), Color(0xFF987F90))),
-                        radius = r*.43f)
-                    drawCircle(Color.White.copy(alpha = .27f), radius = r*.36f,
-                        style = Stroke(width = 1.dp.toPx()))
-                    drawCircle(Color(0xFF24212A), radius = r*.065f)
-                    drawCircle(Color(0xFFEBDFE3), radius = r*.025f)
                 }
             }
-            Column(Modifier.width(66.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(Modifier.size(54.dp).clip(CircleShape)) {
-                    LuluProfileAvatar(userAvatar, userName.take(1).ifBlank { "我" }, 54)
+            Column(Modifier.width(72.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(Modifier.size(userSize).clip(CircleShape).luluCssElement("music-avatar-user")) {
+                    LuluCssArtwork(LuluCssSheet.assetToken(userStyle["background-image"]),
+                        Modifier.fillMaxSize(), userStyle) {
+                        LuluProfileAvatar(userAvatar, userName.take(1).ifBlank { "我" }, userSize.value.toInt())
+                    }
                 }
                 Spacer(Modifier.height(8.dp))
                 Text(userName, style = MaterialTheme.typography.labelSmall, maxLines = 1,
