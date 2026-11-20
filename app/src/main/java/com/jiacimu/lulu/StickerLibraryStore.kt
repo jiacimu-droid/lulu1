@@ -133,7 +133,7 @@ internal object StickerLibraryStore {
         initialize(context)
         return selectPromptStickers(items.value, 8, StickerRetrievalContext(
             userMessage = cues, recentConversation = recentConversation, actorMood = actorMood,
-        )).filter { canActuallySend(context, it) }
+        )) { canActuallySend(context, it) }
     }
 
     fun prompt(

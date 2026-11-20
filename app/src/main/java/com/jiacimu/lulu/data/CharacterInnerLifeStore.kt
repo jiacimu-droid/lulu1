@@ -1840,7 +1840,7 @@ object CharacterInnerLifeStore {
             "强度=${influence.impact}；只供角色自主判断"
     }
 
-    private const val USER_GUESS_EVIDENCE_BOUNDARY = "旧心声、私人看法和上轮行动理由都是本人当时的主观解释，不是后来新增的用户事实。尤其不能把以前猜测的‘她正在忙／不想被打扰／已经在学习’反复继承成此刻结论；当前是否忙、学习、愿不愿交流，须重新对照用户最新原话和有时间来源的真实设备/学习/获准观察，未知就保留未知。角色曾劝用户早点睡、猜她可能躺下或在自己的心声里写了“别打扰”，都不能当作用户已经照做、确实入睡或明确拒绝联系的证据；反复引用同一个猜测不会提高真实性。"
+    private const val USER_GUESS_EVIDENCE_BOUNDARY = "旧心声、私人看法和上轮行动理由都是本人当时的主观解释，不是后来新增的用户事实。按用户最新原话、有时间来源的真实记录和获准观察理解当下。忙碌、入睡、是否接受联系各有独立证据，未知就保留未知。由本人根据关系和当前意愿安排交流。"
 
     /**
      * Reservoir rule: only still-held thoughts are delivered as topic

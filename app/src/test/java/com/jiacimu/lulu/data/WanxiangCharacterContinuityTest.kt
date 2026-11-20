@@ -187,11 +187,8 @@ class WanxiangCharacterContinuityTest {
         val private = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
         val phone = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PHONE)
         assertTrue(private.contains("承接两人已经说到哪里"))
-        // Follow the shared, current conversational rule instead of matching
-        // wording from an earlier draft: never append a mechanical recap or
-        // question merely to make a chat turn look complete.
-        assertTrue(private.contains("表达足够时可自然交还话轮"))
-        assertTrue(phone.contains("表达足够时可自然交还话轮"))
+        assertTrue(private.contains("发几条、何时接着说都由本人决定"))
+        assertTrue(phone.contains("发几条、何时接着说都由本人决定"))
         assertTrue(phone.contains("没有听清便承认没听清"))
         assertTrue(phone.contains("实时通话优先低延迟"))
         assertFalse(phone.contains("每次必须"))

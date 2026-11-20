@@ -75,4 +75,13 @@ class StickerPromptSelectionTest {
         assertTrue(retrieved.any { it.id == "other" })
         assertEquals(retrieved.size, retrieved.distinctBy { it.id }.size)
     }
+
+    @Test fun missingImagesAreReplacedBySendableCandidatesAcrossPacks() {
+        val stickers = (0 until 9).map { sticker("missing-$it", "猫猫", favorite = true) } +
+            listOf(sticker("hug", "猫猫"), sticker("smile", "猫猫"), sticker("wave", "自选"))
+        val retrieved = selectPromptStickers(stickers, 3, StickerRetrievalContext()) {
+            !it.id.startsWith("missing-")
+        }
+        assertEquals(listOf("hug", "smile", "wave"), retrieved.map { it.id })
+    }
 }

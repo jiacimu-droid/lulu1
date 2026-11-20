@@ -5,14 +5,13 @@ import org.junit.Test
 
 /** Prompt-contract checks only; these do not claim real-model personality quality. */
 class PositiveExpressionGuidanceTest {
-    @Test fun privateDecisionAndRenderingShareTurnTakingInsteadOfOnlyBubbleSplitting() {
+    @Test fun privateDecisionAndRenderingBothAllowFollowUpsWithoutWaiting() {
         val decision = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
         val renderer = CharacterExpressionGuide.forGeneration("聊天表达渲染")
         for (prompt in listOf(decision, renderer)) {
-            assertTrue(prompt.contains("日常接话以有来有回为自然节奏"))
-            assertTrue(prompt.contains("不替对方编造下一句话"))
-            assertTrue(prompt.contains("表达已经足够时"))
-            assertTrue(prompt.contains("交还话轮"))
+            assertTrue(prompt.contains("想起什么再发一条"))
+            assertTrue(prompt.contains("对方说过什么以真实消息为准"))
+            assertFalse(prompt.contains("交还话轮"))
             assertTrue(prompt.contains("分泡本身不会减少内容"))
             assertTrue(prompt.contains("复杂问题、多项需求"))
         }
@@ -118,17 +117,16 @@ class PositiveExpressionGuidanceTest {
         assertTrue(casual.contains("复杂求助、多项明确需求与重要边界可以充分讲清"))
         assertFalse(casual.contains("逐项回应清单"))
     }
-    @Test fun sharedTurnTakingTreatsOneWordGameMovesAsCompleteAndLeavesOtherTasksOpen() {
+    @Test fun formalGameTurnsDoNotLimitConversation() {
         val prompts = listOf(
             CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT),
             CharacterExpressionGuide.forGeneration("聊天表达渲染"),
             proactiveDecisionInstruction("game-rhythm-contract", directPrivateChat = true),
         )
         prompts.forEach { prompt ->
-            assertTrue(prompt.contains("【共同活动的回合感】"))
-            assertTrue(prompt.contains("答案本身就可以是一轮完整的参与"))
-            assertTrue(prompt.contains("下一轮要等真实新输入"))
-            assertTrue(prompt.contains("对方在问规则、讨论策略"))
+            assertTrue(prompt.contains("游戏操作遵守实际轮次，聊天和讨论策略照现场需要"))
+            assertTrue(prompt.contains("想起什么再发一条"))
+            assertFalse(prompt.contains("下一轮要等真实新输入"))
             assertTrue(prompt.contains("认真请教、复杂问题、多项需求"))
             assertFalse(prompt.contains("每条不超过"))
             assertFalse(prompt.contains("一到三句"))
@@ -140,20 +138,19 @@ class PositiveExpressionGuidanceTest {
         )
     }
 
-    @Test fun conversationIsJointlyBuiltAndEachTurnHasItsOwnCompletionPoint() {
+    @Test fun conversationCanContinueBeforeTheOtherPersonResponds() {
         // Model selects the dialogue move. The renderer only realizes that
         // same move in the person's own voice, not an assistant-style essay.
         val decision = CharacterDecisionProtocol.causalPrinciples
         val rendering = CharacterExpressionGuide.forGeneration("聊天表达渲染")
         val channel = CharacterExpressionGuide.channelNote(CharacterSpeechChannel.PRIVATE_CHAT)
-        assertTrue(decision.contains("共同推进而非单人完成"))
-        assertTrue(decision.contains("对方的下一步反应仍是未知"))
+        assertTrue(decision.contains("可以接着表达、追问或另起话题"))
+        assertTrue(decision.contains("对方的反应以她真实说过的话与做过的事为准"))
         assertTrue(decision.contains("复杂求助、多项明确需求与重要边界可以充分讲清"))
         assertTrue(rendering.contains("以本人已选的交流动作是否在这一拍完成为准"))
         assertTrue(rendering.contains("不以“是否把整段话题的全部可能信息都说尽”为准"))
-        assertTrue(channel.contains("整个话题还远远没有聊完也没关系"))
-        assertTrue(channel.contains("反馈共同建立理解"))
-        assertTrue(channel.contains("下一轮要等真实新输入"))
+        assertTrue(channel.contains("想起什么再发一条"))
+        assertFalse(channel.contains("下一轮要等真实新输入"))
         assertFalse(channel.contains("最多回复"))
         assertFalse(channel.contains("每条不得超过"))
     }
@@ -181,7 +178,7 @@ class PositiveExpressionGuidanceTest {
         assertTrue(ordinary.contains("复杂问题、现实行动或重要关系分歧"))
         assertTrue(expression.contains("保留临场反应的简洁"))
         assertTrue(expression.contains("对已选定的审慎回应"))
-        assertTrue(directPrivate.contains("顺势脱口而出的自然接话"))
+        assertTrue(directPrivate.contains("熟人说话可以脱口而出"))
         assertTrue(phone.contains("沿用本人的判断"))
         assertTrue(protocol.contains("性格、关系、情绪与现场共同决定接话或沉默"))
         assertTrue(protocol.contains("appraisal.privateIdeas 中写出至少一个"))

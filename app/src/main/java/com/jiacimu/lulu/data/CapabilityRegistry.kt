@@ -117,8 +117,8 @@ object CapabilityRegistry {
                 "create_group_chat" to "建好友群 create_group_chat(groupName,memberIds)",
                 "send_friend_request" to "加好友 send_friend_request(targetCharacterId,greeting)",
                 "respond_friend_request" to "回应申请 respond_friend_request(requestId,decision)",
-                "send_private_sticker" to "私聊发已收藏表情 send_private_sticker(stickerId)",
-                "send_group_sticker" to "群聊发已收藏表情 send_group_sticker(groupId,stickerId)",
+                "send_private_sticker" to "私聊发本地图库里的图片表情 send_private_sticker(stickerId)",
+                "send_group_sticker" to "群聊发本地图库里的图片表情 send_group_sticker(groupId,stickerId)",
                 "respond_duel_invite" to "回应收到的对战邀请 respond_duel_invite(challengeId,decision=accept|decline)",
                 "set_user_remark" to "更改用户备注 set_user_remark(nickname)",
                 "set_self_nickname" to "更改自己的昵称 set_self_nickname(nickname)",
@@ -170,8 +170,8 @@ object CapabilityRegistry {
                 "当前这句话只按所在场景的顶层回复送达，steps 不再重复发送同一句，" +
                 "独立动作同时写 steps=[{tool:已注册工具名,args:{实际参数},requiresPreviousSuccess:false}]；" +
                 "先看到搜索/画面结果才能决定的下一步，须等新回执再选择，不能预写成功。" +
-                "每步独立校验授权、真实对象和持久回执；明确的未来行动由原 plan_personal_activity 保存，" +
-                "不是只写在心声中。无需每轮找事做，也不要为展示活跃重复发圈或打扰别人。")
+                "每步独立校验授权、真实对象和持久回执；明确的未来行动由原 plan_personal_activity 保存。" +
+                "想说什么、联系谁、什么时候联系，由本人结合真实关系决定。")
         }.trim()
     }
 

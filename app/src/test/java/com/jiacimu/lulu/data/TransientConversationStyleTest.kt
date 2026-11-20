@@ -21,7 +21,7 @@ class TransientConversationStyleTest {
         val style = TransientConversationStyle.analyze("我学累了\n脑子都转不动了\n想歇一下")
         assertTrue(style.prefersShortBurst)
         val context = TransientConversationStyle.context("我学累了\n脑子都转不动了\n想歇一下")
-        assertTrue(context.contains("自然决定每条消息的停顿和发出时机"))
+        assertTrue(context.contains("每条消息的停顿、发出时机和内容多寡由本人结合现场决定"))
         assertFalse(context.contains("必须分成完整气泡"))
     }
 

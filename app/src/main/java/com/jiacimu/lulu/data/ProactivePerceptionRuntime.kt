@@ -1233,7 +1233,7 @@ object ProactivePerceptionRuntime {
                 if (duePlans.isNotBlank()) {
                     appendLine("【自己先前真正安排、现在待处理的日程】")
                     appendLine(duePlans)
-                    appendLine("对待办可以选：①实际执行并在本次动作 args.planId 传入准确 ID（需成功的真实回执）；② action=tool,tool=reschedule_personal_activity,args={planId,dueAt,reason}；③ action=tool,tool=cancel_personal_activity,args={planId,reason}。如果暂时不打扰，也可以本人选择合适时刻用现有工具安排后续复查；有未完成的正式承诺时不能仅凭安静或唤醒成功就宣称履约。跨天失约是事实，不能当作刚到点自动重发。")
+                    appendLine("对待办可以选：①实际执行并在本次动作 args.planId 传入准确 ID（需成功的真实回执）；② action=tool,tool=reschedule_personal_activity,args={planId,dueAt,reason}；③ action=tool,tool=cancel_personal_activity,args={planId,reason}。可以按本人选择的时机用现有工具安排后续复查；有未完成的正式承诺时不能仅凭安静或唤醒成功就宣称履约。跨天失约是事实，不能当作刚到点自动重发。")
                 }
                 WorldLifeEpisodeStore.initialize(appContext)
                 // Music is a REAL device action, not an imagined soundtrack
@@ -1370,7 +1370,7 @@ object ProactivePerceptionRuntime {
                 } else "") +
                 (if (onlineExpiryAtMillis > 0L) onlineRenewalDecisionInstruction() + "\n" else "") +
                 if (onlineUnread.text.isNotBlank())
-                    "【本轮新消息的回应和工具动作】你刚收到真实新消息。仍由你自己决定回复、执行工具、两者并行或明确 silent。回复与行动不是二选一；同轮用 action=message 的 text/bubbles 写出唯一的私聊回复（可以多条自然气泡），steps 只承担独立工具和其他真实动作，不要再在 steps/sideActions/nextAction 用 send_private_message 重发这一次的台词。选择其他 action=tool 且也想说话时，把本次用户可见的台词放在顶层 text，一次送达即可，不必再加 send_private_message 步骤。先后确有不同条件的行动要有各自真实回执。需要先发送再拨打电话可按已有 start_call 契约，想回复后立即休眠可选择 onlineDecision.choice=sleep（本轮动作结束即真正下线，不等五分钟到期），或在 steps 最后选择 go_offline，二者择一。每步独立按真实权限和回执执行；截图待授权不等于看过画面。答应立即查找就须在同轮选择实际动作：网页或图片用 web_search/image_search，原App内找内容用 background_phone。结果未返回前不可编造。没有真实发言或明确 silent，未读消息不得记为已经回应；不能因为工具成功就冒充回复送达。JSON 先填写实际行动与对外台词，私人分析留在独立字段。"
+                    "【本轮新消息的回应和工具动作】你刚收到真实新消息。由你自己决定说什么、发几条和做什么。私聊文字用 action=message 的 text/bubbles，单发图片表情用 action=sticker，文字和图片一起发可在 message 里附上真实 stickerId。想接着发另一条话或做其他事可用独立 steps，同一句已送达的话不用重复写成动作。选择 action=tool 时也可在顶层 text 附上本次想说的话。先后确有不同条件的行动要有各自真实回执。需要先发送再拨打电话可按已有 start_call 契约，想回复后立即休眠可选择 onlineDecision.choice=sleep（本轮动作结束即真正下线，不等五分钟到期），或在 steps 最后选择 go_offline，二者择一。每步独立按真实权限和回执执行；截图待授权不等于看过画面。答应立即查找就须在同轮选择实际动作：网页或图片用 web_search/image_search，原App内找内容用 background_phone。结果未返回前不可编造。没有真实发言或明确 silent，未读消息不得记为已经回应；不能因为工具成功就冒充回复送达。JSON 先填写实际行动与对外台词，私人分析留在独立字段。"
                 else "【此时没有新消息】这不是延迟私聊回复；继续按本人当前兴趣与已列出的真实能力选择 action/steps、实际登记未来安排，或决定 silent。行动是否完成以独立回执为准。",
             source = "后台主动感知",
             // Usage diagnostics must identify the wake class without logging raw user text.
@@ -1777,7 +1777,7 @@ object ProactivePerceptionRuntime {
         // The next normal awake observation can revisit pending intentions.
         currentCoroutineContext().ensureActive()
         // A phone call, user wake or replaced online window may take ownership
-        // while optional follow-through is in flight. Never send a stale apology.
+        // while optional follow-through is in flight. Do not deliver a superseded decision.
         if (CompanionPresenceStore.isInCall(characterId) ||
             (awakeReflection && !CompanionOnlineStore.isOnline(characterId)) ||
             (onlineExpiryAtMillis > 0L &&
@@ -1789,51 +1789,21 @@ object ProactivePerceptionRuntime {
             )
             return null
         }
-        // One authoritative character decision per perceived situation.
-        val resolved = parsed
-        val fallbackDecision = resolved.withPresenceFallback(character)
-        // Last-resort continuity safeguard, never a chat-text rewrite:
-        // a previously settled disagreement must not be re-opened by an idle
-        // autonomous tick. New unread user feedback and fresh world/call events
-        // always bypass this guard. The role's independent life remains free.
-        val lastUserTurns = SharedExperienceTimeline.recentEvents(characterId, 100)
-            .filter { it.evidenceKind == EventEvidenceKind.UserStatement &&
-                !it.occurredAt.isAfter(now) }
-        val explicitSettlement = lastUserTurns.lastOrNull {
-            RelationshipRepairContinuity.userExplicitlySettled(it.content) &&
-                !it.occurredAt.isBefore(now.minus(Duration.ofHours(24)))
-        }
-        val laterDispute = explicitSettlement != null && lastUserTurns.any {
-            it.occurredAt.isAfter(explicitSettlement.occurredAt) &&
-                CharacterGrowthTrajectory.feedbackTopic(it.content) != null
-        }
-        val repeatingResolvedApology = fallbackDecision.action == Action.MESSAGE &&
-            onlineUnread.text.isBlank() && privateDialogue.isEmpty() &&
-            salientInteraction == null && observedWorld.isEmpty() &&
-            worldTick == null && !laterDispute &&
-            explicitSettlement != null &&
-            RelationshipRepairContinuity.isReopenedApology(fallbackDecision.text)
-        val continuityChecked = if (repeatingResolvedApology) fallbackDecision.copy(
-            action = Action.SILENT, text = "",
-            reason = "用户已经明确表示这次争执说开了，不能凭旧挂心再次道歉",
-            innerThought = "", innerThoughtBasis = null,
-            innerLife = null, appraisal = null, intention = null,
-            afterglow = null, relationshipInitiative = null,
-        ) else fallbackDecision
-        val promisedNow = ImmediateCommitmentDecision.promisedChanges(continuityChecked.commitmentChanges)
-        val hasLookupAction = (0 until (continuityChecked.sideActions?.length() ?: 0)).any { index ->
-            continuityChecked.sideActions?.optJSONObject(index)
+        val authoredDecision = parsed.withPresenceFallback(character)
+        val promisedNow = ImmediateCommitmentDecision.promisedChanges(authoredDecision.commitmentChanges)
+        val hasLookupAction = (0 until (authoredDecision.sideActions?.length() ?: 0)).any { index ->
+            authoredDecision.sideActions?.optJSONObject(index)
                 ?.let(ImmediateCommitmentDecision::repairStep) != null
         }
         val omittedLookup = onlineUnread.text.isNotBlank() && !hasLookupAction &&
-            continuityChecked.action == Action.MESSAGE && promisedNow.isEmpty() &&
-            (SearchActionIntegrity.needsFollowThrough(onlineUnread.text, continuityChecked.text,
-                continuityChecked.action.name.lowercase(), continuityChecked.tool, continuityChecked.sideActions) ||
-                ImmediateCommitmentDecision.mayHaveOmittedPhoneAction(continuityChecked.text, recent))
+            authoredDecision.action == Action.MESSAGE && promisedNow.isEmpty() &&
+            (SearchActionIntegrity.needsFollowThrough(onlineUnread.text, authoredDecision.text,
+                authoredDecision.action.name.lowercase(), authoredDecision.tool, authoredDecision.sideActions) ||
+                ImmediateCommitmentDecision.mayHaveOmittedPhoneAction(authoredDecision.text, recent))
         val missingStep = promisedNow.singleOrNull()?.takeUnless {
             ImmediateCommitmentDecision.hasFirstAction(it,
-                continuityChecked.tool.takeIf { continuityChecked.action == Action.TOOL }.orEmpty(),
-                continuityChecked.toolArgs, continuityChecked.sideActions)
+                authoredDecision.tool.takeIf { authoredDecision.action == Action.TOOL }.orEmpty(),
+                authoredDecision.toolArgs, authoredDecision.sideActions)
         }
         // Ask the same role for its actual intent only when a first action is
         // missing. A follow-up like "换一篇" depends on the preceding real exchange.
@@ -1844,7 +1814,7 @@ object ProactivePerceptionRuntime {
                     characterId = characterId,
                     facts = "最近实际对话：${recent.takeLast(2_800)}\n" +
                         "用户这一轮：${onlineUnread.text.take(1_000)}\n" +
-                        "你本轮尚未发出的草稿：${continuityChecked.text.take(800)}\n" +
+                        "你本轮尚未发出的草稿：${authoredDecision.text.take(800)}\n" +
                         "本人写出的当下目标：${missingStep?.optString("goal").orEmpty()}",
                     instruction = """
                         只核对你本人刚才是否确实答应现在完成一件外部行动，并补齐当下第一步。
@@ -1873,8 +1843,8 @@ object ProactivePerceptionRuntime {
             ?.takeIf { missingStep != null || ImmediateCommitmentDecision.repairedChange(it, 0) != null }
             ?.optJSONObject("step")?.let(ImmediateCommitmentDecision::repairStep)
         val completedDecision = if (correction != null && repairedLookupStep != null) {
-            val steps = continuityChecked.sideActions?.let { JSONArray(it.toString()) } ?: JSONArray()
-            val changes = continuityChecked.commitmentChanges?.let { JSONArray(it.toString()) } ?: JSONArray()
+            val steps = authoredDecision.sideActions?.let { JSONArray(it.toString()) } ?: JSONArray()
+            val changes = authoredDecision.commitmentChanges?.let { JSONArray(it.toString()) } ?: JSONArray()
             val repairedChange = ImmediateCommitmentDecision.repairedChange(correction, steps.length())
             if (missingStep != null) {
                 ImmediateCommitmentDecision.promisedChanges(changes).single().put("firstStep", steps.length())
@@ -1882,12 +1852,12 @@ object ProactivePerceptionRuntime {
                 changes.put(repairedChange)
             }
             steps.put(repairedLookupStep.put("requiresPreviousSuccess", false))
-            continuityChecked.copy(sideActions = steps, commitmentChanges = changes)
+            authoredDecision.copy(sideActions = steps, commitmentChanges = changes)
         } else if ((omittedLookup || missingStep != null) && !correction?.optString("text").isNullOrBlank()) {
-            continuityChecked.copy(text = correction?.optString("text").orEmpty(),
+            authoredDecision.copy(text = correction?.optString("text").orEmpty(),
                 voiceBubbleTexts = emptyList(), bubbleDeliveryModes = emptyList(),
                 bubbleSpeechTracks = emptyList())
-        } else continuityChecked
+        } else authoredDecision
         // A model may choose valid speech plus a separate "build furniture"
         // step but omit the mandatory name/appearance in that step. The
         // regular primary-action correction cannot see this error (step:0).
@@ -3833,8 +3803,13 @@ object ProactivePerceptionRuntime {
         val parsed = ModelStructuredOutput.objectOrNull(raw)
             ?: AutonomousDecisionRecovery.completedPrivateMessage(raw)
             ?: return null
+        val normalized = AutonomousActionWireProtocol.normalize(parsed)
         val json = CharacterCausalActionPolicy.actionOnly(
-            AutonomousActionWireProtocol.normalize(parsed),
+            AutonomousActionWireProtocol.normalizePrivateStickerReply(
+                normalized,
+                hasSpeech = normalized.optString("text").isNotBlank() ||
+                    ModelStructuredOutput.chatMessageBubbles(normalized).isNotEmpty(),
+            ),
             alreadyAppraised = actionOnly,
         )
         Decision(
@@ -3900,7 +3875,9 @@ object ProactivePerceptionRuntime {
             stickerId = json.optString("stickerId").trim(),
             concernId = json.optString("concernId").trim().take(100),
             tool = json.optString("tool").trim(),
-            sideActions = com.jiacimu.lulu.data.CharacterThoughtActionHandoff.actions(json),
+            sideActions = AutonomousActionWireProtocol.appendPrivateStickerAttachment(
+                json, CharacterThoughtActionHandoff.actions(json),
+            ),
             replyChoice = json.optString("replyChoice").trim().lowercase(),
             toolArgs = (json.optJSONObject("args")?.let { JSONObject(it.toString()) } ?: JSONObject()).apply {
                 // Direct autonomous actions can attach planId at the top level or

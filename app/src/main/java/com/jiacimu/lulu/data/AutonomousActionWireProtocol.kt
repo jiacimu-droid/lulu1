@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.data
 
+import org.json.JSONArray
 import org.json.JSONObject
 
 /**
@@ -9,6 +10,43 @@ import org.json.JSONObject
  * real execution rather than recording it as an opaque generic tool.
  */
 internal object AutonomousActionWireProtocol {
+    private val privateReplyActions = setOf(
+        "message", "reply", "chat", "private_message", "send_private_message", "消息", "回复",
+    )
+
+    fun normalizePrivateStickerReply(decision: JSONObject, hasSpeech: Boolean): JSONObject {
+        if (decision.optString("action").trim().lowercase() !in privateReplyActions ||
+            decision.optString("stickerId").isBlank()) return decision
+        if (hasSpeech && !decision.optBoolean("stickerOnly") &&
+            decision.optJSONObject("args")?.optBoolean("stickerOnly") != true) return decision
+        return JSONObject(decision.toString()).apply {
+            put("action", "sticker")
+            put("tool", "send_private_sticker")
+            remove("text")
+            remove("bubbles")
+            optJSONObject("args")?.apply {
+                remove("text")
+                remove("bubbles")
+            }
+        }
+    }
+
+    /** Keep the authored step order and deliver an explicit attachment through its own receipt. */
+    fun appendPrivateStickerAttachment(decision: JSONObject, steps: JSONArray?): JSONArray? {
+        if (decision.optString("action").trim().lowercase() !in privateReplyActions) return steps
+        val id = decision.optString("stickerId").trim()
+        if (id.isBlank()) return steps
+        val alreadyChosen = (0 until (steps?.length() ?: 0)).any { index ->
+            val step = steps?.optJSONObject(index)
+            step?.optString("tool") == "send_private_sticker" &&
+                step.optJSONObject("args")?.optString("stickerId")?.trim() == id
+        }
+        if (alreadyChosen) return steps
+        return (steps ?: JSONArray()).put(JSONObject()
+            .put("tool", "send_private_sticker")
+            .put("args", JSONObject().put("stickerId", id)))
+    }
+
     private val friendlyActionForTool = mapOf(
         "send_private_message" to "message",
         "send_group_message" to "group_message",

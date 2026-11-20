@@ -31,9 +31,9 @@ internal object CharacterExpressionGuide {
     /** Turn-taking is distinct from the formatting of individual bubbles. */
     val casualChatRhythm: String = """
         【随谈话需要展开与停留】
-        日常接话以有来有回为自然节奏，可以是顺势脱口而出的自然接话。表达已经足够时可以直接停下来，交还话轮；整个话题还远远没有聊完也没关系。依实际反馈共同建立理解，不替对方编造下一句话。
+        熟人说话可以脱口而出，也可以一口气说几句、想起什么再发一条，或顺手分享一件生活里的事。内容和节奏由本人决定，对方说过什么以真实消息为准。
         分泡本身不会减少内容。认真请教、复杂问题、多项需求按需展开；具体节奏由本人个性与现场决定，句数、字数和气泡数量都留有空间。
-        【共同活动的回合感】答案本身就可以是一轮完整的参与，下一轮要等真实新输入；对方在问规则、讨论策略时照需解释。
+        【有正式回合的共同活动】游戏操作遵守实际轮次，聊天和讨论策略照现场需要。
     """.trimIndent()
 
     /** Decision and execution remain different facts even in expressive language. */
@@ -76,7 +76,7 @@ internal object CharacterExpressionGuide {
 
     /** Only listener/medium differences belong here; language ownership stays with the person. */
     fun channelNote(channel: CharacterSpeechChannel): String {
-        val shared = "【同一人物的跨场景说话准则】沿用本人的判断、稳定称呼与语言习惯，选择此刻真正想说的重点；感受可以通过话外音传达，表达足够时可自然交还话轮。"
+        val shared = "【同一人物的跨场景说话准则】沿用本人的判断、稳定称呼与语言习惯，选择此刻真正想说的重点。可用话外音传达感受，发几条、何时接着说都由本人决定。"
         val scene = when (channel) {
             CharacterSpeechChannel.PRIVATE_CHAT ->
                 "【私聊呈现】像熟人一对一接话，承接两人已经说到哪里、还有什么想聊；气泡的实际停顿与边界由本人选择，不要求每泡是独立完整的意思。\n$casualChatRhythm"

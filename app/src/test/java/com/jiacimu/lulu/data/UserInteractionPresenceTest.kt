@@ -45,8 +45,8 @@ class UserInteractionPresenceTest {
             assertTrue(evidence.contains("以前曾说过忙也不是今天此刻仍忙的证据"))
             assertTrue(evidence.contains("可按已有自主授权直接调用 capture_screen"))
             assertTrue(evidence.contains("另选 start_study_watch 申请该时段"))
-            assertTrue(evidence.contains("未回复本身不自动要求一直不打扰"))
-            assertTrue(evidence.contains("没有授权不得偷看"))
+            assertTrue(evidence.contains("想联系、分享或继续自己的生活，由本人选择"))
+            assertTrue(evidence.contains("获取设备信息须有授权和真实回执"))
             assertFalse(evidence.contains("可能在忙、阅读、思考"))
         }
     }

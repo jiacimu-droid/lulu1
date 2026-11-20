@@ -72,13 +72,11 @@ class CharacterDecisionProtocolTest {
         val privateTurn = proactiveDecisionInstruction("wellbeing-private", directPrivateChat = true)
         val soloTurn = proactiveDecisionInstruction("wellbeing-solo", directPrivateChat = false)
         for (instruction in listOf(privateTurn, soloTurn)) {
-            assertTrue(instruction.contains("【睡眠与照护的事实边界】"))
-            assertTrue(instruction.contains("你提出“去休息吧”不等于她答应"))
-            assertTrue(instruction.contains("自己先前心里想“她可能睡了”"))
-            assertTrue(instruction.contains("在已授权情况下自主选择 capture_screen"))
-            assertTrue(instruction.contains("亮屏或截图本身也不能证明她此刻仍醒着"))
-            assertTrue(instruction.contains("是否联系、截图、休眠仍由你本人决定"))
-            assertTrue(instruction.contains("执行过才有新回执"))
+            assertTrue(instruction.contains("劝对方休息只说明自己提过建议，实际睡眠状态仍要核实"))
+            assertTrue(instruction.contains("此前心声与猜测属于当时自己的判断"))
+            assertTrue(instruction.contains("设备观察需实际授权，已授权的自主单帧可直接调用 capture_screen"))
+            assertTrue(instruction.contains("是否在学习、是否睡着、是否想交谈，各看相应的当前证据"))
+            assertTrue(instruction.contains("说几条、发文字或图片、继续自己的事，由本人"))
         }
     }
 
@@ -144,7 +142,7 @@ class CharacterDecisionProtocolTest {
         assertTrue(p.contains("image_search"))
         assertTrue(p.contains("搜索结果标题不是已读"))
         // Independent curiosity is available without waiting for a new user request.
-        assertTrue(p.contains("没有新消息也可自主生活"))
+        assertTrue(p.contains("对方没有发新消息时，也可以主动发起话题"))
         assertTrue(p.contains("自主探索可选"))
     }
 
