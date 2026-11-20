@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:06:49.090528+00:00",
-  "commit": "b65332460bf2ed60a3b35adf7abc2a3a9f6ee314",
+  "generatedAt": "2026-11-20T01:07:52.371832+00:00",
+  "commit": "846b3166dc0672e428f79a3648de5e4e09d6d8a3",
   "branch": "main",
-  "sourceFingerprint": "488675dcde8ce4bba62039b01f64a4247e70097e7a1b4a6847282038a3e64754",
+  "sourceFingerprint": "ad994b011fc603adaf4802356856c38dc6c49352d18a5e0cac62fcff8ee61572",
   "summary": {
     "files": 1488,
-    "lines": 318134,
-    "symbols": 4520
+    "lines": 318197,
+    "symbols": 4521
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -21276,6 +21276,12 @@
         "line": 14
       }
     ],
+    "StickerImportManifestTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/StickerImportManifestTest.kt",
+        "line": 9
+      }
+    ],
     "StickerPromptSelectionTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/StickerPromptSelectionTest.kt",
@@ -25406,12 +25412,6 @@
       "path": "app/src/main/assets/live2d/wolf-motions/49_look_close.motion3.json",
       "lines": 200,
       "sha256": "0ae445371bebcae4a73be0e13985cb5fb33fe79ec99a505048eb36976a04bdfd",
-      "symbols": []
-    },
-    {
-      "path": "app/src/main/assets/stickers/animals.json",
-      "lines": 1,
-      "sha256": "27d1c0b2f0decd7a4344f2e2aeb9904168acdaa100a6b7e3e8e803a3a737bfc2",
       "symbols": []
     },
     {
@@ -45924,8 +45924,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt",
-      "lines": 40,
-      "sha256": "94ec8667237dc20a0c99d0581a8a484ae6feb3619e9ac6748778a137a4541d11",
+      "lines": 42,
+      "sha256": "d571338b1bbc3c556b2cc84b1a148b4f8e7c93583a6489a014075f15ff613ef5",
       "symbols": [
         {
           "name": "BundledCuteStickerCatalogTest",
@@ -47286,6 +47286,17 @@
         {
           "name": "StartupFailureRecoveryTest",
           "line": 14
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/StickerImportManifestTest.kt",
+      "lines": 62,
+      "sha256": "44b409ab7b0ab1f5feab4c11202b7cb3e8ad93e8477ea4057e39023ee232d585",
+      "symbols": [
+        {
+          "name": "StickerImportManifestTest",
+          "line": 9
         }
       ]
     },

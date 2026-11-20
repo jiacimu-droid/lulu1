@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`b65332460bf2ed60a3b35adf7abc2a3a9f6ee314`
+- 基准提交：`846b3166dc0672e428f79a3648de5e4e09d6d8a3`
 - 分支：`main`
 - 已索引文件：1488
-- 已索引代码/文本行：318134
-- 已发现符号：4520
+- 已索引代码/文本行：318197
+- 已发现符号：4521
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -62,7 +62,6 @@
 | `app/src/main/assets/live2d/wolf-motions/47_confused_double_tilt.motion3.json` | 120 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/48_kiss_close.motion3.json` | 248 | 0 |
 | `app/src/main/assets/live2d/wolf-motions/49_look_close.motion3.json` | 200 | 0 |
-| `app/src/main/assets/stickers/animals.json` | 1 | 0 |
 | `app/src/main/assets/stickers/cats.json` | 1 | 0 |
 | `app/src/main/assets/stickers/moods.json` | 1 | 0 |
 | `app/src/main/assets/xhs-browser-route.js` | 92 | 0 |
@@ -928,7 +927,7 @@
 | `app/src/main/res/xml/lulu_accessibility_service.xml` | 12 | 0 |
 | `app/src/main/res/xml/lulu_mcp_network_security_config.xml` | 10 | 0 |
 | `app/src/test/java/com/jiacimu/lulu/AvatarPcmAvailabilityTest.kt` | 25 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt` | 40 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/BundledCuteStickerCatalogTest.kt` | 42 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallAudioRecoveryPolicyTest.kt` | 16 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallCommitmentDecisionPolicyTest.kt` | 14 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/CallContractsTest.kt` | 279 | 1 |
@@ -1041,6 +1040,7 @@
 | `app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SleepNarrativeStoreTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StartupFailureRecoveryTest.kt` | 40 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/StickerImportManifestTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StickerPromptSelectionTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SystemSpeechTurnPolicyTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt` | 39 | 1 |
