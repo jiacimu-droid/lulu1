@@ -4617,13 +4617,13 @@
     "loadPage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-        "line": 104
+        "line": 109
       }
     ],
     "openList": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-        "line": 125
+        "line": 130
       }
     ],
     "errorFor": [
@@ -29223,8 +29223,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-      "lines": 359,
-      "sha256": "d793a04f837321b4a2e880c85f14be4daa2029017ce109319358ccd87038e567",
+      "lines": 364,
+      "sha256": "51eafc9e8a3f330f3e61fe08a7780dcce01d3ddf5fc071bfb40418894c1548e0",
       "symbols": [
         {
           "name": "loadLists",
@@ -29236,11 +29236,11 @@
         },
         {
           "name": "loadPage",
-          "line": 104
+          "line": 109
         },
         {
           "name": "openList",
-          "line": 125
+          "line": 130
         }
       ]
     },

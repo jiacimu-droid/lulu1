@@ -49,6 +49,7 @@ internal fun NeteaseCloudLibrarySection(room: SharedMusicRoom?) {
     var songs by remember { mutableStateOf<List<NeteaseCloudSong>>(emptyList()) }
     var pageEnd by remember { mutableIntStateOf(0) }
     var skipped by remember { mutableIntStateOf(0) }
+    var shownLists by remember { mutableIntStateOf(24) }
     var loading by remember { mutableStateOf(false) }
     var notice by remember { mutableStateOf("") }
     var loginVisible by remember { mutableStateOf(false) }
@@ -67,6 +68,7 @@ internal fun NeteaseCloudLibrarySection(room: SharedMusicRoom?) {
                 songs = emptyList()
                 pageEnd = 0
                 skipped = 0
+                shownLists = 24
                 notice = if (remote.isEmpty()) "暂时没有读取到可访问的歌单" else
                     "已读取 ${remote.size} 张歌单，点击歌单查看歌曲"
             } catch (t: Exception) {
@@ -96,6 +98,7 @@ internal fun NeteaseCloudLibrarySection(room: SharedMusicRoom?) {
                     songs = emptyList()
                     pageEnd = 0
                     skipped = 0
+                    shownLists = 24
                     notice = if (remote.isEmpty()) "已连接 ${me.nickname}，但没有读到可访问的歌单"
                         else "已连接 ${me.nickname}，同步 ${remote.size} 张歌单"
                 }
@@ -222,7 +225,7 @@ internal fun NeteaseCloudLibrarySection(room: SharedMusicRoom?) {
                 // Keep the cloud library inside the Music screen's ordinary scroll.
                 // The first page is shown; all subsequent lists are still
                 // addressable using the shared scroll rather than discarded.
-                sorted.forEach { list ->
+                sorted.take(shownLists).forEach { list ->
                     Surface(modifier = Modifier.fillMaxWidth().clickable { openList(list) },
                         shape = RoundedCornerShape(12.dp),
                         color = if (selected?.id == list.id) Color(0xFFF4EBF0) else Color(0xFFFBF9FA)) {
@@ -236,6 +239,11 @@ internal fun NeteaseCloudLibrarySection(room: SharedMusicRoom?) {
                             Text("${list.trackCount} 首", fontSize = 10.sp, color = Color.Gray)
                         }
                     }
+                }
+            }
+            if (lists.size > shownLists) {
+                TextButton(onClick = { shownLists += 24 }) {
+                    Text("展开更多云端歌单（${lists.size - shownLists} 张）", fontSize = 11.sp)
                 }
             }
             selected?.let { list ->
