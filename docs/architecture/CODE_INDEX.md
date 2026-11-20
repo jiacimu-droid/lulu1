@@ -260,7 +260,7 @@
 | `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 58 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 499 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 556 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt` | 63 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt` | 902 | 2 |

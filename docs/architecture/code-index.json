@@ -4688,6 +4688,20 @@
         "line": 39
       }
     ],
+    "duration": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
+        "line": 331
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt",
+        "line": 32
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt",
+        "line": 31
+      }
+    ],
     "shouldCapture": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt",
@@ -9684,16 +9698,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
         "line": 34
-      }
-    ],
-    "duration": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ChatTimingTrace.kt",
-        "line": 32
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluPhoneUiOperator.kt",
-        "line": 31
       }
     ],
     "ChatTurnConsistencyAutomation": [
@@ -29326,12 +29330,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt",
-      "lines": 499,
-      "sha256": "491873b23aebba249b5c0f0d79bcd0f63ca82e8721b3c7745769762f60e9762c",
+      "lines": 556,
+      "sha256": "46fe4ddc831407c3c20c5ca2bda82c4e7021a5b1c08117a38bcb4182365ee681",
       "symbols": [
         {
           "name": "OptimizedPerformanceFeatureScreen",
           "line": 39
+        },
+        {
+          "name": "duration",
+          "line": 331
         }
       ]
     },
