@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:03:59.463155+00:00",
-  "commit": "f3825a236889ed4dccbe3cea6e88cf63acdeeabf",
+  "generatedAt": "2026-11-20T01:04:30.917133+00:00",
+  "commit": "fbddfde9d9dac9b2f13cd116f2c0b3854d9c853d",
   "branch": "main",
-  "sourceFingerprint": "a16e51074d12d89b5de00096b477b864e0e039a602fdda385c67b6a63689e4ca",
+  "sourceFingerprint": "ce78776b703bada9f6b693473929a7de82b4d287bc6b9d61a67bd486700b4912",
   "summary": {
     "files": 1488,
-    "lines": 317867,
-    "symbols": 4518
+    "lines": 318003,
+    "symbols": 4519
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4920,6 +4920,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
         "line": 1048
+      }
+    ],
+    "importManifest": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt",
+        "line": 131
       }
     ],
     "QqStyleChatDetailScreen": [
@@ -29128,9 +29134,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt",
-      "lines": 284,
-      "sha256": "ae211ebc9a41c2308cd519a26b6f31065032500fc627bc2a7dd5b10ea5dccbad",
-      "symbols": []
+      "lines": 420,
+      "sha256": "43016731beb71bcb84d083381abc1a458f0f95016ec5f465445bd0b37bbe257e",
+      "symbols": [
+        {
+          "name": "importManifest",
+          "line": 131
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt",

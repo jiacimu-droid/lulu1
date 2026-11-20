@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`f3825a236889ed4dccbe3cea6e88cf63acdeeabf`
+- 基准提交：`fbddfde9d9dac9b2f13cd116f2c0b3854d9c853d`
 - 分支：`main`
 - 已索引文件：1488
-- 已索引代码/文本行：317867
-- 已发现符号：4518
+- 已索引代码/文本行：318003
+- 已发现符号：4519
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -286,7 +286,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqSharedWebLinkCard.kt` | 147 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCodec.kt` | 36 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt` | 83 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 284 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 420 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1293 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 120 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 206 | 0 |
