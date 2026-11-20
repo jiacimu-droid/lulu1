@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`d11088a83c23f704836953b8e5f8edc2cf0f7b0b`
+- 基准提交：`3c7c778fdd310a5008dca8fdd48dc4fe47a1aaa1`
 - 分支：`main`
 - 已索引文件：1494
-- 已索引代码/文本行：319308
+- 已索引代码/文本行：319351
 - 已发现符号：4535
 
 | 文件 | 行数 | 符号数 |
@@ -166,7 +166,7 @@
 | `app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 715 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 111 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 144 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 411 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 327 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
@@ -339,7 +339,7 @@
 | `app/src/main/java/com/jiacimu/lulu/VoiceSynthesisPolicy.kt` | 53 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/VoiceUsageAudit.kt` | 72 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/WatchPlaybackEvidence.kt` | 87 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt` | 861 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/WatchTogetherRoom.kt` | 871 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/WorldLifeEpisodeReader.kt` | 274 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/XhsAppBrowserSession.kt` | 195 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 115 | 0 |
