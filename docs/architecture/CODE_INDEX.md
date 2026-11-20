@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ed4d6816cb2d79a672925bed8ef47a494d02a5af`
+- 基准提交：`67ffe3f827d134c96b38acb91c0184a08b44613d`
 - 分支：`main`
 - 已索引文件：1494
-- 已索引代码/文本行：319143
+- 已索引代码/文本行：319162
 - 已发现符号：4535
 
 | 文件 | 行数 | 符号数 |
@@ -268,7 +268,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ProactiveIncomingCallOverlay.kt` | 255 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ProviderCallInput.kt` | 564 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatAnimatedGif.kt` | 43 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 423 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt` | 424 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageCodec.kt` | 77 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageModelInput.kt` | 92 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqChatImageRow.kt` | 165 | 0 |
@@ -285,7 +285,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqSharedWebLinkCard.kt` | 147 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCodec.kt` | 36 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt` | 83 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 576 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 577 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1293 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 120 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 206 | 0 |
@@ -327,7 +327,7 @@
 | `app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt` | 461 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/StickerPackArchive.kt` | 171 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StickerPromptSelection.kt` | 120 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt` | 123 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt` | 139 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/StickerWordDocument.kt` | 303 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt` | 98 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt` | 73 | 5 |
@@ -589,7 +589,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveMessageGate.kt` | 125 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt` | 174 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRecoveryPolicy.kt` | 39 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 4053 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt` | 4054 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionScheduler.kt` | 1290 | 31 |
 | `app/src/main/java/com/jiacimu/lulu/data/ProactiveSendAttribution.kt` | 166 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt` | 147 | 4 |
