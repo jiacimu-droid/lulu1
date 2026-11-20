@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`61bc8b0fc4345742ba46543a28933f58b342644b`
+- 基准提交：`4f7846faf6c555eca313fe37bc8737a3bb26f098`
 - 分支：`main`
-- 已索引文件：1492
-- 已索引代码/文本行：318875
-- 已发现符号：4530
+- 已索引文件：1493
+- 已索引代码/文本行：318998
+- 已发现符号：4534
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -327,6 +327,7 @@
 | `app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt` | 461 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/StickerPackArchive.kt` | 171 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StickerPromptSelection.kt` | 120 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt` | 123 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/StickerWordDocument.kt` | 293 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt` | 98 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt` | 73 | 5 |

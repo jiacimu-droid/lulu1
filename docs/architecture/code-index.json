@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:36:03.394993+00:00",
-  "commit": "61bc8b0fc4345742ba46543a28933f58b342644b",
+  "generatedAt": "2026-11-20T01:38:11.050774+00:00",
+  "commit": "4f7846faf6c555eca313fe37bc8737a3bb26f098",
   "branch": "main",
-  "sourceFingerprint": "21a6dcdbebcb1c375784eeb74b0914d7b485897adb5a8884243e2823dc02a839",
+  "sourceFingerprint": "7ae9c478282a32ab01b3fece89aa7f6533523936d5d060b7b422a5e85575c98a",
   "summary": {
-    "files": 1492,
-    "lines": 318875,
-    "symbols": 4530
+    "files": 1493,
+    "lines": 318998,
+    "symbols": 4534
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5786,6 +5786,30 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/Live2DSpokenMotionContractTest.kt",
         "line": 64
+      }
+    ],
+    "mode": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt",
+        "line": 22
+      }
+    ],
+    "setMode": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt",
+        "line": 28
+      }
+    ],
+    "PreparedImages": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt",
+        "line": 34
+      }
+    ],
+    "AutoCaptionReport": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt",
+        "line": 77
       }
     ],
     "wordsToSubmitOnMute": [
@@ -29876,6 +29900,29 @@
         {
           "name": "score",
           "line": 75
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt",
+      "lines": 123,
+      "sha256": "da2470e16f9ba8fe745861784aa8340853805823922eff282893e9e075bb8c8a",
+      "symbols": [
+        {
+          "name": "mode",
+          "line": 22
+        },
+        {
+          "name": "setMode",
+          "line": 28
+        },
+        {
+          "name": "PreparedImages",
+          "line": 34
+        },
+        {
+          "name": "AutoCaptionReport",
+          "line": 77
         }
       ]
     },
