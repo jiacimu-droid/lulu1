@@ -106,6 +106,23 @@ internal object SharedListenPlaylists {
         return save(context, characterId, updated)
     }
 
+    /** Bind an old MediaSession bookmark to the exact owner-provided song link. */
+    fun bindSongId(context: Context, characterId: String, playlistId: String,
+        entryId: String, songId: String): Boolean {
+        if (NeteaseSongLink.directUri(songId) == null) return false
+        val lists = read(context, characterId)
+        if (lists.none { list -> list.id == playlistId && list.tracks.any { it.id == entryId } })
+            return false
+        return save(context, characterId, lists.map { list ->
+            if (list.id != playlistId) list else list.copy(tracks = list.tracks.map { track ->
+                if (track.id != entryId) track else track.copy(
+                    source = "external", songId = songId,
+                    uri = "https://music.163.com/song?id=$songId",
+                    packageName = NeteaseSongLink.packageName)
+            })
+        })
+    }
+
     fun removeTrack(context: Context, characterId: String, playlistId: String, entryId: String): Boolean {
         val current = read(context, characterId)
         return save(context, characterId, current.map {
