@@ -16,12 +16,34 @@ class GameRoleChoiceContractTest {
         )
         assertEquals(YachtRoleDecision.Score(YachtCategory.Ones, "这一格先忍了。"), decision)
         assertEquals(
-            YachtRoleDecision.Keep(setOf(0, 2, 4), "我想再赌一次"),
+            YachtRoleDecision.Keep(setOf(0, 2, 4), "我想再赌一次", YachtCategory.Ones),
             parseYachtRoleDecision(
-                """{"action":"keep","indices":[0,2,4],"say":"我想再赌一次"}""",
+                """{"action":"keep","indices":[0,2,4],"fallbackCategory":"Ones","say":"我想再赌一次"}""",
                 setOf(YachtCategory.Ones), roll = 2,
             ),
         )
+    }
+
+    @Test fun secondRollBackupMustBeRoleApprovedAndAvailable() {
+        val available = setOf(YachtCategory.Fours, YachtCategory.Chance)
+        assertEquals(
+            YachtRoleDecision.Keep(setOf(1, 3), "想再摇一次", YachtCategory.Fours),
+            parseYachtRoleDecision(
+                """{"action":"keep","indices":[1,3],"fallbackCategory":"Fours","say":"想再摇一次"}""",
+                available, roll = 2,
+            ),
+        )
+        assertNull(parseYachtRoleDecision(
+            """{"action":"keep","indices":[1],"say":""}""", available, roll = 2,
+        ))
+        assertNull(parseYachtRoleDecision(
+            """{"action":"keep","indices":[1],"fallbackCategory":"Yacht","say":""}""",
+            available, roll = 2,
+        ))
+        assertNull(parseYachtRoleDecision(
+            """{"action":"keep","indices":[1],"fallbackCategory":"Chance","say":""}""",
+            available, roll = 3,
+        ))
     }
 
     @Test fun yachtInvalidChoicesNeverTurnIntoAutomaticMaxScore() {

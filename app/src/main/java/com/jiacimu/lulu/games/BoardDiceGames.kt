@@ -65,6 +65,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     var dice by remember(session.id) { mutableStateOf(session.dice) }
     var held by remember(session.id) { mutableStateOf(session.held) }
     var rolls by remember(session.id) { mutableIntStateOf(session.rolls) }
+    var fallbackScoreCategory by remember(session.id) { mutableStateOf(session.fallbackScoreCategory) }
     var rolling by remember(session.id) { mutableStateOf(false) }
     var lastResult by remember(session.id) { mutableStateOf(session.lastResult) }
     var turnLog by remember(session.id) { mutableStateOf(session.turnLog) }
@@ -89,6 +90,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
             dice = dice,
             held = held,
             rolls = rolls,
+            fallbackScoreCategory = fallbackScoreCategory,
             lastResult = lastResult,
             turnLog = turnLog,
             matchLog = matchLog,
@@ -187,6 +189,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         dice = emptyList()
         held = emptySet()
         rolls = 0
+        fallbackScoreCategory = null
         turnLog = emptyList()
         // The committed turn exists before any model commentary, navigation or settlement.
         persistMatch(completed = finished)
@@ -303,7 +306,20 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         )
         deciding = false
         val choice = decision.getOrElse { failure ->
-            decisionError = failure.message ?: "${currentPlayer.name}暂时没有做出有效决定"
+            // A failed final reply can still be billed. The role's previous
+            // explicitly chosen backup avoids a blind paid retry or arbitrary
+            // engine-selected category, without rerolling these five dice.
+            val fallback = fallbackScoreCategory?.takeIf { it !in currentScores }
+            if (rolls == 3 && fallback != null) {
+                val scored = dice.toList()
+                val points = scoreYacht(fallback, scored)
+                turnLog = turnLog +
+                    "第三掷决定失败（${failure.message ?: "接口无有效正文"}）；按${currentPlayer.name}第二掷预先指定的${fallback.label}计${points}分"
+                saveTurn(currentPlayer, fallback, scored, points)
+                return@LaunchedEffect
+            }
+            decisionError = (failure.message ?: "${currentPlayer.name}暂时没有做出有效决定") +
+                "；已保存当前骰面，重试不会再次掷骰"
             return@LaunchedEffect
         }
         choice.modelReply?.let { reply ->
@@ -329,6 +345,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                 saveTurn(currentPlayer, choice.category, scored, points)
             }
             is YachtRoleDecision.Keep -> {
+                if (rolls == 2) fallbackScoreCategory = choice.fallbackCategory
                 held = choice.indices
                 turnLog = turnLog + "保留${held.sorted().joinToString("、") { dice[it].toString() }}，自己决定再掷"
                 val before = dice.toList()
@@ -356,6 +373,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
     val currentTurnLabel = if (gameOver) "对局结束" else if (currentPlayer.id == "user") "你的回合" else "${currentPlayer.name}的回合"
     val stageHint = when {
         gameOver -> "十三轮完成，可以继续聊天或再来一局"
+        currentPlayer.id != "user" && decisionError.isNotBlank() -> "${currentPlayer.name}的选择暂未完成"
         currentPlayer.id != "user" -> "${currentPlayer.name}正在选择下一步"
         rolls == 0 -> "掷出五颗骰子，开始这一轮"
         rolls < 3 -> "轻触骰子保留，再掷剩余骰子"
@@ -532,7 +550,10 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                 if (deciding) Text("${currentPlayer.name}正在决定下一掷…", color = mint, fontSize = 12.sp)
                 if (decisionError.isNotBlank()) {
                     Text(decisionError, color = GameDesign.error)
-                    Button(onClick = { decisionRetry++ }) { Text("请重新决定") }
+                    Text("原骰面不会重摇；再次请求模型可能收费。", color = mint, fontSize = 12.sp)
+                    Button(onClick = { decisionRetry++ }) {
+                        Text(if (rolls == 3) "按当前骰面重新请求选格" else "重新请求角色决定")
+                    }
                 }
             }
         }

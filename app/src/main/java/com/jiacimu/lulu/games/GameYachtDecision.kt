@@ -10,7 +10,12 @@ import org.json.JSONObject
 internal sealed interface YachtRoleDecision {
     val speech: String
     val modelReply: ModelReply?
-    data class Keep(val indices: Set<Int>, override val speech: String, override val modelReply: ModelReply? = null) : YachtRoleDecision
+    data class Keep(
+        val indices: Set<Int>,
+        override val speech: String,
+        val fallbackCategory: YachtCategory? = null,
+        override val modelReply: ModelReply? = null,
+    ) : YachtRoleDecision
     data class Score(val category: YachtCategory, override val speech: String, override val modelReply: ModelReply? = null) : YachtRoleDecision
 }
 
@@ -32,7 +37,13 @@ internal fun parseYachtRoleDecision(
             val array = json.getJSONArray("indices")
             val indices = (0 until array.length()).map { array.getInt(it) }
             if (indices.any { it !in 0..4 } || indices.distinct().size != indices.size) return@runCatching null
-            YachtRoleDecision.Keep(indices.toSet(), speech)
+            // On roll two the role explicitly authorizes a category for use
+            // only if the final roll API response has no usable decision.
+            val fallback = if (roll == 2) {
+                YachtCategory.entries.firstOrNull { it.name == json.optString("fallbackCategory") }
+                    ?.takeIf { it in available } ?: return@runCatching null
+            } else null
+            YachtRoleDecision.Keep(indices.toSet(), speech, fallbackCategory = fallback)
         }
         else -> null
     }
@@ -75,11 +86,12 @@ internal suspend fun requestYachtRoleDecision(
         append("可以在任一次掷骰后直接填尚未使用的格子(score)；")
         if (roll < 3) append("或者保留任意0至5颗骰子重新掷(keep)，indices是要保留的0基骰子位置；")
         else append("已经掷三次，必须从仍可填的格子中选一个score；")
+        if (roll == 2) append("若第二掷选keep，你必须同时选一个尚未使用的fallbackCategory作为本人预授权保底格；第三掷API若未返回可用结果才使用此格按最终骰面计分，正常第三掷回复仍以你当时的新选择为准。")
         append("考虑整场累计比分、已用格子、下一轮机会和与主人刚才的交流，不要仅按这一掷的即时最高分。")
         append("say是你想对主人当场说的一句自然口语，也可为空；不得预告尚未发生的结果。")
         append("只返回一个JSON对象：")
-        append("{\"action\":\"keep|score\",\"indices\":[0,2],\"category\":\"Ones|Twos|Threes|Fours|Fives|Sixes|ThreeKind|FourKind|FullHouse|SmallStraight|LargeStraight|Yacht|Chance\",\"say\":\"...\"}。")
-        append("keep时只用indices，score时只用category；不加代码围栏。")
+        append("{\"action\":\"keep|score\",\"indices\":[0,2],\"category\":\"Ones|Twos|Threes|Fours|Fives|Sixes|ThreeKind|FourKind|FullHouse|SmallStraight|LargeStraight|Yacht|Chance\",\"fallbackCategory\":\"尚未使用类别的英文名\",\"say\":\"...\"}。")
+        append("keep时只用indices，第二掷keep另须fallbackCategory；score时只用category；不加代码围栏。")
     }
     return LuluAiServices.gateway.generate(
         characterId = characterId, facts = facts, instruction = instruction,

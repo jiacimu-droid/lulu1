@@ -13,6 +13,8 @@ internal data class YachtMatchSnapshot(
     val dice: List<Int> = emptyList(),
     val held: Set<Int> = emptySet(),
     val rolls: Int = 0,
+    /** Role-approved score category in case its final-roll reply is empty. */
+    val fallbackScoreCategory: YachtCategory? = null,
     val lastResult: String = "",
     val turnLog: List<String> = emptyList(),
     val matchLog: List<String> = emptyList(),
@@ -32,6 +34,7 @@ internal data class YachtMatchSnapshot(
         put("dice", JSONArray(dice))
         put("held", JSONArray(held.sorted()))
         put("rolls", rolls)
+        put("fallbackScoreCategory", fallbackScoreCategory?.name ?: JSONObject.NULL)
         put("lastResult", lastResult)
         put("turnLog", JSONArray(turnLog))
         put("matchLog", JSONArray(matchLog))
@@ -75,6 +78,9 @@ internal data class YachtMatchSnapshot(
                 dice = json.optJSONArray("dice")?.ints()?.takeIf { it.size == 5 && it.all { n -> n in 1..6 } } ?: emptyList(),
                 held = json.optJSONArray("held")?.ints()?.filter { it in 0..4 }?.toSet() ?: emptySet(),
                 rolls = json.optInt("rolls").coerceIn(0, 3),
+                fallbackScoreCategory = YachtCategory.entries.firstOrNull {
+                    it.name == json.optString("fallbackScoreCategory")
+                },
                 lastResult = json.optString("lastResult"),
                 turnLog = json.optJSONArray("turnLog")?.strings().orEmpty(),
                 matchLog = json.optJSONArray("matchLog")?.strings().orEmpty(),
