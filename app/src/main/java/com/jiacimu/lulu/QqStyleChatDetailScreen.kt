@@ -356,7 +356,6 @@ fun QqStyleChatDetailScreen(
     var moreExpanded by remember { mutableStateOf(false) }
     var callVisible by remember { mutableStateOf(false) }
     var watchTogetherVisible by remember(conversationId) { mutableStateOf(false) }
-    var listenTogetherVisible by remember(conversationId) { mutableStateOf(false) }
     var presenceCharacterId by remember { mutableStateOf<String?>(null) }
     var groupSettingsVisible by remember { mutableStateOf(false) }
     var mentionExpanded by remember { mutableStateOf(false) }
@@ -920,7 +919,12 @@ fun QqStyleChatDetailScreen(
                             onListenTogether = if (groupChat == null) ({
                                 focusManager.clearFocus(force = true)
                                 keyboardController?.hide()
-                                listenTogetherVisible = true
+                                SharedMusicWindowController.open(SharedMusicRoom(
+                                    conversationId = conversationId,
+                                    characterId = characterId,
+                                    characterName = character.displayName,
+                                    characterAvatarUri = character.avatarUri,
+                                ))
                             }) else null,
                             onSendOnly = { payload -> appendDraft(payload) },
                             onSendVoice = { transcript, pcm ->
@@ -1262,16 +1266,6 @@ fun QqStyleChatDetailScreen(
             characterId = characterId,
             characterName = character.displayName,
             onClose = { watchTogetherVisible = false },
-        )
-    }
-    if (listenTogetherVisible && groupChat == null) {
-        ListenTogetherRoom(
-            conversationId = conversationId,
-            characterId = characterId,
-            characterName = character.displayName,
-            characterAvatarUri = character.avatarUri,
-            onDiscuss = { text -> wakeOnline(QqComposerPayload(text)) },
-            onClose = { listenTogetherVisible = false },
         )
     }
 }
