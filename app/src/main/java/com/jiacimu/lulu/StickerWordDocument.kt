@@ -125,8 +125,46 @@ internal object StickerWordDocument {
                         if (paragraph.altText.isNotBlank()) alternate[file] = paragraph.altText
                     }
                 }
-                check(ordered.isNotEmpty()) {
-                    "Word 文档没有可导入的内嵌图片；请将图片插入文档（而非仅粘贴网页链接）"
+                if (ordered.isEmpty()) {
+                    // Some curated Word packs contain a picture URL followed
+                    // by its written name/description instead of an image embed.
+                    val entries = mutableListOf<StickerImportEntry>()
+                    val rows = paragraphs.map { it.text.trim() }
+                    for (i in rows.indices) {
+                        val line = rows[i]
+                        val candidate = line.substringAfter("：", line).trim()
+                        if (!candidate.startsWith("https://")) continue
+                        val url = candidate.substringBefore(' ').trim().trimEnd('，', ',', '。', ';', '；')
+                        val parsed = runCatching {
+                            StickerImportManifest.parse(url, pack).single()
+                        }.getOrNull() ?: continue
+                        val descriptionLines = mutableListOf<String>()
+                        for (next in (i + 1) until minOf(rows.size, i + 7)) {
+                            val value = rows[next]
+                            if (value.contains("https://")) break
+                            if (value.isNotBlank()) descriptionLines += value
+                        }
+                        val caption = captionOf(descriptionLines, "", "自选表情")
+                        entries += parsed.copy(
+                            name = caption.name, visualDescription = caption.description,
+                            usageHint = caption.usage,
+                        )
+                    }
+                    check(entries.isNotEmpty()) {
+                        "Word 里没有可导入的图片或 HTTPS 图片地址，请确认图片已插入文档"
+                    }
+                    var imported = 0
+                    var skipped = 0
+                    val errors = mutableListOf<String>()
+                    for (entry in entries.distinctBy { it.url }.take(220)) {
+                        val known = StickerLibraryStore.items.value.mapTo(hashSetOf()) { it.id }
+                        val result = StickerLibraryStore.importRemote(context, entry)
+                        result.onSuccess {
+                            if (it.id in known) skipped++ else imported++
+                        }.onFailure { errors += "${entry.url.take(80)}: ${it.message.orEmpty()}" }
+                        if (errors.lastOrNull()?.contains("上限") == true) break
+                    }
+                    return@withContext StickerPackImportResult(pack, imported, skipped, errors.take(8))
                 }
                 // Text following the picture (including text in the adjacent
                 // table cell) belongs to that picture until the next image.
