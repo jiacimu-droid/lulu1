@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T07:48:56.835445+00:00",
-  "commit": "fe57745b2cf9fc3abe144ebf174e659f1dcdf9c2",
+  "generatedAt": "2026-11-20T07:49:47.748284+00:00",
+  "commit": "d53c5ec13728ec7dc4da1af2c217a65545f85d33",
   "branch": "main",
-  "sourceFingerprint": "2a40f705f2f37a4a65e7d4ba5d0db4e2947641ea59283db5aa5f93152ee31ca7",
+  "sourceFingerprint": "7735c479a3464758080c1bcc67d5003b2ce3a12e3c9d60ee523562ce3b781b2d",
   "summary": {
     "files": 1503,
-    "lines": 322303,
+    "lines": 322340,
     "symbols": 4571
   },
   "symbolIndex": {
@@ -48072,8 +48072,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt",
-      "lines": 247,
-      "sha256": "9d249d7f26819f7eef241faf245f770d53b3c5f237d8926e008ef52f35a6e7a4",
+      "lines": 284,
+      "sha256": "e2e2a8f56829b698a6d41570a17d20cce8fffb22594d06d8932db0ce93c08418",
       "symbols": [
         {
           "name": "ModelPostTransportTest",
