@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:04:30.917133+00:00",
-  "commit": "fbddfde9d9dac9b2f13cd116f2c0b3854d9c853d",
+  "generatedAt": "2026-11-20T01:05:31.054923+00:00",
+  "commit": "70771ccc3c01a43d4023ed4d96bf148fa518c94f",
   "branch": "main",
-  "sourceFingerprint": "ce78776b703bada9f6b693473929a7de82b4d287bc6b9d61a67bd486700b4912",
+  "sourceFingerprint": "f727dbc0d70ae867be9b8f8af431d538205da1da1b359347dbb78844cfa265f4",
   "summary": {
     "files": 1488,
-    "lines": 318003,
-    "symbols": 4519
+    "lines": 318057,
+    "symbols": 4520
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -6628,28 +6628,34 @@
         "line": 27
       }
     ],
+    "StickerLabels": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
+        "line": 94
+      }
+    ],
     "screenFrameDataUrl": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 139
+        "line": 193
       }
     ],
     "canDescribeCamera": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 200
+        "line": 254
       }
     ],
     "xhsConnectionOverride": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 225
+        "line": 279
       }
     ],
     "PreparedXhsImages": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-        "line": 233
+        "line": 287
       }
     ],
     "CharacterSummary": [
@@ -30575,8 +30581,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt",
-      "lines": 411,
-      "sha256": "20e82bac860e6fb19abe0501211ebd724d3ed89099a8031a1c7690caa6ac05fc",
+      "lines": 465,
+      "sha256": "81b6551fa06faaadd012c3f367ea8bcf107f07440a04252c44351bb4aae39262",
       "symbols": [
         {
           "name": "VisionModelService",
@@ -30591,20 +30597,24 @@
           "line": 39
         },
         {
+          "name": "StickerLabels",
+          "line": 94
+        },
+        {
           "name": "screenFrameDataUrl",
-          "line": 139
+          "line": 193
         },
         {
           "name": "canDescribeCamera",
-          "line": 200
+          "line": 254
         },
         {
           "name": "xhsConnectionOverride",
-          "line": 225
+          "line": 279
         },
         {
           "name": "PreparedXhsImages",
-          "line": 233
+          "line": 287
         }
       ]
     },
