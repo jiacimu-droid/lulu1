@@ -2321,7 +2321,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 127
+        "line": 129
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandCompanionVoice.kt",
@@ -16195,37 +16195,37 @@
     "setMicrophoneEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 78
+        "line": 80
       }
     ],
     "changeCompanionAudioEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 88
+        "line": 90
       }
     ],
     "receiveOwner": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 97
+        "line": 99
       }
     ],
     "companionSaid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 108
+        "line": 110
       }
     ],
     "fixedHostSaid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 120
+        "line": 122
       }
     ],
     "connectAudio": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-        "line": 133
+        "line": 135
       }
     ],
     "attach": [
@@ -41213,36 +41213,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
-      "lines": 318,
-      "sha256": "c744c099709a4223d9071275fe49658d705cf548ba67dafd9acf7213265436da",
+      "lines": 326,
+      "sha256": "b57835a37b589d6bf4542a2fba82c43cc4f1e16b0ca533a419952fc3bfd168db",
       "symbols": [
         {
           "name": "setMicrophoneEnabled",
-          "line": 78
+          "line": 80
         },
         {
           "name": "changeCompanionAudioEnabled",
-          "line": 88
+          "line": 90
         },
         {
           "name": "receiveOwner",
-          "line": 97
+          "line": 99
         },
         {
           "name": "companionSaid",
-          "line": 108
+          "line": 110
         },
         {
           "name": "fixedHostSaid",
-          "line": 120
+          "line": 122
         },
         {
           "name": "close",
-          "line": 127
+          "line": 129
         },
         {
           "name": "connectAudio",
-          "line": 133
+          "line": 135
         }
       ]
     },

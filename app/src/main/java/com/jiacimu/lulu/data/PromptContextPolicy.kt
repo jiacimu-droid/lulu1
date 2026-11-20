@@ -59,6 +59,7 @@ internal object PromptContextPolicy {
         // retain their deliberately narrow budgets (gateway selects that).
         val sharedLifeTurn = fullCharacterDecision || source == "后台主动感知" ||
             source == "私聊" || source.startsWith("游戏 ·")
+        val gameTurn = source == "游戏" || source.startsWith("游戏 ·")
         // hasLiveConversation remains for callers observing the true user
         // channel. It never lowers a character's memories or mental life.
         // Current input is the main relevance signal. Old history cannot force heavyweight
@@ -79,6 +80,22 @@ internal object PromptContextPolicy {
         val activeTool = liveSignals.any(current::contains)
         val rich = autonomous || world || immersive || precise || activeTool
         return when {
+            // Only live game actor turns use a leaner *historical recall* window.
+            // Identity/digital-life ontology, editable persona, relationship, core
+            // memories, active responsibilities, emotions, motives and the owner's
+            // complete configured recent turns are assembled outside this window.
+            // Exact promises/quotes still receive the normal evidence allowance.
+            sharedLifeTurn && gameTurn && !precise -> PromptContextBudget(
+                recallLimit = 16,
+                memoryCharacters = 6_000,
+                evidenceCharacters = 3_000,
+                recentCharacters = 0,
+                worldDetails = false,
+                richInnerLife = true,
+                lexiconCharacters = 1_200,
+                precise = false,
+                workingSetCharacters = 12_000,
+            )
             // EVERY full, actor-owned decision gets exactly the same memory
             // sections, recall counts and total working-set cap. A request to
             // verify an old promise changes which relevant evidence ranks first,
