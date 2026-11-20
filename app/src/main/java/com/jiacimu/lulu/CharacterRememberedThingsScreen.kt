@@ -126,6 +126,7 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
         when (perspectiveFilter) {
             "record" -> row.memory?.perspective == MemoryPerspective.Record
             "subjective" -> row.memory?.perspective == MemoryPerspective.Subjective
+            "life" -> row.note?.section == LexiconSection.Life
             else -> true
         }
     }
