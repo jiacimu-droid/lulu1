@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:31:34.547966+00:00",
-  "commit": "a7e3f2c28fffc2fd91a6c30d34a5aceba6cd211b",
+  "generatedAt": "2026-11-20T03:33:48.604418+00:00",
+  "commit": "dbd43a9531970a3c5fc78d71a663311bf26aa251",
   "branch": "main",
-  "sourceFingerprint": "5c6e2afda0fb15c21d1bd1ef98d84e662091d3aa1d8abfc69ce70f1ed6b483fe",
+  "sourceFingerprint": "81628d92ba966c6b9ffb25dda235c8602eb6eb11546baee9b8595383396e2ccd",
   "summary": {
-    "files": 1497,
-    "lines": 320213,
-    "symbols": 4550
+    "files": 1498,
+    "lines": 320486,
+    "symbols": 4556
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -775,7 +775,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-        "line": 24
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -2309,7 +2309,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-        "line": 40
+        "line": 61
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
@@ -2470,6 +2470,68 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt",
         "line": 322
+      }
+    ],
+    "hasPermission": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+        "line": 38
+      }
+    ],
+    "present": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+        "line": 41
+      }
+    ],
+    "text": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+        "line": 63
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceMood.kt",
+        "line": 13
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
+        "line": 22
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
+        "line": 86
+      }
+    ],
+    "action": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+        "line": 71
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
+        "line": 29
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
+        "line": 137
+      }
+    ],
+    "dismiss": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+        "line": 235
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
+        "line": 13
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
+        "line": 70
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
+        "line": 45
       }
     ],
     "notifyCoreChanged": [
@@ -2693,7 +2755,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-        "line": 39
+        "line": 60
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt",
@@ -5139,7 +5201,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-        "line": 30
+        "line": 51
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -5540,10 +5602,16 @@
         "line": 161
       }
     ],
+    "updatePlayback": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
+        "line": 38
+      }
+    ],
     "compact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-        "line": 37
+        "line": 58
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
@@ -5557,7 +5625,7 @@
     "hide": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-        "line": 38
+        "line": 59
       }
     ],
     "nextPauseMillis": [
@@ -10056,20 +10124,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionOnlineStore.kt",
         "line": 1123
-      }
-    ],
-    "text": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceMood.kt",
-        "line": 13
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterContinuityPayload.kt",
-        "line": 22
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
-        "line": 86
       }
     ],
     "repeatsConfirmedAction": [
@@ -16282,16 +16336,6 @@
         "line": 23
       }
     ],
-    "action": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
-        "line": 29
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeScreen.kt",
-        "line": 137
-      }
-    ],
     "canInteract": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
@@ -16906,20 +16950,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestPresentation.kt",
         "line": 48
-      }
-    ],
-    "dismiss": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
-        "line": 13
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluScreenRequestPopup.kt",
-        "line": 70
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/system/LuluStudyWatchOverlay.kt",
-        "line": 45
       }
     ],
     "afterWorldAction": [
@@ -27155,6 +27185,33 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+      "lines": 248,
+      "sha256": "67df9cee14c3cf36f84b1545e8c45d17204aa701f96aff031ec03a75e9e1a968",
+      "symbols": [
+        {
+          "name": "hasPermission",
+          "line": 38
+        },
+        {
+          "name": "present",
+          "line": 41
+        },
+        {
+          "name": "text",
+          "line": 63
+        },
+        {
+          "name": "action",
+          "line": 71
+        },
+        {
+          "name": "dismiss",
+          "line": 235
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt",
       "lines": 636,
       "sha256": "7534ca5f2ed6dd48dbbe89db80080442caacd1fa9321d7ba48eb71033f5d227a",
@@ -29828,32 +29885,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-      "lines": 46,
-      "sha256": "6fb10a39282788ecc635e2b69f77f957e058f7141df901c798e7e7be4175996f",
+      "lines": 71,
+      "sha256": "1c9e14d227e62f9a0f3c5cb793c85a2dbeb0b59c592e519953c004406e2d6d86",
       "symbols": [
         {
-          "name": "open",
-          "line": 24
-        },
-        {
-          "name": "select",
-          "line": 30
-        },
-        {
-          "name": "compact",
-          "line": 37
-        },
-        {
-          "name": "hide",
+          "name": "updatePlayback",
           "line": 38
         },
         {
+          "name": "open",
+          "line": 45
+        },
+        {
+          "name": "select",
+          "line": 51
+        },
+        {
+          "name": "compact",
+          "line": 58
+        },
+        {
+          "name": "hide",
+          "line": 59
+        },
+        {
           "name": "expand",
-          "line": 39
+          "line": 60
         },
         {
           "name": "close",
-          "line": 40
+          "line": 61
         }
       ]
     },
