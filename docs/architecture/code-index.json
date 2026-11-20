@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:22:55.227385+00:00",
-  "commit": "2ad97a921116bd87d7be886e572e1848f74cd6a7",
+  "generatedAt": "2026-11-20T03:23:34.120927+00:00",
+  "commit": "9fd8931efa97c5f0d3af007a5c56d0853acf1a0e",
   "branch": "main",
-  "sourceFingerprint": "2d612284f41a119828a0d3ee23632fab2b3847aba1a2a193468caca571aabaed",
+  "sourceFingerprint": "f26241c6edf06192d068a43c224a3c92c2a92d9c8c14d727cd1e847d8dd19558",
   "summary": {
     "files": 1495,
-    "lines": 319500,
-    "symbols": 4544
+    "lines": 319567,
+    "symbols": 4545
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2414,6 +2414,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
         "line": 71
+      }
+    ],
+    "signal": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt",
+        "line": 77
       }
     ],
     "reload": [
@@ -27052,9 +27058,14 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt",
-      "lines": 144,
-      "sha256": "4cb462d6daa2388e518188727f98145daceec045cf9594a3d980b5bd04036f29",
-      "symbols": []
+      "lines": 156,
+      "sha256": "bce2639686132ff089054f60d3e81373362d5222aaa4b86dd8c69c360221375d",
+      "symbols": [
+        {
+          "name": "signal",
+          "line": 77
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt",
@@ -27744,8 +27755,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt",
-      "lines": 390,
-      "sha256": "21384765e296393be5ba3a27cfe77cbcbe938076609fab0199c424132ba8eac0",
+      "lines": 445,
+      "sha256": "feaebf995bd70429d98ae878882541826357072642ed5541a65984dcbfd5dde2",
       "symbols": [
         {
           "name": "LuluAppearanceScreen",

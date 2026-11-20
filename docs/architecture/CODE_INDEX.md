@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2ad97a921116bd87d7be886e572e1848f74cd6a7`
+- 基准提交：`9fd8931efa97c5f0d3af007a5c56d0853acf1a0e`
 - 分支：`main`
 - 已索引文件：1495
-- 已索引代码/文本行：319500
-- 已发现符号：4544
+- 已索引代码/文本行：319567
+- 已发现符号：4545
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -166,7 +166,7 @@
 | `app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 715 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 144 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 156 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 413 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 327 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
@@ -197,7 +197,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LocalWhisperModels.kt` | 127 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAdvancedSettingsScreens.kt` | 979 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/LuluAlipayDonationQr.kt` | 96 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 390 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt` | 445 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/LuluBackupScreen.kt` | 364 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallCameraSession.kt` | 279 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/LuluCallFloatingWindow.kt` | 145 | 4 |
