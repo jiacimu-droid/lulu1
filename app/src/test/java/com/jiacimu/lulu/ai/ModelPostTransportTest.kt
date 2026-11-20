@@ -37,6 +37,43 @@ class ModelPostTransportTest {
         assertEquals(60L, ModelPostTransport.REQUEST_WRITE_TIMEOUT_SECONDS)
     }
 
+    @Test fun onePaidPostReportsActualConnectionUploadWaitAndReadWithoutAnotherRequest() {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setBody("ok").setBodyDelay(180, TimeUnit.MILLISECONDS))
+            server.start()
+            val measurements = mutableListOf<ModelPostTransport.Timing>()
+            val text = ModelPostTransport.execute(
+                server.url("/chat/completions").toString(), emptyMap(),
+                "{\"model\":\"test\"}", 30_000, onTiming = { measurements += it },
+            ) { it.body!!.string() }
+            assertEquals("ok", text)
+            assertEquals(1, server.requestCount)
+            assertEquals(1, measurements.size)
+            val t = measurements.single()
+            assertEquals(200, t.statusCode)
+            assertNotNull(t.connectMillis)
+            assertNotNull(t.uploadMillis)
+            assertNotNull(t.responseWaitMillis)
+            assertNotNull(t.responseReadMillis)
+            assertTrue(t.responseReadMillis!! >= 80L)
+            assertEquals(4, t.stages().size)
+        }
+    }
+
+    @Test fun explicit400StillReportsMeasuredRequestWithoutBlindRetry() {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setResponseCode(400).setBody("wrong-model"))
+            server.start()
+            val measurements = mutableListOf<ModelPostTransport.Timing>()
+            ModelPostTransport.execute(
+                server.url("/chat/completions").toString(), emptyMap(), "{}", 30_000,
+                onTiming = { measurements += it },
+            ) { assertEquals(400, it.code); assertEquals("wrong-model", it.body!!.string()) }
+            assertEquals(1, server.requestCount)
+            assertEquals(400, measurements.single().statusCode)
+        }
+    }
+
     @Test fun utf8BodyUsesExactLengthAndOnePost() {
         val server = MockWebServer()
         server.enqueue(MockResponse().setBody("ok"))
