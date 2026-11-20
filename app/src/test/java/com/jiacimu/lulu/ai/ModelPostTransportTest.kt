@@ -2,6 +2,7 @@ package com.jiacimu.lulu.ai
 
 import java.io.EOFException
 import java.io.IOException
+import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.ProtocolException
 import java.net.Proxy
@@ -19,6 +20,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import javax.net.ssl.SSLHandshakeException
+import okhttp3.Call
+import okhttp3.Dns
+import okhttp3.EventListener
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -168,6 +172,45 @@ class ModelPostTransportTest {
                 emptyMap(), body, 30_000, transportClient = testClient) { it.body!!.string() }
             assertEquals("recovered", result)
             assertEquals(2, routes.get())
+            assertEquals(1, server.requestCount)
+            assertEquals(body, server.takeRequest().body.readUtf8())
+        } finally { server.shutdown() }
+    }
+
+    @Test fun unreachableFirstDnsAddressFallsBackWithoutASecondPaidPost() {
+        val server = MockWebServer()
+        server.enqueue(MockResponse().setBody("recovered through second IP"))
+        // Bind to one address only: a connection to 127.0.0.2 cannot reach it.
+        server.start(InetAddress.getByName("127.0.0.1"), 0)
+        try {
+            val attempts = AtomicInteger()
+            val testClient = OkHttpClient.Builder()
+                .proxy(Proxy.NO_PROXY)
+                .dns(object : Dns {
+                    override fun lookup(hostname: String): List<InetAddress> {
+                        assertEquals("model-relay.test", hostname)
+                        return listOf(
+                            InetAddress.getByName("127.0.0.2"),
+                            InetAddress.getByName("127.0.0.1"),
+                        )
+                    }
+                })
+                .eventListener(object : EventListener() {
+                    override fun connectStart(
+                        call: Call, inetSocketAddress: InetSocketAddress, proxy: Proxy,
+                    ) { attempts.incrementAndGet() }
+                })
+                // The transport must opt into safe route failover even if the
+                // caller's original client opted out.
+                .retryOnConnectionFailure(false)
+                .build()
+            val url = server.url("/chat/completions").newBuilder()
+                .host("model-relay.test").build().toString()
+            val body = "{\\"message\\":\\"only one paid post\\"}"
+            val result = ModelPostTransport.execute(url, emptyMap(), body, 30_000,
+                transportClient = testClient) { it.body!!.string() }
+            assertEquals("recovered through second IP", result)
+            assertTrue("Expected the unreachable route and its working fallback", attempts.get() >= 2)
             assertEquals(1, server.requestCount)
             assertEquals(body, server.takeRequest().body.readUtf8())
         } finally { server.shutdown() }
