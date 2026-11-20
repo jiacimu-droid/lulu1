@@ -50,8 +50,11 @@ internal object StickerPackArchive {
                         count++
                         require(count <= MAX_ARCHIVE_ENTRIES) { "压缩包文件数量过多" }
                         val normalized = entry.name.replace('\\', '/').removePrefix("./")
-                        if (entry.isDirectory || normalized.startsWith("/") ||
-                            normalized.split('/').any { it == ".." }) {
+                        require(!normalized.startsWith("/") &&
+                            normalized.split('/').none { it == ".." }) {
+                            "压缩包存在不安全的文件路径"
+                        }
+                        if (entry.isDirectory) {
                             zip.closeEntry()
                             continue
                         }
@@ -59,7 +62,16 @@ internal object StickerPackArchive {
                         val isManifest = normalized.substringAfterLast('/') in setOf(
                             "manifest.json", "stickers.json",
                         )
+                        // Also bound ignored files: closing a ZIP entry implicitly
+                        // decompresses it, which could otherwise hide a ZIP bomb.
                         if (ext !in allowed && !isManifest) {
+                            val discard = ByteArray(16_384)
+                            while (true) {
+                                val n = zip.read(discard)
+                                if (n < 0) break
+                                totalBytes += n
+                                require(totalBytes <= MAX_TOTAL_BYTES) { "压缩包超过 80MB 解压上限" }
+                            }
                             zip.closeEntry()
                             continue
                         }
