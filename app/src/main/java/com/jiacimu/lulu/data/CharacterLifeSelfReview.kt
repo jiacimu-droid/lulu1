@@ -114,7 +114,12 @@ internal object CharacterLifeSelfReview {
         // Learned, evidence-backed traits are not immutable persona text.
         // Project current examples for the role to reconsider; the original
         // evidence and retired versions remain in their authoritative stores.
-        val learned = CharacterDevelopmentStore.active(characterId)
+        // Daily SELF-review should not page through the user\'s biography.
+        // Owner facts/preferences live in memory recall and the "about owner" view.
+        val learned = CharacterDevelopmentStore.active(characterId).filterNot {
+            it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit,
+                DevelopmentKind.UserFact, DevelopmentKind.UserImpression)
+        }
         val pausedMotives = CharacterMotiveState.paused(mind.optJSONArray("motives"))
         val pausedConcerns = mind.optJSONArray("openConcerns").let { records ->
             (0 until (records?.length() ?: 0)).mapNotNull { records?.optJSONObject(it) }
