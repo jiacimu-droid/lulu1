@@ -29,6 +29,17 @@ class CharacterExpressionGuideTest {
         }
     }
 
+    @Test fun proactiveContactIsNotPresumedAnInterruptionOrInstantReplyDemand() {
+        val shared = CharacterDecisionProtocol.runtimePrinciples
+        val common = CharacterDecisionProtocol.causalPrinciples
+        assertTrue(shared.contains("普通消息是正常沟通，不等于要求对方立即回复"))
+        assertTrue(shared.contains("忙碌、未回复"))
+        assertTrue(shared.contains("勿扰设置"))
+        assertTrue(shared.contains("等约定时刻"))
+        assertTrue(common.contains("不能凭空把一次普通联系想象为必然打扰"))
+        assertTrue(common.contains("旧心声"))
+    }
+
     @Test fun rendererReceivesTheSelectedPersonRatherThanAnInvitationToPlanAgain() {
         for (source in listOf("聊天表达渲染", "聊天表达自然度修复", "工具结果·聊天自然表达修复")) {
             val guide = CharacterExpressionGuide.forGeneration(source)
