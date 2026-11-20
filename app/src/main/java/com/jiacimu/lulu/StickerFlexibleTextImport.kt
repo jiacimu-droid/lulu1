@@ -117,7 +117,7 @@ internal object StickerFlexibleTextImport {
                 } else if (key in headerNames && last?.name?.let { it != "自选表情" } == true) {
                     persistLast()
                     pending = pending.withField(key, value)
-                } else if (last != null && key in (headerDescriptions + headerUsage)) {
+                } else if (last != null && key in (headerNames + headerDescriptions + headerUsage)) {
                     last = last?.merge(key, value)
                 } else {
                     pending = pending.withField(key, value)

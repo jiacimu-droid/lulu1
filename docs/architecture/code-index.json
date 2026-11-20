@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:22:54.156687+00:00",
-  "commit": "a311fcaf2d5b752a2cfb59661cc97f06b45ba56f",
+  "generatedAt": "2026-11-20T01:34:15.312017+00:00",
+  "commit": "f95aa4ba4c3966e65bdd9435d193168315c3dcae",
   "branch": "main",
-  "sourceFingerprint": "f5a0d8d08d51baf32da0f1e6bba2c6fb276ac3dfd80937cea8181fff693b08b5",
+  "sourceFingerprint": "288cb4b3fee18809794854e3689f7f167a98d0c4d2ce3da03487bd77c5af4beb",
   "summary": {
-    "files": 1491,
-    "lines": 318721,
-    "symbols": 4527
+    "files": 1492,
+    "lines": 318895,
+    "symbols": 4530
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5600,7 +5600,17 @@
         "line": 86
       }
     ],
+    "withField": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerFlexibleTextImport.kt",
+        "line": 20
+      }
+    ],
     "parse": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerFlexibleTextImport.kt",
+        "line": 32
+      },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerImportManifest.kt",
         "line": 26
@@ -5664,6 +5674,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
         "line": 10
+      }
+    ],
+    "persistLast": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerFlexibleTextImport.kt",
+        "line": 45
       }
     ],
     "get": [
@@ -29767,6 +29783,25 @@
       "lines": 24,
       "sha256": "8162acd077a55fd347b353df908d56f62e696e40857eebf5d7db3a2c867108a7",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/StickerFlexibleTextImport.kt",
+      "lines": 174,
+      "sha256": "e70d065773dfda88acaae399fd50a9f18aaf0ae50aec444c60684154afde80f7",
+      "symbols": [
+        {
+          "name": "withField",
+          "line": 20
+        },
+        {
+          "name": "parse",
+          "line": 32
+        },
+        {
+          "name": "persistLast",
+          "line": 45
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerImportManifest.kt",
