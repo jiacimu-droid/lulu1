@@ -36,6 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import android.content.Context
 import com.jiacimu.lulu.data.MigratedDomainStores
@@ -185,6 +187,8 @@ internal fun GameTalkBar(
         .ifBlank { if (session.allowSoloHost) "主持人" else "同桌" }
     var textExpanded by remember(session) { mutableStateOf(false) }
     val onTextFocusChanged = LocalGameTextInputFocused.current
+    val focusManager = LocalFocusManager.current
+    val keyboard = LocalSoftwareKeyboardController.current
     val microphoneOn = session.mic.active
     val speakerOn = session.companionAudioEnabled
     // Live captions are a scrollable reading surface, not two truncated lines.
@@ -307,6 +311,10 @@ internal fun GameTalkBar(
                             if (message.isNotEmpty()) {
                                 session.receiveOwner(message, fromSpeech = false)
                                 session.draft = ""
+                                // Finishing a message should return the player to the game,
+                                // not leave the keyboard covering the board.
+                                keyboard?.hide()
+                                focusManager.clearFocus()
                             }
                         },
                     ) { Text("发送") }
