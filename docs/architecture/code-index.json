@@ -4596,6 +4596,12 @@
         "line": 34
       }
     ],
+    "userId": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudAccount.kt",
+        "line": 39
+      }
+    ],
     "errorFor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt",
@@ -29173,6 +29179,17 @@
       "lines": 22,
       "sha256": "d2b544703f11bfe355259a89310c7fa52209b8c14273c67f664cba45ce4f8012",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudAccount.kt",
+      "lines": 214,
+      "sha256": "3250fc3e7ad60394c4c6b1735d0daa672b2518aa76dfc200c72b986de5f76ca9",
+      "symbols": [
+        {
+          "name": "userId",
+          "line": 39
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt",
