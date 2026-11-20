@@ -37,6 +37,11 @@ import com.jiacimu.lulu.data.EventEvidenceKind
 import com.jiacimu.lulu.data.SharedExperienceTimeline
 import com.jiacimu.lulu.data.SharedTimelineEvent
 import com.jiacimu.lulu.data.UserProfileContext
+import com.jiacimu.lulu.design.LuluCssPageScope
+import com.jiacimu.lulu.design.LuluCssBackground
+import com.jiacimu.lulu.design.luluCssElement
+import com.jiacimu.lulu.design.luluCssStyle
+import com.jiacimu.lulu.design.cssColor
 import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.util.UUID
@@ -421,14 +426,17 @@ internal fun WatchTogetherRoom(
             it.evidenceKind == EventEvidenceKind.UserStatement
     }
     Dialog(onDismissRequest = ::exit, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-            Column(
+        LuluCssPageScope("WatchTogether") {
+            Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                .luluCssElement("watch-room")) {
+                LuluCssBackground(Modifier.matchParentSize())
+                Column(
                 Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()
                     .imePadding().padding(horizontal = 14.dp, vertical = 9.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 Row(
-                    Modifier.fillMaxWidth().height(48.dp),
+                    Modifier.fillMaxWidth().height(48.dp).luluCssElement("watch-header"),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(5.dp),
                 ) {
@@ -457,8 +465,9 @@ internal fun WatchTogetherRoom(
                 }
 
                 Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(22.dp), color = night,
+                    modifier = Modifier.fillMaxWidth().luluCssElement("watch-player"),
+                    shape = RoundedCornerShape(22.dp),
+                    color = luluCssStyle("watch-player").cssColor("background-color") ?: night,
                 ) {
                     Column {
                         Box(
@@ -721,7 +730,7 @@ internal fun WatchTogetherRoom(
                 }
 
                 Surface(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    modifier = Modifier.fillMaxWidth().weight(1f).luluCssElement("watch-chat"),
                     color = MaterialTheme.colorScheme.surface,
                     border = BorderStroke(1.dp, gentleBorder),
                     shape = RoundedCornerShape(20.dp),
@@ -847,6 +856,7 @@ internal fun WatchTogetherRoom(
                     ) {
                         Icon(Icons.Outlined.Send, "发送观影消息")
                     }
+                }
                 }
             }
         }
