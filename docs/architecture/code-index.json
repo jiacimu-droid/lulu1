@@ -32166,7 +32166,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterCuriosityRuntime.kt",
       "lines": 883,
-      "sha256": "b003ccf0479ad8ce4d6b2410a636232c0b9f44395df8f2de402c7c531626d3cd",
+      "sha256": "13f280d9d2015ad9480ae119a4e8760203db5faaaf222641a8aedb3db2193e65",
       "symbols": [
         {
           "name": "visibleQuestions",
@@ -32201,7 +32201,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 209,
-      "sha256": "171c95bb776d8612339bcdf5393538b9e3725dff672e2ded9861b37e4301035d",
+      "sha256": "a27953b9e2d31a2e3da145777970d10cdff3d90ec7116dba953401f66d8a25a9",
       "symbols": [
         {
           "name": "hasAuthoredMomentaryIdea",
@@ -33228,7 +33228,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterOpenConcernRuntime.kt",
       "lines": 385,
-      "sha256": "6f5ce58579dad3886cac6241c61aaa51295dffa6db2d14314acf0afd8631c3ae",
+      "sha256": "783704b0062c9b29c6285c2428fe4dda90a76619ad4652a44df6cfe10bb73ef2",
       "symbols": [
         {
           "name": "proposals",
@@ -38832,7 +38832,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
       "lines": 1185,
-      "sha256": "804c652a1b97ab57cbf5808bde479285fa1fab524627a39aa09fa4906c6fa854",
+      "sha256": "9350cc26728cc7662b071e12f6bb032d5f0f7c595009ed5973819f32a1f40331",
       "symbols": [
         {
           "name": "RoleDayPlan",
@@ -49287,8 +49287,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 653,
-      "sha256": "14bfb96d946f668e087138d0cf4abe38839ce1b3e9463d45e98308fadf5c57f4",
+      "lines": 655,
+      "sha256": "07e11b9387d1723a63e9e17e4619184234e7c942c8d844fb44c39d5a2f92d4b4",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
