@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T05:11:40.826068+00:00",
-  "commit": "2535797695391eb5d0b9f4624f9530b0dd03389d",
+  "generatedAt": "2026-11-20T05:13:43.682483+00:00",
+  "commit": "0be72d63ae892748add956780cdb39f9ede5cc7d",
   "branch": "main",
-  "sourceFingerprint": "e24836cd7b574b6ee556bf84164c1eab4ea3cca17bdad1cacf2483c7a0bdb4c2",
+  "sourceFingerprint": "ff766765e7903a4b9e6aea17c7de7ebd5f34a65907c26f6ff61703e083ec0c3b",
   "summary": {
-    "files": 1499,
-    "lines": 320823,
-    "symbols": 4558
+    "files": 1500,
+    "lines": 321185,
+    "symbols": 4562
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -4584,6 +4584,30 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudAccount.kt",
         "line": 39
+      }
+    ],
+    "loadLists": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
+        "line": 55
+      }
+    ],
+    "verify": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
+        "line": 79
+      }
+    ],
+    "loadPage": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
+        "line": 104
+      }
+    ],
+    "openList": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
+        "line": 125
       }
     ],
     "errorFor": [
@@ -27145,8 +27169,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherMusicLibrary.kt",
-      "lines": 307,
-      "sha256": "aaa0a7114c7ccd20857ee84fa70c36a17a56951f652b2e3a58b978fddae0d1c2",
+      "lines": 310,
+      "sha256": "39ee7d9deba8b36a97ebb723e64e45fd4ba9dc558a6237a612bcbae317fa0711",
       "symbols": [
         {
           "name": "reload",
@@ -28914,6 +28938,29 @@
         {
           "name": "userId",
           "line": 39
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
+      "lines": 359,
+      "sha256": "d793a04f837321b4a2e880c85f14be4daa2029017ce109319358ccd87038e567",
+      "symbols": [
+        {
+          "name": "loadLists",
+          "line": 55
+        },
+        {
+          "name": "verify",
+          "line": 79
+        },
+        {
+          "name": "loadPage",
+          "line": 104
+        },
+        {
+          "name": "openList",
+          "line": 125
         }
       ]
     },

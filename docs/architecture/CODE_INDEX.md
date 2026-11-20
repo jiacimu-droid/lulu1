@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`2535797695391eb5d0b9f4624f9530b0dd03389d`
+- 基准提交：`0be72d63ae892748add956780cdb39f9ede5cc7d`
 - 分支：`main`
-- 已索引文件：1499
-- 已索引代码/文本行：320823
-- 已发现符号：4558
+- 已索引文件：1500
+- 已索引代码/文本行：321185
+- 已发现符号：4562
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -168,7 +168,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 715 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 156 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherMiniWindow.kt` | 247 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ListenTogetherMusicLibrary.kt` | 307 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherMusicLibrary.kt` | 310 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 413 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 416 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt` | 278 | 6 |
@@ -256,6 +256,7 @@
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/NeteaseCloudAccount.kt` | 214 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt` | 359 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 58 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
