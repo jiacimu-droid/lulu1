@@ -417,7 +417,11 @@ private fun FastDurationTab(onClear: () -> Unit) {
                 FastMetric("来源", call.source.ifBlank { "未知" })
                 FastMetric("中转/服务商域名", call.provider.ifBlank { "未知" })
                 val sections = listOf(
-                    "Prompt" to "APK 本地准备",
+                    "Prompt" to "APK 本地准备（合计）",
+                    "APK·场景准备" to "场景与会话准备",
+                    "APK·记忆召回" to "本地记忆召回",
+                    "APK·人物与世界资料" to "角色/世界资料读取",
+                    "APK·拼装与审计" to "提示词拼装与审计",
                     "本地准备" to "APK 本地准备",
                     "模型请求" to "模型请求总阶段",
                     "连接与建链（DNS/代理/TLS）" to "连接/DNS/代理/TLS",
@@ -432,14 +436,23 @@ private fun FastDurationTab(onClear: () -> Unit) {
                     }
                 }
                 val prep = call.duration("Prompt") ?: call.duration("本地准备")
+                val memory = call.duration("APK·记忆召回")
+                val actor = call.duration("APK·人物与世界资料")
+                val assembly = call.duration("APK·拼装与审计")
                 val connect = call.duration("连接与建链（DNS/代理/TLS）")
                 val upload = call.duration("上传请求正文")
                 val wait = call.duration("等待响应头（中转站+模型）")
                 val streaming = call.duration("读取响应/流式输出")
                 val hint = when {
                     call.status != "成功" -> "检查报错日志中的 HTTP 状态和传输阶段，不能假定请求未被计费。"
+                    memory != null && memory >= 3_000 ->
+                        "本机记忆召回较慢，排查索引查询、上下文筛选或磁盘读取。"
+                    actor != null && actor >= 3_000 ->
+                        "本地人物、世界状态资料组装偏慢，检查数据读取与重复拼接。"
+                    assembly != null && assembly >= 3_000 ->
+                        "提示词拼装和审计偏慢，排查超长文本或重复处理。"
                     prep != null && prep >= 5_000 && prep >= (call.totalMillis ?: 0L) / 3 ->
-                        "APK 本地准备明显偏慢，重点排查记忆召回和提示词组装。"
+                        "APK 本地准备明显偏慢，可以继续对照上方分段耗时。"
                     connect != null && connect >= 3_000 ->
                         "连接建链偏慢，检查网络、代理/VPN、DNS 或 TLS。"
                     upload != null && upload >= 3_000 ->

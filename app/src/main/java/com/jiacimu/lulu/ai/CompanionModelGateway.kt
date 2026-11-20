@@ -661,6 +661,8 @@ class CompanionModelGateway(
                 effectiveMode == CompanionContextMode.CharacterAndScenario
             // Re-answer works as an alternative FIRST reply; suppress the
             // transient presence from the replaced response without mutating it.
+            val scenePrepareMillis = elapsedMillis(promptStartedAt)
+            val memoryStartedAt = System.nanoTime()
             val presence = if (fullContext && request.excludedEventIds.isEmpty())
                 CompanionPresenceStore.current(characterId) else null
             val unifiedMemory = if (fullContext) {
@@ -687,6 +689,8 @@ class CompanionModelGateway(
             val memories = unifiedMemory.memories
             val recalledRawTimeline = unifiedMemory.sourceEvidence
             val recentSharedTimeline = unifiedMemory.recentTimeline
+            val recallMillis = elapsedMillis(memoryStartedAt)
+            val actorContextStartedAt = System.nanoTime()
             val userProfileSection = if (fullContext && !citizen) UserProfileContext.promptSection() else ""
             val live2dCapabilitySection = if (!citizen && (fullContext ||
                 effectiveMode == CompanionContextMode.CharacterAndScenario))
@@ -891,6 +895,8 @@ class CompanionModelGateway(
                 "本人可见的社交与数字世界现场" to socialAwarenessSection,
             ) else emptyList()
             val recalledAuxiliary = listOf("已读材料与可修订的理解" to learningSection)
+            val actorContextMillis = elapsedMillis(actorContextStartedAt)
+            val promptAssemblyStartedAt = System.nanoTime()
             val working = if (fullContext) com.jiacimu.lulu.data.MemoryWorkingSet.assemble(
                 unifiedMemory, lexicon, recalledAuxiliary, budget, deliveredCoreSection) else null
             val memorySections = if (working != null) listOf(
@@ -981,7 +987,14 @@ class CompanionModelGateway(
                 instruction = instruction,
                 currentIsActualUserMessage = dialogueRequest,
             )
+            val promptAssemblyMillis = elapsedMillis(promptAssemblyStartedAt)
             val promptMillis = elapsedMillis(promptStartedAt)
+            networkStages.addAll(listOf(
+                "APK·场景准备" to scenePrepareMillis,
+                "APK·记忆召回" to recallMillis,
+                "APK·人物与世界资料" to actorContextMillis,
+                "APK·拼装与审计" to promptAssemblyMillis,
+            ))
             val modelStartedAt = System.nanoTime()
             modelStartedAtNanos = modelStartedAt
             // Build the compact projection from the very same assembled facts
