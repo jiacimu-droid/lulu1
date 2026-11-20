@@ -146,7 +146,8 @@ internal object CharacterAssociativeRecall {
     }
 
     fun render(characterId: String, now: Instant = Instant.now(),
-        includePersonaLenses: Boolean = true): String {
+        includePersonaLenses: Boolean = true,
+        includeOwnerKnowledge: Boolean = true): String {
         if (characterId.isBlank()) return ""
         val character = MigratedDomainStores.characters.get(characterId)
         // IdentityStore.get() prepends the multi-paragraph digital-world
