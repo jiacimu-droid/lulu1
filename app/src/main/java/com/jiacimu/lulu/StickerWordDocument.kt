@@ -129,7 +129,7 @@ internal object StickerWordDocument {
                 // Parse titles, URL fields and descriptions regardless of the
                 // author's template; URLs are downloaded into the same pack.
                 val linkedEntries = StickerFlexibleTextImport.parse(
-                    paragraphs.joinToString("\\n") { it.text }, pack,
+                    paragraphs.joinToString("\n") { it.text }, pack,
                 )
                 if (ordered.isEmpty() && linkedEntries.isEmpty()) {
                     error("Word 里没有可导入的图片或 HTTPS 图片地址")
