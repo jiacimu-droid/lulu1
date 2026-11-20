@@ -720,7 +720,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandLobby.kt` | 348 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandRules.kt` | 964 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/games/BlockIslandScreen.kt` | 1351 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 900 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/games/BoardDiceGames.kt` | 925 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterNarrativeGames.kt` | 662 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/CharacterSoloWorldPlay.kt` | 374 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/games/CinematicApocalypseGame.kt` | 809 | 6 |
@@ -742,7 +742,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt` | 102 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt` | 147 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 433 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 384 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 81 | 3 |
@@ -807,7 +807,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt` | 692 | 15 |
 | `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupTable.kt` | 485 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt` | 89 | 3 |
+| `app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt` | 95 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 660 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthStore.kt` | 907 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/health/HealthCycleStore.kt` | 284 | 7 |
@@ -1375,7 +1375,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameMicPermissionGateTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt` | 54 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/GameRoleChoiceContractTest.kt` | 54 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameRoleChoiceContractTest.kt` | 103 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameTeamConversationTimelineTest.kt` | 183 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameTeamSpeechPressureTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 174 | 1 |
@@ -1420,7 +1420,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/RelicTensionPresentationTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/RelicVaultPersistenceTest.kt` | 135 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/TurtleSoupRoomTest.kt` | 361 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt` | 201 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/games/YachtMatchContinuityTest.kt` | 222 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/study/MiniTheaterLibraryTest.kt` | 94 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/study/PersonalMiniTheaterTest.kt` | 585 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt` | 199 | 1 |
