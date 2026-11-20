@@ -14,8 +14,36 @@
 - 主题变量：--paper、--card、--card-strong、--ink、--muted、--border、--accent、--on-accent、--soft；支持 background-color、color、font-family、color-scheme、border-radius。
 - 颜色格式：#RRGGBB 与 #RRGGBBAA；长度：dp 数值。
 - 当前已在 Compose 真控件接入 #Home .launcher（桌面图标）、#Home .companion（桌面伴侣卡）、#Chat .bubble（聊天气泡）的 offset-x、offset-y、left、top、padding。
-- 背景：#Home { background-image: url("asset://uuid.png"); } 等，路径必须是系统选择器导入后返回的本地资源 token。
-- 偏移保护范围为 ±360dp，极端配置仍可能影响可点击区域；请及时使用工坊的清空并应用恢复原生样式。
+- 背景图使用系统选择器导入的本地 `asset://` 路径。可用 `background-size: cover | contain | stretch` 和 `background-position` 调整铺法与对齐。
+- 通用页面区域和已接入通用装饰的原生控件支持 `linear-gradient(角度, 色值, 色值)`、`border: 1dp solid #颜色`、四角圆角和 `box-shadow: 横向偏移 纵向偏移 模糊 颜色`。渐变色标等间距，可写 2–8 个。Android 8.0/8.1 的硬件路径阴影显示为无模糊的偏移阴影。
+
+## 聊天气泡和贴纸
+
+在装修工坊选「聊天 · 对话」或「聊天 · 群聊」，可以单独选角色、自己或两边，导入气泡底图、底层装饰或贴纸。草稿会即时显示在预览里，应用后进入真实对话。文字与语音转写使用 `.bubble`、`.bubble-role` 和 `.bubble-user`；播放条使用 `.bubble-voice`。
+
+`::before` 画在底图上、文字下方，`::after` 画在文字上方。两层都可以超出气泡边缘，可以用作蕾丝、蝴蝶结、气泡尾巴或四角小图。装饰使用 `width`、`height`、`left`、`top`、`right`、`bottom` 定位，支持 dp 和百分比，并可设 `rotate: -10deg`、`opacity: 0.8`。两层默认各 28dp，分别对齐顶部起点与顶部终点，且不占用排版或触控区域。用 `content: none` 可以关闭继承下来的装饰。
+
+```css
+#ChatDetail .bubble-role {
+  background-image: linear-gradient(135deg, #fff9fc, #f7e1eb);
+  color: #513d4d;
+  border: 1dp solid #e5b4c8;
+  border-radius: 7dp 20dp 20dp 20dp;
+  box-shadow: 0 3dp 8dp #a7668338;
+  padding-inline: 14dp;
+}
+#ChatDetail .bubble-role::after {
+  content: "";
+  background-color: #e8a6bf;
+  width: 9dp;
+  height: 9dp;
+  right: -3dp;
+  top: -4dp;
+  rotate: 45deg;
+}
+```
+
+把示例的 `background-color` 换成工坊导入的透明图片，就能使用自选贴纸。要用整张气泡框图片，可设置 `background-size: stretch`，再用 `padding-inline` 和 `padding-block` 给文本留空。
 
 示例 CSS：
 
@@ -42,7 +70,7 @@
 
 源码：data/LuluCssRuntime.kt（CSS 解析、校验、存档、私有资产）、design/LuluCssDecor.kt（Compose 修饰符与背景渲染）、design/LuluAppearanceTheme.kt（Material3 颜色和字体注入）、LuluAppearanceScreen.kt（编辑与导入）、LuluMigrationRootAppV2.kt（各页面作用域），桌面和消息组件接入命名位置钩子。
 
-草稿只有点击「应用到页面」后才覆盖原存档；导入失败不会破坏已保存的主题。导出 CSS 当前不附带图片，因此其他手机需重新选择素材。页面预览只展示配色与背景，不代表任意 Compose 控件都已开放自由定位。
+草稿只有点击「应用到页面」后才覆盖原存档；导入失败不会破坏已保存的主题。导出 CSS 当前不附带图片，因此其他手机需重新选择素材。普通页面预览展示配色与背景，聊天页另有即时气泡预览。
 
 **尚未完成**：所有独立界面任意元素的拖动/尺寸/层级控制、素材打包分发、所见即所得的真机实时结构编辑。尤其 Canvas 游戏、Live2D 原生绘制、输入法与系统栏不能直接按 Web CSS 重排。扩展时必须逐页面挂载原生修饰符，并确认手势命中、滚动、返回和恢复能力。
 

@@ -34,6 +34,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.jiacimu.lulu.design.LuluAppearanceTheme
 import com.jiacimu.lulu.design.LuluCssBackground
+import com.jiacimu.lulu.design.LuluCssRegion
+import com.jiacimu.lulu.design.luluCssStyle
 
 /**
  * A blank, owner-authored native CSS workshop. Old recipe cards are intentionally absent.
@@ -50,6 +52,7 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
     var selectCover by remember { mutableStateOf(false) }
     var selectWidget by remember { mutableStateOf(false) }
     var widgetCode by rememberSaveable { mutableStateOf<String?>(null) }
+    var bubbleTarget by rememberSaveable { mutableStateOf("bubble-role") }
     val widget = LuluWidgetKind.entries.firstOrNull { it.code == widgetCode }
     var pendingImageSelector by rememberSaveable { mutableStateOf<String?>(null) }
     val importScope = rememberCoroutineScope()
@@ -58,6 +61,7 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
     var status by remember { mutableStateOf<String?>(null) }
     val sheet = remember(source) { LuluCssSheet.parse(source) }
     val preview = LuluAppearanceCatalog.builtIns.first()
+    val chatPreview = scope in setOf("Chat", "ChatDetail", "GroupChat")
 
     val importCss = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
@@ -97,7 +101,8 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
         if (uri != null && selector != null) importScope.launch {
             runCatching { withContext(Dispatchers.IO) { LuluCssStore.importImage(context, uri) } }
                 .onSuccess { asset ->
-                    source += "\n$selector { background-image: url(\"$asset\"); }\n"
+                    val content = if ("::" in selector) "content: \"\"; " else ""
+                    source += "\n$selector { ${content}background-image: url(\"$asset\"); }\n"
                     status = "图片已加入草稿，点「应用到页面」生效"
                 }
                 .onFailure { status = it.message ?: "图片导入失败" }
@@ -349,6 +354,71 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                         }) { Text("导入组件背景") }
                     }
                 }
+            } else if (chatPreview) item {
+                val selector = "#$scope .$bubbleTarget"
+                Text("气泡预览", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
+                LuluAppearanceTheme(preview, scope = scope, sheetOverride = sheet) {
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                        color = MaterialTheme.colorScheme.background,
+                    ) {
+                        Box(Modifier.fillMaxWidth()) {
+                            LuluCssBackground(Modifier.matchParentSize())
+                            LuluCssRegion(luluCssStyle("messages"), modifier = Modifier.fillMaxWidth()) {
+                                Column(
+                                    Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                ) {
+                                    for (mine in listOf(false, true)) {
+                                        val style = qqBubbleStyle(mine)
+                                        Box(Modifier.fillMaxWidth(), contentAlignment = qqBubbleAlignment(mine, style)) {
+                                            QqTextBubble(mine, style, Modifier.widthIn(max = 300.dp)) {
+                                                QqBubbleText(if (mine) "等我一下，马上来。" else "今天要一起听歌吗？", mine, style)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Row(
+                    Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    for ((target, label) in listOf("bubble-role" to "角色", "bubble-user" to "自己", "bubble" to "两边")) {
+                        FilterChip(bubbleTarget == target, { bubbleTarget = target }, label = { Text(label) })
+                    }
+                }
+                Text(selector, style = MaterialTheme.typography.bodySmall)
+                val artwork = listOf("" to "导入底图", "::before" to "导入底层装饰", "::after" to "导入贴纸")
+                for (buttons in artwork.chunked(2)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        for ((suffix, label) in buttons) OutlinedButton(onClick = {
+                            pendingImageSelector = selector + suffix
+                            importImage.launch("image/*")
+                        }, modifier = Modifier.weight(1f)) { Text(label) }
+                        if (buttons.size == 1) TextButton(
+                            onClick = {
+                                source += """
+
+                                    $selector {
+                                      background-color: #fff7fa;
+                                      background-image: linear-gradient(135deg, #fffafc, #f5e2ed);
+                                      color: #513d4d;
+                                      border: 1dp solid #dbaec1;
+                                      border-radius: 7dp 19dp 19dp 19dp;
+                                      box-shadow: 0 2dp 7dp #84607338;
+                                    }
+                                """.trimIndent().let { "\n$it\n" }
+                                status = "气泡样式已加入草稿"
+                            },
+                            modifier = Modifier.weight(1f),
+                        ) { Text("插入样式") }
+                    }
+                }
             } else item {
                 Text("页面色彩预览", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.height(8.dp))
@@ -379,7 +449,7 @@ fun LuluAppearanceScreen(onBack: () -> Unit) {
                         }
                     }
                 }
-                Text("这是配色与素材预览。元素位置请应用后到真实页面检查。",
+                Text("控件位置可在应用样式后回到目标页面检查。",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

@@ -68,8 +68,8 @@ fun LuluCssScaffold(
         val floating = luluCssStyle("floating")
         val snackbar = luluCssStyle("snackbar")
         val frame = luluCssStyle("page")
-        val marker = sheet.imageToken(cssPage)
-        val hasImage = LuluCssStore.assetFile(marker) != null
+        val hasImage = page.hasPageArtwork()
+        val customFrameFill = frame.cssColor("background-color") != null || frame.hasPageArtwork()
         val actualColor = page.cssColor("--paper")
             ?: containerColor.takeIf { it != Color.Unspecified && (!hasImage || it != Color.Transparent) }
             ?: Color(LocalLuluAppearance.current.palette.paper.toInt())
@@ -89,7 +89,7 @@ fun LuluCssScaffold(
         val pageScaffold: @Composable () -> Unit = {
             Scaffold(
                 modifier = Modifier.luluCssDecor(frame).then(modifier),
-                containerColor = if (hasImage) Color.Transparent else actualColor,
+                containerColor = if (hasImage || customFrameFill) Color.Transparent else actualColor,
                 contentColor = contentColor.takeIf { it != Color.Unspecified }
                     ?: androidx.compose.material3.contentColorFor(actualColor),
                 topBar = {
@@ -128,10 +128,10 @@ fun LuluCssScaffold(
                 }
             }
         }
-        if (hasImage) {
+        if (hasImage || customFrameFill) {
             Box {
                 Box(Modifier.matchParentSize().background(actualColor)) {
-                    LuluCssArtwork(marker, Modifier.matchParentSize(), page)
+                    LuluCssBackground(Modifier.matchParentSize())
                 }
                 pageScaffold()
             }
@@ -143,6 +143,11 @@ fun LuluCssScaffold(
 private fun CssSlot(style: Map<String, String>, content: @Composable () -> Unit) {
     if (style.keys.none { it != "dock" }) content()
     else LuluCssRegion(style) { content() }
+}
+
+private fun Map<String, String>.hasPageArtwork(): Boolean {
+    val image = get("background-image")
+    return LuluCssSheet.gradient(image) != null || LuluCssStore.assetFile(LuluCssSheet.assetToken(image)) != null
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -163,9 +168,7 @@ fun LuluCssTopAppBar(
     val titleStyle = luluCssStyle("title")
     val navigationStyle = luluCssStyle("navigation")
     val actionsStyle = luluCssStyle("actions")
-    val fill = if (header.cssColor("background-color") != null ||
-        LuluCssStore.assetFile(LuluCssSheet.assetToken(header["background-image"])) != null ||
-        LuluCssStore.assetFile(sheet.imageToken(scope)) != null
+    val fill = if (header.cssColor("background-color") != null || header.hasPageArtwork() || page.hasPageArtwork()
     ) Color.Transparent else page.cssColor("--paper")
     val foreground = page.cssColor("--ink")
     val styledColors = colors.copy(
