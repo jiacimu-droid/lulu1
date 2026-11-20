@@ -369,25 +369,21 @@ internal fun QqStickerShelf(
                             var failedBatches = 0
                             var firstError = ""
                             for (batch in targets.chunked(4)) {
-                                VisionModelService.describeStickerBatch(context, batch.map { it.uri })
-                                    .onSuccess { labels ->
-                                        for (label in labels) {
-                                            val target = batch.getOrNull(label.index - 1) ?: continue
-                                            StickerLibraryStore.rename(
-                                                target.id,
-                                                label.name.ifBlank { target.name },
-                                                label.visualDescription,
-                                                label.usageHint,
-                                            )
-                                            success++
-                                        }
-                                    }
-                                    .onFailure {
-                                        failedBatches++
-                                        if (firstError.isBlank()) firstError = it.message.orEmpty()
-                                        // Do not retry an uncertain paid API call automatically.
-                                        break
-                                    }
+                                val result = VisionModelService.describeStickerBatch(context, batch.map { it.uri })
+                                if (result.isFailure) {
+                                    failedBatches++
+                                    firstError = result.exceptionOrNull()?.message.orEmpty()
+                                    // Do not retry an uncertain paid API call automatically.
+                                    break
+                                }
+                                for (label in result.getOrThrow()) {
+                                    val target = batch.getOrNull(label.index - 1) ?: continue
+                                    StickerLibraryStore.rename(
+                                        target.id, label.name.ifBlank { target.name },
+                                        label.visualDescription, label.usageHint,
+                                    )
+                                    success++
+                                }
                             }
                             visionBusy = false
                             showVisionDialog = false
