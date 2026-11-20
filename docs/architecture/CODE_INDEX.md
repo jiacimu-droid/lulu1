@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a0c93d136380d8435b1b92afdb2b79e86ad5619e`
+- 基准提交：`8106f3234eaca00afb552a1c15a4d69882ca3e67`
 - 分支：`game`
 - 已索引文件：1510
-- 已索引代码/文本行：323693
-- 已发现符号：4608
+- 已索引代码/文本行：323809
+- 已发现符号：4609
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -171,7 +171,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherMusicLibrary.kt` | 307 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 413 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 416 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt` | 248 | 5 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt` | 278 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallStage.kt` | 977 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DCallVisionState.kt` | 80 | 1 |
@@ -1356,7 +1356,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/XhsNoteReadinessTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsReadingReceiptTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/XhsSharedLinkResolverTest.kt` | 63 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/ArcadeNativeGameTest.kt` | 145 | 4 |
+| `app/src/test/java/com/jiacimu/lulu/games/ArcadeNativeGameTest.kt` | 171 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/games/AutonomousDuelGamesTest.kt` | 174 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/BlockIslandRulesTest.kt` | 748 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/CharacterSoloWorldPlayTest.kt` | 273 | 1 |
@@ -1496,7 +1496,7 @@
 | `preview/app.js` | 54 | 0 |
 | `preview/arcade/DESIGN.md` | 60 | 0 |
 | `preview/arcade/RulesPreview.kt` | 98 | 3 |
-| `preview/arcade/arcade.css` | 177 | 0 |
+| `preview/arcade/arcade.css` | 183 | 0 |
 | `preview/arcade/arcade.js` | 981 | 0 |
 | `preview/arcade/art/create_assets.py` | 303 | 0 |
 | `preview/arcade/art/island-meshes.json` | 1 | 0 |
@@ -1504,7 +1504,7 @@
 | `preview/arcade/browser/JavaCompat.kt` | 34 | 4 |
 | `preview/arcade/browser/Json.kt` | 73 | 27 |
 | `preview/arcade/browser/design.css` | 7 | 0 |
-| `preview/arcade/chest-show.js` | 403 | 0 |
+| `preview/arcade/chest-show.js` | 457 | 0 |
 | `preview/arcade/index.html` | 152 | 0 |
 | `preview/arcade/island-map.js` | 629 | 1 |
 | `preview/arcade/relic-map.js` | 344 | 0 |

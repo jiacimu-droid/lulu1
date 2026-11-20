@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T04:19:59.248522+00:00",
-  "commit": "a0c93d136380d8435b1b92afdb2b79e86ad5619e",
+  "generatedAt": "2026-11-20T05:01:57.876118+00:00",
+  "commit": "8106f3234eaca00afb552a1c15a4d69882ca3e67",
   "branch": "game",
-  "sourceFingerprint": "4aca4262f1876993f141eec7445bf47e3b55b035bb8bbbe1b2575b811818b525",
+  "sourceFingerprint": "9a0b405d256143bc0bb17941cc555f38f44f9adc3e313410f214e4147a6b4ba3",
   "summary": {
     "files": 1510,
-    "lines": 323693,
-    "symbols": 4608
+    "lines": 323809,
+    "symbols": 4609
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -2483,19 +2483,19 @@
     "hasPermission": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
-        "line": 38
+        "line": 41
       }
     ],
     "present": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
-        "line": 41
+        "line": 44
       }
     ],
     "text": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
-        "line": 63
+        "line": 66
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CompanionPresenceMood.kt",
@@ -2513,7 +2513,7 @@
     "action": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
-        "line": 71
+        "line": 74
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandGarden.kt",
@@ -2524,10 +2524,16 @@
         "line": 137
       }
     ],
+    "avatar": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
+        "line": 142
+      }
+    ],
     "dismiss": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
-        "line": 235
+        "line": 265
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicChestHudState.kt",
@@ -15839,11 +15845,11 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/ArcadeNativeGameTest.kt",
-        "line": 76
+        "line": 102
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/ArcadeNativeGameTest.kt",
-        "line": 118
+        "line": 144
       }
     ],
     "near": [
@@ -24513,7 +24519,7 @@
     "step": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/games/ArcadeNativeGameTest.kt",
-        "line": 135
+        "line": 161
       }
     ],
     "AutonomousDuelGamesTest": [
@@ -27460,28 +27466,32 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt",
-      "lines": 248,
-      "sha256": "67df9cee14c3cf36f84b1545e8c45d17204aa701f96aff031ec03a75e9e1a968",
+      "lines": 278,
+      "sha256": "984479b020ba6d04cc864178641e90637e7f848d406a959a525fce531dec548b",
       "symbols": [
         {
           "name": "hasPermission",
-          "line": 38
-        },
-        {
-          "name": "present",
           "line": 41
         },
         {
+          "name": "present",
+          "line": 44
+        },
+        {
           "name": "text",
-          "line": 63
+          "line": 66
         },
         {
           "name": "action",
-          "line": 71
+          "line": 74
+        },
+        {
+          "name": "avatar",
+          "line": 142
         },
         {
           "name": "dismiss",
-          "line": 235
+          "line": 265
         }
       ]
     },
@@ -52405,8 +52415,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/games/ArcadeNativeGameTest.kt",
-      "lines": 145,
-      "sha256": "ee6c5986571973d89e36952182890b7860fc90ecfcebceebd023430229735860",
+      "lines": 171,
+      "sha256": "c7d78ac9eb88948e717faf808cdcb428b94478920824eab0bf778b4dc5e36910",
       "symbols": [
         {
           "name": "ArcadeNativeGameTest",
@@ -52414,15 +52424,15 @@
         },
         {
           "name": "act",
-          "line": 76
+          "line": 102
         },
         {
           "name": "act",
-          "line": 118
+          "line": 144
         },
         {
           "name": "step",
-          "line": 135
+          "line": 161
         }
       ]
     },
@@ -54005,8 +54015,8 @@
     },
     {
       "path": "preview/arcade/arcade.css",
-      "lines": 177,
-      "sha256": "4a5a8c6ecb80c5efc52c57aa5d1a0341e1543fc8f34e84e3019bc1eb589429dc",
+      "lines": 183,
+      "sha256": "e859b76cf9512770db095dfa06a0eb867c3d2a3996e8bcea97a9b809052ce607",
       "symbols": []
     },
     {
@@ -54192,14 +54202,14 @@
     },
     {
       "path": "preview/arcade/chest-show.js",
-      "lines": 403,
-      "sha256": "d9b23e6b410113c30a7dedeee3564fa5d72138915cac3b170d577c7bb933deaf",
+      "lines": 457,
+      "sha256": "d8ea74130309ebfe1740cfb5dee8fbd353c65f1c83a1116d82699c3118b8ad07",
       "symbols": []
     },
     {
       "path": "preview/arcade/index.html",
       "lines": 152,
-      "sha256": "b1a9355e8a8a5c9c61e1bdfa8ceea9edf28daa086abec6c3f7de4882d335dc9e",
+      "sha256": "72f7c1681a6b616a576342a105cd5463ebcad1b38ed0c89a7299bbc1abcb913f",
       "symbols": []
     },
     {
