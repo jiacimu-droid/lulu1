@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`a401f23b2a82998a2092110da7457516c53169b5`
+- 基准提交：`1b7d22ee05f0a51649e79a6d49257cb86675c427`
 - 分支：`main`
 - 已索引文件：1503
-- 已索引代码/文本行：322405
+- 已索引代码/文本行：322431
 - 已发现符号：4571
 
 | 文件 | 行数 | 符号数 |
@@ -260,7 +260,7 @@
 | `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 58 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 556 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreenOptimized.kt` | 569 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneBargeInPolicy.kt` | 63 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneCallTranscriptFilter.kt` | 41 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/PhoneInspectionScreen.kt` | 902 | 2 |
@@ -352,7 +352,7 @@
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 115 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt` | 48 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt` | 19 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1777 | 30 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1790 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
