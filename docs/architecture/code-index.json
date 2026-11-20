@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:12:28.761991+00:00",
-  "commit": "96f19cea0ddff8c2baa7ed036abb3c03bce64e57",
+  "generatedAt": "2026-11-20T01:13:37.908319+00:00",
+  "commit": "e429c5e325f11fdd8cd41a12e62a71d82b571cee",
   "branch": "main",
-  "sourceFingerprint": "ec40ee474aaa4d5552e9efa49d71029ecf9a0c7065d733bea2c69a12fd04f54c",
+  "sourceFingerprint": "ca4a82629aea7e15bc0aa3b3ba97458132c262248e5d963f39a9712a50faf9e2",
   "summary": {
     "files": 1489,
-    "lines": 318263,
+    "lines": 318275,
     "symbols": 4522
   },
   "symbolIndex": {
@@ -4795,7 +4795,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerPackArchive.kt",
-        "line": 144
+        "line": 156
       }
     ],
     "clearAttachment": [
@@ -29796,12 +29796,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerPackArchive.kt",
-      "lines": 159,
-      "sha256": "cc214df8d7afe0479ff89e862c3441eaf0202f17a19339c54d49d51dcfc6c9ea",
+      "lines": 171,
+      "sha256": "089d51259cdaf6cfb9db69b1d7f33a6919743a146c72a74329a4a1352bc07bb9",
       "symbols": [
         {
           "name": "field",
-          "line": 144
+          "line": 156
         }
       ]
     },
