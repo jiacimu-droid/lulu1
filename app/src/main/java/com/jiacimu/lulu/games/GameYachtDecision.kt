@@ -73,21 +73,18 @@ internal fun buildYachtDecisionPrompts(
         appendLine("你尚可填写的格子及本掷得分：")
         available.forEach { appendLine("${it.name}(${it.label})=${scoreYacht(it, dice)}") }
         if (roll < 3) {
-            appendLine("还有${3-roll}次重掷机会，你可以保留选中的骰子，其他骰子重新随机掷。")
-            val groups = dice.groupingBy { it }.eachCount()
-            val bestGroup = groups.entries.maxByOrNull { it.value }
-            if (bestGroup != null && bestGroup.value == 4 && YachtCategory.Yacht in available) {
-                val heldPositions = dice.indices.filter { dice[it] == bestGroup.key }
-                appendLine("争高分机会：已有四颗${bestGroup.key}点（位置${heldPositions.joinToString("、")}），留住这四颗仅重掷另一颗，单次命中第五颗同点得快艇50分的机会是1/6；两次尝试约11/36。追失败仍能按最终骰面填写其他未用格（如四条）；根据可用格及比赛形势自主取舍。")
-            }
+            appendLine("还有${3 - roll}次重掷机会；你可自行决定保留哪些骰子，让其余骰子重新随机掷。")
         } else {
             appendLine("第三掷已完成，骰面锁定，本回合必须立即选择一个尚未填写的计分格，不能再掷。")
         }
         appendLine("主人最近说的话：${ownerSpeech.ifBlank { "暂无" }}")
     }
     val instruction = buildString {
-        append("你本人做棋局决策：以13格总分、上区奖励、领先或落后及空余格为依据，认真考虑追快艇50分、四条和顺子的高分机会。")
-        append("还有重掷次数时，若已有四颗同点且快艇格未用，要考虑留下四颗继续冲；不规定必须赌，也不能为了避免第三掷API失败而过早计分。")
+        append("这是一场真正的竞技对局。默认目标是尽量争取更高的整局总分与获胜机会；不要只因为眼前已有可填的分数就急着收下。")
+        append("每次结合真实骰面、剩余掷骰次数、所有未用计分格、各格当前及潜在得分、双方比分与上区奖励，自主比较现在计分、保留哪些骰子和继续重掷的预期收益、风险、后续可填空间与机会成本。")
+        append("高分机会值得认真评估，但既不必每次赌到底，也不应机械提前收分；选择应随局面变化，而非套用某种骰型的固定策略。")
+        append("你仍是具有本人性格、情绪和关系的人：可以因真实想法而冒险、求稳、故意让分或逗对手开心；若没有特别动机，就认真争取赢得比赛。")
+        append("API是否可靠、调用成本、失败回退和备用格只属于程序执行机制，绝不能成为你提前计分或降低竞技目标的理由。")
         append("不需要详细推导，直接输出可执行的合法JSON对象。")
         if (roll == 1) {
             append("第一掷可选keep继续掷或score立刻填格。")

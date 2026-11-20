@@ -46,31 +46,40 @@ class GameRoleChoiceContractTest {
         ))
     }
 
-    @Test fun yachtDecisionPromptHighlightsFourKindPursuitAndLegalFinalAction() {
+    @Test fun yachtCompetitivePrinciplesAreGenericAcrossDifferentDiceStates() {
         val sheets = mapOf(
-            "user" to emptyMap<YachtCategory, Int>(),
+            "user" to mapOf(YachtCategory.Chance to 21),
             "role:river" to mapOf(YachtCategory.Ones to 3),
         )
         val players = mapOf("user" to "你", "role:river" to "角色")
-        val first = buildYachtDecisionPrompts(
-            "river", listOf(5, 5, 5, 6, 5), 1, sheets, players, "",
+        val states = listOf(
+            listOf(5, 5, 5, 6, 5),
+            listOf(1, 2, 3, 4, 6),
+            listOf(2, 2, 3, 3, 4),
         )
-        assertTrue(first.facts.contains("四颗5点"))
-        assertTrue(first.facts.contains("1/6"))
-        assertTrue(first.instruction.contains("追快艇50分"))
-        assertTrue(first.instruction.contains("不能为了避免第三掷API失败"))
-        assertTrue(first.instruction.contains("keep格式"))
-        val second = buildYachtDecisionPrompts(
-            "river", listOf(5, 5, 5, 6, 5), 2, sheets, players, "",
-        )
-        assertTrue(second.instruction.contains("fallbackCategory"))
-        assertTrue(second.instruction.contains("现在不会填格"))
-        val finalRoll = buildYachtDecisionPrompts(
-            "river", listOf(5, 5, 5, 6, 5), 3, sheets, players, "",
-        )
-        assertTrue(finalRoll.instruction.contains("必须且只能score"))
-        assertFalse(finalRoll.instruction.contains("keep格式"))
-        assertTrue(finalRoll.facts.contains("骰面锁定"))
+        states.forEach { dice ->
+            val first = buildYachtDecisionPrompts("river", dice, 1, sheets, players, "")
+            assertTrue(first.instruction.contains("争取更高的整局总分"))
+            assertTrue(first.instruction.contains("预期收益、风险"))
+            assertTrue(first.instruction.contains("双方比分"))
+            assertTrue(first.instruction.contains("故意让分"))
+            assertTrue(first.instruction.contains("没有特别动机"))
+            assertTrue(first.instruction.contains("keep格式"))
+            assertFalse(first.facts.contains("争高分机会："))
+            assertFalse(first.instruction.contains("四颗同点"))
+            assertFalse(first.instruction.contains("追快艇50分"))
+
+            val second = buildYachtDecisionPrompts("river", dice, 2, sheets, players, "")
+            assertTrue(second.instruction.contains("fallbackCategory"))
+            assertTrue(second.instruction.contains("现在不会填格"))
+            assertTrue(second.instruction.contains("API是否可靠"))
+            assertFalse(second.facts.contains("争高分机会："))
+
+            val third = buildYachtDecisionPrompts("river", dice, 3, sheets, players, "")
+            assertTrue(third.instruction.contains("必须且只能score"))
+            assertFalse(third.instruction.contains("keep格式"))
+            assertTrue(third.facts.contains("骰面锁定"))
+        }
     }
 
     @Test fun yachtInvalidChoicesNeverTurnIntoAutomaticMaxScore() {
