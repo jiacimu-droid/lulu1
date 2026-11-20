@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:45:55.407055+00:00",
-  "commit": "67ffe3f827d134c96b38acb91c0184a08b44613d",
+  "generatedAt": "2026-11-20T01:47:07.772061+00:00",
+  "commit": "c05cea6a18f1fd33ad0a72af8e3dd5eab215bcc3",
   "branch": "main",
-  "sourceFingerprint": "688ba17a38a7d3d38c5a20a8518c5bb0f2347ba10465ab7a19d14ed8aad54c05",
+  "sourceFingerprint": "4a011681644de5c895697134c7abc5833d55880b38fc84900d4cd04df06440c8",
   "summary": {
     "files": 1494,
-    "lines": 319162,
+    "lines": 319200,
     "symbols": 4535
   },
   "symbolIndex": {
@@ -29816,8 +29816,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerFlexibleTextImport.kt",
-      "lines": 173,
-      "sha256": "bd70cfa1d19e2330988eb5673498ab9a129c3c12a2093d0455f496dd897e4ba0",
+      "lines": 200,
+      "sha256": "4da4048c7a8dee8a49472b156b3a9dff3a39c81a24d731d715ac067a44bf31e9",
       "symbols": [
         {
           "name": "withField",
@@ -47419,8 +47419,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/StickerFlexibleTextImportTest.kt",
-      "lines": 70,
-      "sha256": "fb9d8e716ec3b6e2963c765e9a45b5c4ac30405b0279196770d319d52401d918",
+      "lines": 81,
+      "sha256": "511d9d133cd64b8e3a56cbc5c050fb6ac77a1a7f5b95942fe57910f31802541a",
       "symbols": [
         {
           "name": "StickerFlexibleTextImportTest",
