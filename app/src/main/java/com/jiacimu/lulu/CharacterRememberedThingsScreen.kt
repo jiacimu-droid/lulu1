@@ -124,11 +124,19 @@ fun MemoryFeatureScreen(onBack: () -> Unit, personalCharacterId: String? = null,
     val remembered = if (rememberedState.first == characterId) rememberedState.second.filter {
         search.isBlank() || (it.title + it.content).contains(search.trim(), true)
     } else emptyList()
-    val visibleRemembered = remembered.filter { row ->
+    // The Life filter displays every original editable note, including notes
+    // also summarized in another memory item. The general timeline can still
+    // deduplicate identical projections without hiding a note from its editor.
+    val visibleRemembered = if (perspectiveFilter == "life") life
+        .filter { it.characterId == characterId && lexiconHasLiveSources(it) }
+        .map { note -> CharacterRememberedItem("note:${note.id}", note.title,
+            note.content, note.updatedAt, note.sourceEventIds, note = note) }
+        .filter { search.isBlank() || (it.title + it.content).contains(search.trim(), true) }
+        .sortedByDescending { it.at }
+    else remembered.filter { row ->
         when (perspectiveFilter) {
             "record" -> row.memory?.perspective == MemoryPerspective.Record
             "subjective" -> row.memory?.perspective == MemoryPerspective.Subjective
-            "life" -> row.note?.section == LexiconSection.Life
             else -> true
         }
     }

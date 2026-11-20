@@ -963,7 +963,7 @@
     "MemoryFeatureScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt",
-        "line": 38
+        "line": 40
       }
     ],
     "CharacterSettingsScreenV2": [
@@ -26516,12 +26516,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt",
-      "lines": 544,
-      "sha256": "64522cff72cebad00150fb844e96dc3cdea94d165cfd4d40e4a12365cc13c292",
+      "lines": 549,
+      "sha256": "0b2bcae73f00e12951a265b026664cc9728394e743badba9d1aa3520e6723035",
       "symbols": [
         {
           "name": "MemoryFeatureScreen",
-          "line": 38
+          "line": 40
         }
       ]
     },
@@ -27477,8 +27477,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt",
-      "lines": 715,
-      "sha256": "22f45c6e8b54ab9361fa13fc16952ab804316ec61908070a719c8b68b159a404",
+      "lines": 717,
+      "sha256": "2c2633f6d444ee1f8855ac922812efe521d301b9f7cc1c4ed90a1061e4824905",
       "symbols": [
         {
           "name": "LexiconFeatureScreenV2",
