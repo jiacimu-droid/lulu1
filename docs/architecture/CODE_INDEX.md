@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`2f965dbea227b2e900a11469c6755377de6f1310`
+- 基准提交：`263ab4ba3a99b5f2f43bd4502883fd260b9daa57`
 - 分支：`main`
 - 已索引文件：1494
-- 已索引代码/文本行：319205
+- 已索引代码/文本行：319206
 - 已发现符号：4535
 
 | 文件 | 行数 | 符号数 |
@@ -359,7 +359,7 @@
 | `app/src/main/java/com/jiacimu/lulu/ai/PromptInputAudit.kt` | 241 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/ai/RelayRequestPressurePolicy.kt` | 274 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt` | 208 | 22 |
-| `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 465 | 8 |
+| `app/src/main/java/com/jiacimu/lulu/ai/VisionModelService.kt` | 466 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/core/LuluContracts.kt` | 177 | 32 |
 | `app/src/main/java/com/jiacimu/lulu/data/AppointmentClock.kt` | 29 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/AutonomousActionTrace.kt` | 142 | 5 |

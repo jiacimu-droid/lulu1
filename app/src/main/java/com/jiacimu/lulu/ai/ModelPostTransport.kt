@@ -20,8 +20,9 @@ import okio.BufferedSink
 
 /** One chargeable POST through the system's configured network route.
  * Never open a separate "health probe" socket or reject VPN/system proxies before OkHttp.
- * One-shot body and disabled redirects prevent silent paid replays. Only a failure
- * strictly before request-body write may be retried once (no billable body sent). */
+ * One-shot body and disabled redirects prevent paid replays after upload begins.
+ * OkHttp may fail over among DNS/proxy routes before writing the body; one fresh
+ * outer attempt is allowed only when no request-body write has started. */
 internal object ModelPostTransport {
     internal enum class Phase { CONNECT, WRITE_BODY, READ_RESPONSE }
     // OkHttp defaults writeTimeout to 10s even if readTimeout is 3–5 min.
@@ -32,7 +33,9 @@ internal object ModelPostTransport {
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(REQUEST_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-        .retryOnConnectionFailure(false)
+        // Try alternate resolved IPs or proxy routes before any paid body is sent.
+        // isOneShot() prevents OkHttp from replaying an upload/response wait.
+        .retryOnConnectionFailure(true)
         .followRedirects(false)
         .followSslRedirects(false)
         .build()
@@ -94,7 +97,9 @@ internal object ModelPostTransport {
                 val transport = transportClient.newBuilder()
                     .connectTimeout(30, TimeUnit.SECONDS)
                     .writeTimeout(REQUEST_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-                    .retryOnConnectionFailure(false)
+                    // Keep route failover even when the caller supplies a custom client.
+                    // RequestBody.isOneShot() still forbids replay after upload starts.
+                    .retryOnConnectionFailure(true)
                     .followRedirects(false)
                     .followSslRedirects(false)
                     .readTimeout(readTimeoutMillis.coerceIn(30_000, 300_000).toLong(), TimeUnit.MILLISECONDS)
