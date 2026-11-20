@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:44:17.636685+00:00",
-  "commit": "ed4d6816cb2d79a672925bed8ef47a494d02a5af",
+  "generatedAt": "2026-11-20T01:45:55.407055+00:00",
+  "commit": "67ffe3f827d134c96b38acb91c0184a08b44613d",
   "branch": "main",
-  "sourceFingerprint": "d98a1dd70d6f98138685cbd85fe2dca55d11cb3b6140f34ae95c4e45456087a8",
+  "sourceFingerprint": "688ba17a38a7d3d38c5a20a8518c5bb0f2347ba10465ab7a19d14ed8aad54c05",
   "summary": {
     "files": 1494,
-    "lines": 319143,
+    "lines": 319162,
     "symbols": 4535
   },
   "symbolIndex": {
@@ -4925,7 +4925,7 @@
     "importManifest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt",
-        "line": 171
+        "line": 172
       }
     ],
     "QqStyleChatDetailScreen": [
@@ -5791,25 +5791,25 @@
     "mode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt",
-        "line": 22
+        "line": 30
       }
     ],
     "setMode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt",
-        "line": 28
+        "line": 41
       }
     ],
     "PreparedImages": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt",
-        "line": 34
+        "line": 50
       }
     ],
     "AutoCaptionReport": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt",
-        "line": 77
+        "line": 93
       }
     ],
     "wordsToSubmitOnMute": [
@@ -13379,13 +13379,13 @@
     "awaitsReadReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3233
+        "line": 3234
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3986
+        "line": 3987
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -29039,8 +29039,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
-      "lines": 423,
-      "sha256": "905641d62ce7bd774403332187d65d6e6daf276d36d3ba8dd5a38269b7c4e546",
+      "lines": 424,
+      "sha256": "9d3de2d358826c4e7241835047a8a3307d5b67e68ee8c3a5e4da44374a45b5a2",
       "symbols": [
         {
           "name": "payload",
@@ -29220,12 +29220,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt",
-      "lines": 576,
-      "sha256": "3ea921f1a17f27757bd4ed3543ac90e621a1b9b3be4dbc10ae0f6ae5848f37dc",
+      "lines": 577,
+      "sha256": "5345dc507fc5c2351870e86cf7b9c4da36042ebac49378322bf2f8e0daa9bc24",
       "symbols": [
         {
           "name": "importManifest",
-          "line": 171
+          "line": 172
         }
       ]
     },
@@ -29911,24 +29911,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerVisionRouting.kt",
-      "lines": 123,
-      "sha256": "47500375f441da52f7270fa0a5dd713cf04008adf6d2b55038628603dcc62f39",
+      "lines": 139,
+      "sha256": "26b337900221b28aae712e1412556dee73b772f32c8904d09082c64864465f2f",
       "symbols": [
         {
           "name": "mode",
-          "line": 22
+          "line": 30
         },
         {
           "name": "setMode",
-          "line": 28
+          "line": 41
         },
         {
           "name": "PreparedImages",
-          "line": 34
+          "line": 50
         },
         {
           "name": "AutoCaptionReport",
-          "line": 77
+          "line": 93
         }
       ]
     },
@@ -37378,8 +37378,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 4053,
-      "sha256": "a582a830d2d6d3712a0667125dca966606ecb7d5eda5f1f0e348f8587dda59d0",
+      "lines": 4054,
+      "sha256": "024ab41a4fc237423a7f0e19165f2336eff78624d16dd34f255f47b69732036d",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -37411,11 +37411,11 @@
         },
         {
           "name": "awaitsReadReply",
-          "line": 3233
+          "line": 3234
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3986
+          "line": 3987
         }
       ]
     },
@@ -43963,7 +43963,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/system/LuluDeviceToolBridge.kt",
       "lines": 2374,
-      "sha256": "35902a53694e98c11629a27e6608c67ff608dd3fb91f321ea4bf1f76b958340a",
+      "sha256": "b7140ec38c7d6f7734fb01186a9f453bbd3bf92bab85ac667e7a2b724b00e639",
       "symbols": [
         {
           "name": "LuluDeviceToolBridge",
