@@ -31,7 +31,7 @@ class OfflineStickerAssetsTest {
     @Test fun allCuratedDescriptionsCorrespondToActualBundledSvgFiles() {
         val app = RuntimeEnvironment.getApplication()
         val ids = mutableSetOf<String>()
-        for (pack in listOf("cats", "animals", "moods")) {
+        for (pack in listOf("cats", "moods")) {
             val root = app.assets.open("stickers/$pack.json")
                 .bufferedReader(Charsets.UTF_8).use { JSONObject(it.readText()) }
             assertEquals("OpenMoji", root.optString("source"))
@@ -46,7 +46,9 @@ class OfflineStickerAssetsTest {
                 assertNotNull("Not renderable: $code", SVG.getFromString(svg).renderToPicture(180, 180))
             }
         }
-        assertEquals(29, ids.size)
+        assertEquals(21, ids.size)
         assertEquals(ids, BundledCuteStickerCatalog.items.map(BuiltInCuteSticker::code).toSet())
+        assertTrue("Retired animal stickers must not return as defaults",
+            BundledCuteStickerCatalog.items.none { it.id in StickerLibraryStore.retiredAnimalStickerIds })
     }
 }
