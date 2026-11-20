@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.jiacimu.lulu.ai.VisionModelService
+import android.provider.OpenableColumns
 import java.io.ByteArrayOutputStream
 
 private val kaomojiChoices = listOf(
@@ -80,6 +82,8 @@ internal fun QqStickerShelf(
     var showManifestDialog by remember { mutableStateOf(false) }
     var manifestText by remember { mutableStateOf("") }
     var importingManifest by remember { mutableStateOf(false) }
+    var showVisionDialog by remember { mutableStateOf(false) }
+    var visionBusy by remember { mutableStateOf(false) }
     var importPackName by remember { mutableStateOf("我的添加") }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
         if (uris.isEmpty()) return@rememberLauncherForActivityResult
@@ -97,11 +101,17 @@ internal fun QqStickerShelf(
 
     val packPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) scope.launch {
-            runCatching { StickerPackArchive.import(context, uri, "表情包") }
+            val filename = runCatching {
+                context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                    ?.use { cursor ->
+                        if (cursor.moveToFirst()) cursor.getString(0) else null
+                    }
+            }.getOrNull().orEmpty().ifBlank { "表情包.zip" }
+            runCatching { StickerPackArchive.import(context, uri, filename) }
                 .onSuccess {
                     selectedTab = 0
                     selectedPack = it.pack
-                    onNotice("已导入整组「${it.pack}」：${it.imported} 张" +
+                    onNotice("已导入整组「${it.pack}」：新增 ${it.imported} 张、跳过 ${it.skipped} 张" +
                         if (it.errors.isNotEmpty()) "；${it.errors.size} 张失败：${it.errors.first().take(90)}" else "")
                 }.onFailure { onNotice(it.message ?: "ZIP 导入失败") }
         }
@@ -259,6 +269,17 @@ internal fun QqStickerShelf(
                         }
                     }
                 }
+                if (selectedTab == 0 && stickers.any {
+                        it.pack == selectedPack && it.visualDescription.isBlank()
+                    }) {
+                    val count = stickers.count { it.pack == selectedPack && it.visualDescription.isBlank() }
+                    TextButton(
+                        onClick = { showVisionDialog = true },
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+                    ) {
+                        Text("未标注 $count 张 · 批量识图（可选付费）", fontSize = 11.sp)
+                    }
+                }
                 val visible = if (selectedTab == 2) stickers.filter(LuluSticker::favorite)
                 else stickers.filter { it.pack == selectedPack }
                 if (visible.isEmpty()) {
@@ -319,6 +340,66 @@ internal fun QqStickerShelf(
                 fontSize = 9.sp,
             )
         }
+    }
+
+    if (showVisionDialog) {
+        val unlabelled = stickers.filter { it.pack == selectedPack && it.visualDescription.isBlank() }
+        val configured = VisionModelService.configuration(context).ready
+        AlertDialog(
+            onDismissRequest = { if (!visionBusy) showVisionDialog = false },
+            title = { Text("为「$selectedPack」批量识图") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("这组还有 ${unlabelled.size} 张缺少画面描述；按每批 4 张计算，预计发起 ${(unlabelled.size + 3) / 4} 次识图请求。",
+                        fontSize = 13.sp)
+                    Text("调用的是「识图设置」中独立配置的模型，不会调用聊天模型；已经有描述的不重复识别。API 费用依你的中转站及模型定价计算，无法在这里保证具体金额。",
+                        fontSize = 12.sp, color = QqMuted)
+                    if (!configured) Text("尚未配置独立识图模型，请到设置 → 识图设置选择可看图的模型。",
+                        fontSize = 12.sp, color = MaterialTheme.colorScheme.error)
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = configured && !visionBusy && unlabelled.isNotEmpty(),
+                    onClick = {
+                        visionBusy = true
+                        val targets = unlabelled.toList()
+                        scope.launch {
+                            var success = 0
+                            var failedBatches = 0
+                            var firstError = ""
+                            for (batch in targets.chunked(4)) {
+                                VisionModelService.describeStickerBatch(context, batch.map { it.uri })
+                                    .onSuccess { labels ->
+                                        for (label in labels) {
+                                            val target = batch.getOrNull(label.index - 1) ?: continue
+                                            StickerLibraryStore.rename(
+                                                target.id,
+                                                label.name.ifBlank { target.name },
+                                                label.visualDescription,
+                                                label.usageHint,
+                                            )
+                                            success++
+                                        }
+                                    }
+                                    .onFailure {
+                                        failedBatches++
+                                        if (firstError.isBlank()) firstError = it.message.orEmpty()
+                                        // Do not retry an uncertain paid API call automatically.
+                                        break
+                                    }
+                            }
+                            visionBusy = false
+                            showVisionDialog = false
+                            onNotice("成功标注 $success 张" + if (failedBatches > 0) "；识图中止：$firstError（未自动重试收费请求）" else "")
+                        }
+                    },
+                ) { Text(if (visionBusy) "识图中…" else "确认调用识图模型") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showVisionDialog = false }, enabled = !visionBusy) { Text("暂不识图") }
+            },
+        )
     }
 
     if (showManifestDialog) {
