@@ -1324,7 +1324,7 @@ object ProactivePerceptionRuntime {
                 // Old memories can spark independent ideas during chat as well
                 // as solo life. Persona is supplied already by the gateway.
                 appendLine(CharacterAssociativeRecall.render(characterId, now,
-                    includePersonaLenses = false))
+                    includePersonaLenses = false, includeOwnerKnowledge = false))
                 // The gateway already includes the shared personality runtime,
                 // including relational initiatives; avoid inserting the same evidence twice.
                 appendLine(AutonomousActionTrace.render(
