@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T05:15:14.078632+00:00",
-  "commit": "74e5224e637b89c0356691778b465e609d322f11",
+  "generatedAt": "2026-11-20T05:16:14.563777+00:00",
+  "commit": "809351e1e89eaf0c0f38964e51650ed41b0206b8",
   "branch": "main",
-  "sourceFingerprint": "66aa45ba49ada04fa4be4d3b20d6c1cd70a55a81cd111c462ad234e25120aff3",
+  "sourceFingerprint": "18441df2b195bd4c7923766ff026d1d42f31ded0756abc3e954f2b712976d146",
   "summary": {
     "files": 1501,
-    "lines": 321263,
+    "lines": 321268,
     "symbols": 4563
   },
   "symbolIndex": {
@@ -4601,13 +4601,13 @@
     "loadPage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-        "line": 104
+        "line": 109
       }
     ],
     "openList": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-        "line": 125
+        "line": 130
       }
     ],
     "errorFor": [
@@ -28949,8 +28949,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-      "lines": 359,
-      "sha256": "d793a04f837321b4a2e880c85f14be4daa2029017ce109319358ccd87038e567",
+      "lines": 364,
+      "sha256": "51eafc9e8a3f330f3e61fe08a7780dcce01d3ddf5fc071bfb40418894c1548e0",
       "symbols": [
         {
           "name": "loadLists",
@@ -28962,11 +28962,11 @@
         },
         {
           "name": "loadPage",
-          "line": 104
+          "line": 109
         },
         {
           "name": "openList",
-          "line": 125
+          "line": 130
         }
       ]
     },
