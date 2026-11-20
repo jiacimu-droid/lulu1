@@ -23,7 +23,7 @@ internal object StickerImportManifest {
      * Text/CSV/Markdown: URL | 名称 | 实际画面描述 | 使用语气 | 分组
      * Or just paste multiple HTTPS image URLs, one URL per line.
      */
-    fun parse(raw: String): List<StickerImportEntry> {
+    fun parse(raw: String, defaultPack: String = "我的添加"): List<StickerImportEntry> {
         val input = raw.trim().removePrefix("\uFEFF").trim()
         require(input.isNotBlank()) { "请粘贴图片链接或选择表情包清单" }
         require(input.length <= MAX_MANIFEST_CHARS) { "清单过大，请分批导入" }
@@ -32,18 +32,18 @@ internal object StickerImportManifest {
         } else {
             parseRows(input)
         }
-        val distinct = parsed.map { normalize(it) }.distinctBy { it.url }
+        val distinct = parsed.map { normalize(it, defaultPack) }.distinctBy { it.url }
         require(distinct.isNotEmpty()) { "没有找到可导入的图片链接" }
         require(distinct.size <= MAX_ENTRIES) { "一次最多导入 $MAX_ENTRIES 张，请拆分清单" }
         return distinct
     }
 
     private fun parseJson(input: String): List<StickerImportEntry> {
-        val array = if (input.startsWith("[")) JSONArray(input) else {
-            val root = JSONObject(input)
-            root.optJSONArray("items") ?: root.optJSONArray("stickers")
+        val root = if (input.startsWith("{")) JSONObject(input) else null
+        val pack = root?.optString("pack").orEmpty()
+        val array = if (root == null) JSONArray(input)
+            else root.optJSONArray("items") ?: root.optJSONArray("stickers")
                 ?: error("JSON 应包含 items 或 stickers 数组")
-        }
         return (0 until array.length()).mapNotNull { index ->
             val item = array.optJSONObject(index) ?: return@mapNotNull null
             fun get(vararg keys: String): String =
@@ -55,7 +55,7 @@ internal object StickerImportManifest {
                 get("name", "名称", "名字"),
                 get("description", "visualDescription", "画面描述", "描述"),
                 get("usage", "usageHint", "使用语气", "用途"),
-                get("pack", "group", "分组", "表情包"),
+                get("pack", "group", "分组", "表情包").ifBlank { pack },
             )
         }
     }
@@ -109,7 +109,7 @@ internal object StickerImportManifest {
         return result
     }
 
-    private fun normalize(entry: StickerImportEntry): StickerImportEntry {
+    private fun normalize(entry: StickerImportEntry, defaultPack: String): StickerImportEntry {
         val url = entry.url.trim()
         val parsed = runCatching { URL(url) }.getOrNull()
         require(parsed?.protocol == "https" && !parsed.host.isNullOrBlank()) {
@@ -121,7 +121,7 @@ internal object StickerImportManifest {
             name = entry.name.trim().take(90).ifBlank { "自选表情" },
             visualDescription = entry.visualDescription.trim().take(400),
             usageHint = entry.usageHint.trim().take(160),
-            pack = entry.pack.trim().take(40).ifBlank { "我的添加" },
+            pack = entry.pack.trim().take(40).ifBlank { defaultPack.trim().take(40).ifBlank { "我的添加" } },
         )
     }
 }
