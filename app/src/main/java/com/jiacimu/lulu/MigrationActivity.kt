@@ -104,6 +104,8 @@ class MigrationActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        // The in-app Compose card replaces the Android overlay on return.
+        ListenTogetherSystemOverlay.dismiss()
         if (StartupFailureRecovery.recovering || !runtimeInitialized) return
         resumePeripheral("小红书前台会话恢复") {
             com.jiacimu.lulu.data.XhsReadingEngine.resume(this)
@@ -157,6 +159,9 @@ class MigrationActivity : ComponentActivity() {
         // returning from another app; Android retains the real notification.
         com.jiacimu.lulu.data.CharacterMessageNotifications.dismissInApp()
         ProactivePerceptionScheduler.stopForegroundChecks()
+        // Move the compact player above other apps only with explicit
+        // Android "display over apps" permission.
+        ListenTogetherSystemOverlay.present(applicationContext)
         super.onPause()
     }
 
