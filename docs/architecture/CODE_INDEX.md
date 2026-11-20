@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ed2b23eb99c432ccab7c6bf1da5b3f998fb42fe3`
+- 基准提交：`c0cbfc8453a85802ffd191438af6e6628de6fc86`
 - 分支：`main`
 - 已索引文件：1498
-- 已索引代码/文本行：320571
+- 已索引代码/文本行：320578
 - 已发现符号：4556
 
 | 文件 | 行数 | 符号数 |
@@ -319,7 +319,7 @@
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolderUi.kt` | 177 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SelfWishFolders.kt` | 103 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/SettingsHomeSearch.kt` | 96 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt` | 188 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/SharedListenPlaylists.kt` | 195 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt` | 71 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/SleepCallContinuationPolicy.kt` | 98 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/SleepGuidanceGuide.kt` | 60 | 2 |
