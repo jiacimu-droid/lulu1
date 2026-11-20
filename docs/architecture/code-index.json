@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T08:34:45.104575+00:00",
-  "commit": "f63a78c938e3867e494220f85c4ba2043bd3c838",
+  "generatedAt": "2026-11-20T09:49:52.055938+00:00",
+  "commit": "ffd607a6f0d32ecb905f0993c63da5c0d80468ab",
   "branch": "main",
-  "sourceFingerprint": "fdcb9a2078c301aaf49c33ffc68efa3c89a6cd81a0c72ad21c80ff26bf2a9874",
+  "sourceFingerprint": "4cda7029c71fadc85e27754cf30ed3f781fa684a19745fa6359bfe82af4c1f46",
   "summary": {
     "files": 1503,
-    "lines": 322703,
+    "lines": 322732,
     "symbols": 4576
   },
   "symbolIndex": {
@@ -461,7 +461,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 157
+        "line": 173
       }
     ],
     "updateForSpeech": [
@@ -599,7 +599,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 635
+        "line": 645
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterMotiveDeliberation.kt",
@@ -1413,7 +1413,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 49
+        "line": 59
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ApocalypseGenerationTaskManagerV5.kt",
@@ -2437,7 +2437,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 316
+        "line": 332
       }
     ],
     "recordListening": [
@@ -8567,7 +8567,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 595
+        "line": 605
       }
     ],
     "cue": [
@@ -8703,43 +8703,43 @@
     "CharacterLifeStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 21
+        "line": 31
       }
     ],
     "bodyStorageReady": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 59
+        "line": 69
       }
     ],
     "bodyState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 60
+        "line": 70
       }
     ],
     "lastBodyChange": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 62
+        "line": 72
       }
     ],
     "phoneMemos": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 116
+        "line": 126
       }
     ],
     "afterglowContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 280
+        "line": 290
       }
     ],
     "profileContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-        "line": 566
+        "line": 576
       }
     ],
     "current": [
@@ -22279,7 +22279,7 @@
     "proposal": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-        "line": 173
+        "line": 189
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/ResidentDailyContinuityTest.kt",
@@ -32648,48 +32648,48 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeStore.kt",
-      "lines": 684,
-      "sha256": "defa037135816bba413fd4a982d6fe6faaf6868043c06aed62afc45c1023ad00",
+      "lines": 697,
+      "sha256": "a1de79658f20c74b35a2b27f506854278f9ccfa4d189eed40c61a384772fc0b2",
       "symbols": [
         {
           "name": "CharacterLifeStore",
-          "line": 21
+          "line": 31
         },
         {
           "name": "state",
-          "line": 49
-        },
-        {
-          "name": "bodyStorageReady",
           "line": 59
         },
         {
+          "name": "bodyStorageReady",
+          "line": 69
+        },
+        {
           "name": "bodyState",
-          "line": 60
+          "line": 70
         },
         {
           "name": "lastBodyChange",
-          "line": 62
+          "line": 72
         },
         {
           "name": "phoneMemos",
-          "line": 116
+          "line": 126
         },
         {
           "name": "afterglowContext",
-          "line": 280
+          "line": 290
         },
         {
           "name": "profileContext",
-          "line": 566
+          "line": 576
         },
         {
           "name": "compactContext",
-          "line": 595
+          "line": 605
         },
         {
           "name": "context",
-          "line": 635
+          "line": 645
         }
       ]
     },
@@ -49082,8 +49082,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterLifeStoreTest.kt",
-      "lines": 343,
-      "sha256": "5db6881aad05f0cb9230823a0a2b6278e99eec57b58670c4dd47effe560655ae",
+      "lines": 359,
+      "sha256": "24a8897babdcfbc35de2834989c3f448897eaa140370a91f2de70cb77769d599",
       "symbols": [
         {
           "name": "CharacterLifeStoreTest",
@@ -49091,15 +49091,15 @@
         },
         {
           "name": "update",
-          "line": 157
-        },
-        {
-          "name": "proposal",
           "line": 173
         },
         {
+          "name": "proposal",
+          "line": 189
+        },
+        {
           "name": "reload",
-          "line": 316
+          "line": 332
         }
       ]
     },
