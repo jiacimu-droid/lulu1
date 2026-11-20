@@ -176,13 +176,12 @@ internal object NeteaseCloudAccount {
         return withContext(Dispatchers.IO) {
             val collected = ArrayList<NeteaseCloudList>()
             var offset = 0
-            repeat(20) {
+            for (pageIndex in 0 until 20) {
                 val page = request("/api/user/playlist?uid=$uid&limit=100&offset=$offset", cookie)
                 val chunk = parseLists(page)
                 collected.addAll(chunk)
-                if (chunk.isEmpty() || !page.optBoolean("more", false)) return@withContext
+                if (chunk.isEmpty() || !page.optBoolean("more", false)) break
                 offset += chunk.size
-                check(chunk.size > 0) { "歌单分页没有前进" }
             }
             collected.distinctBy { it.id }
         }

@@ -1012,6 +1012,7 @@
 | `app/src/test/java/com/jiacimu/lulu/MeetingWalkAndTalkContractTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MossSpeechModelCatalogTest.kt` | 28 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/NeteaseCloudAccountTest.kt` | 79 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PerceptionStatusPresentationTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt` | 54 | 1 |
