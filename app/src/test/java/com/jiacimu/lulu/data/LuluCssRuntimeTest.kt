@@ -119,6 +119,7 @@ class LuluCssRuntimeTest {
             #ListenTogether .music-avatar-role { width: 62dp; }
             #ListenTogether .music-links { color: #f59ca5; border-width: 6dp; }
             #ListenTogether .music-play { background-color: #975588; }
+            #MusicLibrary .music-playlist-card { background-color: #fff9fa; }
             #WatchTogether .watch-player { background-color: #222244; }
         """.trimIndent())
         assertTrue(sheet.errors.toString(), sheet.errors.isEmpty())
@@ -130,6 +131,8 @@ class LuluCssRuntimeTest {
             sheet.element("ListenTogether", "music-mini")["background-image"]))
         assertEquals("#faf8fa", sheet.element("ListenTogether", "music-mini-compact")["background-color"])
         assertEquals("#aa6688", sheet.element("ListenTogether", "music-mini-hidden")["background-color"])
+        assertEquals("#fff9fa", sheet.element("MusicLibrary", "music-playlist-card")["background-color"])
+        assertEquals(0xFFAB3456L, sheet.profile("MusicLibrary", base).palette.accent)
         assertEquals("110dp", sheet.element("ListenTogether", "music-vinyl")["width"])
         assertEquals(token, LuluCssSheet.assetToken(
             sheet.element("ListenTogether", "music-vinyl")["background-image"]))
