@@ -95,4 +95,20 @@ class TokenConsolePresentationTest {
         assertEquals(parts.sumOf { it.estimatedTokens.toLong() }, groups.sumOf { it.estimatedTokens })
     }
 
+    @Test fun retrievedOwnerFactsAndLearningDoNotInflatePermanentCoreTotals() {
+        val parts = listOf(
+            TokenBreakdownItem("核心记忆", 250, 139),
+            TokenBreakdownItem("成长与持续动机", 600, 333),
+            TokenBreakdownItem("已读材料与可修订的理解", 1800, 1000),
+            TokenBreakdownItem("生活记录（日记和收藏只证明写作或收藏；旧版挂心笔记不进入当前心理决策）：", 1400, 778),
+            TokenBreakdownItem("关于主人的记忆认识（按话题召回，旧印象不覆盖新原话）：", 850, 472),
+        )
+        val groups = TokenConsolePresentation.groups(parts)
+        val core = groups.first { it.title == "核心记忆与长期目标" }
+        val recalled = groups.first { it.title == "历史记忆与知识召回" }
+        assertEquals(850L, core.chars)
+        assertEquals(4050L, recalled.chars)
+        assertEquals(parts.toSet(), groups.flatMap { it.items }.toSet())
+    }
+
 }
