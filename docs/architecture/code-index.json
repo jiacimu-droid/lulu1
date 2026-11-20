@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T00:58:32.195551+00:00",
-  "commit": "243ebd5c3371ecc944cfa7d8aca16855673871a5",
+  "generatedAt": "2026-11-20T00:59:11.649340+00:00",
+  "commit": "f261d9b7d38986b2f276a8d6e6a6c5bdef7f98d9",
   "branch": "main",
-  "sourceFingerprint": "2e21d7fe5a98c420b595883222f4bb06376a75069fa9d3fb91e233d0a02f88e1",
+  "sourceFingerprint": "5e3e598a040954806b2f6774842ed4e340614d2641c8fccc91969ec7703eccaf",
   "summary": {
-    "files": 1486,
-    "lines": 317457,
-    "symbols": 4514
+    "files": 1487,
+    "lines": 317585,
+    "symbols": 4517
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5586,6 +5586,132 @@
         "line": 86
       }
     ],
+    "parse": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerImportManifest.kt",
+        "line": 26
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDirector.kt",
+        "line": 58
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
+        "line": 41
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 81
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt",
+        "line": 18
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt",
+        "line": 11
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt",
+        "line": 16
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
+        "line": 30
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
+        "line": 25
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
+        "line": 18
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
+        "line": 187
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt",
+        "line": 12
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt",
+        "line": 13
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
+        "line": 265
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
+        "line": 39
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
+        "line": 10
+      }
+    ],
+    "get": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerImportManifest.kt",
+        "line": 49
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
+        "line": 48
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
+        "line": 55
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
+        "line": 53
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
+        "line": 1294
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
+        "line": 79
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
+        "line": 254
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
+        "line": 57
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
+        "line": 164
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
+        "line": 165
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
+        "line": 313
+      }
+    ],
+    "cell": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/StickerImportManifest.kt",
+        "line": 81
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
+        "line": 47
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
+        "line": 137
+      }
+    ],
     "byId": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
@@ -6852,68 +6978,6 @@
         "line": 24
       }
     ],
-    "parse": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterDirector.kt",
-        "line": 58
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterSelfActivityRuntime.kt",
-        "line": 41
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 81
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt",
-        "line": 18
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt",
-        "line": 11
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/TimedContactCommitmentParser.kt",
-        "line": 16
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WakeCommitmentParser.kt",
-        "line": 30
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/WorldBookJsonImporter.kt",
-        "line": 25
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/XhsExplicitReadRequest.kt",
-        "line": 18
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-        "line": 187
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandInvitation.kt",
-        "line": 12
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicLobbyInvitation.kt",
-        "line": 13
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 265
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt",
-        "line": 39
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/TheaterPlanningPayload.kt",
-        "line": 10
-      }
-    ],
     "approvedBeats": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/AutonomousEncounterScript.kt",
@@ -8056,48 +8120,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
         "line": 16
-      }
-    ],
-    "get": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt",
-        "line": 48
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/DigitalLifeProfileStore.kt",
-        "line": 55
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryEmbeddingIndex.kt",
-        "line": 53
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/MigratedDomainStores.kt",
-        "line": 1294
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionPolicyStore.kt",
-        "line": 79
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/MiniTheaterLibrary.kt",
-        "line": 254
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/ReadingReflectionStore.kt",
-        "line": 57
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishPlotPlanning.kt",
-        "line": 164
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 165
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishTheaterGenerationWorker.kt",
-        "line": 313
       }
     ],
     "set": [
@@ -15740,16 +15762,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
         "line": 46
-      }
-    ],
-    "cell": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/ExpeditionRules.kt",
-        "line": 47
-      },
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/RelicEscapeArt.kt",
-        "line": 137
       }
     ],
     "adjacent": [
@@ -29700,6 +29712,25 @@
       "lines": 24,
       "sha256": "8162acd077a55fd347b353df908d56f62e696e40857eebf5d7db3a2c867108a7",
       "symbols": []
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/StickerImportManifest.kt",
+      "lines": 128,
+      "sha256": "238d7c5fea8c5a6990464fa65ba14bf5ae4c99d2c0381a6d37c4b1e4f8755af4",
+      "symbols": [
+        {
+          "name": "parse",
+          "line": 26
+        },
+        {
+          "name": "get",
+          "line": 49
+        },
+        {
+          "name": "cell",
+          "line": 81
+        }
+      ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt",
