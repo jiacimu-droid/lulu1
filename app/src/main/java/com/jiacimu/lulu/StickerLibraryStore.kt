@@ -290,6 +290,85 @@ internal object StickerLibraryStore {
         }
     }
 
+
+    /** Download and verify a user-selected HTTPS image; keep the copied bytes offline. */
+    suspend fun importRemote(context: Context, entry: StickerImportEntry): Result<LuluSticker> =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                initialize(context)
+                items.value.firstOrNull { it.sourceUrl == entry.url }?.let { return@runCatching it }
+                check(items.value.size < MAX_ITEMS) { "表情包数量已达上限（$MAX_ITEMS）" }
+                val url = URL(entry.url)
+                require(url.protocol == "https" && url.userInfo == null) { "仅支持 HTTPS 图片直链" }
+                val host = url.host.lowercase()
+                require(host.isNotBlank() && host != "localhost" && !host.endsWith(".localhost")
+                    && !host.endsWith(".local") && !host.endsWith(".internal")) {
+                    "不能导入本地或内网地址"
+                }
+                val addresses = java.net.InetAddress.getAllByName(host)
+                require(addresses.isNotEmpty() && addresses.all {
+                    !it.isAnyLocalAddress && !it.isLoopbackAddress && !it.isSiteLocalAddress
+                        && !it.isLinkLocalAddress && !it.isMulticastAddress
+                }) { "不能导入本地或内网地址" }
+                val connection = url.openConnection() as HttpURLConnection
+                connection.connectTimeout = 8_000
+                connection.readTimeout = 10_000
+                connection.instanceFollowRedirects = false
+                try {
+                    check(connection.responseCode == 200) { "图片请求失败：HTTP ${connection.responseCode}，请使用图片直链" }
+                    val mime = connection.contentType.orEmpty().substringBefore(';').trim().lowercase()
+                    val extension = when (mime) {
+                        "image/png" -> "png"
+                        "image/jpeg", "image/jpg" -> "jpg"
+                        "image/gif" -> "gif"
+                        "image/webp" -> "webp"
+                        else -> error("链接不是 PNG/JPG/GIF/WebP 图片：$mime")
+                    }
+                    check(connection.contentLengthLong < 0 || connection.contentLengthLong <= MAX_BYTES) {
+                        "单张图片不能超过 5MB"
+                    }
+                    val id = UUID.randomUUID().toString()
+                    val folder = File(context.applicationContext.filesDir, "sticker-library").apply { mkdirs() }
+                    val file = File(folder, "$id.$extension")
+                    try {
+                        connection.inputStream.use { input ->
+                            file.outputStream().use { output ->
+                                val bytes = ByteArray(16_384)
+                                var total = 0
+                                while (true) {
+                                    val count = input.read(bytes)
+                                    if (count < 0) break
+                                    total += count
+                                    check(total <= MAX_BYTES) { "单张图片不能超过 5MB" }
+                                    output.write(bytes, 0, count)
+                                }
+                            }
+                        }
+                        check(file.length() > 0L) { "图片为空" }
+                        val probe = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                        BitmapFactory.decodeFile(file.absolutePath, probe)
+                        check(probe.outWidth in 1..10_000 && probe.outHeight in 1..10_000
+                            && probe.outWidth.toLong() * probe.outHeight <= 25_000_000) {
+                            "图片无法解码或分辨率过高"
+                        }
+                        val sticker = LuluSticker(
+                            id, Uri.fromFile(file).toString(), entry.name,
+                            pack = entry.pack, visualDescription = entry.visualDescription,
+                            usageHint = entry.usageHint, sourceUrl = entry.url,
+                        )
+                        update { old -> if (old.any { it.sourceUrl == entry.url }) old else old + sticker }
+                        check(items.value.any { it.id == id }) { "图片保存失败" }
+                        sticker
+                    } catch (failure: Throwable) {
+                        file.delete()
+                        throw failure
+                    }
+                } finally {
+                    connection.disconnect()
+                }
+            }
+        }
+
     suspend fun importImage(context: Context, selected: Uri, label: String = ""): Result<LuluSticker> =
         withContext(Dispatchers.IO) {
             runCatching {
