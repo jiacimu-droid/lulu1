@@ -168,7 +168,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 715 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 156 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherMiniWindow.kt` | 247 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ListenTogetherMusicLibrary.kt` | 307 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherMusicLibrary.kt` | 310 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 413 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 416 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherSystemOverlay.kt` | 278 | 6 |
@@ -256,6 +256,7 @@
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/NeteaseCloudAccount.kt` | 214 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt` | 359 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 58 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
