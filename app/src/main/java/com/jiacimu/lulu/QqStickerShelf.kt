@@ -192,9 +192,13 @@ internal fun QqStickerShelf(
             importingManifest = false
             if (imported > 0) { selectedTab = 0; selectedPack = entries.first().pack }
             showManifestDialog = false
-            val automatic = if (imported > 0) entries.map { it.pack }.distinct()
-                .joinToString("") { pack -> summarizeVision(pack) } else ""
-            onNotice("已处理 ${entries.size} 张，成功 $imported，失败 $failed" + automatic +
+            val automatic = StringBuilder()
+            if (imported > 0) {
+                for (pack in entries.map { it.pack }.distinct()) {
+                    automatic.append(summarizeVision(pack))
+                }
+            }
+            onNotice("已处理 ${entries.size} 张，成功 $imported，失败 $failed" + automatic.toString() +
                 if (failed > 0) "；$firstError" else "")
         }
     }
