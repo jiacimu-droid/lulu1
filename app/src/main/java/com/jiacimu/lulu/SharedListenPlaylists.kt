@@ -151,7 +151,7 @@ internal object NeteaseSongLink {
         // Android's Share copies descriptions before the URL; extract only
         // a verified NetEase URL instead of treating the first word as a link.
         val candidate = Regex(
-            """(?:orpheus://song/|https?://(?:y\\.)?music\\.163\\.com/)[^\\s<>）)]+""",
+            """(?:orpheus://song/|https?://(?:y\.)?music\.163\.com/)[^\s<>）)]+""",
             RegexOption.IGNORE_CASE,
         ).find(trimmed)?.value?.trimEnd('。', '，', '.', ',')
             ?: return null
