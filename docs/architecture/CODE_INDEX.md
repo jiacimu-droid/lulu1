@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c64dcf0d02fb337c953ba87ab353c965ba66d7e9`
+- 基准提交：`d26e306c226013f28eefc3b66539c9f9f39d0060`
 - 分支：`main`
 - 已索引文件：1486
-- 已索引代码/文本行：317457
+- 已索引代码/文本行：317449
 - 已发现符号：4514
 
 | 文件 | 行数 | 符号数 |
@@ -71,7 +71,7 @@
 | `app/src/main/cpp/whisper_jni.cpp` | 94 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AutomaticVoiceForeground.kt` | 45 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/AvatarController.kt` | 37 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/BundledCuteStickerCatalog.kt` | 57 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/BundledCuteStickerCatalog.kt` | 49 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioInput.kt` | 230 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioPlaybackClock.kt` | 42 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CallAudioRecoveryPolicy.kt` | 14 | 1 |
