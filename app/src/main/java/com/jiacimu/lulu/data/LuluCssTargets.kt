@@ -7,6 +7,8 @@ object LuluCssTargets {
     val pages: List<Page> = LuluAppearanceCatalog.scopes.map { (id, label) -> Page(id, label) }
         .map { if (it.id == "Theater") it.copy(parent = "Reading") else it } + listOf(
         Page("ChatDetail", "聊天 · 对话", "Chat"),
+        Page("ListenTogether", "聊天 · 一起听", "ChatDetail"),
+        Page("WatchTogether", "聊天 · 一起看", "ChatDetail"),
         Page("GroupChat", "聊天 · 群聊", "ChatDetail"),
         Page("GroupSettings", "聊天 · 群聊设置", "GroupChat"),
         Page("GroupMembers", "聊天 · 群成员管理", "GroupSettings"),
@@ -74,6 +76,18 @@ object LuluCssTargets {
         "widget-calendar", "widget-clock", "widget-photo")
     private val chatElements = setOf("bubble", "bubble-user", "bubble-role", "messages", "composer",
         "composer-input", "composer-send", "composer-tools")
+    // Each nested room is an independent native CSS surface, inheriting its
+    // Chat -> ChatDetail parent rules rather than becoming another app.
+    private val listenElements = setOf(
+        "music-room", "music-header", "music-source", "music-artwork", "music-links",
+        "music-avatar-role", "music-avatar-user", "music-vinyl",
+        "music-track-title", "music-track-artist", "music-progress", "music-controls",
+        "music-play", "music-caption", "music-actions", "music-playlist",
+        "music-playlist-card", "music-chat", "music-chat-input",
+    )
+    private val watchElements = setOf(
+        "watch-room", "watch-header", "watch-player", "watch-controls", "watch-chat",
+    )
 
     fun lineage(scope: String): List<String> {
         val parent = byId[scope]?.parent ?: return listOf(scope)
@@ -90,7 +104,9 @@ object LuluCssTargets {
         val allowed = scope?.let(::lineage).orEmpty()
         return ((scope == null || "Home" in allowed) && (name in desktopElements ||
             name.startsWith("app-"))) ||
-            ((scope == null || "Chat" in allowed) && name in chatElements)
+            ((scope == null || "Chat" in allowed) && name in chatElements) ||
+            ((scope == null || "ListenTogether" in allowed) && name in listenElements) ||
+            ((scope == null || "WatchTogether" in allowed) && name in watchElements)
     }
 
     fun coverSelector(appId: String): String = "#Home .app-$appId"
