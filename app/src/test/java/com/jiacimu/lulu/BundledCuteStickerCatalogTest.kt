@@ -6,9 +6,11 @@ import org.junit.Test
 class BundledCuteStickerCatalogTest {
     @Test fun everyStickerHasARealVisualDescriptionNotJustAnEmotionLabel() {
         val stickers = BundledCuteStickerCatalog.items
-        assertEquals(29, stickers.size)
-        assertEquals(29, stickers.map(BuiltInCuteSticker::id).distinct().size)
-        assertEquals(setOf("猫猫表情", "软萌动物", "日常心情梗"), stickers.map { it.pack }.toSet())
+        assertEquals(21, stickers.size)
+        assertEquals(21, stickers.map(BuiltInCuteSticker::id).distinct().size)
+        assertEquals(setOf("猫猫表情", "日常心情梗"), stickers.map { it.pack }.toSet())
+        assertTrue(stickers.none { it.id in StickerLibraryStore.retiredAnimalStickerIds })
+        assertEquals(8, StickerLibraryStore.retiredAnimalStickerIds.size)
         stickers.forEach { sticker ->
             assertTrue("Missing pictured content: ${sticker.code}", sticker.description.length >= 20)
             assertTrue("Missing social use: ${sticker.code}", sticker.usage.length >= 2)
