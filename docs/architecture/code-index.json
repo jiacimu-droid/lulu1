@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T05:17:12.283106+00:00",
-  "commit": "28f5fe36bc609bb8e01250008c1fba7597c27d33",
+  "generatedAt": "2026-11-20T05:20:28.328876+00:00",
+  "commit": "049e3f0266fb4a4cfa759115c36de5ef2c8e7735",
   "branch": "main",
-  "sourceFingerprint": "a28ff11370f9f518ce9a1f54e1546e8606371a7946f2ae706b47ddac9010909f",
+  "sourceFingerprint": "9b79284bc12caff0715e38514a26261271ead4c5b7af5ff940b2197991d90b02",
   "summary": {
     "files": 1501,
-    "lines": 321276,
+    "lines": 321280,
     "symbols": 4563
   },
   "symbolIndex": {
@@ -4589,25 +4589,25 @@
     "loadLists": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-        "line": 56
+        "line": 57
       }
     ],
     "verify": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-        "line": 81
+        "line": 82
       }
     ],
     "loadPage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-        "line": 112
+        "line": 113
       }
     ],
     "openList": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-        "line": 133
+        "line": 134
       }
     ],
     "errorFor": [
@@ -28938,8 +28938,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudAccount.kt",
-      "lines": 213,
-      "sha256": "761a239418b30d7f2e134b390cd646897ff1df14db974cc681daacb9862b1026",
+      "lines": 216,
+      "sha256": "37c811ec59b532d53260b886190840904964b57ae12eea1ced9a0b090fccdd1d",
       "symbols": [
         {
           "name": "userId",
@@ -28949,24 +28949,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-      "lines": 372,
-      "sha256": "2fa22d8ec82654cb254e9f952ef90742af9596fdc38ad8af22b12d1e74b3219b",
+      "lines": 373,
+      "sha256": "e49e59c1f6fb3d9e9cb0826b7f51287b69e00c99b0d319d68d2fa6955b55f433",
       "symbols": [
         {
           "name": "loadLists",
-          "line": 56
+          "line": 57
         },
         {
           "name": "verify",
-          "line": 81
+          "line": 82
         },
         {
           "name": "loadPage",
-          "line": 112
+          "line": 113
         },
         {
           "name": "openList",
-          "line": 133
+          "line": 134
         }
       ]
     },
