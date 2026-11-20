@@ -65,21 +65,20 @@ internal object StickerFlexibleTextImport {
                     val urlIndex = columns.indexOfFirst { url.containsMatchIn(it) }
                     val link = url.find(columns[urlIndex])!!.value.trimEnd('.', ':')
                     var record = Note()
-                    for (i in columns.indices) {
-                        if (i == urlIndex) continue
-                        val column = columns[i].trim()
-                        val keyValue = field.matchEntire(column)
-                        record = if (keyValue != null) {
-                            record.withField(keyValue.groupValues[1], keyValue.groupValues[2])
-                        } else {
-                            when {
-                                record.name.isBlank() && column.length <= 90 -> record.copy(name = column)
-                                record.description.isBlank() -> record.copy(description = column.take(400))
-                                record.usage.isBlank() -> record.copy(usage = column.take(160))
-                                else -> record
-                            }
-                        }
+                    // Read natural tables with URL in any column and common
+                    // columns name / URL / description / usage / pack.
+                    val remaining = columns.filterIndexed { index, _ -> index != urlIndex }
+                    val labelled = remaining.filter { field.matches(it) }
+                    for (column in labelled) {
+                        val kv = field.matchEntire(column) ?: continue
+                        record = record.withField(kv.groupValues[1], kv.groupValues[2])
                     }
+                    val unnamed = remaining.filterNot { field.matches(it) }
+                        .filter { it.isNotBlank() && !it.matches(Regex("[-:]+")) }
+                    if (record.name.isBlank()) record = record.copy(name = unnamed.getOrNull(0).orEmpty().take(90))
+                    if (record.description.isBlank()) record = record.copy(description = unnamed.getOrNull(1).orEmpty().take(400))
+                    if (record.usage.isBlank()) record = record.copy(usage = unnamed.getOrNull(2).orEmpty().take(160))
+                    if (record.pack.isBlank()) record = record.copy(pack = unnamed.getOrNull(3).orEmpty().take(40))
                     persistLast()
                     last = entry(link, record, inheritedPack)
                     pending = Note()
