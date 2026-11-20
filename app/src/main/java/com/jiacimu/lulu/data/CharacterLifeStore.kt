@@ -17,6 +17,16 @@ internal fun sameCharacterMotive(first: String, second: String): Boolean {
             kotlin.math.abs(a.length - b.length) <= 12 && (a.contains(b) || b.contains(a))))
 }
 
+/** Sending the complete legacy outcome JSONArray on every decision caused unbounded
+ * prompt growth. Keep the last actual outcome and its status; earlier receipts
+ * remain intact in the original durable JSON and can be recalled from history. */
+internal fun legacyIntentionLastOutcome(outcomes: JSONArray?): String {
+    val last = outcomes?.optJSONObject((outcomes.length() - 1).coerceAtLeast(0))
+        ?: return "尚无历史动作回执。"
+    return "最近一次历史动作（不证明愿望已完成）：动作=${last.optString("action").take(160)}；" +
+        "成功=${last.optBoolean("success")}；结果=${last.optString("summary").take(300)}"
+}
+
 /** Subjective motives are never evidence of an action or a fulfilled promise. */
 object CharacterLifeStore {
     private var prefs: android.content.SharedPreferences? = null
@@ -663,7 +673,10 @@ object CharacterLifeStore {
                 appendLine("【持续动机｜角色主观愿望，不是已完成事实或用户承诺】")
                 appendLine("从${intention.optString("createdAt")}开始在意：${intention.optString("aim")}；动机：${intention.optString("motive")}；阶段=${intention.optString("stage", "considering")}")
                 appendLine("最近调整：${intention.optString("updatedAt", intention.optString("createdAt"))}；依据：${intention.optString("changeReason")}。")
-                appendLine("动机ID=${intention.optString("createdAt")}。近期实际动作回执（不自动认定每个动作都推进这个愿望）：${intention.optJSONArray("outcomes") ?: JSONArray()}")
+                // Legacy intentions are retained in storage, but their lifetime
+                // outcomes ledger must never be re-sent verbatim on every Full call.
+                // The unified action timeline handles earlier evidence by recall.
+                appendLine("动机ID=${intention.optString("createdAt")}。${legacyIntentionLastOutcome(intention.optJSONArray("outcomes"))}")
                 appendLine("愿望阶段：considering=考虑中；decided=本人已决定；executing=工具执行中/重启待核对；blocked=行动失败待调整；following_up=动作成功但目标未必达成；paused=暂缓。真实回执才代表动作结果。")
                 appendLine("结合真实结果决定接着做、换办法、等待或保持安静。成功回执只证明该动作，不证明长期愿望已经实现；发送关心不等于用户接受，日记不等于现实经历。")
             }
