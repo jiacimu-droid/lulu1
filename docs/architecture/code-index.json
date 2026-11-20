@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:05:31.054923+00:00",
-  "commit": "70771ccc3c01a43d4023ed4d96bf148fa518c94f",
+  "generatedAt": "2026-11-20T01:06:21.660307+00:00",
+  "commit": "ab7c70404b45a996df579da09a0a2fab5b2132d8",
   "branch": "main",
-  "sourceFingerprint": "f727dbc0d70ae867be9b8f8af431d538205da1da1b359347dbb78844cfa265f4",
+  "sourceFingerprint": "78829017113e8d982c5dc2bcf4d10ad291d2bb96e58b79734e6de559f487bdf2",
   "summary": {
     "files": 1488,
-    "lines": 318057,
+    "lines": 318138,
     "symbols": 4520
   },
   "symbolIndex": {
@@ -4925,7 +4925,7 @@
     "importManifest": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt",
-        "line": 131
+        "line": 141
       }
     ],
     "QqStyleChatDetailScreen": [
@@ -29140,12 +29140,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt",
-      "lines": 420,
-      "sha256": "43016731beb71bcb84d083381abc1a458f0f95016ec5f465445bd0b37bbe257e",
+      "lines": 501,
+      "sha256": "b09bdb3d9406d75663c0fc62161b3b249693ca6cc6af24df51c262beec453a8b",
       "symbols": [
         {
           "name": "importManifest",
-          "line": 131
+          "line": 141
         }
       ]
     },
