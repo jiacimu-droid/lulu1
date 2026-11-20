@@ -36113,8 +36113,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LexiconMemoryContext.kt",
-      "lines": 51,
-      "sha256": "adf47ad7a7797a23349cf14499d345c666db8d492472df5362aa6c75dc896efb",
+      "lines": 63,
+      "sha256": "a691a964fd9501962a7db34aa952155fb648ca3c832095d5d02614117b341143",
       "symbols": [
         {
           "name": "LexiconMemoryContext",
@@ -50668,8 +50668,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LexiconWorkingSetTest.kt",
-      "lines": 98,
-      "sha256": "840a4de224ef23d4e73ee8463ebd89a3e3c261ae31ffe2a404765c7b0f961057",
+      "lines": 113,
+      "sha256": "8b0da3fed1e39ba9724cdf76676dd486734d90031b7366f12ea10d6207358e5e",
       "symbols": [
         {
           "name": "LexiconWorkingSetTest",
