@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`183cd6266c4203de00785cca91c78e7371ffd002`
+- 基准提交：`3d2c58194cbcc5433f4a372625af13b12ae97d1f`
 - 分支：`main`
 - 已索引文件：1503
-- 已索引代码/文本行：322658
+- 已索引代码/文本行：322665
 - 已发现符号：4574
 
 | 文件 | 行数 | 符号数 |
@@ -102,7 +102,7 @@
 | `app/src/main/java/com/jiacimu/lulu/CharacterMemoryFeatureScreen.kt` | 11 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterMomentHistoryCard.kt` | 129 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterMusicSensingSettings.kt` | 84 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt` | 544 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/CharacterRememberedThingsScreen.kt` | 549 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSectionTabs.kt` | 33 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterSettingsScreenV2.kt` | 647 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/CharacterWirelessDebuggingSettings.kt` | 136 | 0 |
@@ -165,7 +165,7 @@
 | `app/src/main/java/com/jiacimu/lulu/GroupChatTurnPlanner.kt` | 193 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/IncomingCallAnswerPolicy.kt` | 18 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/KeyboardFocusBehavior.kt` | 39 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 715 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 717 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 156 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherMiniWindow.kt` | 247 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherMusicLibrary.kt` | 310 | 1 |
