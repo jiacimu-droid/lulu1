@@ -49,6 +49,63 @@ internal fun parseYachtRoleDecision(
     }
 }.getOrNull()
 
+internal data class YachtDecisionPrompts(val facts: String, val instruction: String)
+
+/** Shared pure contract for the live request and game-policy regression tests. */
+internal fun buildYachtDecisionPrompts(
+    characterId: String,
+    dice: List<Int>,
+    roll: Int,
+    scores: Map<String, Map<YachtCategory, Int>>,
+    playerNames: Map<String, String>,
+    ownerSpeech: String,
+): YachtDecisionPrompts {
+    val sheet = scores["role:$characterId"].orEmpty()
+    val available = YachtCategory.entries.filterNot { it in sheet }.toSet()
+    val facts = buildString {
+        appendLine("【快艇骰子 · 真实对局】你在和其他玩家竞争13个计分格，目标是争取尽量高的整局总分。")
+        appendLine("你正在填第${sheet.size + 1}/13个格子；本回合已掷$roll/3次，最多三掷，允许提前计分。")
+        appendLine("骰子位置从0到4：${dice.mapIndexed { i, n -> "$i=$n" }.joinToString("、")}。")
+        playerNames.forEach { (id, name) ->
+            val used = scores[id].orEmpty()
+            appendLine("$name 已得${used.values.sum()}分；已填格：${used.entries.joinToString("、") { "${it.key.name}=${it.value}" }.ifBlank { "无" }}")
+        }
+        appendLine("你尚可填写的格子及本掷得分：")
+        available.forEach { appendLine("${it.name}(${it.label})=${scoreYacht(it, dice)}") }
+        if (roll < 3) {
+            appendLine("还有${3-roll}次重掷机会，你可以保留选中的骰子，其他骰子重新随机掷。")
+            val groups = dice.groupingBy { it }.eachCount()
+            val bestGroup = groups.entries.maxByOrNull { it.value }
+            if (bestGroup != null && bestGroup.value == 4 && YachtCategory.Yacht in available) {
+                val heldPositions = dice.indices.filter { dice[it] == bestGroup.key }
+                appendLine("争高分机会：已有四颗${bestGroup.key}点（位置${heldPositions.joinToString("、")}），留住这四颗仅重掷另一颗，单次命中第五颗同点得快艇50分的机会是1/6；两次尝试约11/36。追失败仍能按最终骰面填写其他未用格（如四条）；根据可用格及比赛形势自主取舍。")
+            }
+        } else {
+            appendLine("第三掷已完成，骰面锁定，本回合必须立即选择一个尚未填写的计分格，不能再掷。")
+        }
+        appendLine("主人最近说的话：${ownerSpeech.ifBlank { "暂无" }}")
+    }
+    val instruction = buildString {
+        append("你本人做棋局决策：以13格总分、上区奖励、领先或落后及空余格为依据，认真考虑追快艇50分、四条和顺子的高分机会。")
+        append("还有重掷次数时，若已有四颗同点且快艇格未用，要考虑留下四颗继续冲；不规定必须赌，也不能为了避免第三掷API失败而过早计分。")
+        append("不需要详细推导，直接输出可执行的合法JSON对象。")
+        if (roll == 1) {
+            append("第一掷可选keep继续掷或score立刻填格。")
+            append("""keep格式：{"action":"keep","indices":[0,1,2,3],"say":"再试一把。"}；score格式：{"action":"score","category":"Chance","say":""}。""")
+        } else if (roll == 2) {
+            append("第二掷可选keep进行第三掷，或score提前计分。")
+            append("选keep时需额外提供fallbackCategory：你现在预先指定的一个合法未使用格，仅在第三掷API没有返回合法决定时按真实最终骰面兜底；现在不会填格，也不影响是否继续争高分。")
+            append("""keep格式：{"action":"keep","indices":[0,1,2,3],"fallbackCategory":"FourKind","say":"再摇一次。"}；score格式：{"action":"score","category":"Chance","say":""}。""")
+        } else {
+            append("第三掷已满3/3：必须且只能score，不能keep，填写一个未使用计分格。")
+            append("""只返回形如{"action":"score","category":"FourKind","say":"这轮收下。"}的JSON对象。""")
+        }
+        append("category/fallbackCategory的英文名必须来自本次尚可填写列表；indices是保留骰子在当前骰面中的0到4位置。")
+        append("上述类别只是格式例子，不能照抄代替真实选择。say可为空；不要输出代码围栏、额外解释或尚未发生的结果。")
+    }
+    return YachtDecisionPrompts(facts, instruction)
+}
+
 /**
  * One model decision after each actual roll. Random dice are an engine fact;
  * choosing holds, an early score, or a sacrifice belongs to the same role.
@@ -67,41 +124,17 @@ internal suspend fun requestYachtRoleDecision(
     if (dice.size != 5 || dice.any { it !in 1..6 } || roll !in 1..3 || available.isEmpty()) {
         return Result.failure(IllegalArgumentException("当前骰面或计分状态不合法"))
     }
-    val facts = buildString {
-        appendLine("【快艇骰子 · 已验证的本轮棋局】你是正在真实参与对抗的玩家。")
-        appendLine("这是本局你的第${sheet.size + 1}/13个计分格。骰子五颗，最多掷三次，也可以提前计分。")
-        appendLine("本回合第$roll/3次掷骰，五颗骰子按0到4位置为：${dice.mapIndexed { i, n -> "$i=$n" }.joinToString("、")}。")
-        appendLine("所有人在同一计分桌的公开分数与已经使用的格子：")
-        playerNames.forEach { (id, name) ->
-            val used = scores[id].orEmpty()
-            appendLine("$name 当前${used.values.sum()}分；已填：${used.entries.joinToString("、") { "${it.key.label}=${it.value}" }.ifBlank { "无" }}")
-        }
-        appendLine("你这一次掷骰可立即填的项目及其当前得分：")
-        available.forEach { appendLine("${it.name}（${it.label}）=${scoreYacht(it, dice)}分") }
-        appendLine("主人本局最近说的话：${ownerSpeech.ifBlank { "暂无" }}")
-        appendLine("后面的骰面是未知的。上区奖励、留点数追大牌或填零保其它格，都应自行按局势选择。")
-    }
-    val instruction = buildString {
-        append("你本人决定下一步，不是发表评论后由程序替你操作。")
-        append("可以在任一次掷骰后直接填尚未使用的格子(score)；")
-        if (roll < 3) append("或者保留任意0至5颗骰子重新掷(keep)，indices是要保留的0基骰子位置；")
-        else append("已经掷三次，必须从仍可填的格子中选一个score；")
-        if (roll == 2) append("若第二掷选keep，你必须同时选一个尚未使用的fallbackCategory作为本人预授权保底格；第三掷API若未返回可用结果才使用此格按最终骰面计分，正常第三掷回复仍以你当时的新选择为准。")
-        append("考虑整场累计比分、已用格子、下一轮机会和与主人刚才的交流，不要仅按这一掷的即时最高分。")
-        append("say是你想对主人当场说的一句自然口语，也可为空；不得预告尚未发生的结果。")
-        append("只返回一个JSON对象：")
-        append("{\"action\":\"keep|score\",\"indices\":[0,2],\"category\":\"Ones|Twos|Threes|Fours|Fives|Sixes|ThreeKind|FourKind|FullHouse|SmallStraight|LargeStraight|Yacht|Chance\",\"fallbackCategory\":\"尚未使用类别的英文名\",\"say\":\"...\"}。")
-        append("keep时只用indices，第二掷keep另须fallbackCategory；score时只用category；不加代码围栏。")
-    }
+    val (facts, instruction) = buildYachtDecisionPrompts(
+        characterId, dice, roll, scores, playerNames, ownerSpeech,
+    )
     return LuluAiServices.gateway.generate(
         characterId = characterId, facts = facts, instruction = instruction,
         source = "游戏 · 快艇骰子本人决策", title = "快艇骰子 · 本人行动",
         capturePrivateMoment = true,
-        // Reasoning models may spend the former 260 + 260 moment budget entirely
-        // on hidden thought (finish_reason=length, zero visible action). Reserve
-        // room for both reasoning and the authored JSON in this same paid call.
-        // The gateway adds 260 for optional privateMoment; no automatic retry.
-        maxTokens = 2_048, usage = ModelUsage.Game,
+        // A real roll consumed all 2,308 output tokens in hidden reasoning and
+        // produced zero action characters. Provide headroom for the single
+        // decision without unlimited spending or an automatic paid retry.
+        maxTokens = 6_144, usage = ModelUsage.Game,
         contextMode = CompanionContextMode.Full,
     ).mapCatching { reply ->
         when (val choice = parseYachtRoleDecision(reply.text, available, roll)) {

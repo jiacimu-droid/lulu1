@@ -318,8 +318,12 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
                 saveTurn(currentPlayer, fallback, scored, points)
                 return@LaunchedEffect
             }
-            decisionError = (failure.message ?: "${currentPlayer.name}暂时没有做出有效决定") +
-                "；已保存当前骰面，重试不会再次掷骰"
+            val diagnostic = failure.message.orEmpty()
+            val readableFailure = if ("finish_reason=length" in diagnostic &&
+                "正文字符=0" in diagnostic
+            ) "模型的输出额度全部用在思考上，尚未生成骰子操作" else
+                (failure.message ?: "${currentPlayer.name}暂时没有做出有效决定")
+            decisionError = "$readableFailure；已保存当前骰面，重试不会再次掷骰"
             return@LaunchedEffect
         }
         choice.modelReply?.let { reply ->

@@ -46,6 +46,33 @@ class GameRoleChoiceContractTest {
         ))
     }
 
+    @Test fun yachtDecisionPromptHighlightsFourKindPursuitAndLegalFinalAction() {
+        val sheets = mapOf(
+            "user" to emptyMap<YachtCategory, Int>(),
+            "role:river" to mapOf(YachtCategory.Ones to 3),
+        )
+        val players = mapOf("user" to "你", "role:river" to "角色")
+        val first = buildYachtDecisionPrompts(
+            "river", listOf(5, 5, 5, 6, 5), 1, sheets, players, "",
+        )
+        assertTrue(first.facts.contains("四颗5点"))
+        assertTrue(first.facts.contains("1/6"))
+        assertTrue(first.instruction.contains("追快艇50分"))
+        assertTrue(first.instruction.contains("不能为了避免第三掷API失败"))
+        assertTrue(first.instruction.contains("keep格式"))
+        val second = buildYachtDecisionPrompts(
+            "river", listOf(5, 5, 5, 6, 5), 2, sheets, players, "",
+        )
+        assertTrue(second.instruction.contains("fallbackCategory"))
+        assertTrue(second.instruction.contains("现在不会填格"))
+        val finalRoll = buildYachtDecisionPrompts(
+            "river", listOf(5, 5, 5, 6, 5), 3, sheets, players, "",
+        )
+        assertTrue(finalRoll.instruction.contains("必须且只能score"))
+        assertFalse(finalRoll.instruction.contains("keep格式"))
+        assertTrue(finalRoll.facts.contains("骰面锁定"))
+    }
+
     @Test fun yachtInvalidChoicesNeverTurnIntoAutomaticMaxScore() {
         val available = setOf(YachtCategory.Ones)
         assertNull(parseYachtRoleDecision(
