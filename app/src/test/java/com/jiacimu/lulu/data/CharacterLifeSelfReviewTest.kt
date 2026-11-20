@@ -143,6 +143,7 @@ class CharacterLifeSelfReviewTest {
             save.invoke(CharacterDevelopmentStore, before + learned + ownerFact)
             val review = CharacterLifeSelfReview.context(context, role)
             assertTrue(review.contains("growth-review-subjective"))
+            assertFalse(review.contains("growth-review-owner-fact"))
             assertTrue(review.contains("retire_development_record"))
             assertFalse(CharacterDevelopmentStore.retireSelfAssessment(
                 "unrelated-character", learned.id, learned.version))
