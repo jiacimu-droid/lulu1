@@ -31,6 +31,38 @@ class ListenTogetherPlaylistTest {
         assertTrue(SharedListenPlaylists.read(context, roleA).single().tracks.isEmpty())
     }
 
+    @Test fun exactNeteaseSongLinkNeverFallsBackToCurrentQueue() {
+        for (link in listOf(
+            "https://music.163.com/song?id=2059330001",
+            "https://music.163.com/#/song?id=2059330001",
+            "https://y.music.163.com/m/song?id=2059330001",
+            "orpheus://song/2059330001/?autoplay=1",
+            "2059330001",
+        )) assertEquals("2059330001", NeteaseSongLink.songId(link))
+        assertNull(NeteaseSongLink.songId("https://music.163.com/playlist?id=2059330001"))
+        assertNull(NeteaseSongLink.songId("https://other.example.com/song?id=2059330001"))
+        assertNull(NeteaseSongLink.songId("一首只有歌名的旧收藏"))
+        assertEquals("orpheus://song/2059330001/?autoplay=1",
+            NeteaseSongLink.directUri("2059330001").toString())
+        val legacy = SharedListenEntry(title = "旧收藏", artist = "不知道歌号",
+            source = "external", packageName = NeteaseSongLink.packageName)
+        assertTrue(NeteaseSongLink.open(context, legacy).contains("没有歌曲 ID"))
+    }
+
+    @Test fun legacyBookmarkCanBeBoundToAnExactTrackWithoutLosingItsTitle() {
+        val role = "bound-music-role"
+        assertTrue(SharedListenPlaylists.create(context, role, "我喜欢的"))
+        val list = SharedListenPlaylists.read(context, role).single()
+        val legacy = SharedListenEntry(title = "收藏时显示的歌", artist = "歌手",
+            source = "external", packageName = NeteaseSongLink.packageName)
+        assertTrue(SharedListenPlaylists.add(context, role, list.id, legacy))
+        assertTrue(SharedListenPlaylists.bindSongId(context, role, list.id, legacy.id, "2059330001"))
+        val saved = SharedListenPlaylists.read(context, role).single().tracks.single()
+        assertEquals("收藏时显示的歌", saved.title)
+        assertEquals("2059330001", saved.songId)
+        assertFalse(SharedListenPlaylists.bindSongId(context, role, list.id, legacy.id, "not-an-id"))
+    }
+
     @Test fun parserKeepsPausedNeteaseSessionButDoesNotClaimAudio() {
         val paused = JSONObject().put("packageName", "com.netease.cloudmusic")
             .put("title", "正在暂停的歌").put("artist", "歌手")
