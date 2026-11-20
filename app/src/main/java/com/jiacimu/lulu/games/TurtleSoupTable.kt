@@ -48,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -209,6 +210,7 @@ internal fun SoupComposer(
     var showInputModes by remember(room.id) { mutableStateOf(false) }
     val voicePanel = (live.mic.active || live.companionAudioEnabled) && !typing
     val inputFocus = remember { FocusRequester() }
+    val onGameTextFocus = LocalGameTextInputFocused.current
     val keyboard = LocalSoftwareKeyboardController.current
     LaunchedEffect(typing, keyboardRequest) {
         if (typing) {
@@ -333,7 +335,8 @@ internal fun SoupComposer(
                     } else {
                         OutlinedTextField(
                             value = input, onValueChange = onInput,
-                            modifier = Modifier.weight(1f).focusRequester(inputFocus),
+                            modifier = Modifier.weight(1f).focusRequester(inputFocus)
+                                .onFocusChanged { onGameTextFocus(it.isFocused) },
                             placeholder = { Text(when (kind) {
                                 SoupKind.QUESTION -> "输入是／否问题"
                                 SoupKind.SOLUTION -> "写下完整推理"

@@ -742,7 +742,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameUi.kt` | 172 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldControls.kt` | 116 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameWorldEngine.kt` | 131 | 3 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt` | 147 | 2 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameYachtDecision.kt` | 144 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/ImmersiveMemoryMatchScreen.kt` | 433 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt` | 384 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/games/IslandBuildingControls.kt` | 81 | 3 |
@@ -1375,7 +1375,7 @@
 | `app/src/test/java/com/jiacimu/lulu/games/GameJoystickDirectionTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameMicPermissionGateTest.kt` | 38 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameOrientationPolicyTest.kt` | 54 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/games/GameRoleChoiceContractTest.kt` | 103 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/games/GameRoleChoiceContractTest.kt` | 112 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameTeamConversationTimelineTest.kt` | 183 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/GameTeamSpeechPressureTest.kt` | 44 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/games/IslandActorPlayTest.kt` | 174 | 1 |

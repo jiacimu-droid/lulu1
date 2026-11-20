@@ -384,7 +384,7 @@ internal fun YachtDiceScreen(store: LuluGameStore) {
         else -> "从下方选一项，记录本轮分数"
     }
     Column(
-        Modifier.fillMaxSize().background(
+        Modifier.fillMaxSize().imePadding().background(
             Brush.verticalGradient(listOf(Color(0xFFF8F1E8), Color(0xFFE1EEE8), Color(0xFFEAF1ED))),
         ),
     ) {
