@@ -105,6 +105,47 @@ class LuluCssRuntimeTest {
         assertTrue(sheet.element("Chat", "widget-clock").isEmpty())
     }
 
+    @Test fun nestedListeningRoomInheritsChatAndOverridesOnlyItsOwnSkin() {
+        val token = "asset://123e4567-e89b-12d3-a456-426614174000.png"
+        val sheet = LuluCssSheet.parse("""
+            #Chat { --accent: #ab3456; --paper: #faf0ee; }
+            #ChatDetail { --ink: #332b30; }
+            #ListenTogether { --paper: #e0f0ff; }
+            #ListenTogether .music-room { background-image: url("$token"); }
+            #ListenTogether .music-vinyl { width: 110dp; background-image: url("$token"); }
+            #ListenTogether .music-avatar-role { width: 62dp; }
+            #ListenTogether .music-links { color: #f59ca5; border-width: 6dp; }
+            #ListenTogether .music-play { background-color: #975588; }
+            #WatchTogether .watch-player { background-color: #222244; }
+        """.trimIndent())
+        assertTrue(sheet.errors.toString(), sheet.errors.isEmpty())
+        assertTrue(sheet.warnings.toString(), sheet.warnings.isEmpty())
+        assertEquals(0xFFAB3456L, sheet.profile("ListenTogether", base).palette.accent)
+        assertEquals(0xFFE0F0FFL, sheet.profile("ListenTogether", base).palette.paper)
+        assertEquals(0xFFFAF0EEL, sheet.profile("WatchTogether", base).palette.paper)
+        assertEquals("110dp", sheet.element("ListenTogether", "music-vinyl")["width"])
+        assertEquals(token, LuluCssSheet.assetToken(
+            sheet.element("ListenTogether", "music-vinyl")["background-image"]))
+        assertEquals("6dp", sheet.element("ListenTogether", "music-links")["border-width"])
+        assertEquals("#975588", sheet.element("ListenTogether", "music-play")["background-color"])
+        assertTrue(sheet.element("WatchTogether", "music-vinyl").isEmpty())
+        assertEquals("#222244", sheet.element("WatchTogether", "watch-player")["background-color"])
+        assertTrue(sheet.element("ChatDetail", "watch-player").isEmpty())
+    }
+
+    @Test fun nestedMusicSelectorsCannotLeakIntoUnrelatedAppScreens() {
+        val sheet = LuluCssSheet.parse("""
+            #ListenTogether .music-track-title { color: #334455; font-size: 22sp; }
+            #ListenTogether .music-avatar-user { width: 60dp; }
+            #WatchTogether .watch-chat { padding: 12dp; }
+        """.trimIndent())
+        assertTrue(sheet.warnings.toString(), sheet.warnings.isEmpty())
+        assertEquals("22sp", sheet.element("ListenTogether", "music-track-title")["font-size"])
+        assertEquals("60dp", sheet.element("ListenTogether", "music-avatar-user")["width"])
+        assertTrue(sheet.element("Chat", "music-avatar-user").isEmpty())
+        assertEquals("12dp", sheet.element("WatchTogether", "watch-chat")["padding"])
+    }
+
     @Test fun noBundledAppearancePacksRemain() {
         assertEquals(listOf("paper"), LuluAppearanceCatalog.builtIns.map { it.id })
     }
