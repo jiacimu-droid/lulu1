@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T01:19:44.358598+00:00",
-  "commit": "e739641216b49920f396725c55718b1204c4779b",
+  "generatedAt": "2026-11-20T01:20:33.941621+00:00",
+  "commit": "7969172e1efdd6117b6fb061a5fed4e59d2cd82a",
   "branch": "main",
-  "sourceFingerprint": "d65b7a71284daf7d41bac9532bd90f17b94ee0d7a337dc2225fa36fe2d6e8093",
+  "sourceFingerprint": "b96a8f2c999192e1780391eba270e9566c30ba165bcc6b94ec0fbbc072167706",
   "summary": {
-    "files": 1490,
-    "lines": 318612,
-    "symbols": 4522
+    "files": 1491,
+    "lines": 318719,
+    "symbols": 4527
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -5436,6 +5436,10 @@
       {
         "path": "app/src/main/java/com/wangzan101/mika/core/adb/LocalPortScan.kt",
         "line": 26
+      },
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/StickerWordDocumentTest.kt",
+        "line": 61
       }
     ],
     "removeTrack": [
@@ -21292,6 +21296,30 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/StickerPromptSelectionTest.kt",
         "line": 5
+      }
+    ],
+    "StickerWordDocumentTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/StickerWordDocumentTest.kt",
+        "line": 20
+      }
+    ],
+    "png": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/StickerWordDocumentTest.kt",
+        "line": 24
+      }
+    ],
+    "para": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/StickerWordDocumentTest.kt",
+        "line": 32
+      }
+    ],
+    "picture": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/StickerWordDocumentTest.kt",
+        "line": 33
       }
     ],
     "SystemSpeechTurnPolicyTest": [
@@ -46764,8 +46792,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt",
-      "lines": 53,
-      "sha256": "c60f7f04b174fa8fe15bb1172b1cb70f9548188163b52e1b3dc64f36c6347cba",
+      "lines": 55,
+      "sha256": "699cdc2933ff7417e00949d09ea36399370241ffe5b9a12a64a67ee77584352a",
       "symbols": [
         {
           "name": "OfflineStickerAssetsTest",
@@ -47331,6 +47359,33 @@
         {
           "name": "StickerPromptSelectionTest",
           "line": 5
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/StickerWordDocumentTest.kt",
+      "lines": 103,
+      "sha256": "9f4e3e1cd53795bc0da217579b6c928cff4893525a65ea1b386e16d639465a69",
+      "symbols": [
+        {
+          "name": "StickerWordDocumentTest",
+          "line": 20
+        },
+        {
+          "name": "png",
+          "line": 24
+        },
+        {
+          "name": "para",
+          "line": 32
+        },
+        {
+          "name": "picture",
+          "line": 33
+        },
+        {
+          "name": "add",
+          "line": 61
         }
       ]
     },
@@ -49153,8 +49208,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt",
-      "lines": 2516,
-      "sha256": "dd08a379dbf4a9eef71eb383ccfb772e30a4351aa17d4384d692ad23b8c6f88a",
+      "lines": 2518,
+      "sha256": "2064607efd281dbd5b2529e35f3debe1cad5cac1cd1ca59dbbdf72600ca673af",
       "symbols": [
         {
           "name": "ConversationExpressionGatewayTest",

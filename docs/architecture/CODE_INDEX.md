@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`e739641216b49920f396725c55718b1204c4779b`
+- 基准提交：`7969172e1efdd6117b6fb061a5fed4e59d2cd82a`
 - 分支：`main`
-- 已索引文件：1490
-- 已索引代码/文本行：318612
-- 已发现符号：4522
+- 已索引文件：1491
+- 已索引代码/文本行：318719
+- 已发现符号：4527
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -1000,7 +1000,7 @@
 | `app/src/test/java/com/jiacimu/lulu/MeetingWalkAndTalkContractTest.kt` | 17 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MiniMaxAsrStreamAccumulatorTest.kt` | 34 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/MossSpeechModelCatalogTest.kt` | 28 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt` | 53 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/OfflineStickerAssetsTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PerceptionStatusPresentationTest.kt` | 107 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneBargeInPolicyTest.kt` | 54 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/PhoneCallMediaSafetyTest.kt` | 67 | 1 |
@@ -1044,6 +1044,7 @@
 | `app/src/test/java/com/jiacimu/lulu/StickerImportManifestTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StickerPackArchiveTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StickerPromptSelectionTest.kt` | 79 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/StickerWordDocumentTest.kt` | 103 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/SystemSpeechTurnPolicyTest.kt` | 58 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/TrialRoomWalkControllerTest.kt` | 39 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/VoiceAcousticAnalyzerTest.kt` | 51 | 1 |
@@ -1179,7 +1180,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceFreshnessTest.kt` | 186 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CompanionPresenceThoughtHistoryTest.kt` | 165 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationDominantImpulseTest.kt` | 41 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 2516 | 40 |
+| `app/src/test/java/com/jiacimu/lulu/data/ConversationExpressionGatewayTest.kt` | 2518 | 40 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationGroundingEngineTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationNaturalnessGateTest.kt` | 365 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/ConversationTurnEconomyTest.kt` | 55 | 1 |
