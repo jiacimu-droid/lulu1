@@ -11887,13 +11887,13 @@
     "recordModelHandoff": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 254
+        "line": 255
       }
     ],
     "updateDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 405
+        "line": 406
       }
     ],
     "Key": [
@@ -30924,7 +30924,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
       "lines": 1777,
-      "sha256": "b714fd0a7ce14b3f9ac94670057de6fb92b2ef7978d5f509d7e6e1ef42b4c944",
+      "sha256": "8f82cb6739a9dd8fa536855b8b7d2964185496699d78f879df6fbe2d8cd6bba0",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -36167,8 +36167,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-      "lines": 661,
-      "sha256": "af4d332bc99342da9466cffd9ce60416f28b7b83efce0a84fc0df3d7ea9ca6bc",
+      "lines": 662,
+      "sha256": "34ceb203fac77fa4b67c312f99f4cbea1df9ef386b869d17c1572bd02d24a9d1",
       "symbols": [
         {
           "name": "ApiUsageSource",
@@ -36216,11 +36216,11 @@
         },
         {
           "name": "recordModelHandoff",
-          "line": 254
+          "line": 255
         },
         {
           "name": "updateDurations",
-          "line": 405
+          "line": 406
         }
       ]
     },
