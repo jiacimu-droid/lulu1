@@ -122,13 +122,18 @@ object CharacterRuntime {
         query: String = "",
         includeActiveCommitments: Boolean = true,
         freshAnswer: Boolean = false,
+        includeOwnerKnowledge: Boolean = true,
     ): String {
         val learned = CharacterDevelopmentStore.active(characterId)
         val narrative = CharacterDevelopmentRecall.select(
             learned.filter { it.kind == DevelopmentKind.NarrativeMeaning }, query, if (compact) 3 else 8)
-        val ownerKnowledge = CharacterDevelopmentRecall.select(
+        // Full actor calls route these records through the bounded memory working set.
+        // Keep the legacy direct context available for narrow adapters that do not
+        // assemble that working set; the original source-backed store is unchanged.
+        val ownerKnowledge = if (includeOwnerKnowledge) CharacterDevelopmentRecall.select(
             learned.filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit,
                 DevelopmentKind.UserFact, DevelopmentKind.UserImpression) }, query, if (compact) 7 else 16)
+            else emptyList()
         val adaptive = CharacterDevelopmentRecall.select(
             learned.filterNot {
                 it.kind == DevelopmentKind.NarrativeMeaning ||
@@ -248,7 +253,9 @@ object CharacterRuntime {
     fun developmentContext(
         characterId: String, compact: Boolean = false, query: String = "",
         includeActiveCommitments: Boolean = true, freshAnswer: Boolean = false,
+        includeOwnerKnowledge: Boolean = true,
     ): String = personalityRuntimeContext(characterId, compact = compact, query = query,
-        includeActiveCommitments = includeActiveCommitments, freshAnswer = freshAnswer)
+        includeActiveCommitments = includeActiveCommitments, freshAnswer = freshAnswer,
+        includeOwnerKnowledge = includeOwnerKnowledge)
 
 }
