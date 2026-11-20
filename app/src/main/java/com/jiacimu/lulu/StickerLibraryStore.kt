@@ -369,7 +369,53 @@ internal object StickerLibraryStore {
             }
         }
 
-    suspend fun importImage(context: Context, selected: Uri, label: String = ""): Result<LuluSticker> =
+
+    /** Import one local ZIP member with stable content-based ID (reimports deduplicate). */
+    suspend fun importPackedImage(
+        context: Context, source: File, extension: String,
+        name: String, pack: String, description: String, usage: String,
+    ): Result<LuluSticker> = withContext(Dispatchers.IO) {
+        runCatching {
+            initialize(context)
+            require(extension in setOf("png", "jpg", "jpeg", "gif", "webp")) { "不支持的图片类型" }
+            require(source.isFile && source.length() in 1..MAX_BYTES.toLong()) { "单张图片不能超过 5MB" }
+            val digest = java.security.MessageDigest.getInstance("SHA-256")
+            source.inputStream().use { stream ->
+                val buffer = ByteArray(16_384)
+                while (true) {
+                    val n = stream.read(buffer)
+                    if (n < 0) break
+                    digest.update(buffer, 0, n)
+                }
+            }
+            val id = "import-" + digest.digest().joinToString("") { "%02x".format(it) }.take(32)
+            items.value.firstOrNull { it.id == id }?.let { return@runCatching it }
+            check(items.value.size < MAX_ITEMS) { "表情包数量已达上限" }
+            val probe = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeFile(source.absolutePath, probe)
+            require(probe.outWidth in 1..10_000 && probe.outHeight in 1..10_000
+                && probe.outWidth.toLong() * probe.outHeight <= 25_000_000) { "图片无效或分辨率过高" }
+            val folder = File(context.applicationContext.filesDir, "sticker-library").apply { mkdirs() }
+            val file = File(folder, "$id.$extension")
+            try {
+                source.copyTo(file, overwrite = true)
+                val sticker = LuluSticker(
+                    id, Uri.fromFile(file).toString(), name.trim().take(90).ifBlank { "自选表情" },
+                    pack = pack.trim().take(40).ifBlank { "我的添加" },
+                    visualDescription = description.trim().take(400),
+                    usageHint = usage.trim().take(160),
+                )
+                update { old -> if (old.any { it.id == id }) old else old + sticker }
+                check(items.value.any { it.id == id }) { "保存表情包失败" }
+                sticker
+            } catch (failure: Throwable) {
+                file.delete()
+                throw failure
+            }
+        }
+    }
+
+    suspend fun importImage(context: Context, selected: Uri, label: String = "", pack: String = "我的添加"): Result<LuluSticker> =
         withContext(Dispatchers.IO) {
             runCatching {
                 initialize(context)
@@ -401,7 +447,7 @@ internal object StickerLibraryStore {
                         }
                     } ?: error("无法读取选中的图片")
                     check(file.length() > 0L) { "图片内容为空" }
-                    val sticker = LuluSticker(id, Uri.fromFile(file).toString(), label.ifBlank { "自选表情" })
+                    val sticker = LuluSticker(id, Uri.fromFile(file).toString(), label.ifBlank { "自选表情" }, pack = pack)
                     update { old -> old + sticker }
                     check(items.value.any { it.id == id }) { "保存到表情图库失败" }
                     sticker
