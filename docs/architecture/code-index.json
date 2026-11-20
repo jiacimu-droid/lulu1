@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:26:42.695448+00:00",
-  "commit": "78af6f8b80805ff8a41e8f1c211de4ac42a4d0e9",
+  "generatedAt": "2026-11-20T03:27:08.578347+00:00",
+  "commit": "764de384ac616ecd5a73f47b1a49c8f7788e8c59",
   "branch": "main",
-  "sourceFingerprint": "439261a1991809fd45d6b45ad41e562e74a9e5f86a768a03d8edd0462f6c936e",
+  "sourceFingerprint": "f61d5f83b4537845c5bacfe6ba00b382332b46938381af0f638ab41e0b88ae7f",
   "summary": {
     "files": 1496,
-    "lines": 319832,
+    "lines": 319833,
     "symbols": 4549
   },
   "symbolIndex": {
@@ -12061,25 +12061,25 @@
     "lineage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt",
-        "line": 91
+        "line": 92
       }
     ],
     "knowsSelector": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt",
-        "line": 96
+        "line": 97
       }
     ],
     "coverSelector": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt",
-        "line": 111
+        "line": 112
       }
     ],
     "widgetSelector": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt",
-        "line": 113
+        "line": 114
       }
     ],
     "LuluDataBackup": [
@@ -36030,8 +36030,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt",
-      "lines": 116,
-      "sha256": "5d367ef3ef3fd6ea2fa9e2c83a02666bbd964293980be018c6487985d890346a",
+      "lines": 117,
+      "sha256": "c3b98fc015c65feba6e795d065f8ed5258b262ed930e31d3d2505b7b18962187",
       "symbols": [
         {
           "name": "LuluCssTargets",
@@ -36043,19 +36043,19 @@
         },
         {
           "name": "lineage",
-          "line": 91
+          "line": 92
         },
         {
           "name": "knowsSelector",
-          "line": 96
+          "line": 97
         },
         {
           "name": "coverSelector",
-          "line": 111
+          "line": 112
         },
         {
           "name": "widgetSelector",
-          "line": 113
+          "line": 114
         }
       ]
     },
