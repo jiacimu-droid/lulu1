@@ -19,6 +19,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.DisposableEffect
@@ -29,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +39,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import android.content.Context
 import com.jiacimu.lulu.data.MigratedDomainStores
+
+/** Tracks a focused game text editor so fullscreen can yield to Android's resize-for-IME behavior. */
+internal val LocalGameTextInputFocused = compositionLocalOf<(Boolean) -> Unit> { {} }
 
 /**
  * One scene-scoped talk transport shared by the small games. The phone's real
@@ -179,6 +184,7 @@ internal fun GameTalkBar(
     val conversationTitle = session.participantIds.mapNotNull { roster[it]?.displayName }.joinToString("、")
         .ifBlank { if (session.allowSoloHost) "主持人" else "同桌" }
     var textExpanded by remember(session) { mutableStateOf(false) }
+    val onTextFocusChanged = LocalGameTextInputFocused.current
     val microphoneOn = session.mic.active
     val speakerOn = session.companionAudioEnabled
     // Live captions are a scrollable reading surface, not two truncated lines.
@@ -248,7 +254,9 @@ internal fun GameTalkBar(
                     Text(if (speakerOn) "角色语音" else "角色文字",
                         fontSize = 10.sp, color = talkMuted)
                 }
-                if (showComposer) {
+                // With the microphone off the editor is always visible, so a
+                // '收起' button would do nothing. Only offer the toggle in voice mode.
+                if (showComposer && microphoneOn) {
                     TextButton(onClick = { textExpanded = !textExpanded }) {
                         Text(if (textExpanded) "收起" else "打字", color = mint, fontSize = 12.sp)
                     }
@@ -286,7 +294,8 @@ internal fun GameTalkBar(
                     OutlinedTextField(
                         value = session.draft,
                         onValueChange = { session.draft = it },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f)
+                            .onFocusChanged { onTextFocusChanged(it.isFocused) },
                         placeholder = { Text("说点什么…", fontSize = 12.sp) },
                         maxLines = 2,
                         singleLine = false,
