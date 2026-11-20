@@ -90,11 +90,11 @@ internal fun QqStickerShelf(
         scope.launch {
             var added = 0
             var failure = ""
-            for (uri in uris.take(30)) {
+            for (uri in uris.take(200)) {
                 StickerLibraryStore.importImage(context, uri, pack = importPackName).onSuccess { added++ }
                     .onFailure { error -> failure = error.message.orEmpty() }
             }
-            if (added > 0) { selectedTab = 0; selectedPack = importPackName }
+            if (added > 0) { selectedTab = 0; selectedPack = importPackName.ifBlank { "我的添加" } }
             onNotice(if (added > 0) "已加入 $added 张到「$importPackName」；缺少画面描述的图片可稍后补充" else failure.ifBlank { "添加失败" })
         }
     }
