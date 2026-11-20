@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T15:00:06.282976+00:00",
-  "commit": "ef91f390c8f80c829d2a78609bc396d2df7f477d",
+  "generatedAt": "2026-11-20T15:01:36.190510+00:00",
+  "commit": "19d5da4df3ae56f68c4a2cd160d5114e4bec2119",
   "branch": "main",
-  "sourceFingerprint": "cad84609945ed611a8f7330819f3c4e0db1f7880b1cb020c74e27aeaa24da16f",
+  "sourceFingerprint": "e622ccd3380be22c7d53f453ca509db451c2a522eeeb0feb3de2ac7a07e004d4",
   "summary": {
     "files": 1503,
-    "lines": 322769,
+    "lines": 322771,
     "symbols": 4576
   },
   "symbolIndex": {
@@ -587,7 +587,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-        "line": 2008
+        "line": 2009
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeFollowThroughStore.kt",
@@ -22213,25 +22213,25 @@
     "evidenceInvalidationDoesNotHoldInnerLifeLockAcrossStoreCallbacks": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 37
+        "line": 38
       }
     ],
     "longTail": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 130
+        "line": 131
       }
     ],
     "social": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 700
+        "line": 701
       }
     ],
     "feeling": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-        "line": 799
+        "line": 800
       }
     ],
     "CharacterKnowledgeBoundaryTest": [
@@ -32435,8 +32435,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt",
-      "lines": 2198,
-      "sha256": "37a415296d97171190df819ce942f5944ac91a191bfc1921b27a82867a68a5bf",
+      "lines": 2199,
+      "sha256": "0545b9a1c80d38d223a6b2ac738398de6c037c089f5595d88c71bf02490a7751",
       "symbols": [
         {
           "name": "CharacterInnerLifeStore",
@@ -32484,7 +32484,7 @@
         },
         {
           "name": "context",
-          "line": 2008
+          "line": 2009
         }
       ]
     },
@@ -48985,8 +48985,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt",
-      "lines": 962,
-      "sha256": "5d584717eb0c66d30c4565fffdd516307ce64a29ee4d68bf332ddb29ed16ac68",
+      "lines": 963,
+      "sha256": "2071d95033ef2511cc9a3b39408cd89a5b06b3a183eb8315a63186212d172b6e",
       "symbols": [
         {
           "name": "CharacterInnerLifeStoreTest",
@@ -48994,19 +48994,19 @@
         },
         {
           "name": "evidenceInvalidationDoesNotHoldInnerLifeLockAcrossStoreCallbacks",
-          "line": 37
+          "line": 38
         },
         {
           "name": "longTail",
-          "line": 130
+          "line": 131
         },
         {
           "name": "social",
-          "line": 700
+          "line": 701
         },
         {
           "name": "feeling",
-          "line": 799
+          "line": 800
         }
       ]
     },
