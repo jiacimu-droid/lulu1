@@ -34,6 +34,7 @@ class ListenTogetherPlaylistTest {
     @Test fun exactNeteaseSongLinkNeverFallsBackToCurrentQueue() {
         for (link in listOf(
             "https://music.163.com/song?id=2059330001",
+            "分享某歌手的单曲《这首歌》: https://music.163.com/song?id=2059330001&userid=23 (来自网易云音乐)",
             "https://music.163.com/#/song?id=2059330001",
             "https://y.music.163.com/m/song?id=2059330001",
             "orpheus://song/2059330001/?autoplay=1",
