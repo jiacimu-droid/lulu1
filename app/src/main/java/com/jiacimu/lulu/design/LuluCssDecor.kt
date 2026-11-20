@@ -243,6 +243,6 @@ fun LuluCssBackground(modifier: Modifier = Modifier.fillMaxSize()) {
     val sheet = LocalLuluCssSheet.current
     val background = sheet.page(scope).filterKeys { it.startsWith("background-") }
     if (background["background-image"] != null && background["background-image"] != "none") {
-        Box(modifier.luluCssPaint(background))
+        Box(modifier.luluCssPaint(background, backgroundMaxEdge = 1536))
     }
 }

@@ -3569,7 +3569,7 @@
     "LuluAppearanceScreen": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt",
-        "line": 44
+        "line": 46
       }
     ],
     "LuluBackupScreen": [
@@ -4971,7 +4971,7 @@
     "openReceiptLink": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-        "line": 958
+        "line": 931
       }
     ],
     "import": [
@@ -5831,7 +5831,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 81
+        "line": 101
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt",
@@ -12092,22 +12092,32 @@
         "line": 13
       }
     ],
+    "merge": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
+        "line": 15
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
+        "line": 37
+      }
+    ],
     "imageToken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 20
+        "line": 26
       }
     ],
     "profile": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 22
+        "line": 28
       }
     ],
     "color": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 27
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/RelicSignatureJewels.kt",
@@ -12117,25 +12127,25 @@
     "assetToken": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 156
+        "line": 207
       }
     ],
     "parseColor": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 163
+        "line": 214
       }
     ],
     "dp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 177
+        "line": 228
       }
     ],
     "percent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-        "line": 180
+        "line": 231
       }
     ],
     "LuluCssStore": [
@@ -15283,7 +15293,7 @@
     "Modifier": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt",
-        "line": 114
+        "line": 136
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluJournalDecor.kt",
@@ -15297,19 +15307,31 @@
     "offset": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt",
-        "line": 138
+        "line": 161
       }
     ],
     "LuluCssArtwork": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt",
-        "line": 207
+        "line": 227
       }
     ],
     "LuluCssBackground": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt",
-        "line": 220
+        "line": 241
+      }
+    ],
+    "length": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssPaint.kt",
+        "line": 187
+      }
+    ],
+    "dimension": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssPaint.kt",
+        "line": 195
       }
     ],
     "LuluCssPageScope": [
@@ -15327,7 +15349,7 @@
     "LuluCssTopAppBar": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssScaffold.kt",
-        "line": 150
+        "line": 155
       }
     ],
     "LuluColors": [
@@ -16602,12 +16624,6 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
         "line": 36
-      }
-    ],
-    "merge": [
-      {
-        "path": "app/src/main/java/com/jiacimu/lulu/games/IslandProgression.kt",
-        "line": 37
       }
     ],
     "arrives": [
@@ -28189,12 +28205,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluAppearanceScreen.kt",
-      "lines": 451,
-      "sha256": "96bcb26d0f1073ce1cdecd54c25665093ff748c474f2a44404619495e5b2ba84",
+      "lines": 521,
+      "sha256": "2ee4d4dfe11a8737bb50b42ad182e29a726228aeb85a75f580ac4b94aa920509",
       "symbols": [
         {
           "name": "LuluAppearanceScreen",
-          "line": 44
+          "line": 46
         }
       ]
     },
@@ -29559,6 +29575,12 @@
       "symbols": []
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/QqChatBubble.kt",
+      "lines": 87,
+      "sha256": "eedcf467fdf39f9eedb84b1bc2e8e4651e1a64cf31bb3714da4847bd6424c26b",
+      "symbols": []
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatComposer.kt",
       "lines": 424,
       "sha256": "9d3de2d358826c4e7241835047a8a3307d5b67e68ee8c3a5e4da44374a45b5a2",
@@ -29604,12 +29626,12 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/QqChatMessageComponents.kt",
-      "lines": 1084,
-      "sha256": "1b49b92bf004d99e014c1f58791b87e3452ee19a87e5604ed8c871c9f2c84c59",
+      "lines": 1057,
+      "sha256": "f1049f8c4d231839485638c34a24a4983e59dc6f880a5614b5fb4ba4fb29d7e6",
       "symbols": [
         {
           "name": "openReceiptLink",
-          "line": 958
+          "line": 931
         }
       ]
     },
@@ -36382,8 +36404,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt",
-      "lines": 185,
-      "sha256": "fd73d028d97cf5c5483c4acf3f077fc7c4fadd997565d08efd1ad69557847b3d",
+      "lines": 275,
+      "sha256": "ef5456cc618703c233bc30ef32318b6c0b68fdc3af6df1be6107074b32d3c99b",
       "symbols": [
         {
           "name": "LuluCssSheet",
@@ -36398,36 +36420,40 @@
           "line": 13
         },
         {
+          "name": "merge",
+          "line": 15
+        },
+        {
           "name": "imageToken",
-          "line": 20
+          "line": 26
         },
         {
           "name": "profile",
-          "line": 22
+          "line": 28
         },
         {
           "name": "color",
-          "line": 27
+          "line": 33
         },
         {
           "name": "parse",
-          "line": 81
+          "line": 101
         },
         {
           "name": "assetToken",
-          "line": 156
+          "line": 207
         },
         {
           "name": "parseColor",
-          "line": 163
+          "line": 214
         },
         {
           "name": "dp",
-          "line": 177
+          "line": 228
         },
         {
           "name": "percent",
-          "line": 180
+          "line": 231
         }
       ]
     },
@@ -36461,7 +36487,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt",
       "lines": 118,
-      "sha256": "88c525a2c7b98c271335a845d919ced4e0ae2156354cc1fb18107bb06af1f49d",
+      "sha256": "b1c31dc8301cc88859e256593190d5880d55c8e4d0520291c15c25affb22c7e9",
       "symbols": [
         {
           "name": "LuluCssTargets",
@@ -39836,8 +39862,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssDecor.kt",
-      "lines": 225,
-      "sha256": "0cc386aea5d513680e8ff41da7af1f5903e92cf91e3aa7cd971e467e2a477267",
+      "lines": 249,
+      "sha256": "391cf51e2ee906d139d438684c1e800c964ec1dad0dc3901cf2a2de13410deed",
       "symbols": [
         {
           "name": "luluCssStyle",
@@ -39845,26 +39871,41 @@
         },
         {
           "name": "Modifier",
-          "line": 114
+          "line": 136
         },
         {
           "name": "offset",
-          "line": 138
+          "line": 161
         },
         {
           "name": "LuluCssArtwork",
-          "line": 207
+          "line": 227
         },
         {
           "name": "LuluCssBackground",
-          "line": 220
+          "line": 241
+        }
+      ]
+    },
+    {
+      "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssPaint.kt",
+      "lines": 252,
+      "sha256": "8f9ba08fa8ba515f1daea9f0195ffacb35df12386d755f33eb285c9df98edc3b",
+      "symbols": [
+        {
+          "name": "length",
+          "line": 187
+        },
+        {
+          "name": "dimension",
+          "line": 195
         }
       ]
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssScaffold.kt",
-      "lines": 193,
-      "sha256": "6cee6d50cfeeec333ef49cfb92c0ea431c7f69881202444ad3a7e12c478c6136",
+      "lines": 196,
+      "sha256": "f352c22f61743ee91b25be184c39d5a6a21aed6b0bcc3baecce43113ef6de7b7",
       "symbols": [
         {
           "name": "LuluCssPageScope",
@@ -39876,7 +39917,7 @@
         },
         {
           "name": "LuluCssTopAppBar",
-          "line": 150
+          "line": 155
         }
       ]
     },
@@ -50626,8 +50667,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/LuluCssRuntimeTest.kt",
-      "lines": 163,
-      "sha256": "fb3095339b8f984e6f52259e3b0446975be98ff3ab7e52f3b07dd78af25373dc",
+      "lines": 224,
+      "sha256": "5164fa192f760c0f799a5f9a8874ee10cfa68151fafed3230ade7887e106f022",
       "symbols": [
         {
           "name": "LuluCssRuntimeTest",
