@@ -97,7 +97,7 @@ internal fun ListenTogetherArtwork(
                 }
                 Spacer(Modifier.height(8.dp))
                 Text(roleName, style = MaterialTheme.typography.labelSmall, maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, color = ink)
+                    overflow = TextOverflow.Ellipsis, color = roleStyle.cssColor("color") ?: ink)
             }
             Box(Modifier.size(discSize + 8.dp), contentAlignment = Alignment.Center) {
                 Box(Modifier.size(discSize)
@@ -136,7 +136,7 @@ internal fun ListenTogetherArtwork(
                 }
                 Spacer(Modifier.height(8.dp))
                 Text(userName, style = MaterialTheme.typography.labelSmall, maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, color = ink)
+                    overflow = TextOverflow.Ellipsis, color = userStyle.cssColor("color") ?: ink)
             }
         }
     }

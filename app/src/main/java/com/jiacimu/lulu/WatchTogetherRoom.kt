@@ -606,7 +606,7 @@ internal fun WatchTogetherRoom(
                                     ),
                                 )
                                 Row(
-                                    Modifier.fillMaxWidth(),
+                                    Modifier.fillMaxWidth().luluCssElement("watch-controls"),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Text(
@@ -687,7 +687,8 @@ internal fun WatchTogetherRoom(
                 Surface(
                     Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(17.dp),
-                    color = MaterialTheme.colorScheme.surface,
+                    color = luluCssStyle("watch-chat").cssColor("background-color")
+                        ?: MaterialTheme.colorScheme.surface,
                     border = BorderStroke(1.dp, gentleBorder),
                 ) {
                     Row(
