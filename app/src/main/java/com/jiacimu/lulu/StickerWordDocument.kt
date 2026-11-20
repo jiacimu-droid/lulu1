@@ -145,9 +145,9 @@ internal object StickerWordDocument {
                         ?.let { imageLocations[it] } ?: -1
                     val next = sortedFiles.getOrNull(position + 1)
                         ?.let { imageLocations[it] } ?: paragraphs.size
-                    val after = paragraphs.subList(start + 1, minOf(next, start + 7))
+                    val after = paragraphs.subList(start + 1, maxOf(start + 1, minOf(next, start + 7)))
                         .filter { it.imageIds.isEmpty() }.map { it.text }.filter(String::isNotBlank)
-                    val preceding = paragraphs.subList(maxOf(previous + 1, start - 6), start)
+                    val preceding = paragraphs.subList(minOf(start, maxOf(previous + 1, start - 6)), start)
                         .filter { it.imageIds.isEmpty() }.map { it.text }.filter(String::isNotBlank)
                     val labelled = Regex("""^(名称|标题|名字|表情名称|画面描述|图片描述|描述|使用场景|用途|语气|情绪)\s*[：:]""")
                     val afterTagged = after.any { labelled.containsMatchIn(it.trim()) }
