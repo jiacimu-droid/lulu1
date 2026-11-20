@@ -2,6 +2,7 @@ package com.jiacimu.lulu
 
 import android.content.Context
 import com.jiacimu.lulu.ai.VisionModelService
+import com.jiacimu.lulu.ai.ScopedModelSelections
 import kotlinx.coroutines.CancellationException
 
 /**
@@ -20,16 +21,31 @@ internal object StickerVisionRouting {
     const val MULTIMODAL_CHAT = "multimodal_chat"
     const val DEDICATED_ON_IMPORT = "dedicated_on_import"
 
-    fun mode(context: Context): String =
-        context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getString(KEY_MODE, OFF).orEmpty().takeIf {
-                it == MULTIMODAL_CHAT || it == DEDICATED_ON_IMPORT
-            } ?: OFF
+    private fun selectedModelId(characterId: String): String =
+        runCatching { ScopedModelSelections.selectedCharacterChatArchiveId(characterId).orEmpty() }
+            .getOrDefault("")
 
-    fun setMode(context: Context, mode: String) {
+    private fun prefKey(characterId: String): String =
+        if (characterId.isBlank()) KEY_MODE else "${KEY_MODE}_${characterId}"
+
+    fun mode(context: Context, characterId: String = ""): String {
+        val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val value = prefs.getString(prefKey(characterId), OFF).orEmpty()
+        if (value == MULTIMODAL_CHAT && characterId.isNotBlank()) {
+            // A model change invalidates earlier visual-capability consent.
+            val consentArchive = prefs.getString("archive_${characterId}", "").orEmpty()
+            if (consentArchive.isBlank() || consentArchive != selectedModelId(characterId)) return OFF
+        }
+        return value.takeIf { it == MULTIMODAL_CHAT || it == DEDICATED_ON_IMPORT } ?: OFF
+    }
+
+    fun setMode(context: Context, mode: String, characterId: String = "") {
         require(mode in setOf(OFF, MULTIMODAL_CHAT, DEDICATED_ON_IMPORT))
-        context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .edit().putString(KEY_MODE, mode).apply()
+        val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        prefs.edit().putString(prefKey(characterId), mode)
+            .putString("archive_${characterId}",
+                if (mode == MULTIMODAL_CHAT) selectedModelId(characterId) else "")
+            .apply()
     }
 
     data class PreparedImages(val urls: List<String>, val explanation: String)
@@ -41,9 +57,9 @@ internal object StickerVisionRouting {
      */
     suspend fun prepareForMultimodalChat(
         context: Context, cues: String, recent: String,
-        priorImages: Int, mood: String = "",
+        priorImages: Int, mood: String = "", characterId: String = "",
     ): PreparedImages {
-        if (mode(context) != MULTIMODAL_CHAT || priorImages >= 5) {
+        if (mode(context, characterId) != MULTIMODAL_CHAT || priorImages >= 5) {
             return PreparedImages(emptyList(), "")
         }
         val choice = selectPromptStickers(
@@ -78,8 +94,8 @@ internal object StickerVisionRouting {
     data class AutoCaptionReport(val labeled: Int, val attempted: Int, val error: String = "")
 
     /** Only configured, explicitly opted-in dedicated model is used. */
-    suspend fun labelMissingAfterImport(context: Context, pack: String): AutoCaptionReport {
-        if (mode(context) != DEDICATED_ON_IMPORT) return AutoCaptionReport(0, 0)
+    suspend fun labelMissingAfterImport(context: Context, pack: String, characterId: String = ""): AutoCaptionReport {
+        if (mode(context, characterId) != DEDICATED_ON_IMPORT) return AutoCaptionReport(0, 0)
         if (!VisionModelService.configuration(context).ready) {
             return AutoCaptionReport(0, 0, "独立识图模型未配置；表情已入库，描述暂时为空")
         }
