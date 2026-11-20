@@ -184,17 +184,21 @@ fun LuluGamesApp(
     val darkChrome = route in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape)
     val immersivePlay = fullscreenReplayId != null ||
         route in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape, GameRoute.MemoryMatch, GameRoute.TurtleSoup, GameRoute.YachtDice)
+    // Android ignores adjustResize on FLAG_FULLSCREEN windows. Temporarily
+    // release fullscreen while a game text editor owns focus, then restore it.
+    val gameTextFocused = remember(route) { mutableStateOf(false) }
     val immersiveWorld = worldGameOwnsSystemNavigation(route.savedGameId()) ||
         (fullscreenReplayId != null && replayLandscapeGameId == "relic_escape")
 
     // Full-screen is confined to active game sessions; orientation is managed above.
-    DisposableEffect(hostActivity, immersivePlay, immersiveWorld, route) {
+    DisposableEffect(hostActivity, immersivePlay, immersiveWorld, route, gameTextFocused.value) {
         val window = hostActivity?.window
         val flag = WindowManager.LayoutParams.FLAG_FULLSCREEN
         val wasFullscreen = window?.attributes?.flags?.and(flag) != 0
         val decor = window?.decorView
         val oldSystemUi = decor?.systemUiVisibility
-        if (immersivePlay) window?.addFlags(flag)
+        if (immersivePlay && !gameTextFocused.value) window?.addFlags(flag)
+        else if (immersivePlay) window?.clearFlags(flag)
         // Both world-map games own the screen, including the navigation-pillar band.
         // Restore the host system UI when returning to the game hall or caller.
         if (immersiveWorld && decor != null) {
@@ -274,6 +278,9 @@ fun LuluGamesApp(
         Box(Modifier.fillMaxSize().padding(padding)) {
             if (darkChrome) ArcadeAtmosphere(Modifier.matchParentSize())
             Box(Modifier.fillMaxSize().padding(top = if (immersivePlay && route !in setOf(GameRoute.BlockIsland, GameRoute.RelicEscape)) 54.dp else 0.dp)) {
+            CompositionLocalProvider(LocalGameTextInputFocused provides { focused ->
+                gameTextFocused.value = focused
+            }) {
             when (val current = route) {
                 GameRoute.Home -> GameHome(onOpen = { target ->
                     // A notification/chat jump is never a concession: resume the exact same
@@ -303,6 +310,7 @@ fun LuluGamesApp(
                     onBack = { route = GameRoute.Records },
                 )
             }
+            } // Game text focus provider
             }
             if (route == GameRoute.BlockIsland || route == GameRoute.RelicEscape) {
                 // Both world games render edge-to-edge; their controls float over a tiny corner
