@@ -7963,31 +7963,31 @@
     "expressionContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 122
+        "line": 123
       }
     ],
     "usesSeparateExpression": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 183
+        "line": 184
       }
     ],
     "chatAction": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 185
+        "line": 186
       }
     ],
     "groupIsExplicitlySilent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 200
+        "line": 201
       }
     ],
     "speechIntent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-        "line": 205
+        "line": 206
       }
     ],
     "conciseAppraisal": [
@@ -32200,8 +32200,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
-      "lines": 209,
-      "sha256": "a27953b9e2d31a2e3da145777970d10cdff3d90ec7116dba953401f66d8a25a9",
+      "lines": 210,
+      "sha256": "921e2e316ccc9740549142acc72ac38003f0f2ee1c252fa6f6c8791d9006b669",
       "symbols": [
         {
           "name": "hasAuthoredMomentaryIdea",
@@ -32209,23 +32209,23 @@
         },
         {
           "name": "expressionContext",
-          "line": 122
+          "line": 123
         },
         {
           "name": "usesSeparateExpression",
-          "line": 183
+          "line": 184
         },
         {
           "name": "chatAction",
-          "line": 185
+          "line": 186
         },
         {
           "name": "groupIsExplicitlySilent",
-          "line": 200
+          "line": 201
         },
         {
           "name": "speechIntent",
-          "line": 205
+          "line": 206
         }
       ]
     },
