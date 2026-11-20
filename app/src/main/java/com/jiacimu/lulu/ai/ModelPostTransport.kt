@@ -3,6 +3,8 @@ package com.jiacimu.lulu.ai
 import java.io.EOFException
 import java.io.IOException
 import java.net.ConnectException
+import java.net.InetSocketAddress
+import java.net.Proxy
 import java.net.ProtocolException
 import java.net.SocketException
 import java.net.SocketTimeoutException
@@ -11,6 +13,7 @@ import javax.net.ssl.SSLException
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
+import okhttp3.EventListener
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -30,6 +33,57 @@ internal object ModelPostTransport {
     // allow a bounded slower upload without replaying an uncertain paid POST.
     internal const val REQUEST_WRITE_TIMEOUT_SECONDS = 60L
     internal const val PRE_BODY_CONNECT_RETRIES = 1
+    /** In-process timing of the SAME charged HTTP call, never a second network probe. */
+    internal data class Timing(
+        val connectMillis: Long?,
+        val uploadMillis: Long?,
+        val responseWaitMillis: Long?,
+        val responseReadMillis: Long?,
+        val statusCode: Int?,
+    ) {
+        fun stages(): List<Pair<String, Long>> = listOfNotNull(
+            connectMillis?.let { "连接与建链（DNS/代理/TLS）" to it },
+            uploadMillis?.let { "上传请求正文" to it },
+            responseWaitMillis?.let { "等待响应头（中转站+模型）" to it },
+            responseReadMillis?.let { "读取响应/流式输出" to it },
+        )
+    }
+
+    /** OkHttp event times are boundaries, not inferred from a model's token rate. */
+    private class TimingListener(private val parent: EventListener) : EventListener() {
+        private val start = System.nanoTime()
+        private var bodyStart: Long? = null
+        private var bodyEnd: Long? = null
+        private var headersReady: Long? = null
+        override fun connectStart(call: Call, address: InetSocketAddress, proxy: Proxy) {
+            parent.connectStart(call, address, proxy)
+        }
+        override fun requestBodyStart(call: Call) {
+            bodyStart = System.nanoTime()
+            parent.requestBodyStart(call)
+        }
+        override fun requestBodyEnd(call: Call, byteCount: Long) {
+            bodyEnd = System.nanoTime()
+            parent.requestBodyEnd(call, byteCount)
+        }
+        override fun responseHeadersEnd(call: Call, response: Response) {
+            headersReady = System.nanoTime()
+            parent.responseHeadersEnd(call, response)
+        }
+        fun snapshot(statusCode: Int?): Timing {
+            val end = System.nanoTime()
+            fun between(a: Long?, b: Long?) =
+                if (a != null && b != null) ((b - a).coerceAtLeast(0L) / 1_000_000L) else null
+            return Timing(
+                connectMillis = between(start, bodyStart ?: if (bodyEnd == null) end else null),
+                uploadMillis = between(bodyStart, bodyEnd ?: if (bodyStart != null) end else null),
+                responseWaitMillis = between(bodyEnd, headersReady ?: if (bodyEnd != null) end else null),
+                responseReadMillis = between(headersReady, end),
+                statusCode = statusCode,
+            )
+        }
+    }
+
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(REQUEST_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -47,6 +101,7 @@ internal object ModelPostTransport {
         headers: Map<String, String>,
         body: String,
         readTimeoutMillis: Int,
+        onTiming: ((Timing) -> Unit)? = null,
         read: (Response) -> T,
     ): T = suspendCancellableCoroutine { continuation ->
         val activeCall = java.util.concurrent.atomic.AtomicReference<Call>()
@@ -55,7 +110,7 @@ internal object ModelPostTransport {
             execute(url, headers, body, readTimeoutMillis, onCall = { call ->
                 activeCall.set(call)
                 if (!continuation.isActive) call.cancel()
-            }, read = read)
+            }, onTiming = onTiming, read = read)
         }
         if (continuation.isActive) continuation.resumeWith(result)
     }
@@ -69,6 +124,7 @@ internal object ModelPostTransport {
         readTimeoutMillis: Int,
         transportClient: OkHttpClient = client,
         onCall: (Call) -> Unit = {},
+        onTiming: ((Timing) -> Unit)? = null,
         read: (Response) -> T,
     ): T {
         val bytes = body.toByteArray(Charsets.UTF_8)
@@ -91,6 +147,8 @@ internal object ModelPostTransport {
             val request = Request.Builder().url(url).post(requestBody).apply {
                 headers.forEach { (key, value) -> header(key, value) }
             }.build()
+            var timingListener: TimingListener? = null
+            var statusCode: Int? = null
             try {
                 // newBuilder shares pools/dispatcher while each request has
                 // its own read budget. Do not retry chargeable response failures.
@@ -103,10 +161,16 @@ internal object ModelPostTransport {
                     .followRedirects(false)
                     .followSslRedirects(false)
                     .readTimeout(readTimeoutMillis.coerceIn(30_000, 300_000).toLong(), TimeUnit.MILLISECONDS)
+                    .eventListenerFactory { call ->
+                        TimingListener(transportClient.eventListenerFactory.create(call)).also {
+                            timingListener = it
+                        }
+                    }
                     .build()
                 val call = transport.newCall(request)
                 onCall(call)
                 return call.execute().use { response ->
+                    statusCode = response.code
                     phase = Phase.READ_RESPONSE
                     read(response)
                 }
@@ -119,6 +183,11 @@ internal object ModelPostTransport {
                     continue
                 }
                 throw ModelPostTransportException(phase, error, preBodyRetries)
+            } finally {
+                // Even HTTP 4xx and ambiguous response failures keep their measured phases.
+                timingListener?.let { listener ->
+                    runCatching { onTiming?.invoke(listener.snapshot(statusCode)) }
+                }
             }
         }
     }
