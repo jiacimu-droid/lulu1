@@ -112,6 +112,7 @@ data class PerformanceTimingRecord(
     val source: String = "",
     val provider: String = "",
     val status: String = "",
+    val requestBodyBytes: Long = 0L,
 )
 
 data class PerformanceErrorRecord(
@@ -235,6 +236,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         durationMillis: Long, requestId: String, traceId: String,
         networkStages: List<Pair<String, Long>> = emptyList(),
         failureStatus: String = "失败",
+        requestBodyBytes: Long = 0L,
     ) {
         val now = System.currentTimeMillis()
         val stages = networkStages.map { (stage, duration) ->
@@ -245,7 +247,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         } + PerformanceTimingRecord(stage = "API调用失败", durationMillis = durationMillis,
             detail = title, recordedAtMillis = now, traceId = traceId,
             requestId = requestId, model = model, source = source, provider = provider,
-            status = failureStatus)
+            status = failureStatus, requestBodyBytes = requestBodyBytes.coerceAtLeast(0L))
         update { current -> current.copy(timings = (stages + current.timings).take(TIMING_RECORD_LIMIT)) }
     }
 
@@ -369,7 +371,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
                 recordedAtMillis = now,
                 traceId = turnTraceId, requestId = requestId,
                 model = model, source = source, provider = provider,
-                status = "成功",
+                status = "成功", requestBodyBytes = requestBodyBytes.coerceAtLeast(0L),
             ),
         ) + networkStages.map { (stage, duration) ->
             PerformanceTimingRecord(stage = stage, durationMillis = duration,
@@ -608,6 +610,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         .put("source", value.source)
         .put("provider", value.provider)
         .put("status", value.status)
+        .put("requestBodyBytes", value.requestBodyBytes)
 
     private fun decodeTiming(item: JSONObject): PerformanceTimingRecord = PerformanceTimingRecord(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
@@ -621,6 +624,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         source = item.optString("source"),
         provider = item.optString("provider"),
         status = item.optString("status"),
+        requestBodyBytes = item.optLong("requestBodyBytes").coerceAtLeast(0L),
     )
 
     private companion object {

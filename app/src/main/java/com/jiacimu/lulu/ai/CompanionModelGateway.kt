@@ -1227,6 +1227,7 @@ class CompanionModelGateway(
                     durationMillis = elapsedMillis(totalStartedAt), requestId = performanceRequestId,
                     traceId = turnTraceId,
                     networkStages = listOfNotNull(prepMillis?.let { "本地准备" to it }) + networkStages,
+                    requestBodyBytes = failedRequestBytes,
                     failureStatus = when (error) {
                         is ModelHttpException -> "HTTP ${error.status}"
                         is ModelPostTransportException -> "传输失败：${error.phase}"
