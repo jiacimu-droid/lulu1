@@ -255,13 +255,17 @@ internal object StickerWordDocument {
                 }
             } else extras += line
         }
-        if (name.isBlank()) name = extras.firstOrNull().orEmpty().take(90)
-        if (description.isBlank() && extras.size > 1) {
-            // Authors sometimes write "name" on the first line and a
-            // descriptive sentence immediately after; keep unlabelled text
-            // as a name, not an invented visual observation.
-            description = ""
+        if (name.isBlank()) {
+            val first = extras.firstOrNull().orEmpty()
+            if (first.length in 1..40) name = first.take(90)
+            else if (description.isBlank()) description = first.take(400)
         }
+        // The second unlabelled line is supplied caption text, not model
+        // inference; preserve it as a description when no labeled value exists.
+        if (description.isBlank() && extras.size > 1) {
+            description = extras[1].take(400)
+        }
+        if (usage.isBlank() && extras.size > 2) usage = extras[2].take(160)
         return Caption(name.ifBlank { fallback }.take(90), description.take(400), usage.take(160))
     }
 }
