@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c05cea6a18f1fd33ad0a72af8e3dd5eab215bcc3`
+- 基准提交：`2f965dbea227b2e900a11469c6755377de6f1310`
 - 分支：`main`
 - 已索引文件：1494
-- 已索引代码/文本行：319200
+- 已索引代码/文本行：319205
 - 已发现符号：4535
 
 | 文件 | 行数 | 符号数 |
@@ -1043,7 +1043,7 @@
 | `app/src/test/java/com/jiacimu/lulu/SleepGuidanceGuideTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/SleepNarrativeStoreTest.kt` | 66 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StartupFailureRecoveryTest.kt` | 40 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/StickerFlexibleTextImportTest.kt` | 81 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/StickerFlexibleTextImportTest.kt` | 86 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StickerImportManifestTest.kt` | 62 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StickerPackArchiveTest.kt` | 63 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/StickerPromptSelectionTest.kt` | 79 | 1 |
