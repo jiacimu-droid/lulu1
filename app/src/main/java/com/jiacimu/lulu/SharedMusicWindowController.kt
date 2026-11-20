@@ -21,6 +21,27 @@ internal object SharedMusicWindowController {
         private set
     var requestedTrack by mutableStateOf<SharedListenEntry?>(null)
         private set
+    var playbackTitle by mutableStateOf("选择一首歌")
+        private set
+    var playbackArtist by mutableStateOf("")
+        private set
+    var playbackPlaying by mutableStateOf(false)
+        private set
+    var playbackIsExternal by mutableStateOf(true)
+        private set
+
+    // Live actions remain attached to the one in-app room, not reimplemented
+    // by the outside-app overlay or a second independent MediaPlayer.
+    var togglePlayback: (() -> Unit)? = null
+    var previousPlayback: (() -> Unit)? = null
+    var nextPlayback: (() -> Unit)? = null
+
+    fun updatePlayback(title: String, artist: String, playing: Boolean, external: Boolean) {
+        if (playbackTitle != title) playbackTitle = title
+        if (playbackArtist != artist) playbackArtist = artist
+        if (playbackPlaying != playing) playbackPlaying = playing
+        if (playbackIsExternal != external) playbackIsExternal = external
+    }
 
     fun open(target: SharedMusicRoom) {
         if (room?.conversationId != target.conversationId) requestedTrack = null
@@ -40,6 +61,10 @@ internal object SharedMusicWindowController {
     fun close() {
         room = null
         requestedTrack = null
+        togglePlayback = null
+        previousPlayback = null
+        nextPlayback = null
         display = SharedMusicWindow.Hidden
+        ListenTogetherSystemOverlay.dismiss()
     }
 }
