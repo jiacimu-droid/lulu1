@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T09:52:05.426996+00:00",
-  "commit": "0e1ebe5022e8f121c6019942ddbd3a95907bf829",
+  "generatedAt": "2026-11-20T14:45:35.933000+00:00",
+  "commit": "4879c12bd90e0339f95f73fa16902227f5eced78",
   "branch": "main",
-  "sourceFingerprint": "93baa7d109dbdf32ea5587ddcda2beb7c6fe5bd321cc8f0398fba193be38b41e",
+  "sourceFingerprint": "23c7583719362b2d1012622d0fc0a0e473969e70ab60beaeb2ccd68f93326eb0",
   "summary": {
     "files": 1503,
-    "lines": 322735,
+    "lines": 322746,
     "symbols": 4576
   },
   "symbolIndex": {
@@ -31927,7 +31927,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 209,
-      "sha256": "50f8091fe95159bf9452f0d4db0d2a12c49adc789e7f0c05688f4d50d6049069",
+      "sha256": "171c95bb776d8612339bcdf5393538b9e3725dff672e2ded9861b37e4301035d",
       "symbols": [
         {
           "name": "hasAuthoredMomentaryIdea",
@@ -32370,7 +32370,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt",
       "lines": 201,
-      "sha256": "bd311bfaa6cc17f25fe84affddbabefab77557e664d3092722994465df5fd1d6",
+      "sha256": "2e08c3bacd77ba4debe3d2f5c31720db07751a418ffd73deb6e752ac5a8a3799",
       "symbols": [
         {
           "name": "detect",
@@ -48930,8 +48930,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt",
-      "lines": 642,
-      "sha256": "e76978eb4f6dc9203f8357d248277783b832dbe8a90477c14ac13a26357477a2",
+      "lines": 653,
+      "sha256": "14bfb96d946f668e087138d0cf4abe38839ce1b3e9463d45e98308fadf5c57f4",
       "symbols": [
         {
           "name": "CharacterExpressionGuideTest",
