@@ -40,7 +40,7 @@ fun OptimizedPerformanceFeatureScreen(onBack: () -> Unit) {
     val repository = LuluRepositories.performance
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope()
-    val tabs = remember { listOf("报错日志", "缓存", "控制台", "时长监测") }
+    val tabs = remember { listOf("报错日志", "缓存", "控制台", "API耗时") }
 
     LuluCssScaffold(
         containerColor = FastPerformancePaper,
@@ -362,13 +362,13 @@ private fun FastDurationTab(onClear: () -> Unit) {
             if (older.isNotEmpty()) {
                 FastPerformanceCard {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("旧版阶段记录 · " + older.size + " 条",
+                        Text("其他执行阶段（含旧记录） · " + older.size + " 条",
                             Modifier.weight(1f), fontSize = 13.sp, fontWeight = FontWeight.Medium)
                         TextButton(onClick = { showOld = !showOld }) {
                             Text(if (showOld) "收起" else "查看")
                         }
                     }
-                    Text("旧记录没有单次请求编号，不能可靠地把不同轮次拼成某个 API 调用。",
+                    Text("角色排队、气泡送达及旧版阶段并非单独 API 请求，故放在这里供比对。",
                         fontSize = 11.sp, color = FastPerformanceMuted)
                     if (showOld) {
                         older.take(24).forEach { item ->
@@ -416,6 +416,10 @@ private fun FastDurationTab(onClear: () -> Unit) {
                 FastMetric("模型", call.model.ifBlank { "未知" })
                 FastMetric("来源", call.source.ifBlank { "未知" })
                 FastMetric("中转/服务商域名", call.provider.ifBlank { "未知" })
+                val httpAttempts = call.records.count { it.stage == "上传请求正文" }
+                if (httpAttempts > 1) Text("这一轮含 " + httpAttempts +
+                    " 次实际 HTTP 请求尝试（例如协议回退），总耗时覆盖整轮。",
+                    fontSize = 12.sp, color = FastPerformanceMuted)
                 val sections = listOf(
                     "Prompt" to "APK 本地准备（合计）",
                     "APK·场景准备" to "场景与会话准备",
@@ -558,7 +562,7 @@ private fun FastMetric(label: String, value: String) {
 }
 
 private val fastTimeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
-private val fastDateFormatter = DateTimeFormatter.ofPattern("MM-dd HH:mm:ss")
+private val fastDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 private fun Long.fastTime(): String = Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).format(fastTimeFormatter)
 private fun Long.fastDateTime(): String = Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).format(fastDateFormatter)
 private fun Long.fastTokens(): String = when {
