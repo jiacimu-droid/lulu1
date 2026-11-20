@@ -46,6 +46,22 @@ class CharacterLifeStoreTest {
         assertEquals("source-a", names.getString("preferredAddressSourceId"))
     }
 
+    @Test fun legacyIntentionOnlyDeliversLatestActualReceiptWithoutDeletingHistory() {
+        val outcomes = org.json.JSONArray()
+        repeat(120) { index ->
+            outcomes.put(JSONObject().put("action", "try-$index")
+                .put("success", index == 119)
+                .put("summary", "historical-receipt-$index-" + "x".repeat(150)))
+        }
+        val result = legacyIntentionLastOutcome(outcomes)
+        assertTrue(result.contains("try-119"))
+        assertTrue(result.contains("historical-receipt-119"))
+        assertFalse(result.contains("historical-receipt-118"))
+        assertTrue(result.length < 550)
+        assertEquals(120, outcomes.length())
+        assertEquals("尚无历史动作回执。", legacyIntentionLastOutcome(org.json.JSONArray()))
+    }
+
     @Test fun distinctGoalsRemainDistinctWhileMinorRewordingIsDeduplicated() {
         assertTrue(sameCharacterMotive("继续阅读这本小说。", "继续 阅读这本小说"))
         assertTrue(sameCharacterMotive("认真完成今天的英语复习计划", "完成今天的英语复习计划"))
