@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`be288ce740695746fefe0a8b6e230afbc955bbe8`
+- 基准提交：`2dbeb0dbeb2060f68056b3e7d12b177afa1ae2c1`
 - 分支：`main`
 - 已索引文件：1497
-- 已索引代码/文本行：320193
+- 已索引代码/文本行：320210
 - 已发现符号：4550
 
 | 文件 | 行数 | 符号数 |
@@ -168,7 +168,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LexiconFeatureScreenV2.kt` | 715 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherArtwork.kt` | 156 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherMiniWindow.kt` | 241 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/ListenTogetherMusicLibrary.kt` | 291 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/ListenTogetherMusicLibrary.kt` | 307 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherPlayerScreen.kt` | 413 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ListenTogetherRoom.kt` | 374 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/Live2DAssets.kt` | 636 | 22 |
@@ -546,7 +546,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/LuluConversationParentCompatibility.kt` | 10 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluCssRuntime.kt` | 185 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluCssStore.kt` | 86 | 5 |
-| `app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt` | 117 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/LuluCssTargets.kt` | 118 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluDataBackup.kt` | 291 | 19 |
 | `app/src/main/java/com/jiacimu/lulu/data/LuluExternalMcp.kt` | 456 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt` | 628 | 38 |
