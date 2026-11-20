@@ -107,10 +107,11 @@ internal fun ListenTogetherPlayerScreen(
             // #ChatDetail rules inherit; #ListenTogether rules override locally.
             val roomStyle = luluCssStyle("music-room")
             val baseInk = roomStyle.cssColor("color") ?: listeningInk
+            val inheritedPaper = com.jiacimu.lulu.design.LocalLuluCssSheet.current
+                .page("ListenTogether")["--paper"]
             val roomColor = roomStyle.cssColor("background-color")
-                ?: Color(LocalLuluAppearance.current.palette.paper.toInt()).let {
-                    if (luluCssStyle("music-room").isEmpty()) listeningPaper else it
-                }
+                ?: if (inheritedPaper != null) Color(LocalLuluAppearance.current.palette.paper.toInt())
+                    else listeningPaper
             val titleStyle = luluCssStyle("music-track-title")
             val artistStyle = luluCssStyle("music-track-artist")
             val progressStyle = luluCssStyle("music-progress")
