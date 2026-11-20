@@ -205,6 +205,7 @@ internal object StickerWordDocument {
 
     private fun parseRelationships(bytes: ByteArray): Map<String, String> {
         val parser = Xml.newPullParser()
+        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true)
         parser.setInput(bytes.inputStream(), "UTF-8")
         val refs = mutableMapOf<String, String>()
         while (parser.eventType != XmlPullParser.END_DOCUMENT) {
@@ -227,6 +228,7 @@ internal object StickerWordDocument {
 
     private fun parseParagraphs(bytes: ByteArray): List<Paragraph> {
         val parser = Xml.newPullParser()
+        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, true)
         parser.setInput(bytes.inputStream(), "UTF-8")
         val paragraphs = mutableListOf<Paragraph>()
         val text = StringBuilder()
