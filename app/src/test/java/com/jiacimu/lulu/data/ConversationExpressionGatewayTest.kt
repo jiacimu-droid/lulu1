@@ -2445,7 +2445,9 @@ class ConversationExpressionGatewayTest {
             assertEquals(1, system.split(CharacterDecisionProtocol.runtimePrinciples).size - 1)
             assertFalse(scene.contains(CharacterDecisionProtocol.runtimePrinciples))
             assertEquals(1, system.split("【当前现实时钟｜手机读取】").size - 1)
-            assertFalse(scene.contains("用户设备本地时间"))
+            // The real late-night device cue may belong in the actor scene; it is not
+            // a duplicate of the single authoritative clock header in system.
+            assertFalse(scene.contains("【当前现实时钟｜手机读取】"))
             assertTrue(system.contains("此刻是在和对方继续一段私聊"))
             // Live speech remains verbatim in the final user turn; only
             // its source ID belongs in the shared character scene evidence.
