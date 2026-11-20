@@ -23,6 +23,13 @@ internal class ArcadeNativeGame(
     private val firstParty = initialParty
     private val party = linkedSetOf<String>()
     private var prepared = false
+    private var pendingRelicImpacts: Pair<String, List<RelicImpact>>? = null
+
+    private fun queueRelicImpacts(run: RelicRun?) {
+        if (run == null || run.impacts.isEmpty()) return
+        val existing = pendingRelicImpacts?.takeIf { it.first == run.id }?.second.orEmpty()
+        pendingRelicImpacts = run.id to (existing + run.impacts).takeLast(12)
+    }
     var islandAutonomous = true
         @Synchronized get
         @Synchronized set
@@ -43,7 +50,7 @@ internal class ArcadeNativeGame(
     }
 
     @Synchronized fun relicCompanion(runId: String, id: String, choice: IslandActorChoice): Boolean =
-        runCatching { ledger.companion(runId, id, choice) }.isSuccess
+        runCatching { ledger.companion(runId, id, choice).also { queueRelicImpacts(it.run) } }.isSuccess
 
     @Synchronized fun pulseRelic(runId: String): RelicRun? {
         val before = relic()?.takeIf { it.id == runId } ?: return null
@@ -51,6 +58,7 @@ internal class ArcadeNativeGame(
         if (actors.isEmpty()) return null
         val result = ledger.perform("companion_tick", autonomousIds = actors, expectedRunId = runId)
         syncRelic(result)
+        queueRelicImpacts(result.run)
         return result.run?.takeIf { it.id == runId && it.teamSteps > before.teamSteps }
     }
 
@@ -173,7 +181,9 @@ internal class ArcadeNativeGame(
             if (verb != "view") syncRelic(snapshot)
             val current = checkNotNull(snapshot.run) { "暂无遗迹存档。" }
             val view = arcadeRelicView(current, selected, input.facing).put("session", current.id)
-            step?.annotate(view) ?: view
+            val pending = pendingRelicImpacts?.takeIf { it.first == current.id }?.second.orEmpty()
+            pendingRelicImpacts = null
+            step?.annotate(view, pending) ?: view.addRelicImpacts(current, pending)
         }
     }
 }

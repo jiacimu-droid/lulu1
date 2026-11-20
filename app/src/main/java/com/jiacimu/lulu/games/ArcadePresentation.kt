@@ -102,6 +102,8 @@ internal fun arcadeRelicView(s: RelicRun, selected: Pair<Int, Int>?, facing: Pai
         put("tiles", JSONArray(s.tiles.mapIndexed { i, cell -> if (i in s.seen) cell else -1 }))
         put("chests", JSONArray(s.chests.filter { s.visible(it.x, it.y) }.map {
             it.json().put("openSteps", RelicEscapeRules.openSteps(it))
+                .put("shellGrade", it.visibleGrade)
+                .put("glowGrade", RelicEscapeRules.openingGlowGrade(s, it))
         }))
         put("mobs", JSONArray(s.mobs.filter { it.hp > 0 && s.visible(it.x, it.y) }.map { it.json() }))
         put("sites", JSONArray(s.sites.filter { s.visible(it.x, it.y) }.map { it.json() }))
@@ -172,14 +174,23 @@ internal fun arcadeIslandAct(before: BlockIslandState, input: ArcadeInput, actor
     }
 }
 
-internal data class ArcadeRelicStep(val run: RelicRun, val loot: JSONObject?, val interrupted: Boolean) {
-    fun annotate(view: JSONObject): JSONObject = view.apply {
-        if (loot != null) put("receipt", loot)
-        if (interrupted) put("chestInterrupted", true)
+internal fun JSONObject.addRelicImpacts(run: RelicRun, impacts: List<RelicImpact>) = apply {
+    val visible = impacts.filter { run.visible(it.x, it.y) }.map {
+        it.json(sourceVisible = run.visible(it.sourceX, it.sourceY))
     }
+    if (visible.isNotEmpty()) put("impacts", JSONArray(visible))
 }
 
-internal fun arcadeRelicAct(before: RelicRun, input: ArcadeInput, allies: Set<String>): ArcadeRelicStep {
+internal data class ArcadeRelicStep(val run: RelicRun, val loot: JSONObject?, val interrupted: Boolean) {
+    fun annotate(view: JSONObject, priorImpacts: List<RelicImpact> = emptyList()): JSONObject =
+        view.addRelicImpacts(run, priorImpacts + run.impacts).apply {
+            if (loot != null) put("receipt", loot)
+            if (interrupted) put("chestInterrupted", true)
+        }
+}
+
+internal fun arcadeRelicAct(current: RelicRun, input: ArcadeInput, allies: Set<String>): ArcadeRelicStep {
+    val before = if (current.impacts.isEmpty()) current else current.copy(impacts = emptyList())
     val (selected, facing, _, action, id, actor) = input
     val (x, y) = selected ?: (before.hero.x to before.hero.y)
     fun play(action: String, x: Int = before.hero.x, y: Int = before.hero.y, item: String = "") =
@@ -206,6 +217,7 @@ internal fun arcadeRelicAct(before: RelicRun, input: ArcadeInput, allies: Set<St
             } else {
                 box?.let { RelicChestPresentation.committed(before, result, it.id) }?.let {
                     loot = it.loot.json().put("inBag", it.inBag)
+                        .put("displayGrade", RelicCollectibles.displayGrade(it.loot))
                 }
                 result
             }

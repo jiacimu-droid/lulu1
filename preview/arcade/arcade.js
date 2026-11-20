@@ -1,6 +1,6 @@
 import { islandMap } from './island-map.js';
 import { relicMap } from './relic-map.js';
-import { chestShow, lootAsset } from './chest-show.js';
+import { chestShow, lootAsset, lootValue, playImpact, primeGameSound } from './chest-show.js';
 
 const $ = id => document.getElementById(id);
 const launch = $('launch'), options = $('options'), game = $('game'), form = $('setup');
@@ -34,7 +34,7 @@ let crewProfiles=[
 const roleName=id=>crewProfiles.find(role=>role.id===id)?.name||'队友';
 let crew=[], chestSession=null, ceremony;
 let extraction=null, gather=null;
-let paused=false;
+let paused=false, worldRefreshPending=false;
 
 const names = { island:'方块小岛', relic:'迷雾摸金' };
 const counters = { EASY:'轻松', NORMAL:'标准', HARD:'险境' };
@@ -302,6 +302,8 @@ function leave() {
   $('hall').hidden=false;
   document.querySelector(`[data-launch="${kind}"]`)?.focus({preventScroll:true});
   state=null;
+  worldRefreshPending=false;
+  renderer?.clear?.();
   lookDrag=null;
   if(redraw)cancelAnimationFrame(redraw);
   redraw=null;
@@ -320,12 +322,18 @@ async function update(verb, payload, selectionAfter) {
     const next=await request(verb,{...snapshotInput(),...payload});
     if(token!==epoch)return;
     state=next;
+    if(kind==='relic'&&next.impacts?.length){
+      renderer.hit(before,next.impacts);
+      const priority=next.impacts.find(hit=>hit.target==='player')||
+        next.impacts.find(hit=>hit.defeated)||next.impacts[0];
+      playImpact(priority);
+    }
     if (kind==='island' && verb==='act' && recipe===payload.action && next.world.turns>before.world.turns)
       recipe='';
     if(selectionAfter!==undefined) selected=selectionAfter;
     render();
     if (next.receipt&&!chestSession) showReceipt(next.receipt);
-    if (kind==='relic' && terminal.has(next.phase) && next.phase!==before.phase) showResult();
+    if (kind==='relic' && terminal.has(next.phase) && next.phase!==before.phase && !next.receipt) showResult();
     return next;
   } catch(error) {
     if(token===epoch)$('feedback').textContent=error.message;
@@ -333,12 +341,17 @@ async function update(verb, payload, selectionAfter) {
     if(token===epoch){
       busy=false;
       if(verb==='act'&&kind==='island'&&!directionHeld)syncAim();
+      if(worldRefreshPending&&!chestSession){
+        worldRefreshPending=false;
+        queueMicrotask(()=>{if(token===epoch)update('view');});
+      }
     }
   }
 }
 function move(dx,dy) {
   if(!state || busy || options.open || chestSession || !landscape.matches || (kind==='relic' && terminal.has(state.phase)))return;
   if(gather)closeGather();
+  if(kind==='relic')primeGameSound();
   if(kind==='island'){
     facing=renderer.direction(dx,dy,camera);
     if(overview)toggleOverview();
@@ -347,6 +360,7 @@ function move(dx,dy) {
 }
 function perform(item) {
   if (!item || !item.enabled || busy || !landscape.matches) return;
+  if(kind==='relic')primeGameSound();
   if(kind==='relic'&&item.action==='open'){beginOpening(item);return;}
   if(kind==='island'&&item.action==='gather'&&!state.tools.includes('axe')&&
     state.world.tiles[item.y*state.world.width+item.x]===1){openGather(item);return;}
@@ -497,6 +511,11 @@ function finishOpening(){
   releaseChestHold();
   ceremony?.close();
   draw();
+  if(worldRefreshPending&&!busy){
+    worldRefreshPending=false;
+    const token=epoch;
+    queueMicrotask(()=>{if(token===epoch)update('view');});
+  }
 }
 async function cancelOpening(){
   const opening=chestSession;
@@ -522,9 +541,13 @@ function beginOpening(item){
   const opening={box,step:state.chestProgress?.[box.id]||0,max:box.openSteps||4,
     committed:false,held:false,timer:null};
   chestSession=opening;
-  ceremony.begin(box);
-  ceremony.step(opening.step/opening.max,'按住撬锁开始。松手可以停下。',!!guardOrder());
+  ceremony.begin(box,opening.step/opening.max,chestWarning(state),!!guardOrder());
   draw();
+}
+const pryDuration=580;
+function startPry(opening){
+  ceremony.charge((opening.step+1)/opening.max,pryDuration);
+  schedulePry(opening,pryDuration);
 }
 function schedulePry(opening,delay) {
   clearTimeout(opening.timer);
@@ -538,8 +561,7 @@ async function pry(opening){
   const result=await update('act',{action:'cinematic_step',x:box.x,y:box.y});
   if(chestSession!==opening)return;
   if(!result){finishOpening();return;}
-  if(result.chestInterrupted||result.phase==='DOWNED'||terminal.has(result.phase)){
-    ceremony.interrupt();
+  if(result.chestInterrupted||result.phase==='DOWNED'||(!result.receipt&&terminal.has(result.phase))){
     finishOpening();
     $('feedback').textContent=result.notice;
     return;
@@ -551,22 +573,30 @@ async function pry(opening){
     return;
   }
   if(opening.cancelled){await cancelOpening();return;}
-  opening.step=result.chestProgress?.[box.id]??opening.step+1;
-  ceremony.step(opening.step/opening.max,chestWarning(result),!!guardOrder());
-  if(opening.held)schedulePry(opening,550);
+  const confirmed=result.chestProgress?.[box.id]??0;
+  if(confirmed<=opening.step){
+    finishOpening();
+    $('feedback').textContent=result.notice;
+    return;
+  }
+  opening.step=confirmed;
+  const updatedBox=result.chests.find(chest=>chest.id===box.id);
+  ceremony.step(confirmed/opening.max,updatedBox?.glowGrade??box.shellGrade??box.grade,
+    chestWarning(result),!!guardOrder());
+  if(opening.held)startPry(opening);
 }
 const releaseChestHold=bindHold($('chest-hold'),()=>{
   const opening=chestSession;
   if(!opening||opening.committed)return;
   opening.held=true;
   ceremony.hold(true);
-  schedulePry(opening,550);
+  startPry(opening);
 },()=>{
   const opening=chestSession;
   if(!opening||opening.committed)return;
   opening.held=false;
   clearTimeout(opening.timer);
-  ceremony.hold(false);
+  ceremony.hold(false,chestWarning(state));
 });
 function closeGather(){
   if(!gather)return;
@@ -650,7 +680,10 @@ function syncExtraction(){
   schedule();
 }
 $('chest-stop').onclick=cancelOpening;
-$('chest-continue').onclick=finishOpening;
+$('chest-continue').onclick=()=>{
+  finishOpening();
+  if(state&&terminal.has(state.phase))showResult();
+};
 $('chest-cover').onclick=async()=>{
   const opening=chestSession;
   const action=guardOrder();
@@ -658,7 +691,8 @@ $('chest-cover').onclick=async()=>{
   const result=await update('act',{action:'partner',actor:action.actor,id:action.id});
   if(result&&chestSession===opening&&opening.cancelled){await cancelOpening();return;}
   if(result&&chestSession===opening&&!opening.committed)
-    ceremony.step(opening.step/opening.max,'队友已就位',false);
+    ceremony.step(opening.step/opening.max,result.chests.find(box=>box.id===opening.box.id)?.glowGrade??opening.box.shellGrade,
+      '队友已就位',false);
 };
 let crewPage=0, optionPage=0;
 function paginate(list,pager,page,onChange){
@@ -740,7 +774,7 @@ function lootRow(list,item){
   const model=document.createElement('img');
   model.src=lootAsset(item);model.alt='';
   const name=document.createElement('b');name.textContent=item.name;
-  const value=document.createElement('span');value.textContent=`估值 ${item.value}`;
+  const value=document.createElement('span');value.textContent=`估值 ${lootValue(item)}`;
   row.append(model,name,value);
   list.append(row);
 }
@@ -933,7 +967,11 @@ if(nativeMode){
     return true;
   };
   window.luluArcadePing=(x,y)=>{ if(state&&!chestSession){selected=[x,y];update('view');} };
-  window.addEventListener('lulu:world',()=>{if(state&&!chestSession)update('view');});
+  window.addEventListener('lulu:world',()=>{
+    if(!state)return;
+    if(busy||chestSession)worldRefreshPending=true;
+    else update('view');
+  });
   window.addEventListener('lulu:pause',()=>{
     paused=true;stopHold();closeGather();if(chestSession)cancelOpening();syncExtraction();
   });

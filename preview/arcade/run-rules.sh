@@ -28,13 +28,15 @@ done
 work=$(mktemp -d "$cache/run.XXXXXX")
 trap 'rm -rf "$work"' EXIT
 # Both source files currently colocate physical options/execution with Android's
-# live model context. Keep the pure prefix verbatim and omit the live gateway.
+# live model context. Keep physical actions and omit the live reply metadata and gateway.
 for actor in IslandActorPlay RelicActorPlay; do
   if [[ $(awk '/^    fun facts\(/{ count++ } END{ print count+0 }' "$rules/$actor.kt") != 1 ]]; then
     echo "Check the preview extraction boundary in $actor.kt" >&2
     exit 1
   fi
-  awk '/^    fun facts\(/ { print "}"; exit } !/^import com\.jiacimu\.lulu\.ai\./' "$rules/$actor.kt" > "$work/$actor.kt"
+  awk '/^    fun facts\(/ { print "}"; exit }
+       !/^import com\.jiacimu\.lulu\.ai\./ && !/^    val modelReply: com\.jiacimu\.lulu\.ai\.ModelReply/ { print }' \
+       "$rules/$actor.kt" > "$work/$actor.kt"
 done
 sources=(ExpeditionRules BlockIslandRules IslandExpeditionTrail IslandGarden IslandGuardianEncounter
   IslandProgression IslandRareEvents IslandSupplyCaches IslandTargetAction IslandTravel IslandWildlife

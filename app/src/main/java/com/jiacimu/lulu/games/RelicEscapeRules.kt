@@ -17,13 +17,13 @@ internal enum class RelicTier(val label:String,val base:Int,val weight:Int) {
 
 /** Seven visible appraised grades. The original three physical weight/save tiers remain readable. */
 internal enum class RelicQuality(val label:String,val minimum:Int,val spread:Int,val tier:RelicTier) {
-    COMMON("普通",70,30,RelicTier.COMMON),
-    FINE("精良",105,35,RelicTier.COMMON),
-    RARE("稀有",185,63,RelicTier.RARE),
-    VIOLET("珍贵",300,90,RelicTier.RARE),
-    GOLD("史诗",460,170,RelicTier.PRECIOUS),
-    CRIMSON("传说",900,380,RelicTier.PRECIOUS),
-    PRISM("传世秘宝",6000,1,RelicTier.PRECIOUS);
+    COMMON("普通",12,37,RelicTier.COMMON),
+    FINE("精良",85,112,RelicTier.COMMON),
+    RARE("稀有",380,420,RelicTier.RARE),
+    VIOLET("珍贵",1700,2700,RelicTier.RARE),
+    GOLD("史诗",7200,12800,RelicTier.PRECIOUS),
+    CRIMSON("传说",36000,53000,RelicTier.PRECIOUS),
+    PRISM("传世秘宝",180000,1,RelicTier.PRECIOUS);
     companion object {
         fun at(rank:Int):RelicQuality = entries[rank.coerceIn(0,entries.lastIndex)]
     }
@@ -52,16 +52,18 @@ internal object RelicCollectibles {
     fun isCrownJewel(name: String): Boolean = name == CROWN_JEWEL
     /** Display-only fourth rung for the seeded special drop. Preserve the three
      * persisted RelicTier enum values so existing saves remain readable. */
-    fun displayRank(loot: RelicLoot): String = when {
-        loot.grade in 0..6 -> RelicQuality.at(loot.grade).label
-        isCrownJewel(loot.name) -> "传世秘宝"
-        loot.name == "封印之心" -> "传说"
-        loot.tier == RelicTier.PRECIOUS && loot.value >= 460 -> "史诗"
-        loot.tier == RelicTier.PRECIOUS -> "珍贵"
-        loot.tier == RelicTier.RARE -> "稀有"
-        loot.value >= 100 -> "精良"
-        else -> "普通"
+    fun displayGrade(loot: RelicLoot): Int = when {
+        loot.grade in 0..6 -> loot.grade
+        isCrownJewel(loot.name) -> 6
+        loot.name == "封印之心" -> 5
+        loot.tier == RelicTier.PRECIOUS && loot.value >= 460 -> 4
+        loot.tier == RelicTier.PRECIOUS -> 3
+        loot.tier == RelicTier.RARE -> 2
+        loot.value >= 100 -> 1
+        else -> 0
     }
+
+    fun displayRank(loot: RelicLoot): String = RelicQuality.at(displayGrade(loot)).label
 
 }
 
@@ -115,6 +117,25 @@ internal data class RelicSite(val id:Int,val x:Int,val y:Int,val kind:String,
     companion object { fun read(j:JSONObject)=RelicSite(j.getInt("id"),j.getInt("x"),
         j.getInt("y"),j.getString("kind"),j.optBoolean("spent"),j.optInt("linkId",-1)) }
 }
+/** Exact resolved contacts for the current action's renderer. Never stored in saves. */
+internal data class RelicImpact(
+    val target: String, val sourceX: Int, val sourceY: Int, val x: Int, val y: Int,
+    val damage: Int, val style: String, val defeated: Boolean,
+) {
+    fun json(sourceVisible: Boolean) = JSONObject().put("target", target)
+        .put("x", x).put("y", y).put("damage", damage).put("style", style).put("defeated", defeated)
+        .apply { if (sourceVisible) put("sourceX", sourceX).put("sourceY", sourceY) }
+
+    companion object {
+        fun onMob(source: RelicActor, target: RelicMob, damage: Int, style: String) =
+            RelicImpact("mob:${target.id}", source.x, source.y, target.x, target.y,
+                damage.coerceAtMost(target.hp), style, damage >= target.hp)
+
+        fun onActor(source: RelicMob, target: RelicActor, damage: Int) =
+            RelicImpact(target.id, source.x, source.y, target.x, target.y,
+                damage.coerceAtMost(target.hp), if (damage == 0) "block" else "enemy", damage >= target.hp)
+    }
+}
 internal data class RelicEvent(val who:String,val action:String,val text:String,val turn:Int,
     val teamStep:Int=0) {
     fun json()=JSONObject().put("who",who).put("action",action).put("text",text).put("turn",turn)
@@ -162,6 +183,7 @@ internal data class RelicRun(
     val professionCharges:Int = 3,
     /** Teammates' autonomous physical steps, independent of the owner's combat turns. */
     val teamSteps:Int = 0,
+    val impacts: List<RelicImpact> = emptyList(),
 ) {
     val logicalStep:Int get()=turns+teamSteps
     fun index(x:Int,y:Int)=y*w+x
@@ -356,7 +378,8 @@ internal object RelicEscapeRules {
     fun treasure(s:RelicRun,c:RelicChest):RelicLoot {
         if(c.grade in 0..6) {
             // The grade rises only on a seeded exceptional draw, never rerolls on taps/restart.
-            val roll=java.util.Random(s.seed.toLong()*1103515245L+c.id*7919L).nextInt(1000)
+            val appraisal = java.util.Random(s.seed.toLong()*1103515245L+c.id*7919L)
+            val roll = appraisal.nextInt(1000)
             val lift=when {
                 roll<4 -> 3  // A violet chest can flash all the way to prismatic.
                 roll<18 -> 2
@@ -367,7 +390,7 @@ internal object RelicEscapeRules {
             val names=RelicCollectibles.namesFor(quality.tier)
             val name=if(quality==RelicQuality.PRISM)RelicCollectibles.CROWN_JEWEL
                 else names[roll%names.size]
-            val value=quality.minimum+roll%quality.spread
+            val value=quality.minimum+appraisal.nextInt(quality.spread)
             return RelicLoot(s.id+":chest:"+c.id,name,quality.tier,value,quality.ordinal)
         }
         // Pre-grade saves and manually constructed chests retain their original seeded odds.
@@ -393,6 +416,8 @@ internal object RelicEscapeRules {
     }
     fun act(s:RelicRun,action:String,x:Int=s.hero.x,y:Int=s.hero.y,lootId:String="", autonomousIds:Set<String> = emptySet(),
         advanceExtraction: Boolean = true):RelicRun {
+        if (s.impacts.isNotEmpty())
+            return act(s.copy(impacts = emptyList()), action, x, y, lootId, autonomousIds, advanceExtraction)
         // A settled expedition is immutable. Late UI/role callbacks must not
         // overwrite a completed extraction or a saved terminal result.
         if (s.phase !in listOf(RelicPhase.EXPLORE, RelicPhase.EXTRACT, RelicPhase.DOWNED))
@@ -649,7 +674,8 @@ internal object RelicEscapeRules {
                 // Repeated cheap attacks must not permanently cancel the same windup.
                 val interrupted=mob.windup && s.equipped=="blade" &&
                     mob.kind==0 && !mob.staggered && !defeated
-                next=s.copy(mobs=s.mobs.map{if(it.id==mob.id)it.copy(
+                next=s.copy(impacts=listOf(RelicImpact.onMob(hero, mob, damage, s.equipped)),
+                    mobs=s.mobs.map{if(it.id==mob.id)it.copy(
                     hp=(it.hp-damage).coerceAtLeast(0),
                     windup=if(interrupted)false else it.windup,
                     staggered=it.staggered || interrupted) else it},
@@ -674,6 +700,7 @@ internal object RelicEscapeRules {
                 val damageById=targets.associate { it.id to RelicArsenal.sweepDamage(s,it) }
                 val killed=targets.filter { it.hp<=damageById.getValue(it.id) }
                 next=s.copy(
+                    impacts=targets.map { RelicImpact.onMob(hero, it, damageById.getValue(it.id), "sweep") },
                     mobs=s.mobs.map { enemy ->
                         val amount=damageById[enemy.id] ?: 0
                         if(amount>0) enemy.copy(hp=(enemy.hp-amount).coerceAtLeast(0))
@@ -700,6 +727,7 @@ internal object RelicEscapeRules {
                 val damage=targets.associate { it.id to RelicArsenal.damage(s,it) }
                 val defeated=targets.filter{it.hp<=damage.getValue(it.id)}
                 next=s.copy(
+                    impacts=targets.map { RelicImpact.onMob(hero, it, damage.getValue(it.id), s.equipped) },
                     mobs=s.mobs.map { enemy ->
                         val hit=damage[enemy.id] ?: 0
                         if(hit>0)enemy.copy(hp=(enemy.hp-hit).coerceAtLeast(0)) else enemy
@@ -816,7 +844,8 @@ internal object RelicEscapeRules {
                     s=s.log(a.id,"heal","队友 "+a.id+" 使用治疗药剂")
                 }
                 nearThreat!=null->{
-                    s=s.copy(mobs=s.mobs.map{if(it.id==nearThreat.id)
+                    s=s.copy(impacts=s.impacts+RelicImpact.onMob(a, nearThreat, 2, "blade"),
+                        mobs=s.mobs.map{if(it.id==nearThreat.id)
                         it.copy(hp=(it.hp-2).coerceAtLeast(0)) else it})
                         .log(a.id,"attack","队友 "+a.id+" 掩护攻击")
                 }
@@ -880,7 +909,9 @@ internal object RelicEscapeRules {
                     } else s=s.copy(allies=s.allies.map{if(it.id==target.id)
                         it.copy(hp=(it.hp-damage).coerceAtLeast(0),
                             downs=it.downs+if(it.hp>0 && it.hp<=damage)1 else 0) else it})
-                    s=s.log(target.id,if(damage==0)"block" else "hurt",
+                    s=s.copy(impacts=s.impacts+RelicImpact.onActor(m, target, damage) +
+                        listOfNotNull(protector?.let { RelicImpact.onActor(m, it, 1) }))
+                        .log(target.id,if(damage==0)"block" else "hurt",
                         if(protector!=null)protector.id+"挡在玩家前面，自己受伤1点，玩家受到"+damage+"点伤害"
                         else if(damage==0)"成功格挡"+RelicArsenal.monsterName(m.kind)+"的攻击"
                         else "敌人击中 "+target.id+"，伤害"+damage)

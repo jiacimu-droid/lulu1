@@ -70,7 +70,9 @@ internal object ArcadeMaps {
         cells[13*w+14]=1
         val chests=listOf(RelicChest(0,4,4,RelicTier.COMMON,grade=1),
             RelicChest(1,13,5,RelicTier.RARE,grade=3),RelicChest(2,20,6,RelicTier.PRECIOUS,grade=4),
-            RelicChest(3,20,11,RelicTier.PRECIOUS,grade=5))
+            RelicChest(3,20,11,RelicTier.PRECIOUS,grade=5),
+            RelicChest(4,6,5,RelicTier.COMMON,grade=0),
+            RelicChest(5,11,4,RelicTier.RARE,grade=2))
         val mobs=buildList {
             if (ambush) add(RelicMob(90,3,7,5,0,alert=4))
             add(RelicMob(1,14,6,6+base.difficulty.monsterHp,1))

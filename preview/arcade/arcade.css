@@ -43,14 +43,76 @@ body{--gold:#eac595;--paper:#f2f0e5}
 .orientation-gate{position:fixed;inset:0;z-index:90;display:grid;place-items:center;text-align:center;background:#111a1e;color:#f3e7d3;padding:24px}.orientation-gate small{color:#d1b689;letter-spacing:.08em}.orientation-gate h2{margin:12px 0 5px;font-size:27px}.orientation-gate p{color:#bcbbb1;font-size:14px}.orientation-gate button{margin-top:16px}
 .hotbar{position:absolute;bottom:max(7px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:3}.hotbar button{display:grid;place-items:center;font:inherit;color:#f2ebd8;background:#172622ed;border:1px solid #d9dfb95c;border-radius:6px;min-width:45px;min-height:42px;line-height:1;padding:3px 6px;cursor:pointer}.hotbar button small{font-size:9px;white-space:nowrap}.hotbar button.active{border-color:#eed396;background:#4a4931}
 .game[data-kind=island] .feedback{bottom:54px}
-.chest-scene{position:absolute;inset:0;z-index:8;pointer-events:none;--gem:#f4cc80;color:#fff4dd}.chest-telemetry{position:absolute;left:15px;top:53px;width:min(25%,215px);text-shadow:0 1px 2px #19151b;pointer-events:none}.chest-telemetry small,.chest-telemetry strong{display:block}.chest-telemetry small{font-size:11px;color:#d2c3ac}.chest-telemetry strong{font-size:18px}.chest-telemetry p{font-size:11px;min-height:24px;color:#f4d6b0}.chest-telemetry progress{display:block;width:100%;height:4px;border:0;accent-color:var(--gem);margin-top:6px}
-.chest-visual{position:absolute;bottom:7%;left:49%;width:min(48vw,63vh,480px);aspect-ratio:480/440;isolation:isolate;transform:translateX(-50%);filter:drop-shadow(0 13px 19px #0d1012cf)}
-#chest-model,#chest-loot,#chest-fx,#chest-halo{position:absolute;display:block;object-fit:contain;width:100%;height:100%;inset:0}.chest-visual #chest-halo{background:radial-gradient(ellipse at 51% 56%,var(--gem),transparent 60%);opacity:0}.chest-visual #chest-loot{inset:auto;left:30%;top:3%;width:40%;height:47%;filter:drop-shadow(0 0 11px var(--gem))}
-.chest-message{position:absolute;right:15px;bottom:64px;width:min(25%,250px);border-left:1px solid var(--gem);padding:6px 10px;background:linear-gradient(90deg,#10141cf5,#10141c42)}.chest-message>*{display:block}.chest-message small,.chest-message span{font-size:11px;color:#dacfbd}.chest-message strong{font-size:clamp(16px,3.5vw,37px);line-height:1.2;color:var(--gem);padding:4px 0}.chest-scene button{min-height:42px;position:absolute;right:13px;bottom:13px;pointer-events:auto;cursor:pointer;padding:0 13px;background:#211d24;border:1px solid #f5d8a46e;border-radius:7px;color:#f8e7c8;font:inherit;font-weight:700}.chest-scene button.accent{background:#e7c48c;color:#211915}
-.game[data-chest=yes] .controls,.game[data-chest=yes] .feedback{visibility:hidden}.game[data-chest=yes] .hud .goal{visibility:hidden}.game[data-chest=yes] .chest-scene{pointer-events:auto}.game[data-chest=yes] #map-2d{pointer-events:none}
+/* The center is reserved for the box. The threat and the receipt stay at opposite edges. */
+.chest-scene {
+  position:absolute;inset:0;z-index:8;isolation:isolate;pointer-events:none;
+  --gem:#f4cc80;color:#fff4dd;
+}
+.chest-scene::before{
+  content:"";position:absolute;inset:0;z-index:-1;
+  background:radial-gradient(ellipse at 50% 52%,transparent 9%,#0b121e35 43%,#0a111cda 100%);
+  animation:chest-scrim-in .36s both;
+}
+.chest-telemetry,.chest-message {
+  position:absolute;width:clamp(117px,24vw,245px);padding:8px 11px;
+  border-left:1px solid var(--gem);background:linear-gradient(90deg,#0c131deb,#0c131da6);
+}
+.chest-telemetry{left:max(13px,env(safe-area-inset-left));top:17%;pointer-events:none}
+.chest-telemetry small,.chest-telemetry strong,.chest-message>*{display:block}
+.chest-telemetry small,.chest-message small{font-size:11px;color:var(--gem);letter-spacing:.07em}
+.chest-telemetry strong{margin-top:3px;font-size:clamp(14px,2.3vw,22px);line-height:1.25}
+.chest-telemetry p{margin:6px 0;font-size:11px;line-height:1.4;color:#f8debc}
+.chest-telemetry progress{
+  display:block;appearance:none;width:100%;height:5px;border:0;border-radius:8px;overflow:hidden;
+  background:#423e45;accent-color:var(--gem);
+}
+.chest-telemetry progress::-webkit-progress-bar{background:#423e45}
+.chest-telemetry progress::-webkit-progress-value{background:var(--gem);border-radius:8px}
+.chest-visual{
+  position:absolute;top:49%;left:50%;width:min(58vw,104vh,572px);aspect-ratio:480/440;
+  transform:translate(-50%,-50%);pointer-events:none;animation:chest-push-in .38s cubic-bezier(.2,.78,.22,1) both;
+}
+.chest-shell{position:absolute;inset:0;filter:drop-shadow(0 13px 18px #080c14c4)}
+.chest-shell img,#chest-fx{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+#chest-model-next{opacity:0}
+.chest-visual #chest-loot{
+  position:absolute;left:21%;top:6%;width:58%;height:55%;object-fit:contain;
+  filter:drop-shadow(0 0 10px var(--gem)) drop-shadow(0 6px 7px #151019);
+}
+.chest-message{
+  right:max(13px,env(safe-area-inset-right));bottom:calc(max(12px,env(safe-area-inset-bottom)) + 53px);
+  animation:chest-scrim-in .22s both;
+}
+.chest-message strong{
+  font-family:"Noto Serif CJK SC","Songti SC",serif;
+  font-size:clamp(16px,3vw,30px);line-height:1.18;color:#fff5e4;margin:4px 0 6px;
+}
+#chest-value{font-size:clamp(14px,3vw,24px);font-weight:750;color:var(--gem);font-variant-numeric:tabular-nums}
+#chest-location{margin-top:4px;font-size:11px;line-height:1.3;color:#e6d7c2}
+.chest-scene button{
+  min-height:44px;position:absolute;right:max(12px,env(safe-area-inset-right));
+  bottom:max(12px,env(safe-area-inset-bottom));pointer-events:auto;cursor:pointer;padding:0 13px;
+  background:#201d25;border:1px solid #f5d8a46e;border-radius:7px;color:#f8e7c8;font:inherit;font-weight:700;
+}
+.chest-scene button.accent{background:#e7c48c;color:#211915}
+.chest-scene #chest-cover{right:auto;left:max(12px,env(safe-area-inset-left))}
+.chest-actions{position:absolute;bottom:max(12px,env(safe-area-inset-bottom));right:max(12px,env(safe-area-inset-right));display:flex;gap:8px}
+.chest-actions button{position:static;touch-action:none;user-select:none}
+#chest-hold{min-width:111px;background:linear-gradient(90deg,var(--gem) var(--hold,0%),#c6ab86 var(--hold,0%));border-color:#f9d9a3}
+.game[data-chest=yes] :is(.controls,.feedback,.hud .goal,.map-nav){visibility:hidden}
+.game[data-chest=yes] .chest-scene{pointer-events:auto}
+.game[data-chest=yes] #map-2d{pointer-events:none}
+@keyframes chest-scrim-in{from{opacity:0}}
+@keyframes chest-push-in{
+  from{opacity:0;transform:translate(-50%,-46%) scale(.46)}
+  40%{opacity:.91}
+  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+@media(prefers-reduced-motion:reduce){
+  .chest-scene::before,.chest-visual,.chest-message{animation:none}
+}
 @media(max-height:430px) and (orientation:landscape){.launch-header{min-height:43px;padding-top:4px;padding-bottom:4px}.launch-header button{min-height:33px}.lobby-setup{padding:10px 17px 13px;align-items:center}.launch-card{padding:8px 9px}.launch-story h1{font-size:clamp(34px,7.4vw,68px)}.launch-story p{margin:0}.launch-card h2{font-size:16px}.launch-card-title{margin-bottom:5px}.party{margin-bottom:5px}.party button,.party-player{min-height:32px}#invite{min-height:31px}}
 @media(max-width:760px) and (orientation:portrait){.launch-page,.game[data-kind=relic]{top:0;left:0;width:100%;height:100dvh;transform:none}.lobby-setup{grid-template-columns:1fr;margin:0}.game .feedback{right:10px}.game[data-kind=island] .feedback{bottom:58px}}
-.chest-scene #chest-cover{right:auto;left:14px}
 
 /* Keep game screens and their own controls within the physical landscape viewport. */
 .launch-page{position:fixed;inset:0;min-height:0;overflow:hidden;overscroll-behavior:none}
@@ -86,12 +148,6 @@ dialog[open]{display:grid;place-items:center}
 .bag-resources dt{font-size:11px;color:#c2d2bb}
 .bag-resources dd{font-size:14px;margin:0;color:#f1edcf;overflow-wrap:anywhere}
 .crew-options button{min-height:45px}
-.chest-visual{width:min(54vw,79vh,520px);height:min(50vw,73vh,480px);bottom:11%}
-.chest-telemetry{top:17%;padding:7px 9px;border:1px solid #d5bf9466;border-radius:9px;background:#141b20ed}
-.chest-telemetry p{margin-top:5px;min-height:0}
-.chest-actions{position:absolute;bottom:max(13px,env(safe-area-inset-bottom));right:13px;display:flex;gap:8px}
-.chest-actions button{position:static;touch-action:none;user-select:none}
-#chest-hold{min-width:105px;background:linear-gradient(90deg,#f9d9a3 var(--hold,0%),#baa17d var(--hold,0%));border-color:#f9d9a3}
 #extract-clock{position:absolute;z-index:5;left:50%;top:max(14px,env(safe-area-inset-top));transform:translateX(-50%);
   width:clamp(145px,30vw,230px);padding:9px 12px;border:1px solid #d7bc83b0;border-radius:10px;
   background:#1a2326f5;color:#ffe4ad;pointer-events:none}

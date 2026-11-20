@@ -52,11 +52,41 @@ class ArcadeNativeGameTest {
         val interrupted = game.request(opening)
         assertTrue(interrupted.getBoolean("chestInterrupted"))
         assertFalse(interrupted.has("receipt"))
+        val hit = interrupted.getJSONArray("impacts").getJSONObject(0)
+        assertEquals("player", hit.getString("target"))
+        assertEquals("enemy", hit.getString("style"))
+        assertEquals(1, hit.getInt("damage"))
+        assertEquals(3, hit.getInt("x"))
+        assertEquals(4, hit.getInt("y"))
+        val reopened = game.request(JSONObject().put("verb", "view").put("session", session))
+        assertFalse(reopened.has("impacts"))
         val saved = checkNotNull(RelicEscapeLedger(context, arcadeRelicSave).read().run)
         assertEquals(session, saved.id)
         assertEquals(9, saved.hero.hp)
         assertFalse(saved.chests.first().opened)
         assertTrue(saved.hero.bag.isEmpty())
+    }
+
+    @Test fun exactPlayerHitIsReturnedOnceAndItsDamageIsPersisted() {
+        val base = ArcadeMaps.cloister(RelicEscapeWorld.create(42, 1, emptyList(), 0, 1), false)
+        val placed = base.copy(mobs = listOf(RelicMob(17, 3, 5, 2, 0)))
+        assertTrue(context.getSharedPreferences(arcadeRelicSave, Context.MODE_PRIVATE).edit()
+            .putString("ledger", RelicSnapshot(run = placed).json().toString()).commit())
+        val game = ArcadeNativeGame(context, LuluGameStore(context), "relic", emptyList())
+        fun act() = game.request(JSONObject().put("verb", "act").put("session", placed.id)
+            .put("action", "attack").put("x", 3).put("y", 5))
+
+        val hit = act().getJSONArray("impacts").getJSONObject(0)
+        assertEquals("mob:17", hit.getString("target"))
+        assertEquals("blade", hit.getString("style"))
+        assertEquals(2, hit.getInt("damage"))
+        assertTrue(hit.getBoolean("defeated"))
+        assertEquals(4, hit.getInt("sourceY"))
+        assertEquals(5, hit.getInt("y"))
+        val persisted = checkNotNull(game.relic())
+        assertEquals(0, persisted.mobs.single().hp)
+        assertTrue(persisted.impacts.isEmpty())
+        assertFalse(act().has("impacts"))
     }
 
     @Test fun gameEditionStartsFreshOnAnExistingInstallation() {

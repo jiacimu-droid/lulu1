@@ -1,4 +1,4 @@
-import { chestFrames } from './chest-show.js';
+import { chestFrames, reducedMotion } from './chest-show.js';
 
 const grades = ['#b9bbb2','#b8c9a1','#83bde0','#b3a7e0','#e3b875','#e69082','#f0eace'];
 const palette = ['#3a4147','#48515a','#354b46','#65564a'];
@@ -24,14 +24,15 @@ function gem(c,x,y,k, tone) {
   poly(c,'#fffae792',[[x,y-k],[x+k*.68,y-k*.22],[x,y-k*.02],[x-k*.68,y-k*.24]]);
   poly(c,'#14283175',[[x,y-k*.02],[x+k*.68,y-k*.22],[x+k*.45,y+k*.57],[x,y+k]]);
 }
-function pawn(c,x,y,s,coat,hood, down) {
+function pawn(c,x,y,s,coat,hood,down,flash=false) {
+  if(flash)coat=hood="#fff6eb";
   ellipse(c,'#13232a9a',x,y+s*.22,s*.28,s*.11);
   if(down){ellipse(c,coat,x,y,s*.26,s*.12);return;}
   poly(c,coat,[[x-s*.14,y-s*.18],[x+s*.14,y-s*.18],[x+s*.24,y+s*.20],[x,y+s*.26],[x-s*.25,y+s*.16]]);
   poly(c,'#111b2739',[[x,y-s*.16],[x+s*.14,y-s*.18],[x+s*.24,y+s*.20],[x,y+s*.26]]);
   ellipse(c,hood,x,y-s*.21,s*.157,s*.15);
-  ellipse(c,'#e6be9b',x,y-s*.18,s*.091,s*.077);
-  rect(c,'#bcaa82',x-s*.18,y+s*.02,s*.33,s*.043);
+  ellipse(c,flash?'#ffffff':'#e6be9b',x,y-s*.18,s*.091,s*.077);
+  rect(c,flash?'#fff6eb':'#bcaa82',x-s*.18,y+s*.02,s*.33,s*.043);
 }
 function chest(c,x,y,s,tone,open,model) {
   ellipse(c,'#111c24a8',x,y+s*.19,s*.35,s*.13);
@@ -53,13 +54,62 @@ function gate(c,x,y,s) {
   c.fillStyle='#213c41';c.fill();c.strokeStyle='#9cb5aa';c.lineWidth=s*.072;c.stroke();
   for(let i=-2;i<=2;i++) rect(c,'#81d0c4a3',x+i*s*.099,y-s*.19,s*.021,s*.37);
 }
-function guard(c,x,y,s,m) {
+function guard(c,x,y,s,m,flash=false) {
   ellipse(c,'#19232bb2',x,y+s*.22,s*.31,s*.11);
-  poly(c,m.windup?'#a86758':'#67565f',[[x,y-s*.36],[x+s*.25,y-s*.12],[x+s*.18,y+s*.23],[x-s*.23,y+s*.18],[x-s*.27,y-s*.09]]);
-  ellipse(c,'#302a32',x,y-s*.13,s*.15,s*.12);
+  poly(c,flash?'#fff5e2':m.windup?'#a86758':'#67565f',[[x,y-s*.36],[x+s*.25,y-s*.12],[x+s*.18,y+s*.23],[x-s*.23,y+s*.18],[x-s*.27,y-s*.09]]);
+  ellipse(c,flash?'#fff5e2':'#302a32',x,y-s*.13,s*.15,s*.12);
   for(const offset of [-.048,.048]) rect(c,m.windup?'#ffd18b':'#e5a88c',x+offset*s,y-s*.166,s*.031,s*.028);
   rect(c,'#1c2731',x-s*.22,y-s*.44,s*.44,s*.055);
   rect(c,'#db9276',x-s*.22,y-s*.44,s*.44*Math.min(m.hp/12,1),s*.055);
+}
+
+function strikeVector(hit) {
+  const dx=hit.x-(hit.sourceX??hit.x),dy=hit.y-(hit.sourceY??hit.y);
+  const length=Math.hypot(dx,dy);
+  return length?[dx/length,dy/length]:[0,0];
+}
+
+function drawContact(c,hit,at,size,elapsed,reduced) {
+  const [x,y]=at, [dx,dy]=strikeVector(hit);
+  const age=clamp(elapsed/350,0,1);
+  const color=hit.style==='block'?'#b2e7f6':hit.style==='enemy'?'#ff9c94':'#ffe4a8';
+  if(!reduced){
+    const angle=Math.atan2(dy,dx);
+    const arc=hit.style==='blade'||hit.style==='sweep'||hit.style==='enemy';
+    const slash=clamp(1-elapsed/145,0,1);
+    if(slash>0){
+      c.save();c.translate(x,y);c.rotate(angle);c.globalAlpha=slash*.88;
+      c.strokeStyle=color;c.lineWidth=size*.05;c.lineCap='round';
+      c.beginPath();
+      if(arc){
+        c.ellipse(-size*.26,0,size*.46,size*.48,0,-1.13,.98);
+      } else if(hit.style==='block'){
+        c.arc(0,0,size*.26,-1.25,1.25);
+      } else {
+        c.moveTo(-size*(hit.style==='bow'?1.12:.67),size*.03);c.lineTo(size*.18,0);
+      }
+      c.stroke();c.restore();
+    }
+    c.globalAlpha=(1-age)*.82;
+    const count=hit.defeated?12:hit.damage>=3?9:6;
+    for(let i=0;i<count;i++){
+      const direction=angle+(i-(count-1)/2)*.33;
+      const rayX=Math.cos(direction),rayY=Math.sin(direction);
+      const distance=size*(.07+age*(.26+i%4*.13));
+      const px=x+rayX*distance,py=y+rayY*distance+age*age*size*.12;
+      c.strokeStyle=i%3===0?'#fff6df':color;
+      c.lineWidth=1.15+i%2;
+      c.beginPath();c.moveTo(px,py);
+      c.lineTo(px+rayX*size*.095*(1-age),py+rayY*size*.095*(1-age));c.stroke();
+    }
+  }
+  c.globalAlpha=clamp((1-age)*1.5,0,1);
+  c.textAlign='center';c.font='800 '+Math.max(13,Math.min(25,size*.42))+'px system-ui';
+  c.lineWidth=3;c.strokeStyle='#151820';c.fillStyle=color;
+  const label=hit.style==='block'?'格挡':'−'+hit.damage;
+  const rise=reduced?0:age*size*.36;
+  c.strokeText(label,x,y-size*.58-rise);c.fillText(label,x,y-size*.58-rise);
+  c.globalAlpha=1;
 }
 
 function stoneTile(c,tile,x,y,s,col,row) {
@@ -117,14 +167,28 @@ function lantern(c,x,y,s,tone){
 
 export function relicMap(canvas) {
   const c=canvas.getContext('2d',{alpha:false});
-  let view;
+  let view, frame=0, focus=null, impact=null, lastArgs;
   const boxes=[0,8].map(index=>{
     const image=new Image();image.src=chestFrames[index];return image;
   });
   const relayout=()=>{if(lastArgs)map.paint(...lastArgs);};
   for(const img of boxes)img.addEventListener('load',relayout);
-  let lastArgs;
+  function animate(){
+    if(!frame)frame=requestAnimationFrame(()=>{
+      frame=0;
+      if(lastArgs)map.paint(...lastArgs);
+    });
+  }
   const map={
+    hit(before,hits){
+      if(!hits.length)return;
+      const heavy=hits.some(hit=>hit.defeated||hit.target==='player'||hit.style==='sweep');
+      impact={before,hits:hits.slice(-12),start:performance.now(),pause:heavy?63:42,heavy};
+    },
+    clear(){
+      if(frame)cancelAnimationFrame(frame);
+      frame=0;focus=impact=lastArgs=null;
+    },
     paint(s, selected, camera, overview, shot) {
       lastArgs=[s,selected,camera,overview,shot];
       const width=canvas.clientWidth, height=canvas.clientHeight;
@@ -132,13 +196,28 @@ export function relicMap(canvas) {
       const dpr=Math.min(devicePixelRatio||1,1.75);
       if(canvas.width!==Math.round(width*dpr)||canvas.height!==Math.round(height*dpr)){canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);}
       c.setTransform(dpr,0,0,dpr,0,0);
+      const now=performance.now(), reduced=reducedMotion.matches;
+      if(impact&&now-impact.start>375)impact=null;
+      const elapsed=impact?now-impact.start:0;
+      const hits=impact?.hits||[];
+      // Briefly hold the previous visual pose. The committed world and its input stay live.
+      const pose=impact&&!reduced&&elapsed<impact.pause?impact.before:s;
       const regular=clamp(Math.min(width/10,height/6.5),34,76);
-      const size=shot?regular*1.09:regular;
-      const hero=s.hero;
-      const aimX=shot?(shot.x+hero.x)*.5:hero.x;
-      const aimY=shot?(shot.y+hero.y)*.5:hero.y;
-      const ox=width*(shot?.51:.50)-(aimX+.5)*size, oy=height*(shot?.37:.48)-(aimY+.5)*size;
-      view={size,ox,oy,w:s.w,h:s.h};
+      if(shot?.id!==focus?.box?.id){
+        const previous=focus?.box;
+        focus={box:shot,anchor:shot||previous,started:now};
+      }
+      const transition=focus?(reduced?1:clamp((now-focus.started)/310,0,1)):1;
+      const settle=1-(1-transition)**3, push=focus?.anchor?(shot?settle:1-settle):0;
+      const anchor=focus?.anchor||s.hero;
+      const size=regular*(1+push*.37), hero=pose.hero;
+      const aimX=s.hero.x+(anchor.x-s.hero.x)*push*.92;
+      const aimY=s.hero.y+(anchor.y-s.hero.y)*push*.84;
+      const recoil=impact&&!reduced?(1-clamp(elapsed/190,0,1))**2*(impact.heavy?5.4:2.9):0;
+      const baseX=width*.50-(aimX+.5)*size, baseY=height*(.48+.07*push)-(aimY+.5)*size;
+      const ox=baseX+Math.cos(elapsed*.12)*recoil, oy=baseY+Math.sin(elapsed*.18)*recoil*.64;
+      view={size,ox:baseX,oy:baseY,w:s.w,h:s.h};
+      if(impact||transition<1)animate();
       const air=c.createRadialGradient(width*.5,height*.45,4,width*.5,height*.45,Math.max(width,height)*.7);
       air.addColorStop(0,'#253944');air.addColorStop(.48,'#172630');air.addColorStop(1,'#101823');
       rect(c,air,0,0,width,height);
@@ -195,14 +274,44 @@ export function relicMap(canvas) {
         gem(c,x,y,size*.18,tone);
       }
       for(const box of s.chests){
-        if(shot&&shot.id===box.id)continue;
-        chest(c,...centre(box.x,box.y),size,grades[box.grade]||grades[0],box.opened,boxes[box.opened?1:0]);
+        c.globalAlpha=shot&&shot.id===box.id?Math.max(0,1-push*1.7):1;
+        chest(c,...centre(box.x,box.y),size,grades[box.shellGrade??box.grade]||grades[0],box.opened,boxes[box.opened?1:0]);
       }
-      for(const drop of s.drops) gem(c,...centre(drop.x,drop.y),size*.13,grades[drop.loot.grade]||grades[0]);
-      for(const foe of s.mobs) {
-        const [fx,fy]=centre(foe.x,foe.y);
-        guard(c,fx,fy,size,foe);
-        if(shot&&foe.alert>0) {
+      c.globalAlpha=1;
+      for(const drop of pose.drops) gem(c,...centre(drop.x,drop.y),size*.13,grades[drop.loot.grade]||grades[0]);
+      function entity(target,tx,ty,draw){
+        const hit=hits.find(event=>event.target===target&&event.damage>0);
+        const [x,y]=centre(tx,ty);
+        if(!hit||reduced||elapsed>=290){
+          const swing=hits.find(event=>event.sourceX===tx&&event.sourceY===ty&&
+            (target.startsWith('mob:')===(event.style==='enemy'||event.style==='block')));
+          const lunge=swing&&!reduced?Math.sin(Math.PI*clamp(elapsed/150,0,1))*size*.17:0;
+          const [dx,dy]=swing?strikeVector(swing):[0,0];
+          draw(x+dx*lunge,y+dy*lunge,false);
+          return;
+        }
+        const [dx,dy]=strikeVector(hit), t=clamp(elapsed/265,0,1);
+        const bump=elapsed<(impact?.pause||0)?0:Math.sin(t*Math.PI)*(1-t);
+        const strength=hit.defeated?.37:hit.target==='player'?.32:.25;
+        const squash=(1-t)**3*.18, angle=Math.atan2(dy,dx);
+        c.save();
+        c.translate(x+size*bump*strength*dx,y+size*bump*strength*dy);
+        c.rotate(angle);c.scale(1-squash,1+squash*.88);c.rotate(-angle);
+        if(hit.defeated&&target.startsWith('mob:'))c.globalAlpha=1-clamp((elapsed-75)/190,0,1);
+        draw(0,0,elapsed<72);
+        c.restore();
+      }
+      const fallen=impact&&!reduced&&elapsed<265&&pose===s
+        ?impact.before.mobs.filter(m=>hits.some(h=>h.defeated&&h.target==='mob:'+m.id)&&
+          !s.mobs.some(current=>current.id===m.id)): [];
+      for(const foe of [...pose.mobs,...fallen]) {
+        const id='mob:'+foe.id, contact=hits.find(h=>h.target===id&&h.damage>0);
+        const slide=contact&&!reduced?clamp((elapsed-180)/100,0,1):1;
+        const tx=contact?contact.x+(foe.x-contact.x)*slide:foe.x;
+        const ty=contact?contact.y+(foe.y-contact.y)*slide:foe.y;
+        entity(id,tx,ty,(x,y,flash)=>guard(c,x,y,size,foe,flash));
+        if(shot&&foe.alert>0&&!contact?.defeated) {
+          const [fx,fy]=centre(foe.x,foe.y);
           const edgeX=clamp(fx,20,width-20),edgeY=clamp(fy,20,height-20);
           const threatening=foe.windup?'#ffd29d':'#e69f81';
           c.font='600 '+Math.max(11,Math.min(size*.27,17))+'px system-ui';c.textAlign='center';
@@ -211,10 +320,13 @@ export function relicMap(canvas) {
           c.strokeText(tag,edgeX,edgeY-size*.46);c.fillStyle=threatening;c.fillText(tag,edgeX,edgeY-size*.46);
         }
       }
-      for(const mate of s.allies) pawn(c,...centre(mate.x,mate.y),size,'#65a6a9','#40606d',mate.hp===0);
+      for(const mate of pose.allies){
+        entity(mate.id,mate.x,mate.y,(x,y,flash)=>pawn(c,x,y,size,'#65a6a9','#40606d',mate.hp===0,flash));
+      }
       const [x,y]=centre(hero.x,hero.y);
       glow(c,x,y,size*.94,'#fff5c92f');
-      pawn(c,x,y,size,'#cea87b','#eacb98',hero.hp===0);
+      entity('player',hero.x,hero.y,(x,y,flash)=>pawn(c,x,y,size,'#cea87b','#eacb98',hero.hp===0,flash));
+      for(const hit of hits)drawContact(c,hit,centre(hit.x,hit.y),size,elapsed,reduced);
       if(selected){
         const [sx,sy]=centre(...selected),t=size*.87;
         c.strokeStyle='#ecd09b';c.lineWidth=1.5;

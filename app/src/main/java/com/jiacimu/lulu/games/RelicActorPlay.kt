@@ -280,6 +280,7 @@ internal object RelicActorPlay {
                 val damage=if(option.kind=="interrupt")1 else 2
                 val defeated=enemy.hp<=damage
                 next=s.copy(
+                    impacts=s.impacts+RelicImpact.onMob(a, enemy, damage, "blade"),
                     mobs=s.mobs.map { if(it.id==enemy.id)
                         it.copy(hp=(it.hp-damage).coerceAtLeast(0),
                             windup=if(option.kind=="interrupt")false else it.windup) else it },

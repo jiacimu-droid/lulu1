@@ -55,8 +55,11 @@
     </aside>
     <section id="chest-scene" class="chest-scene" aria-label="开箱演出" hidden>
       <div class="chest-telemetry"><small id="chest-quality"></small><strong id="chest-stage"></strong><p id="chest-threat"></p><progress id="chest-meter" max="1" value="0" aria-label="开箱进度"></progress></div>
-      <div class="chest-visual"><div id="chest-halo" aria-hidden="true"></div><canvas id="chest-fx" aria-hidden="true"></canvas><img id="chest-model" src="./art/chest-0.webp" alt="雕花铜边木宝箱"><img id="chest-loot" alt="" hidden></div>
-      <div class="chest-message" id="chest-message" aria-live="polite" hidden><small id="chest-rank"></small><strong id="chest-name"></strong><span id="chest-value"></span></div>
+      <div class="chest-visual">
+        <div class="chest-shell"><img id="chest-model" src="./art/chest-0.webp" alt="雕花铜边木宝箱"><img id="chest-model-next" alt="" aria-hidden="true"></div>
+        <canvas id="chest-fx" aria-hidden="true"></canvas><img id="chest-loot" alt="" hidden>
+      </div>
+      <div class="chest-message" id="chest-message" aria-live="polite" hidden><small id="chest-rank"></small><strong id="chest-name"></strong><span id="chest-value"></span><span id="chest-location"></span></div>
       <button id="chest-cover" class="soft" hidden>队友掩护</button><div class="chest-actions"><button id="chest-stop" class="soft">停手</button><button id="chest-hold" class="accent">按住撬锁</button></div><button id="chest-continue" class="accent" hidden>继续探索</button>
     </section>
     <aside id="gather-panel" aria-label="徒手伐木" hidden>
