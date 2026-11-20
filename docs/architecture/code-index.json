@@ -11849,31 +11849,31 @@
     "PerformanceErrorRecord": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 110
+        "line": 116
       }
     ],
     "List": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 120
+        "line": 126
       }
     ],
     "LocalPerformanceRepository": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 133
+        "line": 139
       }
     ],
     "recordModelHandoff": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 229
+        "line": 254
       }
     ],
     "updateDurations": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-        "line": 364
+        "line": 405
       }
     ],
     "Key": [
@@ -36140,8 +36140,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalPerformanceRepository.kt",
-      "lines": 610,
-      "sha256": "862b5118d11421925fe3933cb9d8b046916a0fe6672d07e7f2d86850c85faf49",
+      "lines": 661,
+      "sha256": "af4d332bc99342da9466cffd9ce60416f28b7b83efce0a84fc0df3d7ea9ca6bc",
       "symbols": [
         {
           "name": "ApiUsageSource",
@@ -36177,23 +36177,23 @@
         },
         {
           "name": "PerformanceErrorRecord",
-          "line": 110
+          "line": 116
         },
         {
           "name": "List",
-          "line": 120
+          "line": 126
         },
         {
           "name": "LocalPerformanceRepository",
-          "line": 133
+          "line": 139
         },
         {
           "name": "recordModelHandoff",
-          "line": 229
+          "line": 254
         },
         {
           "name": "updateDurations",
-          "line": 364
+          "line": 405
         }
       ]
     },
