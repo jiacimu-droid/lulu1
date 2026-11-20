@@ -106,6 +106,12 @@ data class PerformanceTimingRecord(
     val detail: String,
     val recordedAtMillis: Long = System.currentTimeMillis(),
     val traceId: String = "",
+    /** One physical model generation attempt, independent of role/turn. */
+    val requestId: String = "",
+    val model: String = "",
+    val source: String = "",
+    val provider: String = "",
+    val status: String = "",
 )
 
 data class PerformanceErrorRecord(
@@ -223,6 +229,25 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
             (listOf(timing) + current.timings).take(TIMING_RECORD_LIMIT)) }
     }
 
+    /** Failure is still a visible request; never assume the relay did not bill it. */
+    suspend fun recordFailedGeneration(
+        source: String, title: String, model: String, provider: String,
+        durationMillis: Long, requestId: String, traceId: String,
+        networkStages: List<Pair<String, Long>> = emptyList(),
+    ) {
+        val now = System.currentTimeMillis()
+        val stages = networkStages.map { (stage, duration) ->
+            PerformanceTimingRecord(stage = stage, durationMillis = duration,
+                detail = title, recordedAtMillis = now, traceId = traceId,
+                requestId = requestId, model = model, source = source, provider = provider,
+                status = "失败")
+        } + PerformanceTimingRecord(stage = "API调用失败", durationMillis = durationMillis,
+            detail = title, recordedAtMillis = now, traceId = traceId,
+            requestId = requestId, model = model, source = source, provider = provider,
+            status = "失败")
+        update { current -> current.copy(timings = (stages + current.timings).take(TIMING_RECORD_LIMIT)) }
+    }
+
     /** One count per outbound model HTTP handoff, including failed/ambiguous ones.
      * No message text, auth headers, URL or person IDs are stored. Provider
      * billing is not observable: attempted does not mean charged/succeeded. */
@@ -269,6 +294,8 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         contextMode: String = "",
         streamedRequest: Boolean = false,
         turnTraceId: String = "",
+        requestId: String = UUID.randomUUID().toString(),
+        networkStages: List<Pair<String, Long>> = emptyList(),
     ) {
         val effectiveInput = reportedInputTokens.takeIf { value -> value > 0 }
             ?: estimatedInputTokens.coerceAtLeast(0)
@@ -277,6 +304,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         val usageSource = ApiUsageSource.fromLabel(source)
         val now = System.currentTimeMillis()
         val usage = ApiUsageRecord(
+            id = requestId,
             source = usageSource,
             title = title,
             model = model,
@@ -288,6 +316,7 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
             estimated = reportedInputTokens <= 0 || reportedOutputTokens <= 0,
         )
         val console = TokenConsoleRecord(
+            id = requestId,
             source = usageSource,
             title = title,
             model = model,
@@ -320,21 +349,33 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
                 stage = "Prompt",
                 durationMillis = promptMillis.coerceAtLeast(0L),
                 detail = title,
-                traceId = turnTraceId,
+                recordedAtMillis = now,
+                traceId = turnTraceId, requestId = requestId,
+                model = model, source = source, provider = provider,
             ),
             PerformanceTimingRecord(
                 stage = "模型请求",
                 durationMillis = modelMillis.coerceAtLeast(0L),
                 detail = "$source · $title · $model",
-                traceId = turnTraceId,
+                recordedAtMillis = now,
+                traceId = turnTraceId, requestId = requestId,
+                model = model, source = source, provider = provider,
             ),
             PerformanceTimingRecord(
                 stage = "总耗时",
                 durationMillis = totalMillis.coerceAtLeast(0L),
                 detail = "$source · $title",
-                traceId = turnTraceId,
+                recordedAtMillis = now,
+                traceId = turnTraceId, requestId = requestId,
+                model = model, source = source, provider = provider,
+                status = "成功",
             ),
-        )
+        ) + networkStages.map { (stage, duration) ->
+            PerformanceTimingRecord(stage = stage, durationMillis = duration,
+                detail = title, recordedAtMillis = now, traceId = turnTraceId,
+                requestId = requestId, model = model, source = source, provider = provider,
+                status = "成功")
+        }
         update { current ->
             current.copy(
                 usageRecords = (listOf(usage) + current.usageRecords).take(API_USAGE_RECORD_LIMIT),
@@ -561,6 +602,11 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         .put("detail", value.detail)
         .put("recordedAtMillis", value.recordedAtMillis)
         .put("traceId", value.traceId)
+        .put("requestId", value.requestId)
+        .put("model", value.model)
+        .put("source", value.source)
+        .put("provider", value.provider)
+        .put("status", value.status)
 
     private fun decodeTiming(item: JSONObject): PerformanceTimingRecord = PerformanceTimingRecord(
         id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
@@ -569,6 +615,11 @@ class LocalPerformanceRepository(context: Context) : PerformanceRepository {
         detail = item.optString("detail"),
         recordedAtMillis = item.optLong("recordedAtMillis", System.currentTimeMillis()),
         traceId = item.optString("traceId"),
+        requestId = item.optString("requestId"),
+        model = item.optString("model"),
+        source = item.optString("source"),
+        provider = item.optString("provider"),
+        status = item.optString("status"),
     )
 
     private companion object {

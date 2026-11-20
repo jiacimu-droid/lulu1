@@ -2245,7 +2245,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-        "line": 203
+        "line": 204
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterPerceptionContext.kt",
@@ -8207,7 +8207,7 @@
     "friendshipThreads": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-        "line": 178
+        "line": 179
       }
     ],
     "Receipt": [
@@ -13855,7 +13855,7 @@
     "compactWorld": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
-        "line": 131
+        "line": 125
       }
     ],
     "renderWithTrace": [
@@ -30910,7 +30910,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
       "lines": 1745,
-      "sha256": "9c012f9f86460832b779ef7eea2d2eaf0f528ee7d572d59d537862add43237b5",
+      "sha256": "f191ecf4d1faffe743def76e6aed2d053ff9d19e720ac3776c9496f609019611",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -32327,8 +32327,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterEverydaySocialContext.kt",
-      "lines": 468,
-      "sha256": "01c2928d3dd6407c97613e775abb8f324cfebb12e90a80200dedfe093c999dfb",
+      "lines": 469,
+      "sha256": "57267ad580e7831844da98d77d0216a6228a09ffd51e0df07e33432cf145f7f2",
       "symbols": [
         {
           "name": "currentSocialAuthority",
@@ -32344,11 +32344,11 @@
         },
         {
           "name": "friendshipThreads",
-          "line": 178
+          "line": 179
         },
         {
           "name": "render",
-          "line": 203
+          "line": 204
         }
       ]
     },
@@ -38191,8 +38191,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/PromptContextPolicy.kt",
-      "lines": 164,
-      "sha256": "4a48a855af3dece84effaa83d6fff4069fec8c7ed93d2b56257ee70da118fddd",
+      "lines": 158,
+      "sha256": "66fe5bea3b5bfee676af2062aa740edef635981851e127fdceea523392572d68",
       "symbols": [
         {
           "name": "PromptContextBudget",
@@ -38208,7 +38208,7 @@
         },
         {
           "name": "compactWorld",
-          "line": 131
+          "line": 125
         }
       ]
     },
@@ -51485,7 +51485,7 @@
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/PromptContextPolicyTest.kt",
       "lines": 269,
-      "sha256": "80e27911a05855497d95adee8c8e34b15472aeaa74f4e9066eedae98d9f83dc9",
+      "sha256": "73dc0009f19c31c5513913ab1ffd99ff780f34689a508bbae184525a83c6e37d",
       "symbols": [
         {
           "name": "PromptContextPolicyTest",
