@@ -464,6 +464,7 @@ fun LuluMigrationRootAppV2(
                                 MigrationRoute.Guide -> guideUiStateHolder.SaveableStateProvider("guide") {
                                     LuluOnboardingGuideScreen(onBack = ::popRoute, onOpen = ::pushRoute)
                                 }
+                                MigrationRoute.Music -> ListenTogetherMusicLibrary(::popRoute)
                                 MigrationRoute.Settings -> LuluSettingsHomeScreen(::popRoute)
                                 MigrationRoute.Appearance -> LuluAppearanceScreen(::popRoute)
                                 // Playground is opened as an Activity from the
@@ -488,6 +489,25 @@ fun LuluMigrationRootAppV2(
                             focusVisible = pomodoroFocusVisible,
                             onOpen = ::openActivePomodoro,
                         )
+                    }
+
+                    // The owner can keep this compact room while visiting Settings,
+                    // Music, the desktop or another Lulu page. Its MediaPlayer is
+                    // owned here, not by chat composition or route lifetime.
+                    val activeMusicRoom = SharedMusicWindowController.room
+                    if (activeMusicRoom != null) {
+                        key(activeMusicRoom.conversationId) {
+                            ListenTogetherRoom(
+                                conversationId = activeMusicRoom.conversationId,
+                                characterId = activeMusicRoom.characterId,
+                                characterName = activeMusicRoom.characterName,
+                                characterAvatarUri = activeMusicRoom.characterAvatarUri,
+                                onOpenMusic = {
+                                    if (route != MigrationRoute.Music) pushRoute(MigrationRoute.Music)
+                                },
+                                onClose = { SharedMusicWindowController.close() },
+                            )
+                        }
                     }
 
                     // Message previews must be the last overlay: phone and timer
