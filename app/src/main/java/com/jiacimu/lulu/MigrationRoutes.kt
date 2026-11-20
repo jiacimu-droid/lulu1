@@ -18,6 +18,7 @@ enum class MigrationRoute {
     Home,
     Chat,
     ChatDetail,
+    Music,
     SelfPreface,
     CharacterSettings,
     CharacterCreate,
