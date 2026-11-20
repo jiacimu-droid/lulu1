@@ -85,6 +85,16 @@ internal fun QqStickerShelf(
     var showVisionDialog by remember { mutableStateOf(false) }
     var visionBusy by remember { mutableStateOf(false) }
     var importPackName by remember { mutableStateOf("我的添加") }
+    var stickerVisionMode by remember { mutableStateOf(StickerVisionRouting.mode(context)) }
+    suspend fun summarizeVision(pack: String): String {
+        if (stickerVisionMode != StickerVisionRouting.DEDICATED_ON_IMPORT) return ""
+        val captioned = StickerVisionRouting.labelMissingAfterImport(context, pack)
+        return when {
+            captioned.error.isNotBlank() -> "；自动补描述 ${captioned.labeled} 张后中止：${captioned.error}"
+            captioned.attempted > 0 -> "；已自动识图补描述 ${captioned.labeled} 张（${captioned.attempted} 次请求）"
+            else -> ""
+        }
+    }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
         if (uris.isEmpty()) return@rememberLauncherForActivityResult
         scope.launch {
@@ -95,7 +105,8 @@ internal fun QqStickerShelf(
                     .onFailure { error -> failure = error.message.orEmpty() }
             }
             if (added > 0) { selectedTab = 0; selectedPack = importPackName.ifBlank { "我的添加" } }
-            onNotice(if (added > 0) "已加入 $added 张到「$importPackName」；缺少画面描述的图片可稍后补充" else failure.ifBlank { "添加失败" })
+            val automatic = if (added > 0) summarizeVision(importPackName.ifBlank { "我的添加" }) else ""
+            onNotice(if (added > 0) "已加入 $added 张到「$importPackName」$automatic" else failure.ifBlank { "添加失败" })
         }
     }
 
@@ -111,7 +122,8 @@ internal fun QqStickerShelf(
                 .onSuccess {
                     selectedTab = 0
                     selectedPack = it.pack
-                    onNotice("Word 表情包「${it.pack}」：新增 ${it.imported} 张、跳过 ${it.skipped} 张" +
+                    val automatic = summarizeVision(it.pack)
+                    onNotice("Word 表情包「${it.pack}」：新增 ${it.imported} 张、跳过 ${it.skipped} 张" + automatic +
                         if (it.errors.isNotEmpty()) "；${it.errors.size} 张失败：${it.errors.first().take(90)}" else "")
                 }.onFailure { onNotice(it.message ?: "Word 表情包导入失败") }
         }
@@ -128,7 +140,8 @@ internal fun QqStickerShelf(
                 .onSuccess {
                     selectedTab = 0
                     selectedPack = it.pack
-                    onNotice("已导入整组「${it.pack}」：新增 ${it.imported} 张、跳过 ${it.skipped} 张" +
+                    val automatic = summarizeVision(it.pack)
+                    onNotice("已导入整组「${it.pack}」：新增 ${it.imported} 张、跳过 ${it.skipped} 张" + automatic +
                         if (it.errors.isNotEmpty()) "；${it.errors.size} 张失败：${it.errors.first().take(90)}" else "")
                 }.onFailure { onNotice(it.message ?: "ZIP 导入失败") }
         }
@@ -158,7 +171,7 @@ internal fun QqStickerShelf(
     fun importManifest() {
         if (importingManifest) return
         val entries = runCatching {
-            StickerImportManifest.parse(manifestText, importPackName)
+            StickerFlexibleTextImport.parse(manifestText, importPackName)
         }.getOrElse {
             onNotice(it.message ?: "清单格式错误")
             return
@@ -179,7 +192,9 @@ internal fun QqStickerShelf(
             importingManifest = false
             if (imported > 0) { selectedTab = 0; selectedPack = entries.first().pack }
             showManifestDialog = false
-            onNotice("已处理 ${entries.size} 张，成功 $imported，失败 $failed" +
+            val automatic = if (imported > 0) entries.map { it.pack }.distinct()
+                .joinToString("") { pack -> summarizeVision(pack) } else ""
+            onNotice("已处理 ${entries.size} 张，成功 $imported，失败 $failed" + automatic +
                 if (failed > 0) "；$firstError" else "")
         }
     }
@@ -213,6 +228,39 @@ internal fun QqStickerShelf(
                                 singleLine = true,
                                 modifier = Modifier.width(230.dp).padding(horizontal = 8.dp),
                             )
+                            DropdownMenuItem(
+                                text = { Text("识图：关闭（仅导入原有描述）") },
+                                onClick = {
+                                    stickerVisionMode = StickerVisionRouting.OFF
+                                    StickerVisionRouting.setMode(context, stickerVisionMode)
+                                    showAddMenu = false
+                                    onNotice("已关闭自动识图；已有文字描述不受影响")
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("识图：聊天模型支持图片（同轮直接看图）") },
+                                onClick = {
+                                    stickerVisionMode = StickerVisionRouting.MULTIMODAL_CHAT
+                                    StickerVisionRouting.setMode(context, stickerVisionMode)
+                                    showAddMenu = false
+                                    onNotice("聊天模型已标记为支持图片。只会在聊天时附少量候选原图，不使用独立识图模型；若模型其实不支持图片，请关闭此模式。")
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("识图：缺描述时自动调用独立识图模型（收费）") },
+                                onClick = {
+                                    stickerVisionMode = StickerVisionRouting.DEDICATED_ON_IMPORT
+                                    StickerVisionRouting.setMode(context, stickerVisionMode)
+                                    showAddMenu = false
+                                    onNotice("今后导入时仅对缺描述的表情自动识图；可能产生 API 费用，每批只尝试一次")
+                                },
+                            )
+                            Text("当前：${when(stickerVisionMode) {
+                                StickerVisionRouting.MULTIMODAL_CHAT -> "聊天模型同轮看图"
+                                StickerVisionRouting.DEDICATED_ON_IMPORT -> "独立模型自动补描述"
+                                else -> "不自动识图"
+                            }}", color = QqMuted, fontSize = 11.sp,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp))
                             DropdownMenuItem(
                                 text = { Text("导入 Word 文档（推荐 · 整组图文）") },
                                 onClick = {
