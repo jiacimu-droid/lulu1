@@ -732,7 +732,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/GameCharacterPawn.kt` | 156 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameCoopPacing.kt` | 107 | 10 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameInvitationContinuity.kt` | 98 | 4 |
-| `app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt` | 309 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt` | 318 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameLobbyScenery.kt` | 288 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GameMemoryDecision.kt` | 60 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/GamePlatformHelpers.kt` | 181 | 3 |
@@ -805,7 +805,7 @@
 | `app/src/main/java/com/jiacimu/lulu/games/SoupHostGuide.kt` | 31 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomModel.kt` | 359 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupRoomScreen.kt` | 692 | 15 |
-| `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupTable.kt` | 485 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/games/TurtleSoupTable.kt` | 488 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/games/WorldFollowPath.kt` | 56 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/games/YachtMatchSnapshot.kt` | 95 | 3 |
 | `app/src/main/java/com/jiacimu/lulu/health/GadgetbridgeHealthScreen.kt` | 660 | 0 |
