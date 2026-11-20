@@ -418,7 +418,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIdentityStore.kt` | 109 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInitiativeRuntime.kt` | 201 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt` | 170 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 2198 | 12 |
+| `app/src/main/java/com/jiacimu/lulu/data/CharacterInnerLifeStore.kt` | 2199 | 12 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterIntentionContinuation.kt` | 29 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningAgenda.kt` | 287 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/CharacterLearningLedger.kt` | 760 | 6 |
@@ -1145,7 +1145,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt` | 255 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryTest.kt` | 28 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterInitiativeRuntimeTest.kt` | 44 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 962 | 5 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterInnerLifeStoreTest.kt` | 963 | 5 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterKnowledgeBoundaryTest.kt` | 93 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterKnowledgeIsolationTest.kt` | 273 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterLearningLedgerTest.kt` | 316 | 2 |
