@@ -352,7 +352,7 @@
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 115 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt` | 48 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt` | 19 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1745 | 30 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1777 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |

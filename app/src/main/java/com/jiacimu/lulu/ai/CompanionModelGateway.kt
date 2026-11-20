@@ -1047,7 +1047,6 @@ class CompanionModelGateway(
                     conversationHistory = if (sentReduced) reducedHistory else wireHistory,
                     onRequestBodyBytes = { sentRequestBodyBytes = it; failedRequestBytes = it },
                     onRequestTiming = { timing -> networkStages.addAll(timing.stages()) },
-                    onRequestTiming = { timing -> networkStages.addAll(timing.stages()) },
                     onAdditionalHttpAttempt = {
                         check(ResidentDailyPolicy.recordModelAttemptIfEnabled(connectionStore.appContext, characterId)) {
                             "居民活动已暂停或无法记录请求；本次没有发送回退请求"
@@ -1096,6 +1095,7 @@ class CompanionModelGateway(
                     imageDataUrls = imagesForThisTurn, // never quietly pretend to have seen omitted photos
                     conversationHistory = reducedHistory,
                     onRequestBodyBytes = { sentRequestBodyBytes = it; failedRequestBytes = it },
+                    onRequestTiming = { timing -> networkStages.addAll(timing.stages()) },
                     onAdditionalHttpAttempt = {
                         check(ResidentDailyPolicy.recordModelAttemptIfEnabled(connectionStore.appContext, characterId)) {
                             "居民活动已暂停或无法记录请求；本次没有发送回退请求"
