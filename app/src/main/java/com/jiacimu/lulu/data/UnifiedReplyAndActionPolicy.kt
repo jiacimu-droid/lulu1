@@ -15,6 +15,16 @@ internal object UnifiedReplyAndActionPolicy {
         "send_private_sticker", "send_group_sticker",
     )
 
+    fun hasPrivateReplyReceipt(
+        tool: String,
+        success: Boolean,
+        conversationId: String?,
+        deliveredMessageIds: List<String>,
+        replyConversationIds: Set<String>,
+    ): Boolean = (tool == "send_private_message" || tool == "send_private_sticker") &&
+        success && deliveredMessageIds.isNotEmpty() &&
+        conversationId != null && conversationId in replyConversationIds
+
     fun markSeen(
         unreadPresent: Boolean,
         chosenAction: String,

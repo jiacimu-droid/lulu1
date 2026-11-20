@@ -10,14 +10,18 @@ internal object CharacterExpressionPreferences {
 
     fun promptSection(characterId: String): String = buildString {
         appendLine("【个人文字表达偏好｜不改变人格与事实】")
-        listOf("kaomoji" to "颜文字与 emoji", "stickers" to "图片表情包").forEach { (key, label) ->
-            val direction = when (selected(characterId, key)) {
-                "restrained" -> "偏少，仅在自己觉得必要时使用"
-                "natural" -> "随个人习惯和情境自然选择"
-                else -> "偏多：在轻松、有情绪或想传达态度时主动考虑使用，允许只发一个表达完整意思；不要长期只写正式文字"
-            }
-            appendLine("$label：$direction。")
+        val symbols = when (selected(characterId, "kaomoji")) {
+            "restrained" -> "少用，在本人觉得必要时用"
+            "natural" -> "随本人语感用"
+            else -> "多用，随本人想表达的情绪或语气自然用"
         }
-        appendLine("这是表达渠道的偏好，不是强制卖萌、固定频率或每句装饰；严肃反馈、明确拒绝及用户本人设定的语言风格优先。表情包只能选真实图库ID；没有合适的图就用文字或颜文字，不编造发送成功。电话沿用同一人的态度，用口语、语气词、停顿和笑声表达，不朗读符号。")
+        val stickers = when (selected(characterId, "stickers")) {
+            "restrained" -> "少用，遇到一张特别贴切的图再发"
+            "natural" -> "随情境与本人习惯选图"
+            else -> "多用。有贴切的真图时，优先用它表达这一拍的反应，可以单发，也可以跟在自己想说的话后面。关心、放松、吐槽、亲近或分享都可以有合适的图。"
+        }
+        appendLine("颜文字与 emoji：$symbols。")
+        appendLine("图片表情包：$stickers")
+        appendLine("用法跟着本人的个性及真实关系。用户的明确要求优先，需要认真回答时把话答清楚；只使用本轮真实候选里的ID。电话用口语、语气词和停顿传递同样的态度。")
     }
 }

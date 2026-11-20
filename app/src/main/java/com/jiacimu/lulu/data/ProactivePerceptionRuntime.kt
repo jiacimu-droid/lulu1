@@ -1050,10 +1050,14 @@ object ProactivePerceptionRuntime {
         val unreadPhotos = com.jiacimu.lulu.QqChatImageModelInput.prepare(
             appContext, characterId, onlineUnread.imageEvidenceIds,
         )
-        val stickerVisuals = if (onlineUnread.text.isNotBlank())
+        val stickerCues = privateInput.ifBlank { onlineUnread.text }
+        val stickerCandidates = com.jiacimu.lulu.StickerLibraryStore.promptCandidates(
+            appContext, stickerCues, witnessedDialogue, previousPresence?.mood.orEmpty(),
+        )
+        val stickerVisuals = if (stickerCues.isNotBlank())
             com.jiacimu.lulu.StickerVisionRouting.prepareForMultimodalChat(
-                appContext, onlineUnread.text, "", unreadPhotos.urls.size,
-                characterId = characterId,
+                appContext, stickerCues, witnessedDialogue, unreadPhotos.urls.size,
+                characterId = characterId, candidates = stickerCandidates,
             ) else com.jiacimu.lulu.StickerVisionRouting.PreparedImages(emptyList(), "")
         LuluRepositories.performance.recordTiming("感知现场准备",
             (System.nanoTime() - preparationStartedNanos) / 1_000_000L,
@@ -1068,6 +1072,7 @@ object ProactivePerceptionRuntime {
             turnTraceId = turnTraceId,
             facts = buildString {
                 if (unreadPhotos.promptNote.isNotBlank()) appendLine(unreadPhotos.promptNote)
+                appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(stickerCandidates))
                 if (stickerVisuals.explanation.isNotBlank()) appendLine(stickerVisuals.explanation)
                 // Persona is already supplied once by the gateway.
                 appendLine("\n【用户现实设备与用户状态感知层】")
@@ -1243,7 +1248,6 @@ object ProactivePerceptionRuntime {
                 appendLine("本轮实际观察证据ID=$awakeObservationId；仅证明本轮读取时间与获准设备状态，可作为私人兴趣或目标的起因，不是材料已读、目标完成或技能掌握。")
                 CharacterLifeFollowThroughStore.context(characterId, now)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
-                appendLine(com.jiacimu.lulu.StickerLibraryStore.prompt(appContext, 24))
                 CharacterSelfActivityRuntime.latestConsideration(appContext, characterId)?.let { idea ->
                     appendLine("【过去自己想到但还没决定的事｜没有真的做过】")
                     appendLine("当时考虑：${idea.optString("action")}；当时原因：${idea.optString("whyNow")}")
@@ -1331,7 +1335,7 @@ object ProactivePerceptionRuntime {
                 ))
                 lastReading?.let { appendLine("最近真正读过《${it.bookTitle}》${it.chapterTitle}，停在字符${it.endOffset}；当时感想：${it.reflection.take(1_200)}。是否继续由此刻愿望决定；尚未读到的情节未知。") }
                 previousPresence?.let {
-                    appendLine("上次实际感知结果：${it.lastPerceptionNote}")
+                    appendLine("上次感知的运行记录（含当时本人的选择理由）：${it.lastPerceptionNote}")
                 }
                 if (recentLifeContext.isNotBlank()) {
                     appendLine("【角色最近自己的生活记录｜旧→新】")
@@ -3577,9 +3581,9 @@ object ProactivePerceptionRuntime {
         // sideActions and scheduled calls take a different route.
         return ActionExecution(true, combinedSummary,
             extraConversationId ?: result.conversationId, result.evidenceId,
-            deliveredReply = deliveredExtra || (decision.action == Action.MESSAGE &&
-                result.success && result.conversationId != null &&
-                result.conversationId in replyConversationIds),
+            deliveredReply = deliveredExtra || UnifiedReplyAndActionPolicy.hasPrivateReplyReceipt(
+                tool, result.success, result.conversationId, primaryDeliveredIds, replyConversationIds,
+            ),
             primarySuccess = result.success && decision.action != Action.SILENT,
             primarySummary = result.summary, stepsCompleted = stepReport.anyCompleted,
             deliveredMessageIds = (primaryDeliveredIds + extraDeliveredIds).distinct(),

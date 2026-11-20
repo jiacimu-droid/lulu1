@@ -47,6 +47,23 @@ class UnifiedReplyAndActionPolicyTest {
             conversationMatches = true))
     }
 
+    @Test fun stickerOnlyReplyUsesTheSameDeliveryEvidenceAsText() {
+        val target = setOf("private-chat")
+        val messages = listOf("delivered-id")
+        for (tool in listOf("send_private_message", "send_private_sticker")) {
+            assertTrue(UnifiedReplyAndActionPolicy.hasPrivateReplyReceipt(
+                tool, true, "private-chat", messages, target))
+            assertFalse(UnifiedReplyAndActionPolicy.hasPrivateReplyReceipt(
+                tool, true, "private-chat", emptyList(), target))
+            assertFalse(UnifiedReplyAndActionPolicy.hasPrivateReplyReceipt(
+                tool, true, "other-chat", messages, target))
+            assertFalse(UnifiedReplyAndActionPolicy.hasPrivateReplyReceipt(
+                tool, false, "private-chat", messages, target))
+        }
+        assertFalse(UnifiedReplyAndActionPolicy.hasPrivateReplyReceipt(
+            "send_group_sticker", true, "private-chat", messages, target))
+    }
+
     @Test fun directMessageToolNeedsRealConversationReceipt() {
         assertFalse(UnifiedReplyAndActionPolicy.markSeen(
             unreadPresent = true, chosenAction = "tool",
