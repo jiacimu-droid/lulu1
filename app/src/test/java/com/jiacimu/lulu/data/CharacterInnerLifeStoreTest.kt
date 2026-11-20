@@ -29,6 +29,7 @@ class CharacterInnerLifeStoreTest {
         val compact = CharacterInnerLifeStore.compactContext(role, now.plusSeconds(10))
         assertTrue(compact.contains("【最近真实心声｜用于对照心理变化，不代表当下事实】"))
         assertTrue(compact.contains("刚才只想先让她休息，不想打扰她。"))
+        assertTrue(compact.contains("不是对方拒绝联系的证据"))
         assertFalse(CharacterInnerLifeStore.compactContext("another-voice-role", now.plusSeconds(10))
             .contains("刚才只想先让她休息"))
     }
