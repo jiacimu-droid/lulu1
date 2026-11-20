@@ -1,6 +1,8 @@
 package com.jiacimu.lulu
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
@@ -16,6 +18,8 @@ internal data class SharedListenEntry(
     val source: String,
     val uri: String = "",
     val packageName: String = "",
+    /** Exact third-party track identifier, never inferred from title/artist. */
+    val songId: String = "",
 )
 
 internal data class SharedListenPlaylist(
@@ -51,6 +55,7 @@ internal object SharedListenPlaylists {
                             source = item.optString("source"),
                             uri = item.optString("uri"),
                             packageName = item.optString("packageName"),
+                            songId = item.optString("songId"),
                         )
                     },
                 )
@@ -66,7 +71,8 @@ internal object SharedListenPlaylists {
                         playlist.tracks.forEach { t ->
                             put(JSONObject().put("id", t.id).put("title", t.title)
                                 .put("artist", t.artist).put("source", t.source)
-                                .put("uri", t.uri).put("packageName", t.packageName))
+                                .put("uri", t.uri).put("packageName", t.packageName)
+                                .put("songId", t.songId))
                         }
                     }))
             }
@@ -89,8 +95,10 @@ internal object SharedListenPlaylists {
         val updated = current.map { playlist ->
             if (playlist.id != playlistId) playlist else {
                 val duplicate = playlist.tracks.any {
-                    it.source == entry.source && it.uri == entry.uri &&
-                        it.packageName == entry.packageName && it.title == entry.title && it.artist == entry.artist
+                    (entry.songId.isNotBlank() && it.songId == entry.songId &&
+                        it.packageName == entry.packageName) ||
+                        (it.source == entry.source && it.uri == entry.uri &&
+                            it.packageName == entry.packageName && it.title == entry.title && it.artist == entry.artist)
                 }
                 if (duplicate) playlist else playlist.copy(tracks = playlist.tracks + entry)
             }
@@ -108,4 +116,55 @@ internal object SharedListenPlaylists {
 
     fun delete(context: Context, characterId: String, playlistId: String): Boolean =
         save(context, characterId, read(context, characterId).filterNot { it.id == playlistId })
+}
+
+/**
+ * Exact-song navigation only. MediaSession title/artist provide NO stable
+ * NetEase song ID. Never fall back to launching the app's last played track
+ * when the user tapped an individual bookmark.
+ */
+internal object NeteaseSongLink {
+    const val packageName = "com.netease.cloudmusic"
+    private val digits = Regex("^[0-9]{1,20}$")
+    private val queryId = Regex("(?:[?&#])id=([0-9]{1,20})(?:$|[&#])")
+
+    fun songId(text: String): String? {
+        val candidate = text.trim().substringBefore(' ').substringBefore('\\n')
+        if (digits.matches(candidate)) return candidate
+        val uri = runCatching { Uri.parse(candidate) }.getOrNull() ?: return null
+        if (uri.scheme == "orpheus" && uri.host == "song") {
+            return uri.pathSegments.firstOrNull()?.takeIf(digits::matches)
+        }
+        if (uri.scheme !in listOf("https", "http") ||
+            uri.host?.lowercase() !in setOf("music.163.com", "y.music.163.com")) return null
+        if (!uri.toString().contains("/song", ignoreCase = true)) return null
+        return queryId.find(candidate)?.groupValues?.getOrNull(1)
+            ?: uri.pathSegments.lastOrNull()?.takeIf(digits::matches)
+    }
+
+    fun directUri(id: String): Uri? =
+        id.takeIf(digits::matches)?.let { Uri.parse("orpheus://song/$it/?autoplay=1") }
+
+    fun open(context: Context, entry: SharedListenEntry): String {
+        val id = entry.songId.takeIf(digits::matches)
+            ?: songId(entry.uri)
+            ?: return "这条旧收藏没有歌曲 ID，无法准确播放。请在音乐页粘贴该歌曲的网易云分享链接后重新收藏。"
+        val appLink = directUri(id) ?: return "歌曲 ID 无效，未打开其他歌曲"
+        val app = Intent(Intent.ACTION_VIEW, appLink).apply {
+            setPackage(packageName)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (runCatching { context.startActivity(app) }.isSuccess) {
+            return "已跳转网易云单曲 $id；实际播放须由网易云媒体会话确认"
+        }
+        // A verified public song page is preferable to launching some other
+        // song from the application's existing playback queue.
+        val web = Intent(Intent.ACTION_VIEW,
+            Uri.parse("https://music.163.com/song?id=$id")).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        return if (runCatching { context.startActivity(web) }.isSuccess)
+            "已打开指定歌曲页面；请在网易云确认播放"
+        else "未找到能打开该歌曲的应用；没有替你播放其他歌曲"
+    }
 }
