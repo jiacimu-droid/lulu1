@@ -417,6 +417,12 @@ private fun FastDurationTab(onClear: () -> Unit) {
                 FastMetric("模型", call.model.ifBlank { "未知" })
                 FastMetric("来源", call.source.ifBlank { "未知" })
                 FastMetric("中转/服务商域名", call.provider.ifBlank { "未知" })
+                val traceId = call.outcome?.traceId.orEmpty()
+                val firstBubble = if (traceId.isBlank()) null else older.firstOrNull {
+                    it.traceId == traceId && it.stage == "消息到首条回复入库"
+                }
+                if (firstBubble != null) FastMetric("整轮到首条气泡",
+                    com.jiacimu.lulu.data.ChatTimingTrace.duration(firstBubble.durationMillis))
                 if (call.bodyBytes > 0L) FastMetric("请求体大小",
                     String.format(java.util.Locale.getDefault(), "%.1f KB", call.bodyBytes / 1024.0))
                 val httpAttempts = call.records.count { it.stage == "上传请求正文" }
