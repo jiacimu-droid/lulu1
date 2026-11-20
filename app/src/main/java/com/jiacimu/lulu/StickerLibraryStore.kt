@@ -30,6 +30,7 @@ internal data class LuluSticker(
     val pack: String = "我的添加",
     val visualDescription: String = "",
     val usageHint: String = "",
+    val sourceUrl: String = "",
 )
 
 /**
@@ -48,6 +49,9 @@ internal object StickerLibraryStore {
     private val builtinScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val builtinLock = Mutex()
     private const val COMPLETED_BUILTINS = "completed_openmoji_codes_v1"
+    // Keep legacy IDs only to retire this pack on upgrades; cached image files
+    // remain untouched so previously sent chat messages can still display.
+    internal val retiredAnimalStickerIds = setOf("1F430", "1F407", "1F43C", "1F43B", "1F439", "1F42D", "1F436", "1F424").map { "openmoji-${it.lowercase()}" }.toSet()
     private val mutableItems = MutableStateFlow<List<LuluSticker>>(emptyList())
     val items = mutableItems.asStateFlow()
 
@@ -69,9 +73,13 @@ internal object StickerLibraryStore {
                     json.optString("pack").ifBlank { "我的添加" }.take(40),
                     json.optString("visualDescription").ifBlank { catalog?.description.orEmpty() }.take(400),
                     json.optString("usageHint").ifBlank { catalog?.usage.orEmpty() }.take(160),
+                    json.optString("sourceUrl"),
                 )
             }.distinctBy(LuluSticker::id).take(MAX_ITEMS)
         }.getOrDefault(emptyList())
+        if (mutableItems.value.any { it.id in retiredAnimalStickerIds }) {
+            update { old -> old.filterNot { it.id in retiredAnimalStickerIds } }
+        }
         builtinScope.launch { ensureBuiltIns(context.applicationContext) }
     }
 
@@ -84,7 +92,7 @@ internal object StickerLibraryStore {
             .put("name", sticker.name).put("favorite", sticker.favorite)
             .put("pack", sticker.pack)
             .put("visualDescription", sticker.visualDescription)
-            .put("usageHint", sticker.usageHint))
+            .put("usageHint", sticker.usageHint).put("sourceUrl", sticker.sourceUrl))
         if (context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit()
                 .putString(PREF_KEY, json.toString()).commit()) {
             mutableItems.value = next
@@ -174,13 +182,13 @@ internal object StickerLibraryStore {
     }
 
     /**
-     * Three themed OpenMoji sets are shipped inside the APK as SVG text assets.
+     * Two themed OpenMoji sets are shipped inside the APK as SVG text assets.
      * No network or image-recognition service is necessary to reconstruct them.
      * The artwork is rasterized once and cached as private local PNG files.
      */
     private fun embeddedSvgArtwork(context: Context): Map<String, String> {
         val result = LinkedHashMap<String, String>()
-        for (file in listOf("cats.json", "animals.json", "moods.json")) {
+        for (file in listOf("cats.json", "moods.json")) {
             runCatching {
                 val json = context.assets.open("stickers/$file")
                     .bufferedReader(Charsets.UTF_8).use { JSONObject(it.readText()) }
