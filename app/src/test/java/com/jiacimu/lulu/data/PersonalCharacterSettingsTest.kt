@@ -60,8 +60,11 @@ class PersonalCharacterSettingsTest {
             .getString(a.characterId, "{}")!!)
         assertEquals("restrained", disk.getJSONObject("expressionPreferences").getString("kaomoji"))
         // Speech rendering and a live voice snapshot both use this identity builder.
+        // Assert the actual restrained-mode contract, not the retired "偏少" wording.
         assertTrue(CharacterSpeechIdentity.promptSection(a.characterId, includeConfigured = false)
-            .contains("偏少"))
+            .contains("颜文字与 emoji：少用，在本人觉得必要时用。"))
+        assertTrue(CharacterSpeechIdentity.promptSection(b.characterId, includeConfigured = false)
+            .contains("颜文字与 emoji：多用，随本人想表达的情绪或语气自然用。"))
         reconnectLifeStoreToCurrentRobolectricApplication()
         CharacterLifeStore.initialize(context)
         assertEquals("restrained", CharacterExpressionPreferences.selected(a.characterId, "kaomoji"))
