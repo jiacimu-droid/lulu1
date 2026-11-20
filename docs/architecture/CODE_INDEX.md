@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`ce57f94229c22a144e5d97b192f9d5875ec77e7f`
+- 基准提交：`4140f1ab5e45542168242feda4c5c11788d0bc92`
 - 分支：`main`
 - 已索引文件：1503
-- 已索引代码/文本行：322213
+- 已索引代码/文本行：322245
 - 已发现符号：4570
 
 | 文件 | 行数 | 符号数 |
@@ -352,7 +352,7 @@
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 115 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt` | 48 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt` | 19 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1745 | 30 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1777 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/LuluMusicSensoryRuntime.kt` | 284 | 2 |
