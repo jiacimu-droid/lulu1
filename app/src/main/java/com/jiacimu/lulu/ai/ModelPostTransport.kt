@@ -3,6 +3,7 @@ package com.jiacimu.lulu.ai
 import java.io.EOFException
 import java.io.IOException
 import java.net.ConnectException
+import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.net.ProtocolException
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.suspendCancellableCoroutine
 import okhttp3.Call
 import okhttp3.EventListener
+import okhttp3.Handshake
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -36,6 +38,8 @@ internal object ModelPostTransport {
     /** In-process timing of the SAME charged HTTP call, never a second network probe. */
     internal data class Timing(
         val connectMillis: Long?,
+        val dnsMillis: Long?,
+        val tlsMillis: Long?,
         val uploadMillis: Long?,
         val responseWaitMillis: Long?,
         val responseReadMillis: Long?,
@@ -43,6 +47,8 @@ internal object ModelPostTransport {
     ) {
         fun stages(): List<Pair<String, Long>> = listOfNotNull(
             connectMillis?.let { "连接与建链（DNS/代理/TLS）" to it },
+            dnsMillis?.let { "DNS解析" to it },
+            tlsMillis?.let { "TLS握手" to it },
             uploadMillis?.let { "上传请求正文" to it },
             responseWaitMillis?.let { "等待响应头（中转站+模型）" to it },
             responseReadMillis?.let { "读取响应/流式输出" to it },
@@ -53,8 +59,34 @@ internal object ModelPostTransport {
     private class TimingListener(private val parent: EventListener) : EventListener() {
         private val start = System.nanoTime()
         private var bodyStart: Long? = null
+        private var dnsStarted: Long? = null
+        private var tlsStarted: Long? = null
+        private var dnsAccumulated: Long = 0L
+        private var tlsAccumulated: Long = 0L
+        private var sawDns = false
+        private var sawTls = false
         private var bodyEnd: Long? = null
         private var headersReady: Long? = null
+        override fun dnsStart(call: Call, domainName: String) {
+            dnsStarted = System.nanoTime()
+            sawDns = true
+            parent.dnsStart(call, domainName)
+        }
+        override fun dnsEnd(call: Call, domainName: String, inetAddressList: List<InetAddress>) {
+            dnsStarted?.let { dnsAccumulated += (System.nanoTime() - it).coerceAtLeast(0L) }
+            dnsStarted = null
+            parent.dnsEnd(call, domainName, inetAddressList)
+        }
+        override fun secureConnectStart(call: Call) {
+            tlsStarted = System.nanoTime()
+            sawTls = true
+            parent.secureConnectStart(call)
+        }
+        override fun secureConnectEnd(call: Call, handshake: Handshake?) {
+            tlsStarted?.let { tlsAccumulated += (System.nanoTime() - it).coerceAtLeast(0L) }
+            tlsStarted = null
+            parent.secureConnectEnd(call, handshake)
+        }
         override fun connectStart(call: Call, address: InetSocketAddress, proxy: Proxy) {
             parent.connectStart(call, address, proxy)
         }
@@ -76,6 +108,10 @@ internal object ModelPostTransport {
                 if (a != null && b != null) ((b - a).coerceAtLeast(0L) / 1_000_000L) else null
             return Timing(
                 connectMillis = between(start, bodyStart ?: if (bodyEnd == null) end else null),
+                dnsMillis = if (sawDns) ((dnsAccumulated +
+                    (dnsStarted?.let { (end - it).coerceAtLeast(0L) } ?: 0L)) / 1_000_000L) else null,
+                tlsMillis = if (sawTls) ((tlsAccumulated +
+                    (tlsStarted?.let { (end - it).coerceAtLeast(0L) } ?: 0L)) / 1_000_000L) else null,
                 uploadMillis = between(bodyStart, bodyEnd ?: if (bodyStart != null) end else null),
                 responseWaitMillis = between(bodyEnd, headersReady ?: if (bodyEnd != null) end else null),
                 responseReadMillis = between(headersReady, end),

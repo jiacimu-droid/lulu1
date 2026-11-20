@@ -56,7 +56,7 @@ class ModelPostTransportTest {
             assertNotNull(t.responseWaitMillis)
             assertNotNull(t.responseReadMillis)
             assertTrue(t.responseReadMillis!! >= 80L)
-            assertEquals(4, t.stages().size)
+            assertTrue(t.stages().size >= 4)
         }
     }
 
