@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T05:16:14.563777+00:00",
-  "commit": "809351e1e89eaf0c0f38964e51650ed41b0206b8",
+  "generatedAt": "2026-11-20T05:17:12.283106+00:00",
+  "commit": "28f5fe36bc609bb8e01250008c1fba7597c27d33",
   "branch": "main",
-  "sourceFingerprint": "18441df2b195bd4c7923766ff026d1d42f31ded0756abc3e954f2b712976d146",
+  "sourceFingerprint": "a28ff11370f9f518ce9a1f54e1546e8606371a7946f2ae706b47ddac9010909f",
   "summary": {
     "files": 1501,
-    "lines": 321268,
+    "lines": 321276,
     "symbols": 4563
   },
   "symbolIndex": {
@@ -4589,25 +4589,25 @@
     "loadLists": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-        "line": 55
+        "line": 56
       }
     ],
     "verify": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-        "line": 79
+        "line": 81
       }
     ],
     "loadPage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-        "line": 109
+        "line": 112
       }
     ],
     "openList": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-        "line": 130
+        "line": 133
       }
     ],
     "errorFor": [
@@ -28949,24 +28949,24 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt",
-      "lines": 364,
-      "sha256": "51eafc9e8a3f330f3e61fe08a7780dcce01d3ddf5fc071bfb40418894c1548e0",
+      "lines": 372,
+      "sha256": "2fa22d8ec82654cb254e9f952ef90742af9596fdc38ad8af22b12d1e74b3219b",
       "symbols": [
         {
           "name": "loadLists",
-          "line": 55
+          "line": 56
         },
         {
           "name": "verify",
-          "line": 79
+          "line": 81
         },
         {
           "name": "loadPage",
-          "line": 109
+          "line": 112
         },
         {
           "name": "openList",
-          "line": 130
+          "line": 133
         }
       ]
     },

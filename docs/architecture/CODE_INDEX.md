@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`809351e1e89eaf0c0f38964e51650ed41b0206b8`
+- 基准提交：`28f5fe36bc609bb8e01250008c1fba7597c27d33`
 - 分支：`main`
 - 已索引文件：1501
-- 已索引代码/文本行：321268
+- 已索引代码/文本行：321276
 - 已发现符号：4563
 
 | 文件 | 行数 | 符号数 |
@@ -256,7 +256,7 @@
 | `app/src/main/java/com/jiacimu/lulu/NativeCubismProbe.kt` | 58 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/NativeResidentMiniature.kt` | 22 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/NeteaseCloudAccount.kt` | 213 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt` | 364 | 4 |
+| `app/src/main/java/com/jiacimu/lulu/NeteaseCloudLibrarySection.kt` | 372 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/OptionalModelRolesSettings.kt` | 58 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/PerceptionStatusPresentation.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/PerformanceFeatureScreen.kt` | 544 | 1 |
