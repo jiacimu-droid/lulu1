@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`c7939d6bc257f89c98bdcfd34b21aa2862f1178c`
+- 基准提交：`46f3345e2d00e0c8e38efab6afd748a89e1c4fdd`
 - 分支：`main`
 - 已索引文件：1494
-- 已索引代码/文本行：319211
+- 已索引代码/文本行：319254
 - 已发现符号：4535
 
 | 文件 | 行数 | 符号数 |
@@ -1065,7 +1065,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicyTest.kt` | 37 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/JevDirectionsTest.kt` | 186 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt` | 56 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt` | 204 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt` | 247 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 536 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt` | 61 | 1 |
