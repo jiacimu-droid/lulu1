@@ -8,6 +8,7 @@ object LuluCssTargets {
         .map { if (it.id == "Theater") it.copy(parent = "Reading") else it } + listOf(
         Page("ChatDetail", "聊天 · 对话", "Chat"),
         Page("ListenTogether", "聊天 · 一起听", "ChatDetail"),
+        Page("MusicLibrary", "聊天 · 一起听歌单", "ListenTogether"),
         Page("WatchTogether", "聊天 · 一起看", "ChatDetail"),
         Page("GroupChat", "聊天 · 群聊", "ChatDetail"),
         Page("GroupSettings", "聊天 · 群聊设置", "GroupChat"),
