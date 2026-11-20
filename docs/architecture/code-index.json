@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T03:31:34.547966+00:00",
-  "commit": "a7e3f2c28fffc2fd91a6c30d34a5aceba6cd211b",
+  "generatedAt": "2026-11-20T03:32:20.845851+00:00",
+  "commit": "07b9d6000561c92eb47f827c73e97fa23dcd4970",
   "branch": "main",
-  "sourceFingerprint": "5c6e2afda0fb15c21d1bd1ef98d84e662091d3aa1d8abfc69ce70f1ed6b483fe",
+  "sourceFingerprint": "430b9f7740532b8b56d43251311b20e2975e7678279b5c0421be6b27bff6ac3c",
   "summary": {
     "files": 1497,
-    "lines": 320213,
-    "symbols": 4550
+    "lines": 320238,
+    "symbols": 4551
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -775,7 +775,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-        "line": 24
+        "line": 45
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt",
@@ -2309,7 +2309,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-        "line": 40
+        "line": 61
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/games/GameLiveSession.kt",
@@ -2693,7 +2693,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-        "line": 39
+        "line": 60
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryAssociationPolicy.kt",
@@ -5139,7 +5139,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-        "line": 30
+        "line": 51
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -5540,10 +5540,16 @@
         "line": 161
       }
     ],
+    "updatePlayback": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
+        "line": 38
+      }
+    ],
     "compact": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-        "line": 37
+        "line": 58
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterLifeVisibility.kt",
@@ -5557,7 +5563,7 @@
     "hide": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-        "line": 38
+        "line": 59
       }
     ],
     "nextPauseMillis": [
@@ -29828,32 +29834,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/SharedMusicWindowController.kt",
-      "lines": 46,
-      "sha256": "6fb10a39282788ecc635e2b69f77f957e058f7141df901c798e7e7be4175996f",
+      "lines": 71,
+      "sha256": "1c9e14d227e62f9a0f3c5cb793c85a2dbeb0b59c592e519953c004406e2d6d86",
       "symbols": [
         {
-          "name": "open",
-          "line": 24
-        },
-        {
-          "name": "select",
-          "line": 30
-        },
-        {
-          "name": "compact",
-          "line": 37
-        },
-        {
-          "name": "hide",
+          "name": "updatePlayback",
           "line": 38
         },
         {
+          "name": "open",
+          "line": 45
+        },
+        {
+          "name": "select",
+          "line": 51
+        },
+        {
+          "name": "compact",
+          "line": 58
+        },
+        {
+          "name": "hide",
+          "line": 59
+        },
+        {
           "name": "expand",
-          "line": 39
+          "line": 60
         },
         {
           "name": "close",
-          "line": 40
+          "line": 61
         }
       ]
     },
