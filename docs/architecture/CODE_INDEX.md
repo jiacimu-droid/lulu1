@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`e429c5e325f11fdd8cd41a12e62a71d82b571cee`
+- 基准提交：`1ae22790942a81b97fe6bdbd3d11fee906b0f245`
 - 分支：`main`
-- 已索引文件：1489
-- 已索引代码/文本行：318275
+- 已索引文件：1490
+- 已索引代码/文本行：318570
 - 已发现符号：4522
 
 | 文件 | 行数 | 符号数 |
@@ -285,7 +285,7 @@
 | `app/src/main/java/com/jiacimu/lulu/QqSharedWebLinkCard.kt` | 147 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkCodec.kt` | 36 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqShoppingProductLinkOpener.kt` | 83 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 497 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/QqStickerShelf.kt` | 524 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/QqStyleChatDetailScreen.kt` | 1293 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsShareCodec.kt` | 120 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/QqXhsSharedNoteCard.kt` | 206 | 0 |
@@ -326,6 +326,7 @@
 | `app/src/main/java/com/jiacimu/lulu/StickerLibraryStore.kt` | 461 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/StickerPackArchive.kt` | 171 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/StickerPromptSelection.kt` | 120 | 1 |
+| `app/src/main/java/com/jiacimu/lulu/StickerWordDocument.kt` | 268 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/SystemSpeechTurnPolicy.kt` | 98 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/TrialRoomWalkController.kt` | 73 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/UserMessageFavoritesScreen.kt` | 157 | 2 |

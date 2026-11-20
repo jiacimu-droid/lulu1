@@ -99,6 +99,23 @@ internal fun QqStickerShelf(
         }
     }
 
+    val wordPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) scope.launch {
+            val filename = runCatching {
+                context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                    ?.use { cursor ->
+                        if (cursor.moveToFirst()) cursor.getString(0) else null
+                    }
+            }.getOrNull().orEmpty().ifBlank { "表情包.docx" }
+            runCatching { StickerWordDocument.import(context, uri, filename) }
+                .onSuccess {
+                    selectedTab = 0
+                    selectedPack = it.pack
+                    onNotice("Word 表情包「${it.pack}」：新增 ${it.imported} 张、跳过 ${it.skipped} 张" +
+                        if (it.errors.isNotEmpty()) "；${it.errors.size} 张失败：${it.errors.first().take(90)}" else "")
+                }.onFailure { onNotice(it.message ?: "Word 表情包导入失败") }
+        }
+    }
     val packPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) scope.launch {
             val filename = runCatching {
@@ -187,7 +204,7 @@ internal fun QqStickerShelf(
                             Icon(Icons.Outlined.AddPhotoAlternate, "批量导入表情包")
                         }
                         DropdownMenu(expanded = showAddMenu, onDismissRequest = { showAddMenu = false }) {
-                            Text("整组导入", color = QqInk, fontSize = 13.sp,
+                            Text("整组导入 · 优先 Word 图文文档", color = QqInk, fontSize = 13.sp,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp))
                             OutlinedTextField(
                                 value = importPackName,
@@ -197,11 +214,21 @@ internal fun QqStickerShelf(
                                 modifier = Modifier.width(230.dp).padding(horizontal = 8.dp),
                             )
                             DropdownMenuItem(
-                                text = { Text("从相册多选图片") },
+                                text = { Text("导入 Word 文档（推荐 · 整组图文）") },
+                                onClick = {
+                                    showAddMenu = false
+                                    wordPicker.launch(arrayOf(
+                                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                        "application/octet-stream",
+                                    ))
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("从相册批量添加") },
                                 onClick = { showAddMenu = false; picker.launch("image/*") },
                             )
                             DropdownMenuItem(
-                                text = { Text("导入整组 ZIP（支持图片＋描述）") },
+                                text = { Text("导入 ZIP 图片包（其他格式）") },
                                 onClick = {
                                     showAddMenu = false
                                     packPicker.launch(arrayOf("application/zip", "application/x-zip-compressed", "application/octet-stream"))
