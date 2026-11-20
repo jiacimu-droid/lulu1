@@ -35,6 +35,21 @@ class LexiconWorkingSetTest {
         MemoryWorkingSet.assemble(context, LexiconMemoryContext.select(role, query), emptyList(),
             PromptContextBudget(18, 1000, 1000, 1000, false, false, 1500, false, workingSetCharacters = 4000), "")
 
+    @Test fun oldUnrelatedLifeNotesStayStoredButDoNotFloodEveryModelTurn() = runBlocking {
+        repeat(65) { index ->
+            LuluRepositories.lexicon.save(entry("old-life-$index", LexiconSection.Life,
+                "去年在山下遇到一件旧事-$index").copy(
+                updatedAt = now.minusSeconds(45L * 86_400)))
+        }
+        LuluRepositories.lexicon.save(entry("fresh-life", LexiconSection.Life,
+            "最近在准备课程笔记"))
+        val selected = LexiconMemoryContext.select(role, "聊聊今天的天气")
+            .filter { it.section == LexiconSection.Life }
+        assertEquals(listOf("fresh-life"), selected.map { it.id })
+        assertEquals(66, LuluRepositories.lexicon.snapshot(role)
+            .count { it.section == LexiconSection.Life })
+    }
+
     @Test fun historicalConcernsNeverEvictDiariesOrEnterCurrentMemory() = runBlocking {
         repeat(120) { LuluRepositories.lexicon.save(entry("concern-$it", LexiconSection.Concern, "挂心的事情$it。".repeat(30))) }
         LuluRepositories.lexicon.save(entry("cat-diary", LexiconSection.Diary, "橘猫在桥西等我，我看得很开心"))

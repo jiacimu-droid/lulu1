@@ -23,8 +23,20 @@ object LexiconMemoryContext {
                 }
             entry to (relevance + if (sleepTopic && routine) 3 else 0)
         }.sortedWith(compareByDescending<Pair<LexiconEntry, Int>> { it.second }.thenByDescending { it.first.updatedAt })
-        val active = ranked.filter { it.first.status == LexiconStatus.Active &&
-            it.first.section in setOf(LexiconSection.Promise, LexiconSection.Life) }.map { it.first }
+        // Open commitments have an independent authority. Old life notes are
+        // historical memories, not an ever-growing live-state appendix: recall
+        // related notes and at most one fresh cue for spontaneous awareness.
+        val promises = ranked.filter { it.first.status == LexiconStatus.Active &&
+            it.first.section == LexiconSection.Promise }.map { it.first }
+        val life = ranked.filter { it.first.status == LexiconStatus.Active &&
+            it.first.section == LexiconSection.Life }
+        val recentLife = life.firstOrNull { (entry, _) ->
+            val age = java.time.Duration.between(entry.updatedAt, java.time.Instant.now()).toDays()
+            age in 0..7
+        }?.first
+        val selectedLife = (life.filter { it.second >= 2 }.map { it.first } +
+            listOfNotNull(recentLife)).distinctBy { it.id }.take(6)
+        val active = promises + selectedLife
         // Living private concerns are recalled from innerLife, never the historical lexicon.
         var remaining = 7_000
         val related = ranked.filter { it.first !in active && it.second >= 2 }
