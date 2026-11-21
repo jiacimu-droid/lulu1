@@ -31,10 +31,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class ModelPostTransportTest {
-    @Test fun bodyUploadHasItsOwnBoundedWriteTimeoutNotOkHttpTenSecondDefault() {
-        // A long model readTimeout must not leave a large JSON upload exposed
-        // to OkHttp's unrelated 10-second default write timeout.
-        assertEquals(60L, ModelPostTransport.REQUEST_WRITE_TIMEOUT_SECONDS)
+    @Test fun longThinkingModelsGetExtendedConnectUploadAndIdleBudgets() {
+        // None of the three socket phases should inherit OkHttp's short defaults.
+        assertEquals(120L, ModelPostTransport.REQUEST_CONNECT_TIMEOUT_SECONDS)
+        assertEquals(180L, ModelPostTransport.REQUEST_WRITE_TIMEOUT_SECONDS)
+        assertEquals(600_000, DEFAULT_MODEL_READ_TIMEOUT_MILLIS)
+        // Do not clip a ten-minute private-chat SSE request back to five minutes.
+        assertEquals(600_000, ModelPostTransport.normalizedReadTimeoutMillis(600_000))
+        assertEquals(540_000, ModelPostTransport.normalizedReadTimeoutMillis(540_000))
+        // Explicit shorter requests still have enough time to tolerate slow relays.
+        assertEquals(120_000, ModelPostTransport.normalizedReadTimeoutMillis(30_000))
+        // Still finite: a dead socket must eventually fail without replaying a paid POST.
+        assertEquals(900_000, ModelPostTransport.normalizedReadTimeoutMillis(1_200_000))
     }
 
     @Test fun onePaidPostReportsActualConnectionUploadWaitAndReadWithoutAnotherRequest() {
