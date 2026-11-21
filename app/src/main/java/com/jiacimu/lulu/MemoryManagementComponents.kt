@@ -266,6 +266,7 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
         MemoryExtractionJobStore.pending().firstOrNull { it.characterId == characterId }
     }
     val backlog = remember(characterId, debug) { repository.pendingMessageCount(characterId) }
+    val lastExtractedAt = remember(characterId, debug) { repository.lastSuccessfulExtraction(characterId) }
     val usage = remember(characterId, memories, debug) { MemoryRecallUsageStore.snapshot(characterId) }
     val usedMemories = memories.count { (usage[it.id]?.successfulInjections ?: 0) > 0 }
     val aliases = remember(characterId, memories, validityRevision) {
@@ -335,6 +336,8 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
             Text("提取与召回状态", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
             Text("待提取 $backlog 轮 · 已成功下发过的普通记忆 $usedMemories 条（候选命中和失败请求不计）",
                 fontSize = 12.sp, color = FeatureBlueGray, lineHeight = 18.sp)
+            Text("上次成功提取：${lastExtractedAt?.atZone(ZoneId.systemDefault())?.format(MemoryDateTimeFormatter) ?: "暂无可追溯记录"}",
+                fontSize = 12.sp, color = FeatureBlueGray)
             queuedExtraction?.let { job ->
                 val queueText = when {
                     job.deferredUntil != null -> "已延期至 ${job.deferredUntil}"
