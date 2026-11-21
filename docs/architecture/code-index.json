@@ -23674,6 +23674,12 @@
         "line": 26
       }
     ],
+    "MemoryRecallLifecycleTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt",
+        "line": 19
+      }
+    ],
     "MemorySemanticConsolidationTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MemorySemanticConsolidationTest.kt",
@@ -51266,6 +51272,17 @@
         {
           "name": "MemoryRecallIntegrationTest",
           "line": 26
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt",
+      "lines": 61,
+      "sha256": "84181b30234af9dfbfddbf4dbfa0e67accc3dd04a084168c3ddd7468e9fbbb42",
+      "symbols": [
+        {
+          "name": "MemoryRecallLifecycleTest",
+          "line": 19
         }
       ]
     },
