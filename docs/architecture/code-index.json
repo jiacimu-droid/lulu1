@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-21T10:19:00.918509+00:00",
-  "commit": "e1d73e11f46427c99b78c89f2c2328229ee93375",
+  "generatedAt": "2026-11-21T11:14:07.884466+00:00",
+  "commit": "a56a0840b8b5e5090d22dd2f4f6bf7b860e2b010",
   "branch": "main",
-  "sourceFingerprint": "32fe602c458a69c68e785bac99c1a737b6b11e4dc774ab8addbdb9675f05bb6e",
+  "sourceFingerprint": "3bba7939f9eaa734188d37b4e337cb0ceff3ddcbd3f199d4786fed2c57749f6d",
   "summary": {
     "files": 1508,
-    "lines": 323807,
+    "lines": 323835,
     "symbols": 4588
   },
   "symbolIndex": {
@@ -1259,7 +1259,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 357
+        "line": 382
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAlarmSystem.kt",
@@ -3979,55 +3979,55 @@
     "LuluMigrationRootAppV2": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 55
+        "line": 54
       }
     ],
     "characterIdForConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 154
+        "line": 153
       }
     ],
     "selectConversationCharacter": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 160
+        "line": 159
       }
     ],
     "pushRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 164
+        "line": 163
       }
     ],
     "openConversation": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 168
+        "line": 167
       }
     ],
     "popRoute": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 175
+        "line": 174
       }
     ],
     "closeChatDetail": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 179
+        "line": 178
       }
     ],
     "replaceTop": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 187
+        "line": 186
       }
     ],
     "openActivePomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-        "line": 191
+        "line": 190
       }
     ],
     "LuluSettingsHomeScreen": [
@@ -5527,7 +5527,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 342
+        "line": 345
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
@@ -17927,165 +17927,165 @@
     "PomodoroTimerMode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 10
+        "line": 13
       }
     ],
     "PomodoroSkin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 12
+        "line": 15
       }
     ],
     "PomodoroCompanionPreferences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 13
+        "line": 16
       }
     ],
     "PomodoroCompanionStore": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 36
+        "line": 39
       }
     ],
     "updateTask": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 51
+        "line": 54
       }
     ],
     "updateTimerMode": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 53
+        "line": 56
       }
     ],
     "updateSkin": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 56
+        "line": 59
       }
     ],
     "updateMicroRestEnabled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 59
+        "line": 62
       }
     ],
     "setDuration": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 75
+        "line": 78
       }
     ],
     "beginSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 82
+        "line": 85
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 361
+        "line": 386
       }
     ],
     "markCompletionHandled": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 111
+        "line": 114
       }
     ],
     "syncCountdownClock": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 118
+        "line": 121
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 369
+        "line": 394
       }
     ],
     "syncMicroRestClock": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 138
+        "line": 141
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 370
+        "line": 395
       }
     ],
     "toggleCountdown": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 173
+        "line": 176
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 367
+        "line": 392
       }
     ],
     "currentCountUpSeconds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 208
+        "line": 211
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 371
+        "line": 396
       }
     ],
     "syncCountUpClock": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 217
+        "line": 220
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 368
+        "line": 393
       }
     ],
     "toggleCountUp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 228
+        "line": 231
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 366
+        "line": 391
       }
     ],
     "stopCountUp": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 239
+        "line": 242
       }
     ],
     "clearSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 245
+        "line": 248
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 365
+        "line": 390
       }
     ],
     "PomodoroCompanionSessions": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 352
+        "line": 377
       }
     ],
     "finishActiveSession": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 372
+        "line": 397
       }
     ],
     "handleNaturalCompletion": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-        "line": 389
+        "line": 414
       }
     ],
     "books": [
@@ -18373,13 +18373,13 @@
     "startPomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-        "line": 59
+        "line": 61
       }
     ],
     "finishPomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-        "line": 80
+        "line": 82
       }
     ],
     "planningText": [
@@ -28362,44 +28362,44 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt",
-      "lines": 685,
-      "sha256": "d100300a9bcd46f87137d4d44a2355ec2a6172423fa318cd1bccb0ff1c06a84f",
+      "lines": 678,
+      "sha256": "bcbe1ac2dd0cd0f7b61864f4d3e1261c72b076194ef5303e589c510f18c2e24d",
       "symbols": [
         {
           "name": "LuluMigrationRootAppV2",
-          "line": 55
+          "line": 54
         },
         {
           "name": "characterIdForConversation",
-          "line": 154
+          "line": 153
         },
         {
           "name": "selectConversationCharacter",
-          "line": 160
+          "line": 159
         },
         {
           "name": "pushRoute",
-          "line": 164
+          "line": 163
         },
         {
           "name": "openConversation",
-          "line": 168
+          "line": 167
         },
         {
           "name": "popRoute",
-          "line": 175
+          "line": 174
         },
         {
           "name": "closeChatDetail",
-          "line": 179
+          "line": 178
         },
         {
           "name": "replaceTop",
-          "line": 187
+          "line": 186
         },
         {
           "name": "openActivePomodoro",
-          "line": 191
+          "line": 190
         }
       ]
     },
@@ -43286,136 +43286,136 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
-      "lines": 394,
-      "sha256": "5a644ff884fe2584edb734633c7b453299428b64938149636dbbba5c3d11c053",
+      "lines": 419,
+      "sha256": "cf6deedf94ed16ad90f008c1b7192a8987e2f92068193033447fe1664923dc9f",
       "symbols": [
         {
           "name": "PomodoroTimerMode",
-          "line": 10
-        },
-        {
-          "name": "PomodoroSkin",
-          "line": 12
-        },
-        {
-          "name": "PomodoroCompanionPreferences",
           "line": 13
         },
         {
+          "name": "PomodoroSkin",
+          "line": 15
+        },
+        {
+          "name": "PomodoroCompanionPreferences",
+          "line": 16
+        },
+        {
           "name": "PomodoroCompanionStore",
-          "line": 36
+          "line": 39
         },
         {
           "name": "updateTask",
-          "line": 51
+          "line": 54
         },
         {
           "name": "updateTimerMode",
-          "line": 53
-        },
-        {
-          "name": "updateSkin",
           "line": 56
         },
         {
-          "name": "updateMicroRestEnabled",
+          "name": "updateSkin",
           "line": 59
         },
         {
+          "name": "updateMicroRestEnabled",
+          "line": 62
+        },
+        {
           "name": "setDuration",
-          "line": 75
+          "line": 78
         },
         {
           "name": "beginSession",
-          "line": 82
+          "line": 85
         },
         {
           "name": "markCompletionHandled",
-          "line": 111
+          "line": 114
         },
         {
           "name": "syncCountdownClock",
-          "line": 118
+          "line": 121
         },
         {
           "name": "syncMicroRestClock",
-          "line": 138
+          "line": 141
         },
         {
           "name": "toggleCountdown",
-          "line": 173
+          "line": 176
         },
         {
           "name": "currentCountUpSeconds",
-          "line": 208
+          "line": 211
         },
         {
           "name": "syncCountUpClock",
-          "line": 217
+          "line": 220
         },
         {
           "name": "toggleCountUp",
-          "line": 228
+          "line": 231
         },
         {
           "name": "stopCountUp",
-          "line": 239
+          "line": 242
         },
         {
           "name": "clearSession",
-          "line": 245
+          "line": 248
         },
         {
           "name": "create",
-          "line": 342
+          "line": 345
         },
         {
           "name": "PomodoroCompanionSessions",
-          "line": 352
+          "line": 377
         },
         {
           "name": "initialize",
-          "line": 357
+          "line": 382
         },
         {
           "name": "beginSession",
-          "line": 361
+          "line": 386
         },
         {
           "name": "clearSession",
-          "line": 365
+          "line": 390
         },
         {
           "name": "toggleCountUp",
-          "line": 366
+          "line": 391
         },
         {
           "name": "toggleCountdown",
-          "line": 367
+          "line": 392
         },
         {
           "name": "syncCountUpClock",
-          "line": 368
+          "line": 393
         },
         {
           "name": "syncCountdownClock",
-          "line": 369
+          "line": 394
         },
         {
           "name": "syncMicroRestClock",
-          "line": 370
+          "line": 395
         },
         {
           "name": "currentCountUpSeconds",
-          "line": 371
+          "line": 396
         },
         {
           "name": "finishActiveSession",
-          "line": 372
+          "line": 397
         },
         {
           "name": "handleNaturalCompletion",
-          "line": 389
+          "line": 414
         }
       ]
     },
@@ -43760,16 +43760,16 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-      "lines": 426,
-      "sha256": "85b1e5512d5a34c1e9beb0966c73eebeb7c13cfd7435ea1900225e38bf60e6b3",
+      "lines": 436,
+      "sha256": "6e60423144ea4507a4b096c659a9d9803dbb3c3d6700ba48c3ed5b8c3dc905fc",
       "symbols": [
         {
           "name": "startPomodoro",
-          "line": 59
+          "line": 61
         },
         {
           "name": "finishPomodoro",
-          "line": 80
+          "line": 82
         }
       ]
     },
