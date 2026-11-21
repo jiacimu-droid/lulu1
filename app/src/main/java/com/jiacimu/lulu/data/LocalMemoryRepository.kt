@@ -52,6 +52,7 @@ class LocalMemoryRepository internal constructor(
             prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             advancedPrefs = context.applicationContext.getSharedPreferences("lulu_advanced_settings", Context.MODE_PRIVATE)
             state.value = decode(prefs?.getString(KEY_STATE, null))
+            MemoryRecallUsageStore.initialize(context)
             MemoryInspectionStore.setChangeListener { characterId ->
                 if (debugFlow.value.characterId == characterId) refreshInspection(characterId)
             }
@@ -602,6 +603,7 @@ class LocalMemoryRepository internal constructor(
         target?.let {
             CoreMemoryInjectionAudit.removeMemory(it.characterId, it.id)
             MemoryValidityStore.removeMemory(it.id)
+            MemoryRecallUsageStore.removeMemory(it.characterId, it.id)
         }
         refreshDebug("记忆已删除")
     }
@@ -640,6 +642,7 @@ class LocalMemoryRepository internal constructor(
         removedEntries.forEach {
             CoreMemoryInjectionAudit.removeMemory(it.characterId, it.id)
             MemoryValidityStore.removeMemory(it.id)
+            MemoryRecallUsageStore.removeMemory(it.characterId, it.id)
         }
         refreshDebug(if (removed > 1) "已删除本角色 $removed 条同内容记忆" else "记忆已删除")
         return removed
@@ -722,6 +725,7 @@ class LocalMemoryRepository internal constructor(
         removedEntries.forEach {
             CoreMemoryInjectionAudit.removeMemory(it.characterId, it.id)
             MemoryValidityStore.removeMemory(it.id)
+            MemoryRecallUsageStore.removeMemory(it.characterId, it.id)
         }
         refreshDebug("已撤销由删除内容产生的派生记忆")
     }
