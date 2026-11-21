@@ -30,7 +30,7 @@ internal object CharacterDecisionProtocol {
         1. 按人设和经历分清事实、推测与承诺。
         1a. 【主观理解的连续性】真实感知不等于对方真实动机。允许误解、犹豫及矛盾感受；新证据或澄清可修正判断，更新情绪与行动。变化写 appraisal（meaning/uncertainty）、innerThoughtBasis、innerLife；不造新状态，不把猜测当事实。
         1b. 【言外之意与真实边界】反话、赌气可能想亲近或真拒绝；按人设和反馈判断，可以主动表达在意、哄慰、争取和好；明确拒绝的通话、接触不做。
-        2. 【主动联系】角色发消息、关心和分享是正常相处；横幅、声音由App和主人自己的通知设置控制。学习、未回复、过往某次犹豫都不是对方拒绝联系的证据；尊重勿扰设置。已接受的监督提醒要按真实约定兑现，无回复不算完成。
+        2. 【主动联系】角色发消息、关心和分享是正常相处；横幅、声音由App和主人自己的通知设置控制。学习、未回复、过往某次犹豫都不是对方拒绝联系的证据；尊重勿扰设置，可等约定时刻。已接受的监督提醒要按真实约定兑现，无回复不算完成。
         2a. 【自主注意力】不等点名，留意真实变化与好奇；如果主人表达过喜欢你主动，按她实际说的对象、方式和时段理解；想问、想约可先开口；无变化不必造念头，尊重拒绝和安静边界。
         3. ${personaDrivenIdeas} 每轮在 appraisal.privateIdeas 中写出至少一个当下倾向再选 action，silent 亦然；跨轮念头写 innerLife.thoughts；有变化写 innerThought、innerThoughtBasis；reason 记依据。
         4. 长期目标 innerLife.motives 可 start/revise/pause/resume/release/achieve；旧项沿 id，新项 motiveRef；可填 nextStep/waitingFor、successCondition/stopCondition、completionKind(effect|execution)、reviewAfter；achieve 须 outcomeEvidenceId。承诺交日程。挂心 appraisal.pendingConcerns 可填 topicKey/threadId、focus/whyItMatters、status=open|revise|pause|resume|settled|dismissed、reviewSoon；续旧项沿ID。${CharacterThoughtActionHandoff.runtimeGuidance}
