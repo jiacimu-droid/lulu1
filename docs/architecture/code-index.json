@@ -2982,6 +2982,10 @@
         "line": 171
       },
       {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt",
+        "line": 48
+      },
+      {
         "path": "app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt",
         "line": 34
       },
@@ -7491,11 +7495,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 199
+        "line": 204
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 202
+        "line": 207
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -8329,7 +8333,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 745
+        "line": 751
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -8393,7 +8397,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 761
+        "line": 767
       }
     ],
     "informativeAction": [
@@ -11817,7 +11821,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 885
+        "line": 891
       }
     ],
     "LegacyLuluImportResult": [
@@ -12861,7 +12865,7 @@
     "ranked": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 220
+        "line": 225
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OriginalEvidenceSpans.kt",
@@ -14710,76 +14714,82 @@
         "line": 129
       }
     ],
+    "eventsInRange": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
+        "line": 282
+      }
+    ],
     "eventsByIds": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 345
+        "line": 351
       }
     ],
     "deleteEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 396
+        "line": 402
       }
     ],
     "deleteCharacterEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 473
+        "line": 479
       }
     ],
     "deleteEventsByIdPrefix": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 485
+        "line": 491
       }
     ],
     "deleteConversationMessage": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 491
+        "line": 497
       }
     ],
     "deleteConversationData": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 502
+        "line": 508
       }
     ],
     "recentEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 536
+        "line": 542
       }
     ],
     "recentUserActivities": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 691
+        "line": 697
       }
     ],
     "recentXhsReadings": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 700
+        "line": 706
       }
     ],
     "sessionEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 732
+        "line": 738
       }
     ],
     "sessionStatementEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 741
+        "line": 747
       }
     ],
     "exportBackup": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-        "line": 867
+        "line": 873
       }
     ],
     "Limits": [
@@ -34973,7 +34983,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CoreMemoryDelivery.kt",
       "lines": 111,
-      "sha256": "5aa323437083cead1e5e2558f52f5abd70e588bf8d4fd2c0047e00b4c2ae813e",
+      "sha256": "029fcf37ab7b62bcdd88d5f0d52b27a111608201d5a70a04b5186d270d04ea28",
       "symbols": [
         {
           "name": "active",
@@ -37333,8 +37343,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-      "lines": 248,
-      "sha256": "00c861b93e04a681c5630e32c403d26e82e2139cab7a65f96184b5323450f54a",
+      "lines": 253,
+      "sha256": "67de126dfa2721af1a18474efb664538bf9e8bacbfcef336066091a13e5aeef2",
       "symbols": [
         {
           "name": "matches",
@@ -37354,15 +37364,15 @@
         },
         {
           "name": "find",
-          "line": 199
+          "line": 204
         },
         {
           "name": "find",
-          "line": 202
+          "line": 207
         },
         {
           "name": "ranked",
-          "line": 220
+          "line": 225
         }
       ]
     },
@@ -39165,8 +39175,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
-      "lines": 999,
-      "sha256": "a20b852f33afe898e44aec6fc66c3885d0ac6ed46f7dec1bb186a05e4bd9b86c",
+      "lines": 1005,
+      "sha256": "67954e53ff19b156db8b0814f35bb8a486f0181b51aba55ce064f9fb2965c036",
       "symbols": [
         {
           "name": "SharedTimelineEvent",
@@ -39201,64 +39211,68 @@
           "line": 277
         },
         {
+          "name": "eventsInRange",
+          "line": 282
+        },
+        {
           "name": "eventsByIds",
-          "line": 345
+          "line": 351
         },
         {
           "name": "deleteEvent",
-          "line": 396
+          "line": 402
         },
         {
           "name": "deleteCharacterEvents",
-          "line": 473
+          "line": 479
         },
         {
           "name": "deleteEventsByIdPrefix",
-          "line": 485
-        },
-        {
-          "name": "deleteConversationMessage",
           "line": 491
         },
         {
+          "name": "deleteConversationMessage",
+          "line": 497
+        },
+        {
           "name": "deleteConversationData",
-          "line": 502
+          "line": 508
         },
         {
           "name": "recentEvents",
-          "line": 536
+          "line": 542
         },
         {
           "name": "recentUserActivities",
-          "line": 691
+          "line": 697
         },
         {
           "name": "recentXhsReadings",
-          "line": 700
+          "line": 706
         },
         {
           "name": "sessionEvents",
-          "line": 732
+          "line": 738
         },
         {
           "name": "sessionStatementEvents",
-          "line": 741
+          "line": 747
         },
         {
           "name": "recentContext",
-          "line": 745
+          "line": 751
         },
         {
           "name": "remember",
-          "line": 761
+          "line": 767
         },
         {
           "name": "exportBackup",
-          "line": 867
+          "line": 873
         },
         {
           "name": "importBackup",
-          "line": 885
+          "line": 891
         }
       ]
     },
@@ -39459,8 +39473,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/UnifiedMemoryOrchestrator.kt",
-      "lines": 381,
-      "sha256": "4f8cbda0a4008697aa3c3057fa43bda325bb9d62b81c32aa032591a2f1e5450d",
+      "lines": 383,
+      "sha256": "fd455e6f3b7ee2052ac01246cfaf57a36f46bc99c9d39ec171696d5eec22b538",
       "symbols": [
         {
           "name": "UnifiedMemoryRequest",
@@ -51295,12 +51309,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt",
-      "lines": 78,
-      "sha256": "fb8edde865bc817ed9eb6b69e85117136f346fd1512227cce29409834ced61d3",
+      "lines": 97,
+      "sha256": "e5b927e51697918048eb8c7f15d16cde58908051c12cf40c3a6f162751197969",
       "symbols": [
         {
           "name": "MemoryRecallLifecycleTest",
           "line": 19
+        },
+        {
+          "name": "record",
+          "line": 48
         }
       ]
     },
