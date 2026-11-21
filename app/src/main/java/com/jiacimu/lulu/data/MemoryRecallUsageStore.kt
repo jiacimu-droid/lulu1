@@ -24,6 +24,26 @@ internal object MemoryRecallUsageStore {
         if (prefs == null) prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
     }
 
+    /** Read once for ranking/UI; never parse the full JSON per candidate memory. */
+    @Synchronized
+    fun snapshot(characterId: String): Map<String, MemoryRecallUsage> {
+        if (characterId.isBlank()) return emptyMap()
+        val records = runCatching { JSONObject(prefs?.getString("usage:$characterId", "{}") ?: "{}") }
+            .getOrDefault(JSONObject())
+        return buildMap {
+            val keys = records.keys()
+            while (keys.hasNext()) {
+                val id = keys.next()
+                val item = records.optJSONObject(id) ?: continue
+                put(id, MemoryRecallUsage(
+                    successfulInjections = item.optInt("injections", 0).coerceAtLeast(0),
+                    lastInjectedAt = item.optString("lastAt").takeIf(String::isNotBlank)
+                        ?.let { runCatching { Instant.parse(it) }.getOrNull() },
+                ))
+            }
+        }
+    }
+
     @Synchronized
     fun stats(characterId: String, memoryId: String): MemoryRecallUsage {
         if (characterId.isBlank() || memoryId.isBlank()) return MemoryRecallUsage()
