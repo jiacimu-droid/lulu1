@@ -1243,6 +1243,17 @@ class CompanionModelGateway(
                         listOf("核心与未结责任超过预算，完整保留；未静默截断。")
                     else emptyList(),
                 )
+                // Count only memory fragments confirmed in the successful
+                // provider request, never pre-ranking candidates or reduced text.
+                // Usage telemetry must not turn an already paid-for reply into a
+                // retry if the local preference file cannot be written.
+                runCatching {
+                    com.jiacimu.lulu.data.MemoryRecallUsageStore.recordSuccessfulInjection(
+                        characterId, injected,
+                    )
+                }.onFailure { error ->
+                    android.util.Log.w("CompanionModelGateway", "Recall usage not persisted", error)
+                }
                 if (turnTraceId.isNotBlank()) {
                     // Opaque IDs and counts only: no recalled prose, persona
                     // description, user messages or API credentials in logs.
