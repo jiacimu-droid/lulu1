@@ -18,7 +18,7 @@ enum class PomodoroTimerMode { Countdown, CountUp }
 enum class PomodoroSkin { Light, Dark }
 
 /** Audible boundaries of a micro-rest; never a per-second ticker. */
-internal enum class MicroRestCue { Start, End }
+enum class MicroRestCue { Start, End }
 
 data class PomodoroCompanionPreferences(
     val task: String = "完成当前最重要的一项学习任务",
