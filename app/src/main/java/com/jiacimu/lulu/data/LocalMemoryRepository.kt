@@ -116,6 +116,7 @@ class LocalMemoryRepository internal constructor(
         }
         MemoryInspectionStore.clearCharacter(characterId)
         MemoryRecallUsageStore.clearCharacter(characterId)
+        prefs?.edit()?.remove("lastExtractionAt:$characterId")?.commit()
         CoreMemoryInjectionAudit.clearCharacter(characterId)
         refreshDebug("经历与记忆已清空，角色资料与记忆设置保留", characterId)
     }
@@ -460,8 +461,17 @@ class LocalMemoryRepository internal constructor(
             }
             if (committed) applyUnderstandingUpdates(characterId, response.updates, prior, revisions)
         }) { "原始上下文已改变，整批保留等待重新理解" }
+        // State and source checkpoint were committed first. Usage diagnostics
+        // are best-effort: a failed timestamp write must not re-buy this batch.
+        if (committed && !response.hasRejectedRows) runCatching {
+            prefs?.edit()?.putString("lastExtractionAt:$characterId", extractionClock().toString())?.commit()
+        }
         return added
     }
+
+    fun lastSuccessfulExtraction(characterId: String): Instant? =
+        prefs?.getString("lastExtractionAt:$characterId", null)
+            ?.let { runCatching { Instant.parse(it) }.getOrNull() }
 
     private data class ExtractedMemoryUpdate(val memory: MemoryEntry, val supersedes: List<String>?)
 
