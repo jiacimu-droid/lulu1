@@ -89,7 +89,7 @@ object CloudTaskBridge {
                 result.keys().forEach { key -> job.put(key, result.get(key)) }
                 job.remove("connectionError")
                 update(job)
-                if (job.optString("status") in setOf("succeeded", "failed")) {
+                if (job.optString("status") in setOf("succeeded", "failed", "cancelled")) {
                     val characterId = job.getString("characterId")
                     SharedExperienceTimeline.record("cloud-${job.getString("requestId")}-$characterId", characterId,
                         "云端任务", "任务服务", job.toString(), taskId = job.getString("requestId"),

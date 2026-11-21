@@ -182,6 +182,7 @@ object ProactivePerceptionRuntime {
         val learningFeedback: JSONObject? = null,
         val learningChallenge: JSONObject? = null,
         val experienceLearning: JSONObject? = null,
+        val toolMethods: JSONArray? = null,
         val commitmentChanges: JSONArray? = null,
         val lifeChanges: JSONArray? = null,
         val experienceId: String = "",
@@ -996,6 +997,7 @@ object ProactivePerceptionRuntime {
             now = now,
         )
         val observedWorld = CharacterPerceptionContext.pending(appContext, characterId, now)
+        val toolMethodsOffered = CharacterExperienceLearning.pendingMethods(appContext, characterId, now)
         // Freeze the letters actually supplied to THIS decision. Superseded,
         // aborted and call-owned turns must not advance a mailbox cursor.
         val pendingMail = ResidentSocialMailbox.pendingIncoming(characterId)
@@ -1196,6 +1198,8 @@ object ProactivePerceptionRuntime {
                 com.jiacimu.lulu.system.LuluStudyWatch.context(appContext, characterId, now)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
                 appendLine(CharacterPerceptionContext.render(characterId, observedWorld))
+                CharacterExperienceLearning.reviewContext(toolMethodsOffered)
+                    .takeIf(String::isNotBlank)?.let(::appendLine)
                 runCatching { com.jiacimu.lulu.games.LuluGames.store.activeGameContext(characterId) }
                     .getOrDefault("").takeIf(String::isNotBlank)?.let(::appendLine)
                 // One shared app tool, available to both active private chats
@@ -2281,6 +2285,9 @@ object ProactivePerceptionRuntime {
         }
         CharacterLearningLedger.observeInteraction(characterId, decision.experienceLearning,
             decision.learningFeedback, decision.learningChallenge, onlineUnread.messageIds)
+        runCatching {
+            CharacterExperienceLearning.reviewMethods(appContext, characterId, decision.toolMethods, toolMethodsOffered)
+        }.onFailure { android.util.Log.w("CharacterLearning", "Tool method review was not saved", it) }
         // Shared post-decision commit with foreground chat/voice: write the
         // character's chosen causal state before claiming newly observed facts.
         // An interrupted ancillary write leaves the original stimulus unread.
@@ -3905,6 +3912,7 @@ object ProactivePerceptionRuntime {
             learningFeedback = json.optJSONObject("learningFeedback"),
             learningChallenge = json.optJSONObject("learningChallenge"),
             experienceLearning = json.optJSONObject("experienceLearning"),
+            toolMethods = json.optJSONArray("toolMethods"),
             commitmentChanges = json.optJSONArray("commitmentChanges"),
             lifeChanges = json.optJSONArray("lifeChanges"),
             experienceId = json.optString("experienceId").trim().take(180),

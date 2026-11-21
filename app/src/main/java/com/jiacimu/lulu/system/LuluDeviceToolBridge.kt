@@ -1737,6 +1737,9 @@ object LuluDeviceToolBridge {
         } else null
         val lastRoleScreenImage = if (phoneContinuation == null) roleScreenImage
             else phoneContinuation.lastImage
+        val methodsOffered = if (recoveredHistoricalReceipt) emptyList() else
+            com.jiacimu.lulu.data.CharacterExperienceLearning.immediateMethods(
+                characterId, requestId, plan.tool, recalledGroupEventIds + regenerationExcludedEventIds)
         val finalReply = LuluAiServices.gateway.generate(
             characterId = characterId,
             facts = buildString {
@@ -1766,6 +1769,8 @@ object LuluDeviceToolBridge {
                 else if (plan.tool == "background_phone") appendLine(
                     "本轮没有获得后台虚拟屏的真实图片；不能声称自己亲眼看到了后台桌面、App 页面或视频。只能确认上述工具回执明确验证过的状态；仅启动成功不等于打开目标应用。")
                 appendLine("真实工具回执ID=$actionReceipt")
+                com.jiacimu.lulu.data.CharacterExperienceLearning.reviewContext(methodsOffered)
+                    .takeIf(String::isNotBlank)?.let(::appendLine)
                 appendLine(com.jiacimu.lulu.data.CharacterExplorationContinuity.context(characterId))
                 if (commitmentReceipt.isNotBlank()) appendLine("【本轮约定真实回执】$commitmentReceipt")
             },
@@ -1883,6 +1888,12 @@ object LuluDeviceToolBridge {
                 if (phoneDecisionInvalidated()) return stalePhoneTurn(toolResultAvailable = true)
             }
             if (finalPlan != null && checkedResultText == naturalText) {
+                runCatching {
+                    val methods = com.jiacimu.lulu.data.ModelStructuredOutput.objectOrNull(result.text)
+                        ?.optJSONArray("toolMethods")
+                    com.jiacimu.lulu.data.CharacterExperienceLearning.reviewMethods(
+                        appContext, characterId, methods, methodsOffered)
+                }.onFailure { android.util.Log.w("CharacterLearning", "Tool method review was not saved", it) }
                 val moment = savePresence(
                     characterId, finalPlan, if (ordinaryPhone) "通话工具感知" else "聊天·工具",
                     preserveQuietThought = ordinaryPhone,

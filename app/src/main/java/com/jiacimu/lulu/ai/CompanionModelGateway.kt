@@ -970,10 +970,11 @@ class CompanionModelGateway(
             ) else emptyList()
             val recalledAuxiliary = buildList {
                 add("已读材料与可修订的理解" to learningSection)
-                if (fullContext && request.unavailableEventIds.isEmpty()) {
+                if (fullContext && request.unavailableEventIds.isEmpty())
                     add("近期生活经历" to com.jiacimu.lulu.data.WorldLifeEpisodeStore.recentContext(characterId))
-                    add("近期工具尝试" to com.jiacimu.lulu.data.CharacterExperienceLearning.recentContext(characterId))
-                }
+                if (fullContext) add("近期工具尝试" to
+                    com.jiacimu.lulu.data.CharacterExperienceLearning.recentContext(characterId,
+                        request.unavailableEventIds))
             }
             val actorContextMillis = elapsedMillis(actorContextStartedAt)
             val promptAssemblyStartedAt = System.nanoTime()
