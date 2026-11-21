@@ -37,6 +37,8 @@ import com.jiacimu.lulu.data.CoreMemoryDelivery
 import com.jiacimu.lulu.data.CoreMemoryInjectionAudit
 import com.jiacimu.lulu.data.LocalMemoryRepository
 import com.jiacimu.lulu.data.MemorySemanticConsolidation
+import com.jiacimu.lulu.data.MemoryExtractionJobStore
+import com.jiacimu.lulu.data.MemoryRecallUsageStore
 import com.jiacimu.lulu.data.CharacterDevelopmentRuntime
 import com.jiacimu.lulu.data.MemoryReviewPhase
 import com.jiacimu.lulu.data.MemoryValidityStore
@@ -259,6 +261,13 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
         MemorySemanticConsolidation.eligibleCount(characterId)
     }
     val reviewing = report.phase == MemoryReviewPhase.Waiting || report.phase == MemoryReviewPhase.Running
+    // Diagnostics are read-only. They never trigger another paid extraction.
+    val queuedExtraction = remember(characterId, debug) {
+        MemoryExtractionJobStore.pending().firstOrNull { it.characterId == characterId }
+    }
+    val backlog = remember(characterId, debug) { repository.pendingMessageCount(characterId) }
+    val usage = remember(characterId, memories, debug) { MemoryRecallUsageStore.snapshot(characterId) }
+    val usedMemories = memories.count { (usage[it.id]?.successfulInjections ?: 0) > 0 }
     val aliases = remember(characterId, memories, validityRevision) {
         val byId = memories.associateBy(MemoryEntry::id)
         MemoryValidityStore.equivalenceSnapshot().mapNotNull { (oldId, keptId) ->
@@ -322,6 +331,20 @@ internal fun MemoryManagementSheet(characterId: String, personal: Boolean, memor
                     }
                     Text("审核使用后台记忆模型，可能产生费用。", fontSize = 11.sp, color = FeatureBlueGray)
                 }
+            }
+            Text("提取与召回状态", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Text("待提取 $backlog 轮 · 已成功下发过的普通记忆 $usedMemories 条（候选命中和失败请求不计）",
+                fontSize = 12.sp, color = FeatureBlueGray, lineHeight = 18.sp)
+            queuedExtraction?.let { job ->
+                val queueText = when {
+                    job.deferredUntil != null -> "已延期至 ${job.deferredUntil}"
+                    job.attempts > 0 -> "失败 ${job.attempts} 次，保留原文并按退避策略重试"
+                    else -> "提取队列已建立，后台将继续检查"
+                }
+                Text(queueText, fontSize = 12.sp, color = FeatureBlueGray)
+                if (job.lastError.isNotBlank())
+                    Text("最近错误：${job.lastError.take(240)}", fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.error, lineHeight = 18.sp)
             }
             Text("每日小整理 · 每周大整理", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
             Text("开启后自动提取长期事实、情绪和真实日常经历；每天检查本地重复项，每周按需使用后台记忆模型核对语义重复。偏好与习惯由已有成长系统学习，不需要手动按整理。应用停止运行时不会准点调用，下次启动会补查；无变化的批次不重复付费。",
