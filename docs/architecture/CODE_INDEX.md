@@ -214,7 +214,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt` | 185 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 483 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 293 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 678 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 679 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt` | 624 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 402 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt` | 228 | 0 |
@@ -821,7 +821,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 231 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt` | 277 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 692 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 419 | 32 |
+| `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 495 | 34 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 181 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 189 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt` | 75 | 6 |
