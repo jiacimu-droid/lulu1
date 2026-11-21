@@ -1,10 +1,10 @@
 # Lulu1 代码索引
 
-- 基准提交：`a56a0840b8b5e5090d22dd2f4f6bf7b860e2b010`
+- 基准提交：`30e34c6ad9c6646146ed0e69aae1168c56a2f8ae`
 - 分支：`main`
 - 已索引文件：1508
-- 已索引代码/文本行：323835
-- 已发现符号：4588
+- 已索引代码/文本行：323912
+- 已发现符号：4590
 
 | 文件 | 行数 | 符号数 |
 |---|---:|---:|
@@ -214,7 +214,7 @@
 | `app/src/main/java/com/jiacimu/lulu/LuluFirstRunAgreement.kt` | 185 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluGroupVoiceCallScreen.kt` | 483 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/LuluIntegrationsSettingsScreen.kt` | 293 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 678 | 9 |
+| `app/src/main/java/com/jiacimu/lulu/LuluMigrationRootAppV2.kt` | 679 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/LuluOnboardingGuideScreen.kt` | 624 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluProfileAvatar.kt` | 402 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/LuluResidentManagementScreen.kt` | 228 | 0 |
@@ -817,7 +817,7 @@
 | `app/src/main/java/com/jiacimu/lulu/study/MiniTheaterScreen.kt` | 231 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheater.kt` | 277 | 11 |
 | `app/src/main/java/com/jiacimu/lulu/study/PersonalMiniTheaterScreen.kt` | 692 | 9 |
-| `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 419 | 32 |
+| `app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt` | 495 | 34 |
 | `app/src/main/java/com/jiacimu/lulu/study/PomodoroMiniWindow.kt` | 181 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingBackgroundBridge.kt` | 189 | 8 |
 | `app/src/main/java/com/jiacimu/lulu/study/ReadingReactionPolicy.kt` | 75 | 6 |
