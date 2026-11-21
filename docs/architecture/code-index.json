@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-21T11:19:07.216635+00:00",
-  "commit": "6f13fe74de14634b45a12f3d616f1e3c36bce5e1",
+  "generatedAt": "2026-11-21T11:41:23.193964+00:00",
+  "commit": "20b01e8d05d6b8370fe6aab295c684ba0c8dc691",
   "branch": "main",
-  "sourceFingerprint": "b53cc16e73f9cced400ae2002be5b86525804b1942f5d5ca316196f6fbd562bd",
+  "sourceFingerprint": "1c8f32e6a972da2eb3695ecbd32ad13a4f6159d88bd45410fc97ecfe7a1a2db0",
   "summary": {
     "files": 1508,
     "lines": 323990,
-    "symbols": 4591
+    "symbols": 4592
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -17934,6 +17934,12 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
         "line": 18
+      }
+    ],
+    "MicroRestCue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
+        "line": 21
       }
     ],
     "PomodoroCompanionPreferences": [
@@ -43303,7 +43309,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
       "lines": 498,
-      "sha256": "187ccd70a777772f1553f644e75fce38ef0dfa2a4bf3533b3bbddb0f35c9ec4a",
+      "sha256": "8b6e09faf180fe0faee8ddbe5f6001dbb87cf711df0e337495c608538f6f57e4",
       "symbols": [
         {
           "name": "PomodoroTimerMode",
@@ -43312,6 +43318,10 @@
         {
           "name": "PomodoroSkin",
           "line": 18
+        },
+        {
+          "name": "MicroRestCue",
+          "line": 21
         },
         {
           "name": "PomodoroCompanionPreferences",
