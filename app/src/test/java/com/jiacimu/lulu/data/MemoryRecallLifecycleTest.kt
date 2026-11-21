@@ -6,6 +6,7 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.json.JSONObject
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
@@ -32,8 +33,12 @@ class MemoryRecallLifecycleTest {
         assertEquals(0, MemoryRecallUsageStore.stats("another-role", "a").successfulInjections)
         assertTrue(MemoryRecallUsageStore.snapshot(role).containsKey("a"))
         val disk = context.getSharedPreferences("lulu_memory_recall_usage_v1", Context.MODE_PRIVATE)
-            .getString("usage:$role", "").orEmpty()
-        assertTrue("injection counts must survive process restart", disk.contains("\"injections\":2"))
+            .getString("usage:$role", null)
+        val restored = JSONObject(requireNotNull(disk) { "Successful recall usage must be persisted" })
+        assertEquals(2, restored.getJSONObject("a").getInt("injections"))
+        assertEquals(now.plusSeconds(15).toString(), restored.getJSONObject("a").getString("lastAt"))
+        assertEquals(1, restored.getJSONObject("c").getInt("injections"))
+        assertFalse(restored.has("b"))
         MemoryRecallUsageStore.removeMemory(role, "a")
         assertFalse(MemoryRecallUsageStore.snapshot(role).containsKey("a"))
         assertEquals(1, MemoryRecallUsageStore.stats(role, "c").successfulInjections)
