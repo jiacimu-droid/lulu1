@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-21T08:42:51.058143+00:00",
-  "commit": "538cff36fdf5056ce8285c00095912783e841f5d",
+  "generatedAt": "2026-11-21T09:42:05.175421+00:00",
+  "commit": "bd8a0c92065987fc9f921b03b99557af301946bd",
   "branch": "main",
-  "sourceFingerprint": "e102b7b2ed6813b034d29c97ecffd212edb72e186969e97bb93f9c35c905dcaa",
+  "sourceFingerprint": "b72de287588c1cc6ddb65d2363595b9f19f18279a336c9634788516825044ccb",
   "summary": {
     "files": 1508,
     "lines": 323408,
@@ -32001,7 +32001,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 210,
-      "sha256": "1d76d481373f163e8376f6e01bb34eac871db0f3609ed797802646b5907d3848",
+      "sha256": "bec2bd4bc9a810847b3fedd9cff47654008a01244960d24ed885501fbd0184f4",
       "symbols": [
         {
           "name": "hasAuthoredMomentaryIdea",
@@ -32331,7 +32331,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
       "lines": 97,
-      "sha256": "53df833465117e548eeb20e9a34b4ab3f7464283075f380bac663862177a72b3",
+      "sha256": "4cb8387c600ccfd30742e7673720b73289b1bb0bf719c9d0572b2493ee6c4fd7",
       "symbols": [
         {
           "name": "isExpressionOnly",
