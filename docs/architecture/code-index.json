@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-21T11:45:19.956437+00:00",
-  "commit": "154efb5ed8582df51d3acd9c2dd6cae33ea71c15",
+  "generatedAt": "2026-11-21T11:46:04.856322+00:00",
+  "commit": "5ddfb907242768f17ae239b6dc2df285384203d0",
   "branch": "main",
-  "sourceFingerprint": "b3d63e9c09bcca06114718a992c5b0adce317657edc0759eebd23f66b2cff79a",
+  "sourceFingerprint": "ee7dbd251d5c7024d79de7b40cbbc81752519faa992a665a78fc06c86eed7e8e",
   "summary": {
-    "files": 1509,
-    "lines": 324157,
-    "symbols": 4597
+    "files": 1510,
+    "lines": 324218,
+    "symbols": 4598
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -23568,6 +23568,12 @@
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallIntegrationTest.kt",
         "line": 26
+      }
+    ],
+    "MemoryRecallLifecycleTest": [
+      {
+        "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt",
+        "line": 19
       }
     ],
     "MemorySemanticConsolidationTest": [
@@ -50911,6 +50917,17 @@
         {
           "name": "MemoryRecallIntegrationTest",
           "line": 26
+        }
+      ]
+    },
+    {
+      "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt",
+      "lines": 61,
+      "sha256": "84181b30234af9dfbfddbf4dbfa0e67accc3dd04a084168c3ddd7468e9fbbb42",
+      "symbols": [
+        {
+          "name": "MemoryRecallLifecycleTest",
+          "line": 19
         }
       ]
     },
