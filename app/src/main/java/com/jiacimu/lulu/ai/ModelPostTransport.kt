@@ -30,11 +30,17 @@ import okio.BufferedSink
  * outer attempt is allowed only when no request-body write has started. */
 internal object ModelPostTransport {
     internal enum class Phase { CONNECT, WRITE_BODY, READ_RESPONSE }
-    // OkHttp defaults writeTimeout to 10s even if readTimeout is 3–5 min.
+    // OkHttp defaults writeTimeout to 10s even if model reasoning takes many minutes.
     // Large UTF-8/JSON posts can time out in the request-body flush itself;
     // allow a bounded slower upload without replaying an uncertain paid POST.
-    internal const val REQUEST_WRITE_TIMEOUT_SECONDS = 60L
+    internal const val REQUEST_CONNECT_TIMEOUT_SECONDS = 120L
+    internal const val REQUEST_WRITE_TIMEOUT_SECONDS = 180L
+    internal const val MIN_READ_TIMEOUT_MILLIS = 120_000
+    internal const val MAX_READ_TIMEOUT_MILLIS = 900_000
     internal const val PRE_BODY_CONNECT_RETRIES = 1
+    /** Respect long model-thinking waits while keeping socket-idle reads bounded. */
+    internal fun normalizedReadTimeoutMillis(requested: Int): Int =
+        requested.coerceIn(MIN_READ_TIMEOUT_MILLIS, MAX_READ_TIMEOUT_MILLIS)
     /** In-process timing of the SAME charged HTTP call, never a second network probe. */
     internal data class Timing(
         val connectMillis: Long?,
@@ -121,7 +127,7 @@ internal object ModelPostTransport {
     }
 
     private val client = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(REQUEST_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .writeTimeout(REQUEST_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         // Try alternate resolved IPs or proxy routes before any paid body is sent.
         // isOneShot() prevents OkHttp from replaying an upload/response wait.
@@ -189,14 +195,14 @@ internal object ModelPostTransport {
                 // newBuilder shares pools/dispatcher while each request has
                 // its own read budget. Do not retry chargeable response failures.
                 val transport = transportClient.newBuilder()
-                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .connectTimeout(REQUEST_CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     .writeTimeout(REQUEST_WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                     // Keep route failover even when the caller supplies a custom client.
                     // RequestBody.isOneShot() still forbids replay after upload starts.
                     .retryOnConnectionFailure(true)
                     .followRedirects(false)
                     .followSslRedirects(false)
-                    .readTimeout(readTimeoutMillis.coerceIn(30_000, 300_000).toLong(), TimeUnit.MILLISECONDS)
+                    .readTimeout(normalizedReadTimeoutMillis(readTimeoutMillis).toLong(), TimeUnit.MILLISECONDS)
                     .eventListenerFactory { call ->
                         TimingListener(transportClient.eventListenerFactory.create(call)).also {
                             timingListener = it
