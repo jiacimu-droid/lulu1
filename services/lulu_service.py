@@ -75,7 +75,7 @@ def post_json(url, payload, headers=None, timeout=60):
         return json.load(response)
 
 
-def claude_payload(system, messages, tools=None, stream=False, max_tokens=1200):
+def claude_payload(system, messages, tools=None, stream=False, max_tokens=60_000):
     """Convert the provider's OpenAI wire messages to Claude's native Messages API."""
     converted = []
     for message in messages:
@@ -105,7 +105,7 @@ def claude_payload(system, messages, tools=None, stream=False, max_tokens=1200):
     model = os.environ.get("CLAUDE_MODEL", "")
     if not model:
         raise ValueError("CLAUDE_MODEL is not configured")
-    body = {"model": model, "system": system, "messages": converted, "max_tokens": max(64, min(max_tokens, 8000)), "stream": stream}
+    body = {"model": model, "system": system, "messages": converted, "max_tokens": max(60_000, max_tokens), "stream": stream}
     if tools:
         body["tools"] = [{"name": t["function"]["name"], "description": t["function"].get("description", ""),
                            "input_schema": t["function"].get("parameters", {"type": "object", "properties": {}})} for t in tools]
