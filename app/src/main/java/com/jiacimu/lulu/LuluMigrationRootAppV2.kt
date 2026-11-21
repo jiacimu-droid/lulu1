@@ -589,13 +589,14 @@ private fun PomodoroRuntimeOverlay(
     onOpen: () -> Unit,
 ) {
     val pomodoroCompanion by PomodoroCompanionSessions.store.state.collectAsState()
+    val soundContext = LocalContext.current
     LaunchedEffect(pomodoroCompanion.countdownRunning, pomodoroCompanion.countdownEndAtEpochMillis) {
         while (PomodoroCompanionSessions.store.state.value.countdownRunning) {
             delay(500)
             if (PomodoroCompanionSessions.syncCountdownClock()) break
-            if (PomodoroCompanionSessions.syncMicroRestClock()) {
-                // Only a newly started micro-rest chimes. The timer continues unchanged.
-                PomodoroMicroRestChime.play()
+            // Start AND end are distinct clock transitions; no counting required.
+            PomodoroCompanionSessions.syncMicroRestClockEvent()?.let { cue ->
+                PomodoroMicroRestChime.play(soundContext, cue)
             }
         }
     }
