@@ -3601,7 +3601,7 @@ object ProactivePerceptionRuntime {
                     }
                 }.orEmpty()
             } else ""
-            "工具=${entry.tool}；操作=${entry.operation}；实际状态=$outcome；证据ID=${entry.evidenceId}\n" +
+            "工具=${entry.tool}；操作=${entry.operation}；实际状态=$outcome；证据ID=${entry.evidenceId}；actionEvidenceId=${entry.receiptEvidenceId}\n" +
                 entry.details.take(when (entry.tool) {
                     "read_self_preface" -> 16_000
                     "read_self_todo" -> 4_000
@@ -3662,7 +3662,7 @@ object ProactivePerceptionRuntime {
                     【本轮先前已真正说出口的话】
                     ${earlierSpeech.take(600)}
                 """.trimIndent(),
-                instruction = feedbackInstruction,
+                instruction = feedbackInstruction + "\n" + CharacterExperienceLearning.methodPrompt,
                 source = when {
                     includesScreen -> "主屏单帧观察回执"
                     isTodoRead -> "自序所行真实读取回执"
@@ -3679,6 +3679,8 @@ object ProactivePerceptionRuntime {
             ).getOrThrow().text
         }.getOrNull()
         val interpretation = modelText?.let(ModelStructuredOutput::objectOrNull)
+        runCatching { CharacterLearningLedger.recordMethod(character.characterId,
+            interpretation?.optJSONObject("method"), receipts.map { it.receiptEvidenceId }) }
         // This adapter only finishes a user-awaited reply. Its text must NOT
         // become a second private cognition channel; ToolRouter has already
         // enqueued the same receipts for ordinary character re-perception.

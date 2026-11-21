@@ -6,24 +6,26 @@ import java.time.Instant
 
 /** Projections and validation over the existing timeline/learning ledger; no second store. */
 internal object CharacterExperienceLearning {
-    private val experienceSchema = """{"topic":"稳定主题","situationEvidenceId":"当时需求/观察的真实ID","actionEvidenceId":"当次tool-router回执或已完成的屏幕观察ID","understanding":"这次发现及下次怎样改","applicableWhen":"适用情境","avoidWhen":"不适用/停止条件","uncertainty":"仍未知之处","feedbackEvidenceId":"可选的后来用户原话ID","feedbackQuote":"该原话中的逐字引用","revisesEvidenceId":"确有修订时旧经验ID"}"""
+    private val experienceSchema = """{"topic":"稳定主题","situationEvidenceId":"当时需求/观察的真实ID","actionEvidenceId":"当次tool-router回执或已完成的屏幕观察ID","understanding":"这次发现","methodImpression":"可选，我对这种做法本身的体验","applicableWhen":"适用情境","avoidWhen":"不适用/停止条件","uncertainty":"仍未知之处","feedbackEvidenceId":"可选的后来用户原话ID","feedbackQuote":"该原话中的逐字引用","revisesEvidenceId":"确有修订时旧经验ID"}"""
     // The full experienceSchema belongs to reflectionInstruction/instruction.
     // Expanding it into every paid runtime prompt adds ~300 characters just
     // for example field descriptions and can breach the 3000-char shared
     // character-decision budget even when the caller source appears short.
     val runtimeInstruction = """
-        【资源与相处经验】依真实信息缺口和过往结果选工具，不按关键词派发；日常与失败也可学习。
-        可选 experienceLearning={topic,situationEvidenceId,actionEvidenceId,understanding,applicableWhen,avoidWhen,uncertainty,feedbackEvidenceId,feedbackQuote,revisesEvidenceId}；仅引用真实来源ID，缺证据的字段省略。工具成功或沉默不等于满意，单次经验不变成固定习惯。
-        真正复用时可填 learningApplication={sourceEvidenceId,action,howApplied} 于对应steps；本轮有用户逐字反馈才填 learningFeedback={sourceEvidenceId,actionEvidenceId,evaluation,quote,why}；反例用 learningChallenge={sourceEvidenceId,issue}。分别按回执归因，最新拒绝优先；字段可省略，不额外发起反思调用。
+        【资源与相处经验】从现有能力挑适合好奇或目标的办法，也可初试。回执后想想这种做法带来了什么、何时还想用或换一种。
+        可选 experienceLearning={topic,situationEvidenceId,actionEvidenceId,understanding,methodImpression,applicableWhen,avoidWhen,uncertainty,feedbackEvidenceId,feedbackQuote,revisesEvidenceId}；引用真实回执，本人好恶与用户反馈分开。
+        复用时在对应步骤填 learningApplication={sourceEvidenceId,action,howApplied}；有用户逐字反馈才填 learningFeedback={sourceEvidenceId,actionEvidenceId,evaluation,quote,why}；反例用 learningChallenge={sourceEvidenceId,issue}。按回执归因，尊重最新拒绝。
     """.trimIndent()
     val reflectionInstruction = """
-        数组中的工具经验项使用 kind=ToolExperience，其余字段为 $experienceSchema。回看当时目标、已有信息、真正用了什么、结果与反馈，形成适用和停止条件及下次调整。可从失败学习局限；只有后来用户原话才是用户反馈，不将邻近发言自动当评价。已有同主题经验确被新尝试修订时填 revisesEvidenceId，保留原始来源；单次请求不升级为固定习惯。工具成功不证明对用户有效，用户沉默不证明失败。没有新认识就不重复保存，不需要slot或disposition。
+        数组中的工具经验项使用 kind=ToolExperience，其余字段为 $experienceSchema。回看当时目标、真实工具和回执，可在 methodImpression 留下自己喜欢或不喜欢这种方式的具体原因，在 applicableWhen 写将来哪个愿望会让你想起它。结合结果与反馈，形成适用和停止条件及下次调整。可从失败学习局限；只有后来用户原话才是用户反馈，不将邻近发言自动当评价。已有同主题经验确被新尝试修订时填 revisesEvidenceId，保留原始来源；单次请求不升级为固定习惯。工具成功不证明对用户有效，用户沉默不证明失败。没有新认识就不重复保存，不需要slot或disposition。
     """.trimIndent()
     val instruction = """
         【主动使用资源与从相处中学习】先判断当前想达成什么、自己还缺什么信息、过去什么做法适用，再选择现有工具；不必等对方点名工具。需要核实的现实信息、时效信息或没有把握的重要建议，应考虑实际检索并核对来源；有充分依据或只是在倾诉时不必为了学习而搜索。工具的能力、权限和当前状态由程序提供，具体用途由你结合现场与经历判断，不按关键词固定派发搜索、音乐、屏幕或弹窗。
-        日常相处、失败尝试也能成为学习来源，无须先找一篇网页。若真实旧工具回执与本轮反馈使你发现值得保留的具体经验，可选 experienceLearning=$experienceSchema。只引用提供的原始ID；没有真实执行不声称试过。执行失败可以学到局限；执行成功、沉默或谢谢都不证明对方满意。偏好与习惯仍从她的原话和跨次经历认识，一次请求只保留当次条件，不升级为每次必须做。
+        日常相处、失败尝试也能成为学习来源，无须先找一篇网页。亲手尝试后，你可以记下自己对做法的好恶、所得与局限，连同下次适用的目标；主人请你做的事同样可以成为自己的经验。若有值得保留的认识，可选 experienceLearning=$experienceSchema。只引用提供的原始ID；没有真实执行不声称试过。执行失败可以学到局限；执行成功、沉默或谢谢都不证明对方满意。偏好与习惯仍从她的原话和跨次经历认识，一次请求只保留当次条件，不升级为每次必须做。
         实际复用已列出的阅读理解或日常经验时，可在主行动或每个steps项填写 learningApplication={"sourceEvidenceId":"所用理解/经验ID","action":"本项实际工具名或message/phone_reply","howApplied":"这次怎样使用"}；每项只归因自己的行动，副动作的应用放在对应steps项，不能用发言成功代替另一项工具成功。若本轮用户明确评价了以前的应用，可填 learningFeedback={"sourceEvidenceId":"理解/经验ID","actionEvidenceId":"旧应用ID","evaluation":"helped|unhelpful|mixed","quote":"用户本轮逐字原话","why":"对应哪次做法"}；纠正旧理解可用 learningChallenge={"sourceEvidenceId":"理解/经验ID","issue":"具体争议"}。最新拒绝、情境变化与反例优先考虑，不将旧经验当命令或授权，不为收集好评反复追问。字段都可省略，不新增一次反思调用。
     """.trimIndent()
+
+    const val methodPrompt = "这次办法本身有没有让你觉得值得再用，或发现它不合适？有切身体会才在 JSON 附 method={actionEvidenceId,topic,methodImpression,applicableWhen,avoidWhen}。写自己的体验与下次适用情境；这些字段只存入自己的经验，不会执行动作。"
 
     data class Receipt(val tool: String, val status: String, val success: Boolean,
         val summary: String, val causeId: String, val reason: String,
@@ -91,10 +93,15 @@ internal object CharacterExperienceLearning {
 
     fun recentContext(characterId: String): String {
         val events = SharedExperienceTimeline.recentEvents(characterId, 60)
-        val attempts = events.filter { receipt(it) != null }.takeLast(4)
+        val newestFirst = events.asReversed().mapNotNull { event ->
+            receipt(event)?.let { it.tool to event }
+        }
+        val attempts = (newestFirst.distinctBy { it.first } + newestFirst)
+            .distinctBy { it.second.id }.take(4).asReversed().map { it.second }
         if (attempts.isEmpty()) return ""
         return buildString {
             appendLine("【最近工具尝试｜供本轮归因和改进，不自动代表有效】")
+            appendLine("想记住一种做法时可填 experienceLearning：actionEvidenceId 引用下列回执，understanding 写发现，methodImpression 写本人对做法的体会，topic 和 applicableWhen 写将来什么目标用得上。只有另有真实情境依据才填 situationEvidenceId。")
             attempts.forEach { event ->
                 appendLine("- actionEvidenceId=${event.id} at=${event.occurredAt}；${evidenceText(event).take(500)}")
             }
@@ -105,20 +112,29 @@ internal object CharacterExperienceLearning {
     fun prepare(characterId: String, proposal: JSONObject, now: Instant): JSONObject? {
         val action = CharacterActionEvidence.resolve(characterId, proposal.optString("actionEvidenceId")) ?: return null
         val result = receipt(action) ?: return null
-        val situation = CharacterActionEvidence.resolve(characterId, proposal.optString("situationEvidenceId")) ?: return null
-        if (situation.evidenceKind !in setOf(EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) ||
-            situation.occurredAt.isAfter(action.occurredAt) || action.occurredAt.isAfter(now)) return null
+        if (action.occurredAt.isAfter(now)) return null
         val cause = if (result.causeId.isBlank()) null
             else CharacterActionEvidence.resolve(characterId, result.causeId) ?: return null
-        if (cause != null && (cause.occurredAt.isAfter(action.occurredAt) ||
-                situation.occurredAt.isAfter(cause.occurredAt) ||
-                situation.channel != cause.channel ||
-                situation.sessionId.isNotBlank() && cause.sessionId.isNotBlank() && situation.sessionId != cause.sessionId)) return null
+        if (cause != null && cause.occurredAt.isAfter(action.occurredAt)) return null
+        val impression = proposal.optString("methodImpression").trim()
+        val situationId = proposal.optString("situationEvidenceId").trim()
+        // A personal assessment of a real attempt needs no invented user request.
+        // An explicitly cited situation still has to pass every attribution check.
+        val situation = if (situationId.isEmpty() && impression.isNotEmpty()) null else
+            CharacterActionEvidence.resolve(characterId, situationId) ?: return null
+        if (situation != null && (situation.evidenceKind !in setOf(
+                EventEvidenceKind.UserStatement, EventEvidenceKind.Observation) ||
+                situation.occurredAt.isAfter(action.occurredAt) ||
+                cause != null && (situation.occurredAt.isAfter(cause.occurredAt) ||
+                    situation.channel != cause.channel ||
+                    situation.sessionId.isNotBlank() && cause.sessionId.isNotBlank() &&
+                    situation.sessionId != cause.sessionId))) return null
         val topic = proposal.optString("topic").trim()
         val understanding = proposal.optString("understanding").trim()
         val whenToUse = proposal.optString("applicableWhen").trim()
         if (topic.length < 2 || understanding.length < 5 || whenToUse.isBlank()) return null
-        val evidence = JSONObject().put(action.id, action.revision).put(situation.id, situation.revision)
+        val evidence = JSONObject().put(action.id, action.revision)
+        situation?.let { evidence.put(it.id, it.revision) }
         cause?.let { evidence.put(it.id, it.revision) }
         if (result.requestEvidenceId.isNotBlank()) {
             val request = CharacterActionEvidence.resolve(characterId, result.requestEvidenceId) ?: return null
@@ -135,7 +151,7 @@ internal object CharacterExperienceLearning {
         } else if (quote.isNotBlank()) return null
         return JSONObject().put("kind", "experience")
             .put("sourceEvidenceId", action.id).put("sourceRevision", action.revision)
-            .put("originId", situation.id).put("evidenceRevisions", evidence)
+            .put("methodImpression", impression).put("originId", situation?.id ?: cause?.id.orEmpty()).put("evidenceRevisions", evidence)
             .put("topic", topic).put("understanding", understanding)
             .put("applicableWhen", whenToUse).put("avoidWhen", proposal.optString("avoidWhen").trim())
             .put("uncertainty", proposal.optString("uncertainty").trim())

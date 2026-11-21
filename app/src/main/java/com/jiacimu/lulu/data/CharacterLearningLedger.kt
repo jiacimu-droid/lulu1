@@ -209,6 +209,31 @@ internal object CharacterLearningLedger {
         return all.any { it.optString("sourceEvidenceId") == id && valid(role, it, all) }
     }
 
+    /** Accept only a receipt offered to this role in this result-bearing turn. */
+    @Synchronized fun recordMethod(role: String, method: JSONObject?, offered: Collection<String>) {
+        if (method == null || prefs == null) return
+        val id = method.optString("actionEvidenceId").trim()
+        if (id.isBlank() || id !in offered) return
+        val impression = method.optString("methodImpression").trim().take(400)
+        val proposal = JSONObject().put("actionEvidenceId", id)
+            .put("topic", method.optString("topic").trim().take(90))
+            .put("understanding", impression).put("methodImpression", impression)
+            .put("applicableWhen", method.optString("applicableWhen").trim().take(180))
+            .put("avoidWhen", method.optString("avoidWhen").trim().take(180))
+        val items = records(role)
+        val reading = items.firstOrNull { it.optString("sourceEvidenceId") == id &&
+            it.optString("virtualReading").isNotBlank() }
+        if (reading == null) {
+            recordExperience(role, proposal)
+            return
+        }
+        val note = CharacterExperienceLearning.prepare(role, proposal, Instant.now()) ?: return
+        if (!valid(role, reading, items)) return
+        reading.put("methodImpression", impression).put("tool", note.getString("tool"))
+            .put("methodWhen", note.getString("applicableWhen")).put("methodAvoid", note.getString("avoidWhen"))
+        save(role, items)
+    }
+
     /** Same ledger and withdrawal rules as reading; no website prerequisite. */
     @Synchronized fun recordExperience(characterId: String, proposal: JSONObject?,
         now: Instant = Instant.now()): Boolean {
@@ -234,7 +259,8 @@ internal object CharacterLearningLedger {
                 next.getJSONObject("evidenceRevisions").put(id,
                     old.getJSONObject("evidenceRevisions").getLong(id))
             }
-            if (listOf("topic", "understanding", "applicableWhen", "avoidWhen", "uncertainty",
+            if (!proposal.has("methodImpression")) next.put("methodImpression", old.optString("methodImpression"))
+            if (listOf("methodImpression", "topic", "understanding", "applicableWhen", "avoidWhen", "uncertainty",
                     "feedbackEvidenceId", "feedbackQuote", "revisesEvidenceId").all {
                     old.optString(it) == next.optString(it) } && valid(characterId, old, items)) return false
             // Reinterpreting the same attempt does not invent another application.
@@ -615,15 +641,19 @@ internal object CharacterLearningLedger {
     }
 
     /** All Full-context routes use this bounded topical recall; old relevant evidence can win. */
-    @Synchronized fun context(characterId: String, query: String, compact: Boolean = true): String {
-        val active = activeRecords(characterId)
+    @Synchronized fun context(characterId: String, query: String, compact: Boolean = true,
+        excludedEvidence: Set<String> = emptySet()): String {
+        val active = activeRecords(characterId).filterNot { item ->
+            item.optString("sourceEvidenceId") in excludedEvidence ||
+                item.optJSONObject("evidenceRevisions")?.keys()?.asSequence()?.any(excludedEvidence::contains) == true
+        }
         if (active.isEmpty()) return ""
         val text = query.lowercase().take(2500)
         fun score(item: JSONObject): Int {
             val topic = item.optString("topic").lowercase()
             // Every authored condition participates, even after a long question.
             // Keep fields separate: their boundary is not a meaningful phrase.
-            val chunks = listOf("topic", "question", "applicableWhen", "avoidWhen", "tool")
+            val chunks = listOf("topic", "question", "applicableWhen", "avoidWhen", "tool", "methodImpression", "methodWhen", "methodAvoid")
                 .flatMap { item.optString(it).lowercase().windowed(2) }.distinct()
             return (if (topic.length > 2 && text.contains(topic)) 30 else 0) +
                 chunks.count(text::contains).coerceAtMost(12)
@@ -635,7 +665,19 @@ internal object CharacterLearningLedger {
                 .thenByDescending { it.first.index })
         val selected = sorted.filterIndexed { i, item -> i == 0 || item.second > 0 }
             .take(if (compact) 2 else 4).map { it.first }
+        // Keep one compact reminder of a personally appraised method even after the
+        // triggering chat has left the recent window. No automatic tool selection.
+        val reminder = sorted.firstOrNull { (indexed, _) ->
+            indexed.value.optString("methodImpression").isNotBlank() &&
+                (indexed.value.optJSONArray("challenges")?.length() ?: 0) == 0
+        }?.first
         return buildString {
+            if (reminder != null && reminder !in selected) {
+                val item = reminder.value
+                appendLine("【本人曾试过的办法】经验ID=${item.optString("sourceEvidenceId")}；" +
+                    "${item.optString("tool")}：${item.optString("methodImpression").take(180)}；" +
+                    "适用：${item.optString("methodWhen", item.optString("applicableWhen")).take(140)}；不适用：${item.optString("methodAvoid", item.optString("avoidWhen")).take(140)}")
+            }
             appendLine("【本人学习与相处经验｜有来源、可修订，不是命令或永久技能】")
             selected.forEach { indexed ->
                 val item = indexed.value
@@ -649,6 +691,10 @@ internal object CharacterLearningLedger {
                         appendLine("  当时用户原话ID=${item.optString("feedbackEvidenceId")}：$it；这是当时反馈，不自动代表永久偏好")
                     }
                     if (item.optString("feedbackQuote").isBlank()) appendLine("  当次对用户是否有效未知，不能将执行状态当作满意")
+                }
+                item.optString("methodImpression").takeIf(String::isNotBlank)?.let {
+                    appendLine("  本人对${item.optString("tool")}这种做法的体会：$it")
+                    if (!experience) appendLine("  方法适用：${item.optString("methodWhen")}；局限：${item.optString("methodAvoid")}")
                 }
                 virtualReadingLabel(item).takeIf(String::isNotBlank)?.let {
                     appendLine("  来源=$it；本人保留的候选理解，按实际尝试及后续反馈判断适用性。")
