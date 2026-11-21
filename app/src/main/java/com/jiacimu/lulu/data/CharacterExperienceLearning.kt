@@ -27,6 +27,8 @@ internal object CharacterExperienceLearning {
     """.trimIndent()
 
     val receiptSources = setOf("tool-router", "screen-consent", "cloud-service")
+    private val groupDeliveryTools = setOf("send_group_message", "send_group_sticker")
+    private val receiptMetadata = setOf("success", "status", "evidenceId", "requestId", "conversationId")
 
     private const val methodFields = "{actionEvidenceId,topic,methodImpression,applicableWhen,avoidWhen}"
     const val methodPrompt = "这次办法本身有没有让你觉得值得再用，或发现它不合适？有切身体会才在 JSON 附 method=$methodFields。写自己的体验与下次适用情境；这些字段只存入自己的经验，不会执行动作。"
@@ -101,13 +103,27 @@ internal object CharacterExperienceLearning {
             }.joinToString("，")
         }.orEmpty()
         val backing = if (!success) "" else result.optString("evidenceId").takeUnless { it == event.id }.orEmpty()
-        val scopedBacking = if (tool == "send_group_message" && backing.isNotBlank() && !backing.endsWith(":group:${event.characterId}"))
+        val scopedBacking = if (tool in groupDeliveryTools && backing.isNotBlank() && !backing.endsWith(":group:${event.characterId}"))
             "$backing:group:${event.characterId}" else backing
-        return Receipt(tool, status, success,
-            result.optString("summary").ifBlank { result.optString("error").ifBlank { result.optString("verification") } },
-            root.optString("causeEvidenceId"), root.optString("reason"),
+        val summary = result.optString("summary").ifBlank { result.optString("error") }
+            .ifBlank { result.optString("verification") }.ifBlank { describeReturnedFields(result) }
+        return Receipt(tool, status, success, summary, root.optString("causeEvidenceId"), root.optString("reason"),
             operation = operation, backingEvidenceId = scopedBacking,
             causeRevision = root.optLong("causeEvidenceRevision"))
+    }
+
+    /** Structured-only device reads still show what became observable. Keep
+     * private payloads such as notification text and raw coordinates out of
+     * the general prompt; the owning result-bearing scene receives full data. */
+    private fun describeReturnedFields(result: JSONObject): String {
+        val fields = result.keys().asSequence().filterNot { it in receiptMetadata || result.isNull(it) }
+            .take(10).toList()
+        val count = (result.opt("count") as? Number)?.toInt()
+        return listOfNotNull(
+            count?.let { "返回条数=$it" },
+            fields.filterNot { it == "count" }.takeIf { it.isNotEmpty() }
+                ?.joinToString("、", prefix = "返回字段："),
+        ).joinToString("；")
     }
 
     /** Keep entire episodes in the existing reflection working set, including failures.
@@ -155,7 +171,7 @@ internal object CharacterExperienceLearning {
                     attempt.causeRevision > 0 && causes[attempt.causeId]?.revision != attempt.causeRevision) ||
                 attempt.requestEvidenceId.isNotBlank() && attempt.requestEvidenceId !in required ||
                 attempt.backingEvidenceId in hidden || SharedExperienceTimeline.isDeletedEvent(attempt.backingEvidenceId) ||
-                attempt.tool == "send_group_message" && attempt.backingEvidenceId.isNotBlank() &&
+                attempt.tool in groupDeliveryTools && attempt.backingEvidenceId.isNotBlank() &&
                 attempt.backingEvidenceId !in required) null else event
         }
     }
@@ -256,8 +272,8 @@ internal object CharacterExperienceLearning {
                 SharedExperienceTimeline.foreignEvidenceIds(characterId, listOf(result.backingEvidenceId)).isNotEmpty())
                 return null
             val backing = CharacterActionEvidence.resolve(characterId, result.backingEvidenceId)
-            if (result.tool == "send_group_message" &&
-                backing != null && SharedExperienceTimeline.withoutRecalledGroupSpeech(listOf(backing)).isEmpty()) return null
+            if (result.tool in groupDeliveryTools &&
+                (backing == null || SharedExperienceTimeline.withoutRecalledGroupSpeech(listOf(backing)).isEmpty())) return null
             backing?.let { evidence.put(it.id, it.revision) }
         }
         val feedbackId = proposal.optString("feedbackEvidenceId")

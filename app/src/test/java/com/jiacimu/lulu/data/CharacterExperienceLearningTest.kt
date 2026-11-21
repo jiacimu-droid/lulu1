@@ -93,6 +93,21 @@ class CharacterExperienceLearningTest {
         assertEquals(expected, CharacterLearningLedger.listInsights(role).map { it.sourceEvidenceId }.toSet())
     }
 
+    @Test fun structuredOnlyResultsReachTheNextDecisionWithoutRepublishingPrivatePayloads() {
+        val result = JSONObject().put("success", true).put("count", 1)
+            .put("notifications", "这条具体通知不进入通用经验提示")
+        val body = JSONObject().put("tool", "read_recent_notifications")
+            .put("status", "succeeded").put("result", result)
+        SharedExperienceTimeline.record("notice-tool", role, "实际工具执行", "执行器", body.toString(),
+            now.plusSeconds(10), source = "tool-router", triggerExtraction = false,
+            evidenceKind = EventEvidenceKind.ToolResult)
+        val offered = CharacterExperienceLearning.pendingMethods(context, role, now.plusSeconds(60))
+        val prompt = CharacterExperienceLearning.reviewContext(offered)
+        assertTrue(prompt.contains("返回条数=1"))
+        assertTrue(prompt.contains("返回字段：notifications"))
+        assertFalse(prompt.contains("这条具体通知不进入通用经验提示"))
+    }
+
     @Test fun rareOldAttemptIsOfferedAfterUnrelatedConversationAndReviewPreservesPriorLearning() {
         val singing = tool("song", tool = "sing_song")
         tool("a-game", seconds = 11, tool = "play_solo_game")
