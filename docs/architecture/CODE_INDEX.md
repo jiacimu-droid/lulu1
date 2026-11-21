@@ -1256,7 +1256,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt` | 220 | 16 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallGatingTest.kt` | 59 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallIntegrationTest.kt` | 200 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt` | 97 | 2 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt` | 102 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemorySemanticConsolidationTest.kt` | 170 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemorySupersessionRequestPolicyTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryTestEnvironment.kt` | 30 | 1 |

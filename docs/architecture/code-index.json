@@ -2983,7 +2983,7 @@
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt",
-        "line": 48
+        "line": 53
       },
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/NarrativeMemoryRecallIntegrationTest.kt",
@@ -23697,7 +23697,7 @@
     "MemoryRecallLifecycleTest": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt",
-        "line": 19
+        "line": 20
       }
     ],
     "MemorySemanticConsolidationTest": [
@@ -51309,16 +51309,16 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt",
-      "lines": 97,
-      "sha256": "e5b927e51697918048eb8c7f15d16cde58908051c12cf40c3a6f162751197969",
+      "lines": 102,
+      "sha256": "0324c38c496391ab66b1fc5deb57b9bc10314e46f5483df5a8a28891163dcda1",
       "symbols": [
         {
           "name": "MemoryRecallLifecycleTest",
-          "line": 19
+          "line": 20
         },
         {
           "name": "record",
-          "line": 48
+          "line": 53
         }
       ]
     },
