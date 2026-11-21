@@ -677,7 +677,6 @@ class CompanionModelGateway(
             val imagesForThisTurn = imageDataUrls + listOfNotNull(ownerAvatar?.dataUrl)
             attemptedModel = connection.model
             requestUrl = if (isNativeClaude(connection.baseUrl)) "${claudeBase(connection.baseUrl)}/messages" else "${connection.baseUrl}/chat/completions"
-            val recallQuery = "$facts\n$instruction"
             val originalRequest = memoryRequest ?: UnifiedMemoryRequest.legacy(facts, instruction)
             // The autonomous gateway receives one already-assembled scene.
             // The recall subsystem otherwise sees only its shorter search query

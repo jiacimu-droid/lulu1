@@ -253,7 +253,7 @@ internal object CharacterLifeFollowThroughStore {
                 appendLine("- experienceId=${item.optString("id")}；[${item.optString("occurredAt")}] ${item.optString("fact").take(200)}")
                 item.optString("shareWhy").takeIf(String::isNotBlank)?.let { appendLine("  当时想分享的理由：${it}") }
             }
-            append("这是过去经历，不是现在又发生；不要为了说点自己的事打断对方，也不必等她主动问。")
+            append("这些事发生在记录所示的时间。哪件事现在还想讲，可以自己开个话题，也可以接着眼下的聊天自然说起。")
         }.trim()
     }
 

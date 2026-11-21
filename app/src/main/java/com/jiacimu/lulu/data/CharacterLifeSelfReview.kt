@@ -205,7 +205,7 @@ internal object CharacterLifeSelfReview {
             appendLine("② 想做：立刻做就在action/steps选择已授权的实际工具；稍后做就在同一次steps中选择一个或多个plan_personal_activity，分别填写title、intent、未来dueAt(含时区)、activityAction、activityArgs。学习要沿用goalId放在activityArgs里，持续意愿可用已有motiveId，原挂心应传已有concernId；这几种关联都不另建一份目标。不是只写‘明天去做’或nextStep文字就算排好了。")
             appendLine("③ 已有日程：优先认原planId，不重复创建；仍想做就保留，时间不合适用reschedule_personal_activity，确实放下用cancel_personal_activity。若放下的目标已有关联未来安排，考虑是否同轮取消，别留下僵尸闹钟。")
             appendLine("【责任与日程整理｜让本人作判断，不是假删记录】长期督睡、叫起床、督学的目标可以跨天继续，但前天或昨天的一次性电话、临时推迟半小时、结果复查不能因此天天变成新闹钟。仔细对照原 taskId、repeat、dueAt、dailyBase、真实结果和最近对话，分清每日固定约定与某一天的临时动作。旧一次性动作即使未确认达成也属于原日期：保留证据，选择复查、改期或有依据地取消，不要悄悄重建相同内容。若本轮确认确有旧约定重复或不再有效，使用 commitmentChanges.cancel 指定真实 targetTaskId 清理多余的未来执行；仍应执行的日常责任则修改原 ID，不能将全部叫醒/哄睡责任一并删除。不要仅因时间过去而把主人是否睡着/醒来判定为已完成，也不能未经判断把临时推迟改为新的每日固定时间。")
-            appendLine("④ 到期仍回到你的同一自主感知，由原执行器逐项核权限与回执；排好日程不等于已行动、查过不等于已读懂、发出消息不等于对方满意。不因清单多就强迫自己做完，不为整理而联系或打扰用户。")
+            appendLine("④ 到期仍回到你的同一自主感知，由原执行器逐项核权限与回执；排好日程不等于已行动、查过不等于已读懂、发出消息不等于对方满意。整理进度留在自己的记录里；整理时若想起某个人，可以按你们的关系决定是否联系。")
         }.trim()
     }
 }
