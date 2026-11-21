@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -35,6 +36,13 @@ internal fun StudyPomodoroScreen(
     var notice by remember { mutableStateOf("") }
     var noticeError by remember { mutableStateOf(false) }
     val previewScope = rememberCoroutineScope()
+    val soundContext = LocalContext.current
+    var audioPreviewFailed by remember { mutableStateOf(false) }
+    fun previewSound(cue: MicroRestCue) {
+        previewScope.launch {
+            audioPreviewFailed = !PomodoroMicroRestChime.play(soundContext, cue)
+        }
+    }
 
     val active = companion.activeSessionId.isNotBlank() && !companion.completionHandled
     val completed = companion.activeSessionId.isNotBlank() && companion.completionHandled
@@ -100,7 +108,8 @@ internal fun StudyPomodoroScreen(
             onToggleMicroRest = {
                 PomodoroCompanionSessions.store.updateMicroRestEnabled(!companion.microRestEnabled)
             },
-            onPreviewMicroRestChime = { previewScope.launch { PomodoroMicroRestChime.play() } },
+            onPreviewMicroRestChime = ::previewSound,
+            audioPreviewFailed = audioPreviewFailed,
             onBack = onBack,
             onToggleSkin = {
                 PomodoroCompanionSessions.store.updateSkin(
@@ -200,7 +209,7 @@ internal fun StudyPomodoroScreen(
                             ) {
                                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                     Text("10 秒微休息", fontWeight = FontWeight.SemiBold, color = StudyDesign.ink)
-                                    Text("随机每 3～5 分钟轻响一次，闭眼放空 10 秒",
+                                    Text("随机每 3～5 分钟响一次，10 秒结束再响一次",
                                         color = StudyDesign.muted, fontSize = 12.sp)
                                 }
                                 Switch(
@@ -208,9 +217,18 @@ internal fun StudyPomodoroScreen(
                                     onCheckedChange = { enabled -> PomodoroCompanionSessions.store.updateMicroRestEnabled(enabled) },
                                 )
                             }
-                            TextButton(onClick = { previewScope.launch { PomodoroMicroRestChime.play() } }) {
-                                Text("试听「滴滴」提醒音 · 跟随媒体音量", fontSize = 12.sp)
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                TextButton(onClick = { previewSound(MicroRestCue.Start) }) {
+                                    Text("试听开始声", fontSize = 12.sp)
+                                }
+                                TextButton(onClick = { previewSound(MicroRestCue.End) }) {
+                                    Text("试听结束声", fontSize = 12.sp)
+                                }
                             }
+                            if (audioPreviewFailed) Text(
+                                "无法播放：请检查媒体音量是否为 0、蓝牙输出或系统音频状态",
+                                color = StudyDesign.error, fontSize = 12.sp,
+                            )
                         }
                     }
                 }
@@ -281,7 +299,8 @@ private fun PomodoroFocusScreen(
     palette: PomodoroPalette,
     microRestEnabled: Boolean,
     onToggleMicroRest: () -> Unit,
-    onPreviewMicroRestChime: () -> Unit,
+    onPreviewMicroRestChime: (MicroRestCue) -> Unit,
+    audioPreviewFailed: Boolean,
     onBack: () -> Unit,
     onToggleSkin: () -> Unit,
     onPauseResume: () -> Unit,
@@ -365,8 +384,19 @@ private fun PomodoroFocusScreen(
                     fontSize = 12.sp,
                 )
             }
-            TextButton(onClick = onPreviewMicroRestChime, enabled = mode == PomodoroTimerMode.Countdown) {
-                Text("试听「滴滴」提醒音", color = palette.secondaryText, fontSize = 12.sp)
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                TextButton(onClick = { onPreviewMicroRestChime(MicroRestCue.Start) },
+                    enabled = mode == PomodoroTimerMode.Countdown) {
+                    Text("试听开始声", color = palette.secondaryText, fontSize = 12.sp)
+                }
+                TextButton(onClick = { onPreviewMicroRestChime(MicroRestCue.End) },
+                    enabled = mode == PomodoroTimerMode.Countdown) {
+                    Text("试听结束声", color = palette.secondaryText, fontSize = 12.sp)
+                }
+            }
+            if (audioPreviewFailed) {
+                Text("没有声音？检查媒体音量与蓝牙输出",
+                    color = palette.secondaryText, fontSize = 12.sp)
             }
             Spacer(Modifier.height(12.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
