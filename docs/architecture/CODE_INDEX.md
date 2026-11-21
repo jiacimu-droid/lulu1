@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`b3646b5ef8dc89b66749eb4fc661d08de5fc8ecd`
+- 基准提交：`db269ed`
 - 分支：`main`
 - 已索引文件：1508
-- 已索引代码/文本行：323406
+- 已索引代码/文本行：323408
 - 已发现符号：4584
 
 | 文件 | 行数 | 符号数 |
@@ -352,7 +352,7 @@
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 115 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt` | 48 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt` | 19 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1891 | 32 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1890 | 32 |
 | `app/src/main/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/GoogleKeyRotation.kt` | 57 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
@@ -1141,7 +1141,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExperienceLearningTest.kt` | 313 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExplorationContinuityTest.kt` | 695 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionContinuityTest.kt` | 78 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 655 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/CharacterExpressionGuideTest.kt` | 658 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGoalConvergenceTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryLedgerTest.kt` | 255 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/CharacterGrowthTrajectoryTest.kt` | 28 | 1 |

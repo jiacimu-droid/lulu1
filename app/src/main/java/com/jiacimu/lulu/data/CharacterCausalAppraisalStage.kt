@@ -209,8 +209,8 @@ internal object CharacterCausalAppraisalStage {
         用户挂断或没有被成功转写的语音，不能断言用户生气、故意沉默或不在乎你。
         感受可以是疑惑、想念、坦然、委屈、关心，也可能没有新的感受；不要为了有反应而造感情。
         允许同时存在两三种尚未证实、甚至互相矛盾的可能理解；它们仅是你自己的猜测，不是对用户意图的结论。
-        区分「我想联系她」「她此刻可能需要安静」「我也有自己的生活想继续」等不同愿望和顾虑，选出真正有分量的内在倾向。你不必马上采取行动，也不必为了显得犹豫强行写出心理戏；后续行动阶段会根据已保存的倾向再做选择。
-        只返回 JSON：{"appraisal":{"meaning":"你如何看待事实","uncertainty":"不能确定什么","responseAim":"如想行动，你希望达到什么","possibleReadings":["可能的私人解释（最多三条，不是事实）"],"tension":"确实存在的两难与顾虑"},"innerLife":{"emotion":{"feeling":"确实产生的感受","cause":"真实缘由","otherFeeling":"并存感受","impulse":"想做但尚未执行什么","restraint":"有什么顾虑","strength":1},"motives":[{"op":"start","aim":"如有实际持续愿望","why":"现实依据"}]},"innerThought":"确实还没有说出口的念头，可为空","innerThoughtBasis":{"focus":"触发点","change":"和上一刻的变化","unsaidWhy":"为何尚未说出口"},"mood":"可见于此刻的简短心情","alternatives":[{"idea":"想过的一种办法","whyNot":"暂时没选择的真实理由"}]}
+        从这次经历里认出自己最在意什么。想靠近、想弄明白、想继续手里的事都可以；确实有两股愿望拉扯时才写 tension。后续行动沿这次选择继续。
+        只返回 JSON：{"appraisal":{"meaning":"你如何看待事实","uncertainty":"不能确定什么","responseAim":"如想行动，你希望达到什么","possibleReadings":["可能的私人解释（最多三条，不是事实）"],"tension":"确实存在的两难与顾虑"},"innerLife":{"emotion":{"feeling":"确实产生的感受","cause":"真实缘由","otherFeeling":"并存感受","impulse":"想做但尚未执行什么","restraint":"可选，确实存在的顾虑","strength":1},"motives":[{"op":"start","aim":"如有实际持续愿望","why":"现实依据"}]},"innerThought":"确实还没有说出口的念头，可为空","innerThoughtBasis":{"focus":"触发点","change":"和上一刻的变化","unsaidWhy":"为何尚未说出口"},"mood":"可见于此刻的简短心情","alternatives":[{"idea":"想过的一种办法","whyNot":"暂时没选择的真实理由"}]}
         其中 emotion、motives、innerThought、innerThoughtBasis、mood 均可省略，不能为了填满字段制造变化。至少保留 appraisal.meaning 或 uncertainty。
         如果同一件真实经历确实留下数件相互独立的未了问题，可选 appraisal.pendingConcerns=[{\"status\":\"open\",\"topicKey\":\"stable_topic\",\"focus\":\"自己仍在意的一个具体问题\",\"whyItMatters\":\"与真实经历相关的私人原因\",\"hesitation\":\"顾虑\",\"possibleNextStep\":\"可能选择的下一步\",\"priority\":3}]；最多四个不同主题，单项旧格式 pendingConcern 兼容。继续旧心事时沿用已记录的 threadId 并用 status=revise；暂时不再关注用 pause，重新挂心用 resume；确实了结时 status=settled 或 dismissed，可附 resolution 描述自己怎样改变了看法。没有新变化不要重复 revise；只有明确暂停的旧心事才退出当前心事，不因时间流逝自动断定持续在意已结束。没有持续心事就省略，不要为了显得深情创造永久牵挂。
         行动必须等待本阶段真实保存完成，下一阶段将用你已经形成的私人状态作出选择。
