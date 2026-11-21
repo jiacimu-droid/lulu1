@@ -1395,7 +1395,7 @@ object ProactivePerceptionRuntime {
             // A small cap can be exhausted before the character makes any
             // visible decision, including on an online-window expiry wake.
             // This is a ceiling, not a target or an additional paid retry.
-            maxTokens = 16_384,
+            maxTokens = 60_000,
             connectionOverride = connection,
             // Let slow relays keep this single HTTP/SSE response open for the
             // full supported socket-idle budget (5 minutes). If a relay itself
