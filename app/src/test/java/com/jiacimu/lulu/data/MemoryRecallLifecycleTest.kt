@@ -39,6 +39,25 @@ class MemoryRecallLifecycleTest {
         assertEquals(1, MemoryRecallUsageStore.stats(role, "c").successfulInjections)
     }
 
+    @Test fun indexedDayLookupIncludesBothBoundariesAndIsolatesCharacters() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        SharedExperienceTimeline.initialize(context)
+        val role = "day-index-" + UUID.randomUUID()
+        val other = "other-index-" + UUID.randomUUID()
+        val start = Instant.parse("2026-11-20T00:00:00Z")
+        fun record(id: String, owner: String, at: Instant) {
+            SharedExperienceTimeline.record(id, owner, "私聊", "用户", "真实时间索引测试$id",
+                at, triggerExtraction = false, evidenceKind = EventEvidenceKind.UserStatement)
+        }
+        record("$role:at-start", role, start)
+        record("$role:midday", role, start.plus(12, ChronoUnit.HOURS))
+        record("$role:next-day", role, start.plus(1, ChronoUnit.DAYS))
+        record("$other:private", other, start.plus(5, ChronoUnit.HOURS))
+        assertEquals(listOf("$role:at-start", "$role:midday"),
+            SharedExperienceTimeline.eventsInRange(role, start, start.plus(1, ChronoUnit.DAYS))
+                .map(SharedTimelineEvent::id))
+    }
+
     @Test fun periodSummarySelectionDoesNotDropTheFirstHalfOfTheDay() {
         val start = Instant.parse("2026-11-19T16:00:00Z")
         val end = start.plus(1, ChronoUnit.DAYS)
