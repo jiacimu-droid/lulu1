@@ -18040,6 +18040,12 @@
         "line": 18
       }
     ],
+    "MicroRestCue": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
+        "line": 21
+      }
+    ],
     "PomodoroCompanionPreferences": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
@@ -43658,7 +43664,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/PomodoroCompanionSessions.kt",
       "lines": 498,
-      "sha256": "187ccd70a777772f1553f644e75fce38ef0dfa2a4bf3533b3bbddb0f35c9ec4a",
+      "sha256": "8b6e09faf180fe0faee8ddbe5f6001dbb87cf711df0e337495c608538f6f57e4",
       "symbols": [
         {
           "name": "PomodoroTimerMode",
@@ -43667,6 +43673,10 @@
         {
           "name": "PomodoroSkin",
           "line": 18
+        },
+        {
+          "name": "MicroRestCue",
+          "line": 21
         },
         {
           "name": "PomodoroCompanionPreferences",
