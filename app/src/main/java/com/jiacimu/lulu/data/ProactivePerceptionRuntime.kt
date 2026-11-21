@@ -1397,11 +1397,10 @@ object ProactivePerceptionRuntime {
             // This is a ceiling, not a target or an additional paid retry.
             maxTokens = 60_000,
             connectionOverride = connection,
-            // Let slow relays keep this single HTTP/SSE response open for the
-            // full supported socket-idle budget (5 minutes). If a relay itself
-            // closes or terminates its stream early, waiting longer cannot
-            // retrieve missing bytes and no potentially billed replay is made.
-            readTimeoutMillis = 300_000,
+            // Keep the single HTTP/SSE request open for a 10-minute socket-idle
+            // budget while the model reasons. An upstream EOF still ends it;
+            // an ambiguous billed response must not trigger a blind replay.
+            readTimeoutMillis = 600_000,
             streamResponse = true,
             conversation = privateDialogue,
             memoryRequest = UnifiedMemoryRequest(

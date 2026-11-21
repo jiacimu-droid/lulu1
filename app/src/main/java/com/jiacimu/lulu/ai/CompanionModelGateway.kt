@@ -1829,9 +1829,9 @@ internal fun shouldRetryWithoutStreaming(error: Throwable): Boolean {
 internal fun isDefinitelyRejectedModelRequest(error: Throwable): Boolean =
     isNonRetryableModelFailure(error)
 
-// Relays may finish billed non-streaming generations after 90s; do not abandon them prematurely.
-// This is a socket idle/read timeout, not an instruction to retry a possibly billed request.
-private const val DEFAULT_MODEL_READ_TIMEOUT_MILLIS = 240_000
+// Long-reasoning models and relays may deliver a billed response after several minutes.
+// This is a 10-minute socket-idle/read budget, not permission to retry a possibly billed request.
+internal const val DEFAULT_MODEL_READ_TIMEOUT_MILLIS = 600_000
 
 object LuluAiServices {
     private var connectionStoreInternal: ModelConnectionStore? = null
