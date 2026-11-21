@@ -128,6 +128,9 @@ internal fun MemoryEditorDialog(
     var strength by remember(memory.id) { mutableFloatStateOf(memory.strength.toFloat()) }
     var pinned by remember(memory.id) { mutableStateOf(memory.pinned || memory.tier == com.jiacimu.lulu.core.MemoryTier.Core) }
     var recall by remember(memory.id) { mutableStateOf(memory.canRecallProactively) }
+    val memoryUsage = remember(memory.characterId, memory.id) {
+        MemoryRecallUsageStore.stats(memory.characterId, memory.id)
+    }
     var occurredAtText by remember(memory.id) {
         mutableStateOf(memory.occurredAt?.atZone(ZoneId.systemDefault())?.format(MemoryInputFormatter).orEmpty())
     }
@@ -173,6 +176,12 @@ internal fun MemoryEditorDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
+                if (!isNew && memory.tier != com.jiacimu.lulu.core.MemoryTier.Core) {
+                    val lastUsed = memoryUsage.lastInjectedAt?.atZone(ZoneId.systemDefault())
+                        ?.format(MemoryDateTimeFormatter) ?: "尚无成功下发记录"
+                    Text("成功进入角色模型输入 ${memoryUsage.successfulInjections} 次 · 上次：$lastUsed",
+                        fontSize = 12.sp, color = FeatureBlueGray, lineHeight = 18.sp)
+                }
                 Text("记忆强度：${strength.toInt()}/10", fontWeight = FontWeight.SemiBold)
                 Slider(value = strength, onValueChange = { strength = it }, valueRange = 1f..10f, steps = 8)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
