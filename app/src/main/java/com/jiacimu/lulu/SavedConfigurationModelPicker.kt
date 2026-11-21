@@ -138,7 +138,7 @@ internal fun SavedConfigurationModelPicker(
             listExpanded = true
             notice = ""
             scope.launch {
-                LuluAiServices.gateway.fetchModels(selected.baseUrl, selected.apiKey)
+                LuluAiServices.gateway.fetchModels(selected)
                     .onSuccess {
                         models = it.distinct().sorted()
                         notice = "已获取 ${models.size} 个模型"

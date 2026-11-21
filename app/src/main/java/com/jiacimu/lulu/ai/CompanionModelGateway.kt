@@ -34,7 +34,18 @@ data class ApiConfiguration(
     val name: String,
     val baseUrl: String,
     val apiKey: String,
-)
+    val googleAdditionalKeys: List<String>? = null,
+    val googleRotationEnabled: Boolean = false,
+) {
+    internal val isGoogle: Boolean get() = googleAdditionalKeys != null ||
+        baseUrl.trimEnd('/').equals(GOOGLE_API_BASE_URL.trimEnd('/'), ignoreCase = true)
+
+    internal fun connection(model: String) = ModelConnection(
+        baseUrl, apiKey, model,
+        googleRotationId = id.takeIf { isGoogle && googleRotationEnabled },
+        googleAdditionalKeys = googleAdditionalKeys.orEmpty(),
+    )
+}
 
 /** A chat-ready pairing of one saved API site and one model. */
 data class ModelArchive(
@@ -101,6 +112,8 @@ data class ModelConnection(
     val baseUrl: String,
     val apiKey: String,
     val model: String,
+    internal val googleRotationId: String? = null,
+    internal val googleAdditionalKeys: List<String> = emptyList(),
 )
 
 data class ModelReply(
@@ -144,24 +157,32 @@ class ModelConnectionStore private constructor(context: Context) {
         name: String,
         baseUrl: String,
         apiKey: String,
+        googleAdditionalKeys: List<String>? = null,
+        googleRotationEnabled: Boolean = false,
     ): ApiConfiguration {
         val cleanName = name.trim()
         val cleanUrl = normalizeBaseUrl(baseUrl)
-        val cleanKey = apiKey.trim()
+        val keys = cleanGoogleKeys(listOf(apiKey) + googleAdditionalKeys.orEmpty())
+        val googleChannel = googleAdditionalKeys != null ||
+            cleanUrl.equals(GOOGLE_API_BASE_URL.trimEnd('/'), ignoreCase = true)
         require(cleanName.isNotBlank()) { "请填写配置名称" }
         require(cleanUrl.isNotBlank()) { "请填写 API 地址" }
-        require(cleanKey.isNotBlank()) { "请填写 API 密钥" }
+        require(keys.isNotEmpty()) { "请填写 API 密钥" }
 
         val current = mutable.value
         val resolvedId = id
             ?.takeIf { candidate -> current.configurations.any { it.id == candidate } }
-            ?: current.configurations.firstOrNull { it.name == cleanName }?.id
+            ?: current.configurations.firstOrNull {
+                it.name == cleanName && it.isGoogle == googleChannel
+            }?.id
             ?: UUID.randomUUID().toString()
         val saved = ApiConfiguration(
             id = resolvedId,
             name = cleanName,
             baseUrl = cleanUrl,
-            apiKey = cleanKey,
+            apiKey = keys.first(),
+            googleAdditionalKeys = googleAdditionalKeys?.let { keys.drop(1) },
+            googleRotationEnabled = googleAdditionalKeys != null && googleRotationEnabled,
         )
         val configurations = current.configurations
             .filterNot { it.id == resolvedId }
@@ -268,11 +289,7 @@ class ModelConnectionStore private constructor(context: Context) {
             ?: error("请先在设置中获取模型并加入存档")
         val configuration = state.configurations.firstOrNull { it.id == archive.configurationId }
             ?: error("这个模型存档对应的 API 配置已经不存在")
-        return ModelConnection(
-            baseUrl = configuration.baseUrl,
-            apiKey = configuration.apiKey,
-            model = archive.model,
-        )
+        return configuration.connection(archive.model)
     }
 
     fun archiveLabel(archive: ModelArchive): String {
@@ -328,7 +345,13 @@ class ModelConnectionStore private constructor(context: Context) {
                             .put("id", configuration.id)
                             .put("name", configuration.name)
                             .put("baseUrl", configuration.baseUrl)
-                            .put("apiKey", configuration.apiKey),
+                            .put("apiKey", configuration.apiKey)
+                            .apply {
+                                configuration.googleAdditionalKeys?.let { keys ->
+                                    put("googleAdditionalKeys", JSONArray(keys))
+                                    put("googleRotationEnabled", configuration.googleRotationEnabled)
+                                }
+                            },
                     )
                 }
             },
@@ -363,7 +386,12 @@ class ModelConnectionStore private constructor(context: Context) {
                 val baseUrl = normalizeBaseUrl(item.optString("baseUrl"))
                 val apiKey = item.optString("apiKey").trim()
                 if (name.isNotBlank() && baseUrl.isNotBlank() && apiKey.isNotBlank()) {
-                    add(ApiConfiguration(id, name, baseUrl, apiKey))
+                    val additionalKeys = item.optJSONArray("googleAdditionalKeys")?.let { keys ->
+                        cleanGoogleKeys((0 until keys.length()).mapNotNull { keys.opt(it) as? String })
+                            .filterNot { it == apiKey }
+                    }
+                    add(ApiConfiguration(id, name, baseUrl, apiKey, additionalKeys,
+                        additionalKeys != null && item.optBoolean("googleRotationEnabled")))
                 }
             }
         }
@@ -446,9 +474,8 @@ class CompanionModelGateway(
         runCatching {
             check(inputs.isNotEmpty()) { "Embedding 输入不能为空" }
             LuluRepositories.performance.recordModelHandoff("向量嵌入", connection.model)
-            val json = requestPostJson(
-                url = "${connection.baseUrl.trimEnd('/')}/embeddings",
-                headers = mapOf("Authorization" to "Bearer ${connection.apiKey}"),
+            val json = requestOpenAiJson(connection,
+                endpoint = "embeddings",
                 body = JSONObject().put("model", connection.model).put("input", JSONArray(inputs)),
             )
             val data = json.optJSONArray("data") ?: error("Embedding 接口没有返回 data")
@@ -468,9 +495,8 @@ class CompanionModelGateway(
         runCatching {
             check(documents.isNotEmpty()) { "Rerank 文档不能为空" }
             LuluRepositories.performance.recordModelHandoff("记忆重排", connection.model)
-            val json = requestPostJson(
-                url = "${connection.baseUrl.trimEnd('/')}/rerank",
-                headers = mapOf("Authorization" to "Bearer ${connection.apiKey}"),
+            val json = requestOpenAiJson(connection,
+                endpoint = "rerank",
                 body = JSONObject()
                     .put("model", connection.model)
                     .put("query", query)
@@ -488,20 +514,26 @@ class CompanionModelGateway(
         }
     }
 
-    suspend fun fetchModels(baseUrl: String, apiKey: String): Result<List<String>> = withContext(Dispatchers.IO) {
-        val cleanUrl = ModelConnectionStore.normalizeBaseUrl(baseUrl)
-        val cleanKey = apiKey.trim()
+    suspend fun fetchModels(baseUrl: String, apiKey: String): Result<List<String>> =
+        fetchModels(ApiConfiguration(name = "", baseUrl = baseUrl, apiKey = apiKey))
+
+    suspend fun fetchModels(configuration: ApiConfiguration): Result<List<String>> = withContext(Dispatchers.IO) {
+        val cleanUrl = ModelConnectionStore.normalizeBaseUrl(configuration.baseUrl)
+        val connection = configuration.connection("").copy(apiKey = configuration.apiKey.trim())
         val nativeClaude = isNativeClaude(cleanUrl)
         val requestUrl = if (nativeClaude) "${claudeBase(cleanUrl)}/models" else "$cleanUrl/models"
         val startedAt = System.nanoTime()
         runCatching {
             check(cleanUrl.isNotBlank()) { "请填写 API 地址" }
-            check(cleanKey.isNotBlank()) { "请填写 API 密钥" }
-            val json = requestGetJson(
-                url = requestUrl,
-                headers = if (nativeClaude) mapOf("x-api-key" to cleanKey, "anthropic-version" to "2023-06-01")
-                    else mapOf("Authorization" to "Bearer $cleanKey"),
-            )
+            check(connection.apiKey.isNotBlank()) { "请填写 API 密钥" }
+            val json = withModelKey(connection) { key ->
+                requestGetJson(
+                    url = requestUrl,
+                    headers = if (nativeClaude) mapOf("x-api-key" to key, "anthropic-version" to "2023-06-01")
+                        else bearerHeader(key),
+                    followRedirects = !configuration.isGoogle,
+                )
+            }
             val arrays = listOfNotNull(json.optJSONArray("data"), json.optJSONArray("models"))
             val models = buildList {
                 arrays.forEach { array ->
@@ -519,6 +551,7 @@ class CompanionModelGateway(
             check(models.isNotEmpty()) { "接口连接成功，但没有读取到模型列表" }
             models
         }.onFailure { error ->
+            if (error is CancellationException) throw error
             LuluRepositories.performance.recordError(
                 source = "设置",
                 title = "获取模型",
@@ -1358,46 +1391,57 @@ class CompanionModelGateway(
             )
         if (maxTokens != null) body.put("max_tokens", maxTokens)
         val url = "${connection.baseUrl}/chat/completions"
-        val headers = mapOf("Authorization" to "Bearer ${connection.apiKey}")
         if (streamResponse) {
             body.put("stream", true)
             GeminiUsageRequestPolicy.addStreamingUsageWhenSupported(connection.baseUrl, body)
-            onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
-            try {
-                return requestPostStreamingReply(
-                    url = url,
-                    headers = headers,
-                    body = body,
-                    readTimeoutMillis = readTimeoutMillis,
-                    onStreamText = onStreamText,
-                    onTiming = onRequestTiming,
-                )
-            } catch (error: ModelHttpException) {
-                // A few OpenAI-compatible relays reject the stream flag even though their normal
-                // chat endpoint works. Only retry those immediate protocol rejections; never turn a
-                // timeout, rate limit or server failure into a second expensive generation.
-                // Only an explicit stream-option incompatibility can justify
-                // resending without stream. Provider content rejection is NOT
-                // a protocol negotiation failure; repeating it just bills again.
-                if (!shouldRetryWithoutStreaming(error)) throw error
-                // The fallback is a second physical POST: reserve its own allowance
-                // before sending, even when the first request was already claimed.
-                onAdditionalHttpAttempt?.invoke()
-                LuluRepositories.performance.recordModelHandoff("流式协议回退", connection.model)
-                body.remove("stream")
-                body.remove("stream_options")
-                onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
-            }
         }
-        if (!streamResponse) onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
-        val json = requestPostJson(
-            url = url,
-            headers = headers,
-            body = body,
-            readTimeoutMillis = readTimeoutMillis,
-            onTiming = onRequestTiming,
-        )
-        return modelReplyFromJson(json).also { reply -> onStreamText?.invoke(reply.text) }
+        return withModelKey(connection, onAdditionalHttpAttempt) { key ->
+            onRequestBodyBytes?.invoke(body.toString().toByteArray(Charsets.UTF_8).size.toLong())
+            val headers = bearerHeader(key)
+            val jsonBody = if (streamResponse) {
+                try {
+                    return@withModelKey requestPostStreamingReply(
+                        url, headers, body, readTimeoutMillis, onStreamText, onRequestTiming,
+                    )
+                } catch (error: ModelHttpException) {
+                    // Only an explicit stream-option rejection warrants a plain JSON retry.
+                    if (!shouldRetryWithoutStreaming(error)) throw error
+                    onAdditionalHttpAttempt?.invoke()
+                    LuluRepositories.performance.recordModelHandoff("流式协议回退", connection.model)
+                    JSONObject(body.toString()).apply {
+                        remove("stream")
+                        remove("stream_options")
+                        onRequestBodyBytes?.invoke(toString().toByteArray(Charsets.UTF_8).size.toLong())
+                    }
+                }
+            } else body
+            val json = requestPostJson(url, headers, jsonBody, readTimeoutMillis, onRequestTiming)
+            modelReplyFromJson(json).also { reply -> onStreamText?.invoke(reply.text) }
+        }
+    }
+
+    private fun bearerHeader(key: String) = mapOf("Authorization" to "Bearer $key")
+
+    private suspend fun <T> withModelKey(
+        connection: ModelConnection,
+        onAdditionalHttpAttempt: (() -> Unit)? = null,
+        send: suspend (String) -> T,
+    ): T = GoogleKeyRotation.request(
+        connection.googleRotationId, connection.apiKey, connection.googleAdditionalKeys,
+        beforeRetry = {
+            onAdditionalHttpAttempt?.invoke()
+            LuluRepositories.performance.recordModelHandoff("Google Key 轮询重试", connection.model)
+        },
+        send = send,
+    )
+
+    internal suspend fun requestOpenAiJson(
+        connection: ModelConnection,
+        endpoint: String,
+        body: JSONObject,
+        readTimeoutMillis: Int = DEFAULT_MODEL_READ_TIMEOUT_MILLIS,
+    ): JSONObject = withModelKey(connection) { key ->
+        requestPostJson("${connection.baseUrl.trimEnd('/')}/$endpoint", bearerHeader(key), body, readTimeoutMillis)
     }
 
     private fun modelReplyFromJson(json: JSONObject): ModelReply {
@@ -1447,10 +1491,13 @@ class CompanionModelGateway(
 
     private fun modelTextValue(value: Any?): String = visibleModelText(value)
 
-    private fun requestGetJson(url: String, headers: Map<String, String>): JSONObject {
+    private fun requestGetJson(
+        url: String, headers: Map<String, String>, followRedirects: Boolean,
+    ): JSONObject {
         val connection = URL(url).openConnection() as HttpURLConnection
         return try {
             connection.requestMethod = "GET"
+            if (!followRedirects) connection.instanceFollowRedirects = false
             connection.connectTimeout = 30_000
             connection.readTimeout = 60_000
             connection.setRequestProperty("Accept", "application/json")
@@ -1736,7 +1783,12 @@ class CompanionModelGateway(
             .takeIf { it.length <= 50 && it.matches(Regex("[A-Za-z0-9_]+")) }.orEmpty()
         val codeNote = providerCode.takeIf { it.isNotBlank() && !message.contains(it, true) }
             ?.let { "；providerCode=$it" }.orEmpty()
-        return ModelHttpException(status, "模型请求失败（$status）：$message$codeNote", providerCode)
+        val details = providerError?.optJSONArray("details")
+        val providerReason = (0 until (details?.length() ?: 0)).firstNotNullOfOrNull { index ->
+            details?.optJSONObject(index)?.takeIf { it.optString("@type") == "type.googleapis.com/google.rpc.ErrorInfo" }
+                ?.optString("reason")?.takeIf(String::isNotBlank)
+        }.orEmpty()
+        return ModelHttpException(status, "模型请求失败（$status）：$message$codeNote", providerCode, providerReason)
     }
 }
 
@@ -1751,17 +1803,12 @@ private fun estimateTokens(chars: Int): Int = ((chars / 1.8f) + 0.5f).toInt().co
 private fun elapsedMillis(startedAtNanos: Long): Long =
     ((System.nanoTime() - startedAtNanos) / 1_000_000L).coerceAtLeast(0L)
 
-internal class ModelHttpException(
-    val status: Int,
-    message: String,
-    val providerCode: String = "",
-) : IllegalStateException(message)
-
 /** A content/parameter/auth rejection is terminal for the identical payload.
  * Reconsider only after the context, permissions or model settings change.
  * Never classify a provider timeout or an ambiguous 5xx as safe to replay. */
 internal fun isNonRetryableModelFailure(error: Throwable): Boolean =
-    error is ModelHttpException && error.status in setOf(400, 401, 402, 403, 404, 413, 422)
+    error is ModelHttpException &&
+        (error.keyRotationExhausted || error.status in setOf(400, 401, 402, 403, 404, 413, 422))
 
 /** A very narrow, provider-stated protocol negotiation case. A bare 400/422
  * or `prohibited_content` does not permit a second request for the same input. */
