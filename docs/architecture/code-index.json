@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-21T04:30:04.988462+00:00",
-  "commit": "cae6de51fb151e1595290fc717e9eb733a913b26",
+  "generatedAt": "2026-11-21T04:32:02.901096+00:00",
+  "commit": "1b0d23eacfec61eff407ca03861cfad01a72871a",
   "branch": "main",
-  "sourceFingerprint": "68d3ff9caaf816f340538595f88e9e2d4062e9bf93055d728d85a29287b89005",
+  "sourceFingerprint": "6af48daa66fb575e7c83111d5f1eaf47a0cefeb23d60e2ccfc97beec19fa83bf",
   "summary": {
     "files": 1507,
-    "lines": 323187,
+    "lines": 323200,
     "symbols": 4580
   },
   "symbolIndex": {
@@ -6701,13 +6701,13 @@
     "stages": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
-        "line": 48
+        "line": 54
       }
     ],
     "snapshot": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
-        "line": 105
+        "line": 111
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterContinuityRuntime.kt",
@@ -6773,7 +6773,7 @@
     "between": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
-        "line": 107
+        "line": 113
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluMikaInterfaceUpdate.kt",
@@ -13619,13 +13619,13 @@
     "awaitsReadReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3210
+        "line": 3209
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3970
+        "line": 3969
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -30726,7 +30726,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
       "lines": 1853,
-      "sha256": "2d573be3e781ec0a9095fdf063ae751b8ca07afa966489c5163361aeb1ffdb74",
+      "sha256": "87fdea1320b0ab7bb6899d977db976a2c88c130c615da5488edcdd511ddaf702",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -30934,20 +30934,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/ModelPostTransport.kt",
-      "lines": 263,
-      "sha256": "9cd74115060d91966876a7c739d807d058c3345a6264daeb7589e7b2c2117ab1",
+      "lines": 269,
+      "sha256": "e9b3153a6f2f6c42395e0fec59edaafe412af21d613a6fd572bfe37431c65d9a",
       "symbols": [
         {
           "name": "stages",
-          "line": 48
+          "line": 54
         },
         {
           "name": "snapshot",
-          "line": 105
+          "line": 111
         },
         {
           "name": "between",
-          "line": 107
+          "line": 113
         }
       ]
     },
@@ -37835,8 +37835,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 4037,
-      "sha256": "063d20a76375c335966304a9732dac3335eaf919a19360f1a24570be2105c124",
+      "lines": 4036,
+      "sha256": "22eabe101956b1e852f089b570796f852502f58dc04d4633397b14574ba4b4c2",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -37868,11 +37868,11 @@
         },
         {
           "name": "awaitsReadReply",
-          "line": 3210
+          "line": 3209
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3970
+          "line": 3969
         }
       ]
     },
@@ -48186,8 +48186,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt",
-      "lines": 284,
-      "sha256": "21f52b5b1ce4acec3800f3094ad76117fbc87d1da61963e48ad182c493b8b048",
+      "lines": 292,
+      "sha256": "9e866af18a1306faf4e3014c5cd8d916aa61a4ccfc77b44bd03983764c08cfc9",
       "symbols": [
         {
           "name": "ModelPostTransportTest",
