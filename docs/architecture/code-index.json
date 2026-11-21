@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-21T12:08:27.504345+00:00",
-  "commit": "f015ccf004cff3757f52d191456f92ee98912474",
+  "generatedAt": "2026-11-21T12:08:52.612368+00:00",
+  "commit": "d637b57566a7b2a6a9a0ebe700b7b8f66c252b60",
   "branch": "main",
-  "sourceFingerprint": "3d3964120c63a92b3baefa2e6e44f3653d34450f69a7517f78402c096db94c1c",
+  "sourceFingerprint": "0e079f66933fbf381ac7649681eb4b6b59c575c61f5fdcae1859238e2c5f7f8f",
   "summary": {
     "files": 1510,
-    "lines": 324319,
+    "lines": 324323,
     "symbols": 4602
   },
   "symbolIndex": {
@@ -6783,7 +6783,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt",
-        "line": 29
+        "line": 33
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldSceneParticipantProfile.kt",
@@ -8235,7 +8235,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt",
-        "line": 90
+        "line": 94
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RoleDayScheduleStore.kt",
@@ -12721,7 +12721,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt",
-        "line": 96
+        "line": 100
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
@@ -12819,13 +12819,13 @@
     "stats": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt",
-        "line": 48
+        "line": 52
       }
     ],
     "recordSuccessfulInjection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt",
-        "line": 65
+        "line": 69
       }
     ],
     "liveEvents": [
@@ -37040,8 +37040,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt",
-      "lines": 105,
-      "sha256": "8230e019e97d806ba1302bbd2ea856ead0560849b52175d4bc092eeaf93a5f33",
+      "lines": 109,
+      "sha256": "e92d7b9905c8cf90a0fe14432e16824fa27622533958790b811c581b073bd61a",
       "symbols": [
         {
           "name": "initialize",
@@ -37049,23 +37049,23 @@
         },
         {
           "name": "snapshot",
-          "line": 29
+          "line": 33
         },
         {
           "name": "stats",
-          "line": 48
+          "line": 52
         },
         {
           "name": "recordSuccessfulInjection",
-          "line": 65
+          "line": 69
         },
         {
           "name": "clearCharacter",
-          "line": 90
+          "line": 94
         },
         {
           "name": "removeMemory",
-          "line": 96
+          "line": 100
         }
       ]
     },
