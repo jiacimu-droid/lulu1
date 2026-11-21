@@ -1032,6 +1032,9 @@ object ProactivePerceptionRuntime {
             digital = digital,
             location = currentLocation,
             books = readingBooks.map { AutonomousAffordanceContext.Book(it.id, it.title) },
+            friends = if (digital) ResidentSocialMailbox.visibleContacts(characterId)
+                .filter { MomentFriendAccess.areFriends(characterId, it) }.take(5)
+                .map { it to MigratedDomainStores.characters.get(it).displayName } else emptyList(),
             groups = availableGroups.map { it.id to it.groupChat?.name.orEmpty() },
             recentSoloGames = recentSoloGames,
             recentSoloPlayRhythm = recentSoloPlayRhythm,

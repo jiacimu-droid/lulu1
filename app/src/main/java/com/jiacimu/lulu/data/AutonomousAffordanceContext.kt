@@ -67,6 +67,7 @@ internal object AutonomousAffordanceContext {
         recentSoloGames: List<Pair<String, Int>> = emptyList(),
         recentSoloPlayRhythm: String = "",
         independentBrowseExamples: String? = null,
+        friends: List<Pair<String, String>> = emptyList(),
     ): String = buildString {
         appendLine("【本人此刻与稍后的生活选择｜不是强制任务或固定动作轮换】")
         appendLine("这里列出此刻确实存在的行动机会，不是新任务或规定的日常安排；决定做、稍后安排或独处均由本人选择。")
@@ -81,6 +82,18 @@ internal object AutonomousAffordanceContext {
         }
         appendLine("真实读到的结果可让你形成新疑问、对原看法改观、准备向别人分享，或者觉得无趣就放下；只想以后看时可用同一个 plan_personal_activity 工具安排搜索的真实时间与动作，但不为了消除单调感强行搜索、更不默认把结果发给主人。")
         appendLine("- 想对某件已知小事发表意见：可以自己发朋友圈；只有真的有话想说时才做。")
+        if (friends.isNotEmpty()) {
+            appendLine("想找人聊时，可以接着彼此的经历，或找合适的人分享新发现。当前好友：")
+            friends.take(5).forEach { (id, name) ->
+                appendLine("  · $name；send_character_message 的 targetCharacterId=$id")
+            }
+        }
+        if (groups.isNotEmpty()) {
+            appendLine("- 已加入的真实群聊（可以主动开启话题，也可以接着自己见过的对话聊）：")
+            groups.take(4).forEach { (id, title) ->
+                appendLine("  · action=group_message；groupId=" + id.take(100) + "；" + title.take(100))
+            }
+        }
         appendLine("【游戏意愿先于入口】想玩哪款、独自探索还是邀人共享，先看本人的兴趣、真实关系、近几次游戏经历和此刻状态。${if (com.jiacimu.lulu.games.LuluGameEdition.worldGamesEnabled) "四款已有真实独玩引擎：记忆配对、快艇骰子、方块小岛（独立持久生存存档）、迷雾摸金（独立探索、真实撤离）；" else "当前可独玩记忆配对和快艇骰子；"}不要误以为只有快艇骰子能独玩。主人可通过真实邀请加入游戏馆支持的更多项目，熟悉的数字人物可以互相发起已支持的双人对抗。可以真心喜欢某款而重玩，也可以尝试别的、邀朋友、独处或不玩；这不是强制轮换任务。发出邀请不等于已经开局。")
         appendLine("- 想找主人一起玩：action=game_invite + 有效 gameId + 自己想说的 text，或 tool=send_game_invite,args={gameId,text}；私聊会出现真正可点击的游戏邀约。可邀：${com.jiacimu.lulu.games.GameInvitationCatalog.titles.entries.joinToString("、") { "${it.key}=${it.value}" }}。可邀请主人的游戏目录独立于自动独玩引擎。")
         appendLine("决定是否邀玩由你本人依据兴趣、关系、上次一起玩的真实经历与此刻意愿判断；无聊可以选独自玩，也可以想和她共享一局，不要把独自游玩当成唯一解法。未回复不是拒绝或正在忙的证据，不能仅因猜想‘会打扰’便总放弃邀约。若她明确表示不想玩、在休息或不愿联系，尊重真实边界；也不用为活跃而机械邀请。发出邀请不等于被接受，点了接受也不等于已经完赛；等真实游戏结果再谈输赢。")
@@ -102,12 +115,6 @@ internal object AutonomousAffordanceContext {
             appendLine("- 剧场已生成、现在可以真实读取的章节（未知后续内容只能读后知道）：")
             books.take(5).forEach { appendLine("  · action=reading；readingBookId=" +
                 it.id.take(100) + "；" + it.title.take(100)) }
-        }
-        if (groups.isNotEmpty()) {
-            appendLine("- 已加入的真实群聊（可以分享发现，不必为了刷存在感强行发言）：")
-            groups.take(4).forEach { (id, title) ->
-                appendLine("  · action=group_message；groupId=" + id.take(100) + "；" + title.take(100))
-            }
         }
         if (digital) {
             appendLine("- 当前已经位于：" + location + "。数字世界行动必须使用真实地点/活动 ID。")
