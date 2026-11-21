@@ -32273,7 +32273,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterDecisionProtocol.kt",
       "lines": 210,
-      "sha256": "1d76d481373f163e8376f6e01bb34eac871db0f3609ed797802646b5907d3848",
+      "sha256": "bec2bd4bc9a810847b3fedd9cff47654008a01244960d24ed885501fbd0184f4",
       "symbols": [
         {
           "name": "hasAuthoredMomentaryIdea",
@@ -32603,7 +32603,7 @@
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExpressionGuide.kt",
       "lines": 97,
-      "sha256": "53df833465117e548eeb20e9a34b4ab3f7464283075f380bac663862177a72b3",
+      "sha256": "4cb8387c600ccfd30742e7673720b73289b1bb0bf719c9d0572b2493ee6c4fd7",
       "symbols": [
         {
           "name": "isExpressionOnly",
