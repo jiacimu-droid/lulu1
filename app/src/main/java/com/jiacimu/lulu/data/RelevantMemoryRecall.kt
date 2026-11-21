@@ -158,11 +158,16 @@ object RelevantMemoryRecall {
         // Recency is not an independent excuse to inject unrelated memories. It participates only
         // when the user is explicitly referring to recent time, in which case date proximity itself
         // is semantic evidence.
-        val recentRanked = if (range != null || recentCue) memories
-            .filter { range != null || Duration.between(it.occurredAt ?: it.createdAt, now) <= Duration.ofDays(3) }
-            .sortedWith(compareByDescending<MemoryEntry> { lexicalScores[it.id] ?: 0.0 }
-                .thenByDescending { it.occurredAt ?: it.createdAt })
-            .take(RECENT_CANDIDATES) else emptyList()
+        val recentRanked = if (range != null || recentCue) {
+            val relevantPeriod = memories
+                .filter { range != null || Duration.between(it.occurredAt ?: it.createdAt, now) <= Duration.ofDays(3) }
+                .sortedWith(compareByDescending<MemoryEntry> { lexicalScores[it.id] ?: 0.0 }
+                    .thenByDescending { it.occurredAt ?: it.createdAt })
+            if (range != null && isMemoryPeriodOverview(cleanQuery)) memoryTemporalCoverage(
+                relevantPeriod, range, RECENT_CANDIDATES, { it.occurredAt ?: it.createdAt },
+                MemoryEntry::id,
+            ) else relevantPeriod.take(RECENT_CANDIDATES)
+        } else emptyList()
 
         var candidates = fuseRankings(
             memories = memories,

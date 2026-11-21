@@ -95,6 +95,31 @@ internal fun memoryTimeRange(
 internal fun Pair<Instant, Instant>.includes(moment: Instant): Boolean =
     moment >= first && moment < second
 
+/** A broad historical question needs the entire requested period, not only its tail. */
+internal fun isMemoryPeriodOverview(query: String): Boolean =
+    Regex("做了?什么|聊了?什么|聊过什么|发生了?什么|有什么事|干了?什么|记得吗|还记得")
+        .containsMatchIn(memoryTemporalQuery(query))
+
+/** One deterministic time index projection, shared by summary and original-evidence retrieval. */
+internal fun <T> memoryTemporalCoverage(
+    ranked: List<T>, range: Pair<Instant, Instant>, limit: Int,
+    occurredAt: (T) -> Instant, id: (T) -> String,
+    anchorPriority: (T) -> Int = { 0 },
+): List<T> {
+    if (limit <= 0 || ranked.isEmpty()) return emptyList()
+    if (ranked.size <= limit) return ranked.sortedBy(occurredAt)
+    val slices = minOf(limit, 6).coerceAtLeast(1)
+    val minutes = Duration.between(range.first, range.second).toMinutes().coerceAtLeast(1)
+    val groups = ranked.groupBy { item ->
+        val offset = Duration.between(range.first, occurredAt(item)).toMinutes().coerceIn(0, minutes - 1)
+        ((offset * slices) / minutes).toInt().coerceIn(0, slices - 1)
+    }
+    // Every nonempty time slice retains at least one real source before spare
+    // places are filled by relevance. Time never licenses a fabricated event.
+    val anchors = groups.toSortedMap().values.mapNotNull { slice -> slice.maxByOrNull(anchorPriority) }
+    return (anchors + ranked).distinctBy(id).take(limit).sortedBy(occurredAt)
+}
+
 /** Literal and synonymous search hints. The role interprets the returned words in context. */
 internal class MemoryAffectCue private constructor(
     private val synonyms: Set<String>,
@@ -207,26 +232,13 @@ internal object RawTimelineMemoryRecall {
             .take(if (allForOverview) Int.MAX_VALUE else limit.coerceAtMost(64))
             .map { it.first }.toList()
         val hits = ranked(range, allForOverview = dateOverview)
-        if (dateOverview && range != null) {
-            // "What happened yesterday?" must cover the whole requested
-            // period, not only the last 16 evening messages. Choose evidence
-            // from separate time slices and keep original chronological order.
-            if (hits.size <= limit) return hits.sortedBy(SharedTimelineEvent::occurredAt)
-            val buckets = minOf(limit, 6).coerceAtLeast(1)
-            val minutes = Duration.between(range.first, range.second).toMinutes().coerceAtLeast(1)
-            val bySlice = hits.groupBy { event ->
-                val offset = Duration.between(range.first, event.occurredAt)
-                    .toMinutes().coerceIn(0, minutes - 1)
-                ((offset * buckets) / minutes).toInt().coerceIn(0, buckets - 1)
-            }
-            val anchors = bySlice.toSortedMap().values.map { slice ->
-                slice.firstOrNull { it.evidenceKind == EventEvidenceKind.UserStatement }
-                    ?: slice.firstOrNull { it.evidenceKind == EventEvidenceKind.ToolResult }
-                    ?: slice.first()
-            }
-            return (anchors + hits).distinctBy(SharedTimelineEvent::id)
-                .take(limit).sortedBy(SharedTimelineEvent::occurredAt)
-        }
+        if (dateOverview && range != null) return memoryTemporalCoverage(
+            hits, range, limit, SharedTimelineEvent::occurredAt, SharedTimelineEvent::id,
+        ) { event -> when (event.evidenceKind) {
+            EventEvidenceKind.UserStatement -> 2
+            EventEvidenceKind.ToolResult -> 1
+            else -> 0
+        } }
         // Historical clocks are often approximate. Try the immediate
         // neighborhood only when a minute-specific search finds nothing.
         return if (hits.isEmpty() && range != null && Duration.between(range.first, range.second).toMinutes() == 1L)
