@@ -22,7 +22,7 @@ internal object CoreMemoryDelivery {
                 // Core memories previously carried no time at all, so the
                 // model could not tell a years-old fact from a fresh one.
                 val at = java.time.format.DateTimeFormatter.ofPattern("M月d日 H:mm")
-                    .format((it.occurredAt ?: it.createdAt).atZone(java.time.ZoneId.of("Asia/Shanghai")))
+                    .format((it.occurredAt ?: it.createdAt).atZone(java.time.ZoneId.systemDefault()))
                 appendLine("- （$at）${it.content.trim().replace("\n", " ")}")
             }
         }.trim()
