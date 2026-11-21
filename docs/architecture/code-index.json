@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-20T05:01:57.876118+00:00",
-  "commit": "8106f3234eaca00afb552a1c15a4d69882ca3e67",
+  "generatedAt": "2026-11-21T07:10:02.695699+00:00",
+  "commit": "b01e7b9",
   "branch": "game",
-  "sourceFingerprint": "9a0b405d256143bc0bb17941cc555f38f44f9adc3e313410f214e4147a6b4ba3",
+  "sourceFingerprint": "59adb3123a33334d29585c81914f1b1719c45e65923684c3412b3b318b304116",
   "summary": {
-    "files": 1510,
-    "lines": 323809,
-    "symbols": 4609
+    "files": 1520,
+    "lines": 326562,
+    "symbols": 4635
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -15408,6 +15408,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/design/LuluCssPaint.kt",
         "line": 188
+      },
+      {
+        "path": "preview/arcade/browser/Json.kt",
+        "line": 58
       }
     ],
     "dimension": [
@@ -25686,12 +25690,6 @@
       {
         "path": "preview/arcade/browser/Json.kt",
         "line": 54
-      }
-    ],
-    "length": [
-      {
-        "path": "preview/arcade/browser/Json.kt",
-        "line": 58
       }
     ],
     "Mesh": [
@@ -41539,8 +41537,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/IslandActorPlay.kt",
-      "lines": 384,
-      "sha256": "61319095646d3bd3b70b35ea2ca5ac754691a553f050faac27599f2cc7ba03fb",
+      "lines": 380,
+      "sha256": "e46a9201314e75e50b3e0b521f053b02e59deb5324dc36d23fd2221e965f24f1",
       "symbols": [
         {
           "name": "eventPrefix",
@@ -42280,8 +42278,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/LuluGamesApp.kt",
-      "lines": 952,
-      "sha256": "6327299b487e6eca0a2dfac4c86616adf8919f54bde5044cc59a17dd3d019c64",
+      "lines": 960,
+      "sha256": "c85d7176db9b804f4bb1e14145746a9fe5adc9096e7cf458467a3298e062108f",
       "symbols": [
         {
           "name": "Home",
@@ -42354,8 +42352,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/games/RelicActorPlay.kt",
-      "lines": 384,
-      "sha256": "5d121e872abbef11c13050fdaf54f0a431b056ad12ae9ae7c90678782d1627af",
+      "lines": 382,
+      "sha256": "bf5bfe9c17b7a660e411b14200921e82434835ff6ed02f1a0d0d7fe2a83dfba5",
       "symbols": [
         {
           "name": "acted",
