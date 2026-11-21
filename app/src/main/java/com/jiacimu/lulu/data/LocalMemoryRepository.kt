@@ -115,6 +115,7 @@ class LocalMemoryRepository internal constructor(
             )
         }
         MemoryInspectionStore.clearCharacter(characterId)
+        MemoryRecallUsageStore.clearCharacter(characterId)
         CoreMemoryInjectionAudit.clearCharacter(characterId)
         refreshDebug("经历与记忆已清空，角色资料与记忆设置保留", characterId)
     }
