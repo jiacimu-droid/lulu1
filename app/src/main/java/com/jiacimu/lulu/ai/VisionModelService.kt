@@ -33,6 +33,7 @@ object VisionModelService {
         val apiKey: String,
         val model: String,
         val sourceLabel: String,
+        internal val connection: ModelConnection? = null,
     ) {
         val ready: Boolean get() = baseUrl.isNotBlank() && apiKey.isNotBlank() && model.isNotBlank()
     }
@@ -80,11 +81,13 @@ object VisionModelService {
             for (candidate in candidates) {
                 val attempt = runCatching { describeWith(candidate, listOf(dataUrl), prompt) }
                 if (attempt.isSuccess) return@runCatching attempt.getOrThrow()
-                val detail = attempt.exceptionOrNull()?.message.orEmpty().ifBlank { "未知错误" }
+                val failure = attempt.exceptionOrNull()
+                if (failure is CancellationException) throw failure
+                val detail = failure?.message.orEmpty().ifBlank { "未知错误" }
                 errors += "${candidate.sourceLabel}（${candidate.model}）：$detail"
             }
             error("识图失败：${errors.joinToString("；").take(1_200)}")
-        }
+        }.onFailure { if (it is CancellationException) throw it }
     }
 
 
@@ -181,8 +184,7 @@ object VisionModelService {
                     title = "摄像头单帧视觉理解",
                     maxTokens = 350,
                     contextMode = CompanionContextMode.Isolated,
-                    connectionOverride = ModelConnection(
-                        chat.baseUrl, chat.apiKey, chat.model),
+                    connectionOverride = chat.connection,
                     usage = ModelUsage.Chat,
                     imageDataUrls = listOf(dataUrl),
                 ).getOrThrow().text.take(650)
@@ -243,7 +245,7 @@ object VisionModelService {
                     title = "屏幕单帧视觉理解",
                     maxTokens = 900,
                     contextMode = CompanionContextMode.Isolated,
-                    connectionOverride = ModelConnection(chat.baseUrl, chat.apiKey, chat.model),
+                    connectionOverride = chat.connection,
                     usage = ModelUsage.Chat,
                     imageDataUrls = listOf(pixels),
                 ).getOrThrow().text.trim()
@@ -266,6 +268,7 @@ object VisionModelService {
             apiKey = connection.apiKey.trim(),
             model = connection.model.trim(),
             sourceLabel = "当前聊天模型",
+            connection = connection,
         )
     }.getOrNull()?.takeIf(Configuration::ready)
 
@@ -341,7 +344,7 @@ object VisionModelService {
             }.onFailure { if (it is CancellationException) throw it }
         }
 
-    private fun describeWith(config: Configuration, dataUrls: List<String>, prompt: String,
+    private suspend fun describeWith(config: Configuration, dataUrls: List<String>, prompt: String,
                              maxTokens: Int = 900, maxCharacters: Int = 1800): String {
         val userContent = JSONArray().put(JSONObject().put("type", "text").put("text", prompt))
         dataUrls.forEach { dataUrl ->
@@ -355,6 +358,20 @@ object VisionModelService {
                 "messages",
                 JSONArray().put(JSONObject().put("role", "user").put("content", userContent)),
             )
+        val savedChannel = config.connection?.takeIf { it.googleRotationId != null }
+        val root = if (savedChannel != null) {
+            LuluAiServices.gateway.requestOpenAiJson(savedChannel, "chat/completions", body, 120_000)
+        } else requestVisionJson(config, body)
+        val message = root.optJSONArray("choices")?.optJSONObject(0)?.optJSONObject("message")
+        val text = extractText(message?.opt("content"))
+            .ifBlank { extractText(root.opt("output_text")) }
+            .ifBlank { extractText(root.opt("output")) }
+            .trim()
+        check(text.isNotBlank()) { "模型没有返回可读取的图片描述" }
+        return text.take(maxCharacters)
+    }
+
+    private fun requestVisionJson(config: Configuration, body: JSONObject): JSONObject {
         val url = "${config.baseUrl}/chat/completions"
         val connection = URL(url).openConnection() as HttpURLConnection
         try {
@@ -377,14 +394,7 @@ object VisionModelService {
                 error("请求失败（$status）：$errorMessage")
             }
             check(raw.isNotBlank()) { "接口返回了空内容" }
-            val root = JSONObject(raw)
-            val message = root.optJSONArray("choices")?.optJSONObject(0)?.optJSONObject("message")
-            val text = extractText(message?.opt("content"))
-                .ifBlank { extractText(root.opt("output_text")) }
-                .ifBlank { extractText(root.opt("output")) }
-                .trim()
-            check(text.isNotBlank()) { "模型没有返回可读取的图片描述" }
-            return text.take(maxCharacters)
+            return JSONObject(raw)
         } finally {
             connection.disconnect()
         }

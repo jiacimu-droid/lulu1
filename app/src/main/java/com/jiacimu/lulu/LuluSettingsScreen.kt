@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
@@ -19,11 +20,15 @@ import com.jiacimu.lulu.data.DigitalWorldExpansionStore
 import com.jiacimu.lulu.data.ResidentCharacterBridge
 import com.jiacimu.lulu.data.MigratedDomainStores
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jiacimu.lulu.ai.ApiConfiguration
 import com.jiacimu.lulu.ai.LuluAiServices
 import com.jiacimu.lulu.ai.ModelArchive
+import com.jiacimu.lulu.ai.GOOGLE_API_BASE_URL
+import com.jiacimu.lulu.ai.cleanGoogleKeys
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 private val SettingsPaper = Color(0xFFFFFFFF)
@@ -59,10 +64,15 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
     var configurationName by remember { mutableStateOf(initialConfiguration?.name.orEmpty()) }
     var baseUrl by remember { mutableStateOf(initialConfiguration?.baseUrl.orEmpty()) }
     var apiKey by remember { mutableStateOf(initialConfiguration?.apiKey.orEmpty()) }
+    var googleEditor by remember { mutableStateOf(initialConfiguration?.isGoogle == true) }
+    var googleKeys by remember { mutableStateOf(listOf(apiKey) + initialConfiguration?.googleAdditionalKeys.orEmpty()) }
+    var googleRotation by remember { mutableStateOf(initialConfiguration?.googleRotationEnabled ?: true) }
+    var keysExpanded by remember { mutableStateOf(true) }
     var models by remember { mutableStateOf<List<String>>(emptyList()) }
     var selectedModels by remember { mutableStateOf<Set<String>>(emptySet()) }
     var modelQuery by remember { mutableStateOf("") }
     var loadingModels by remember { mutableStateOf(false) }
+    var modelRequest by remember { mutableStateOf<Job?>(null) }
     var notice by remember { mutableStateOf("") }
     var noticeIsError by remember { mutableStateOf(false) }
 
@@ -71,14 +81,25 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
         if (query.isBlank()) models else models.filter { it.contains(query, ignoreCase = true) }
     }
 
+    fun clearModelResults() {
+        modelRequest?.cancel()
+        modelRequest = null
+        loadingModels = false
+        models = emptyList()
+        selectedModels = emptySet()
+        modelQuery = ""
+    }
+
     fun loadConfiguration(configuration: ApiConfiguration) {
         editingId = configuration.id
         configurationName = configuration.name
         baseUrl = configuration.baseUrl
         apiKey = configuration.apiKey
-        models = emptyList()
-        selectedModels = emptySet()
-        modelQuery = ""
+        googleEditor = configuration.isGoogle
+        googleKeys = listOf(configuration.apiKey) + configuration.googleAdditionalKeys.orEmpty()
+        googleRotation = configuration.googleRotationEnabled
+        keysExpanded = true
+        clearModelResults()
         notice = "已载入“${configuration.name}”"
         noticeIsError = false
     }
@@ -88,25 +109,46 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
         configurationName = ""
         baseUrl = ""
         apiKey = ""
-        models = emptyList()
-        selectedModels = emptySet()
-        modelQuery = ""
+        googleEditor = false
+        googleKeys = listOf("")
+        googleRotation = true
+        keysExpanded = true
+        clearModelResults()
         notice = "已新建空白配置"
         noticeIsError = false
     }
+
+    fun openGoogleEditor() {
+        if (googleEditor) return
+        library.configurations.firstOrNull { it.isGoogle }?.let {
+            loadConfiguration(it)
+            return
+        }
+        clearEditor()
+        googleEditor = true
+        configurationName = "Google"
+        baseUrl = GOOGLE_API_BASE_URL
+        notice = ""
+    }
+
+    val usableGoogleKeys = if (googleEditor) cleanGoogleKeys(googleKeys) else emptyList()
+    val primaryKey = if (googleEditor) usableGoogleKeys.firstOrNull().orEmpty() else apiKey
 
     fun saveCurrent(): ApiConfiguration? = runCatching {
         store.saveConfiguration(
             id = editingId,
             name = configurationName,
             baseUrl = baseUrl,
-            apiKey = apiKey,
+            apiKey = primaryKey,
+            googleAdditionalKeys = usableGoogleKeys.drop(1).takeIf { googleEditor },
+            googleRotationEnabled = googleRotation,
         )
     }.onSuccess { configuration ->
         editingId = configuration.id
         configurationName = configuration.name
         baseUrl = configuration.baseUrl
         apiKey = configuration.apiKey
+        if (googleEditor) googleKeys = listOf(configuration.apiKey) + configuration.googleAdditionalKeys.orEmpty()
         notice = "配置“${configuration.name}”已保存"
         noticeIsError = false
     }.onFailure { error ->
@@ -134,9 +176,11 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                 SettingsCardBox {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text(if (editingId == null) "新配置" else "编辑配置", fontSize = 19.sp, fontWeight = FontWeight.Bold, color = SettingsInk)
-                            Text("配置名称、地址和密钥会作为一组保存", color = SettingsMuted, fontSize = 12.sp)
+                            val title = if (googleEditor) "Google" else if (editingId == null) "新配置" else "编辑配置"
+                            Text(title, fontSize = 19.sp, fontWeight = FontWeight.Bold, color = SettingsInk)
+                            if (!googleEditor) Text("配置名称、地址和密钥会作为一组保存", color = SettingsMuted, fontSize = 12.sp)
                         }
+                        if (!googleEditor) TextButton(onClick = ::openGoogleEditor) { Text("Google") }
                         TextButton(onClick = ::clearEditor) {
                             Icon(Icons.Outlined.Add, null)
                             Spacer(Modifier.width(4.dp))
@@ -144,8 +188,31 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                         }
                     }
                     OutlinedTextField(value = configurationName, onValueChange = { configurationName = it }, label = { Text("配置名称") }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(), singleLine = true)
-                    OutlinedTextField(value = baseUrl, onValueChange = { baseUrl = it }, label = { Text("API 地址") }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(), singleLine = true)
-                    OutlinedTextField(value = apiKey, onValueChange = { apiKey = it }, label = { Text("API 密钥") }, leadingIcon = { Icon(Icons.Outlined.Key, null) }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(), singleLine = true)
+                    OutlinedTextField(value = baseUrl, onValueChange = {
+                        baseUrl = it
+                        clearModelResults()
+                    }, label = { Text("API 地址") }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(), singleLine = true)
+                    if (googleEditor) {
+                        GoogleKeyFields(
+                            keys = googleKeys,
+                            onKeysChanged = {
+                                googleKeys = it
+                                clearModelResults()
+                            },
+                            expanded = keysExpanded,
+                            onExpandedChange = { keysExpanded = it },
+                            rotation = googleRotation,
+                            onRotationChange = {
+                                googleRotation = it
+                                clearModelResults()
+                            },
+                        )
+                    } else {
+                        OutlinedTextField(value = apiKey, onValueChange = {
+                            apiKey = it
+                            clearModelResults()
+                        }, label = { Text("API 密钥") }, leadingIcon = { Icon(Icons.Outlined.Key, null) }, modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(), singleLine = true)
+                    }
                     Button(onClick = { saveCurrent() }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = SettingsAccent, contentColor = SettingsInk)) {
                         Icon(Icons.Outlined.Save, null)
                         Spacer(Modifier.width(7.dp))
@@ -155,8 +222,16 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                         onClick = {
                             loadingModels = true
                             notice = ""
-                            scope.launch {
-                                LuluAiServices.gateway.fetchModels(baseUrl, apiKey)
+                            val draft = ApiConfiguration(
+                                id = editingId ?: "google-settings-draft",
+                                name = configurationName,
+                                baseUrl = baseUrl,
+                                apiKey = primaryKey,
+                                googleAdditionalKeys = usableGoogleKeys.drop(1).takeIf { googleEditor },
+                                googleRotationEnabled = googleEditor && googleRotation,
+                            )
+                            modelRequest = scope.launch {
+                                LuluAiServices.gateway.fetchModels(draft)
                                     .onSuccess { fetched ->
                                         models = fetched.distinct()
                                         selectedModels = emptySet()
@@ -173,12 +248,16 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                                 loadingModels = false
                             }
                         },
-                        enabled = !loadingModels && baseUrl.isNotBlank() && apiKey.isNotBlank(),
+                        enabled = !loadingModels && baseUrl.isNotBlank() && primaryKey.isNotBlank(),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         if (loadingModels) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp) else Icon(Icons.Outlined.CloudDownload, null)
                         Spacer(Modifier.width(7.dp))
                         Text(if (loadingModels) "正在获取模型…" else "获取模型")
+                    }
+                    if (notice.isNotBlank()) {
+                        Text(notice, color = if (noticeIsError) MaterialTheme.colorScheme.error else SettingsMuted,
+                            fontSize = 13.sp)
                     }
                 }
             }
@@ -280,13 +359,71 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                     )
                 }
             }
-            if (notice.isNotBlank()) {
-                item {
-                    Surface(color = if (noticeIsError) Color(0xFFF6E7E4) else Color(0xFFE7F0ED), shape = RoundedCornerShape(14.dp)) {
-                        Text(notice, modifier = Modifier.fillMaxWidth().padding(12.dp), color = SettingsInk)
-                    }
-                }
+        }
+    }
+}
+
+@Composable
+private fun GoogleKeyFields(
+    keys: List<String>,
+    onKeysChanged: (List<String>) -> Unit,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    rotation: Boolean,
+    onRotationChange: (Boolean) -> Unit,
+) {
+    val keyList = rememberLazyListState()
+    var revealLastKey by remember { mutableStateOf(false) }
+    LaunchedEffect(keys.size, expanded) {
+        if (revealLastKey && expanded) {
+            keyList.scrollToItem(keys.lastIndex)
+            revealLastKey = false
+        }
+    }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f)) {
+            Text("开启多 Key 自动轮询", fontWeight = FontWeight.Medium, color = SettingsInk)
+            Text(if (rotation) "发起请求时轮换" else "只用第一条已填写的 Key", color = SettingsMuted, fontSize = 12.sp)
+        }
+        Switch(checked = rotation, onCheckedChange = onRotationChange)
+    }
+    if (keys.size == 1 || expanded) {
+        LazyColumn(
+            state = keyList,
+            modifier = Modifier.fillMaxWidth().heightIn(max = 280.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            items(keys.size) { index ->
+                OutlinedTextField(
+                    value = keys[index],
+                    onValueChange = { value -> onKeysChanged(keys.toMutableList().apply { set(index, value) }) },
+                    label = { Text(if (keys.size == 1) "API 密钥" else "API 密钥 ${index + 1}") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    singleLine = true,
+                    trailingIcon = if (keys.size > 1) {
+                        {
+                            IconButton(onClick = { onKeysChanged(keys.toMutableList().apply { removeAt(index) }) }) {
+                                Icon(Icons.Outlined.Close, "移除 API Key ${index + 1}")
+                            }
+                        }
+                    } else null,
+                    modifier = Modifier.fillMaxWidth().keepFocusedFieldVisible(),
+                )
             }
+        }
+    }
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        TextButton(onClick = {
+            revealLastKey = true
+            onExpandedChange(true)
+            onKeysChanged(keys + "")
+        }) {
+            Icon(Icons.Outlined.Add, null)
+            Spacer(Modifier.width(4.dp))
+            Text("新增 API Key")
+        }
+        if (keys.size > 1) TextButton(onClick = { onExpandedChange(!expanded) }) {
+            Text(if (expanded) "收起" else "查看密钥（${keys.size}）")
         }
     }
 }
