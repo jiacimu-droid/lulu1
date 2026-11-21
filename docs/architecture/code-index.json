@@ -13647,13 +13647,13 @@
     "awaitsReadReply": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3211
+        "line": 3210
       }
     ],
     "showPromisedCallNotification": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-        "line": 3971
+        "line": 3970
       }
     ],
     "ProactivePerceptionScheduler": [
@@ -38109,8 +38109,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/ProactivePerceptionRuntime.kt",
-      "lines": 4038,
-      "sha256": "a60a0f865277afbc310e2f80858cef1ee826f294fa90837d07bc434a823f2495",
+      "lines": 4037,
+      "sha256": "063d20a76375c335966304a9732dac3335eaf919a19360f1a24570be2105c124",
       "symbols": [
         {
           "name": "ProactivePerceptionRuntime",
@@ -38142,11 +38142,11 @@
         },
         {
           "name": "awaitsReadReply",
-          "line": 3211
+          "line": 3210
         },
         {
           "name": "showPromisedCallNotification",
-          "line": 3971
+          "line": 3970
         }
       ]
     },
