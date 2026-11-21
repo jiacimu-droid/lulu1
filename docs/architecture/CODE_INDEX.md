@@ -1,9 +1,9 @@
 # Lulu1 代码索引
 
-- 基准提交：`72de82c2634f9ca195ad6c8c448647673e4cc082`
+- 基准提交：`f6943555eb0586f416fceaccd2960ab9c13feea5`
 - 分支：`main`
 - 已索引文件：1510
-- 已索引代码/文本行：324238
+- 已索引代码/文本行：324272
 - 已发现符号：4600
 
 | 文件 | 行数 | 符号数 |
@@ -567,7 +567,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 33 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt` | 212 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt` | 105 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt` | 236 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt` | 248 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt` | 454 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt` | 42 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 235 | 1 |
@@ -614,7 +614,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/RelationshipRhythmPerception.kt` | 94 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeContactCommitmentParser.kt` | 82 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/RelativeWakeCommitmentParser.kt` | 74 | 2 |
-| `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 591 | 6 |
+| `app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt` | 596 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentCharacterBridge.kt` | 95 | 5 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyDecision.kt` | 2579 | 21 |
 | `app/src/main/java/com/jiacimu/lulu/data/ResidentDailyPolicy.kt` | 132 | 13 |
@@ -1252,7 +1252,7 @@
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryPatternNotesTest.kt` | 220 | 16 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallGatingTest.kt` | 59 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallIntegrationTest.kt` | 200 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt` | 61 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt` | 78 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemorySemanticConsolidationTest.kt` | 170 | 2 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemorySupersessionRequestPolicyTest.kt` | 29 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/data/MemoryTestEnvironment.kt` | 30 | 1 |
