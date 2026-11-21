@@ -47,6 +47,9 @@ class DurableServiceTest(unittest.TestCase):
             body = service.claude_payload('locked phone core', messages,
                 [{'function': {'name': 'create_alarm', 'parameters': {'type': 'object'}}}])
         self.assertEqual(body['system'], 'locked phone core')
+        self.assertEqual(body['max_tokens'], 60_000)
+        with patch.dict(os.environ, {'CLAUDE_MODEL': 'configured-test-model'}):
+            self.assertEqual(service.claude_payload('core', messages, max_tokens=1200)['max_tokens'], 60_000)
         self.assertEqual(body['messages'][1]['content'][0]['type'], 'tool_use')
         self.assertEqual(body['messages'][2]['content'][0]['type'], 'tool_result')
         self.assertIn('input_schema', body['tools'][0])

@@ -353,7 +353,7 @@ object VisionModelService {
         }
         val body = JSONObject()
             .put("model", config.model)
-            .put("max_tokens", maxTokens)
+            .put("max_tokens", maxOf(MODEL_OUTPUT_HEADROOM_TOKENS, maxTokens))
             .put(
                 "messages",
                 JSONArray().put(JSONObject().put("role", "user").put("content", userContent)),
