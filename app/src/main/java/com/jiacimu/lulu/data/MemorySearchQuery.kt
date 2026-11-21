@@ -203,7 +203,8 @@ internal object RawTimelineMemoryRecall {
     }
 
     fun find(characterId: String, query: String, limit: Int = 16): List<SharedTimelineEvent> =
-        find(query, liveEvents(characterId), limit)
+        find(query, liveEvents(characterId,
+            range = memoryTimeRange(RelevantMemoryRecall.focusQuery(query))), limit)
 
     fun find(
         query: String, live: List<SharedTimelineEvent>, limit: Int = 16,
