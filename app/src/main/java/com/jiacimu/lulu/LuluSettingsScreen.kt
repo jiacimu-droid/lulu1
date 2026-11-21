@@ -355,6 +355,7 @@ private fun ApiConfigurationEditor(onBack: () -> Unit) {
                     ModelArchiveRow(
                         archive = archive,
                         label = store.archiveLabel(archive),
+                        onReasoningChanged = { effort -> store.updateArchiveReasoningEffort(archive.id, effort) },
                         onDelete = { store.removeArchive(archive.id) },
                     )
                 }
@@ -449,25 +450,60 @@ private fun SavedConfigurationRow(configuration: ApiConfiguration, selected: Boo
 }
 
 @Composable
-private fun ModelArchiveRow(archive: ModelArchive, label: String, onDelete: () -> Unit) {
+private fun ModelArchiveRow(
+    archive: ModelArchive,
+    label: String,
+    onReasoningChanged: (String?) -> Unit,
+    onDelete: () -> Unit,
+) {
+    var effortExpanded by remember { mutableStateOf(false) }
+    val effortLabel = when (archive.reasoningEffort) {
+        "low" -> "低"
+        "medium" -> "中"
+        "high" -> "高"
+        else -> "自动"
+    }
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
         color = SettingsCard,
         border = BorderStroke(1.dp, SettingsBorder),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .padding(start = 17.dp, top = 13.dp, bottom = 13.dp, end = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(Icons.Outlined.Inventory2, null, tint = SettingsMuted)
-            Spacer(Modifier.width(12.dp))
-            Text(label, modifier = Modifier.weight(1f),
-                fontWeight = FontWeight.SemiBold, color = SettingsInk)
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Outlined.Close, "移出存档", tint = SettingsMuted)
+        Column(Modifier.fillMaxWidth().padding(start = 15.dp, top = 11.dp, bottom = 12.dp, end = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Outlined.Inventory2, null, tint = SettingsMuted)
+                Spacer(Modifier.width(10.dp))
+                Text(label, modifier = Modifier.weight(1f),
+                    fontWeight = FontWeight.SemiBold, color = SettingsInk)
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Outlined.Close, "移出存档", tint = SettingsMuted)
+                }
             }
+            Row(Modifier.fillMaxWidth().padding(start = 34.dp, end = 10.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Text("思考强度", fontSize = 13.sp, color = SettingsMuted,
+                    modifier = Modifier.weight(1f))
+                Box {
+                    OutlinedButton(onClick = { effortExpanded = true }) {
+                        Text(effortLabel, fontSize = 13.sp)
+                        Spacer(Modifier.width(5.dp))
+                        Icon(Icons.Outlined.ArrowDropDown, null)
+                    }
+                    DropdownMenu(expanded = effortExpanded, onDismissRequest = { effortExpanded = false }) {
+                        listOf(null to "自动（模型默认）", "low" to "低",
+                            "medium" to "中", "high" to "高").forEach { (value, caption) ->
+                            DropdownMenuItem(text = { Text(caption) }, onClick = {
+                                effortExpanded = false
+                                onReasoningChanged(value)
+                            })
+                        }
+                    }
+                }
+            }
+            Text("默认自动；不同模型可分别设置。仅兼容的 API 支持，原生 Claude 不使用此参数。",
+                fontSize = 11.sp, color = SettingsMuted,
+                modifier = Modifier.padding(start = 34.dp, end = 12.dp))
         }
     }
 }
