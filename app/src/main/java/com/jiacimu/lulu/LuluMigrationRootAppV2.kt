@@ -1,8 +1,6 @@
 package com.jiacimu.lulu
 
 import android.content.Intent
-import android.media.AudioManager
-import android.media.ToneGenerator
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
@@ -45,6 +43,7 @@ import com.jiacimu.lulu.games.LuluGames
 import com.jiacimu.lulu.games.LuluGamesAppV2
 import com.jiacimu.lulu.health.HealthFeatureScreen
 import com.jiacimu.lulu.study.PomodoroCompanionSessions
+import com.jiacimu.lulu.study.PomodoroMicroRestChime
 import com.jiacimu.lulu.study.PomodoroMiniWindow
 import com.jiacimu.lulu.study.PomodoroTimerMode
 import com.jiacimu.lulu.study.StarWishScrollApp
@@ -595,14 +594,8 @@ private fun PomodoroRuntimeOverlay(
             delay(500)
             if (PomodoroCompanionSessions.syncCountdownClock()) break
             if (PomodoroCompanionSessions.syncMicroRestClock()) {
-                // A single gentle signal only when a new rest actually starts.
-                val tone = runCatching { ToneGenerator(AudioManager.STREAM_NOTIFICATION, 55) }.getOrNull()
-                try {
-                    runCatching { tone?.startTone(ToneGenerator.TONE_PROP_BEEP, 180) }
-                    delay(220)
-                } finally {
-                    tone?.release()
-                }
+                // Only a newly started micro-rest chimes. The timer continues unchanged.
+                PomodoroMicroRestChime.play()
             }
         }
     }

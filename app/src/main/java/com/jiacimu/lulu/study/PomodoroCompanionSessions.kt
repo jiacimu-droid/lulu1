@@ -1,6 +1,9 @@
 package com.jiacimu.lulu.study
 
 import android.content.Context
+import android.media.AudioManager
+import android.media.ToneGenerator
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -341,6 +344,28 @@ class PomodoroCompanionStore private constructor(context: Context) {
         private const val KEY_MICRO_REST_REMAINING = "micro_rest_remaining"
 
         fun create(context: Context): PomodoroCompanionStore = PomodoroCompanionStore(context.applicationContext)
+    }
+}
+
+/**
+ * One audible two-note cue at the start of a 10-second micro-rest.
+ * Use the device's MEDIA volume, not the often-silenced notification channel.
+ * Keep ToneGenerator alive until the asynchronous tone has finished.
+ * No alarm-volume override, paid model call, or repeated alerts.
+ */
+internal object PomodoroMicroRestChime {
+    suspend fun play(): Boolean {
+        val tone = runCatching { ToneGenerator(AudioManager.STREAM_MUSIC, 90) }.getOrNull()
+            ?: return false
+        return try {
+            val started = runCatching {
+                tone.startTone(ToneGenerator.TONE_PROP_BEEP2, 500)
+            }.getOrDefault(false)
+            if (started) delay(650L)
+            started
+        } finally {
+            runCatching { tone.release() }
+        }
     }
 }
 

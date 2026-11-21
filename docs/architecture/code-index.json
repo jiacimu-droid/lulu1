@@ -2925,7 +2925,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 222
+        "line": 238
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterInnerHistoryArchive.kt",
@@ -7861,7 +7861,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 40
+        "line": 42
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/system/LuluAccessibilityService.kt",
@@ -8049,7 +8049,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 129
+        "line": 145
       }
     ],
     "subjectiveEvidenceText": [
@@ -8297,7 +8297,7 @@
     "Receipt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 33
+        "line": 35
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
@@ -8307,13 +8307,13 @@
     "episodeEvidence": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 115
+        "line": 131
       }
     ],
     "recentContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 162
+        "line": 178
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/SharedExperienceTimeline.kt",
@@ -8327,31 +8327,31 @@
     "pendingMethods": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 174
+        "line": 190
       }
     ],
     "reviewContext": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 189
+        "line": 205
       }
     ],
     "reviewMethods": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 200
+        "line": 216
       }
     ],
     "immediateMethods": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 215
+        "line": 231
       }
     ],
     "dependenciesValid": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-        "line": 283
+        "line": 299
       }
     ],
     "proposals": [
@@ -22327,7 +22327,7 @@
     "recorded": [
       {
         "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExperienceLearningTest.kt",
-        "line": 380
+        "line": 395
       }
     ],
     "CharacterExplorationContinuityTest": [
@@ -32529,52 +32529,52 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/CharacterExperienceLearning.kt",
-      "lines": 293,
-      "sha256": "0725187653f3651f4938109eff8fbcebe0a874f103fc990536dab06acdd549d1",
+      "lines": 309,
+      "sha256": "ae0982aaa624989fb3486dc905979e93ccedbbf855baf4bf20dfb07b5b02f8ff",
       "symbols": [
         {
           "name": "Receipt",
-          "line": 33
+          "line": 35
         },
         {
           "name": "receipt",
-          "line": 40
+          "line": 42
         },
         {
           "name": "episodeEvidence",
-          "line": 115
+          "line": 131
         },
         {
           "name": "evidenceText",
-          "line": 129
+          "line": 145
         },
         {
           "name": "recentContext",
-          "line": 162
+          "line": 178
         },
         {
           "name": "pendingMethods",
-          "line": 174
+          "line": 190
         },
         {
           "name": "reviewContext",
-          "line": 189
+          "line": 205
         },
         {
           "name": "reviewMethods",
-          "line": 200
+          "line": 216
         },
         {
           "name": "immediateMethods",
-          "line": 215
+          "line": 231
         },
         {
           "name": "prepare",
-          "line": 222
+          "line": 238
         },
         {
           "name": "dependenciesValid",
-          "line": 283
+          "line": 299
         }
       ]
     },
@@ -49391,8 +49391,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/CharacterExperienceLearningTest.kt",
-      "lines": 411,
-      "sha256": "8a6070644e431cdb4f0576bbb24492335d1b4b6287073617b4b232a3fef5d675",
+      "lines": 426,
+      "sha256": "306fc6a73e8aafb33db56cf5613af58b6a5df70c5fe2b86cf2de1bcd7f425ab3",
       "symbols": [
         {
           "name": "CharacterExperienceLearningTest",
@@ -49400,7 +49400,7 @@
         },
         {
           "name": "recorded",
-          "line": 380
+          "line": 395
         }
       ]
     },
