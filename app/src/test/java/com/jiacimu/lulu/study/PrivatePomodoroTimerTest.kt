@@ -195,4 +195,49 @@ class PrivatePomodoroTimerTest {
         assertFalse(timer.syncMicroRestClock(nowMillis = 500_000L))
     }
 
+    @Test fun microRestChimesAtStartAndExactlyTenSecondsLaterOnlyOnce() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        context.getSharedPreferences("lulu_study_focus", Context.MODE_PRIVATE).edit().clear().commit()
+        val timer = PomodoroCompanionStore.create(context)
+        timer.setDuration(30)
+        timer.updateMicroRestEnabled(true, nowMillis = 100_000L)
+        timer.beginSession("学习民法", PomodoroTimerMode.Countdown, startedAtEpochMillis = 100_000L)
+
+        val first = timer.state.value.microRestNextAtEpochMillis
+        assertNull(timer.syncMicroRestClockEvent(nowMillis = first - 1L))
+        assertEquals(MicroRestCue.Start, timer.syncMicroRestClockEvent(nowMillis = first))
+        assertEquals(10, timer.state.value.microRestRemainingSeconds)
+        assertNull(timer.syncMicroRestClockEvent(nowMillis = first + 8_000L))
+        assertEquals(2, timer.state.value.microRestRemainingSeconds)
+        assertNull(timer.syncMicroRestClockEvent(nowMillis = first + 9_999L))
+        assertEquals(MicroRestCue.End, timer.syncMicroRestClockEvent(nowMillis = first + 10_000L))
+        assertEquals(0, timer.state.value.microRestRemainingSeconds)
+        assertNull(timer.syncMicroRestClockEvent(nowMillis = first + 10_000L))
+        assertEquals(1_900_000L, timer.state.value.countdownEndAtEpochMillis)
+    }
+
+    @Test fun microRestCompletionCueRespectsPauseAndSkipsLongSuspension() {
+        val context = RuntimeEnvironment.getApplication() as Context
+        context.getSharedPreferences("lulu_study_focus", Context.MODE_PRIVATE).edit().clear().commit()
+        val timer = PomodoroCompanionStore.create(context)
+        timer.setDuration(25)
+        timer.updateMicroRestEnabled(true, nowMillis = 100_000L)
+        timer.beginSession("复习宪法", PomodoroTimerMode.Countdown, startedAtEpochMillis = 100_000L)
+        val first = timer.state.value.microRestNextAtEpochMillis
+        assertEquals(MicroRestCue.Start, timer.syncMicroRestClockEvent(nowMillis = first))
+        timer.toggleCountdown(nowMillis = first + 3_000L)
+        assertNull(timer.syncMicroRestClockEvent(nowMillis = first + 10_000L))
+        timer.toggleCountdown(nowMillis = first + 50_000L)
+        assertEquals(7, timer.state.value.microRestRemainingSeconds)
+        assertNull(timer.syncMicroRestClockEvent(nowMillis = first + 56_999L))
+        assertEquals(MicroRestCue.End, timer.syncMicroRestClockEvent(nowMillis = first + 57_000L))
+        assertNull(timer.syncMicroRestClockEvent(nowMillis = first + 57_000L))
+
+        val next = timer.state.value.microRestNextAtEpochMillis
+        assertEquals(MicroRestCue.Start, timer.syncMicroRestClockEvent(nowMillis = next))
+        assertNull(timer.syncMicroRestClockEvent(nowMillis = next + 45_000L))
+        assertEquals(0, timer.state.value.microRestRemainingSeconds)
+        assertTrue(timer.state.value.microRestNextAtEpochMillis > next + 45_000L)
+    }
+
 }
