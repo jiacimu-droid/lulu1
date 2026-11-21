@@ -55,6 +55,8 @@ data class ModelArchive(
     val id: String = UUID.randomUUID().toString(),
     val configurationId: String,
     val model: String,
+    /** Null keeps the provider's own dynamic thinking behavior. */
+    val reasoningEffort: String? = null,
 )
 
 enum class ModelUsage {
@@ -117,6 +119,8 @@ data class ModelConnection(
     val model: String,
     internal val googleRotationId: String? = null,
     internal val googleAdditionalKeys: List<String> = emptyList(),
+    /** OpenAI-compatible reasoning_effort, omitted when using model default. */
+    val reasoningEffort: String? = null,
 )
 
 data class ModelReply(
@@ -238,6 +242,31 @@ class ModelConnectionStore private constructor(context: Context) {
         return archive
     }
 
+    /** Thinking effort belongs to each saved model archive, not the character or scene. */
+    fun updateArchiveReasoningEffort(id: String, effort: String?) {
+        require(effort == null || effort in setOf("low", "medium", "high")) {
+            "不支持的思考强度"
+        }
+        val current = mutable.value
+        require(current.archives.any { it.id == id }) { "模型存档不存在" }
+        persist(current.copy(archives = current.archives.map { archive ->
+            if (archive.id == id) archive.copy(reasoningEffort = effort) else archive
+        }))
+    }
+
+    /** Honor a saved model's setting even through an explicit connection override. */
+    fun reasoningEffortFor(connection: ModelConnection): String? {
+        val current = mutable.value
+        val archives = current.archives.filter { archive ->
+            archive.model == connection.model && current.configurations.any { config ->
+                config.id == archive.configurationId &&
+                    normalizeBaseUrl(config.baseUrl) == normalizeBaseUrl(connection.baseUrl) &&
+                    (config.apiKey == connection.apiKey || config.id == connection.googleRotationId)
+            }
+        }
+        return archives.singleOrNull()?.reasoningEffort
+    }
+
     fun removeArchive(id: String) {
         val current = mutable.value
         val archives = current.archives.filterNot { it.id == id }
@@ -292,7 +321,7 @@ class ModelConnectionStore private constructor(context: Context) {
             ?: error("请先在设置中获取模型并加入存档")
         val configuration = state.configurations.firstOrNull { it.id == archive.configurationId }
             ?: error("这个模型存档对应的 API 配置已经不存在")
-        return configuration.connection(archive.model)
+        return configuration.connection(archive.model).copy(reasoningEffort = archive.reasoningEffort)
     }
 
     fun archiveLabel(archive: ModelArchive): String {
@@ -367,7 +396,8 @@ class ModelConnectionStore private constructor(context: Context) {
                         JSONObject()
                             .put("id", archive.id)
                             .put("configurationId", archive.configurationId)
-                            .put("model", archive.model),
+                            .put("model", archive.model)
+                            .put("reasoningEffort", archive.reasoningEffort ?: JSONObject.NULL),
                     )
                 }
             },
@@ -411,6 +441,8 @@ class ModelConnectionStore private constructor(context: Context) {
                             id = item.optString("id").ifBlank { UUID.randomUUID().toString() },
                             configurationId = configurationId,
                             model = model,
+                            reasoningEffort = item.optString("reasoningEffort")
+                                .takeIf { it in setOf("low", "medium", "high") },
                         ),
                     )
                 }
@@ -628,7 +660,10 @@ class CompanionModelGateway(
             }
             // Character expression uses the same actual reasoning/chat model.
             // Hidden legacy expression slots must never silently swap personas.
-            val connection = connectionOverride ?: connectionStore.resolveConnection(requestedArchiveId)
+            val selectedConnection = connectionOverride ?: connectionStore.resolveConnection(requestedArchiveId)
+            val connection = if (selectedConnection.reasoningEffort == null)
+                selectedConnection.copy(reasoningEffort = connectionStore.reasoningEffortFor(selectedConnection))
+            else selectedConnection
             require(!connection.model.startsWith("jev-")) { "Jev是思路参考模型，不能生成台词；请为聊天/表达选择文字模型" }
             // Reuse the selected multimodal chat model (e.g. Gemini); never
             // start another API request just to identify the owner's avatar.
@@ -1388,6 +1423,7 @@ class CompanionModelGateway(
                 },
             )
         body.put("max_tokens", maxOf(MODEL_OUTPUT_HEADROOM_TOKENS, maxTokens ?: 0))
+        connection.reasoningEffort?.let { body.put("reasoning_effort", it) }
         val url = "${connection.baseUrl}/chat/completions"
         if (streamResponse) {
             body.put("stream", true)
