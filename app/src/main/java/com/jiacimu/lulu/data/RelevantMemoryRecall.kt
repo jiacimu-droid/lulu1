@@ -116,8 +116,10 @@ object RelevantMemoryRecall {
                 effectiveTerms.intersect(terms(it.content)).size
             }.thenByDescending { it.occurredAt ?: it.createdAt })
         val affectIds = affectRanked.mapTo(mutableSetOf(), MemoryEntry::id)
+        val usage = MemoryRecallUsageStore.snapshot(characterId)
         val lexicalScores = memories.associate { memory ->
-            memory.id to score(memory, effectiveTerms, recentCue, now)
+            memory.id to score(memory, effectiveTerms, recentCue, now,
+                usage[memory.id]?.successfulInjections ?: 0)
         }
         val lexicalRanked = memories
             .asSequence()
@@ -462,6 +464,7 @@ object RelevantMemoryRecall {
         queryTerms: Set<String>,
         recentCue: Boolean,
         now: Instant,
+        successfulInjections: Int,
     ): Double {
         val memoryTerms = terms(memory.content)
         val overlap = if (queryTerms.isEmpty() || memoryTerms.isEmpty()) 0.0 else {
@@ -488,7 +491,11 @@ object RelevantMemoryRecall {
             0.0
         }
         val pinnedBoost = if (memory.pinned) 3.0 else 0.0
-        return overlap * 8.5 + exactBoost + strengthBoost + recencyBoost + temporalIntentBoost + pinnedBoost
+        // Actual past use is a slight tiebreaker, not an excuse to suppress
+        // never-recalled memories or override an explicit date/topic query.
+        val useBoost = (ln(1.0 + successfulInjections.coerceAtLeast(0)) / 5.0).coerceIn(0.0, 1.0) * 0.25
+        return overlap * 8.5 + exactBoost + strengthBoost + recencyBoost +
+            temporalIntentBoost + pinnedBoost + useBoost
     }
 
     /**
