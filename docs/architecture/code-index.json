@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-21T11:17:21.207268+00:00",
-  "commit": "30e34c6ad9c6646146ed0e69aae1168c56a2f8ae",
+  "generatedAt": "2026-11-21T11:18:00.299076+00:00",
+  "commit": "260497dff19280cf8eab0bc355fdbea07437b0c7",
   "branch": "main",
-  "sourceFingerprint": "a06ebe0da2cbc16fa16871bd0afca41b3fbb4b067cc75a24a520724e0bf1448f",
+  "sourceFingerprint": "b218a5154a48658fac05200857a3daf3d74184e75428bfb09e523647d64f0968",
   "summary": {
     "files": 1508,
-    "lines": 323912,
-    "symbols": 4590
+    "lines": 323987,
+    "symbols": 4591
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -18380,16 +18380,22 @@
         "line": 72
       }
     ],
+    "previewSound": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
+        "line": 41
+      }
+    ],
     "startPomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-        "line": 61
+        "line": 69
       }
     ],
     "finishPomodoro": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-        "line": 82
+        "line": 90
       }
     ],
     "planningText": [
@@ -43778,16 +43784,20 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/study/StudyPomodoroScreen.kt",
-      "lines": 436,
-      "sha256": "6e60423144ea4507a4b096c659a9d9803dbb3c3d6700ba48c3ed5b8c3dc905fc",
+      "lines": 466,
+      "sha256": "f4403e4cee1c41f79cd4b55896bb9fbdb69f89c291aad0aefbf1dbaa54df83b2",
       "symbols": [
         {
+          "name": "previewSound",
+          "line": 41
+        },
+        {
           "name": "startPomodoro",
-          "line": 61
+          "line": 69
         },
         {
           "name": "finishPomodoro",
-          "line": 82
+          "line": 90
         }
       ]
     },
@@ -53129,8 +53139,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/study/PrivatePomodoroTimerTest.kt",
-      "lines": 199,
-      "sha256": "bcfb09e5dd90865e405e9418f6a714e423fa0b26122035384c0432dc813f9772",
+      "lines": 244,
+      "sha256": "efcc85ab64b1d240d552d6ab596d7616fdb76007b1b91a946cc6e663c6e8e0cf",
       "symbols": [
         {
           "name": "PrivatePomodoroTimerTest",
