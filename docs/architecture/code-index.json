@@ -3501,7 +3501,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 142
+        "line": 167
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/XhsReadingReceipt.kt",
@@ -7491,11 +7491,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 174
+        "line": 199
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 177
+        "line": 202
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -7955,11 +7955,11 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 106
+        "line": 131
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 117
+        "line": 142
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/study/StarWishDomain.kt",
@@ -12855,13 +12855,13 @@
     "liveEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 165
+        "line": 190
       }
     ],
     "ranked": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 195
+        "line": 220
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OriginalEvidenceSpans.kt",
@@ -14225,19 +14225,19 @@
     "sourceEvidenceEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 242
+        "line": 247
       }
     ],
     "sourceEvidenceForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 278
+        "line": 283
       }
     ],
     "formatForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 304
+        "line": 309
       }
     ],
     "characterId": [
@@ -37333,36 +37333,36 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-      "lines": 236,
-      "sha256": "e42abe41b7eda93527acc24213a8bbf4613a9957ee0fb895411a5885a4e3a28e",
+      "lines": 248,
+      "sha256": "00c861b93e04a681c5630e32c403d26e82e2139cab7a65f96184b5323450f54a",
       "symbols": [
         {
           "name": "matches",
-          "line": 106
+          "line": 131
         },
         {
           "name": "matches",
-          "line": 117
-        },
-        {
-          "name": "from",
           "line": 142
         },
         {
+          "name": "from",
+          "line": 167
+        },
+        {
           "name": "liveEvents",
-          "line": 165
+          "line": 190
         },
         {
           "name": "find",
-          "line": 174
+          "line": 199
         },
         {
           "name": "find",
-          "line": 177
+          "line": 202
         },
         {
           "name": "ranked",
-          "line": 195
+          "line": 220
         }
       ]
     },
@@ -38759,8 +38759,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-      "lines": 591,
-      "sha256": "a84f7be8269b4a14fb845688def9038b800ea08c92ca511f31a7829b7ac671e4",
+      "lines": 596,
+      "sha256": "3ba1f0bc1d1e9801358092569e044da57e3d2faef692d15648580b1058f30772",
       "symbols": [
         {
           "name": "MemoryRecallResult",
@@ -38776,15 +38776,15 @@
         },
         {
           "name": "sourceEvidenceEvents",
-          "line": 242
+          "line": 247
         },
         {
           "name": "sourceEvidenceForPrompt",
-          "line": 278
+          "line": 283
         },
         {
           "name": "formatForPrompt",
-          "line": 304
+          "line": 309
         }
       ]
     },
@@ -51295,8 +51295,8 @@
     },
     {
       "path": "app/src/test/java/com/jiacimu/lulu/data/MemoryRecallLifecycleTest.kt",
-      "lines": 61,
-      "sha256": "84181b30234af9dfbfddbf4dbfa0e67accc3dd04a084168c3ddd7468e9fbbb42",
+      "lines": 78,
+      "sha256": "fb8edde865bc817ed9eb6b69e85117136f346fd1512227cce29409834ced61d3",
       "symbols": [
         {
           "name": "MemoryRecallLifecycleTest",
