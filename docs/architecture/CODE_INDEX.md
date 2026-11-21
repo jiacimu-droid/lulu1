@@ -352,7 +352,7 @@
 | `app/src/main/java/com/jiacimu/lulu/XhsShareToRoleDialog.kt` | 115 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/ActorSceneWirePolicy.kt` | 48 | 4 |
 | `app/src/main/java/com/jiacimu/lulu/ai/CharacterClockAuthority.kt` | 19 | 1 |
-| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1853 | 30 |
+| `app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt` | 1851 | 30 |
 | `app/src/main/java/com/jiacimu/lulu/ai/GeminiUsageRequestPolicy.kt` | 21 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/ai/GoogleKeyRotation.kt` | 57 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/ai/JevDirections.kt` | 153 | 4 |
@@ -1084,7 +1084,7 @@
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelLocalRouteHealthTest.kt` | 56 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelPostTransportTest.kt` | 292 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/ModelResponsePayloadTest.kt` | 55 | 1 |
-| `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 536 | 1 |
+| `app/src/test/java/com/jiacimu/lulu/ai/ModelVisibleOutputTest.kt` | 561 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MultimodalContentTest.kt` | 61 | 1 |
 | `app/src/test/java/com/jiacimu/lulu/ai/MusicSignalSketchTest.kt` | 64 | 4 |
 | `app/src/test/java/com/jiacimu/lulu/ai/PromptCacheSectionOrderTest.kt` | 48 | 1 |
