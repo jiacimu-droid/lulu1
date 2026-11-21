@@ -18,7 +18,7 @@ internal object CharacterDecisionProtocol {
     }
     /** UI/store ownership is independent of a character's personality or tone. */
     private const val recordOwnership = "【记录的真实归属】当前入口为「生活记录」（心事、生活近况、日记、收藏、小剧场、朋友圈）、「日程」和「记忆」；「辞海」仅为历史旧称。未解挂心和持续意愿属于心事；已接受的责任由日程任务引擎保存，心事只引用taskId。事实、日记、收藏与长期记忆各归原记录。"
-    private const val personaDrivenIdeas = "【用人设想一步】从关系、性格的不同侧面与真事想：我在意什么？我自己还想做或学什么？没有新用户消息也能想。想了解亲近的人时，可从一个已知细节生出具体好奇；也可想逗她、主动找话题、学一种更适合两人的聊法，或用已授权的后台虚拟屏去小红书找灵感。查什么由本人决定，reason 留下缘由，按真实阅读和对方反馈调整。"
+    private const val personaDrivenIdeas = "【用人设想一步】从关系、性格的不同侧面与真事想：我在意什么？我自己还想做或学什么？没有新用户消息也能想。从自己还不了解的人、上次没做好的事或惦记的体验出发。两种愿望拉扯时，让眼下更在意的一件影响选择，另一件可以留在心里。想玩时也可以惦记某个玩伴；想和主人一起就发可点击的游戏邀请。想学一种更适合两人的聊法，可以找熟悉的居民聊聊，或用已授权的后台虚拟屏去小红书找灵感。独处也能随兴趣逛；碰到值得聊的见闻，再决定找哪位朋友或哪个群。决定了就用本轮可用动作迈出第一步，按真实阅读和对方反馈调整。"
     private val learningAndExploration: String get() = CharacterExperienceLearning.instruction + "\n" + CharacterExplorationContinuity.guidance
     /**
      * One short operational contract for ALL runtime model requests.

@@ -123,10 +123,11 @@ object CharacterRuntime {
         includeActiveCommitments: Boolean = true,
         freshAnswer: Boolean = false,
         includeOwnerKnowledge: Boolean = true,
+        includeHistoricalGrowth: Boolean = true,
     ): String {
-        val learned = CharacterDevelopmentStore.active(characterId)
-        val narrative = CharacterDevelopmentRecall.select(
-            learned.filter { it.kind == DevelopmentKind.NarrativeMeaning }, query, if (compact) 3 else 8)
+        val learned = if (includeHistoricalGrowth || includeOwnerKnowledge) CharacterDevelopmentStore.active(characterId) else emptyList()
+        val narrative = if (includeHistoricalGrowth) CharacterDevelopmentRecall.select(
+            learned.filter { it.kind == DevelopmentKind.NarrativeMeaning }, query, if (compact) 3 else 8) else emptyList()
         // Full actor calls route these records through the bounded memory working set.
         // Keep the legacy direct context available for narrow adapters that do not
         // assemble that working set; the original source-backed store is unchanged.
@@ -134,12 +135,12 @@ object CharacterRuntime {
             learned.filter { it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit,
                 DevelopmentKind.UserFact, DevelopmentKind.UserImpression) }, query, if (compact) 7 else 16)
             else emptyList()
-        val adaptive = CharacterDevelopmentRecall.select(
+        val adaptive = if (includeHistoricalGrowth) CharacterDevelopmentRecall.select(
             learned.filterNot {
                 it.kind == DevelopmentKind.NarrativeMeaning ||
                     it.kind in setOf(DevelopmentKind.UserPreference, DevelopmentKind.UserHabit,
                         DevelopmentKind.UserFact, DevelopmentKind.UserImpression)
-            }, query, if (compact) 5 else 16)
+            }, query, if (compact) 5 else 16) else emptyList()
         return buildString {
             // The stable principles are shared in CharacterDecisionProtocol;
             // one brief anatomy is enough even for a full context request.
@@ -147,7 +148,7 @@ object CharacterRuntime {
             // The superseded speech has already affected some transient
             // states. A replacement FIRST answer must not see those effects.
             if (!freshAnswer) {
-                CharacterExperienceLearning.recentContext(characterId)
+                if (includeHistoricalGrowth) CharacterExperienceLearning.recentContext(characterId)
                     .takeIf(String::isNotBlank)?.let(::appendLine)
                 appendLine(CompanionContactClock.context(characterId))
             }
@@ -175,7 +176,7 @@ object CharacterRuntime {
             // Same recent personal scene is visible in chat, telephone and
             // autonomous thought. Its prose stays SUBJECTIVE and short;
             // only the verified world action is an objective timeline fact.
-            WorldLifeEpisodeStore.recentContext(characterId)
+            if (includeHistoricalGrowth) WorldLifeEpisodeStore.recentContext(characterId)
                 .takeIf(String::isNotBlank)?.let(::appendLine)
             // One evidence-backed relational will follows the same identity and
             // private life across chat, phone and digital-world meetings.
@@ -254,8 +255,9 @@ object CharacterRuntime {
         characterId: String, compact: Boolean = false, query: String = "",
         includeActiveCommitments: Boolean = true, freshAnswer: Boolean = false,
         includeOwnerKnowledge: Boolean = true,
+        includeHistoricalGrowth: Boolean = true,
     ): String = personalityRuntimeContext(characterId, compact = compact, query = query,
         includeActiveCommitments = includeActiveCommitments, freshAnswer = freshAnswer,
-        includeOwnerKnowledge = includeOwnerKnowledge)
+        includeOwnerKnowledge = includeOwnerKnowledge, includeHistoricalGrowth = includeHistoricalGrowth)
 
 }

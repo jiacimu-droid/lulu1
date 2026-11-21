@@ -13,7 +13,10 @@ enum class DevelopmentKind(val label: String) {
     UserFact("主人告诉我的事实"), UserImpression("对主人的待证实印象"),
     ExpressionHabit("表达习惯"), Judgment("判断"),
     SituationalPattern("情境反应倾向"), NarrativeMeaning("叙事意义"),
-    RelationshipRoutine("相处方式"), VerifiedMethod("验证过的方法")
+    RelationshipRoutine("相处方式"), VerifiedMethod("验证过的方法");
+
+    internal val isOwnerKnowledge: Boolean
+        get() = this == UserPreference || this == UserHabit || this == UserFact || this == UserImpression
 }
 
 data class DevelopmentRecord(

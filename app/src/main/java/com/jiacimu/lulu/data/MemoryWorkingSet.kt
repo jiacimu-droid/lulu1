@@ -14,7 +14,8 @@ internal object MemoryWorkingSet {
     fun assemble(context: UnifiedMemoryContext, lexicon: List<LexiconEntry>,
                  auxiliary: List<Pair<String, String>>, budget: PromptContextBudget,
                  coreSection: String,
-                 ownerKnowledge: List<DevelopmentRecord> = emptyList()): MemoryWorkingSelection {
+                 ownerKnowledge: List<DevelopmentRecord> = emptyList(),
+                 growth: List<DevelopmentRecord> = emptyList()): MemoryWorkingSelection {
         // Old callers may supply only a single-role lexicon with an empty
         // UnifiedMemoryContext. Preserve that path, but never merge diary
         // entries from two characters when no owner was selected.
@@ -104,6 +105,12 @@ internal object MemoryWorkingSet {
                     690, payload = record.content, sources = record.evidence.keys,
                     derivedSummary = true))
             }
+            growth.filter { owner.isNotBlank() && it.characterId == owner && !it.kind.isOwnerKnowledge }
+                .forEachIndexed { index, record ->
+                    add(MemoryPromptCandidate("growth:${record.id}", "由往事形成的个人理解",
+                        "- [${record.createdAt}；${record.kind.label}；${record.maturity}] ${record.content}",
+                        680 - index, payload = record.content, sources = record.evidence.keys))
+                }
             lexicon.filter { owner.isNotBlank() && it.characterId == owner }
                 .forEachIndexed { index, entry ->
                 if (entry.section == LexiconSection.Concern) {

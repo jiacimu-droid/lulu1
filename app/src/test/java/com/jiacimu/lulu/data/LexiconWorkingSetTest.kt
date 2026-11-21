@@ -35,6 +35,18 @@ class LexiconWorkingSetTest {
         MemoryWorkingSet.assemble(context, LexiconMemoryContext.select(role, query), emptyList(),
             PromptContextBudget(18, 1000, 1000, 1000, false, false, 1500, false, workingSetCharacters = 4000), "")
 
+    @Test fun historicalGrowthUsesTheRecallBudgetAndOnlyTheActorsOwnRecords() {
+        val record = DevelopmentRecord("insight", role, "cooperation", DevelopmentKind.Judgment,
+            "有些快乐值得邀请别人一起体验", 0.8, emptyMap(), emptyMap(), 1, now)
+        fun selected(limit: Int) = MemoryWorkingSet.assemble(UnifiedMemoryContext(characterId = role),
+            emptyList(), emptyList(), PromptContextBudget(16, 1000, 1000, 0, false, true, 100,
+                false, workingSetCharacters = limit), "", growth = listOf(record,
+                record.copy(id = "foreign", characterId = "someone-else"),
+                record.copy(id = "owner", kind = DevelopmentKind.UserFact))).selected
+        assertEquals(listOf("growth:insight"), selected(1000))
+        assertTrue(selected(1).isEmpty())
+    }
+
     @Test fun oldUnrelatedLifeNotesStayStoredButDoNotFloodEveryModelTurn() = runBlocking {
         repeat(65) { index ->
             LuluRepositories.lexicon.save(entry("old-life-$index", LexiconSection.Life,
