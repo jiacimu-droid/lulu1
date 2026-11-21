@@ -18,6 +18,31 @@ import org.robolectric.annotation.Config
 class ModelVisibleOutputTest {
     private val privateText = "PRIVATE_ANALYSIS_MUST_NEVER_BECOME_SPEECH"
 
+    @Test fun callerShortOutputHintsNeverLimitActualWireBudget() = runBlocking {
+        val app = RuntimeEnvironment.getApplication()
+        LuluRepositories.initialize(app)
+        val gateway = CompanionModelGateway(ModelConnectionStore.create(app))
+        val server = MockWebServer()
+        repeat(3) {
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("""{"choices":[{"message":{"content":"ok"},"finish_reason":"stop"}]}"""))
+        }
+        server.start()
+        try {
+            val connection = ModelConnection(server.url("/").toString(), "key", "test")
+            for (hint in listOf<Int?>(160, 3_000, null)) {
+                assertEquals("ok", gateway.generate(
+                    "wire-output-headroom", "", "short answer", "output ceiling regression", "test",
+                    maxTokens = hint, contextMode = CompanionContextMode.Isolated,
+                    connectionOverride = connection,
+                ).getOrThrow().text)
+                val request = JSONObject(server.takeRequest().body.readUtf8())
+                assertEquals(MODEL_OUTPUT_HEADROOM_TOKENS, request.getInt("max_tokens"))
+            }
+            assertEquals(3, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
     @Test fun outputAuditSeparatesJsonPayloadFromExplicitReasoningUsage() = runBlocking {
         val app = RuntimeEnvironment.getApplication()
         LuluRepositories.initialize(app)
