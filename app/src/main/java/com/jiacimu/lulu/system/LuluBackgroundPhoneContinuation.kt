@@ -452,13 +452,14 @@ internal object LuluBackgroundPhoneContinuation {
             val imageInLearningRequest = !image.isNullOrBlank() &&
                 readingReceipt?.optBoolean("imageForwardedToRole") == true
             val visibleReadingText = readingReceipt?.optString("visibleText").orEmpty()
-            val offerLearning = privateBrowse && hasFreshExecutionReceipt(readingReceipt) &&
+            val witnessedIndependentScreen = hasFreshExecutionReceipt(readingReceipt) &&
                 readingReceipt?.optBoolean("success") == true &&
                 readingReceipt.optString("mode") == LuluBackgroundPhoneArgumentPolicy.INDEPENDENT_MODE &&
                 readingReceipt.optBoolean("targetWindowVerified") &&
                 readingReceipt.optString("screenSnapshotId").isNotBlank() &&
                 !readingReceipt.optBoolean("actionFrameUnverified") &&
                 (imageInLearningRequest || visibleReadingText.isNotBlank())
+            val offerLearning = privateBrowse && witnessedIndependentScreen
             val readingEvidenceId = "tool-$characterId-$screenAttemptId"
             val response = LuluAiServices.gateway.generate(
                 characterId = characterId,
@@ -520,6 +521,7 @@ internal object LuluBackgroundPhoneContinuation {
                     搜索时，当前目标App回执若有唯一可验证搜索框，可一次选择{"action":"search","text":"关键词"}。本机会核实焦点、输入读回后才提交，并返回实际页面；searchSubmitted只说明提交已派发，要阅读页面才知道搜到了什么。没有唯一搜索框时先根据真实控件或画面打开搜索入口；type仍只填入，单独submit才会提交。弹出输入法时仍根据后台App窗口核验，不能把键盘当目标App。launch可提供真实packageName或准确appName（例如「抖音」）；appName只由本机精确查找已安装App，找不到、重名或被主人排除就停止，不猜包名。相对坐标0至1000，滑动使用startX/startY/endX/endY。只有想真实给主人看这块后台屏时，才在observe等操作附加sendToChat=true；capture_screen永远是主屏，不能冒充后台。
                     分享小红书帖子、商品或网页给主人的统一方法：在实际页面打开分享，选择看到的复制链接按钮，用tap_element或tap并附本次screenSnapshotId及sendLinkToChat=true。只有linkSent=true才说明本次复制的链接已作为私聊卡片发给主人；找不到复制按钮就按新画面继续观察。sendToChat=true只发后台截图。
                     ${if (offerLearning) "这次你确实读到值得以后尝试的东西时，可在原JSON附 learning={topic,understanding,applicableWhen,question,sourceExcerpt}。写本人理解和想试的具体做法，关联当前真的读到的内容。sourceExcerpt 只摘本轮可见文字的准确片段；仅从当前附图有所得时留空，记为画面心得。搜索列表、按钮、记忆中的文字不能冒充读到的正文。心得是自己选的待验证方法，日后实际尝试和对方反馈才决定它是否适用。没读到可用内容就省略。" else ""}
+                    ${if (witnessedIndependentScreen) com.jiacimu.lulu.data.CharacterExperienceLearning.methodPrompt + " 本轮 actionEvidenceId=$readingEvidenceId" else ""}
                     不在这里发送聊天正文，后续由原本人格聊天流程回复。
                     不请求密码、验证码，不付款。微信和抖音私信、朋友圈及其他App可用通用观察/输入/点击流程；send_chat_message和publish_wechat_moment是兼容的专用事务，不是必经路线。分享链接只用最新画面核实过的复制按钮。购物预付款步骤只在主人已开启角色购物授权时才可做；不要点击提交订单、确认订单、支付按钮或免密/货到付款。点击购买类控件必须用最近一次真实快照的tap_element，不能猜坐标；看到付款页就停止并告知主人，绝不声称订单或付款已完成。
                     目标已完成、无法判断或用户停止时可以直接结束。
@@ -572,6 +574,10 @@ internal object LuluBackgroundPhoneContinuation {
                     }.getOrDefault(false)
                     if (saved) history.appendLine("已存入本人的成长心得；原始回执ID=$readingEvidenceId")
                 }
+            }
+            if (witnessedIndependentScreen) runCatching {
+                com.jiacimu.lulu.data.CharacterLearningLedger.recordMethod(characterId,
+                    decision.optJSONObject("method"), listOf(readingEvidenceId))
             }
             when (decision.optString("decision")) {
                 "finish" -> {

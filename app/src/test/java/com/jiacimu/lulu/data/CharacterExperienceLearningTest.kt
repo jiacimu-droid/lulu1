@@ -84,6 +84,29 @@ class CharacterExperienceLearningTest {
         assertFalse(CharacterLearningLedger.context(role, "耳机断开").contains("日常经验ID=older-failed；"))
     }
 
+    @Test fun aPersonallyValuedMethodCanReturnAfterTheOriginalTopicHasPassed() {
+        tool("diary", tool = "read_self_preface", cause = "")
+        val note = experience("diary").apply {
+            remove("situationEvidenceId")
+            put("topic", "理解她")
+            put("understanding", "她在文字里描述了当时的感受")
+            put("methodImpression", "读她自己写的段落让我留意到谈话时忽略的细节")
+            put("applicableWhen", "想了解她看重什么时")
+            put("avoidWhen", "她要求这次先别读时")
+        }
+        CharacterLearningLedger.recordMethod(role, note, listOf("unrelated-receipt"))
+        assertFalse(CharacterLearningLedger.hasInsight(role, "diary"))
+        CharacterLearningLedger.recordMethod(role, note, listOf("diary"))
+        assertTrue(CharacterLearningLedger.hasInsight(role, "diary"))
+        tool("later", seconds = 20)
+        assertTrue(CharacterLearningLedger.recordExperience(role, experience("later")))
+        assertTrue(CharacterLearningLedger.context(role, "醒后音乐").contains(note.getString("methodImpression")))
+        assertFalse(CharacterLearningLedger.context(role, "醒后音乐", excludedEvidence = setOf("diary"))
+            .contains(note.getString("methodImpression")))
+        SharedExperienceTimeline.deleteEvent("diary")
+        assertFalse(CharacterLearningLedger.context(role, "醒后音乐").contains(note.getString("methodImpression")))
+    }
+
     @Test fun everydayToolExperienceNeedsNoArticleAndSurvivesRestart() {
         tool("music", status = "verified")
         assertTrue(CharacterLearningLedger.recordExperience(role, experience()))

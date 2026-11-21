@@ -248,7 +248,7 @@ object UnifiedMemoryOrchestrator {
             inspectionId = inspectionId,
             retrievalFocus = request.currentInput.ifBlank { request.taskIntent.ifBlank { query } },
             understandingContext = CharacterLearningLedger.context(characterId, query,
-                compact = memoryCharacterBudget < 6_000),
+                compact = memoryCharacterBudget < 6_000, excludedEvidence = excluded),
         )
     }
 
