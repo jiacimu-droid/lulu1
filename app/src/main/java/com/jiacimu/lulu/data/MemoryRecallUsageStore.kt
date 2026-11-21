@@ -85,6 +85,12 @@ internal object MemoryRecallUsageStore {
         }
     }
 
+    /** A reset/new life must not inherit private recall history from the old one. */
+    @Synchronized
+    fun clearCharacter(characterId: String) {
+        if (characterId.isNotBlank()) prefs?.edit()?.remove("usage:$characterId")?.commit()
+    }
+
     /** Remove private usage metadata with a user-deleted memory. */
     @Synchronized
     fun removeMemory(characterId: String, memoryId: String) {
