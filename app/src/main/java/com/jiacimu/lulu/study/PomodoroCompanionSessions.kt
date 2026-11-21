@@ -1,8 +1,10 @@
 package com.jiacimu.lulu.study
 
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioFormat
 import android.media.AudioManager
-import android.media.ToneGenerator
+import android.media.AudioTrack
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +15,9 @@ import kotlin.random.Random
 
 enum class PomodoroTimerMode { Countdown, CountUp }
 enum class PomodoroSkin { Light, Dark }
+
+/** Audible boundaries of a micro-rest; never a per-second ticker. */
+internal enum class MicroRestCue { Start, End }
 
 data class PomodoroCompanionPreferences(
     val task: String = "完成当前最重要的一项学习任务",
@@ -134,15 +139,15 @@ class PomodoroCompanionStore private constructor(context: Context) {
     }
 
     /**
-     * Advances the optional 10-second quiet break without changing study duration.
-     * Returns true once when a NEW rest starts, so the UI may play one short chime.
-     * Missed reminders are skipped (never replay a backlog after app suspension).
+     * One cue when the rest starts and a separate cue exactly 10 seconds later.
+     * A stale end/start after process suspension is discarded rather than played late.
+     * Never changes the main focus duration.
      */
-    fun syncMicroRestClock(nowMillis: Long = System.currentTimeMillis()): Boolean {
+    fun syncMicroRestClockEvent(nowMillis: Long = System.currentTimeMillis()): MicroRestCue? {
         val current = mutable.value
         if (!current.microRestEnabled || current.timerMode != PomodoroTimerMode.Countdown ||
             current.activeSessionId.isBlank() || current.completionHandled ||
-            !current.countdownRunning) return false
+            !current.countdownRunning) return null
         if (current.microRestEndsAtEpochMillis > 0L) {
             val seconds = ((current.microRestEndsAtEpochMillis - nowMillis).coerceAtLeast(0L) + 999L)
                 .div(1000L).toInt()
@@ -151,10 +156,13 @@ class PomodoroCompanionStore private constructor(context: Context) {
                     it.copy(microRestEndsAtEpochMillis = 0L, microRestRemainingSeconds = 0,
                         microRestNextAtEpochMillis = nowMillis + randomMicroRestDelayMillis())
                 }
-            } else if (seconds != current.microRestRemainingSeconds) {
+                return if (nowMillis - current.microRestEndsAtEpochMillis <= 2_000L)
+                    MicroRestCue.End else null
+            }
+            if (seconds != current.microRestRemainingSeconds) {
                 mutable.value = current.copy(microRestRemainingSeconds = seconds)
             }
-            return false
+            return null
         }
         val nextAt = current.microRestNextAtEpochMillis
         if (nextAt <= 0L || nowMillis - nextAt > 20_000L ||
@@ -163,16 +171,20 @@ class PomodoroCompanionStore private constructor(context: Context) {
             if (current.countdownEndAtEpochMillis - nowMillis > 10_000L) {
                 update { it.copy(microRestNextAtEpochMillis = nowMillis + randomMicroRestDelayMillis()) }
             }
-            return false
+            return null
         }
-        if (nowMillis < nextAt) return false
+        if (nowMillis < nextAt) return null
         update {
             it.copy(microRestNextAtEpochMillis = 0L,
                 microRestEndsAtEpochMillis = nowMillis + MICRO_REST_DURATION_MS,
                 microRestRemainingSeconds = 10)
         }
-        return true
+        return MicroRestCue.Start
     }
+
+    /** Compatibility for older callers/tests that only need to know about rest start. */
+    fun syncMicroRestClock(nowMillis: Long = System.currentTimeMillis()): Boolean =
+        syncMicroRestClockEvent(nowMillis) == MicroRestCue.Start
 
     fun toggleCountdown(nowMillis: Long = System.currentTimeMillis()) {
         val current = mutable.value
@@ -354,17 +366,80 @@ class PomodoroCompanionStore private constructor(context: Context) {
  * No alarm-volume override, paid model call, or repeated alerts.
  */
 internal object PomodoroMicroRestChime {
-    suspend fun play(): Boolean {
-        val tone = runCatching { ToneGenerator(AudioManager.STREAM_MUSIC, 90) }.getOrNull()
+    private const val SAMPLE_RATE = 44_100
+    private const val TOTAL_MS = 720L
+
+    /**
+     * Generate an actual PCM chime for the media output. Unlike notification tones
+     * it is not suppressed just because the notification channel is silenced.
+     * Return false on muted media volume or an AudioTrack failure; do not claim it rang.
+     */
+    suspend fun play(context: Context, cue: MicroRestCue): Boolean {
+        val audio = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
             ?: return false
+        if (audio.getStreamVolume(AudioManager.STREAM_MUSIC) <= 0) return false
+        val pcm = samples(cue)
+        val track = runCatching {
+            AudioTrack.Builder()
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                )
+                .setAudioFormat(
+                    AudioFormat.Builder()
+                        .setSampleRate(SAMPLE_RATE)
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                        .build()
+                )
+                .setTransferMode(AudioTrack.MODE_STATIC)
+                .setBufferSizeInBytes(pcm.size * 2)
+                .build()
+        }.getOrNull() ?: return false
+
         return try {
-            val started = runCatching {
-                tone.startTone(ToneGenerator.TONE_PROP_BEEP2, 500)
-            }.getOrDefault(false)
-            if (started) delay(650L)
-            started
+            if (track.state != AudioTrack.STATE_INITIALIZED) false
+            else {
+                val written = track.write(pcm, 0, pcm.size, AudioTrack.WRITE_BLOCKING)
+                if (written != pcm.size) false
+                else {
+                    track.play()
+                    delay(TOTAL_MS + 120L)
+                    true
+                }
+            }
+        } catch (_: Exception) {
+            false
         } finally {
-            runCatching { tone.release() }
+            runCatching { track.stop() }
+            runCatching { track.release() }
+        }
+    }
+
+    private fun samples(cue: MicroRestCue): ShortArray {
+        val notes = if (cue == MicroRestCue.Start) doubleArrayOf(880.0, 1174.66)
+            else doubleArrayOf(1174.66, 880.0)
+        val total = (SAMPLE_RATE * TOTAL_MS / 1000L).toInt()
+        return ShortArray(total) { index ->
+            val millis = index * 1000.0 / SAMPLE_RATE
+            val noteIndex = when {
+                millis < 240.0 -> 0
+                millis >= 335.0 && millis < 585.0 -> 1
+                else -> -1
+            }
+            if (noteIndex < 0) 0
+            else {
+                val elapsed = if (noteIndex == 0) millis else millis - 335.0
+                val duration = if (noteIndex == 0) 240.0 else 250.0
+                val envelope = minOf(1.0, elapsed / 12.0, (duration - elapsed) / 25.0)
+                    .coerceAtLeast(0.0)
+                val sample = kotlin.math.sin(
+                    2.0 * Math.PI * notes[noteIndex] * (index.toDouble() / SAMPLE_RATE)
+                )
+                (sample * envelope * Short.MAX_VALUE * 0.65).toInt().toShort()
+            }
         }
     }
 }
@@ -393,6 +468,7 @@ object PomodoroCompanionSessions {
     fun syncCountUpClock(): Int = store.syncCountUpClock()
     fun syncCountdownClock(): Boolean = store.syncCountdownClock()
     fun syncMicroRestClock(): Boolean = store.syncMicroRestClock()
+    fun syncMicroRestClockEvent(): MicroRestCue? = store.syncMicroRestClockEvent()
     fun currentCountUpSeconds(): Int = store.currentCountUpSeconds()
 
     fun finishActiveSession(): Pair<Int, String> {
