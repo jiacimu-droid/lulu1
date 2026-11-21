@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-21T11:41:23.193964+00:00",
-  "commit": "20b01e8d05d6b8370fe6aab295c684ba0c8dc691",
+  "generatedAt": "2026-11-21T11:44:57.762634+00:00",
+  "commit": "aa38e73c6b8c017fbc383357df84f7a9f3052e7c",
   "branch": "main",
-  "sourceFingerprint": "1c8f32e6a972da2eb3695ecbd32ad13a4f6159d88bd45410fc97ecfe7a1a2db0",
+  "sourceFingerprint": "b3d63e9c09bcca06114718a992c5b0adce317657edc0759eebd23f66b2cff79a",
   "summary": {
-    "files": 1508,
-    "lines": 323990,
-    "symbols": 4592
+    "files": 1509,
+    "lines": 324157,
+    "symbols": 4597
   },
   "symbolIndex": {
     "AvatarPresentation": [
@@ -1019,7 +1019,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1883
+        "line": 1894
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/ScopedModelSelections.kt",
@@ -1168,6 +1168,10 @@
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt",
         "line": 8
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt",
+        "line": 23
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt",
@@ -3555,7 +3559,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1425
+        "line": 1429
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/ShortVideoMobileReading.kt",
@@ -6639,19 +6643,19 @@
     "publishVisibleProgress": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1595
+        "line": 1606
       }
     ],
     "consumeEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1607
+        "line": 1618
       }
     ],
     "LuluAiServices": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-        "line": 1873
+        "line": 1884
       }
     ],
     "addStreamingUsageWhenSupported": [
@@ -6767,11 +6771,15 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 538
+        "line": 539
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryInspectionStore.kt",
         "line": 80
+      },
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt",
+        "line": 29
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldSceneParticipantProfile.kt",
@@ -8069,7 +8077,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1396
+        "line": 1400
       }
     ],
     "DevelopmentKind": [
@@ -11809,7 +11817,7 @@
     "clearCharacterHistory": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 102
+        "line": 103
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MeetingExperienceStore.kt",
@@ -11819,61 +11827,61 @@
     "invalidateDerivedFromEvent": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 709
+        "line": 712
       }
     ],
     "allowsRawRecall": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 750
+        "line": 754
       }
     ],
     "shouldFlushPendingTail": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 763
+        "line": 767
       }
     ],
     "hasUnprocessedEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 792
+        "line": 796
       }
     ],
     "pendingMessageCount": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 805
+        "line": 809
       }
     ],
     "pendingTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 811
+        "line": 815
       }
     ],
     "contextTimelineEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 855
+        "line": 859
       }
     ],
     "refreshInspection": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 973
+        "line": 977
       }
     ],
     "MemoryDebugState": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1262
+        "line": 1266
       }
     ],
     "grams": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-        "line": 1365
+        "line": 1369
       }
     ],
     "ApiUsageSource": [
@@ -12698,6 +12706,10 @@
         "line": 98
       },
       {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt",
+        "line": 90
+      },
+      {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryValidityStore.kt",
         "line": 77
       }
@@ -12790,6 +12802,18 @@
         "line": 18
       }
     ],
+    "stats": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt",
+        "line": 48
+      }
+    ],
+    "recordSuccessfulInjection": [
+      {
+        "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt",
+        "line": 65
+      }
+    ],
     "liveEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
@@ -12799,7 +12823,7 @@
     "ranked": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 194
+        "line": 195
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OriginalEvidenceSpans.kt",
@@ -14163,19 +14187,19 @@
     "sourceEvidenceEvents": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 240
+        "line": 242
       }
     ],
     "sourceEvidenceForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 276
+        "line": 278
       }
     ],
     "formatForPrompt": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-        "line": 302
+        "line": 304
       }
     ],
     "characterId": [
@@ -28916,8 +28940,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt",
-      "lines": 409,
-      "sha256": "f4ee2d4d83bdd9328c923b41d84dda1e58be80d29f1e4e74ccf70caa8334e767",
+      "lines": 432,
+      "sha256": "9cd7546f75716e9347ee57438ff6d68453f755b24c2edb24d03ddcc62b6fa042",
       "symbols": []
     },
     {
@@ -30793,8 +30817,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/ai/CompanionModelGateway.kt",
-      "lines": 1891,
-      "sha256": "e2cbee2d4715dd3c6fa6f9ab5583029937fe471a439dbdb7a297982524372e36",
+      "lines": 1902,
+      "sha256": "ab35c5d4e1c87ef0b2c8f552e7af005556582efcd40d99adf73220f6c539f09d",
       "symbols": [
         {
           "name": "ApiConfiguration",
@@ -30910,19 +30934,19 @@
         },
         {
           "name": "publishVisibleProgress",
-          "line": 1595
+          "line": 1606
         },
         {
           "name": "consumeEvent",
-          "line": 1607
+          "line": 1618
         },
         {
           "name": "LuluAiServices",
-          "line": 1873
+          "line": 1884
         },
         {
           "name": "initialize",
-          "line": 1883
+          "line": 1894
         }
       ]
     },
@@ -36010,8 +36034,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/LocalMemoryRepository.kt",
-      "lines": 1470,
-      "sha256": "c81ceff0c99db3019ce2effd974395965ea7aae23e1a4aff3db54d9ff47b7091",
+      "lines": 1474,
+      "sha256": "b992c23ec80c6119d5fd1a955fa80a990dc7f0632a4e58b0c56967648ea5d69a",
       "symbols": [
         {
           "name": "LocalMemoryRepository",
@@ -36023,59 +36047,59 @@
         },
         {
           "name": "clearCharacterHistory",
-          "line": 102
+          "line": 103
         },
         {
           "name": "snapshot",
-          "line": 538
+          "line": 539
         },
         {
           "name": "invalidateDerivedFromEvent",
-          "line": 709
+          "line": 712
         },
         {
           "name": "allowsRawRecall",
-          "line": 750
+          "line": 754
         },
         {
           "name": "shouldFlushPendingTail",
-          "line": 763
+          "line": 767
         },
         {
           "name": "hasUnprocessedEvents",
-          "line": 792
+          "line": 796
         },
         {
           "name": "pendingMessageCount",
-          "line": 805
+          "line": 809
         },
         {
           "name": "pendingTimelineEvents",
-          "line": 811
+          "line": 815
         },
         {
           "name": "contextTimelineEvents",
-          "line": 855
+          "line": 859
         },
         {
           "name": "refreshInspection",
-          "line": 973
+          "line": 977
         },
         {
           "name": "MemoryDebugState",
-          "line": 1262
+          "line": 1266
         },
         {
           "name": "grams",
-          "line": 1365
+          "line": 1369
         },
         {
           "name": "ids",
-          "line": 1396
+          "line": 1400
         },
         {
           "name": "valid",
-          "line": 1425
+          "line": 1429
         }
       ]
     },
@@ -36985,9 +37009,36 @@
       ]
     },
     {
+      "path": "app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt",
+      "lines": 99,
+      "sha256": "ac96f65305c301ad98fb2b5988797f067e79bbc637e747b3e05af0a6a9f68449",
+      "symbols": [
+        {
+          "name": "initialize",
+          "line": 23
+        },
+        {
+          "name": "snapshot",
+          "line": 29
+        },
+        {
+          "name": "stats",
+          "line": 48
+        },
+        {
+          "name": "recordSuccessfulInjection",
+          "line": 65
+        },
+        {
+          "name": "removeMemory",
+          "line": 90
+        }
+      ]
+    },
+    {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-      "lines": 213,
-      "sha256": "e975cf3ad6faeed3dc53ceb9fea84fa3933776e4508736a2a03936dd9c2fd78a",
+      "lines": 236,
+      "sha256": "e42abe41b7eda93527acc24213a8bbf4613a9957ee0fb895411a5885a4e3a28e",
       "symbols": [
         {
           "name": "matches",
@@ -37015,7 +37066,7 @@
         },
         {
           "name": "ranked",
-          "line": 194
+          "line": 195
         }
       ]
     },
@@ -38412,8 +38463,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/RelevantMemoryRecall.kt",
-      "lines": 584,
-      "sha256": "deaecb2a41243d3fbf816f8856b4bf798a2c57f2e2aa8fb2178cde4666263106",
+      "lines": 591,
+      "sha256": "a84f7be8269b4a14fb845688def9038b800ea08c92ca511f31a7829b7ac671e4",
       "symbols": [
         {
           "name": "MemoryRecallResult",
@@ -38429,15 +38480,15 @@
         },
         {
           "name": "sourceEvidenceEvents",
-          "line": 240
+          "line": 242
         },
         {
           "name": "sourceEvidenceForPrompt",
-          "line": 276
+          "line": 278
         },
         {
           "name": "formatForPrompt",
-          "line": 302
+          "line": 304
         }
       ]
     },
