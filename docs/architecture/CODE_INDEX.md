@@ -238,7 +238,7 @@
 | `app/src/main/java/com/jiacimu/lulu/MeetingTopBarControls.kt` | 219 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoicePlayback.kt` | 198 | 9 |
 | `app/src/main/java/com/jiacimu/lulu/MeetingVoiceSettingsUi.kt` | 60 | 0 |
-| `app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt` | 435 | 0 |
+| `app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt` | 444 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatHubScreenV2.kt` | 631 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedChatTopBarCompat.kt` | 39 | 0 |
 | `app/src/main/java/com/jiacimu/lulu/MigratedFeatureScreens.kt` | 261 | 3 |
@@ -567,7 +567,7 @@
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryModelRuntime.kt` | 33 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryPatternNotes.kt` | 212 | 2 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemoryRecallUsageStore.kt` | 105 | 6 |
-| `app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt` | 253 | 7 |
+| `app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt` | 254 | 7 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySemanticConsolidation.kt` | 454 | 6 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySourceIntegrityRuntime.kt` | 42 | 1 |
 | `app/src/main/java/com/jiacimu/lulu/data/MemorySupersessionAutomation.kt` | 235 | 1 |

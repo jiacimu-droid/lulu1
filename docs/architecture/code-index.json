@@ -7499,7 +7499,7 @@
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 207
+        "line": 208
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/WorldLifeEpisodeStore.kt",
@@ -12865,7 +12865,7 @@
     "ranked": [
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-        "line": 225
+        "line": 226
       },
       {
         "path": "app/src/main/java/com/jiacimu/lulu/data/OriginalEvidenceSpans.kt",
@@ -29238,8 +29238,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/MemoryManagementComponents.kt",
-      "lines": 435,
-      "sha256": "333db0acfe0580bdd7c3f93d3975bb90d629f0b805a7ffb1e742c8d55429044d",
+      "lines": 444,
+      "sha256": "e583a4ed8ec0b375638d720ca118ae2f0e75b496fa4fd9f589551bbe9583709f",
       "symbols": []
     },
     {
@@ -37343,8 +37343,8 @@
     },
     {
       "path": "app/src/main/java/com/jiacimu/lulu/data/MemorySearchQuery.kt",
-      "lines": 253,
-      "sha256": "67de126dfa2721af1a18474efb664538bf9e8bacbfcef336066091a13e5aeef2",
+      "lines": 254,
+      "sha256": "18d6428d596ff8b6dc1e2023c44df9167cd40eac03dbf0a3018ca664a3364ab9",
       "symbols": [
         {
           "name": "matches",
@@ -37368,11 +37368,11 @@
         },
         {
           "name": "find",
-          "line": 207
+          "line": 208
         },
         {
           "name": "ranked",
-          "line": 225
+          "line": 226
         }
       ]
     },
