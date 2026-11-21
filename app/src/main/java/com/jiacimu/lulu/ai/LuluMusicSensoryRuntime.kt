@@ -134,7 +134,7 @@ object LuluMusicSensoryRuntime {
                         .put("mime_type", mime).put("data", encoded))))))
         } else {
             endpoint = cfg.base + "/chat/completions"
-            body = JSONObject().put("model", cfg.model).put("max_tokens", 700)
+            body = JSONObject().put("model", cfg.model).put("max_tokens", MODEL_OUTPUT_HEADROOM_TOKENS)
                 .put("messages", JSONArray().put(JSONObject().put("role", "user")
                     .put("content", JSONArray()
                         .put(JSONObject().put("type", "text").put("text", observationPrompt))
