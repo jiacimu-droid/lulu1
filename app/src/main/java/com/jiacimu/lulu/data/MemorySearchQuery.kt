@@ -191,7 +191,9 @@ internal object RawTimelineMemoryRecall {
             !event.occurredAt.isAfter(now) &&
                 event.source != "online-awareness" && event.source != "background-awareness"
         }
-        fun ranked(window: Pair<Instant, Instant>?) = eligible.filter { window == null || window.includes(it.occurredAt) }
+        val dateOverview = range != null && overview.containsMatchIn(currentInput) && affect == null
+        fun ranked(window: Pair<Instant, Instant>?, allForOverview: Boolean = false) =
+            eligible.filter { window == null || window.includes(it.occurredAt) }
             .mapNotNull { event ->
                 val exactTopic = timeTopic != null && event.content.contains(timeTopic, ignoreCase = true)
                 val overlap = terms.intersect(memorySearchTerms(event.content)).size
@@ -202,8 +204,29 @@ internal object RawTimelineMemoryRecall {
                 if (!relevant) null else event to (overlap + if (emotion) 20 else 0)
             }.sortedWith(compareByDescending<Pair<SharedTimelineEvent, Int>> { it.second }
                 .thenByDescending { it.first.occurredAt })
-            .take(limit.coerceAtMost(64)).map { it.first }.toList()
-        val hits = ranked(range)
+            .take(if (allForOverview) Int.MAX_VALUE else limit.coerceAtMost(64))
+            .map { it.first }.toList()
+        val hits = ranked(range, allForOverview = dateOverview)
+        if (dateOverview && range != null) {
+            // "What happened yesterday?" must cover the whole requested
+            // period, not only the last 16 evening messages. Choose evidence
+            // from separate time slices and keep original chronological order.
+            if (hits.size <= limit) return hits.sortedBy(SharedTimelineEvent::occurredAt)
+            val buckets = minOf(limit, 6).coerceAtLeast(1)
+            val minutes = Duration.between(range.first, range.second).toMinutes().coerceAtLeast(1)
+            val bySlice = hits.groupBy { event ->
+                val offset = Duration.between(range.first, event.occurredAt)
+                    .toMinutes().coerceIn(0, minutes - 1)
+                ((offset * buckets) / minutes).toInt().coerceIn(0, buckets - 1)
+            }
+            val anchors = bySlice.toSortedMap().values.map { slice ->
+                slice.firstOrNull { it.evidenceKind == EventEvidenceKind.UserStatement }
+                    ?: slice.firstOrNull { it.evidenceKind == EventEvidenceKind.ToolResult }
+                    ?: slice.first()
+            }
+            return (anchors + hits).distinctBy(SharedTimelineEvent::id)
+                .take(limit).sortedBy(SharedTimelineEvent::occurredAt)
+        }
         // Historical clocks are often approximate. Try the immediate
         // neighborhood only when a minute-specific search finds nothing.
         return if (hits.isEmpty() && range != null && Duration.between(range.first, range.second).toMinutes() == 1L)
