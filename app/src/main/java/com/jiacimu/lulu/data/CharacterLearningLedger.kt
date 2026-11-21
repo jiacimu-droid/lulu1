@@ -221,15 +221,15 @@ internal object CharacterLearningLedger {
             .put("applicableWhen", method.optString("applicableWhen").trim().take(180))
             .put("avoidWhen", method.optString("avoidWhen").trim().take(180))
         val items = records(role)
-        val reading = items.firstOrNull { it.optString("sourceEvidenceId") == id &&
-            it.optString("virtualReading").isNotBlank() }
-        if (reading == null) {
+        val existing = items.firstOrNull { it.optString("sourceEvidenceId") == id &&
+            (it.optString("virtualReading").isNotBlank() || it.optString("kind") == "experience") }
+        if (existing == null) {
             recordExperience(role, proposal)
             return
         }
         val note = CharacterExperienceLearning.prepare(role, proposal, Instant.now()) ?: return
-        if (!valid(role, reading, items)) return
-        reading.put("methodImpression", impression).put("tool", note.getString("tool"))
+        if (!valid(role, existing, items)) return
+        existing.put("methodImpression", impression).put("tool", note.getString("tool"))
             .put("methodWhen", note.getString("applicableWhen")).put("methodAvoid", note.getString("avoidWhen"))
         save(role, items)
     }
@@ -259,7 +259,11 @@ internal object CharacterLearningLedger {
                 next.getJSONObject("evidenceRevisions").put(id,
                     old.getJSONObject("evidenceRevisions").getLong(id))
             }
-            if (!proposal.has("methodImpression")) next.put("methodImpression", old.optString("methodImpression"))
+            if (!proposal.has("methodImpression")) {
+                listOf("methodImpression", "methodWhen", "methodAvoid").forEach { field ->
+                    if (old.has(field)) next.put(field, old.optString(field))
+                }
+            }
             if (listOf("methodImpression", "topic", "understanding", "applicableWhen", "avoidWhen", "uncertainty",
                     "feedbackEvidenceId", "feedbackQuote", "revisesEvidenceId").all {
                     old.optString(it) == next.optString(it) } && valid(characterId, old, items)) return false
@@ -694,7 +698,7 @@ internal object CharacterLearningLedger {
                 }
                 item.optString("methodImpression").takeIf(String::isNotBlank)?.let {
                     appendLine("  本人对${item.optString("tool")}这种做法的体会：$it")
-                    if (!experience) appendLine("  方法适用：${item.optString("methodWhen")}；局限：${item.optString("methodAvoid")}")
+                    if (item.has("methodWhen")) appendLine("  方法适用：${item.optString("methodWhen")}；局限：${item.optString("methodAvoid")}")
                 }
                 virtualReadingLabel(item).takeIf(String::isNotBlank)?.let {
                     appendLine("  来源=$it；本人保留的候选理解，按实际尝试及后续反馈判断适用性。")

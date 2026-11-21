@@ -1,5 +1,6 @@
 package com.jiacimu.lulu.data
 
+import android.content.Context
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.Instant
@@ -25,13 +26,17 @@ internal object CharacterExperienceLearning {
         实际复用已列出的阅读理解或日常经验时，可在主行动或每个steps项填写 learningApplication={"sourceEvidenceId":"所用理解/经验ID","action":"本项实际工具名或message/phone_reply","howApplied":"这次怎样使用"}；每项只归因自己的行动，副动作的应用放在对应steps项，不能用发言成功代替另一项工具成功。若本轮用户明确评价了以前的应用，可填 learningFeedback={"sourceEvidenceId":"理解/经验ID","actionEvidenceId":"旧应用ID","evaluation":"helped|unhelpful|mixed","quote":"用户本轮逐字原话","why":"对应哪次做法"}；纠正旧理解可用 learningChallenge={"sourceEvidenceId":"理解/经验ID","issue":"具体争议"}。最新拒绝、情境变化与反例优先考虑，不将旧经验当命令或授权，不为收集好评反复追问。字段都可省略，不新增一次反思调用。
     """.trimIndent()
 
-    const val methodPrompt = "这次办法本身有没有让你觉得值得再用，或发现它不合适？有切身体会才在 JSON 附 method={actionEvidenceId,topic,methodImpression,applicableWhen,avoidWhen}。写自己的体验与下次适用情境；这些字段只存入自己的经验，不会执行动作。"
+    val receiptSources = setOf("tool-router", "screen-consent", "cloud-service")
+
+    private const val methodFields = "{actionEvidenceId,topic,methodImpression,applicableWhen,avoidWhen}"
+    const val methodPrompt = "这次办法本身有没有让你觉得值得再用，或发现它不合适？有切身体会才在 JSON 附 method=$methodFields。写自己的体验与下次适用情境；这些字段只存入自己的经验，不会执行动作。"
 
     data class Receipt(val tool: String, val status: String, val success: Boolean,
         val summary: String, val causeId: String, val reason: String,
-        val requestEvidenceId: String = "")
+        val requestEvidenceId: String = "", val operation: String = "",
+        val backingEvidenceId: String = "", val causeRevision: Long = 0)
 
-    /** Pending permission, cloud jobs and model claims are not completed attempts. */
+    /** A deferred result is linked to the original request; merely queueing a job does not count. */
     fun receipt(event: SharedTimelineEvent): Receipt? {
         if (event.source == "screen-consent" && event.taskId.isNotBlank() &&
             event.id == "screen-observation-${event.characterId}-${event.taskId}") {
@@ -40,15 +45,39 @@ internal object CharacterExperienceLearning {
             if (original.source != "tool-router" || original.evidenceKind != EventEvidenceKind.ToolResult ||
                 original.occurredAt.isAfter(event.occurredAt)) return null
             val request = runCatching { JSONObject(original.content) }.getOrNull() ?: return null
-            if (request.optString("tool") != "capture_screen" || request.optString("status") != "pending") return null
+            val tool = request.optString("tool")
+            if (tool !in setOf("capture_screen", "read_screen") || request.optString("status") != "pending") return null
             val result = runCatching { JSONObject(event.content) }.getOrNull() ?: return null
             val success = result.optBoolean("success")
             if (success && (result.optString("status") != "observed" ||
                     event.evidenceKind != EventEvidenceKind.Observation) ||
                 !success && event.evidenceKind != EventEvidenceKind.ToolResult) return null
-            return Receipt("capture_screen", result.optString("status").ifBlank { "failed" }, success,
+            return Receipt(tool, result.optString("status").ifBlank { "failed" }, success,
                 result.optString("summary").ifBlank { result.optString("error") },
-                request.optString("causeEvidenceId"), request.optString("reason"), requestId)
+                request.optString("causeEvidenceId"), request.optString("reason"), requestId,
+                causeRevision = request.optLong("causeEvidenceRevision"))
+        }
+        if (event.source == "cloud-service") {
+            val task = event.taskId
+            if (task.isBlank() || event.id != "cloud-$task-${event.characterId}" ||
+                event.evidenceKind != EventEvidenceKind.ToolResult) return null
+            val result = runCatching { JSONObject(event.content) }.getOrNull() ?: return null
+            val status = result.optString("status")
+            if (result.optString("requestId") != task || result.optString("characterId") != event.characterId ||
+                status !in setOf("succeeded", "failed", "cancelled")) return null
+            val requestId = "tool-${event.characterId}-$task"
+            val original = CharacterActionEvidence.resolve(event.characterId, requestId)
+                ?.takeIf { it.source == "tool-router" && it.evidenceKind == EventEvidenceKind.ToolResult &&
+                    !it.occurredAt.isAfter(event.occurredAt) } ?: return null
+            val request = runCatching { JSONObject(original.content) }.getOrNull() ?: return null
+            if (request.optString("tool") != "cloud_task" || request.optString("status") != "pending") return null
+            val file = result.optJSONObject("result")?.optString("file").orEmpty()
+            if (status == "succeeded" && file.isBlank()) return null
+            return Receipt("cloud_task", status, status == "succeeded",
+                if (status == "succeeded") "云端服务返回已生成文件：$file"
+                else result.optString("error").ifBlank { "云端任务状态：$status" },
+                request.optString("causeEvidenceId"), request.optString("reason"), requestId,
+                operation = result.optString("kind"), causeRevision = request.optLong("causeEvidenceRevision"))
         }
         if (event.source != "tool-router" || event.evidenceKind != EventEvidenceKind.ToolResult) return null
         val root = runCatching { JSONObject(event.content) }.getOrNull() ?: return null
@@ -64,10 +93,21 @@ internal object CharacterExperienceLearning {
             val envelope = JSONObject().put("success", true).put("status", status)
             if (status.isBlank() || !ToolExecutionStatus.completed(envelope) ||
                 !ToolExecutionStatus.completed(result)) return null
-        } else if (status !in setOf("failed", "denied", "requested_unverified")) return null
+        } else if (status !in setOf("failed", "denied", "requested_unverified", "unverified", "cancelled")) return null
+        val args = runCatching { JSONObject(root.optString("fingerprint").substringAfter(':')) }.getOrNull()
+        val operation = args?.let { choice ->
+            listOf("op", "action", "command", "worldAction", "area", "gameId", "kind").mapNotNull { key ->
+                choice.optString(key).takeIf { it.isNotBlank() }?.let { "$key=${it.take(40)}" }
+            }.joinToString("，")
+        }.orEmpty()
+        val backing = if (!success) "" else result.optString("evidenceId").takeUnless { it == event.id }.orEmpty()
+        val scopedBacking = if (tool == "send_group_message" && backing.isNotBlank() && !backing.endsWith(":group:${event.characterId}"))
+            "$backing:group:${event.characterId}" else backing
         return Receipt(tool, status, success,
             result.optString("summary").ifBlank { result.optString("error").ifBlank { result.optString("verification") } },
-            root.optString("causeEvidenceId"), root.optString("reason"))
+            root.optString("causeEvidenceId"), root.optString("reason"),
+            operation = operation, backingEvidenceId = scopedBacking,
+            causeRevision = root.optLong("causeEvidenceRevision"))
     }
 
     /** Keep entire episodes in the existing reflection working set, including failures.
@@ -88,25 +128,95 @@ internal object CharacterExperienceLearning {
     }
 
     fun evidenceText(event: SharedTimelineEvent): String = receipt(event)?.let {
-        "工具=${it.tool}；执行=${it.status}；原始输入ID=${it.causeId}；当时理由=${it.reason}；实际结果=${it.summary}"
+        val operation = it.operation.takeIf(String::isNotBlank)?.let { value -> "（$value）" }.orEmpty()
+        "工具=${it.tool}$operation；执行=${it.status}；原始输入ID=${it.causeId}；当时理由=${it.reason.take(150)}；实际结果=${it.summary}"
     } ?: event.evidenceContent
 
-    fun recentContext(characterId: String): String {
-        val events = SharedExperienceTimeline.recentEvents(characterId, 60)
-        val newestFirst = events.asReversed().mapNotNull { event ->
-            receipt(event)?.let { it.tool to event }
+    private fun eligible(characterId: String, events: List<SharedTimelineEvent>,
+        excluded: Set<String> = emptySet()): List<SharedTimelineEvent> {
+        val attempts = events.mapNotNull { event ->
+            if (event.characterId != characterId || event.id in excluded) return@mapNotNull null
+            val attempt = receipt(event) ?: return@mapNotNull null
+            if (!CapabilityRegistry.canChoose(attempt.tool)) return@mapNotNull null
+            if (listOf(attempt.causeId, attempt.requestEvidenceId, attempt.backingEvidenceId).any { it in excluded })
+                return@mapNotNull null
+            event to attempt
         }
-        val attempts = (newestFirst.distinctBy { it.first } + newestFirst)
-            .distinctBy { it.second.id }.take(4).asReversed().map { it.second }
-        if (attempts.isEmpty()) return ""
-        return buildString {
-            appendLine("【最近工具尝试｜供本轮归因和改进，不自动代表有效】")
-            appendLine("想记住一种做法时可填 experienceLearning：actionEvidenceId 引用下列回执，understanding 写发现，methodImpression 写本人对做法的体会，topic 和 applicableWhen 写将来什么目标用得上。只有另有真实情境依据才填 situationEvidenceId。")
-            attempts.forEach { event ->
-                appendLine("- actionEvidenceId=${event.id} at=${event.occurredAt}；${evidenceText(event).take(500)}")
-            }
-        }.trim()
+        val required = CharacterPerceptionContext.liveEvidenceIds(characterId,
+            attempts.flatMap { (_, attempt) ->
+                listOf(attempt.causeId, attempt.requestEvidenceId, attempt.backingEvidenceId)
+            })
+        val causes = SharedExperienceTimeline.eventsByIds(characterId,
+            attempts.map { (_, attempt) -> attempt.causeId }).associateBy { it.id }
+        val hidden = SharedExperienceTimeline.foreignEvidenceIds(characterId,
+            attempts.map { (_, attempt) -> attempt.backingEvidenceId })
+        return attempts.mapNotNull { (event, attempt) ->
+            if (attempt.causeId.isNotBlank() && (attempt.causeId !in required ||
+                    attempt.causeRevision > 0 && causes[attempt.causeId]?.revision != attempt.causeRevision) ||
+                attempt.requestEvidenceId.isNotBlank() && attempt.requestEvidenceId !in required ||
+                attempt.backingEvidenceId in hidden || SharedExperienceTimeline.isDeletedEvent(attempt.backingEvidenceId) ||
+                attempt.tool == "send_group_message" && attempt.backingEvidenceId.isNotBlank() &&
+                attempt.backingEvidenceId !in required) null else event
+        }
     }
+
+    fun recentContext(characterId: String, excluded: Set<String> = emptySet()): String {
+        val events = SharedExperienceTimeline.recentToolResults(characterId, Instant.now(), 64)
+        val newest = eligible(characterId, events, excluded)
+        val attempts = (newest.distinctBy { receipt(it)?.tool } + newest)
+            .distinctBy { it.id }.take(4).asReversed()
+        if (attempts.isEmpty()) return ""
+        return "【最近工具尝试】回执可供当前行动参考。\n" + renderAttempts(attempts)
+    }
+
+    /** Advance only after an accepted decision sees this batch. Old and rare
+     * tools keep their turn even when routine actions dominate recent history. */
+    fun pendingMethods(context: Context, role: String, now: Instant): List<SharedTimelineEvent> {
+        val selected = mutableListOf<SharedTimelineEvent>()
+        var after: SharedTimelineEvent? = null
+        val limit = 6
+        val pageSize = 192
+        while (selected.size < limit) {
+            val page = SharedExperienceTimeline.perceptionPage(role, now, after?.occurredAt,
+                after?.id.orEmpty(), pageSize, sources = receiptSources)
+            val unread = PerceptionStimulusLedger.methodsNotReviewed(context, role, page)
+            selected += eligible(role, unread).take(limit - selected.size)
+            if (page.size < pageSize) break
+            after = page.last()
+        }
+        return selected
+    }
+
+    fun reviewContext(events: List<SharedTimelineEvent>): String {
+        if (events.isEmpty()) return ""
+        return "【亲手试过的办法】对做法本身的体会可写入 JSON 的 toolMethods=[$methodFields]。" +
+            " 只写有体会的条目。可以同时觉得有所得也有顾虑，写清什么时候想再用、什么时候换个办法。\n" +
+            renderAttempts(events)
+    }
+
+    private fun renderAttempts(events: List<SharedTimelineEvent>) = events.joinToString("\n") {
+        "- actionEvidenceId=${it.id} at=${it.occurredAt}；${evidenceText(it).take(400)}"
+    }
+
+    fun reviewMethods(context: Context, role: String, methods: JSONArray?, offered: List<SharedTimelineEvent>) {
+        if (offered.isEmpty()) return
+        val revisions = offered.associate { it.id to it.revision }
+        val current = eligible(role, SharedExperienceTimeline.eventsByIds(role, revisions.keys))
+            .filter { revisions[it.id] == it.revision }
+        val ids = current.mapTo(hashSetOf()) { it.id }
+        val saved = hashSetOf<String>()
+        for (index in 0 until (methods?.length() ?: 0).coerceAtMost(offered.size)) {
+            val method = methods?.optJSONObject(index) ?: continue
+            val id = method.optString("actionEvidenceId").trim()
+            if (id in ids && saved.add(id)) CharacterLearningLedger.recordMethod(role, method, ids)
+        }
+        current.forEach { PerceptionStimulusLedger.markMethodReviewed(context, it) }
+    }
+
+    fun immediateMethods(role: String, requestId: String, tool: String, excluded: Set<String>): List<SharedTimelineEvent> =
+        eligible(role, SharedExperienceTimeline.eventsByIds(role,
+            listOf("tool-$role-$requestId", "tool-rejected-$role-$requestId")), excluded)
+            .filter { receipt(it)?.tool == tool }.takeLast(1)
 
     /** All dependencies are copied from real, role-owned source revisions. */
     fun prepare(characterId: String, proposal: JSONObject, now: Instant): JSONObject? {
@@ -115,7 +225,8 @@ internal object CharacterExperienceLearning {
         if (action.occurredAt.isAfter(now)) return null
         val cause = if (result.causeId.isBlank()) null
             else CharacterActionEvidence.resolve(characterId, result.causeId) ?: return null
-        if (cause != null && cause.occurredAt.isAfter(action.occurredAt)) return null
+        if (cause != null && (cause.occurredAt.isAfter(action.occurredAt) ||
+                result.causeRevision > 0 && result.causeRevision != cause.revision)) return null
         val impression = proposal.optString("methodImpression").trim()
         val situationId = proposal.optString("situationEvidenceId").trim()
         // A personal assessment of a real attempt needs no invented user request.
@@ -139,6 +250,15 @@ internal object CharacterExperienceLearning {
         if (result.requestEvidenceId.isNotBlank()) {
             val request = CharacterActionEvidence.resolve(characterId, result.requestEvidenceId) ?: return null
             evidence.put(request.id, request.revision)
+        }
+        if (result.backingEvidenceId.isNotBlank()) {
+            if (SharedExperienceTimeline.isDeletedEvent(result.backingEvidenceId) ||
+                SharedExperienceTimeline.foreignEvidenceIds(characterId, listOf(result.backingEvidenceId)).isNotEmpty())
+                return null
+            val backing = CharacterActionEvidence.resolve(characterId, result.backingEvidenceId)
+            if (result.tool == "send_group_message" &&
+                backing != null && SharedExperienceTimeline.withoutRecalledGroupSpeech(listOf(backing)).isEmpty()) return null
+            backing?.let { evidence.put(it.id, it.revision) }
         }
         val feedbackId = proposal.optString("feedbackEvidenceId")
         val quote = proposal.optString("feedbackQuote").trim()
@@ -165,6 +285,8 @@ internal object CharacterExperienceLearning {
         val refs = item.optJSONObject("evidenceRevisions") ?: return false
         val ids = refs.keys().asSequence().toList()
         if (ids.isEmpty()) return false
-        return ids.all { id -> CharacterActionEvidence.resolve(characterId, id)?.revision == refs.optLong(id, -1L) }
+        val live = SharedExperienceTimeline.withoutRecalledGroupSpeech(
+            SharedExperienceTimeline.eventsByIds(characterId, ids))
+        return live.size == ids.size && live.all { it.revision == refs.optLong(it.id, -1L) }
     }
 }

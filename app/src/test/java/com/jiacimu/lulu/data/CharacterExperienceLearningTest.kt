@@ -65,6 +65,81 @@ class CharacterExperienceLearningTest {
     private fun apply(from: String) = JSONObject().put("sourceEvidenceId", from)
         .put("howApplied", "结合这次实际情境尝试复用醒后音乐经验")
 
+    private fun method(id: String) = JSONObject().put("actionEvidenceId", id)
+        .put("topic", "动手体验").put("methodImpression", "这种方法让我自己能决定接下来做什么")
+        .put("applicableWhen", "有新的线索想自己跟进时")
+        .put("avoidWhen", "当次条件和上次不一样时先核实")
+
+    @Test fun allActiveRegisteredToolsShareTheSameReviewPath() {
+        val registry = CapabilityRegistry.device + CapabilityRegistry.application + CapabilityRegistry.external
+        val tools = registry.filterNot { it.retired }
+        val expected = tools.mapIndexed { index, capability ->
+            tool("registered-$index", seconds = 10L + index, tool = capability.name).id
+        }.toSet()
+        tool("retired", tool = "write_journal")
+        tool("unknown", tool = "invented_tool")
+        tool("pending", status = "pending")
+        val reviewed = mutableSetOf<String>()
+        val then = now.plusSeconds(1000)
+        repeat(tools.size / 6 + 2) {
+            val offered = CharacterExperienceLearning.pendingMethods(context, role, then)
+            if (offered.isNotEmpty()) {
+                assertTrue(offered.all { reviewed.add(it.id) })
+                val notes = JSONArray(offered.map { method(it.id) })
+                CharacterExperienceLearning.reviewMethods(context, role, notes, offered)
+            }
+        }
+        assertEquals(expected, reviewed)
+        assertEquals(expected, CharacterLearningLedger.listInsights(role).map { it.sourceEvidenceId }.toSet())
+    }
+
+    @Test fun rareOldAttemptIsOfferedAfterUnrelatedConversationAndReviewPreservesPriorLearning() {
+        val singing = tool("song", tool = "sing_song")
+        tool("a-game", seconds = 11, tool = "play_solo_game")
+        repeat(100) { index -> user("later-$index", "后来聊起另一件事", 100L + index) }
+        val future = now.plusSeconds(300)
+        val offered = CharacterExperienceLearning.pendingMethods(context, role, future)
+        assertEquals(listOf("song", "a-game"), offered.map { it.id })
+        assertTrue(CharacterExperienceLearning.recentContext(role).contains("actionEvidenceId=song"))
+        assertFalse(CharacterExperienceLearning.recentContext(role, setOf("wake")).contains("actionEvidenceId=song"))
+
+        assertTrue(CharacterLearningLedger.recordExperience(role, experience("song")))
+        CharacterExperienceLearning.reviewMethods(context, role, JSONArray(listOf(method("song"))), listOf(singing))
+        assertEquals("午睡醒来仍困时，可以考虑用她愿意听的音乐帮助过渡",
+            CharacterLearningLedger.listInsights(role).single().understanding)
+        assertTrue(CharacterLearningLedger.context(role, "线索想自己跟进").contains("这种方法让我自己能决定"))
+        assertEquals(listOf("a-game"),
+            CharacterExperienceLearning.pendingMethods(context, role, future).map { it.id })
+        assertFalse(PerceptionStimulusLedger.peekSeen(context, role, singing.id, singing.revision))
+        CharacterExperienceLearning.reviewMethods(context, role, null, offered.takeLast(1))
+        assertTrue(CharacterExperienceLearning.pendingMethods(context, role, future).isEmpty())
+        assertFalse(CharacterLearningLedger.hasInsight(role, "a-game"))
+    }
+
+    @Test fun reviewingChecksOwnerAndRevisionAndDoesNotTurnDeferredWorkIntoSuccess() {
+        val refused = tool("denied", "denied", false, tool = "send_character_message")
+        tool("tool-$role-job", "pending", tool = "cloud_task")
+        val completion = "cloud-job-$role"
+        val cloudResult = JSONObject().put("characterId", role).put("requestId", "job")
+            .put("status", "succeeded").put("result", JSONObject().put("file", "report.docx"))
+        SharedExperienceTimeline.record(completion, role, "云端任务", "任务服务", cloudResult.toString(),
+            now.plusSeconds(20), taskId = "job", triggerExtraction = false,
+            source = "cloud-service", evidenceKind = EventEvidenceKind.ToolResult)
+        val offered = CharacterExperienceLearning.pendingMethods(context, role, now.plusSeconds(100))
+        assertEquals(listOf("denied", completion), offered.map { it.id })
+        assertFalse(CharacterExperienceLearning.receipt(refused)!!.success)
+        assertTrue(CharacterExperienceLearning.receipt(offered.last())!!.success)
+        CharacterExperienceLearning.reviewMethods(context, "other", JSONArray(listOf(method(completion))), offered)
+        assertFalse(CharacterLearningLedger.hasInsight("other", completion))
+        SharedExperienceTimeline.deleteEvent("denied")
+        CharacterExperienceLearning.reviewMethods(context, role,
+            JSONArray(listOf(method("denied"), method(completion))), offered)
+        assertFalse(CharacterLearningLedger.hasInsight(role, "denied"))
+        assertTrue(CharacterLearningLedger.hasInsight(role, completion))
+        SharedExperienceTimeline.deleteEvent("tool-$role-job")
+        assertFalse(CharacterLearningLedger.hasInsight(role, completion))
+    }
+
     @Test fun aStopConditionAtTheEndCanRecallAnOlderFailedAttemptWithoutCallingItSuccess() {
         tool("older-failed", "failed", false)
         tool("newer-unrelated", seconds = 20)

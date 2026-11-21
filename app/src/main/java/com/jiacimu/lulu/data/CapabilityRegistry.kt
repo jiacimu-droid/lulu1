@@ -99,7 +99,10 @@ object CapabilityRegistry {
             val remaining = active.filter { it !in shown }.filter { name ->
                 find(name)?.let { allows(context, characterId, it, false) } == true
             }.sorted()
-            if (remaining.isNotEmpty()) appendLine("其他已接通：${remaining.joinToString("、")}")
+            if (remaining.isNotEmpty()) {
+                appendLine("其他已接通：${remaining.joinToString("、")}")
+                shown.addAll(remaining)
+            }
             appendLine("只列出此刻按既有授权可尝试的已注册工具，不等于执行成功；" +
                 "搜索API还须配置、手机操作还须真实屏幕与权限、社交需要有效对象ID。" +
                 "没有列出的设备工具可能需要主人先开启授权，不可假称已禁用全部能力。")
@@ -159,6 +162,14 @@ object CapabilityRegistry {
                     appendLine(batch.joinToString("；") { it.second })
                 }
             }
+            val explained = examples.mapTo(hashSetOf()) { it.first }
+            val remainingDetails = (device + application + external).filter {
+                it.name in shown && it.name !in explained
+            }
+            if (remainingDetails.isNotEmpty()) {
+                appendLine("其他工具成功时会有的回执：")
+                remainingDetails.forEach { appendLine("- ${it.name}：${it.successEvidence}") }
+            }
             if ("web_search" in shown && !WebSearchProvider.isConfigured(context))
                 appendLine("web_search 目前缺少搜索服务配置，不能宣称已经查到网页。")
             if ("image_search" in shown && !ImageSearchProvider.configured(context, "serper") &&
@@ -171,7 +182,8 @@ object CapabilityRegistry {
                 "独立动作同时写 steps=[{tool:已注册工具名,args:{实际参数},requiresPreviousSuccess:false}]；" +
                 "先看到搜索/画面结果才能决定的下一步，须等新回执再选择，不能预写成功。" +
                 "每步独立校验授权、真实对象和持久回执；明确的未来行动由原 plan_personal_activity 保存。" +
-                "想说什么、联系谁、什么时候联系，由本人结合真实关系决定。")
+                "想说什么、联系谁、什么时候联系，由本人结合真实关系决定。" +
+                "有兴趣或实际目标时，可比较熟悉做法和还没试过的能力。想独自玩和想邀谁一起玩是不同打算，按此刻想做的选。")
         }.trim()
     }
 

@@ -64,11 +64,44 @@ internal object PerceptionStimulusLedger {
         return insert(characterId, stimulus.evidenceId, stimulus.revision)
     }
 
+    // Seeing an outcome in a conversation and considering the usefulness of
+    // the method are independent. Both checkpoints belong to the same receipt revision.
+    private fun methodKey(evidenceId: String) = "method-review:$evidenceId"
+
+    /** One indexed read for a page, including the exact receipt revisions. */
+    @Synchronized fun methodsNotReviewed(
+        context: Context, role: String, events: List<SharedTimelineEvent>,
+    ): List<SharedTimelineEvent> {
+        if (events.isEmpty()) return emptyList()
+        initialize(context)
+        val keys = events.associateBy { methodKey(it.id) }
+        val placeholders = keys.keys.joinToString(",") { "?" }
+        val reviewed = checkNotNull(helper).readableDatabase.rawQuery(
+            "SELECT evidence_id, revision FROM observed_stimuli WHERE character_id=? AND evidence_id IN ($placeholders)",
+            (listOf(role) + keys.keys).toTypedArray(),
+        ).use { cursor ->
+            buildSet {
+                while (cursor.moveToNext()) {
+                    val event = keys[cursor.getString(0)] ?: continue
+                    if (event.revision == cursor.getLong(1)) add(event.id)
+                }
+            }
+        }
+        return events.filterNot { it.id in reviewed }
+    }
+
+    @Synchronized fun markMethodReviewed(context: Context, event: SharedTimelineEvent) {
+        initialize(context)
+        insert(event.characterId, methodKey(event.id), event.revision)
+    }
+
     @Synchronized fun invalidate(eventId: String) {
         if (eventId.isBlank()) return
         val ids = setOf(eventId, eventId.substringBefore(":group:"))
         helper?.writableDatabase?.let { db ->
-            ids.forEach { id -> db.delete("observed_stimuli", "evidence_id=?", arrayOf(id)) }
+            ids.forEach { id ->
+                db.delete("observed_stimuli", "evidence_id IN (?,?)", arrayOf(id, methodKey(id)))
+            }
         }
         // Clear the old hashed entries too; deleting a source must not let the
         // migration bridge re-mark its replacement as already observed.

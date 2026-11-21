@@ -531,6 +531,9 @@ object SharedExperienceTimeline {
         (ids + legacyToolIds).distinct().forEach(::deleteEvent)
     }
 
+    internal fun recentToolResults(characterId: String, now: Instant, limit: Int): List<SharedTimelineEvent> =
+        query(characterId, limit, until = now, sources = CharacterExperienceLearning.receiptSources)
+
     fun recentEvents(characterId: String, limit: Int): List<SharedTimelineEvent> =
         if (limit <= 0) emptyList() else query(characterId, limit).sortedBy(SharedTimelineEvent::occurredAt)
 
@@ -606,6 +609,7 @@ object SharedExperienceTimeline {
         afterTime: Instant? = null,
         afterId: String = "",
         limit: Int = 192,
+        sources: Set<String> = emptySet(),
     ): List<SharedTimelineEvent> {
         if (characterId.isBlank()) return emptyList()
         val db = helper?.readableDatabase ?: return emptyList()
@@ -614,6 +618,7 @@ object SharedExperienceTimeline {
             add("character_id = ?")
             add("occurred_at <= ?")
             add("evidence_kind IN (?, ?)")
+            if (sources.isNotEmpty()) add("source IN (${sources.joinToString(",") { "?" }})")
             if (birth != null) add("occurred_at >= ?")
             if (afterTime != null) add("(occurred_at > ? OR (occurred_at = ? AND id > ?))")
         }.joinToString(" AND ")
@@ -622,6 +627,7 @@ object SharedExperienceTimeline {
             add(now.toEpochMilli().toString())
             add(EventEvidenceKind.Observation.name)
             add(EventEvidenceKind.ToolResult.name)
+            addAll(sources)
             if (birth != null) add(birth.toEpochMilli().toString())
             if (afterTime != null) {
                 add(afterTime.toEpochMilli().toString())
@@ -788,7 +794,8 @@ object SharedExperienceTimeline {
 
     private fun query(characterId: String, limit: Int?, sessionId: String? = null,
         sourceLike: String? = null, after: Instant? = null,
-        until: Instant? = null, statementOnly: Boolean = false): List<SharedTimelineEvent> {
+        until: Instant? = null, statementOnly: Boolean = false,
+        sources: Set<String> = emptySet()): List<SharedTimelineEvent> {
         val database = helper?.readableDatabase ?: return emptyList()
         // Session conversations must preserve the observed INSERT sequence
         // for events sharing one millisecond. IDs are opaque and are NOT a
@@ -805,6 +812,7 @@ object SharedExperienceTimeline {
             if (birth != null) add("occurred_at >= ?")
             if (sessionId != null) add("session_id = ?")
             if (sourceLike != null) add("source LIKE ?")
+            if (sources.isNotEmpty()) add("source IN (${sources.joinToString(",") { "?" }})")
             if (after != null) add("occurred_at >= ?")
             if (until != null) add("occurred_at <= ?")
             if (statementOnly) add("evidence_kind IN (?, ?)")
@@ -814,6 +822,7 @@ object SharedExperienceTimeline {
             if (birth != null) add(birth.toEpochMilli().toString())
             if (sessionId != null) add(sessionId)
             if (sourceLike != null) add(sourceLike)
+            addAll(sources)
             if (after != null) add(after.toEpochMilli().toString())
             if (until != null) add(until.toEpochMilli().toString())
             if (statementOnly) {
