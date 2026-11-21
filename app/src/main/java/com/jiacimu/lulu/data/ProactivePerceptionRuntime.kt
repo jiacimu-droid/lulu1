@@ -1391,12 +1391,11 @@ object ProactivePerceptionRuntime {
                 trigger.contains("用户手动唤醒") -> "手动唤醒"
                 else -> "其他独立触发"
             },
-            // A reasoning-capable relay may spend much of a 3k output limit
-            // reasoning over a long scene, then return no visible answer.
-            // Reserve extra headroom only when an actual private message needs
-            // a reply; this is an output ceiling, not a second model request.
-            maxTokens = if (privateDialogue.isNotEmpty() || onlineUnread.text.isNotBlank())
-                6_000 else 3_000,
+            // Hidden reasoning and visible JSON share the output-token ceiling.
+            // A small cap can be exhausted before the character makes any
+            // visible decision, including on an online-window expiry wake.
+            // This is a ceiling, not a target or an additional paid retry.
+            maxTokens = 16_384,
             connectionOverride = connection,
             // Let slow relays keep this single HTTP/SSE response open for the
             // full supported socket-idle budget (5 minutes). If a relay itself
