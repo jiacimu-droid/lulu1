@@ -205,7 +205,11 @@ object UnifiedMemoryOrchestrator {
             val sourceIds = memory.sourceEventIds()
             sourceIds.isEmpty() || sourceIds.any { sourceId -> sourceId !in seenIds }
         }, characterBudget = memoryCharacterBudget.coerceAtLeast(0), safetyLimit = recallLimit)
-        val liveEvents = RawTimelineMemoryRecall.liveEvents(characterId, excluded)
+        val focus = RelevantMemoryRecall.focusQuery(query)
+        val dateRange = memoryTimeRange(focus)
+        // Explicit dates follow the character/time SQLite index instead of
+        // reading every raw event accumulated during the character's life.
+        val liveEvents = RawTimelineMemoryRecall.liveEvents(characterId, excluded, dateRange)
         val rawMatches = RawTimelineMemoryRecall.find(query, liveEvents, limit = 16)
         val summarySources = RelevantMemoryRecall.sourceEvidenceEvents(
             characterId = characterId,
@@ -213,8 +217,6 @@ object UnifiedMemoryOrchestrator {
             memories = memories,
             limit = evidenceLimit,
         )
-        val focus = RelevantMemoryRecall.focusQuery(query)
-        val dateRange = memoryTimeRange(focus)
         val focusedRecall = dateRange != null || MemoryAffectCue.from(focus) != null
         val directSourceEvents = (if (focusedRecall) rawMatches.take(8) + summarySources + rawMatches
             else summarySources + rawMatches).distinctBy(SharedTimelineEvent::id)

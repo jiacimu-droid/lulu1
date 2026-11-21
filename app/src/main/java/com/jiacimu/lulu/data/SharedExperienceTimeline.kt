@@ -278,6 +278,12 @@ object SharedExperienceTimeline {
     fun all(characterId: String): List<SharedTimelineEvent> =
         query(characterId, null).sortedBy(SharedTimelineEvent::occurredAt)
 
+    /** Indexed day/week lookup without loading the character's entire life. */
+    fun eventsInRange(characterId: String, from: Instant, untilExclusive: Instant): List<SharedTimelineEvent> =
+        if (characterId.isBlank() || !from.isBefore(untilExclusive)) emptyList()
+        else query(characterId, null, after = from, until = untilExclusive.minusMillis(1))
+            .sortedBy(SharedTimelineEvent::occurredAt)
+
     /** A recall receipt changes evidence visibility, not the raw ledger. Read
      * each relevant room once from the existing immutable chat snapshot. */
     internal fun withoutRecalledGroupSpeech(events: List<SharedTimelineEvent>): List<SharedTimelineEvent> {
