@@ -28,6 +28,9 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.UUID
 
+/** Shared request output headroom: small per-scene hints must not starve hidden reasoning. */
+internal const val MODEL_OUTPUT_HEADROOM_TOKENS = 60_000
+
 /** A named API site. One site may provide many models. */
 data class ApiConfiguration(
     val id: String = UUID.randomUUID().toString(),
@@ -603,7 +606,10 @@ class CompanionModelGateway(
             val promptStartedAt = System.nanoTime()
             val collectMoment = capturePrivateMoment && onStreamText == null &&
                 contextMode in setOf(CompanionContextMode.Full, CompanionContextMode.CharacterAndScenario)
-            val outputLimit = if (collectMoment) maxTokens?.plus(260) else maxTokens
+            // Every generation gets at least 60k output headroom, even when a
+            // caller specifies a short expected visible reply. Provider limits
+            // still apply; this does not force the model to use the budget.
+            val outputLimit = maxOf(MODEL_OUTPUT_HEADROOM_TOKENS, maxTokens ?: 0)
             val momentProtocol = if (collectMoment) "\n" +
                 com.jiacimu.lulu.data.CharacterObservedMoment.instruction else ""
             val requestedArchiveId = if (source.startsWith("末世求生")) {
@@ -1338,19 +1344,11 @@ class CompanionModelGateway(
             put(JSONObject().put("role", "user").put("content", userContent))
         }
         if (nativeClaude) {
-            // Anthropic Messages requires max_tokens. For a caller that
-            // explicitly requests no app-side cap, provide a generous budget
-            // rather than silently falling back to only 1,200 tokens.
-            val nativeClaudeOutputBudget = when {
-                connection.model.startsWith("claude-3-5", ignoreCase = true) ||
-                    connection.model.startsWith("claude-3.5", ignoreCase = true) -> 8_192
-                connection.model.startsWith("claude-3", ignoreCase = true) -> 4_096
-                connection.model.startsWith("claude-", ignoreCase = true) &&
-                    connection.model.contains("-5") -> 32_768
-                else -> 16_384
-            }
+            // Anthropic Messages requires max_tokens; share the same headroom
+            // policy as OpenAI-compatible calls. The provider may reject an
+            // unsupported maximum; never silently issue another paid request.
             val body = JSONObject().put("model", connection.model).put("system", system)
-                .put("max_tokens", maxTokens ?: nativeClaudeOutputBudget).put("stream", streamResponse)
+                .put("max_tokens", maxOf(MODEL_OUTPUT_HEADROOM_TOKENS, maxTokens ?: 0)).put("stream", streamResponse)
                 .put("messages", dialogue)
             val url = "${claudeBase(connection.baseUrl)}/messages"
             val headers = mapOf("x-api-key" to connection.apiKey, "anthropic-version" to "2023-06-01")
@@ -1389,7 +1387,7 @@ class CompanionModelGateway(
                     for (index in 0 until dialogue.length()) put(dialogue.getJSONObject(index))
                 },
             )
-        if (maxTokens != null) body.put("max_tokens", maxTokens)
+        body.put("max_tokens", maxOf(MODEL_OUTPUT_HEADROOM_TOKENS, maxTokens ?: 0))
         val url = "${connection.baseUrl}/chat/completions"
         if (streamResponse) {
             body.put("stream", true)
