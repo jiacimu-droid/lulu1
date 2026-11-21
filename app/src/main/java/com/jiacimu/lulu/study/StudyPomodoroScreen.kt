@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,6 +34,7 @@ internal fun StudyPomodoroScreen(
     var minutesText by remember(companion.selectedMinutes) { mutableStateOf(companion.selectedMinutes.toString()) }
     var notice by remember { mutableStateOf("") }
     var noticeError by remember { mutableStateOf(false) }
+    val previewScope = rememberCoroutineScope()
 
     val active = companion.activeSessionId.isNotBlank() && !companion.completionHandled
     val completed = companion.activeSessionId.isNotBlank() && companion.completionHandled
@@ -98,6 +100,7 @@ internal fun StudyPomodoroScreen(
             onToggleMicroRest = {
                 PomodoroCompanionSessions.store.updateMicroRestEnabled(!companion.microRestEnabled)
             },
+            onPreviewMicroRestChime = { previewScope.launch { PomodoroMicroRestChime.play() } },
             onBack = onBack,
             onToggleSkin = {
                 PomodoroCompanionSessions.store.updateSkin(
@@ -205,6 +208,9 @@ internal fun StudyPomodoroScreen(
                                     onCheckedChange = { enabled -> PomodoroCompanionSessions.store.updateMicroRestEnabled(enabled) },
                                 )
                             }
+                            TextButton(onClick = { previewScope.launch { PomodoroMicroRestChime.play() } }) {
+                                Text("试听「滴滴」提醒音 · 跟随媒体音量", fontSize = 12.sp)
+                            }
                         }
                     }
                 }
@@ -275,6 +281,7 @@ private fun PomodoroFocusScreen(
     palette: PomodoroPalette,
     microRestEnabled: Boolean,
     onToggleMicroRest: () -> Unit,
+    onPreviewMicroRestChime: () -> Unit,
     onBack: () -> Unit,
     onToggleSkin: () -> Unit,
     onPauseResume: () -> Unit,
@@ -357,6 +364,9 @@ private fun PomodoroFocusScreen(
                     color = palette.secondaryText,
                     fontSize = 12.sp,
                 )
+            }
+            TextButton(onClick = onPreviewMicroRestChime, enabled = mode == PomodoroTimerMode.Countdown) {
+                Text("试听「滴滴」提醒音", color = palette.secondaryText, fontSize = 12.sp)
             }
             Spacer(Modifier.height(12.dp))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
