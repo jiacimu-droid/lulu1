@@ -188,8 +188,13 @@ internal object RawTimelineMemoryRecall {
     private val timeQuestion = Regex("""^([\p{L}\p{N}]{2,16}?)(?:是)?(?:什么时候|什么时间|几点)[吗呢呀？?]*$""")
     private val overview = Regex("做了?什么|聊了?什么|聊过什么|发生了?什么|有什么事|干了?什么|记得吗|还记得")
 
-    fun liveEvents(characterId: String, excluded: Set<String> = emptySet()): List<SharedTimelineEvent> {
-        val live = SharedExperienceTimeline.withoutRecalledGroupSpeech(SharedExperienceTimeline.all(characterId)).filter {
+    fun liveEvents(
+        characterId: String, excluded: Set<String> = emptySet(),
+        range: Pair<Instant, Instant>? = null,
+    ): List<SharedTimelineEvent> {
+        val candidates = if (range != null) SharedExperienceTimeline.eventsInRange(characterId, range.first, range.second)
+            else SharedExperienceTimeline.all(characterId)
+        val live = SharedExperienceTimeline.withoutRecalledGroupSpeech(candidates).filter {
             it.id !in excluded && DigitalLifeProfileStore.allowsTimestamp(characterId, it.occurredAt) &&
                 LuluRepositories.memory.allowsRawRecall(it)
         }
