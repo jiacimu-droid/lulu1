@@ -21,7 +21,11 @@ internal object MemoryRecallUsageStore {
 
     @Synchronized
     fun initialize(context: Context) {
-        if (prefs == null) prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        // A restored Android application or an isolated Robolectric test may
+        // have a different backing preferences directory. Always rebind to the
+        // current application context instead of retaining a stale handle.
+        // In the normal app process this points at the same persistent file.
+        prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
     }
 
     /** Read once for ranking/UI; never parse the full JSON per candidate memory. */
